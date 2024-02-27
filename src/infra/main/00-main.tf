@@ -1,12 +1,11 @@
 terraform {
-  required_version = "~> 1.5.0"
+  required_version = "1.7.4"
 
   backend "s3" {}
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> <terraform aws plugin version eg: 4.0.0>"
+      version = "5.38.0"
     }
   }
 }
@@ -19,7 +18,7 @@ provider "aws" {
 }
 
 locals {
-  project = format("%s-%s", var.app_name, var.env_short)
+  project = format("%s-%s-%s", var.app_name, var.aws_region, var.env_short)
 }
 
 data "aws_caller_identity" "current" {}

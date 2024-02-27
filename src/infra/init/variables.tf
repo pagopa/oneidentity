@@ -10,12 +10,6 @@ variable "environment" {
   default     = "Uat"
 }
 
-variable "github_repository" {
-  type        = string
-  description = "This github repository"
-}
-
-
 variable "tags" {
   type = map(any)
   default = {
