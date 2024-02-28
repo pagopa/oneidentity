@@ -10,12 +10,6 @@ variable "app_name" {
   default     = "oneidentity"
 }
 
-variable "environment" {
-  type        = string
-  default     = "dev"
-  description = "Environment"
-}
-
 variable "env_short" {
   type        = string
   default     = "d"

@@ -21,4 +21,4 @@ locals {
   project = format("%s-%s-%s", var.app_name, var.aws_region, var.env_short)
 }
 
-data "aws_caller_identity" "current" {}
+# data "aws_caller_identity" "current" {}
