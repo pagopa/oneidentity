@@ -55,6 +55,27 @@ variable "enable_nat_gateway" {
   default     = false
 }
 
+variable "single_nat_gateway" {
+  type        = bool
+  description = "Create just one natgateway"
+  default     = false
+
+}
+
+
+## ECS Cluster ##
+variable "ecr_keep_images" {
+  type        = number
+  description = "Number of images to keep."
+  default     = 3
+}
+
+variable "ecs_enable_container_insights" {
+  type        = bool
+  description = "Enable ecs cluster container inight."
+  default     = false
+}
+
 variable "tags" {
   type = map(any)
   default = {
