@@ -1,5 +1,5 @@
 locals {
-  container_port = 8080
+  container_port = 8000
   container_name = "oneidentity"
   alb_name       = format("%s-alb", local.project)
 }
@@ -80,7 +80,7 @@ module "ecs_service" {
       memory = 1024
 
       essential = true
-      image     = "${module.ecr.repository_url}:1.0",
+      image     = "${module.ecr.repository_url}:2.0",
 
       port_mappings = [
         {
@@ -107,8 +107,8 @@ module "ecs_service" {
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = 8080
-      to_port                  = 8080
+      from_port                = local.container_port
+      to_port                  = local.container_port
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id
