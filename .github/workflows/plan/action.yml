@@ -1,0 +1,43 @@
+name: plan
+description: "Run terraform plan"
+
+inputs:
+  env:
+    required: true
+    type: string
+  region: 
+    required: false
+    type: string
+  working-directory:
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Read terraform version 
+      id: read-version
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "TERRAFORM_VERSION=`cat ../.terraform-version`" >> $GITHUB_ENV
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+    - name: Terraform Init
+      id: init
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        ./terraform.sh init ${{ inputs.env }} ${{ inputs.region && ' ' + inputs.region || '' }}
+
+    - name: Terraform Apply
+      id: apply
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        e=${{ inputs.env }}
+        ./terraform.sh plan ${{ inputs.env }} ${{ inputs.region && ' ' + inputs.region || '' }}
