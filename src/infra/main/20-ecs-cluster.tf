@@ -137,6 +137,21 @@ resource "aws_security_group_rule" "allow_all_https" {
 }
 
 
+## ALB Certificate ##
+module "acm" {
+  source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.0"
+
+  domain_name = var.r53_dns_zone.name
+
+  validation_method      = "DNS"
+  create_route53_records = false
+
+  tags = {
+    Name = format("%s-acm", local.project)
+  }
+}
+
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
@@ -159,6 +174,12 @@ module "alb" {
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
+    all_https = {
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
   }
   security_group_egress_rules = {
     all = {
@@ -168,9 +189,19 @@ module "alb" {
   }
 
   listeners = {
-    ex_http = {
+    ex-http-https-redirect = {
       port     = 80
       protocol = "HTTP"
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+    ex_https = {
+      port            = 443
+      protocol        = "HTTPS"
+      certificate_arn = module.acm.acm_certificate_arn
 
       forward = {
         target_group_key = "ecs_oneidentity"
