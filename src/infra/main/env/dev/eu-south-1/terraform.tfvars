@@ -10,6 +10,13 @@ enable_nat_gateway        = false
 single_nat_gateway        = true
 
 
+## DNS ##
+r53_dns_zone = {
+  name    = "dev.oneidentity.pagopa.it"
+  comment = "Oneidentity dev zone."
+}
+
+
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging
 tags = {
   CreatedBy   = "Terraform"

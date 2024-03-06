@@ -70,6 +70,15 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
+
+## R53 DNS zone ##
+variable "r53_dns_zone" {
+  type = object({
+    name    = string
+    comment = string
+  })
+}
+
 variable "tags" {
   type = map(any)
   default = {
