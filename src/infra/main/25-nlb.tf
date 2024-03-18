@@ -38,7 +38,7 @@ module "elb" {
 
   listeners = {
     ecs-one = {
-      port     = 80
+      port     = 8000
       protocol = "TCP"
       forward = {
         target_group_key = "ecs-one"

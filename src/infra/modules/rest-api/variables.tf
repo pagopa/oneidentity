@@ -16,8 +16,14 @@ variable "endpoint_configuration" {
   })
 }
 
-
 variable "stage_name" {
   type        = string
   description = "Stage name."
+}
+
+
+variable "custom_domain_name" {
+  type        = string
+  description = "value"
+  default     = null
 }

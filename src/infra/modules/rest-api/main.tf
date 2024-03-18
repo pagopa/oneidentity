@@ -7,7 +7,7 @@ resource "aws_api_gateway_rest_api" "main" {
 
   endpoint_configuration {
     types            = var.endpoint_configuration.types
-    vpc_endpoint_ids = lookup(var.endpoint_configuration, "vpc_endpoint_ids", []) 
+    vpc_endpoint_ids = lookup(var.endpoint_configuration, "vpc_endpoint_ids", [])
   }
 
   tags = {
@@ -35,5 +35,74 @@ resource "aws_api_gateway_stage" "main" {
 
   tags = {
     Name = format("%s-%s", var.name, var.stage_name)
+  }
+}
+
+
+## API Gateway cloud watch logs
+resource "aws_iam_role" "apigw" {
+  name = "ApiGatewayLogsRole"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "cloudwatch" {
+  name = "default"
+  role = aws_iam_role.apigw.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+                "logs:GetLogEvents",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_api_gateway_account" "main" {
+  cloudwatch_role_arn = aws_iam_role.apigw.arn
+}
+
+resource "aws_cloudwatch_log_group" "main" {
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.main.id}/${var.stage_name}"
+  retention_in_days = 7
+
+}
+
+resource "aws_api_gateway_method_settings" "main" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  stage_name  = aws_api_gateway_stage.main.stage_name
+  method_path = "*/*"
+
+  settings {
+    metrics_enabled = true
+    logging_level   = "INFO"
   }
 }

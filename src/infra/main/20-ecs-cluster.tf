@@ -11,7 +11,6 @@ module "ecr" {
 
   repository_name = format("%s-ecr", local.project)
 
-  # repository_read_write_access_arns = ["arn:aws:iam::012345678901:role/terraform"]
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
@@ -98,7 +97,8 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
+      #target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
+      target_group_arn = module.elb.target_groups["ecs-one"].arn
       container_name   = local.container_name
       container_port   = local.container_port
     }

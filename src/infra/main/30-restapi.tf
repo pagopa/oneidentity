@@ -28,14 +28,38 @@ module "poc_v1" {
       "/" = {
         get = {
           x-amazon-apigateway-integration = {
-            type              = "HTTP"
-            httpMethod        = "GET"
-            uri               = format("http://%s:%s", module.elb.dns_name, local.container_port),
-            connectionType    = "VPC_LINK"
-            connectionId      = aws_api_gateway_vpc_link.apigw.id
-            requestParameters = {}
+            type                = "HTTP"
+            httpMethod          = "GET"
+            uri                 = format("http://%s:%s", module.elb.dns_name, local.container_port),
+            connectionType      = "VPC_LINK"
+            connectionId        = aws_api_gateway_vpc_link.apigw.id
+            requestParameters   = {}
+            passthroughBehavior = "WHEN_NO_TEMPLATES",
+            responses = {
+              200 = {
+                statusCode = "200",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+
+              },
+            }
+          }
+          responses = {
+            200 = {
+              description = "200 response"
+              headers = {
+                Content-Type = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+              }
+              content = {}
+            }
           }
         }
+
       }
     }
   })
