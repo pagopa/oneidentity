@@ -12,12 +12,8 @@ variable "body" {
 variable "endpoint_configuration" {
   type = object({
     types            = list(string)
-    vpc_endpoint_ids = list(string)
+    vpc_endpoint_ids = optional(list(string), null)
   })
-  default = {
-    types            = ["REGIONAL"]
-    vpc_endpoint_ids = []
-  }
 }
 
 

@@ -1,6 +1,6 @@
 module "elb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "9.7.1"
+  version = "9.8.0"
   name    = format("%s-nlb", local.project)
 
   load_balancer_type = "network"
@@ -52,8 +52,8 @@ module "elb" {
       protocol             = "TCP"
       port                 = 8000
       target_type          = "ip"
-      target_id            = 
       deregistration_delay = 10
+      create_attachment    = false
       health_check = {
         enabled             = true
         interval            = 30
