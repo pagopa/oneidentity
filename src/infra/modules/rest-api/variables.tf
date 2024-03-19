@@ -24,6 +24,18 @@ variable "stage_name" {
 
 variable "custom_domain_name" {
   type        = string
-  description = "value"
+  description = "Api gateway custom domain name."
+  default     = null
+}
+
+variable "certificate_arn" {
+  type        = string
+  description = "Api Gateway certificate arn"
+  default     = null
+}
+
+variable "api_mapping_key" {
+  type        = string
+  description = "The API mapping key."
   default     = null
 }

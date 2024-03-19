@@ -106,12 +106,13 @@ module "ecs_service" {
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+      type        = "ingress"
+      from_port   = local.container_port
+      to_port     = local.container_port
+      protocol    = "tcp"
+      description = "Service port"
+      #source_security_group_id = module.alb.security_group_id
+      source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -136,22 +137,7 @@ resource "aws_security_group_rule" "allow_all_https" {
   security_group_id = module.ecs_service.security_group_id
 }
 
-
-## ALB Certificate ##
-module "acm" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "5.0.0"
-
-  domain_name = var.r53_dns_zone.name
-
-  validation_method      = "DNS"
-  create_route53_records = false
-
-  tags = {
-    Name = format("%s-acm", local.project)
-  }
-}
-
+/*
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
@@ -239,3 +225,5 @@ module "alb" {
     Name = format("%s-alb", local.project)
   }
 }
+
+*/
