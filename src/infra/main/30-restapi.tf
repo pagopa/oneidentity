@@ -24,7 +24,7 @@ module "poc_v1" {
     }
     servers = [
       {
-        url = format("http://%s:%s/v1", module.elb.dns_name, local.container_port),
+        url = format("http://%s/v1", var.r53_dns_zone.name),
       }
     ],
     paths = {
