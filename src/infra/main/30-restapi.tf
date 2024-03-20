@@ -119,6 +119,42 @@ module "poc_v1" {
           }
         }
       }
+      spid-sso = {
+        post = {
+          x-amazon-apigateway-integration = {
+            type                = "HTTP"
+            httpMethod          = "POST"
+            uri                 = format("http://%s:%s/spid-sso", module.elb.dns_name, local.container_port),
+            connectionType      = "VPC_LINK"
+            connectionId        = aws_api_gateway_vpc_link.apigw.id
+            requestParameters   = {}
+            passthroughBehavior = "WHEN_NO_TEMPLATES",
+            responses = {
+              200 = {
+                statusCode = "200",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+              400 = {
+                statusCode = "400",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+            }
+          }
+          responses = {
+            200 = {
+              "$ref" = "#/components/responses/SuccessResponse"
+            }
+            400 = {
+              "$ref" = "#/components/responses/BadRequest"
+            }
+
+          }
+        }
+      }
     }
     components = {
       responses = {
@@ -133,6 +169,17 @@ module "poc_v1" {
             }
           }
           content = {}
+        }
+        BadRequest = {
+          description = "400 bad request"
+          statusCode  = "400"
+          headers = {
+            Content-Type = {
+              schema = {
+                type = "string"
+              }
+            }
+          }
         }
       }
     }
