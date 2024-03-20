@@ -12,7 +12,6 @@ module "ecr" {
 
   repository_name = format("%s-ecr", local.project)
 
-  # repository_read_write_access_arns = ["arn:aws:iam::012345678901:role/terraform"]
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
@@ -99,83 +98,22 @@ module "ecs_service_poc1" {
 
   load_balancer = {
     service = {
-      target_group_arn    = module.alb.target_groups["ecs_oneidentity"].arn
-      container_name      = local.container_name
-      container_poc1_port = local.container_poc1_port
+      #target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
+      target_group_arn = module.elb.target_groups["ecs-one"].arn
+      container_name   = local.container_name
+      container_port   = local.container_poc1_port
     }
   }
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_poc1_port
-      to_port                  = local.container_poc1_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
-    }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-
-}
-
-module "ecs_service_poc2" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.9.1"
-
-  name = "oneidentity_poc2"
-
-  cluster_arn = module.ecs.cluster_arn
-
-  cpu    = 512
-  memory = 1024
-
-  enable_execute_command = true
-
-  container_definitions = {
-    "${local.container_name}" = {
-      cpu    = 512
-      memory = 1024
-
-      essential = true
-      image     = "${module.ecr.repository_url}:6.0",
-
-      port_mappings = [
-        {
-          name          = "oneidentity_poc2"
-          containerPort = local.container_poc2_port
-          hostPort      = local.container_poc2_port
-          protocol      = "tcp"
-        }
-      ]
-    }
-  }
-
-  subnet_ids       = module.vpc.private_subnets
-  assign_public_ip = false
-
-  load_balancer = {
-    service = {
-      target_group_arn    = module.alb.target_groups["ecs_oneidentity"].arn
-      container_name      = local.container_name
-      container_poc1_port = local.container_poc2_port
-    }
-  }
-
-  security_group_rules = {
-    alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_poc1_port
-      to_port                  = local.container_poc1_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+      type        = "ingress"
+      from_port   = local.container_poc1_port
+      to_port     = local.container_poc1_port
+      protocol    = "tcp"
+      description = "Service port"
+      #source_security_group_id = module.alb.security_group_id
+      source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -200,33 +138,7 @@ resource "aws_security_group_rule" "allow_all_https_poc1" {
   security_group_id = module.ecs_service_poc1.security_group_id
 }
 
-resource "aws_security_group_rule" "allow_all_https_poc1" {
-  type        = "egress"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  description = "Allow outbound https traffic."
-  # TODO it might be to0 open.
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = module.ecs_service_poc1.security_group_id
-}
-
-
-## ALB Certificate ##
-module "acm" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "5.0.0"
-
-  domain_name = var.r53_dns_zone.name
-
-  validation_method      = "DNS"
-  create_route53_records = false
-
-  tags = {
-    Name = format("%s-acm", local.project)
-  }
-}
-
+/*
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
@@ -313,4 +225,86 @@ module "alb" {
   tags = {
     Name = format("%s-alb", local.project)
   }
+}
+
+*/
+
+
+module "ecs_service_poc2" {
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "5.9.1"
+
+  name = "oneidentity_poc2"
+
+  cluster_arn = module.ecs.cluster_arn
+
+  cpu    = 512
+  memory = 1024
+
+  enable_execute_command = true
+
+  container_definitions = {
+    "${local.container_name}" = {
+      cpu    = 512
+      memory = 1024
+
+      essential = true
+      image     = "${module.ecr.repository_url}:6.0",
+
+      port_mappings = [
+        {
+          name          = "oneidentity_poc2"
+          containerPort = local.container_poc2_port
+          hostPort      = local.container_poc2_port
+          protocol      = "tcp"
+        }
+      ]
+    }
+  }
+
+  subnet_ids       = module.vpc.private_subnets
+  assign_public_ip = false
+
+  load_balancer = {
+    service = {
+      #target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
+      target_group_arn = module.elb.target_groups["ecs-one"].arn
+      container_name   = local.container_poc2_port
+      container_port   = local.container_poc2_port
+    }
+  }
+
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = local.container_poc1_port
+      to_port                  = local.container_poc2_port
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.elb.security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  depends_on = [
+    module.elb,
+  ]
+
+}
+
+resource "aws_security_group_rule" "allow_all_https_poc2" {
+  type        = "egress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  description = "Allow outbound https traffic."
+  # TODO it might be to0 open.
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.ecs_service_poc2.security_group_id
 }
