@@ -1,7 +1,8 @@
 locals {
-  container_port = 8000
-  container_name = "oneidentity"
-  alb_name       = format("%s-alb", local.project)
+  container_poc1_port = 8000
+  container_poc2_port = 8080
+  container_name      = "oneidentity"
+  alb_name            = format("%s-alb", local.project)
 }
 
 
@@ -61,11 +62,11 @@ module "ecs" {
 }
 
 
-module "ecs_service" {
+module "ecs_service_poc1" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
 
-  name = "oneidentity"
+  name = "oneidentity_poc1"
 
   cluster_arn = module.ecs.cluster_arn
 
@@ -80,13 +81,13 @@ module "ecs_service" {
       memory = 1024
 
       essential = true
-      image     = "${module.ecr.repository_url}:2.0",
+      image     = "${module.ecr.repository_url}:5.0",
 
       port_mappings = [
         {
-          name          = "oneidentity"
-          containerPort = local.container_port
-          hostPort      = local.container_port
+          name          = "oneidentity_poc1"
+          containerPort = local.container_poc1_port
+          hostPort      = local.container_poc1_port
           protocol      = "tcp"
         }
       ]
@@ -98,17 +99,80 @@ module "ecs_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
-      container_name   = local.container_name
-      container_port   = local.container_port
+      target_group_arn    = module.alb.target_groups["ecs_oneidentity"].arn
+      container_name      = local.container_name
+      container_poc1_port = local.container_poc1_port
     }
   }
 
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
+      from_port                = local.container_poc1_port
+      to_port                  = local.container_poc1_port
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.alb.security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+}
+
+module "ecs_service_poc2" {
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "5.9.1"
+
+  name = "oneidentity_poc2"
+
+  cluster_arn = module.ecs.cluster_arn
+
+  cpu    = 512
+  memory = 1024
+
+  enable_execute_command = true
+
+  container_definitions = {
+    "${local.container_name}" = {
+      cpu    = 512
+      memory = 1024
+
+      essential = true
+      image     = "${module.ecr.repository_url}:6.0",
+
+      port_mappings = [
+        {
+          name          = "oneidentity_poc2"
+          containerPort = local.container_poc2_port
+          hostPort      = local.container_poc2_port
+          protocol      = "tcp"
+        }
+      ]
+    }
+  }
+
+  subnet_ids       = module.vpc.private_subnets
+  assign_public_ip = false
+
+  load_balancer = {
+    service = {
+      target_group_arn    = module.alb.target_groups["ecs_oneidentity"].arn
+      container_name      = local.container_name
+      container_poc1_port = local.container_poc2_port
+    }
+  }
+
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = local.container_poc1_port
+      to_port                  = local.container_poc1_port
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.alb.security_group_id
@@ -125,15 +189,26 @@ module "ecs_service" {
 }
 
 
-resource "aws_security_group_rule" "allow_all_https" {
+resource "aws_security_group_rule" "allow_all_https_poc1" {
   type        = "egress"
   from_port   = 443
   to_port     = 443
   protocol    = "tcp"
   description = "Allow outbound https traffic."
-  # TODO it might be to open.
+  # TODO it might be to0 open.
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = module.ecs_service.security_group_id
+  security_group_id = module.ecs_service_poc1.security_group_id
+}
+
+resource "aws_security_group_rule" "allow_all_https_poc1" {
+  type        = "egress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  description = "Allow outbound https traffic."
+  # TODO it might be to0 open.
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.ecs_service_poc1.security_group_id
 }
 
 
@@ -212,7 +287,7 @@ module "alb" {
   target_groups = {
     ecs_oneidentity = {
       backend_protocol                  = "HTTP"
-      backend_port                      = local.container_port
+      backend_port                      = local.container_poc1_port
       target_type                       = "ip"
       deregistration_delay              = 5
       load_balancing_cross_zone_enabled = true
