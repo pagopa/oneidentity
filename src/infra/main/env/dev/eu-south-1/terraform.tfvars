@@ -16,6 +16,8 @@ r53_dns_zone = {
   comment = "Oneidentity dev zone."
 }
 
+dns_record_ttl = 3600
+
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging
 tags = {
