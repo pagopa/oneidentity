@@ -238,18 +238,27 @@ module "ecs_service_poc2" {
 
   cluster_arn = module.ecs.cluster_arn
 
-  cpu    = 512
-  memory = 1024
+  cpu    = 1024
+  memory = 2048
 
   enable_execute_command = true
 
   container_definitions = {
     "${local.container_name}" = {
-      cpu    = 512
-      memory = 1024
+      cpu    = 1024
+      memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:6.0",
+      image     = "${module.ecr.repository_url}:17.0",
+
+      /*
+      environment = [
+        {
+          name  = "BASE_PATH"
+          value = "/v2"
+        }
+      ]
+      */
 
       port_mappings = [
         {
@@ -268,8 +277,8 @@ module "ecs_service_poc2" {
   load_balancer = {
     service = {
       #target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
-      target_group_arn = module.elb.target_groups["ecs-one"].arn
-      container_name   = local.container_poc2_port
+      target_group_arn = module.elb.target_groups["ecs-two"].arn
+      container_name   = local.container_name
       container_port   = local.container_poc2_port
     }
   }

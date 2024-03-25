@@ -15,14 +15,19 @@ module "poc_v2" {
   }
 
   body = jsonencode({
-    openapi = "3.0.1"
+    openapi = "3.0.3"
     info = {
       title   = "PocV2"
       version = "1.0"
     }
     servers = [
       {
-        url = format("http://%s/v1", var.r53_dns_zone.name),
+        url = format("%s{basePath}", module.elb.dns_name)
+        "variables" : {
+          "basePath" : {
+            "default" : "/v2"
+          }
+        }
       }
     ],
     paths = {
@@ -53,12 +58,12 @@ module "poc_v2" {
           }
         }
       }
-      "/metadata" = {
+      "/saml/metadata" = {
         get = {
           x-amazon-apigateway-integration = {
             type                = "HTTP"
             httpMethod          = "GET"
-            uri                 = format("http://%s:%s/metadata", module.elb.dns_name, local.container_poc2_port)
+            uri                 = format("http://%s:%s/saml/metadata", module.elb.dns_name, local.container_poc2_port)
             connectionType      = "VPC_LINK"
             connectionId        = aws_api_gateway_vpc_link.apigw.id
             requestParameters   = {}
@@ -80,7 +85,7 @@ module "poc_v2" {
           }
         }
       }
-      "/spid-login" = {
+      "/hello" = {
         get = {
           parameters = [{
             name        = "idp",
@@ -94,7 +99,7 @@ module "poc_v2" {
           x-amazon-apigateway-integration = {
             type           = "HTTP"
             httpMethod     = "GET"
-            uri            = format("http://%s:%s/spid-login", module.elb.dns_name, local.container_poc2_port),
+            uri            = format("http://%s:%s/hello", module.elb.dns_name, local.container_poc2_port),
             connectionType = "VPC_LINK"
             connectionId   = aws_api_gateway_vpc_link.apigw.id
             requestParameters = {
@@ -106,26 +111,63 @@ module "poc_v2" {
                 statusCode = "200",
                 responseParameters = {
                   "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                  "method.response.header.Cookie"       = "integration.response.header.Cookie"
+                }
+              }
+              302 = {
+                statusCode = "302",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
                 }
               },
+
             }
           }
           responses = {
             200 = {
               "$ref" = "#/components/responses/SuccessResponse"
             }
+
+            302 = {
+              "$ref" = "#/components/responses/Redirect"
+            }
           }
         }
       }
-      spid-sso = {
+      "/saml/acs" = {
         post = {
+          "requestBody" : {
+            "required" : true,
+            "content" : {
+              "text/html" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "RelayState" : {
+                      "type" : "string",
+                      "description" : "The relay state associated with the SAML request"
+                    },
+                    "SAMLResponse" : {
+                      "type" : "string",
+                      "description" : "The SAML response received from the identity provider"
+                    }
+                  },
+                  "required" : ["RelayState", "SAMLResponse"]
+                }
+              }
+            }
+          }
+
           x-amazon-apigateway-integration = {
-            type                = "HTTP"
-            httpMethod          = "POST"
-            uri                 = format("http://%s:%s/spid-sso", module.elb.dns_name, local.container_poc2_port),
-            connectionType      = "VPC_LINK"
-            connectionId        = aws_api_gateway_vpc_link.apigw.id
-            requestParameters   = {}
+            type           = "HTTP"
+            httpMethod     = "POST"
+            uri            = format("http://%s:%s/saml/acs", module.elb.dns_name, local.container_poc2_port),
+            connectionType = "VPC_LINK"
+            connectionId   = aws_api_gateway_vpc_link.apigw.id
+            requestParameters = {
+              "integration.request.body.RelayState"   = "method.request.body.RelayState"
+              "integration.request.body.SAMLResponse" = "method.request.body.SAMLResponse"
+            }
             passthroughBehavior = "WHEN_NO_TEMPLATES",
             responses = {
               200 = {
@@ -158,7 +200,6 @@ module "poc_v2" {
       responses = {
         SuccessResponse = {
           description = "200 response"
-          statusCode  = "200"
           headers = {
             Content-Type = {
               schema = {
@@ -170,7 +211,6 @@ module "poc_v2" {
         }
         BadRequest = {
           description = "400 bad request"
-          statusCode  = "400"
           headers = {
             Content-Type = {
               schema = {
@@ -179,13 +219,25 @@ module "poc_v2" {
             }
           }
         }
+        Redirect = {
+          description = "302 redirect"
+          headers = {
+            Content-Type = {
+              schema = {
+                type = "string"
+              }
+            }
+          }
+        }
+
       }
     }
   })
 
 
-  #custom_domain_name = var.r53_dns_zone.name
+  custom_domain_name        = var.r53_dns_zone.name
+  create_custom_domain_name = false
   #certificate_arn    = module.acm.acm_certificate_arn
-  api_mapping_key = local.stage_name_poc2
+  api_mapping_key = null
 
 }

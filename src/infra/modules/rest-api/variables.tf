@@ -28,6 +28,12 @@ variable "custom_domain_name" {
   default     = null
 }
 
+variable "create_custom_domain_name" {
+  type = bool
+  description = "Create custom domain name. If true the custom_domain_name can not be null."
+  default = false
+}
+
 variable "certificate_arn" {
   type        = string
   description = "Api Gateway certificate arn"

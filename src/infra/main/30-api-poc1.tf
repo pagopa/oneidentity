@@ -24,7 +24,12 @@ module "poc_v1" {
     }
     servers = [
       {
-        url = format("http://%s/v1", var.r53_dns_zone.name),
+        url = format("http://%s/{basePath}", var.r53_dns_zone.name)
+        variables = {
+          basePath = {
+            default = "v1"
+          }
+        }
       }
     ],
     paths = {
@@ -119,7 +124,7 @@ module "poc_v1" {
           }
         }
       }
-      spid-sso = {
+      "/spid-sso" = {
         post = {
           x-amazon-apigateway-integration = {
             type                = "HTTP"
@@ -155,6 +160,111 @@ module "poc_v1" {
           }
         }
       }
+      "/logout" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            type                = "HTTP"
+            httpMethod          = "GET"
+            uri                 = format("http://%s:%s/logout", module.elb.dns_name, local.container_poc1_port),
+            connectionType      = "VPC_LINK"
+            connectionId        = aws_api_gateway_vpc_link.apigw.id
+            requestParameters   = {}
+            passthroughBehavior = "WHEN_NO_TEMPLATES",
+            responses = {
+              200 = {
+                statusCode = "200",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+              400 = {
+                statusCode = "400",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+            }
+          }
+          responses = {
+            200 = {
+              "$ref" = "#/components/responses/SuccessResponse"
+            }
+            400 = {
+              "$ref" = "#/components/responses/BadRequest"
+            }
+
+          }
+        }
+      }
+      "/spid-slo" = {
+        get = {
+          parameters = [{
+            name        = "SAMLResponse",
+            in          = "query",
+            description = "SAML Response",
+            required    = "true",
+            schema = {
+              type = "string"
+            }
+            },
+            {
+              name        = "RelayState",
+              in          = "query",
+              description = "Relay State",
+              required    = "false",
+              schema = {
+                type = "string"
+              }
+            },
+            {
+              name        = "SigAlg",
+              in          = "query",
+              description = "Sig Algorithm",
+              required    = "false",
+              schema = {
+                type = "string"
+              }
+            }
+          ]
+          x-amazon-apigateway-integration = {
+            type           = "HTTP"
+            httpMethod     = "GET"
+            uri            = format("http://%s:%s/spid-slo", module.elb.dns_name, local.container_poc1_port),
+            connectionType = "VPC_LINK"
+            connectionId   = aws_api_gateway_vpc_link.apigw.id
+            requestParameters = {
+              "integration.request.querystring.SAMLResponse" : "method.request.querystring.SAMLResponse"
+              "integration.request.querystring.RelayState" : "method.request.querystring.RelayState"
+              "integration.request.querystring.SigAlg" : "method.request.querystring.SigAlg"
+            }
+            passthroughBehavior = "WHEN_NO_TEMPLATES",
+            responses = {
+              200 = {
+                statusCode = "200",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+              400 = {
+                statusCode = "400",
+                responseParameters = {
+                  "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+                }
+              }
+            }
+          }
+          responses = {
+            200 = {
+              "$ref" = "#/components/responses/SuccessResponse"
+            }
+            400 = {
+              "$ref" = "#/components/responses/BadRequest"
+            }
+
+          }
+        }
+
+      }
     }
     components = {
       responses = {
@@ -186,7 +296,8 @@ module "poc_v1" {
   })
 
 
-  custom_domain_name = var.r53_dns_zone.name
-  certificate_arn    = module.acm.acm_certificate_arn
+  custom_domain_name        = var.r53_dns_zone.name
+  create_custom_domain_name = true
+  certificate_arn           = module.acm.acm_certificate_arn
 
 }

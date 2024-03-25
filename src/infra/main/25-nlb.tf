@@ -21,8 +21,8 @@ module "elb" {
 
   security_group_ingress_rules = {
     all_tcp = {
-      from_port   = 80
-      to_port     = 84
+      from_port   = local.container_poc1_port
+      to_port     = local.container_poc2_port
       ip_protocol = "tcp"
       description = "TCP traffic"
       cidr_ipv4   = "0.0.0.0/0"
