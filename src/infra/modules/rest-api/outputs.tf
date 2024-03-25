@@ -7,13 +7,13 @@ output "rest_api_invoke_url" {
 }
 
 output "domain_name" {
-  value = aws_api_gateway_domain_name.main[0].domain_name
+  value = try(aws_api_gateway_domain_name.main[0].domain_name, null)
 }
 
 output "regional_domain_name" {
-  value = aws_api_gateway_domain_name.main[0].regional_domain_name
+  value = try(aws_api_gateway_domain_name.main[0].regional_domain_name, null)
 }
 
 output "regional_zone_id" {
-  value = aws_api_gateway_domain_name.main[0].regional_zone_id
+  value = try(aws_api_gateway_domain_name.main[0].regional_zone_id, null)
 }

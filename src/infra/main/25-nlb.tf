@@ -21,8 +21,8 @@ module "elb" {
 
   security_group_ingress_rules = {
     all_tcp = {
-      from_port   = 80
-      to_port     = 84
+      from_port   = local.container_poc1_port
+      to_port     = local.container_poc2_port
       ip_protocol = "tcp"
       description = "TCP traffic"
       cidr_ipv4   = "0.0.0.0/0"
@@ -44,6 +44,13 @@ module "elb" {
         target_group_key = "ecs-one"
       }
     }
+    ecs-two = {
+      port     = 8080
+      protocol = "TCP"
+      forward = {
+        target_group_key = "ecs-two"
+      }
+    }
   }
 
   target_groups = {
@@ -59,6 +66,24 @@ module "elb" {
         interval            = 30
         path                = "/"
         port                = 8000
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+      }
+    }
+
+    ecs-two = {
+      name_prefix          = "t2-"
+      protocol             = "TCP"
+      port                 = 8080
+      target_type          = "ip"
+      deregistration_delay = 10
+      create_attachment    = false
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/"
+        port                = 8080
         healthy_threshold   = 3
         unhealthy_threshold = 3
         timeout             = 6
