@@ -1,5 +1,5 @@
 locals {
-  container_poc1_port = 8000
+  container_poc1_port = 8080
   container_poc2_port = 8080
   container_name      = "oneidentity"
   alb_name            = format("%s-alb", local.project)
@@ -69,18 +69,18 @@ module "ecs_service_poc1" {
 
   cluster_arn = module.ecs.cluster_arn
 
-  cpu    = 512
-  memory = 1024
+  cpu    = 1024
+  memory = 2048
 
   enable_execute_command = true
 
   container_definitions = {
     "${local.container_name}" = {
-      cpu    = 512
-      memory = 1024
+      cpu    = 1024
+      memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:5.0",
+      image     = "${module.ecr.repository_url}:17.0",
 
       port_mappings = [
         {
@@ -98,22 +98,22 @@ module "ecs_service_poc1" {
 
   load_balancer = {
     service = {
-      #target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
-      target_group_arn = module.elb.target_groups["ecs-one"].arn
-      container_name   = local.container_name
-      container_port   = local.container_poc1_port
+      target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
+      # target_group_arn = module.elb.target_groups["ecs-one"].arn
+      container_name = local.container_name
+      container_port = local.container_poc1_port
     }
   }
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type        = "ingress"
-      from_port   = local.container_poc1_port
-      to_port     = local.container_poc1_port
-      protocol    = "tcp"
-      description = "Service port"
-      #source_security_group_id = module.alb.security_group_id
-      source_security_group_id = module.elb.security_group_id
+      type                     = "ingress"
+      from_port                = local.container_poc1_port
+      to_port                  = local.container_poc1_port
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.alb.security_group_id
+      #source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -138,7 +138,7 @@ resource "aws_security_group_rule" "allow_all_https_poc1" {
   security_group_id = module.ecs_service_poc1.security_group_id
 }
 
-/*
+
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
@@ -227,8 +227,6 @@ module "alb" {
   }
 }
 
-*/
-
 
 module "ecs_service_poc2" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
@@ -249,13 +247,13 @@ module "ecs_service_poc2" {
       memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:17.0",
+      image     = "${module.ecr.repository_url}:hg-2.2",
 
       /*
       environment = [
         {
           name  = "BASE_PATH"
-          value = "/v2"
+          value = "/"
         }
       ]
       */

@@ -37,15 +37,18 @@ module "elb" {
   }
 
   listeners = {
+
+    /*
     ecs-one = {
-      port     = 8000
+      port     = local.container_poc1_port
       protocol = "TCP"
       forward = {
-        target_group_key = "ecs-one"
+        target_group_key = "ecs-two"
       }
     }
+*/
     ecs-two = {
-      port     = 8080
+      port     = local.container_poc2_port
       protocol = "TCP"
       forward = {
         target_group_key = "ecs-two"
@@ -54,6 +57,7 @@ module "elb" {
   }
 
   target_groups = {
+    /*
     ecs-one = {
       name_prefix          = "t1-"
       protocol             = "TCP"
@@ -71,11 +75,12 @@ module "elb" {
         timeout             = 6
       }
     }
+    */
 
     ecs-two = {
       name_prefix          = "t2-"
       protocol             = "TCP"
-      port                 = 8080
+      port                 = local.container_poc2_port
       target_type          = "ip"
       deregistration_delay = 10
       create_attachment    = false
@@ -83,7 +88,7 @@ module "elb" {
         enabled             = true
         interval            = 30
         path                = "/"
-        port                = 8080
+        port                = local.container_poc2_port
         healthy_threshold   = 3
         unhealthy_threshold = 3
         timeout             = 6
