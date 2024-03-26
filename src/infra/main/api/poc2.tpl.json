@@ -193,6 +193,54 @@
                     }
                 }
             }
+        },
+        "/logout": {
+            "summary": "Logout",
+            "description": "Logout",
+            "get": {
+                "tags": [],
+                "parameters": [
+                    {
+                        "deprecated": false,
+                        "name": "Cookie",
+                        "in": "header",
+                        "required": false
+                    }
+                ],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"GET",
+                    "uri" : "${uri}/logout",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {
+                        "integration.request.header.Cookie" : "method.request.header.Cookie"
+                    },
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      },
+                      "404" : {
+                        "statusCode" : "404",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      }
+                    }
+                  },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "302": {
+                        "$ref": "#/components/responses/302"
+                    }
+                }
+            }
         }
     },
     "components": {
