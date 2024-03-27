@@ -126,19 +126,6 @@ module "ecs_service_poc1" {
 
 }
 
-
-resource "aws_security_group_rule" "allow_all_https_poc1" {
-  type        = "egress"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  description = "Allow outbound https traffic."
-  # TODO it might be to0 open.
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = module.ecs_service_poc1.security_group_id
-}
-
-
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
