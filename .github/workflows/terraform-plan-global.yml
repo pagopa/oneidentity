@@ -18,6 +18,10 @@ jobs:
     strategy:
       matrix:
         environment: ["dev"]
+        region: ["eu-south-1"]        
+        # include:
+        #  - environment: prod
+        #    region: eu-central-1
         
 
     name: "terraform-plan"
