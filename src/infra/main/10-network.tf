@@ -120,3 +120,10 @@ module "vpc_endpoints" {
   }
 
 }
+
+
+resource "aws_api_gateway_vpc_link" "apigw" {
+  name        = format("%s-vpc-link", local.project)
+  description = "VPC link to the private network load balancer."
+  target_arns = [module.elb.arn]
+}

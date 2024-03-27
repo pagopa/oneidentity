@@ -1,9 +1,10 @@
-name: Terraform Plan
+name: Terraform Plan Regional
 
 on:
   push:
     paths:
       - 'src/infra/main/**'
+  workflow_dispatch:
 defaults:
   run:
     shell: bash
@@ -18,16 +19,11 @@ jobs:
     strategy:
       matrix:
         environment: ["dev"]
-        include:
-          - region: eu-south-1
-            environment: dev
-          - region: eu-south-1
-            environment: uat
-          - region: eu-south-1
-            environment: prod
-          - region: eu-central-1
-            environment: prod
-          
+        region: ["eu-south-1"]        
+        # include:
+        #  - environment: prod
+        #    region: eu-central-1
+                    
     name: "terraform-plan"
     runs-on: ubuntu-22.04
     environment: ${{ matrix.environment }}
@@ -39,7 +35,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: ${{ inputs.IAM_ROLE }}
+          role-to-assume: ${{ vars.IAM_ROLE }}
           aws-region: ${{ matrix.region }}
       
       - name: Plan

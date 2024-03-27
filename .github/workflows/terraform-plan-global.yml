@@ -1,9 +1,11 @@
-name: Terraform Plan
+name: Terraform Plan Global
 
 on:
   push:
     paths:
       - 'src/infra/global/**'
+      - '.github/workflows/terraform-plan-global.yml'
+  workflow_dispatch:
 defaults:
   run:
     shell: bash
@@ -18,6 +20,10 @@ jobs:
     strategy:
       matrix:
         environment: ["dev"]
+        region: ["eu-south-1"]        
+        # include:
+        #  - environment: prod
+        #    region: eu-central-1
         
 
     name: "terraform-plan"

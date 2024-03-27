@@ -1,0 +1,362 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Poc2",
+        "version": "1.0",
+        "description": "Poc spid saml",
+        "x-logo": {
+            "url": ""
+        }
+    },
+    "servers": [
+        {
+            "url": "${server_url}",
+            "description": "Server url"
+        }
+    ],
+    "paths": {
+        "/": {
+            "description": "",
+            "get": {
+                "tags": [],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"GET",
+                    "uri" : "${uri}",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {},
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/hello": {
+            "get": {
+                "tags": [],
+                "parameters": [
+                    {
+                        "deprecated": false,
+                        "name": "ipd",
+                        "in": "query",
+                        "required": false,
+                        "allowEmptyValue": false
+                    }
+                ],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"GET",
+                    "uri" : "${uri}/hello",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {
+                        "integration.request.querystring.ipd" : "method.request.multivaluequerystring.ipd"
+                    },
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'",
+                            "method.response.header.Set-Cookie" : "integration.response.header.Set-Cookie"
+                        }
+                      }
+                    }
+                  },
+                "responses": {
+                    "200" : {
+                        "description" : "200 response",
+                        "headers" : {
+                          "Set-Cookie" : {
+                            "schema" : {
+                              "type" : "string"
+                            }
+                          },
+                          "Content-Type" : {
+                            "schema" : {
+                              "type" : "string"
+                            }
+                          }
+                        },
+                        "content" : { }
+                      },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/saml/metadata": {
+            "summary": "Get metadata",
+            "get": {
+                "tags": [],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"GET",
+                    "uri" : "${uri}/saml/metadata",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {},
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      }
+                    }
+                  },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                }
+            }
+        },
+        "/saml/acs": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "text/html": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": false
+                },
+                "tags": [],
+                "parameters": [
+                    {
+                        "deprecated": false,
+                        "name": "Cookie",
+                        "in": "header",
+                        "required": false
+                    }
+                ],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"POST",
+                    "uri" : "${uri}/saml/acs",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {
+                        "integration.request.header.Cookie" : "method.request.header.Cookie"
+                    },
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      },
+                      "404" : {
+                        "statusCode" : "404",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      }
+                    }
+                  },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "summary": "Logout",
+            "description": "Logout",
+            "get": {
+                "tags": [],
+                "parameters": [
+                    {
+                        "deprecated": false,
+                        "name": "Cookie",
+                        "in": "header",
+                        "required": false
+                    }
+                ],
+                "x-amazon-apigateway-integration" : {
+                    "type": "HTTP",
+                    "httpMethod":"GET",
+                    "uri" : "${uri}/logout",
+                    "connectionType" : "VPC_LINK",
+                    "connectionId"        : "${connection_id}",
+                    "requestParameters"   : {
+                        "integration.request.header.Cookie" : "method.request.header.Cookie"
+                    },
+                    "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+                    "responses" : {
+                      "200" : {
+                        "statusCode" : "200",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      },
+                      "404" : {
+                        "statusCode" : "404",
+                        "responseParameters" : {
+                            "method.response.header.Content-Type": "'text/html'"
+                        }
+                      }
+                    }
+                  },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/200"
+                    },
+                    "302": {
+                        "$ref": "#/components/responses/302"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "idp": {
+                "deprecated": false,
+                "name": "Identity provider",
+                "in": "query",
+                "required": true,
+                "allowEmptyValue": false
+            }
+        },
+        "securitySchemes": {},
+        "schemas": {
+            "IllegalInputError": {
+                "type": "object",
+                "required": [
+                    "message",
+                    "code"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "minimum": 400,
+                        "maximum": 400
+                    }
+                }
+            },
+            "UnauthorizedError": {
+                "type": "object",
+                "required": [
+                    "message",
+                    "code"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "minimum": 401,
+                        "maximum": 401
+                    }
+                }
+            },
+            "ServerError": {
+                "type": "object",
+                "required": [
+                    "message",
+                    "code"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "minimum": 500,
+                        "maximum": 599
+                    }
+                }
+            }
+        },
+        "headers": {},
+        "responses": {
+            "200": {
+                "description": "Operation succeeded",
+                "headers" : {
+                    "Content-Type" : {
+                      "schema" : {
+                        "type" : "string"
+                      }
+                    }
+                  }
+            },
+            "302": {
+                "description": "Found"
+            },
+            "400": {
+                "description": "Illegal input for operation.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/IllegalInputError"
+                        }
+                    }
+                }
+            },
+            "401": {
+                "description": "Unauthorized access.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/UnauthorizedError"
+                        }
+                    }
+                }
+            },
+            "404": {
+                "description": "Entity not found."
+            },
+            "500": {
+                "description": "Server Error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ServerError"
+                        }
+                    }
+                }              
+            }
+        }
+    },
+    "tags": [],
+    "security": []
+}

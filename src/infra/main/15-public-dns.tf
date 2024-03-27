@@ -34,11 +34,11 @@ resource "aws_route53_record" "dev" {
 
 resource "aws_route53_record" "main" {
   zone_id = module.zones.route53_zone_zone_id[var.r53_dns_zone.name]
-  name    = module.poc_v1.domain_name
+  name    = var.r53_dns_zone.name
   type    = "A"
   alias {
-    name                   = module.poc_v1.regional_domain_name
-    zone_id                = module.poc_v1.regional_zone_id
+    name                   = module.alb.dns_name
+    zone_id                = module.alb.zone_id
     evaluate_target_health = true
   }
 }

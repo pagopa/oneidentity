@@ -41,7 +41,7 @@ resource "aws_api_gateway_stage" "main" {
 
 ## API Gateway cloud watch logs
 resource "aws_iam_role" "apigw" {
-  name = "ApiGatewayLogsRole"
+  name = format("%sRole", var.name)
 
   assume_role_policy = <<EOF
 {
@@ -110,7 +110,7 @@ resource "aws_api_gateway_method_settings" "main" {
 
 
 resource "aws_api_gateway_domain_name" "main" {
-  count                    = var.custom_domain_name != null ? 1 : 0
+  count = var.create_custom_domain_name ? 1 : 0
   domain_name              = var.custom_domain_name
   regional_certificate_arn = var.certificate_arn
 
@@ -120,9 +120,9 @@ resource "aws_api_gateway_domain_name" "main" {
 }
 
 resource "aws_apigatewayv2_api_mapping" "main" {
-  count           = var.custom_domain_name != null ? 1 : 0
+  count           = var.api_mapping_key != null ? 1 : 0
   api_id          = aws_api_gateway_rest_api.main.id
   stage           = var.stage_name
-  domain_name     = aws_api_gateway_domain_name.main[0].domain_name
+  domain_name     = var.custom_domain_name
   api_mapping_key = var.api_mapping_key
 }

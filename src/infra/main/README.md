@@ -16,11 +16,13 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_acm"></a> [acm](#module\_acm) | terraform-aws-modules/acm/aws | 5.0.0 |
+| <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | 9.7.0 |
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | terraform-aws-modules/ecs/aws | 5.9.1 |
-| <a name="module_ecs_service"></a> [ecs\_service](#module\_ecs\_service) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
+| <a name="module_ecs_service_poc1"></a> [ecs\_service\_poc1](#module\_ecs\_service\_poc1) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
+| <a name="module_ecs_service_poc2"></a> [ecs\_service\_poc2](#module\_ecs\_service\_poc2) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
-| <a name="module_poc_v1"></a> [poc\_v1](#module\_poc\_v1) | ../modules/rest-api | n/a |
+| <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 5.5.2 |
 | <a name="module_vpc_endpoints"></a> [vpc\_endpoints](#module\_vpc\_endpoints) | terraform-aws-modules/vpc/aws//modules/vpc-endpoints | 5.5.2 |
 | <a name="module_zones"></a> [zones](#module\_zones) | terraform-aws-modules/route53/aws//modules/zones | 2.11.0 |
@@ -33,7 +35,8 @@
 | [aws_route53_record.dev](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
 | [aws_route53_record.main](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
 | [aws_security_group.vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group) | resource |
-| [aws_security_group_rule.allow_all_https](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.allow_all_https_poc1](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
+| [aws_security_group_rule.allow_all_https_poc2](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/security_group) | data source |
 
 ## Inputs
@@ -64,4 +67,4 @@
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | n/a |
 | <a name="output_ecr_repository_url"></a> [ecr\_repository\_url](#output\_ecr\_repository\_url) | n/a |
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | # ECS ## |
-| <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | # ApiGw |
+| <a name="output_rest_api_v2_invoke_url"></a> [rest\_api\_v2\_invoke\_url](#output\_rest\_api\_v2\_invoke\_url) | n/a |
