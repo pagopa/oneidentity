@@ -17,10 +17,17 @@ jobs:
   terraform:
     strategy:
       matrix:
+        environment: ["dev"]
         include:
-          - environment: "dev"
-            region: "eu-south-1"
-
+          - region: eu-south-1
+            environment: dev
+          - region: eu-south-1
+            environment: uat
+          - region: eu-south-1
+            environment: prod
+          - region: eu-central-1
+            environment: prod
+          
     name: "terraform-plan"
     runs-on: ubuntu-22.04
     environment: ${{ matrix.environment }}
