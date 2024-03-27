@@ -34,8 +34,8 @@ runs:
       run: |
         ./terraform.sh init ${{ inputs.env }} ${{ inputs.region && ' ' + inputs.region || '' }}
 
-    - name: Terraform Apply
-      id: apply
+    - name: Terraform Plan
+      id: plan
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
