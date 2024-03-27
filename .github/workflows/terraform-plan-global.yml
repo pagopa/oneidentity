@@ -1,9 +1,10 @@
-name: Terraform Plan
+name: Terraform Plan Global
 
 on:
   push:
     paths:
       - 'src/infra/global/**'
+      - '.github/workflows/terraform-plan-global.yml'
 defaults:
   run:
     shell: bash

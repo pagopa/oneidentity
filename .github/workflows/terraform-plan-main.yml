@@ -1,9 +1,10 @@
-name: Terraform Plan
+name: Terraform Plan Regional
 
 on:
   push:
     paths:
       - 'src/infra/main/**'
+      - '.github/workflows/terraform-plan-main.yml'
 defaults:
   run:
     shell: bash
