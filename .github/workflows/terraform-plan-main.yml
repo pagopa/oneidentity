@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'src/infra/main/**'
-      - '.github/workflows/terraform-plan-main.yml'
+  workflow_dispatch:
 defaults:
   run:
     shell: bash
