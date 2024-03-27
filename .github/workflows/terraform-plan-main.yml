@@ -5,6 +5,11 @@ on:
     paths:
       - 'src/infra/main/**'
   workflow_dispatch:
+    inputs:
+      env:
+        description: Environment
+        required: true
+        default: "['dev']"
 defaults:
   run:
     shell: bash
@@ -18,7 +23,7 @@ jobs:
   terraform:
     strategy:
       matrix:
-        environment: ["dev"]
+        environment: ${{ fromJSON(github.event.inputs.OS) }}
         region: ["eu-south-1"]        
         # include:
         #  - environment: prod
