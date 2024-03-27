@@ -23,7 +23,7 @@ jobs:
   terraform:
     strategy:
       matrix:
-        environment: ${{ fromJSON(github.event.inputs.OS) }}
+        environment: ${{ fromJSON(github.event.inputs.env) }}
         region: ["eu-south-1"]        
         # include:
         #  - environment: prod
