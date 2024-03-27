@@ -5,6 +5,7 @@ on:
     paths:
       - 'src/infra/global/**'
       - '.github/workflows/terraform-plan-global.yml'
+  workflow_dispatch:
 defaults:
   run:
     shell: bash
