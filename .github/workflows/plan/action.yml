@@ -33,9 +33,9 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ -z "${{ inputs.region }}" ]; then
-          /terraform.sh init ${{ inputs.env }}
+          ./terraform.sh init ${{ inputs.env }}
         else
-          /terraform.sh init ${{ inputs.env }} ${{ inputs.region }}
+          ./terraform.sh init ${{ inputs.env }} ${{ inputs.region }}
         fi
     - name: Terraform Plan
       id: plan
@@ -43,7 +43,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ -z "${{ inputs.region }}" ]; then
-          /terraform.sh plan ${{ inputs.env }}
+          ./terraform.sh plan ${{ inputs.env }}
         else
-          /terraform.sh plan ${{ inputs.env }} ${{ inputs.region }}
+          ./terraform.sh plan ${{ inputs.env }} ${{ inputs.region }}
         fi
