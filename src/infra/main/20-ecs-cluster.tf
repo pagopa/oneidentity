@@ -93,10 +93,29 @@ module "ecs_service_poc1" {
     }
   }
 
+  # autoscaling
   enable_autoscaling       = var.ecs_autoscaling_poc1.enable_autoscaling
   autoscaling_min_capacity = var.ecs_autoscaling_poc1.autoscaling_min_capacity
   autoscaling_max_capacity = var.ecs_autoscaling_poc1.autoscaling_max_capacity
 
+  autoscaling_policies = {
+    cpu = {
+      policy_type = "TargetTrackingScaling"
+
+      target_tracking_scaling_policy_configuration = {
+
+        disable_scale_in   = false
+        scale_in_cooldown  = 300
+        scale_out_cooldown = 60
+        target_value       = 75
+        predefined_metric_specification = {
+          predefined_metric_type = "ECSServiceAverageCPUUtilization"
+        }
+      }
+    }
+  }
+
+  # network
   subnet_ids       = module.vpc.private_subnets
   assign_public_ip = false
 
