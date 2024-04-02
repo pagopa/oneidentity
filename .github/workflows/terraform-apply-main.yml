@@ -7,12 +7,6 @@ on:
     paths:
       - 'src/infra/main/**'
       - '.github/workflows/terraform-apply-main.yml'
-  workflow_dispatch:
-    inputs:
-      env:
-        description: Environment
-        required: true
-        default: "['dev']"
 defaults:
   run:
     shell: bash
@@ -26,7 +20,7 @@ jobs:
   terraform:
     strategy:
       matrix:
-        environment: ${{ fromJSON(github.event.inputs.env) }}
+        environment: [dev]
         region: ["eu-south-1"]        
         # include:
         #  - environment: prod

@@ -15,8 +15,8 @@ REGION=""
 OTHERS=""
 
 # Check if AWS_REGION environment variable is set
-if [ -n "$AWS_REGION" ]; then
-    REGION="$AWS_REGION"
+if [ -n "$TF_REGION" ]; then
+    REGION="$TF_REGION"
 fi
 
 # Parse command line options
