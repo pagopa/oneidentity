@@ -1,0 +1,45 @@
+name: Terraform Apply Global
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/infra/global/**'
+      - '.github/workflows/terraform-apply-global.yml'
+  workflow_dispatch:
+defaults:
+  run:
+    shell: bash
+    working-directory: src/infra/global
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  terraform:
+    strategy:
+      matrix:
+        environment: ["dev"]
+        region: ["eu-south-1"]        
+       
+    name: "terraform-apply"
+    runs-on: ubuntu-22.04
+    environment: ${{ matrix.environment }}
+     
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ inputs.IAM_ROLE }}
+          aws-region: ${{ matrix.region }}
+      
+      - name: Plan
+        uses: ./.github/workflows/apply
+        with:
+          env: ${{ matrix.environment }}
+          working-directory: src/infra/global          
