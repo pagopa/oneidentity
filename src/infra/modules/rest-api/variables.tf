@@ -29,9 +29,9 @@ variable "custom_domain_name" {
 }
 
 variable "create_custom_domain_name" {
-  type = bool
+  type        = bool
   description = "Create custom domain name. If true the custom_domain_name can not be null."
-  default = false
+  default     = false
 }
 
 variable "certificate_arn" {

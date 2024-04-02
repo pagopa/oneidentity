@@ -35,7 +35,6 @@
 | [aws_route53_record.dev](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
 | [aws_route53_record.main](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
 | [aws_security_group.vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group) | resource |
-| [aws_security_group_rule.allow_all_https_poc1](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group_rule.allow_all_https_poc2](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/security_group) | data source |
 
@@ -52,6 +51,7 @@
 | <a name="input_azs"></a> [azs](#input\_azs) | Availability zones | `list(string)` | <pre>[<br>  "eu-south-1a",<br>  "eu-south-1b",<br>  "eu-south-1c"<br>]</pre> | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | Dns record ttl (in sec) | `number` | `86400` | no |
 | <a name="input_ecr_keep_images"></a> [ecr\_keep\_images](#input\_ecr\_keep\_images) | Number of images to keep. | `number` | `3` | no |
+| <a name="input_ecs_autoscaling_poc1"></a> [ecs\_autoscaling\_poc1](#input\_ecs\_autoscaling\_poc1) | n/a | <pre>object({<br>    enable_autoscaling       = bool<br>    autoscaling_min_capacity = number<br>    autoscaling_max_capacity = number<br>  })</pre> | <pre>{<br>  "autoscaling_max_capacity": 3,<br>  "autoscaling_min_capacity": 1,<br>  "enable_autoscaling": true<br>}</pre> | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Enable/Create nat gateway | `bool` | `false` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Evnironment short. | `string` | `"d"` | no |

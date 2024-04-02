@@ -70,6 +70,20 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
+variable "ecs_autoscaling_poc1" {
+  type = object({
+    enable_autoscaling       = bool
+    autoscaling_min_capacity = number
+    autoscaling_max_capacity = number
+  })
+  default = {
+    enable_autoscaling       = true
+    autoscaling_min_capacity = 1
+    autoscaling_max_capacity = 3
+  }
+
+}
+
 
 ## R53 DNS zone ##
 variable "r53_dns_zone" {

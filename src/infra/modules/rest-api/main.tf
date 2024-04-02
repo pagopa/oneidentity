@@ -110,7 +110,7 @@ resource "aws_api_gateway_method_settings" "main" {
 
 
 resource "aws_api_gateway_domain_name" "main" {
-  count = var.create_custom_domain_name ? 1 : 0
+  count                    = var.create_custom_domain_name ? 1 : 0
   domain_name              = var.custom_domain_name
   regional_certificate_arn = var.certificate_arn
 
