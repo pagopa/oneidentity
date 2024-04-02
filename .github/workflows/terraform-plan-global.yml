@@ -49,4 +49,5 @@ jobs:
         uses: ./.github/workflows/plan
         with:
           env: ${{ matrix.environment }}
+          region: ""
           working-directory: src/infra/global          

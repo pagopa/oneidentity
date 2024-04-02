@@ -5,6 +5,9 @@ inputs:
   env:
     required: true
     type: string
+  region: 
+    required: false
+    type: string
   working-directory:
     required: true
     type: string
@@ -20,7 +23,7 @@ runs:
         echo "TERRAFORM_VERSION=`cat ../.terraform-version`" >> $GITHUB_ENV
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
@@ -29,13 +32,18 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        e=${{ inputs.env }}
-        ./terraform.sh init ${e%"_w"}
-
+        if [ -z "${{ inputs.region }}" ]; then
+          ./terraform.sh init ${{ inputs.env }}
+        else
+          ./terraform.sh init ${{ inputs.env }} ${{ inputs.region }}
+        fi
     - name: Terraform Apply
-      id: apply
+      id: plan
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        e=${{ inputs.env }}
-        ./terraform.sh apply ${e%"_w"} -auto-approve
+        if [ -z "${{ inputs.region }}" ]; then
+          ./terraform.sh apply ${{ inputs.env }} -auto-approve
+        else
+          ./terraform.sh apply ${{ inputs.env }} ${{ inputs.region }} -auto-approve
+        fi

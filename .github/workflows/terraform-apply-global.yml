@@ -35,11 +35,12 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: ${{ inputs.IAM_ROLE }}
+          role-to-assume: ${{ vars.IAM_ROLE }}
           aws-region: ${{ matrix.region }}
       
       - name: Plan
         uses: ./.github/workflows/apply
         with:
           env: ${{ matrix.environment }}
+          region: ""
           working-directory: src/infra/global          
