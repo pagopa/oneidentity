@@ -1,10 +1,12 @@
-name: Terraform Plan Global
+name: Terraform Apply Regional
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - 'src/infra/global/**'
-      - '.github/workflows/terraform-plan-global.yml'
+      - 'src/infra/main/**'
+      - '.github/workflows/terraform-apply-main.yml'
   workflow_dispatch:
     inputs:
       env:
@@ -14,7 +16,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: src/infra/global
+    working-directory: src/infra/main
 
 permissions:
   id-token: write   # This is required for requesting the JWT
@@ -25,13 +27,12 @@ jobs:
     strategy:
       matrix:
         environment: ${{ fromJSON(github.event.inputs.env) }}
-        region: ["eu-south-1"]
+        region: ["eu-south-1"]        
         # include:
         #  - environment: prod
         #    region: eu-central-1
-        
-
-    name: "terraform-plan"
+                    
+    name: "terraform-apply"
     runs-on: ubuntu-22.04
     environment: ${{ matrix.environment }}
      
@@ -43,10 +44,12 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: ${{ vars.IAM_ROLE }}
-          aws-region: "eu-south-1"
+          aws-region: ${{ matrix.region }}
       
       - name: Plan
-        uses: ./.github/workflows/plan
+        uses: ./.github/workflows/apply
         with:
           env: ${{ matrix.environment }}
-          working-directory: src/infra/global          
+          working-directory: src/infra/main
+          region: ${{ matrix.region }}
+  
