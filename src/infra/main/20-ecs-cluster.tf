@@ -134,7 +134,7 @@ module "ecs_service_poc1" {
 
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
-  version = "9.7.0"
+  version = "9.8.0"
 
   name = local.alb_name
 
