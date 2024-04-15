@@ -1,11 +1,3 @@
-locals {
-  container_poc1_port = 8080
-  container_poc2_port = 8080
-  container_name      = "oneidentity"
-  alb_name            = format("%s-alb", local.project)
-}
-
-
 module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "1.6.0"
@@ -80,7 +72,7 @@ module "ecs_service_poc1" {
       memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:17.0",
+      image     = "${module.ecr.repository_url}:35.0",
 
       port_mappings = [
         {

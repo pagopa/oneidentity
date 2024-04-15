@@ -22,7 +22,8 @@
 | <a name="module_ecs_service_poc1"></a> [ecs\_service\_poc1](#module\_ecs\_service\_poc1) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_ecs_service_poc2"></a> [ecs\_service\_poc2](#module\_ecs\_service\_poc2) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
-| <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api | n/a |
+| <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api |  |
+| <a name="module_records"></a> [records](#module\_records) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | 5.5.2 |
 | <a name="module_vpc_endpoints"></a> [vpc\_endpoints](#module\_vpc\_endpoints) | terraform-aws-modules/vpc/aws//modules/vpc-endpoints | 5.5.2 |
 | <a name="module_zones"></a> [zones](#module\_zones) | terraform-aws-modules/route53/aws//modules/zones | 2.11.0 |
@@ -32,8 +33,6 @@
 | Name | Type |
 |------|------|
 | [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/api_gateway_vpc_link) | resource |
-| [aws_route53_record.dev](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
-| [aws_route53_record.main](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/route53_record) | resource |
 | [aws_security_group.vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group) | resource |
 | [aws_security_group_rule.allow_all_https_poc2](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/security_group_rule) | resource |
 | [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/security_group) | data source |
@@ -42,6 +41,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | n/a | yes |
 | <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br>    name    = string<br>    comment = string<br>  })</pre> | n/a | yes |
 | <a name="input_vpc_internal_subnets_cidr"></a> [vpc\_internal\_subnets\_cidr](#input\_vpc\_internal\_subnets\_cidr) | Internal subnets list of cidr. Mainly for private endpoints | `list(string)` | n/a | yes |
 | <a name="input_vpc_private_subnets_cidr"></a> [vpc\_private\_subnets\_cidr](#input\_vpc\_private\_subnets\_cidr) | Private subnets list of cidr. | `list(string)` | n/a | yes |

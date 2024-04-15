@@ -4,10 +4,15 @@ variable "aws_region" {
   default     = "eu-south-1"
 }
 
+variable "aws_region_short" {
+  type        = string
+  description = "AWS region short format."
+}
+
 variable "app_name" {
   type        = string
   description = "App name."
-  default     = "oneidentity"
+  default     = "oneid"
 }
 
 variable "env_short" {
