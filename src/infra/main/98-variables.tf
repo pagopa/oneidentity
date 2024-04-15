@@ -12,7 +12,7 @@ variable "aws_region_short" {
 variable "app_name" {
   type        = string
   description = "App name."
-  default     = "oneidentity"
+  default     = "oneid"
 }
 
 variable "env_short" {

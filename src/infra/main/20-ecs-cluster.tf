@@ -72,7 +72,7 @@ module "ecs_service_poc1" {
       memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:17.0",
+      image     = "${module.ecr.repository_url}:35.0",
 
       port_mappings = [
         {

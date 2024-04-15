@@ -1,5 +1,6 @@
-env_short   = "d"
-environment = "dev"
+env_short        = "d"
+environment      = "dev"
+aws_region_short = "es-1"
 
 # https://www.davidc.net/sites/default/subnets/subnets.html?network=10.0.0.0&mask=17&division=19.72331
 
