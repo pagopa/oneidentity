@@ -37,7 +37,7 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE }}
           aws-region: ${{ matrix.region }}
       
-      - name: Plan
+      - name: Apply
         uses: ./.github/workflows/apply
         with:
           env: ${{ matrix.environment }}

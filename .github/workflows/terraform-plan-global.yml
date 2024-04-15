@@ -2,6 +2,10 @@ name: Terraform Plan Global
 
 on:
   push:
+    branches:
+      - '**'        # matches every branch
+      - '!main'     # excludes main
+      - '!master'     # excludes master
     paths:
       - 'src/infra/global/**'
       - '.github/workflows/terraform-plan-global.yml'
