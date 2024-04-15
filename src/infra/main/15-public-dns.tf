@@ -17,28 +17,34 @@ module "zones" {
   }
 }
 
-resource "aws_route53_record" "dev" {
-  allow_overwrite = true
-  name            = var.r53_dns_zone.name
-  ttl             = var.dns_record_ttl
-  type            = "NS"
-  zone_id         = module.zones.route53_zone_zone_id["oneidentity.pagopa.it"]
+module "records" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "2.11.0"
+
+  zone_name = keys(module.zones.route53_zone_zone_id)[0]
 
   records = [
-    "ns-122.awsdns-15.com",
-    "ns-1374.awsdns-43.org",
-    "ns-1590.awsdns-06.co.uk",
-    "ns-649.awsdns-17.net",
+    {
+      name = var.r53_dns_zone.name
+      type = "NS"
+      ttl  = var.dns_record_ttl
+      records = [
+        "ns-122.awsdns-15.com",
+        "ns-1374.awsdns-43.org",
+        "ns-1590.awsdns-06.co.uk",
+        "ns-649.awsdns-17.net",
+      ]
+    },
+    {
+      name = var.r53_dns_zone.name
+      type = "A"
+      alias = {
+        name                   = module.alb.dns_name
+        zone_id                = module.alb.zone_id
+        evaluate_target_health = true
+      }
+    },
   ]
-}
 
-resource "aws_route53_record" "main" {
-  zone_id = module.zones.route53_zone_zone_id[var.r53_dns_zone.name]
-  name    = var.r53_dns_zone.name
-  type    = "A"
-  alias {
-    name                   = module.alb.dns_name
-    zone_id                = module.alb.zone_id
-    evaluate_target_health = true
-  }
+  depends_on = [module.zones]
 }
