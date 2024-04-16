@@ -72,7 +72,7 @@ module "ecs_service_poc1" {
       memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:35.0",
+      image     = "${module.ecr.repository_url}:1.0",
 
       port_mappings = [
         {
@@ -232,7 +232,7 @@ module "ecs_service_poc2" {
       memory = 2048
 
       essential = true
-      image     = "${module.ecr.repository_url}:hg-2.2",
+      image     = "${module.ecr.repository_url}:1.0",
 
       /*
       environment = [

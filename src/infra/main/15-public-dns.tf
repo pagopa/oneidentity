@@ -17,15 +17,15 @@ module "zones" {
   }
 }
 
-module "records" {
+module "records_prod" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
-  zone_name = keys(module.zones.route53_zone_zone_id)[0]
+  zone_name = keys(module.zones.route53_zone_zone_id)[1]
 
   records = [
     {
-      name = var.r53_dns_zone.name
+      name = split(".", var.r53_dns_zone.name)[0]
       type = "NS"
       ttl  = var.dns_record_ttl
       records = [
@@ -35,8 +35,20 @@ module "records" {
         "ns-649.awsdns-17.net",
       ]
     },
+  ]
+
+  depends_on = [module.zones]
+}
+
+module "records" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "2.11.0"
+
+  zone_name = keys(module.zones.route53_zone_zone_id)[0]
+
+  records = [
     {
-      name = var.r53_dns_zone.name
+      name = ""
       type = "A"
       alias = {
         name                   = module.alb.dns_name
