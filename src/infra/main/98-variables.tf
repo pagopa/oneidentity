@@ -86,7 +86,16 @@ variable "ecs_autoscaling_poc1" {
     autoscaling_min_capacity = 1
     autoscaling_max_capacity = 3
   }
+}
 
+variable "poc1_image_version" {
+  type        = string
+  description = "Image version poc1."
+}
+
+variable "poc2_image_version" {
+  type        = string
+  description = "Image version poc2."
 }
 
 

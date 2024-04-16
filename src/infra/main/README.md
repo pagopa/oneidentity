@@ -43,6 +43,8 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | n/a | yes |
+| <a name="input_poc1_image_version"></a> [poc1\_image\_version](#input\_poc1\_image\_version) | Image version poc1. | `string` | n/a | yes |
+| <a name="input_poc2_image_version"></a> [poc2\_image\_version](#input\_poc2\_image\_version) | Image version poc2. | `string` | n/a | yes |
 | <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br>    name    = string<br>    comment = string<br>  })</pre> | n/a | yes |
 | <a name="input_vpc_internal_subnets_cidr"></a> [vpc\_internal\_subnets\_cidr](#input\_vpc\_internal\_subnets\_cidr) | Internal subnets list of cidr. Mainly for private endpoints | `list(string)` | n/a | yes |
 | <a name="input_vpc_private_subnets_cidr"></a> [vpc\_private\_subnets\_cidr](#input\_vpc\_private\_subnets\_cidr) | Private subnets list of cidr. | `list(string)` | n/a | yes |
