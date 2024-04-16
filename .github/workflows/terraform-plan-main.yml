@@ -8,6 +8,7 @@ on:
       - '!master'     # excludes master
     paths:
       - 'src/infra/main/**'
+      - 'src/infra/modules/**'
 defaults:
   run:
     shell: bash

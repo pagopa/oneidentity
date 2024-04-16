@@ -10,7 +10,7 @@ resource "aws_api_gateway_rest_api" "main" {
     vpc_endpoint_ids = lookup(var.endpoint_configuration, "vpc_endpoint_ids", [])
   }
 
-  disable_execute_api_endpoint = var.custom_domain_name ? true : false
+  disable_execute_api_endpoint = var.custom_domain_name != null ? true : false
 
   tags = {
     Name = var.name
