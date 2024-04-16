@@ -1,0 +1,54 @@
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_api_gateway_account.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_account) | resource |
+| [aws_api_gateway_deployment.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_deployment) | resource |
+| [aws_api_gateway_domain_name.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_domain_name) | resource |
+| [aws_api_gateway_method_settings.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_method_settings) | resource |
+| [aws_api_gateway_rest_api.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_rest_api) | resource |
+| [aws_api_gateway_stage.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_stage) | resource |
+| [aws_apigatewayv2_api_mapping.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/apigatewayv2_api_mapping) | resource |
+| [aws_cloudwatch_log_group.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_role.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy) | resource |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_body"></a> [body](#input\_body) | Open api json body | `string` | n/a | yes |
+| <a name="input_endpoint_configuration"></a> [endpoint\_configuration](#input\_endpoint\_configuration) | n/a | <pre>object({<br>    types            = list(string)<br>    vpc_endpoint_ids = optional(list(string), null)<br>  })</pre> | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | Rest api name | `string` | n/a | yes |
+| <a name="input_stage_name"></a> [stage\_name](#input\_stage\_name) | Stage name. | `string` | n/a | yes |
+| <a name="input_api_mapping_key"></a> [api\_mapping\_key](#input\_api\_mapping\_key) | The API mapping key. | `string` | `null` | no |
+| <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | Api Gateway certificate arn | `string` | `null` | no |
+| <a name="input_create_custom_domain_name"></a> [create\_custom\_domain\_name](#input\_create\_custom\_domain\_name) | Create custom domain name. If true the custom\_domain\_name can not be null. | `bool` | `false` | no |
+| <a name="input_custom_domain_name"></a> [custom\_domain\_name](#input\_custom\_domain\_name) | Api gateway custom domain name. | `string` | `null` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | n/a |
+| <a name="output_regional_domain_name"></a> [regional\_domain\_name](#output\_regional\_domain\_name) | n/a |
+| <a name="output_regional_zone_id"></a> [regional\_zone\_id](#output\_regional\_zone\_id) | n/a |
+| <a name="output_rest_api_id"></a> [rest\_api\_id](#output\_rest\_api\_id) | n/a |
+| <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | n/a |

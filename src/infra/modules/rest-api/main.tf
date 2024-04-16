@@ -10,6 +10,8 @@ resource "aws_api_gateway_rest_api" "main" {
     vpc_endpoint_ids = lookup(var.endpoint_configuration, "vpc_endpoint_ids", [])
   }
 
+  disable_execute_api_endpoint = var.custom_domain_name ? true : false
+
   tags = {
     Name = var.name
   }
@@ -106,8 +108,6 @@ resource "aws_api_gateway_method_settings" "main" {
     logging_level   = "INFO"
   }
 }
-
-
 
 resource "aws_api_gateway_domain_name" "main" {
   count                    = var.create_custom_domain_name ? 1 : 0
