@@ -99,6 +99,22 @@ variable "poc2_image_version" {
 }
 
 
+## Storage S3 ## 
+variable "assertion_bucket" {
+  type = object({
+    mfa_delete               = bool
+    gracier_transaction_days = number
+    expiration_days          = number
+  })
+  default = {
+    mfa_delete               = false
+    gracier_transaction_days = 20
+    expiration_days          = 30
+  }
+
+}
+
+
 ## R53 DNS zone ##
 variable "r53_dns_zone" {
   type = object({
