@@ -20,8 +20,8 @@ dns_record_ttl = 3600
 
 
 ## ECS ##
-poc1_image_version = 1.0
-poc2_image_version = 2.0
+poc1_image_version = "1.0"
+poc2_image_version = "1.0"
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging
