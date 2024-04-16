@@ -28,7 +28,7 @@ module "s3_bucket_for_logs" {
       ]
 
       expiration = {
-        days = var.assertion_bucket.expiration
+        days = var.assertion_bucket.expiration_days
       }
     }
   ]
