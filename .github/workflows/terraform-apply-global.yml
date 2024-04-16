@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'src/infra/global/**'
+      - 'src/infra/modules/**'
       - '.github/workflows/terraform-apply-global.yml'
 defaults:
   run:
