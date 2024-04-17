@@ -24,9 +24,9 @@ runs:
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: ${{ inputs.iam_role }}
-          aws-region: ${{ inputs.region }}
+      with:
+        role-to-assume: ${{ inputs.iam_role }}
+        aws-region: ${{ inputs.region }}
     
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
