@@ -2,15 +2,15 @@ name: apply
 description: "Run terraform apply"
 
 inputs:
-  env:
-    required: true
-    type: string
   region: 
     required: false
     type: string
   working-directory:
     required: true
     type: string
+  iam_role:
+    required: true
+    rype: string
 
 runs:
   using: "composite"

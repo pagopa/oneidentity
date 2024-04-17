@@ -5,8 +5,8 @@ module "elb" {
 
   load_balancer_type = "network"
 
-  vpc_id                           = module.vpc.vpc_id
-  subnets                          = module.vpc.private_subnets
+  vpc_id                           = module.network.vpc_id
+  subnets                          = module.network.private_subnet_ids
   enable_cross_zone_load_balancing = "true"
 
   internal = true
@@ -32,7 +32,7 @@ module "elb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
+      cidr_ipv4   = module.network.vpc_cidr_block
     }
   }
 
@@ -98,4 +98,11 @@ module "elb" {
 
 
   tags = { Name : format("%s-nlb", local.project) }
+}
+
+
+resource "aws_api_gateway_vpc_link" "apigw" {
+  name        = "ApiGwVPCLink"
+  description = "VPC link to the private network load balancer."
+  target_arns = [module.elb.arn]
 }

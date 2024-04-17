@@ -2,15 +2,15 @@ name: plan
 description: "Run terraform plan"
 
 inputs:
-  env:
-    required: true
-    type: string
   region: 
     required: false
     type: string
   working-directory:
     required: true
     type: string
+  iam_role:
+    type: string
+    required: true
 
 runs:
   using: "composite"
@@ -22,6 +22,11 @@ runs:
       run: |
         echo "TERRAFORM_VERSION=`cat ../.terraform-version`" >> $GITHUB_ENV
 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ inputs.iam_role }}
+          aws-region: ${{ inputs.region }}
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:

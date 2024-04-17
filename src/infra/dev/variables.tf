@@ -7,6 +7,7 @@ variable "aws_region" {
 variable "aws_region_short" {
   type        = string
   description = "AWS region short format."
+  default     = "es-1"
 }
 
 variable "app_name" {
@@ -21,46 +22,13 @@ variable "env_short" {
   description = "Evnironment short."
 }
 
-variable "vpc_cidr" {
-  type        = string
-  default     = "10.0.0.0/17"
-  description = "VPC cidr."
+## R53 DNS zone ##
+variable "r53_dns_zone" {
+  type = object({
+    name    = string
+    comment = string
+  })
 }
-
-variable "azs" {
-  type        = list(string)
-  description = "Availability zones"
-  default     = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
-}
-
-variable "vpc_private_subnets_cidr" {
-  type        = list(string)
-  description = "Private subnets list of cidr."
-}
-
-variable "vpc_public_subnets_cidr" {
-  type        = list(string)
-  description = "Private subnets list of cidr."
-}
-
-variable "vpc_internal_subnets_cidr" {
-  type        = list(string)
-  description = "Internal subnets list of cidr. Mainly for private endpoints"
-}
-
-variable "enable_nat_gateway" {
-  type        = bool
-  description = "Enable/Create nat gateway"
-  default     = false
-}
-
-variable "single_nat_gateway" {
-  type        = bool
-  description = "Create just one natgateway"
-  default     = false
-
-}
-
 
 ## ECS Cluster ##
 variable "ecr_keep_images" {
@@ -108,19 +76,10 @@ variable "assertion_bucket" {
   })
   default = {
     mfa_delete               = false
-    gracier_transaction_days = 20
-    expiration_days          = 30
+    gracier_transaction_days = 90
+    expiration_days          = 100
   }
 
-}
-
-
-## R53 DNS zone ##
-variable "r53_dns_zone" {
-  type = object({
-    name    = string
-    comment = string
-  })
 }
 
 variable "dns_record_ttl" {
