@@ -1,7 +1,7 @@
 module "vpc" {
   source                = "terraform-aws-modules/vpc/aws"
   version               = "5.5.2"
-  name                  = format("%s-vpc", local.project)
+  name                  = var.vpc_name
   cidr                  = var.vpc_cidr
   azs                   = var.azs
   private_subnets       = var.vpc_private_subnets_cidr
@@ -23,7 +23,7 @@ data "aws_security_group" "default" {
 }
 
 resource "aws_security_group" "vpc_tls" {
-  name_prefix = format("%s_vpc_tls_sg", local.project)
+  name_prefix = format("%s_tls_sg", var.vpc_name)
   description = "Allow TLS inbound traffic"
   vpc_id      = module.vpc.vpc_id
 
@@ -35,7 +35,7 @@ resource "aws_security_group" "vpc_tls" {
     cidr_blocks = [module.vpc.vpc_cidr_block]
   }
 
-  tags = { Name = format("%s_vpc_tls_sg", local.project) }
+  tags = { Name = format("%s_tls_sg", var.vpc_name) }
 }
 
 module "vpc_endpoints" {
@@ -120,8 +120,39 @@ module "vpc_endpoints" {
   }
 
 }
-resource "aws_api_gateway_vpc_link" "apigw" {
-  name        = format("%s-vpc-link", local.project)
-  description = "VPC link to the private network load balancer."
-  target_arns = [module.elb.arn]
+
+
+## DNS Zones
+module "zones" {
+  source  = "terraform-aws-modules/route53/aws//modules/zones"
+  version = "2.11.0"
+  zones   = var.r53_dns_zones
+}
+
+module "records" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "2.11.0"
+
+  zone_name = keys(module.zones.route53_zone_zone_id)[0]
+
+  records = var.r53_dns_zone_records
+
+  depends_on = [module.zones]
+}
+
+## ACM ##
+module "acm" {
+  source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.0"
+
+  domain_name = keys(var.r53_dns_zones)[0]
+
+  zone_id = module.zones.route53_zone_zone_id[keys(var.r53_dns_zones)[0]]
+
+  validation_method      = "DNS"
+  create_route53_records = true
+
+  tags = {
+    Name = keys(var.r53_dns_zones)[0]
+  }
 }

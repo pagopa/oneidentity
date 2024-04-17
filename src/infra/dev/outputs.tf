@@ -18,7 +18,7 @@ output "alb_dns_name" {
 
 ## ACM
 output "acm_certificate_validation_domains" {
-  value = module.acm.validation_domains
+  value = module.network.acm_validation_domains
 }
 
 ## ApiGw
@@ -36,5 +36,5 @@ output "rest_api_v2_invoke_url" {
 
 
 output "dns_zone_name_servers" {
-  value = module.zones.route53_zone_name_servers
+  value = module.network.route53_zone_name_servers
 }

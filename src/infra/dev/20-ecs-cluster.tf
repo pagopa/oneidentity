@@ -89,7 +89,7 @@ module "ecs_service_poc1" {
   autoscaling_min_capacity = var.ecs_autoscaling_poc1.autoscaling_min_capacity
   autoscaling_max_capacity = var.ecs_autoscaling_poc1.autoscaling_max_capacity
 
-  subnet_ids       = module.vpc.private_subnets
+  subnet_ids       = module.network.private_subnet_ids
   assign_public_ip = false
 
 
@@ -132,8 +132,8 @@ module "alb" {
 
   load_balancer_type = "application"
 
-  vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.public_subnets
+  vpc_id  = module.network.vpc_id
+  subnets = module.network.public_subnet_ids
 
   # For example only
   enable_deletion_protection = false
@@ -156,7 +156,7 @@ module "alb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
+      cidr_ipv4   = module.network.vpc_cidr_block
     }
   }
 
@@ -173,7 +173,7 @@ module "alb" {
     ex_https = {
       port            = 443
       protocol        = "HTTPS"
-      certificate_arn = module.acm.acm_certificate_arn
+      certificate_arn = module.network.acm_certificate_arn
 
       forward = {
         target_group_key = "ecs_oneidentity"
@@ -254,7 +254,7 @@ module "ecs_service_poc2" {
     }
   }
 
-  subnet_ids       = module.vpc.private_subnets
+  subnet_ids       = module.network.private_subnet_ids
   assign_public_ip = false
 
   load_balancer = {
