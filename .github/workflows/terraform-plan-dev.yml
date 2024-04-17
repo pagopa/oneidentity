@@ -1,5 +1,6 @@
 name: Terraform Plan Dev
 on:
+  workflow_dispatch:
   push:
     branches:
       - '**'        # matches every branch
