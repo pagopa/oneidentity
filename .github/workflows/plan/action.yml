@@ -3,7 +3,7 @@ description: "Run terraform plan"
 
 inputs:
   region: 
-    required: false
+    required: true
     type: string
   working-directory:
     required: true
@@ -27,6 +27,7 @@ runs:
         with:
           role-to-assume: ${{ inputs.iam_role }}
           aws-region: ${{ inputs.region }}
+    
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -37,18 +38,10 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ -z "${{ inputs.region }}" ]; then
-          ./terraform.sh init ${{ inputs.env }}
-        else
-          ./terraform.sh init ${{ inputs.env }} ${{ inputs.region }}
-        fi
+        terraform init
     - name: Terraform Plan
       id: plan
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ -z "${{ inputs.region }}" ]; then
-          ./terraform.sh plan ${{ inputs.env }}
-        else
-          ./terraform.sh plan ${{ inputs.env }} ${{ inputs.region }}
-        fi
+        terraform plan
