@@ -15,13 +15,19 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: ${{ inputs.iam_role }}
+        aws-region: ${{ inputs.region }}
+
     - name: Read terraform version 
       id: read-version
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
         echo "TERRAFORM_VERSION=`cat ../.terraform-version`" >> $GITHUB_ENV
-
+  
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -32,18 +38,11 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ -z "${{ inputs.region }}" ]; then
-          ./terraform.sh init ${{ inputs.env }}
-        else
-          ./terraform.sh init ${{ inputs.env }} ${{ inputs.region }}
-        fi
+        terraform init
+        
     - name: Terraform Apply
       id: plan
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ -z "${{ inputs.region }}" ]; then
-          ./terraform.sh apply ${{ inputs.env }} -auto-approve
-        else
-          ./terraform.sh apply ${{ inputs.env }} ${{ inputs.region }} -auto-approve
-        fi
+        terraform apply
