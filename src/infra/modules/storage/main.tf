@@ -49,7 +49,7 @@ module "s3_assetion_bucket" {
       transitions = [
         {
           days          = var.assertion_bucket.gracier_transaction_days
-          storage_class = "GLACIER"
+          storage_class = "GLACIER_IR"
         }
       ]
 
