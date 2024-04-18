@@ -1,9 +1,20 @@
-module "s3_bucket_for_logs" {
+resource "random_integer" "assetion_bucket_suffix" {
+  min = 1
+  max = 4
+}
+
+locals {
+  bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
+  random_integer.assetion_bucket_suffix.result)
+}
+
+
+module "s3_assetion_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
-  bucket_prefix = "assertions"
-  acl           = "private"
+  bucket = local.bucket_name
+  acl    = "private"
 
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
@@ -32,4 +43,8 @@ module "s3_bucket_for_logs" {
       }
     }
   ]
+
+  tags = {
+    Name = local.bucket_name
+  }
 }
