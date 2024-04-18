@@ -22,7 +22,7 @@
 
 | Name | Type |
 |------|------|
-| [random_integer.assetion_bucket_suffix](https://registry.terraform.io/providers/haschicorp/random/3.6.1/docs/resources/integer) | resource |
+| [random_integer.assetion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 
 ## Inputs
 
