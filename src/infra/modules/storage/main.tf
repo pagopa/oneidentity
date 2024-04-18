@@ -1,5 +1,5 @@
 resource "random_integer" "assetion_bucket_suffix" {
-  min = 1
+  min = 4
   max = 4
 }
 
