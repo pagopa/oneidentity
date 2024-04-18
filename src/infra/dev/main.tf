@@ -64,9 +64,9 @@ module "storage" {
   source = "../modules/storage"
 
   assertion_bucket = {
-    name_prefix = "assertion"
+    name_prefix              = "assertion"
     gracier_transaction_days = 90
-    expiration_days = 100
+    expiration_days          = 100
   }
-  
+
 }
