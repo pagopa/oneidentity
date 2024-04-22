@@ -70,3 +70,14 @@ module "storage" {
   }
 
 }
+
+
+module "databae" {
+  source = "../modules/database"
+
+  saml_responses_table = {
+    name                           = format("%s-saml-responses-table", local.project)
+    point_in_time_recovery_enabled = var.table_saml_responses_point_in_time_recovery_enabled
+  }
+
+}
