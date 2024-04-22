@@ -1,3 +1,4 @@
+/*
 module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "1.6.0"
@@ -26,7 +27,7 @@ module "ecr" {
   create_registry_replication_configuration = false
   registry_replication_rules                = []
 }
-
+*/
 
 module "ecs" {
 
