@@ -10,20 +10,19 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.6.1 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_s3_assetion_bucket"></a> [s3\_assetion\_bucket](#module\_s3\_assetion\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 2.2.1 |
+| <a name="module_s3_assetions_bucket"></a> [s3\_assetions\_bucket](#module\_s3\_assetions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [aws_kms_key.kms_assetion_bucket](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/kms_key) | resource |
 | [random_integer.assetion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 
 ## Inputs
@@ -36,5 +35,5 @@
 
 | Name | Description |
 |------|-------------|
-| <a name="output_assertion_bucket_arn"></a> [assertion\_bucket\_arn](#output\_assertion\_bucket\_arn) | n/a |
-| <a name="output_assertion_bucket_name"></a> [assertion\_bucket\_name](#output\_assertion\_bucket\_name) | n/a |
+| <a name="output_assertions_bucket_arn"></a> [assertions\_bucket\_arn](#output\_assertions\_bucket\_arn) | n/a |
+| <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | n/a |

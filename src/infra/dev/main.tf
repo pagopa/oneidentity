@@ -64,7 +64,7 @@ module "storage" {
   source = "../modules/storage"
 
   assertion_bucket = {
-    name_prefix              = "assertion"
+    name_prefix              = "assertions"
     gracier_transaction_days = 90
     expiration_days          = 100
   }
@@ -76,7 +76,7 @@ module "databae" {
   source = "../modules/database"
 
   saml_responses_table = {
-    name                           = format("%s-saml-responses-table", local.project)
+    name                           = format("%s-saml-responses", local.project)
     point_in_time_recovery_enabled = var.table_saml_responses_point_in_time_recovery_enabled
   }
 
