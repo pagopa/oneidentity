@@ -1,11 +1,11 @@
-name: Terraform Apply Regional
-
+name: Terraform Apply Dev
 on:
+  workflow_dispatch:
   push:
     branches:
-      - main
+      - main     # runs only on the main branch.
     paths:
-      - 'src/infra/main/dev'
+      - 'src/infra/dev/**'
       - 'src/infra/modules/**'
 defaults:
   run:
@@ -26,11 +26,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-    
+
       - name: Apply
         uses: ./.github/workflows/apply
         with:
           working-directory: src/infra/dev
           region: ${{ vars.AWS_REGION }}
           iam_role: ${{ vars.IAM_ROLE }}
-   
+  

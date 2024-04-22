@@ -24,7 +24,7 @@
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
 | <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api |  |
 | <a name="module_records_prod"></a> [records\_prod](#module\_records\_prod) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
-| <a name="module_s3_bucket_for_logs"></a> [s3\_bucket\_for\_logs](#module\_s3\_bucket\_for\_logs) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
 
 ## Resources
 
