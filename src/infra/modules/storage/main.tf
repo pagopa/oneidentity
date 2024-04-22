@@ -12,8 +12,9 @@ module "kms_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
   version = "2.2.1"
 
-  description = "KMS key for S3 encryption"
-  key_usage   = "ENCRYPT_DECRYPT"
+  description         = "KMS key for S3 encryption"
+  key_usage           = "ENCRYPT_DECRYPT"
+  enable_key_rotation = var.assertion_bucket.enable_key_rotation
 
   # Aliases
   aliases = ["assertions/S3"]
