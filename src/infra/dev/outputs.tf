@@ -39,8 +39,8 @@ output "dns_zone_name_servers" {
 
 
 # Storage
-output "assetions_bucket_name" {
-  value = module.storage.s3_assetion_bucket
+output "assertions_bucket_name" {
+  value = module.storage.s3_bucket_id
 }
 
 # Database
