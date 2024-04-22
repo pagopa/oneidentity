@@ -11,6 +11,7 @@ module "dynamodb_table_saml_responses" {
       name = "accessToken"
       type = "S"
     },
+    /*
     {
       name = "samlResponse"
       type = "S"
@@ -19,6 +20,7 @@ module "dynamodb_table_saml_responses" {
       name = "expirationTime"
       type = "N"
     }
+    */
   ]
 
   ttl_attribute_name = "expirationTime"
