@@ -40,7 +40,7 @@ output "dns_zone_name_servers" {
 
 # Storage
 output "assertions_bucket_name" {
-  value = module.storage.s3_bucket_id
+  value = module.storage.assertion_bucket_name
 }
 
 # Database
