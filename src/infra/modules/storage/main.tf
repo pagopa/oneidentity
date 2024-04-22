@@ -8,14 +8,19 @@ locals {
   random_integer.assetion_bucket_suffix.result)
 }
 
-resource "aws_kms_key" "kms_assetion_bucket" {
+module "kms_assertions_bucket" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "2.2.1"
+
   description = "KMS key for S3 encryption"
-  # Optional, specify the number of days after which the key is deleted permanently
-  deletion_window_in_days = var.assertion_bucket.kms_key_deletion_window_in_days
+  key_usage   = "ENCRYPT_DECRYPT"
+
+  # Aliases
+  aliases = ["assertions/S3"]
 }
 
 
-module "s3_assetion_bucket" {
+module "s3_assetions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
@@ -29,7 +34,7 @@ module "s3_assetion_bucket" {
     rule = {
       bucket_key_enabled = true
       apply_server_side_encryption_by_default = {
-        kms_master_key_id = aws_kms_key.kms_assetion_bucket.arn
+        kms_master_key_id = module.kms_assertions_bucket.aliases["assertions/S3"].arn
         sse_algorithm     = "aws:kms"
       }
     }

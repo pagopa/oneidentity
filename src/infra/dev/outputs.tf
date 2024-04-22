@@ -40,7 +40,11 @@ output "dns_zone_name_servers" {
 
 # Storage
 output "assertions_bucket_name" {
-  value = module.storage.assertion_bucket_name
+  value = module.storage.assertions_bucket_name
+}
+
+output "assertions_bucket_arn" {
+  value = module.storage.assertions_bucket_arn
 }
 
 # Database

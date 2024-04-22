@@ -14,6 +14,7 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_dynamodb_table_saml_responses"></a> [dynamodb\_table\_saml\_responses](#module\_dynamodb\_table\_saml\_responses) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
+| <a name="module_kms_table_saml_responses"></a> [kms\_table\_saml\_responses](#module\_kms\_table\_saml\_responses) | terraform-aws-modules/kms/aws | 2.2.1 |
 
 ## Resources
 
