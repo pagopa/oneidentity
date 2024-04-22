@@ -36,4 +36,5 @@
 
 | Name | Description |
 |------|-------------|
-| <a name="output_s3_assetion_bucket"></a> [s3\_assetion\_bucket](#output\_s3\_assetion\_bucket) | n/a |
+| <a name="output_assertion_bucket_arn"></a> [assertion\_bucket\_arn](#output\_assertion\_bucket\_arn) | n/a |
+| <a name="output_assertion_bucket_name"></a> [assertion\_bucket\_name](#output\_assertion\_bucket\_name) | n/a |

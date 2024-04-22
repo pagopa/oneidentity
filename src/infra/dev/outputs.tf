@@ -33,8 +33,18 @@ output "rest_api_v2_invoke_url" {
   value = module.poc_v2.rest_api_invoke_url
 }
 
-
-
 output "dns_zone_name_servers" {
   value = module.network.route53_zone_name_servers
 }
+
+
+# Storage
+output "assertions_bucket_name" {
+  value = module.storage.assertion_bucket_name
+}
+
+# Database
+output "table_saml_responses_name" {
+  value = module.databae.saml_responses_table_name
+}
+

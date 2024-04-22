@@ -82,6 +82,16 @@ variable "assertion_bucket" {
 
 }
 
+## Database ##
+variable "table_saml_responses_point_in_time_recovery_enabled" {
+  type        = bool
+  description = "Enable point in time recovery table saml responses"
+  default     = false
+}
+
+
+
+# DNS
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
