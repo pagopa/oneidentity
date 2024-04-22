@@ -8,5 +8,6 @@ variable "assertion_bucket" {
 
     object_lock_legal_hold_status = optional(bool, false)
     object_lock_configuration     = optional(any, null)
+    enable_key_rotation           = optional(bool, false)
   })
 }

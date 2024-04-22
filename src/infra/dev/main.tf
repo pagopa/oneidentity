@@ -67,6 +67,7 @@ module "storage" {
     name_prefix              = "assertions"
     gracier_transaction_days = 90
     expiration_days          = 100
+    enable_key_rotation      = true
   }
 
 }
