@@ -43,29 +43,18 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
-variable "ecs_autoscaling_poc1" {
+variable "ecs_autoscaling_idp" {
   type = object({
-    enable_autoscaling       = bool
-    autoscaling_min_capacity = number
-    autoscaling_max_capacity = number
+    enable       = bool
+    min_capacity = number
+    max_capacity = number
   })
-  default = {
-    enable_autoscaling       = true
-    autoscaling_min_capacity = 1
-    autoscaling_max_capacity = 3
-  }
 }
 
-variable "poc1_image_version" {
+variable "idp_image_version" {
   type        = string
-  description = "Image version poc1."
+  description = "Image version idp."
 }
-
-variable "poc2_image_version" {
-  type        = string
-  description = "Image version poc2."
-}
-
 
 ## Storage S3 ## 
 variable "assertion_bucket" {
@@ -82,6 +71,16 @@ variable "assertion_bucket" {
 
 }
 
+## Database ##
+variable "table_saml_responses_point_in_time_recovery_enabled" {
+  type        = bool
+  description = "Enable point in time recovery table saml responses"
+  default     = false
+}
+
+
+
+# DNS
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"

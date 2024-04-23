@@ -195,3 +195,8 @@ moved {
   from = module.acm.aws_route53_record.validation[0]
   to   = module.network.module.acm.aws_route53_record.validation[0]
 }
+
+moved {
+  from = module.databae
+  to   = module.database
+}

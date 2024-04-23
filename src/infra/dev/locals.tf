@@ -5,4 +5,7 @@ locals {
   container_poc2_port = 8080
   container_name      = "oneidentity"
   alb_name            = format("%s-alb", local.project)
+
+  ecr_idp = format("%s-idp-ecr", local.project)
+
 }

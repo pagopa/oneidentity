@@ -8,8 +8,14 @@ dns_record_ttl = 3600
 
 
 ## ECS ##
-poc1_image_version = "1.0"
-poc2_image_version = "1.0"
+idp_image_version = "1.0"
+
+ecs_autoscaling_idp = {
+  enable       = true
+  min_capacity = 1
+  max_capacity = 2
+}
+
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging

@@ -2,11 +2,11 @@
 
 ## ECS ##
 output "ecs_cluster_name" {
-  value = module.ecs.cluster_name
+  value = module.backend.ecs_cluster_name
 }
 
-output "ecr_repository_url" {
-  value = module.ecr.repository_url
+output "ecr_endpoints" {
+  value = module.backend.ecr_endpoints
 }
 
 ## ALB ##
@@ -33,8 +33,22 @@ output "rest_api_v2_invoke_url" {
   value = module.poc_v2.rest_api_invoke_url
 }
 
-
-
 output "dns_zone_name_servers" {
   value = module.network.route53_zone_name_servers
 }
+
+
+# Storage
+output "assertions_bucket_name" {
+  value = module.storage.assertions_bucket_name
+}
+
+output "assertions_bucket_arn" {
+  value = module.storage.assertions_bucket_arn
+}
+
+# Database
+output "table_saml_responses_name" {
+  value = module.database.saml_responses_table_name
+}
+
