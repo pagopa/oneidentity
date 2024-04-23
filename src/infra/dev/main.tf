@@ -73,7 +73,58 @@ module "storage" {
 }
 
 
-module "databae" {
+module "backend" {
+  source = "../modules/backend"
+
+  ecr_registers = [
+    {
+      name                     = local.ecr_idp
+      number_of_images_to_keep = 3
+  }]
+
+  ecs_cluster_name          = format("%s-ecs", local.project)
+  enable_container_insights = true
+
+  fargate_capacity_providers = {
+    FARGATE = {
+      default_capacity_provider_strategy = {
+        weight = 50
+        base   = 20
+      }
+    }
+  }
+
+  service_idp = {
+    service_name = format("%s-ipd", local.project)
+
+    cpu    = 1024
+    memory = 2048
+
+    container = {
+      name          = "idp"
+      cpu           = 1024
+      memory        = 2048
+      image_name    = local.ecr_idp
+      image_version = var.idp_image_version
+      containerPort = 8080
+      hostPort      = 8080
+    }
+
+    autoscaling = var.ecs_autoscaling_idp
+
+    subnet_ids = module.network.private_subnet_ids
+
+    load_balancer = {
+      target_group_arn  = module.alb.target_groups["ecs_oneidentity"].arn
+      security_group_id = module.alb.security_group_id
+    }
+
+  }
+
+}
+
+
+module "database" {
   source = "../modules/database"
 
   saml_responses_table = {

@@ -16,8 +16,8 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | 9.7.0 |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend |  |
 | <a name="module_databae"></a> [databae](#module\_databae) | ../modules/database |  |
-| <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | terraform-aws-modules/ecs/aws | 5.9.1 |
 | <a name="module_ecs_service_poc1"></a> [ecs\_service\_poc1](#module\_ecs\_service\_poc1) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_ecs_service_poc2"></a> [ecs\_service\_poc2](#module\_ecs\_service\_poc2) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
@@ -58,6 +58,7 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_acm_certificate_validation_domains"></a> [acm\_certificate\_validation\_domains](#output\_acm\_certificate\_validation\_domains) | # ACM |
+| <a name="output_assertions_bucket_arn"></a> [assertions\_bucket\_arn](#output\_assertions\_bucket\_arn) | n/a |
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | Storage |
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | n/a |
 | <a name="output_ecr_repository_url"></a> [ecr\_repository\_url](#output\_ecr\_repository\_url) | n/a |

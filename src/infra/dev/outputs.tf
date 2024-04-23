@@ -2,11 +2,11 @@
 
 ## ECS ##
 output "ecs_cluster_name" {
-  value = module.ecs.cluster_name
+  value = module.backend.ecs_cluster_name
 }
 
-output "ecr_repository_url" {
-  value = module.ecr.repository_url
+output "ecr_endpoints" {
+  value = module.backend.ecr_endpoints
 }
 
 ## ALB ##
@@ -49,6 +49,6 @@ output "assertions_bucket_arn" {
 
 # Database
 output "table_saml_responses_name" {
-  value = module.databae.saml_responses_table_name
+  value = module.database.saml_responses_table_name
 }
 

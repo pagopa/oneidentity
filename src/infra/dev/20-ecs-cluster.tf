@@ -1,129 +1,3 @@
-module "ecr" {
-  source  = "terraform-aws-modules/ecr/aws"
-  version = "1.6.0"
-
-  repository_name = format("%s-ecr", local.project)
-
-  repository_lifecycle_policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1,
-        description  = "Keep last ${var.ecr_keep_images} images",
-        selection = {
-          "tagStatus" : "untagged",
-          "countType" : "imageCountMoreThan",
-          "countNumber" : var.ecr_keep_images
-        },
-        action = {
-          type = "expire"
-        }
-      }
-    ]
-  })
-
-  # Registry Replication Configuration
-  # TODO: in production it might be replicated in another region.
-  create_registry_replication_configuration = false
-  registry_replication_rules                = []
-}
-
-
-module "ecs" {
-
-  source  = "terraform-aws-modules/ecs/aws"
-  version = "5.9.1"
-
-  cluster_name = format("%s-ecs", local.project)
-
-  cluster_settings = [{
-    name  = "containerInsights"
-    value = var.ecs_enable_container_insights ? "enabled" : "disabled"
-    }
-  ]
-
-  # Capacity provider
-  fargate_capacity_providers = {
-    FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 20
-      }
-    }
-  }
-}
-
-
-module "ecs_service_poc1" {
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.9.1"
-
-  name = "oneidentity_poc1"
-
-  cluster_arn = module.ecs.cluster_arn
-
-  cpu    = 1024
-  memory = 2048
-
-  enable_execute_command = true
-
-  container_definitions = {
-    "${local.container_name}" = {
-      cpu    = 1024
-      memory = 2048
-
-      essential = true
-      image     = "${module.ecr.repository_url}:${var.poc1_image_version}",
-
-      port_mappings = [
-        {
-          name          = "oneidentity_poc1"
-          containerPort = local.container_poc1_port
-          hostPort      = local.container_poc1_port
-          protocol      = "tcp"
-        }
-      ]
-    }
-  }
-
-  enable_autoscaling       = var.ecs_autoscaling_poc1.enable_autoscaling
-  autoscaling_min_capacity = var.ecs_autoscaling_poc1.autoscaling_min_capacity
-  autoscaling_max_capacity = var.ecs_autoscaling_poc1.autoscaling_max_capacity
-
-  subnet_ids       = module.network.private_subnet_ids
-  assign_public_ip = false
-
-
-
-  load_balancer = {
-    service = {
-      target_group_arn = module.alb.target_groups["ecs_oneidentity"].arn
-      # target_group_arn = module.elb.target_groups["ecs-one"].arn
-      container_name = local.container_name
-      container_port = local.container_poc1_port
-    }
-  }
-
-  security_group_rules = {
-    alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = local.container_poc1_port
-      to_port                  = local.container_poc1_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
-      #source_security_group_id = module.elb.security_group_id
-    }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-
-}
-
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.7.0"
@@ -212,7 +86,7 @@ module "alb" {
   }
 }
 
-
+/*
 module "ecs_service_poc2" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
@@ -234,14 +108,14 @@ module "ecs_service_poc2" {
       essential = true
       image     = "${module.ecr.repository_url}:${var.poc2_image_version}",
 
-      /*
+    
       environment = [
         {
           name  = "BASE_PATH"
           value = "/"
         }
       ]
-      */
+      
 
       port_mappings = [
         {
@@ -290,6 +164,9 @@ module "ecs_service_poc2" {
 
 }
 
+*/
+
+/*
 resource "aws_security_group_rule" "allow_all_https_poc2" {
   type        = "egress"
   from_port   = 443
@@ -300,3 +177,4 @@ resource "aws_security_group_rule" "allow_all_https_poc2" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.ecs_service_poc2.security_group_id
 }
+*/
