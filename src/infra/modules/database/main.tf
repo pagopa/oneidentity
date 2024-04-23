@@ -44,7 +44,7 @@ module "dynamodb_table_saml_responses" {
   point_in_time_recovery_enabled = var.saml_responses_table.point_in_time_recovery_enabled
 
   server_side_encryption_enabled     = true
-  server_side_encryption_kms_key_arn = module.kms_table_saml_responses.aliases["saml_responses/dynamodb"].arn
+  server_side_encryption_kms_key_arn = module.kms_table_saml_responses.aliases["saml_responses/dynamodb"].target_key_arn
 
   tags = {
     Name = var.saml_responses_table.name
