@@ -1,3 +1,10 @@
+module "iam" {
+  source = "../modules/iam"
+
+  github_repository = "pagopa/oneidentity"
+}
+
+
 module "network" {
   source   = "../modules/network"
   vpc_name = format("%s-vpc", local.project)

@@ -87,7 +87,7 @@ module "elb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/"
+        path                = "/ping"
         port                = local.container_poc2_port
         healthy_threshold   = 3
         unhealthy_threshold = 3
