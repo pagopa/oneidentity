@@ -68,7 +68,7 @@ module "alb" {
         healthy_threshold   = 5
         interval            = 30
         matcher             = "200"
-        path                = "/"
+        path                = "/ping"
         port                = "traffic-port"
         protocol            = "HTTP"
         timeout             = 5
