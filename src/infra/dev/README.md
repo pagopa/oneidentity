@@ -60,5 +60,6 @@
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | n/a |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | # ECS ## |
+| <a name="output_ecs_deploy_iam_role_arn"></a> [ecs\_deploy\_iam\_role\_arn](#output\_ecs\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_rest_api_v2_invoke_url"></a> [rest\_api\_v2\_invoke\_url](#output\_rest\_api\_v2\_invoke\_url) | n/a |
 | <a name="output_table_saml_responses_name"></a> [table\_saml\_responses\_name](#output\_table\_saml\_responses\_name) | Database |

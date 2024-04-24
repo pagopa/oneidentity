@@ -9,6 +9,10 @@ output "ecr_endpoints" {
   value = module.backend.ecr_endpoints
 }
 
+output "ecs_deploy_iam_role_arn" {
+  value = module.backend.ecs_deploy_iam_role_arn
+}
+
 ## ALB ##
 /*
 output "alb_dns_name" {
