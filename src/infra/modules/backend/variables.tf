@@ -1,3 +1,9 @@
+variable "account_id" {
+  type        = string
+  description = "AWS Account id."
+}
+
+
 variable "ecr_registers" {
   type = list(object({
     name                     = string
@@ -55,6 +61,9 @@ variable "service_idp" {
     })
 
   })
-
 }
 
+variable "github_repository" {
+  type        = string
+  description = "Github repository responsible to deploy ECS tasks in the form <organization|user/repository>."
+}
