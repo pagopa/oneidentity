@@ -116,3 +116,88 @@ module "ecs_idp_service" {
   }
 
 }
+
+
+## Deploy with github action
+resource "aws_iam_role" "githubecsdeploy" {
+  name        = format("%s-deploy", var.service_idp.service_name)
+  description = "Role to assume to deploy ECS tasks"
+
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = "arn:aws:iam::${var.account_id}:oidc-provider/token.actions.githubusercontent.com"
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : [
+              "repo:${var.github_repository}:*"
+            ]
+          },
+          "ForAllValues:StringEquals" = {
+            "token.actions.githubusercontent.com:iss" : "https://token.actions.githubusercontent.com",
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+/*
+data "aws_iam_policy" "ec2_ecr_full_access" {
+  name = "AmazonEC2ContainerRegistryFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "deploy_ec2_ecr_full_access" {
+  role       = aws_iam_role.githubecsdeploy.name
+  policy_arn = data.aws_iam_policy.ec2_ecr_full_access.arn
+}
+*/
+
+resource "aws_iam_policy" "deploy_ecs" {
+  name        = format("%s-policy", var.service_idp.service_name)
+  description = "Policy to allow deploy on ECS."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:DescribeImages",
+          "ecr:ListImages",
+          "ecr:TagResource",
+          "ecr:GetAuthorizationToken",
+          "ecr:PutImage",
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
+        ]
+        Resource = [
+          "arn:aws:ecs:*:${var.account_id}:service/*",
+          "arn:aws:ecr:*:${var.account_id}:repository/*",
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+        ]
+        Resource = "*"
+        Sid      = "ECSTaskDefinition"
+      },
+      {
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = module.ecs_idp_service.task_exec_iam_role_arn
+        Sid      = "PassRole"
+      }
+    ]
+  })
+}
