@@ -202,6 +202,7 @@ resource "aws_iam_policy" "deploy_ecs" {
           "ecr:ListImages",
           "ecr:PutImage",
           "ecr:TagResource",
+          "ecr:UploadLayerPart",
         ]
         Resource = ["*"]
       },
