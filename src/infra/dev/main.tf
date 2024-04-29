@@ -132,7 +132,7 @@ module "backend" {
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
 
-  table_saml_responces_arn = module.database.saml_responses_table_name
+  table_saml_responces_arn = module.database.saml_responses_table_arn
 
 }
 
