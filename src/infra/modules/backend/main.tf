@@ -191,7 +191,9 @@ resource "aws_iam_policy" "deploy_ecs" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
+      
       {
+        Sid = "ECRPublish"
         Effect = "Allow"
         Action = [
           "ecr:DescribeImages",
@@ -199,19 +201,16 @@ resource "aws_iam_policy" "deploy_ecs" {
           "ecr:TagResource",
           "ecr:GetAuthorizationToken",
           "ecr:PutImage",
-          "ecs:DescribeServices",
-          "ecs:UpdateService",
         ]
-        Resource = [
-          "arn:aws:ecs:*:${var.account_id}:service/*",
-          "arn:aws:ecr:*:${var.account_id}:repository/*",
-        ]
+        Resource = ["*"]
       },
       {
         Effect = "Allow"
         Action = [
           "ecs:DescribeTaskDefinition",
           "ecs:RegisterTaskDefinition",
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
         ]
         Resource = "*"
         Sid      = "ECSTaskDefinition"
