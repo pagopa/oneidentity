@@ -30,4 +30,5 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_saml_responses_table_arn"></a> [saml\_responses\_table\_arn](#output\_saml\_responses\_table\_arn) | n/a |
 | <a name="output_saml_responses_table_name"></a> [saml\_responses\_table\_name](#output\_saml\_responses\_table\_name) | n/a |
