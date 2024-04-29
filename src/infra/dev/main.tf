@@ -19,27 +19,6 @@ module "network" {
   enable_nat_gateway        = false
   single_nat_gateway        = true
 
-  r53_dns_zones = {
-    "${var.r53_dns_zone.name}" = {
-      comment = var.r53_dns_zone.comment
-    }
-
-    "oneidentity.pagopa.it" = {
-      comment = "Temporary production zone"
-    }
-  }
-
-  r53_dns_zone_records = [
-    {
-      name = ""
-      type = "A"
-      alias = {
-        name                   = module.alb.dns_name
-        zone_id                = module.alb.zone_id
-        evaluate_target_health = true
-      }
-    },
-  ]
 }
 
 
@@ -65,6 +44,25 @@ module "records_prod" {
   ]
 
   depends_on = [module.network]
+}
+
+module "frontend" {
+  source   = "../modules/frontend"
+  alb_name = local.alb_name
+
+  vpc_id              = module.network.vpc_id
+  public_subnet_ids   = module.network.public_subnet_ids
+  acm_certificate_arn = module.frontend.acm_certificate_arn
+
+  r53_dns_zones = {
+    "${var.r53_dns_zone.name}" = {
+      comment = var.r53_dns_zone.comment
+    }
+
+    "oneidentity.pagopa.it" = {
+      comment = "Temporary production zone"
+    }
+  }
 }
 
 
@@ -123,8 +121,8 @@ module "backend" {
     subnet_ids = module.network.private_subnet_ids
 
     load_balancer = {
-      target_group_arn  = module.alb.target_groups["ecs_oneidentity"].arn
-      security_group_id = module.alb.security_group_id
+      target_group_arn  = module.frontend.alb_target_groups["ecs_oneidentity"].arn
+      security_group_id = module.frontend.alb_security_group_id
     }
 
   }
@@ -135,7 +133,6 @@ module "backend" {
   table_saml_responces_arn = module.database.saml_responses_table_arn
 
 }
-
 
 module "database" {
   source = "../modules/database"
