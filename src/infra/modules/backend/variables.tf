@@ -67,3 +67,9 @@ variable "github_repository" {
   type        = string
   description = "Github repository responsible to deploy ECS tasks in the form <organization|user/repository>."
 }
+
+variable "table_saml_responces_arn" {
+  type        = string
+  description = "Dynamodb table saml responses arn."
+
+}

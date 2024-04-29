@@ -31,6 +31,27 @@ module "ecr" {
   registry_replication_rules                = []
 }
 
+resource "aws_iam_policy" "ecs_idp_task" {
+  name = format("%s-task-policy", var.service_idp.service_name)
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DynamoDB"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+        ]
+        Resource = [
+          "${var.table_saml_responces_arn}"
+        ]
+      }
+    ]
+  })
+
+}
+
 module "ecs" {
 
   source  = "terraform-aws-modules/ecs/aws"
@@ -62,6 +83,9 @@ module "ecs_idp_service" {
 
   enable_execute_command = var.service_idp.enable_execute_command
 
+  task_exec_iam_role_policies = {
+    ecs_idp_task = aws_iam_policy.ecs_idp_task.arn
+  }
   container_definitions = {
     "${var.service_idp.container.name}" = {
       cpu    = var.service_idp.container.cpu
