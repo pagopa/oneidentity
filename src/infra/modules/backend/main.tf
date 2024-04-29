@@ -196,6 +196,7 @@ resource "aws_iam_policy" "deploy_ecs" {
         Sid = "ECRPublish"
         Effect = "Allow"
         Action = [
+          "ecr:CompleteLayerUpload",
           "ecr:DescribeImages",
           "ecr:GetAuthorizationToken",
           "ecr:InitiateLayerUpload",
