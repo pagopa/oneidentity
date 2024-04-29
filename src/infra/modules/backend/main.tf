@@ -198,7 +198,7 @@ resource "aws_iam_policy" "deploy_ecs" {
         Action = [
           "ecr:DescribeImages",
           "ecr:GetAuthorizationToken",
-          "ecs:InitiateLayerUpload",
+          "ecr:InitiateLayerUpload",
           "ecr:ListImages",
           "ecr:PutImage",
           "ecr:TagResource",
