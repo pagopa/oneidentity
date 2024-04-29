@@ -191,11 +191,12 @@ resource "aws_iam_policy" "deploy_ecs" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      
+
       {
-        Sid = "ECRPublish"
+        Sid    = "ECRPublish"
         Effect = "Allow"
         Action = [
+          "ecr:BatchCheckLayerAvailability",
           "ecr:CompleteLayerUpload",
           "ecr:DescribeImages",
           "ecr:GetAuthorizationToken",
