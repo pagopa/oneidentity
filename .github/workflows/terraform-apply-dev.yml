@@ -32,5 +32,5 @@ jobs:
         with:
           working-directory: src/infra/dev
           region: ${{ vars.AWS_REGION }}
-          iam_role: ${{ vars.IAM_ROLE }}
+          iam_role: ${{ vars.IAM_ROLE_IAC }}
   
