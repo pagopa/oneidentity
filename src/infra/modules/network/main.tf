@@ -120,39 +120,3 @@ module "vpc_endpoints" {
   }
 
 }
-
-
-## DNS Zones
-module "zones" {
-  source  = "terraform-aws-modules/route53/aws//modules/zones"
-  version = "2.11.0"
-  zones   = var.r53_dns_zones
-}
-
-module "records" {
-  source  = "terraform-aws-modules/route53/aws//modules/records"
-  version = "2.11.0"
-
-  zone_name = keys(module.zones.route53_zone_zone_id)[0]
-
-  records = var.r53_dns_zone_records
-
-  depends_on = [module.zones]
-}
-
-## ACM ##
-module "acm" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "5.0.0"
-
-  domain_name = keys(var.r53_dns_zones)[0]
-
-  zone_id = module.zones.route53_zone_zone_id[keys(var.r53_dns_zones)[0]]
-
-  validation_method      = "DNS"
-  create_route53_records = true
-
-  tags = {
-    Name = keys(var.r53_dns_zones)[0]
-  }
-}

@@ -40,15 +40,3 @@ variable "single_nat_gateway" {
   default     = false
 
 }
-
-
-## DNS ##
-variable "r53_dns_zones" {
-  type        = any
-  description = "R53 DNS Zones."
-}
-
-variable "r53_dns_zone_records" {
-  type        = list(any)
-  description = "R53 DNS zone records"
-}
