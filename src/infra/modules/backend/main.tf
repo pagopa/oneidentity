@@ -52,6 +52,22 @@ resource "aws_iam_policy" "ecs_idp_task" {
 
 }
 
+
+## KMS key to sign the Jwt tokens.
+module "jwt_sign" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "2.2.1"
+
+  description              = "KMS key to sign Jwt tokens"
+  key_usage                = "SIGN_VERIFY"
+  customer_master_key_spec = "RSA_2048"
+  enable_key_rotation      = false
+
+
+  # Aliases
+  aliases = ["test-sign-jwt"]
+}
+
 module "ecs" {
 
   source  = "terraform-aws-modules/ecs/aws"
@@ -102,6 +118,14 @@ module "ecs_idp_service" {
           protocol      = "tcp"
         }
       ]
+
+      environment = [
+        {
+          name  = "KEY_ID"
+          value = module.jwt_sign.key_id
+        }
+      ]
+
     }
   }
 

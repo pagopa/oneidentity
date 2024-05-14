@@ -87,8 +87,6 @@ module "vpc_endpoints" {
       security_group_ids = [aws_security_group.vpc_tls.id]
       tags               = { Name = "ecr.dkr-endpoint" }
     },
-
-    /*
     dynamodb = {
       service         = "dynamodb"
       service_type    = "Gateway"
@@ -96,27 +94,25 @@ module "vpc_endpoints" {
       # policy          = data.aws_iam_policy_document.dynamodb_endpoint_policy.json
       tags = { Name = "dynamodb-vpc-endpoint" }
     },
-    /*
     ecs = {
       service             = "ecs"
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
-      tags                = merge({ Name = "ecs-endpoint" }, var.tags)
+      tags                = { Name = "ecs-endpoint" }
     },
     ecs_telemetry = {
       service             = "ecs-telemetry"
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
-      tags                = merge({ Name = "ecs-telemetry-endpoint" }, var.tags)
-    },    
+      tags                = { Name = "ecs-telemetry-endpoint" }
+    },
     kms = {
       service             = "kms"
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
       security_group_ids  = [aws_security_group.vpc_tls.id]
-      tags                = merge({ Name = "kms-endpoint" }, var.tags)
+      tags                = { Name = "kms-endpoint" }
     },
-    */
   }
 
 }
