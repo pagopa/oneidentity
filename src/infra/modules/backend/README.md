@@ -18,6 +18,7 @@
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
 | <a name="module_ecs"></a> [ecs](#module\_ecs) | terraform-aws-modules/ecs/aws | 5.9.1 |
 | <a name="module_ecs_idp_service"></a> [ecs\_idp\_service](#module\_ecs\_idp\_service) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
+| <a name="module_jwt_sign"></a> [jwt\_sign](#module\_jwt\_sign) | terraform-aws-modules/kms/aws | 2.2.1 |
 
 ## Resources
 

@@ -8,7 +8,7 @@ dns_record_ttl = 3600
 
 
 ## ECS ##
-idp_image_version = "17"
+idp_image_version = "56.0"
 
 ecs_autoscaling_idp = {
   enable       = true
