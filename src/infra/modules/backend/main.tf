@@ -31,6 +31,21 @@ module "ecr" {
   registry_replication_rules                = []
 }
 
+## KMS key to sign the Jwt tokens.
+module "jwt_sign" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "2.2.1"
+
+  description              = "KMS key to sign Jwt tokens"
+  key_usage                = "SIGN_VERIFY"
+  customer_master_key_spec = "RSA_2048"
+  enable_key_rotation      = false
+
+
+  # Aliases
+  aliases = ["test-sign-jwt"]
+}
+
 resource "aws_iam_policy" "ecs_idp_task" {
   name = format("%s-task-policy", var.service_idp.service_name)
   policy = jsonencode({
@@ -45,6 +60,16 @@ resource "aws_iam_policy" "ecs_idp_task" {
         ]
         Resource = [
           "${var.table_saml_responces_arn}"
+        ]
+      },
+      {
+        Sid    = "KSMSign"
+        Effect = "Allow"
+        Action = [
+          "kms:Sign"
+        ]
+        Resource = [
+          "${module.jwt_sign.key_arn}"
         ]
       }
     ]
@@ -102,6 +127,14 @@ module "ecs_idp_service" {
           protocol      = "tcp"
         }
       ]
+
+      environment = [
+        {
+          name  = "KEY_ID"
+          value = module.jwt_sign.key_id
+        }
+      ]
+
     }
   }
 

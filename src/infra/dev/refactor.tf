@@ -85,3 +85,15 @@ moved {
   from = module.alb.aws_vpc_security_group_ingress_rule.this["all_http"]
   to   = module.frontend.module.alb.aws_vpc_security_group_ingress_rule.this["all_http"]
 }
+
+
+import {
+  to = module.backend.module.jwt_sign.aws_kms_key.this[0]
+  id = "12ec0889-8be5-4719-ab6f-91e1bf017fc4"
+}
+
+import {
+  to = module.backend.module.jwt_sign.aws_kms_alias.this["test-sign-jwt"]
+  id = "alias/test-sign-jwt"
+}
+
