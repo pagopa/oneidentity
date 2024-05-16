@@ -69,7 +69,7 @@ resource "aws_iam_policy" "ecs_idp_task" {
           "kms:Sign"
         ]
         Resource = [
-          "${module.jwt_sign.key_arn}"
+          "${module.jwt_sign.aliases.test-sign-jwt.target_key_arn}"
         ]
       }
     ]
@@ -131,7 +131,7 @@ module "ecs_idp_service" {
       environment = [
         {
           name  = "KEY_ID"
-          value = module.jwt_sign.key_id
+          value = module.jwt_sign.aliases.test-sign-jwt.target_key_id
         }
       ]
 
