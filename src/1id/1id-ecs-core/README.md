@@ -1,0 +1,1 @@
+## Do not use dockerfiles inside this maven module.

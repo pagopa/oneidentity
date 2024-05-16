@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>it.pagopa.1id</groupId>
+    <artifactId>1id</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>1id-common</module>
+        <module>1id-ecs-core</module>
+        <module>1id-lambda-client-registration</module>
+        <module>1id-lambda-service-metadata</module>
+    </modules>
+
+    <properties>
+        <compiler-plugin.version>3.12.1</compiler-plugin.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.version>3.10.1</quarkus.platform.version>
+        <skipITs>true</skipITs>
+        <surefire-plugin.version>3.2.5</surefire-plugin.version>
+        <it.pagopa.1id.common.group-id>it.pagopa.1id.common</it.pagopa.1id.common.group-id>
+        <it.pagopa.1id.common.client.artifact-id>client</it.pagopa.1id.common.client.artifact-id>
+        <it.pagopa.1id.common.client.version>1.0.0-SNAPSHOT</it.pagopa.1id.common.client.version>
+        <it.pagopa.1id.common.model.artifact-id>model</it.pagopa.1id.common.model.artifact-id>
+        <it.pagopa.1id.common.model.version>1.0.0-SNAPSHOT</it.pagopa.1id.common.model.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>${it.pagopa.1id.common.group-id}</groupId>
+                <artifactId>${it.pagopa.1id.common.client.artifact-id}</artifactId>
+                <version>${it.pagopa.1id.common.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${it.pagopa.1id.common.group-id}</groupId>
+                <artifactId>${it.pagopa.1id.common.model.artifact-id}</artifactId>
+                <version>${it.pagopa.1id.common.model.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <activation>
+                <property>
+                    <name>native</name>
+                </property>
+            </activation>
+            <properties>
+                <skipITs>false</skipITs>
+                <quarkus.native.enabled>true</quarkus.native.enabled>
+            </properties>
+        </profile>
+    </profiles>
+</project>
