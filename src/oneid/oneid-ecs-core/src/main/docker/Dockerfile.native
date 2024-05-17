@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/1id-ecs-core .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/oneid-ecs-core .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/1id-ecs-core
+# docker run -i --rm -p 8080:8080 quarkus/oneid-ecs-core
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.9

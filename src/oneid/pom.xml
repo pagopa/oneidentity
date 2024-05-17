@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>it.pagopa.1id</groupId>
-    <artifactId>1id</artifactId>
+    <groupId>it.pagopa.oneid</groupId>
+    <artifactId>oneid</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>1id-common</module>
-        <module>1id-ecs-core</module>
-        <module>1id-lambda-client-registration</module>
-        <module>1id-lambda-service-metadata</module>
+        <module>oneid-common</module>
+        <module>oneid-ecs-core</module>
+        <module>oneid-lambda-client-registration</module>
+        <module>oneid-lambda-service-metadata</module>
     </modules>
 
     <properties>
@@ -23,11 +23,11 @@
         <quarkus.platform.version>3.10.1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
-        <it.pagopa.1id.common.group-id>it.pagopa.1id.common</it.pagopa.1id.common.group-id>
-        <it.pagopa.1id.common.client.artifact-id>client</it.pagopa.1id.common.client.artifact-id>
-        <it.pagopa.1id.common.client.version>1.0.0-SNAPSHOT</it.pagopa.1id.common.client.version>
-        <it.pagopa.1id.common.model.artifact-id>model</it.pagopa.1id.common.model.artifact-id>
-        <it.pagopa.1id.common.model.version>1.0.0-SNAPSHOT</it.pagopa.1id.common.model.version>
+        <it.pagopa.oneid.common.group-id>it.pagopa.oneid.common</it.pagopa.oneid.common.group-id>
+        <it.pagopa.oneid.common.client.artifact-id>client</it.pagopa.oneid.common.client.artifact-id>
+        <it.pagopa.oneid.common.client.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.client.version>
+        <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
+        <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
     </properties>
 
     <dependencyManagement>
@@ -40,14 +40,14 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>${it.pagopa.1id.common.group-id}</groupId>
-                <artifactId>${it.pagopa.1id.common.client.artifact-id}</artifactId>
-                <version>${it.pagopa.1id.common.client.version}</version>
+                <groupId>${it.pagopa.oneid.common.group-id}</groupId>
+                <artifactId>${it.pagopa.oneid.common.client.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.client.version}</version>
             </dependency>
             <dependency>
-                <groupId>${it.pagopa.1id.common.group-id}</groupId>
-                <artifactId>${it.pagopa.1id.common.model.artifact-id}</artifactId>
-                <version>${it.pagopa.1id.common.model.version}</version>
+                <groupId>${it.pagopa.oneid.common.group-id}</groupId>
+                <artifactId>${it.pagopa.oneid.common.model.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.model.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
