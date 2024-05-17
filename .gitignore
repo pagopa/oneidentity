@@ -27,3 +27,13 @@ override.tf.json
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
+
+# Ignore any maven files generated during maven build plugin execution
+**/target/*
+
+# Ignore any IDE configuration files
+**/.idea/*
+
+# Ignore maven-wrapper.jar
+maven-wrapper.jar
+
