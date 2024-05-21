@@ -87,7 +87,7 @@ module "backend" {
 
   ecr_registers = [
     {
-      name                     = local.ecr_idp
+      name                     = local.ecr_name
       number_of_images_to_keep = 3
   }]
 
@@ -103,23 +103,23 @@ module "backend" {
     }
   }
 
-  service_idp = {
-    service_name = format("%s-ipd", local.project)
+  service_oneid = {
+    service_name = format("%s-service", local.project)
 
     cpu    = 1024
     memory = 2048
 
     container = {
-      name          = "idp"
+      name          = "oneid"
       cpu           = 1024
       memory        = 2048
-      image_name    = local.ecr_idp
-      image_version = var.idp_image_version
+      image_name    = local.ecr_name
+      image_version = var.oneid_image_version
       containerPort = 8080
       hostPort      = 8080
     }
 
-    autoscaling = var.ecs_autoscaling_idp
+    autoscaling = var.ecs_autoscaling_oneid
 
     subnet_ids = module.network.private_subnet_ids
 

@@ -8,9 +8,9 @@ dns_record_ttl = 3600
 
 
 ## ECS ##
-idp_image_version = "56.0"
+oneid_image_version = "56.0"
 
-ecs_autoscaling_idp = {
+ecs_autoscaling_oneid = {
   enable       = true
   min_capacity = 1
   max_capacity = 2

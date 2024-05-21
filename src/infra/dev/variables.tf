@@ -43,7 +43,7 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
-variable "ecs_autoscaling_idp" {
+variable "ecs_autoscaling_oneid" {
   type = object({
     enable       = bool
     min_capacity = number
@@ -51,7 +51,7 @@ variable "ecs_autoscaling_idp" {
   })
 }
 
-variable "idp_image_version" {
+variable "oneid_image_version" {
   type        = string
   description = "Image version idp."
 }

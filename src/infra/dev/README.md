@@ -36,8 +36,8 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ecs_autoscaling_idp"></a> [ecs\_autoscaling\_idp](#input\_ecs\_autoscaling\_idp) | n/a | <pre>object({<br>    enable       = bool<br>    min_capacity = number<br>    max_capacity = number<br>  })</pre> | n/a | yes |
-| <a name="input_idp_image_version"></a> [idp\_image\_version](#input\_idp\_image\_version) | Image version idp. | `string` | n/a | yes |
+| <a name="input_ecs_autoscaling_oneid"></a> [ecs\_autoscaling\_oneid](#input\_ecs\_autoscaling\_oneid) | n/a | <pre>object({<br>    enable       = bool<br>    min_capacity = number<br>    max_capacity = number<br>  })</pre> | n/a | yes |
+| <a name="input_oneid_image_version"></a> [oneid\_image\_version](#input\_oneid\_image\_version) | Image version idp. | `string` | n/a | yes |
 | <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br>    name    = string<br>    comment = string<br>  })</pre> | n/a | yes |
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | App name. | `string` | `"oneid"` | no |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | # Storage S3 ## | <pre>object({<br>    mfa_delete               = bool<br>    gracier_transaction_days = number<br>    expiration_days          = number<br>  })</pre> | <pre>{<br>  "expiration_days": 100,<br>  "gracier_transaction_days": 90,<br>  "mfa_delete": false<br>}</pre> | no |
