@@ -1,6 +1,6 @@
 ## DNS ##
 r53_dns_zone = {
-  name    = "dev.oneidentity.pagopa.it"
+  name    = "dev.oneid.pagopa.it"
   comment = "Oneidentity dev zone."
 }
 

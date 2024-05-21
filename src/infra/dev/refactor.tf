@@ -19,10 +19,12 @@ moved {
   to   = module.frontend.module.acm.aws_acm_certificate.this[0]
 }
 
+/*
 moved {
   from = module.network.module.zones.aws_route53_zone.this["oneidentity.pagopa.it"]
   to   = module.frontend.module.zones.aws_route53_zone.this["oneidentity.pagopa.it"]
 }
+
 
 moved {
   from = module.network.module.acm.aws_acm_certificate_validation.this[0]
@@ -43,7 +45,7 @@ moved {
   from = module.network.module.zones.aws_route53_zone.this["dev.oneidentity.pagopa.it"]
   to   = module.frontend.module.zones.aws_route53_zone.this["dev.oneidentity.pagopa.it"]
 }
-
+*/
 moved {
   from = module.alb.aws_vpc_security_group_ingress_rule.this["all_https"]
   to   = module.frontend.module.alb.aws_vpc_security_group_ingress_rule.this["all_https"]
