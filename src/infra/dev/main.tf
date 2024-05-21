@@ -23,11 +23,12 @@ module "network" {
 
 
 /* Temporary record that need to be replaces one the production account will be set */
+/* This must be remouved since it causes a kind of circular references with the certificate validation */
 module "records_prod" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
-  zone_name = "oneidentity.pagopa.it"
+  zone_name = "oneid.pagopa.it"
 
   records = [
     {
@@ -35,16 +36,18 @@ module "records_prod" {
       type = "NS"
       ttl  = var.dns_record_ttl
       records = [
-        "ns-122.awsdns-15.com",
-        "ns-1374.awsdns-43.org",
-        "ns-1590.awsdns-06.co.uk",
-        "ns-649.awsdns-17.net",
+        "ns-174.awsdns-21.com",
+        "ns-1299.awsdns-34.org",
+        "ns-936.awsdns-53.net",
+        "ns-1856.awsdns-40.co.uk",
       ]
     },
   ]
 
-  depends_on = [module.network]
+  # depends_on = [module.frontend]
 }
+
+
 
 module "frontend" {
   source   = "../modules/frontend"
@@ -59,7 +62,7 @@ module "frontend" {
       comment = var.r53_dns_zone.comment
     }
 
-    "oneidentity.pagopa.it" = {
+    "oneid.pagopa.it" = {
       comment = "Temporary production zone"
     }
   }
