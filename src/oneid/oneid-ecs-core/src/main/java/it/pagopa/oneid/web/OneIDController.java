@@ -11,31 +11,32 @@ import jakarta.ws.rs.core.Response;
 public class OneIDController {
 
     @GET
+    @Path("/ping")
+    public Response ping() {
+        return Response.ok("Ping").build();
+    }
+
+    @GET
     @Path("/login")
-    public Response login(){
+    public Response login() {
         return Response.ok(DummyUser.USER_NAME).build();
     }
 
     @GET
     @Path("/oidc/authorize")
-    public Response authorize(){
+    public Response authorize() {
         return Response.ok(DummyClient.CLIENT_NAME).build();
     }
 
     @GET
     @Path("/oidc/token")
-    public Response token(){
+    public Response token() {
         return Response.ok("Token Path").build();
     }
 
     @GET
     @Path("/saml/acs")
-    public Response samlACS(){
+    public Response samlACS() {
         return Response.ok("ACS Path").build();
     }
-
-
-
-
-
 }
