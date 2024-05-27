@@ -30,6 +30,13 @@ variable "r53_dns_zone" {
   })
 }
 
+# DNS
+variable "dns_record_ttl" {
+  type        = number
+  description = "Dns record ttl (in sec)"
+  default     = 86400 # 24 hours
+}
+
 variable "tags" {
   type = map(any)
   default = {

@@ -3,6 +3,7 @@ data "aws_caller_identity" "current" {}
 
 ## DNS Zones
 /* This is temporary since the definitio already exists in the frontend module. */
+# https://excalidraw.com/#json=7JsEzD4q1OklkLKu-nqmw,V6xmyHNRi-6OU-C32Nr_KA
 module "r53_zones" {
   source  = "terraform-aws-modules/route53/aws//modules/zones"
   version = "2.11.0"
@@ -22,7 +23,7 @@ module "dev_ns_record" {
 
   records = [
     {
-      name = split(".", var.r53_dns_zone.name)[0]
+      name = "dev"
       type = "NS"
       ttl  = var.dns_record_ttl
       records = [
