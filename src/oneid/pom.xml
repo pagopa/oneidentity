@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.pagopa.oneid</groupId>
     <artifactId>oneid</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <modules>
-        <module>oneid-common</module>
-        <module>oneid-ecs-core</module>
-        <module>oneid-lambda-client-registration</module>
-        <module>oneid-lambda-service-metadata</module>
-    </modules>
 
     <properties>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
@@ -28,6 +23,7 @@
         <it.pagopa.oneid.common.client.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.client.version>
         <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
+
     </properties>
 
     <dependencyManagement>
@@ -51,7 +47,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <profiles>
         <profile>
             <id>native</id>
@@ -65,5 +60,60 @@
                 <quarkus.native.enabled>true</quarkus.native.enabled>
             </properties>
         </profile>
+        <profile>
+            <id>oneid-ecs-core-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-ecs-core</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>oneid-lambda-client-registration-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-client-registration</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>oneid-lambda-service-metadata-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-service-metadata</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>oneid-all</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-ecs-core</module>
+                <module>oneid-lambda-client-registration</module>
+                <module>oneid-lambda-service-metadata</module>
+            </modules>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${quarkus.platform.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jboss.jandex</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
