@@ -73,3 +73,12 @@ variable "table_saml_responces_arn" {
   description = "Dynamodb table saml responses arn."
 
 }
+
+variable "client_registration_lambda" {
+  type = object({
+    name                           = string
+    filename                       = string
+    table_client_registrations_arn = string
+  })
+
+}

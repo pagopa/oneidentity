@@ -51,3 +51,29 @@ module "dynamodb_table_saml_responses" {
   }
 
 }
+
+
+module "dynamodb_table_client_registrations" {
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = var.client_registrations_table.name
+
+  hash_key = "clientId"
+
+  attributes = [
+    {
+      name = "clientId"
+      type = "S"
+    }
+  ]
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.saml_responses_table.point_in_time_recovery_enabled
+
+  tags = {
+    Name = var.client_registrations_table.name
+  }
+
+}
