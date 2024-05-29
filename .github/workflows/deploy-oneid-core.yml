@@ -27,6 +27,9 @@ jobs:
       - name: Set Dynamic Env Matrix
         id: setmatrix
         run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+
           if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
             matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
           else
@@ -34,10 +37,9 @@ jobs:
           fi
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
   
-  
   deploy:
     name: "Deploy on ECS"
-    if: ${{ needs.build.outputs.matrix != '' }}
+    if: ${{ needs.setup.outputs.matrix != '' }}
     runs-on: ubuntu-22.04
     permissions:
       id-token: write
