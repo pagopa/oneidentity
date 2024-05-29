@@ -45,7 +45,7 @@ jobs:
       id-token: write
       contents: read
     strategy:
-        matrix: ${{ fromJson(needs.build.outputs.matrix) }}
+        matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
          
     continue-on-error: false
     environment: ${{ matrix.environment }}
