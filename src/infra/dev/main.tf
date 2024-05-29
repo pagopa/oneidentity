@@ -101,7 +101,14 @@ module "backend" {
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
 
-  table_saml_responces_arn = module.database.saml_responses_table_arn
+  table_saml_responces_arn = module.database.table_saml_responses_arn
+
+  client_registration_lambda = {
+    name                           = format("%s-client-registration", local.project)
+    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    table_client_registrations_arn = module.database.table_client_registrations_arn
+
+  }
 
 }
 
@@ -109,8 +116,13 @@ module "database" {
   source = "../modules/database"
 
   saml_responses_table = {
-    name                           = format("%s-saml-responses", local.project)
-    point_in_time_recovery_enabled = var.table_saml_responses_point_in_time_recovery_enabled
+    name                           = "SamlResponses"
+    point_in_time_recovery_enabled = false
+  }
+
+  client_registrations_table = {
+    name                           = "ClientRegistrations"
+    point_in_time_recovery_enabled = true
   }
 
 }
