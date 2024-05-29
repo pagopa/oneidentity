@@ -115,7 +115,7 @@ module "ecs_idp_service" {
     "${var.service_idp.container.name}" = {
       cpu    = var.service_idp.container.cpu
       memory = var.service_idp.memory
-
+      
       essential = true
       image     = "${module.ecr[var.service_idp.container.image_name].repository_url}:${var.service_idp.container.image_version}",
 
@@ -134,6 +134,9 @@ module "ecs_idp_service" {
           value = module.jwt_sign.aliases.test-sign-jwt.target_key_id
         }
       ]
+
+      readonly_root_filesystem = false
+
 
     }
   }
@@ -255,7 +258,11 @@ resource "aws_iam_policy" "deploy_ecs" {
       {
         Effect   = "Allow"
         Action   = "iam:PassRole"
-        Resource = module.ecs_idp_service.task_exec_iam_role_arn
+        Resource = [
+          module.ecs_idp_service.tasks_iam_role_arn,
+          module.ecs_idp_service.task_exec_iam_role_arn,
+        ]
+
         Sid      = "PassRole"
       }
     ]
