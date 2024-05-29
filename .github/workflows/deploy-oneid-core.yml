@@ -18,6 +18,23 @@ on:
         options:
         - dev
 jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+        matrix: ${{ steps.setmatrix.outputs.matrix }}
+
+    steps:     
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"        
+          fi
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+  
+  
   deploy:
     name: "Deploy on ECS"
     if: ${{ needs.build.outputs.matrix != '' }}
