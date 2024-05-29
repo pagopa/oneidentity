@@ -40,6 +40,7 @@ jobs:
   deploy:
     name: "Deploy on ECS"
     if: ${{ needs.setup.outputs.matrix != '' }}
+    needs: setup
     runs-on: ubuntu-22.04
     permissions:
       id-token: write
