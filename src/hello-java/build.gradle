@@ -33,4 +33,4 @@ task copyJar(type: Copy) {
     }
 }
 
-build.dependsOn copyJar
+// build.dependsOn copyJar

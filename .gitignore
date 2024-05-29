@@ -39,7 +39,7 @@ maven-wrapper.jar
 
 
 ### Gradle ###
-.gradle
+**/.gradle/*
 **/build/
 !src/**/build/
 

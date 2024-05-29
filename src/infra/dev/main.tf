@@ -116,12 +116,12 @@ module "database" {
   source = "../modules/database"
 
   saml_responses_table = {
-    name                           = format("%s-saml-responses", local.project)
+    name                           = "SamlResponses"
     point_in_time_recovery_enabled = false
   }
 
   client_registrations_table = {
-    name                           = format("%s-client-registrations", local.project)
+    name                           = "ClientRegistrations"
     point_in_time_recovery_enabled = true
   }
 
