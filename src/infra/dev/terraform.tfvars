@@ -7,7 +7,12 @@ r53_dns_zone = {
 dns_record_ttl = 3600
 
 
+## ECR ## 
+repository_image_tag_mutability = "MUTABLE"
+
+
 ## ECS ##
+
 idp_image_version = "56.0"
 
 ecs_autoscaling_idp = {
@@ -15,7 +20,6 @@ ecs_autoscaling_idp = {
   min_capacity = 1
   max_capacity = 2
 }
-
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging

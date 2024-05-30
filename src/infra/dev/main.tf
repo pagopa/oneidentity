@@ -55,8 +55,10 @@ module "backend" {
 
   ecr_registers = [
     {
-      name                     = local.ecr_idp
-      number_of_images_to_keep = 3
+      name                            = local.ecr_idp
+      number_of_images_to_keep        = var.number_of_images_to_keep
+      repository_image_tag_mutability = var.repository_image_tag_mutability
+
   }]
 
   ecs_cluster_name          = format("%s-ecs", local.project)

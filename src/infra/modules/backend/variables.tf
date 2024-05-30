@@ -6,8 +6,9 @@ variable "account_id" {
 
 variable "ecr_registers" {
   type = list(object({
-    name                     = string
-    number_of_images_to_keep = number
+    name                            = string
+    number_of_images_to_keep        = number
+    repository_image_tag_mutability = optional(string, "IMMUTABLE")
   }))
   description = "ECR image repositories"
 }

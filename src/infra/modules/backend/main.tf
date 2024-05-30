@@ -8,6 +8,8 @@ module "ecr" {
 
   repository_read_write_access_arns = []
 
+  repository_image_tag_mutability = each.value.repository_image_tag_mutability
+
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
@@ -115,7 +117,7 @@ module "ecs_idp_service" {
     "${var.service_idp.container.name}" = {
       cpu    = var.service_idp.container.cpu
       memory = var.service_idp.memory
-      
+
       essential = true
       image     = "${module.ecr[var.service_idp.container.image_name].repository_url}:${var.service_idp.container.image_version}",
 
@@ -256,14 +258,14 @@ resource "aws_iam_policy" "deploy_ecs" {
         Sid      = "ECSTaskDefinition"
       },
       {
-        Effect   = "Allow"
-        Action   = "iam:PassRole"
+        Effect = "Allow"
+        Action = "iam:PassRole"
         Resource = [
           module.ecs_idp_service.tasks_iam_role_arn,
           module.ecs_idp_service.task_exec_iam_role_arn,
         ]
 
-        Sid      = "PassRole"
+        Sid = "PassRole"
       }
     ]
   })
