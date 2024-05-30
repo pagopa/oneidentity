@@ -53,7 +53,13 @@ module "storage" {
 module "backend" {
   source = "../modules/backend"
 
-  ecr_registers = var.ecr_registers
+  ecr_registers = [
+    {
+      name                            = local.ecr_idp
+      number_of_images_to_keep        = var.number_of_images_to_keep
+      repository_image_tag_mutability = var.repository_image_tag_mutability
+
+  }]
 
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = true
@@ -103,6 +109,7 @@ module "backend" {
     name                           = format("%s-client-registration", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn = module.database.table_client_registrations_arn
+
   }
 
 }
@@ -119,4 +126,5 @@ module "database" {
     name                           = "ClientRegistrations"
     point_in_time_recovery_enabled = true
   }
+
 }

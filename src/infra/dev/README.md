@@ -22,7 +22,6 @@
 | <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
 | <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api | n/a |
-| <a name="module_records_prod"></a> [records\_prod](#module\_records\_prod) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
 
 ## Resources
@@ -47,6 +46,8 @@
 | <a name="input_ecr_keep_images"></a> [ecr\_keep\_images](#input\_ecr\_keep\_images) | Number of images to keep. | `number` | `3` | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Evnironment short. | `string` | `"d"` | no |
+| <a name="input_number_of_images_to_keep"></a> [number\_of\_images\_to\_keep](#input\_number\_of\_images\_to\_keep) | Number of images to keeps in ECR. | `number` | `3` | no |
+| <a name="input_repository_image_tag_mutability"></a> [repository\_image\_tag\_mutability](#input\_repository\_image\_tag\_mutability) | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE | `string` | `"IMMUTABLE"` | no |
 | <a name="input_table_saml_responses_point_in_time_recovery_enabled"></a> [table\_saml\_responses\_point\_in\_time\_recovery\_enabled](#input\_table\_saml\_responses\_point\_in\_time\_recovery\_enabled) | Enable point in time recovery table saml responses | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | <pre>{<br>  "CreatedBy": "Terraform"<br>}</pre> | no |
 
@@ -62,4 +63,5 @@
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | # ECS ## |
 | <a name="output_ecs_deploy_iam_role_arn"></a> [ecs\_deploy\_iam\_role\_arn](#output\_ecs\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_rest_api_v2_invoke_url"></a> [rest\_api\_v2\_invoke\_url](#output\_rest\_api\_v2\_invoke\_url) | n/a |
+| <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
 | <a name="output_table_saml_responses_name"></a> [table\_saml\_responses\_name](#output\_table\_saml\_responses\_name) | Database |

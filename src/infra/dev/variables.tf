@@ -72,13 +72,17 @@ variable "assertion_bucket" {
 }
 
 ## Backend ##
-variable "ecr_registers" {
-  type = list(object({
-    name                            = string
-    number_of_images_to_keep        = number
-    repository_image_tag_mutability = optional(string, "IMMUTABLE")
-  }))
-  description = "ECR image repositories"
+
+variable "number_of_images_to_keep" {
+  type        = number
+  description = "Number of images to keeps in ECR."
+  default     = 3
+}
+
+variable "repository_image_tag_mutability" {
+  type        = string
+  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE"
+  default     = "IMMUTABLE"
 }
 
 ## Database ##
