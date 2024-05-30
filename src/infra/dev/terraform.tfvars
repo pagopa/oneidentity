@@ -16,6 +16,11 @@ ecs_autoscaling_idp = {
   max_capacity = 2
 }
 
+ecr_registers = [{
+  name                            = local.ecr_idp
+  number_of_images_to_keep        = 3
+  repository_image_tag_mutability = "MUTABLE"
+}]
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging
