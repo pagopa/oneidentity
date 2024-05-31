@@ -2,7 +2,6 @@ package it.pagopa.oneid.web;
 
 
 import it.pagopa.oneid.common.DummyClient;
-import it.pagopa.oneid.common.DummyUser;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
@@ -19,7 +18,7 @@ public class OneIDController {
     @GET
     @Path("/login")
     public Response login() {
-        return Response.ok(DummyUser.USER_NAME).build();
+        return Response.ok("Login Path").build();
     }
 
     @GET
