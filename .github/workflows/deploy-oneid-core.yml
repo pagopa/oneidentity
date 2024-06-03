@@ -81,7 +81,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-          --task-definition oneid-es-1-${{ matrix.env_short }}-ipd  \
+          --task-definition oneid-es-1-${{ matrix.env_short }}-core  \
           --query taskDefinition > ./task-definition.json
           echo $(cat ./task-definition.json | jq 'del(
                   .taskDefinitionArn,
