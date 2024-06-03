@@ -48,8 +48,8 @@ module "jwt_sign" {
   aliases = ["test-sign-jwt"]
 }
 
-resource "aws_iam_policy" "ecs_idp_task" {
-  name = format("%s-task-policy", var.service_idp.service_name)
+resource "aws_iam_policy" "ecs_core_task" {
+  name = format("%s-task-policy", var.service_core.service_name)
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -97,35 +97,35 @@ module "ecs" {
 }
 
 
-module "ecs_idp_service" {
+module "ecs_core_service" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
 
-  name = var.service_idp.service_name
+  name = var.service_core.service_name
 
   cluster_arn = module.ecs.cluster_arn
 
-  cpu    = var.service_idp.cpu
-  memory = var.service_idp.memory
+  cpu    = var.service_core.cpu
+  memory = var.service_core.memory
 
-  enable_execute_command = var.service_idp.enable_execute_command
+  enable_execute_command = var.service_core.enable_execute_command
 
   task_exec_iam_role_policies = {
-    ecs_idp_task = aws_iam_policy.ecs_idp_task.arn
+    ecs_core_task = aws_iam_policy.ecs_core_task.arn
   }
   container_definitions = {
-    "${var.service_idp.container.name}" = {
-      cpu    = var.service_idp.container.cpu
-      memory = var.service_idp.memory
+    "${var.service_core.container.name}" = {
+      cpu    = var.service_core.container.cpu
+      memory = var.service_core.memory
 
       essential = true
-      image     = "${module.ecr[var.service_idp.container.image_name].repository_url}:${var.service_idp.container.image_version}",
+      image     = "${module.ecr[var.service_core.container.image_name].repository_url}:${var.service_core.container.image_version}",
 
       port_mappings = [
         {
-          name          = var.service_idp.container.name
-          containerPort = var.service_idp.container.containerPort
-          hostPort      = var.service_idp.container.hostPort
+          name          = var.service_core.container.name
+          containerPort = var.service_core.container.containerPort
+          hostPort      = var.service_core.container.hostPort
           protocol      = "tcp"
         }
       ]
@@ -143,29 +143,29 @@ module "ecs_idp_service" {
     }
   }
 
-  enable_autoscaling       = var.service_idp.autoscaling.enable
-  autoscaling_min_capacity = var.service_idp.autoscaling.min_capacity
-  autoscaling_max_capacity = var.service_idp.autoscaling.max_capacity
+  enable_autoscaling       = var.service_core.autoscaling.enable
+  autoscaling_min_capacity = var.service_core.autoscaling.min_capacity
+  autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
 
-  subnet_ids       = var.service_idp.subnet_ids
+  subnet_ids       = var.service_core.subnet_ids
   assign_public_ip = false
 
   load_balancer = {
     service = {
-      target_group_arn = var.service_idp.load_balancer.target_group_arn
-      container_name   = var.service_idp.container.name
-      container_port   = var.service_idp.container.containerPort
+      target_group_arn = var.service_core.load_balancer.target_group_arn
+      container_name   = var.service_core.container.name
+      container_port   = var.service_core.container.containerPort
     }
   }
 
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = var.service_idp.container.containerPort
-      to_port                  = var.service_idp.container.containerPort
+      from_port                = var.service_core.container.containerPort
+      to_port                  = var.service_core.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = var.service_idp.load_balancer.security_group_id
+      source_security_group_id = var.service_core.load_balancer.security_group_id
       #source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
@@ -182,7 +182,7 @@ module "ecs_idp_service" {
 
 ## Deploy with github action
 resource "aws_iam_role" "githubecsdeploy" {
-  name        = format("%s-deploy", var.service_idp.service_name)
+  name        = format("%s-deploy", var.service_core.service_name)
   description = "Role to assume to deploy ECS tasks"
 
 
@@ -223,7 +223,7 @@ resource "aws_iam_role_policy_attachment" "deploy_ec2_ecr_full_access" {
 */
 
 resource "aws_iam_policy" "deploy_ecs" {
-  name        = format("%s-policy", var.service_idp.service_name)
+  name        = format("%s-policy", var.service_core.service_name)
   description = "Policy to allow deploy on ECS."
 
   policy = jsonencode({
@@ -261,8 +261,8 @@ resource "aws_iam_policy" "deploy_ecs" {
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = [
-          module.ecs_idp_service.tasks_iam_role_arn,
-          module.ecs_idp_service.task_exec_iam_role_arn,
+          module.ecs_core_service.tasks_iam_role_arn,
+          module.ecs_core_service.task_exec_iam_role_arn,
         ]
 
         Sid = "PassRole"

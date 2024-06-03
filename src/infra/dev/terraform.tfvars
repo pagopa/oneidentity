@@ -13,9 +13,9 @@ repository_image_tag_mutability = "MUTABLE"
 
 ## ECS ##
 
-idp_image_version = "56.0"
+oneid_core_image_version = "0cca0e54ae102384261a464f2cc88fb6b6c091c7"
 
-ecs_autoscaling_idp = {
+ecs_autoscaling_core = {
   enable       = true
   min_capacity = 1
   max_capacity = 2

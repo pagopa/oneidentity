@@ -81,7 +81,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-          --task-definition oneid-es-1-${{ matrix.env_short }}-ipd  \
+          --task-definition oneid-es-1-${{ matrix.env_short }}-core  \
           --query taskDefinition > ./task-definition.json
           echo $(cat ./task-definition.json | jq 'del(
                   .taskDefinitionArn,
@@ -98,14 +98,14 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1.2.0
         with:
           task-definition: ./task-definition.json
-          container-name: idp
+          container-name: oneid-core
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.11
         with:
          task-definition: ${{ steps.task-def.outputs.task-definition }}
-         service: oneid-es-1-${{ matrix.env_short }}-ipd
+         service: oneid-es-1-${{ matrix.env_short }}-core
          cluster: oneid-es-1-${{ matrix.env_short }}-ecs
          wait-for-service-stability: true
 
