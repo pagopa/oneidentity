@@ -21,7 +21,6 @@
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend |  |
 | <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
-| <a name="module_poc_v2"></a> [poc\_v2](#module\_poc\_v2) | ../modules/rest-api |  |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
 
 ## Resources
@@ -35,8 +34,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ecs_autoscaling_core"></a> [ecs\_autoscaling\_core](#input\_ecs\_autoscaling\_core) | n/a | <pre>object({<br>    enable       = bool<br>    min_capacity = number<br>    max_capacity = number<br>  })</pre> | n/a | yes |
-| <a name="input_oneid_core_image_version"></a> [oneid\_core\_image\_version](#input\_oneid\_core\_image\_version) | Image version core. | `string` | n/a | yes |
+| <a name="input_ecs_oneid_core"></a> [ecs\_oneid\_core](#input\_ecs\_oneid\_core) | n/a | <pre>object({<br>    image_version    = string<br>    cpu              = number<br>    memory           = number<br>    container_cpu    = number<br>    container_memory = number<br>    autoscaling = object({<br>      enable       = bool<br>      min_capacity = number<br>      max_capacity = number<br>    })<br>  })</pre> | n/a | yes |
 | <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br>    name    = string<br>    comment = string<br>  })</pre> | n/a | yes |
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | App name. | `string` | `"oneid"` | no |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | # Storage S3 ## | <pre>object({<br>    mfa_delete               = bool<br>    gracier_transaction_days = number<br>    expiration_days          = number<br>  })</pre> | <pre>{<br>  "expiration_days": 100,<br>  "gracier_transaction_days": 90,<br>  "mfa_delete": false<br>}</pre> | no |

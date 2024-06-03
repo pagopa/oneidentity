@@ -60,11 +60,6 @@ variable "ecs_oneid_core" {
 
 }
 
-variable "oneid_core_image_version" {
-  type        = string
-  description = "Image version core."
-}
-
 ## Storage S3 ## 
 variable "assertion_bucket" {
   type = object({

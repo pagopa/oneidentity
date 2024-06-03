@@ -89,7 +89,7 @@ module "backend" {
       hostPort      = 8080
     }
 
-    autoscaling = var.ecs_oneid_core.autoscaling.enable
+    autoscaling = var.ecs_oneid_core.autoscaling
 
     subnet_ids = module.network.private_subnet_ids
 
