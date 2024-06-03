@@ -33,7 +33,7 @@ variable "fargate_capacity_providers" {
   }))
 }
 
-variable "service_idp" {
+variable "service_core" {
   type = object({
     service_name           = string
     cpu                    = number
