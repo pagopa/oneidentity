@@ -1375,7 +1375,7 @@ paths:
                   saml_response:
                     type: string
                     example: "<xml? ....>"
-                    described: Requested SAMLResponse
+                    description: Requested SAMLResponse
         "400":
           description: Missing or invalid parameters.
           headers:
