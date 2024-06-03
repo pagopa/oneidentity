@@ -6,6 +6,6 @@ locals {
   container_name      = "oneidentity"
   alb_name            = format("%s-alb", local.project)
 
-  ecr_idp = format("%s-idp-ecr", local.project)
+  ecr_core = format("%s-core-ecr", local.project)
 
 }

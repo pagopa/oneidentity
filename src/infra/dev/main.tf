@@ -55,7 +55,7 @@ module "backend" {
 
   ecr_registers = [
     {
-      name                            = local.ecr_idp
+      name                            = local.ecr_oneid_core
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
 
@@ -73,23 +73,23 @@ module "backend" {
     }
   }
 
-  service_idp = {
-    service_name = format("%s-ipd", local.project)
+  service_core = {
+    service_name = format("%s-core", local.project)
 
     cpu    = 1024
     memory = 2048
 
     container = {
-      name          = "idp"
+      name          = "oneid-core"
       cpu           = 1024
       memory        = 2048
-      image_name    = local.ecr_idp
-      image_version = var.idp_image_version
+      image_name    = local.ecr_oneid_core
+      image_version = var.oneid_core_image_version
       containerPort = 8080
       hostPort      = 8080
     }
 
-    autoscaling = var.ecs_autoscaling_idp
+    autoscaling = var.ecs_autoscaling_core
 
     subnet_ids = module.network.private_subnet_ids
 
