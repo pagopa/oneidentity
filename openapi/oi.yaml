@@ -174,6 +174,12 @@ paths:
       description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details."
       operationId: Get_request_authorization
       parameters:
+        - name: idp
+          in: query
+          required: true
+          description: "This is the requested 'idp' to initiate the authentication flow"
+          schema:
+            type: string
         - name: client_id
           in: query
           required: true
@@ -823,6 +829,16 @@ paths:
                 master:
                   type: boolean
                   example: false
+                spid_requested_attributes:
+                  type: array
+                  items:
+                    type: string
+                  description: Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html
+                  example:
+                    - spidCode
+                    - name
+                    - familyName
+                    - fiscalNumber
         description: Request body
         required: true
   "/oidc/register/{client_id}":
@@ -1300,6 +1316,12 @@ paths:
           in: query
           required: true
           description: "This is the 'SAMLResponse' of the requesting AUTHnreq."
+          schema:
+            type: string
+        - name: RelayState
+          in: query
+          required: true
+          description: "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html"
           schema:
             type: string
       responses:
