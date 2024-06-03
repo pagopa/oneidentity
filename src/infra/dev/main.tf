@@ -84,7 +84,7 @@ module "backend" {
       cpu           = var.ecs_oneid_core.container_cpu
       memory        = var.ecs_oneid_core.container_memory
       image_name    = local.ecr_oneid_core
-      image_version = var.oneid_core_image_version
+      image_version = var.ecs_oneid_core.image_version
       containerPort = 8080
       hostPort      = 8080
     }
