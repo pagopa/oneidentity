@@ -1,7 +1,5 @@
 package it.pagopa.oneid.model;
 
-import it.pagopa.oneid.common.RecordType;
-
 import java.util.UUID;
 
 public class AccessTokenSession {
