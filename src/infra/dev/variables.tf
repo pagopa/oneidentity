@@ -57,7 +57,6 @@ variable "ecs_oneid_core" {
       max_capacity = number
     })
   })
-
 }
 
 ## Storage S3 ## 

@@ -19,11 +19,11 @@ ecs_oneid_core = {
   memory           = 1024
   container_cpu    = 512
   container_memory = 1024
-  autoscaling = object({
+  autoscaling = {
     enable       = true
     min_capacity = 1
     max_capacity = 2
-  })
+  }
 }
 
 

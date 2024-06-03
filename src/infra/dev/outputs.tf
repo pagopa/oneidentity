@@ -34,10 +34,8 @@ output "rest_api_v1_invoke_url" {
 }
 */
 
-output "rest_api_v2_invoke_url" {
-  value = module.poc_v2.rest_api_invoke_url
-}
 
+## DNS ##
 output "dns_zone_name_servers" {
   value = module.frontend.route53_zone_name_servers
 }
