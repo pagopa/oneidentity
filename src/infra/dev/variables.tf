@@ -43,17 +43,20 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
-variable "ecs_autoscaling_core" {
-  type = object({
-    enable       = bool
-    min_capacity = number
-    max_capacity = number
-  })
-}
 
-variable "oneid_core_image_version" {
-  type        = string
-  description = "Image version core."
+variable "ecs_oneid_core" {
+  type = object({
+    image_version    = string
+    cpu              = number
+    memory           = number
+    container_cpu    = number
+    container_memory = number
+    autoscaling = object({
+      enable       = bool
+      min_capacity = number
+      max_capacity = number
+    })
+  })
 }
 
 ## Storage S3 ## 
