@@ -13,13 +13,19 @@ repository_image_tag_mutability = "MUTABLE"
 
 ## ECS ##
 
-oneid_core_image_version = "0cca0e54ae102384261a464f2cc88fb6b6c091c7"
-
-ecs_autoscaling_core = {
-  enable       = true
-  min_capacity = 1
-  max_capacity = 2
+ecs_oneid_core = {
+  image_version    = "0cca0e54ae102384261a464f2cc88fb6b6c091c7"
+  cpu              = 512
+  memory           = 1024
+  container_cpu    = 512
+  container_memory = 1024
+  autoscaling = object({
+    enable       = true
+    min_capacity = 1
+    max_capacity = 2
+  })
 }
+
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging

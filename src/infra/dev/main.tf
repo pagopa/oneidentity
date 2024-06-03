@@ -76,20 +76,20 @@ module "backend" {
   service_core = {
     service_name = format("%s-core", local.project)
 
-    cpu    = 1024
-    memory = 2048
+    cpu    = var.ecs_oneid_core.cpu
+    memory = var.ecs_oneid_core.memory
 
     container = {
       name          = "oneid-core"
-      cpu           = 1024
-      memory        = 2048
+      cpu           = var.ecs_oneid_core.container_cpu
+      memory        = var.ecs_oneid_core.container_memory
       image_name    = local.ecr_oneid_core
       image_version = var.oneid_core_image_version
       containerPort = 8080
       hostPort      = 8080
     }
 
-    autoscaling = var.ecs_autoscaling_core
+    autoscaling = var.ecs_oneid_core.autoscaling.enable
 
     subnet_ids = module.network.private_subnet_ids
 
