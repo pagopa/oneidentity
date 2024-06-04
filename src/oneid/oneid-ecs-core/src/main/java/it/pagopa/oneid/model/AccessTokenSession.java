@@ -1,4 +1,4 @@
-package it.pagopa.oneid.common;
+package it.pagopa.oneid.model;
 
 import java.util.UUID;
 

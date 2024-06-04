@@ -84,6 +84,17 @@
                 <artifactId>${it.pagopa.oneid.common.model.artifact-id}</artifactId>
                 <version>${it.pagopa.oneid.common.model.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.nimbusds/oauth2-oidc-sdk -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>11.12</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>9.39.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <profiles>

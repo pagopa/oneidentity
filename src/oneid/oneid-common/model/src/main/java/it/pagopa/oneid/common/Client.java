@@ -10,7 +10,7 @@ public class Client {
 
     private String friendlyName;
 
-    private String callbackURI;
+    private ArrayList<String> callbackURI;
 
     private ArrayList<RequestedAttribute> requestedParameters;
 
