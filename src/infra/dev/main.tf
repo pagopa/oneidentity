@@ -29,11 +29,17 @@ module "frontend" {
   public_subnet_ids   = module.network.public_subnet_ids
   acm_certificate_arn = module.frontend.acm_certificate_arn
 
+  ## API Gateway ##
+  rest_api_name = format("%s-restapi", local.project)
+
   r53_dns_zones = {
     "${var.r53_dns_zone.name}" = {
       comment = var.r53_dns_zone.comment
     }
   }
+
+  api_gateway_target_arns = [module.backend.nlb_arn]
+  nlb_dns_name            = module.backend.nlb_dns_name
 }
 
 
@@ -73,6 +79,10 @@ module "backend" {
     }
   }
 
+  vpc_id          = module.network.vpc_id
+  private_subnets = module.network.private_subnet_ids
+  vpc_cidr_block  = module.network.vpc_cidr_block
+
   service_core = {
     service_name = format("%s-core", local.project)
 
@@ -99,6 +109,9 @@ module "backend" {
     }
 
   }
+
+  ## NLB ##
+  nlb_name = format("%s-nlb", local.project)
 
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id

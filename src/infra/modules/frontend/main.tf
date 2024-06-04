@@ -131,3 +131,38 @@ module "alb" {
     Name = var.alb_name
   }
 }
+
+
+## REST API Gateway ##
+module "rest_api" {
+  source = "../rest-api"
+
+  name = var.rest_api_name
+
+  stage_name = var.rest_api_stage
+
+  endpoint_configuration = {
+    #TODO: is this the best endpoint type we need?
+    types = ["REGIONAL"]
+  }
+
+  body = templatefile("./api/oi.tpl.json",
+    {
+      server_url    = keys(var.r53_dns_zones)[0]
+      uri           = format("http://%s:%s", var.nlb_dns_name, "8080"),
+      connection_id = aws_api_gateway_vpc_link.apigw.id
+  })
+
+
+  custom_domain_name        = keys(var.r53_dns_zones)[0]
+  create_custom_domain_name = false
+  #certificate_arn    = module.acm.acm_certificate_arn
+  api_mapping_key = null
+
+}
+
+resource "aws_api_gateway_vpc_link" "apigw" {
+  name        = "ApiGwVPCLink"
+  description = "VPC link to the private network load balancer."
+  target_arns = var.api_gateway_target_arns
+}

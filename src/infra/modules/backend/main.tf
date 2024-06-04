@@ -79,6 +79,7 @@ resource "aws_iam_policy" "ecs_core_task" {
 
 }
 
+#TODO: rename this resource.
 module "ecs" {
 
   source  = "terraform-aws-modules/ecs/aws"
@@ -138,8 +139,6 @@ module "ecs_core_service" {
       ]
 
       readonly_root_filesystem = false
-
-
     }
   }
 
@@ -147,7 +146,7 @@ module "ecs_core_service" {
   autoscaling_min_capacity = var.service_core.autoscaling.min_capacity
   autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
 
-  subnet_ids       = var.service_core.subnet_ids
+  subnet_ids       = var.private_subnets
   assign_public_ip = false
 
   load_balancer = {
@@ -315,4 +314,83 @@ module "client_registration_lambda" {
   memory_size = 128
   timeout     = 30
 
+}
+
+
+## Network load balancer ##
+ ## Network load balancer ##
+
+ module "elb" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "9.8.0"
+  name    = var.nlb_name
+
+  load_balancer_type = "network"
+
+  vpc_id                           = var.vpc_id
+  subnets                          = var.private_subnets
+  enable_cross_zone_load_balancing = "true"
+
+  internal = true
+
+  dns_record_client_routing_policy = "availability_zone_affinity"
+
+  # For example only
+  enable_deletion_protection = false
+
+  # Security Group
+  enforce_security_group_inbound_rules_on_private_link_traffic = "off"
+
+  security_group_ingress_rules = {
+    all_tcp = {
+      from_port   = var.service_core.container.containerPort
+      to_port     = var.service_core.container.containerPort
+      ip_protocol = "tcp"
+      description = "TCP traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = var.vpc_cidr_block
+    }
+  }
+
+  listeners = {
+
+    ecs-oneid-core = {
+      port     = var.service_core.container.containerPort
+      protocol = "TCP"
+      forward = {
+        target_group_key = "ecs-oneid-core"
+      }
+    }
+
+  }
+
+  target_groups = {
+
+    ecs-oneid-core = {
+      name_prefix          = "t1-"
+      protocol             = "TCP"
+      port                 = var.service_core.container.containerPort
+      target_type          = "ip"
+      deregistration_delay = 10
+      create_attachment    = false
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/ping"
+        port                = var.service_core.container.containerPort
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+      }
+    }
+  }
+
+
+  tags = { Name : var.nlb_name }
 }
