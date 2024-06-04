@@ -23,7 +23,7 @@
     }
   ],
   "paths": {
-    "/ping": {
+    "/status": {
       "get": {
         "tags": ["Authorization Server APIs"],
         "description": "[SHOULD BE RENAMED TO /status] An endpoint that can be used to verify the actual service health",

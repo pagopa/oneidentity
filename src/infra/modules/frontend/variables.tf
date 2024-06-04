@@ -14,11 +14,6 @@ variable "public_subnet_ids" {
   description = "Public subnet ids."
 }
 
-variable "acm_certificate_arn" {
-  type        = string
-  description = "Acm certificate arn."
-}
-
 ## DNS ##
 variable "r53_dns_zones" {
   type        = any
@@ -28,23 +23,23 @@ variable "r53_dns_zones" {
 ## API Gateway ## 
 
 variable "rest_api_name" {
-  type = string
+  type        = string
   description = "Rest api name"
-  
+
 }
 
 variable "rest_api_stage" {
-  type = string 
+  type        = string
   description = "Rest api stage name"
-  default = "v1"  
+  default     = "v1"
 }
 
 variable "api_gateway_target_arns" {
-  type = list(string)
+  type        = list(string)
   description = "List of target arn for the api gateway."
 }
 
 variable "nlb_dns_name" {
-  type = string 
+  type        = string
   description = "NLB dns name."
 }

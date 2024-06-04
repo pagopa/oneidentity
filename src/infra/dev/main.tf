@@ -25,9 +25,8 @@ module "frontend" {
   source   = "../modules/frontend"
   alb_name = local.alb_name
 
-  vpc_id              = module.network.vpc_id
-  public_subnet_ids   = module.network.public_subnet_ids
-  acm_certificate_arn = module.frontend.acm_certificate_arn
+  vpc_id            = module.network.vpc_id
+  public_subnet_ids = module.network.public_subnet_ids
 
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
@@ -102,11 +101,6 @@ module "backend" {
     autoscaling = var.ecs_oneid_core.autoscaling
 
     subnet_ids = module.network.private_subnet_ids
-
-    load_balancer = {
-      target_group_arn  = module.frontend.alb_target_groups["ecs_oneidentity"].arn
-      security_group_id = module.frontend.alb_security_group_id
-    }
 
   }
 

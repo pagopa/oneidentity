@@ -151,7 +151,7 @@ module "ecs_core_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = var.service_core.load_balancer.target_group_arn
+      target_group_arn = module.elb.target_groups["ecs-oneid-core"].arn
       container_name   = var.service_core.container.name
       container_port   = var.service_core.container.containerPort
     }
@@ -164,8 +164,8 @@ module "ecs_core_service" {
       to_port                  = var.service_core.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = var.service_core.load_balancer.security_group_id
-      #source_security_group_id = module.elb.security_group_id
+      #source_security_group_id = var.service_core.load_balancer.security_group_id
+      source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -318,9 +318,9 @@ module "client_registration_lambda" {
 
 
 ## Network load balancer ##
- ## Network load balancer ##
+## Network load balancer ##
 
- module "elb" {
+module "elb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.8.0"
   name    = var.nlb_name

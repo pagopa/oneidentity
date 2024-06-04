@@ -17,7 +17,6 @@
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend |  |
 | <a name="module_database"></a> [database](#module\_database) | ../modules/database |  |
-| <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend |  |
 | <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
@@ -27,7 +26,6 @@
 
 | Name | Type |
 |------|------|
-| [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/resources/api_gateway_vpc_link) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/caller_identity) | data source |
 
 ## Inputs
@@ -60,5 +58,6 @@
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | # ECS ## |
 | <a name="output_ecs_deploy_iam_role_arn"></a> [ecs\_deploy\_iam\_role\_arn](#output\_ecs\_deploy\_iam\_role\_arn) | n/a |
+| <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | n/a |
 | <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
 | <a name="output_table_saml_responses_name"></a> [table\_saml\_responses\_name](#output\_table\_saml\_responses\_name) | Database |

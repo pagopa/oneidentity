@@ -1,14 +1,3 @@
-output "alb_dns_name" {
-  value = module.alb.dns_name
-}
-
-output "alb_target_groups" {
-  value = module.alb.target_groups
-}
-
-output "alb_security_group_id" {
-  value = module.alb.security_group_id
-}
 
 ## DNS ##
 output "route53_zone_name_servers" {
