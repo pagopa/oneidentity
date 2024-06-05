@@ -69,6 +69,8 @@ module "rest_api" {
   certificate_arn           = module.acm.acm_certificate_arn
   api_mapping_key           = null
 
+  plan = var.api_gateway_plan
+
 }
 
 resource "aws_api_gateway_vpc_link" "apigw" {

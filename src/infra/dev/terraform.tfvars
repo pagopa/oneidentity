@@ -26,6 +26,12 @@ ecs_oneid_core = {
   }
 }
 
+## Api Gateway ##
+rest_api_throttle_settings = {
+  rate_limit  = 50
+  burst_limit = 100
+}
+
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging
