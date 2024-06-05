@@ -75,7 +75,6 @@ variable "assertion_bucket" {
 }
 
 ## Backend ##
-
 variable "number_of_images_to_keep" {
   type        = number
   description = "Number of images to keeps in ECR."
@@ -95,13 +94,20 @@ variable "table_saml_responses_point_in_time_recovery_enabled" {
   default     = false
 }
 
-
-
 # DNS
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
   default     = 86400 # 24 hours
+}
+
+## Api Gateway
+variable "rest_api_throttle_settings" {
+  type = object({
+    burst_limit = number
+    rate_limit  = number
+  })
+  description = "Rest api throttle settings."
 }
 
 

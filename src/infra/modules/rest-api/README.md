@@ -25,6 +25,7 @@ No modules.
 | [aws_api_gateway_method_settings.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_method_settings) | resource |
 | [aws_api_gateway_rest_api.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_rest_api) | resource |
 | [aws_api_gateway_stage.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_stage) | resource |
+| [aws_api_gateway_usage_plan.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_usage_plan) | resource |
 | [aws_apigatewayv2_api_mapping.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/apigatewayv2_api_mapping) | resource |
 | [aws_cloudwatch_log_group.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_log_group) | resource |
 | [aws_iam_role.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
@@ -37,6 +38,7 @@ No modules.
 | <a name="input_body"></a> [body](#input\_body) | Open api json body | `string` | n/a | yes |
 | <a name="input_endpoint_configuration"></a> [endpoint\_configuration](#input\_endpoint\_configuration) | n/a | <pre>object({<br>    types            = list(string)<br>    vpc_endpoint_ids = optional(list(string), null)<br>  })</pre> | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Rest api name | `string` | n/a | yes |
+| <a name="input_plan"></a> [plan](#input\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit = number<br>    <br>  })</pre> | n/a | yes |
 | <a name="input_stage_name"></a> [stage\_name](#input\_stage\_name) | Stage name. | `string` | n/a | yes |
 | <a name="input_api_mapping_key"></a> [api\_mapping\_key](#input\_api\_mapping\_key) | The API mapping key. | `string` | `null` | no |
 | <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | Api Gateway certificate arn | `string` | `null` | no |

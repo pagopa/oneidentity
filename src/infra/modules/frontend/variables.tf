@@ -1,8 +1,3 @@
-variable "alb_name" {
-  type        = string
-  description = "Load balancer name."
-}
-
 variable "vpc_id" {
   type        = string
   description = "VPC id."
@@ -37,6 +32,15 @@ variable "rest_api_stage" {
 variable "api_gateway_target_arns" {
   type        = list(string)
   description = "List of target arn for the api gateway."
+}
+
+variable "api_gateway_plan" {
+  type = object({
+    name                 = string
+    throttle_burst_limit = number
+    throttle_rate_limit = number
+  })
+  description = "Name of the plan associated to the set of apis."
 }
 
 variable "nlb_dns_name" {
