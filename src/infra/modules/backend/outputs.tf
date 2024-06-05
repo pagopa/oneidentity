@@ -10,7 +10,15 @@ output "ecs_deploy_iam_role_arn" {
   value = aws_iam_role.githubecsdeploy.arn
 }
 
-
 output "jwt_sign_aliases" {
   value = module.jwt_sign.aliases
+}
+
+## Network loadbalancer ##
+output "nlb_arn" {
+  value = module.elb.arn
+}
+
+output "nlb_dns_name" {
+  value = module.elb.dns_name
 }

@@ -28,11 +28,10 @@ output "acm_certificate_validation_domains" {
 
 ## ApiGw
 
-/*
-output "rest_api_v1_invoke_url" {
-  value = module.poc_v1.rest_api_invoke_url
+output "rest_api_invoke_url" {
+  value = module.frontend.rest_api_invoke_url
 }
-*/
+
 
 
 ## DNS ##
@@ -43,7 +42,7 @@ output "dns_zone_name_servers" {
 
 # Storage
 output "assertions_bucket_name" {
-  value = module.storage.assertions_bucket_name
+  value = module.frontend
 }
 
 output "assertions_bucket_arn" {

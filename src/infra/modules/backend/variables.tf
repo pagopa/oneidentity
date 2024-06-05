@@ -53,14 +53,6 @@ variable "service_core" {
       min_capacity = number
       max_capacity = number
     })
-
-    subnet_ids = list(string)
-
-    load_balancer = object({
-      target_group_arn  = string
-      security_group_id = string
-    })
-
   })
 }
 
@@ -82,4 +74,25 @@ variable "client_registration_lambda" {
     table_client_registrations_arn = string
   })
 
+}
+
+## Network load balancer ##
+variable "nlb_name" {
+  type        = string
+  description = "Network load balancer name"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC id"
+}
+
+variable "private_subnets" {
+  type        = list(string)
+  description = "Private subnets ids."
+}
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "VPC cidr block."
 }
