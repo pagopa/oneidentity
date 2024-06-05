@@ -33,7 +33,7 @@ public class OIDCController {
 
     @POST
     @Path("/token")
-    public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTO) {
+    public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
         return Response.ok("Token Path").build();
     }
 
