@@ -1,6 +1,6 @@
 package it.pagopa.oneid.model.dto;
 
-import it.pagopa.oneid.model.ResponseType;
+import it.pagopa.oneid.model.session.enums.ResponseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

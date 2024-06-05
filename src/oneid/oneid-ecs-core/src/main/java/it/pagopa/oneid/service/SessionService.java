@@ -1,25 +1,15 @@
 package it.pagopa.oneid.service;
 
-import it.pagopa.oneid.model.AccessTokenSession;
-import it.pagopa.oneid.model.OIDCSession;
-import it.pagopa.oneid.model.SAMLSession;
+import it.pagopa.oneid.model.session.Session;
 import org.opensaml.saml.saml2.core.Response;
 
-import java.util.UUID;
+import java.util.Optional;
 
-public interface SessionService {
+public interface SessionService<T extends Session> {
 
-    void persistSAMLSession(SAMLSession samlSession);
+    void saveSession(T session);
 
-    SAMLSession getSAMLSession(UUID samlRequestID);
+    Optional<T> getSession(String id);
 
-    void setSAMLResponse(UUID samlRequestID, Response response);
-
-    void persistOIDCSession(OIDCSession oidcSession);
-
-    OIDCSession getOIDCSession(String authorizationCode);
-
-    void persistAccessTokenSession(AccessTokenSession accessTokenSession);
-
-    AccessTokenSession getAccessTokenSession(String accessToken);
+    void setSAMLResponse(String samlRequestID, Response response);
 }
