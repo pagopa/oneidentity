@@ -23,4 +23,5 @@ public class SAMLController {
     public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
         return Response.ok("Assertion Path").build();
     }
+
 }

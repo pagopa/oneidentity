@@ -1,4 +1,4 @@
-package it.pagopa.oneid.model;
+package it.pagopa.oneid.model.session.enums;
 
 public enum ResponseType {
     CODE("code"),
