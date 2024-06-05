@@ -22,9 +22,7 @@ module "network" {
 }
 
 module "frontend" {
-  source   = "../modules/frontend"
-  alb_name = local.alb_name
-
+  source            = "../modules/frontend"
   vpc_id            = module.network.vpc_id
   public_subnet_ids = module.network.public_subnet_ids
 
@@ -39,7 +37,15 @@ module "frontend" {
 
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
+
+  api_gateway_plan = {
+    name                 = format("%s-restapi", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+  }
+
 }
+
 
 
 module "storage" {

@@ -40,6 +40,22 @@ resource "aws_api_gateway_stage" "main" {
   }
 }
 
+resource "aws_api_gateway_usage_plan" "main" {
+  name         = var.plan.name
+  description  = "Usage plan for ${var.name} "
+  product_code = "MYCODE"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.main.id
+    stage  = aws_api_gateway_stage.main.stage_name
+  }
+
+  throttle_settings {
+    burst_limit = var.plan.throttle_burst_limit
+    rate_limit  = var.plan.throttle_rate_limit
+  }
+}
+
 
 ## API Gateway cloud watch logs
 resource "aws_iam_role" "apigw" {
