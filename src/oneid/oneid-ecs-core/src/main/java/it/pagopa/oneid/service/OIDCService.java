@@ -12,7 +12,7 @@ import java.util.List;
 public interface OIDCService {
 
     Client getClientRegistration(String clientID);
-    
+
     AuthorizationRequest buildAuthorizationRequest(AuthorizationRequestDTO authorizationRequestDTO);
 
     AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);

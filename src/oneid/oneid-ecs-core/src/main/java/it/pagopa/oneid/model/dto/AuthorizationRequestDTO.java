@@ -1,15 +1,35 @@
 package it.pagopa.oneid.model.dto;
 
-import com.nimbusds.oauth2.sdk.ResponseType;
+import it.pagopa.oneid.model.ResponseType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.jboss.resteasy.reactive.RestQuery;
 
+@Data
 public class AuthorizationRequestDTO {
-    ResponseType.Value responseType;
 
-    String scopeType;
+    @NotBlank
+    @Size(max = 255)
+    @RestQuery("client_id")
+    private String clientId;
 
-    String clientId;
+    @NotNull
+    @RestQuery("response_type")
+    private ResponseType responseType;
 
-    String state;
+    @RestQuery("redirect_uri")
+    private String redirectUri;
 
-    String callbackUri;
+    @RestQuery
+    private String scope;
+
+    @RestQuery
+    private String nonce;
+
+    @RestQuery
+    private String state;
+
 }
+
