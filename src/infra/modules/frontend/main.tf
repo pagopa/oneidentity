@@ -66,8 +66,8 @@ module "rest_api" {
 
   custom_domain_name        = keys(var.r53_dns_zones)[0]
   create_custom_domain_name = true
-  certificate_arn    = module.acm.acm_certificate_arn
-  api_mapping_key = null
+  certificate_arn           = module.acm.acm_certificate_arn
+  api_mapping_key           = null
 
 }
 

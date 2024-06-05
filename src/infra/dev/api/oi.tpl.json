@@ -138,7 +138,14 @@
           "responses" : {
             "200" : {
               "statusCode" : "200",
-              "responseParameters" : {}
+              "requestParameters" : {
+                "integration.request.querystring.client_id": "method.request.querystring.client_id",
+                "integration.request.querystring.response_type": "method.request.querystring.response_type",
+                "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+                "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
+                "integration.request.querystring.nonce": "method.request.querystring.nonce",
+                "integration.request.querystring.state": "method.request.querystring.state"
+              }
             }
           }
         },

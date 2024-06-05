@@ -159,11 +159,11 @@ module "ecs_core_service" {
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = var.service_core.container.containerPort
-      to_port                  = var.service_core.container.containerPort
-      protocol                 = "tcp"
-      description              = "Service port"
+      type        = "ingress"
+      from_port   = var.service_core.container.containerPort
+      to_port     = var.service_core.container.containerPort
+      protocol    = "tcp"
+      description = "Service port"
       #source_security_group_id = var.service_core.load_balancer.security_group_id
       source_security_group_id = module.elb.security_group_id
     }
