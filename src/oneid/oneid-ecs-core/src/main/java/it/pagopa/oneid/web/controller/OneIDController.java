@@ -1,13 +1,12 @@
 package it.pagopa.oneid.web.controller;
 
-import it.pagopa.oneid.web.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
-import org.jboss.resteasy.reactive.RestQuery;
+
 
 @Path("/")
 public class OneIDController {
@@ -21,7 +20,7 @@ public class OneIDController {
 
     @GET
     @Path("/login")
-    public Response login(@NotBlank @RestQuery String idp, @BeanParam @Valid AuthorizationRequestDTO authorizationRequestDTO) {
-        return Response.ok("Login Path: " + idp + " ").build();
+    public Response login(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
+        return Response.ok("Login Path: " + authorizationRequestDTOExtended.getIdp() + " ").build();
     }
 }

@@ -1,4 +1,4 @@
-package it.pagopa.oneid.web.dto;
+package it.pagopa.oneid.model.dto;
 
 import it.pagopa.oneid.model.GrantType;
 import jakarta.validation.constraints.NotBlank;

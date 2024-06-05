@@ -5,7 +5,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import it.pagopa.oneid.common.Client;
 import it.pagopa.oneid.model.dto.AttributeDTO;
-import it.pagopa.oneid.web.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 
 import java.util.List;
 

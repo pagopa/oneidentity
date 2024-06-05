@@ -1,10 +1,13 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.DummyClient;
-import it.pagopa.oneid.web.dto.AuthorizationRequestDTO;
-import it.pagopa.oneid.web.dto.TokenRequestDTO;
+import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 
 @Path(("/oidc"))
@@ -28,10 +31,9 @@ public class OIDCController {
         return Response.ok(DummyClient.CLIENT_NAME).build();
     }
 
-    @GET
+    @POST
     @Path("/token")
-    public Response token(@HeaderParam("Authorization") String authorization,
-                          @BeanParam @Valid TokenRequestDTO tokenRequestDTO) {
+    public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTO) {
         return Response.ok("Token Path").build();
     }
 
