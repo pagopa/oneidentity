@@ -39,7 +39,7 @@ module "frontend" {
   nlb_dns_name            = module.backend.nlb_dns_name
 
   api_gateway_plan = {
-    name                 = format("%s-restapi", local.project)
+    name                 = format("%s-restapi-plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
