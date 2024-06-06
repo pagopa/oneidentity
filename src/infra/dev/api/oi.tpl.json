@@ -28,22 +28,22 @@
         "tags": ["Authorization Server APIs"],
         "description": "Endpoint that can be used to verify the actual service health",
         "operationId": "Get_request_health_check",
-        "x-amazon-apigateway-integration" : {
+        "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod":"GET",
-          "uri" : "${uri}/ping",
-          "connectionType" : "VPC_LINK",
-          "connectionId"        : "${connection_id}",
-          "requestParameters"   : {},
-          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
-          "responses" : {
-            "200" : {
-              "statusCode" : "200",
-              "responseParameters" : {}
+          "httpMethod": "GET",
+          "uri": "${uri}/ping",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {},
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {}
             },
-            "500" : {
-              "statusCode" : "500",
-              "responseParameters" : {}
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
             }
           }
         },
@@ -131,7 +131,7 @@
             }
           }
         ],
-        "x-amazon-apigateway-integration" : {
+        "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod":"GET",
           "uri" : "${uri}/login",
@@ -280,36 +280,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET,POST"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -388,11 +362,11 @@
         },
         "requestBody": {
           "content": {
-              "text/html": {
-                  "schema": {
-                      "type": "string"
-                  }
+            "text/html": {
+              "schema": {
+                "type": "string"
               }
+            }
           },
           "required": false
         },
@@ -457,36 +431,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -531,39 +479,39 @@
             }
           }
         ],
-        "x-amazon-apigateway-integration" : {
+        "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod":"GET",
-          "uri" : "${uri}/saml/assertion",
-          "connectionType" : "VPC_LINK",
-          "connectionId"        : "${connection_id}",
-          "requestParameters" : {
+          "httpMethod": "GET",
+          "uri": "${uri}/saml/assertion",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
             "integration.request.querystring.access_token": "method.request.querystring.access_token"
           },
-          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
-          "responses" : {
-            "200" : {
-              "statusCode" : "200",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "200": {
+              "statusCode": "200",
               "responseParameters": {}
             },
-            "400" : {
-              "statusCode" : "400",
+            "400": {
+              "statusCode": "400",
               "responseParameters": {}
             },
-            "401" : {
-              "statusCode" : "401",
+            "401": {
+              "statusCode": "401",
               "responseParameters": {}
             },
-            "403" : {
-              "statusCode" : "403",
+            "403": {
+              "statusCode": "403",
               "responseParameters": {}
             },
-            "405" : {
-              "statusCode" : "405",
+            "405": {
+              "statusCode": "405",
               "responseParameters": {}
             },
-            "500" : {
-              "statusCode" : "500",
+            "500": {
+              "statusCode": "500",
               "responseParameters": {}
             }
           }
@@ -649,30 +597,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -700,26 +628,26 @@
       "get": {
         "tags": ["SAML APIs"],
         "description": "This route will serves SAML metadata",
-        "x-amazon-apigateway-integration" : {
+        "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod":"GET",
-          "uri" : "${uri}/saml/metadata",
-          "connectionType" : "VPC_LINK",
-          "connectionId"        : "${connection_id}",
-          "requestParameters"   : {},
-          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
-          "responses" : {
-            "200" : {
-              "statusCode" : "200",
-              "responseParameters" : {}
+          "httpMethod": "GET",
+          "uri": "${uri}/saml/metadata",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {},
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {}
             },
-            "405" : {
-              "statusCode" : "405",
-              "responseParameters" : {}
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
             },
-            "500" : {
-              "statusCode" : "500",
-              "responseParameters" : {}
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
             }
           }
         },
@@ -728,30 +656,10 @@
             "description": "SAML metadata"
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -782,11 +690,11 @@
         "operationId": "Get_request_authorization",
         "requestBody": {
           "content": {
-              "text/html": {
-                  "schema": {
-                      "type": "string"
-                  }
+            "text/html": {
+              "schema": {
+                "type": "string"
               }
+            }
           },
           "required": true
         },
@@ -798,28 +706,28 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "responses": {
-            "200" : {
-              "statusCode" : "200",
+            "200": {
+              "statusCode": "200",
               "responseParameters": {}
             },
-            "302" : {
-              "statusCode" : "302",
+            "302": {
+              "statusCode": "302",
               "responseParameters": {}
             },
-            "400" : {
-              "statusCode" : "400",
+            "400": {
+              "statusCode": "400",
               "responseParameters": {}
             },
-            "401" : {
-              "statusCode" : "401",
+            "401": {
+              "statusCode": "401",
               "responseParameters": {}
             },
-            "403" : {
-              "statusCode" : "403",
+            "403": {
+              "statusCode": "403",
               "responseParameters": {}
             },
-            "405" : {
-              "statusCode" : "405",
+            "405": {
+              "statusCode": "405",
               "responseParameters": {}
             }
           }
@@ -897,30 +805,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET,POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -951,11 +839,11 @@
         "operationId": "Create_request_token",
         "requestBody": {
           "content": {
-              "text/html": {
-                  "schema": {
-                      "type": "string"
-                  }
+            "text/html": {
+              "schema": {
+                "type": "string"
               }
+            }
           },
           "required": false
         },
@@ -968,31 +856,31 @@
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "responses": {
             "200": {
-              "statusCode" : "200",
+              "statusCode": "200",
               "responseParameters": {}
             },
             "204": {
-              "statusCode" : "204",
+              "statusCode": "204",
               "responseParameters": {}
             },
             "400": {
-              "statusCode" : "400",
+              "statusCode": "400",
               "responseParameters": {}
             },
             "401": {
-              "statusCode" : "401",
+              "statusCode": "401",
               "responseParameters": {}
             },
             "403": {
-              "statusCode" : "403",
+              "statusCode": "403",
               "responseParameters": {}
             },
             "405": {
-              "statusCode" : "405",
+              "statusCode": "405",
               "responseParameters": {}
             },
             "500": {
-              "statusCode" : "500",
+              "statusCode": "500",
               "responseParameters": {}
             }
           }
@@ -1077,30 +965,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "Unknown error.",
@@ -1158,28 +1026,26 @@
             }
           }
         ],
-        "x-amazon-apigateway-integration" : {
+        "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod":"OPTIONS",
-          "uri" : "${uri}/oidc/keys",
-          "connectionType" : "VPC_LINK",
-          "connectionId"        : "${connection_id}",
-          "requestParameters"   : {
+          "httpMethod": "OPTIONS",
+          "uri": "${uri}/oidc/keys",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
             "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
             "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
             "integration.request.header.Origin": "method.request.header.Origin"
           },
-          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
-          "responses" : {
-            "204" : {
-              "statusCode" : "204",
-              "requestParameters" : {
-              }
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "requestParameters": {}
             },
-            "400" : {
-              "statusCode" : "400",
-              "requestParameters" : {
-              }
+            "400": {
+              "statusCode": "400",
+              "requestParameters": {}
             }
           }
         },
@@ -1229,28 +1095,24 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "requestParameters": {},
-          "responses" : {
-            "200" : {
-              "statusCode" : "200",
-              "requestParameters" : {
-              }
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "requestParameters": {}
             },
-            "403" : {
-              "statusCode" : "403",
-              "requestParameters" : {
-              }
+            "403": {
+              "statusCode": "403",
+              "requestParameters": {}
             },
-            "405" : {
-              "statusCode" : "405",
-              "requestParameters" : {
-              }
+            "405": {
+              "statusCode": "405",
+              "requestParameters": {}
             },
-            "500" : {
-              "statusCode" : "500",
-              "requestParameters" : {
-              }
+            "500": {
+              "statusCode": "500",
+              "requestParameters": {}
             }
-          } 
+          }
         },
         "responses": {
           "200": {
@@ -1301,30 +1163,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1399,6 +1241,51 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/TokenData"
+            }
+          }
+        }
+      },
+      "methodNotAllowed": {
+        "description": "The HTTP method is not valid",
+        "headers": {
+          "Allow": {
+            "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+            "schema": {
+              "type": "string",
+              "default": "GET"
+            }
+          },
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "rateLimit": {
+        "description": "Too many requests",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
             }
           }
         }

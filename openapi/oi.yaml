@@ -137,23 +137,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: "GET,POST"
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -334,23 +320,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: "GET,POST"
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -507,23 +479,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: POST
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: Unknown error.
           headers:
@@ -721,36 +679,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: POST
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
         "429":
-          description: Too many requests
-          headers:
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1053,23 +984,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: GET
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1170,23 +1087,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: GET
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1274,23 +1177,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: GET
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1325,6 +1214,8 @@ paths:
           schema:
             type: string
       responses:
+        "200":
+          description: Response OK
         "400":
           description: Missing or invalid parameters.
           headers:
@@ -1339,23 +1230,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: POST
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1438,23 +1315,9 @@ paths:
                 type: string
                 default: no-store
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: POST
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1480,23 +1343,9 @@ paths:
           #   application/xml:
           #     schema:
         "405":
-          description: The HTTP method is not valid
-          headers:
-            Allow:
-              description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
-              schema:
-                type: string
-                default: "GET"
-            Pragma:
-              description: Pragma browser directive
-              schema:
-                type: string
-                default: no-cache
-            Cache-Control:
-              description: Cache-Control browser directive
-              schema:
-                type: string
-                default: no-store
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
         "500":
           description: unknown error
           headers:
@@ -1546,6 +1395,37 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/TokenData"
+    methodNotAllowed:
+      description: The HTTP method is not valid
+      headers:
+        Allow:
+          description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+          schema:
+            type: string
+            default: "GET"
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
+    rateLimit:
+      description: Too many requests
+      headers:
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
   securitySchemes:
     openId:
       type: openIdConnect

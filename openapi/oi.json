@@ -25,7 +25,9 @@
   "paths": {
     "/ping": {
       "get": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "[SHOULD BE RENAMED TO /status] An endpoint that can be used to verify the actual service health",
         "operationId": "Get_request_health_check",
         "responses": {
@@ -43,7 +45,9 @@
     },
     "/login": {
       "get": {
-        "tags": ["Login landing page"],
+        "tags": [
+          "Login landing page"
+        ],
         "description": "This route will serve the login landing page, where users can choose which IDP use",
         "parameters": [
           {
@@ -182,30 +186,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET,POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -231,7 +215,9 @@
     },
     "/oidc/authorize": {
       "post": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details.",
         "operationId": "Get_request_authorization",
         "parameters": [
@@ -279,7 +265,11 @@
             "description": "Specify the method of returning the authorization response. As per the OpenID specification, use of this parameter is NOT RECOMMENDED if you are using the same response mode as the default response mode for the given response type. It MUST be one of the listed values in order to be accepted: 'query', 'fragment', 'form_post'.",
             "schema": {
               "type": "string",
-              "enum": ["query", "fragment", "form_post"]
+              "enum": [
+                "query",
+                "fragment",
+                "form_post"
+              ]
             }
           },
           {
@@ -316,7 +306,12 @@
             "description": "This is optional and used within the context of OpenID Connect (ie, response_type 'token id_token'). This parameter is not used here but forwarded to the /authorize/login API. Currently only 'page' are supported by default. The value 'social_login' will create a JSON message response instead of an HTML page containing a list of social login providers. The value 'local' will prevent the authorization server from displaying the social login buttons. This is the case if a user selected the local enterprise button for logging in.",
             "schema": {
               "type": "string",
-              "enum": ["", "page", "social_login", "local"],
+              "enum": [
+                "",
+                "page",
+                "social_login",
+                "local"
+              ],
               "default": ""
             }
           },
@@ -458,30 +453,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET,POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -507,7 +482,9 @@
     },
     "/oidc/token": {
       "post": {
-        "tags": ["Token Server APIs"],
+        "tags": [
+          "Token Server APIs"
+        ],
         "description": "Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.",
         "operationId": "Create_request_token",
         "parameters": [
@@ -710,30 +687,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "Unknown error.",
@@ -759,7 +716,9 @@
     },
     "/oidc/register": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_oidc_register",
         "description": "CORS preflight request",
         "parameters": [
@@ -827,7 +786,9 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
       "post": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
         "operationId": "Post_oidc_register",
         "responses": {
@@ -904,7 +865,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["user1@example.org", "user2@example.org"],
+                      "example": [
+                        "user1@example.org",
+                        "user2@example.org"
+                      ],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -912,7 +876,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["code", "token_id_token"],
+                      "example": [
+                        "code",
+                        "token_id_token"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -920,7 +887,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["authorization_code", "implicit"],
+                      "example": [
+                        "authorization_code",
+                        "implicit"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -997,49 +967,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
           },
           "429": {
-            "description": "Too many requests",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1083,14 +1014,20 @@
                     "items": {
                       "type": "string"
                     },
-                    "example": ["code", "token_id_token"]
+                    "example": [
+                      "code",
+                      "token_id_token"
+                    ]
                   },
                   "grant_types": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     },
-                    "example": ["authorization_code", "implicit"]
+                    "example": [
+                      "authorization_code",
+                      "implicit"
+                    ]
                   },
                   "application_type": {
                     "type": "string",
@@ -1101,7 +1038,10 @@
                     "items": {
                       "type": "string"
                     },
-                    "example": ["user1@example.org", "user2@example.org"]
+                    "example": [
+                      "user1@example.org",
+                      "user2@example.org"
+                    ]
                   },
                   "client_name": {
                     "type": "string",
@@ -1145,7 +1085,12 @@
                       "type": "string"
                     },
                     "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-                    "example": ["spidCode", "name", "familyName", "fiscalNumber"]
+                    "example": [
+                      "spidCode",
+                      "name",
+                      "familyName",
+                      "fiscalNumber"
+                    ]
                   }
                 }
               }
@@ -1158,7 +1103,9 @@
     },
     "/oidc/register/{client_id}": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_oidc_register_config",
         "description": "CORS preflight request",
         "parameters": [
@@ -1235,7 +1182,9 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
       "get": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
         "operationId": "Get_oidc_register_config",
         "parameters": [
@@ -1327,7 +1276,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["user1@example.org", "user2@example.org"],
+                      "example": [
+                        "user1@example.org",
+                        "user2@example.org"
+                      ],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -1335,7 +1287,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["code", "token_id_token"],
+                      "example": [
+                        "code",
+                        "token_id_token"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -1343,7 +1298,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["authorization_code", "implicit"],
+                      "example": [
+                        "authorization_code",
+                        "implicit"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -1439,30 +1397,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1489,7 +1427,9 @@
     },
     "/oidc/keys": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_jwk_set_",
         "description": "CORS preflight request",
         "parameters": [
@@ -1557,7 +1497,9 @@
         "summary": "OpenID Connect jwks endpoint"
       },
       "get": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Get_jwk_set_",
         "description": "This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata",
         "responses": {
@@ -1609,30 +1551,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1659,7 +1581,9 @@
     },
     "/.well-known/openid-configuration": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_getOpenIDDiscovery",
         "description": "CORS preflight request",
         "parameters": [
@@ -1727,7 +1651,9 @@
         "summary": "OpenID Connect Discovery endpoint"
       },
       "get": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Get_OpenIDDiscovery",
         "responses": {
           "200": {
@@ -1760,30 +1686,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1811,7 +1717,9 @@
     },
     "/saml/acs": {
       "post": {
-        "tags": ["SAML APIs"],
+        "tags": [
+          "SAML APIs"
+        ],
         "description": "This route will handle all SAML response as a callback from IDP",
         "parameters": [
           {
@@ -1834,6 +1742,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Response OK"
+          },
           "400": {
             "description": "Missing or invalid parameters.",
             "headers": {
@@ -1854,30 +1765,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -1903,7 +1794,9 @@
     },
     "/saml/assertion": {
       "get": {
-        "tags": ["SAML APIs"],
+        "tags": [
+          "SAML APIs"
+        ],
         "description": "This route will serves SAML assertion, useful for clients who need it for their local scope",
         "parameters": [
           {
@@ -1997,30 +1890,10 @@
             }
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -2046,37 +1919,19 @@
     },
     "/saml/metadata": {
       "get": {
-        "tags": ["SAML APIs"],
+        "tags": [
+          "SAML APIs"
+        ],
         "description": "This route will serves SAML metadata",
         "responses": {
           "200": {
             "description": "SAML metadata"
           },
           "405": {
-            "description": "The HTTP method is not valid",
-            "headers": {
-              "Allow": {
-                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-                "schema": {
-                  "type": "string",
-                  "default": "GET"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
           },
           "500": {
             "description": "unknown error",
@@ -2153,6 +2008,51 @@
             }
           }
         }
+      },
+      "methodNotAllowed": {
+        "description": "The HTTP method is not valid",
+        "headers": {
+          "Allow": {
+            "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+            "schema": {
+              "type": "string",
+              "default": "GET"
+            }
+          },
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "rateLimit": {
+        "description": "Too many requests",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -2226,7 +2126,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["openid"],
+            "example": [
+              "openid"
+            ],
             "description": "list of the OAuth 2.0 scope values that this server supports"
           },
           "subject_types_supported": {
@@ -2234,7 +2136,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["pairwise"],
+            "example": [
+              "pairwise"
+            ],
             "description": "list of the Subject Identifier types that this OP supports"
           },
           "token_endpoint": {
@@ -2247,7 +2151,10 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["RS256", "HS256"],
+            "example": [
+              "RS256",
+              "HS256"
+            ],
             "description": "list of the JWS signing algorithms (alg values) supported by the OP for the ID Token to encode the Claims in a JWT"
           },
           "response_types_supported": {
@@ -2255,7 +2162,10 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["code", "token_id_token"],
+            "example": [
+              "code",
+              "token_id_token"
+            ],
             "description": "ist of the OAuth 2.0 response_type values that this OP supports"
           },
           "claims_supported": {
@@ -2263,7 +2173,12 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["sub", "iss", "auth_time", "acr"],
+            "example": [
+              "sub",
+              "iss",
+              "auth_time",
+              "acr"
+            ],
             "description": "list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for"
           },
           "authorization_endpoint": {
@@ -2281,7 +2196,10 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["authorization_code", "implicit"],
+            "example": [
+              "authorization_code",
+              "implicit"
+            ],
             "description": "list of the OAuth 2.0 Grant Type values that this OP supports"
           },
           "acr_values_supported": {
@@ -2289,7 +2207,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["urn:mace:incommon:iap:silver"],
+            "example": [
+              "urn:mace:incommon:iap:silver"
+            ],
             "description": "list of the Authentication Context Class References that this OP supports"
           },
           "token_endpoint_auth_methods_supported": {
@@ -2297,7 +2217,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["client_secret_basic"],
+            "example": [
+              "client_secret_basic"
+            ],
             "description": "list of Client Authentication methods supported by this Token Endpoint"
           },
           "token_endpoint_auth_signing_alg_values_supported": {
@@ -2305,7 +2227,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["RS256"],
+            "example": [
+              "RS256"
+            ],
             "description": "list of the JWS signing algorithms (alg values) supported by the Token Endpoint for the signature on the JWT used to authenticate the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods. Servers SHOULD support RS256. The value none MUST NOT be used."
           },
           "display_values_supported": {
@@ -2313,7 +2237,10 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["page", "popup"],
+            "example": [
+              "page",
+              "popup"
+            ],
             "description": "list of the display parameter values that the OpenID Provider supports"
           },
           "claim_types_supported": {
@@ -2321,7 +2248,9 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["normal"],
+            "example": [
+              "normal"
+            ],
             "description": "list of the Claim Types that the OpenID Provider supports"
           },
           "service_documentation": {
@@ -2334,7 +2263,10 @@
               "type": "string"
             },
             "type": "array",
-            "example": ["en-US", "en-GB"],
+            "example": [
+              "en-US",
+              "en-GB"
+            ],
             "description": "Languages and scripts supported for the user interface"
           }
         },
