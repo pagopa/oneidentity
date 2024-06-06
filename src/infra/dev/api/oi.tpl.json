@@ -276,10 +276,7 @@
           "uri": "${uri}/saml/acs",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestTemplates" : {
-            "application/json" : "${request_template}"
-          }
+          "passthroughBehavior": "WHEN_NO_TEMPLATES"
         },
         "requestBody": {
           "content": {
