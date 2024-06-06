@@ -265,6 +265,98 @@
           }
         }
       }
+    },
+    "/saml/acs": {
+      "post": {
+        "tags": ["SAML APIs"],
+        "description": "This route will handle all SAML response as a callback from IDP",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/saml/acs",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestTemplates" : {
+            "application/json" : "${request_template}"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PiiResource"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Missing or invalid parameters.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
