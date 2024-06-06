@@ -280,16 +280,177 @@
         },
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PiiResource"
+              "text/html": {
+                  "schema": {
+                      "type": "string"
+                  }
+              }
+          },
+          "required": false
+        },
+        "responses": {
+          "400": {
+            "description": "Missing or invalid parameters.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/saml/assertion": {
+      "get": {
+        "tags": ["SAML APIs"],
+        "description": "This route will serves SAML assertion, useful for clients who need it for their local scope",
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "required": true,
+            "description": "This is the 'access_token' of the requesting client.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration" : {
+          "type": "HTTP",
+          "httpMethod":"GET",
+          "uri" : "${uri}/saml/assertion",
+          "connectionType" : "VPC_LINK",
+          "connectionId"        : "${connection_id}",
+          "requestParameters"   : {},
+          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+          "responses" : {
+            "200" : {
+              "statusCode" : "200",
+              "requestParameters" : {
+                "integration.request.querystring.access_token": "method.request.querystring.client_id"
               }
             }
           }
         },
         "responses": {
+          "200": {
+            "description": "Successful response including details about the request and a valid SAMLResponse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "request_id": {
+                      "type": "string",
+                      "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+                      "description": "Request ID"
+                    },
+                    "saml_response": {
+                      "type": "string",
+                      "example": "<xml? ....>",
+                      "description": "Requested SAMLResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "400": {
             "description": "Missing or invalid parameters.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication - Authorization.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden.",
             "headers": {
               "Pragma": {
                 "description": "Pragma browser directive",
@@ -433,12 +594,13 @@
         "operationId": "Get_request_authorization",
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PiiResource"
+              "text/html": {
+                  "schema": {
+                      "type": "string"
+                  }
               }
-            }
-          }
+          },
+          "required": true
         },
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
