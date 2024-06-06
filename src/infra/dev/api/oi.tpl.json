@@ -354,6 +354,77 @@
           }
         }
       }
+    },
+    "/saml/metadata": {
+      "get": {
+        "tags": ["SAML APIs"],
+        "description": "This route will serves SAML metadata",
+        "x-amazon-apigateway-integration" : {
+          "type": "HTTP",
+          "httpMethod":"GET",
+          "uri" : "${uri}/saml/metadata",
+          "connectionType" : "VPC_LINK",
+          "connectionId"        : "${connection_id}",
+          "requestParameters"   : {},
+          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+          "responses" : {
+            "200" : {
+              "statusCode" : "200",
+              "responseParameters" : {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SAML metadata"
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
