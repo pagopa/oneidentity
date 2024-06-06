@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>it.pagopa.oneid.common</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>connector</artifactId>
         </dependency>
         <dependency>
             <groupId>it.pagopa.oneid.common</groupId>

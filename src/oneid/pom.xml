@@ -19,8 +19,8 @@
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <it.pagopa.oneid.common.group-id>it.pagopa.oneid.common</it.pagopa.oneid.common.group-id>
-        <it.pagopa.oneid.common.client.artifact-id>client</it.pagopa.oneid.common.client.artifact-id>
-        <it.pagopa.oneid.common.client.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.client.version>
+        <it.pagopa.oneid.common.connector.artifact-id>connector</it.pagopa.oneid.common.connector.artifact-id>
+        <it.pagopa.oneid.common.connector.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.connector.version>
         <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
         <opensaml.version>4.3.0</opensaml.version>
@@ -76,8 +76,8 @@
             </dependency>
             <dependency>
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
-                <artifactId>${it.pagopa.oneid.common.client.artifact-id}</artifactId>
-                <version>${it.pagopa.oneid.common.client.version}</version>
+                <artifactId>${it.pagopa.oneid.common.connector.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.connector.version}</version>
             </dependency>
             <dependency>
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
