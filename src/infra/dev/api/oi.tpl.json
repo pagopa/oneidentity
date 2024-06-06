@@ -425,6 +425,149 @@
           }
         }
       }
+    },
+    "/oidc/authorize": {
+      "post": {
+        "tags": ["Authorization Server APIs"],
+        "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details.",
+        "operationId": "Get_request_authorization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PiiResource"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/tokens/search",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {}
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "location": {
+                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "302": {
+            "$ref": "#/components/responses/auth302"
+          },
+          "400": {
+            "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The client could not be authenticated.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "GET,POST"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
