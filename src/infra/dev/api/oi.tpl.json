@@ -5,7 +5,7 @@
     "description": "OI description\n\nSome useful links:\n- [One Identity repository](https://github.com/pagopa/oneidentity)\n- [The source API definition for OI](https://github.com/pagopa/oneidentity/blob/master/src/main/resources/openapi.yaml)",
     "termsOfService": "http://pagopa.it/terms/",
     "contact": {
-      "email": "xxx@pagopa.it"
+      "email": "team-oneidentity@pagopa.it"
     },
     "license": {
       "name": "Apache 2.0",
@@ -383,7 +383,7 @@
             "200" : {
               "statusCode" : "200",
               "requestParameters" : {
-                "integration.request.querystring.access_token": "method.request.querystring.client_id"
+                "integration.request.querystring.access_token": "method.request.querystring.access_token"
               }
             }
           }
@@ -605,7 +605,7 @@
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
-          "uri": "${uri}/tokens/search",
+          "uri": "${uri}/oidc/authorize",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
@@ -711,6 +711,156 @@
           },
           "500": {
             "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oidc/token": {
+      "post": {
+        "tags": ["Token Server APIs"],
+        "description": "Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.",
+        "operationId": "Create_request_token",
+        "requestBody": {
+          "content": {
+              "text/html": {
+                  "schema": {
+                      "type": "string"
+                  }
+              }
+          },
+          "required": false
+      },
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/oidc/token",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/authToken200"
+          },
+          "204": {
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, POST",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request, see x-ca-err for possible error codes",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The client could not be authenticated.",
+            "headers": {
+              "WWW-Authenticate": {
+                "description": "This header is required by RFC 7235 if an authentication scheme has been used. It contains the used authentication scheme and an error message.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unknown error.",
             "headers": {
               "Pragma": {
                 "description": "Pragma browser directive",
