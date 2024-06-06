@@ -26,7 +26,7 @@
     "/status": {
       "get": {
         "tags": ["Authorization Server APIs"],
-        "description": "[SHOULD BE RENAMED TO /status] An endpoint that can be used to verify the actual service health",
+        "description": "Endpoint that can be used to verify the actual service health",
         "operationId": "Get_request_health_check",
         "x-amazon-apigateway-integration" : {
           "type": "HTTP",
@@ -39,6 +39,10 @@
           "responses" : {
             "200" : {
               "statusCode" : "200",
+              "responseParameters" : {}
+            },
+            "500" : {
+              "statusCode" : "500",
               "responseParameters" : {}
             }
           }
@@ -133,19 +137,41 @@
           "uri" : "${uri}/login",
           "connectionType" : "VPC_LINK",
           "connectionId"        : "${connection_id}",
-          "requestParameters"   : {},
+          "requestParameters"   : {
+            "requestParameters" : {
+              "integration.request.querystring.client_id": "method.request.querystring.client_id",
+              "integration.request.querystring.response_type": "method.request.querystring.response_type",
+              "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+              "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
+              "integration.request.querystring.nonce": "method.request.querystring.nonce",
+              "integration.request.querystring.state": "method.request.querystring.state"
+            }
+          },
           "passthroughBehavior" : "WHEN_NO_TEMPLATES",
           "responses" : {
             "200" : {
               "statusCode" : "200",
-              "requestParameters" : {
-                "integration.request.querystring.client_id": "method.request.querystring.client_id",
-                "integration.request.querystring.response_type": "method.request.querystring.response_type",
-                "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
-                "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
-                "integration.request.querystring.nonce": "method.request.querystring.nonce",
-                "integration.request.querystring.state": "method.request.querystring.state"
-              }
+              "responseParameters": {}
+            },
+            "400" : {
+              "statusCode" : "400",
+              "responseParameters": {}
+            },
+            "401" : {
+              "statusCode" : "401",
+              "responseParameters": {}
+            },
+            "403" : {
+              "statusCode" : "403",
+              "responseParameters": {}
+            },
+            "405" : {
+              "statusCode" : "405",
+              "responseParameters": {}
+            },
+            "500" : {
+              "statusCode" : "500",
+              "responseParameters": {}
             }
           }
         },
@@ -276,7 +302,21 @@
           "uri": "${uri}/saml/acs",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES"
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
         },
         "requestBody": {
           "content": {
@@ -377,14 +417,34 @@
           "uri" : "${uri}/saml/assertion",
           "connectionType" : "VPC_LINK",
           "connectionId"        : "${connection_id}",
-          "requestParameters"   : {},
+          "requestParameters" : {
+            "integration.request.querystring.access_token": "method.request.querystring.access_token"
+          },
           "passthroughBehavior" : "WHEN_NO_TEMPLATES",
           "responses" : {
             "200" : {
               "statusCode" : "200",
-              "requestParameters" : {
-                "integration.request.querystring.access_token": "method.request.querystring.access_token"
-              }
+              "responseParameters": {}
+            },
+            "400" : {
+              "statusCode" : "400",
+              "responseParameters": {}
+            },
+            "401" : {
+              "statusCode" : "401",
+              "responseParameters": {}
+            },
+            "403" : {
+              "statusCode" : "403",
+              "responseParameters": {}
+            },
+            "405" : {
+              "statusCode" : "405",
+              "responseParameters": {}
+            },
+            "500" : {
+              "statusCode" : "500",
+              "responseParameters": {}
             }
           }
         },
@@ -532,6 +592,14 @@
             "200" : {
               "statusCode" : "200",
               "responseParameters" : {}
+            },
+            "405" : {
+              "statusCode" : "405",
+              "responseParameters" : {}
+            },
+            "500" : {
+              "statusCode" : "400",
+              "responseParameters" : {}
             }
           }
         },
@@ -609,7 +677,32 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "responses": {}
+          "responses": {
+            "200" : {
+              "statusCode" : "200",
+              "responseParameters": {}
+            },
+            "302" : {
+              "statusCode" : "302",
+              "responseParameters": {}
+            },
+            "400" : {
+              "statusCode" : "400",
+              "responseParameters": {}
+            },
+            "401" : {
+              "statusCode" : "401",
+              "responseParameters": {}
+            },
+            "403" : {
+              "statusCode" : "403",
+              "responseParameters": {}
+            },
+            "405" : {
+              "statusCode" : "405",
+              "responseParameters": {}
+            }
+          }
         },
         "responses": {
           "200": {
@@ -745,14 +838,44 @@
               }
           },
           "required": false
-      },
+        },
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
           "uri": "${uri}/oidc/token",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES"
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "200": {
+              "statusCode" : "200",
+              "responseParameters": {}
+            },
+            "204": {
+              "statusCode" : "204",
+              "responseParameters": {}
+            },
+            "400": {
+              "statusCode" : "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode" : "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode" : "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode" : "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode" : "500",
+              "responseParameters": {}
+            }
+          }
         },
         "responses": {
           "200": {
@@ -879,6 +1002,231 @@
             }
           }
         }
+      }
+    },
+    "/oidc/keys": {
+      "options": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Options_jwk_set_",
+        "description": "CORS preflight request",
+        "parameters": [
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "The Origin request header indicates where a fetch originates from.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration" : {
+          "type": "HTTP",
+          "httpMethod":"OPTIONS",
+          "uri" : "${uri}/oidc/keys",
+          "connectionType" : "VPC_LINK",
+          "connectionId"        : "${connection_id}",
+          "requestParameters"   : {
+            "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
+            "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
+            "integration.request.header.Origin": "method.request.header.Origin"
+          },
+          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+          "responses" : {
+            "204" : {
+              "statusCode" : "204",
+              "requestParameters" : {
+              }
+            },
+            "400" : {
+              "statusCode" : "400",
+              "requestParameters" : {
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, GET",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        },
+        "summary": "OpenID Connect jwks endpoint"
+      },
+      "get": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Get_jwk_set_",
+        "description": "This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP_PROXY",
+          "httpMethod": "GET",
+          "uri": "${uri}/oidc/keys",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {},
+          "responses" : {
+            "200" : {
+              "statusCode" : "200",
+              "requestParameters" : {
+              }
+            },
+            "403" : {
+              "statusCode" : "403",
+              "requestParameters" : {
+              }
+            },
+            "405" : {
+              "statusCode" : "405",
+              "requestParameters" : {
+              }
+            },
+            "500" : {
+              "statusCode" : "500",
+              "requestParameters" : {
+              }
+            }
+          } 
+        },
+        "responses": {
+          "200": {
+            "description": "JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        {
+                          "kty": "RSA",
+                          "kid": "default_ssl_key",
+                          "use": "sig",
+                          "n": "58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q",
+                          "e": "AQAB"
+                        }
+                      ],
+                      "description": "JWK set in JSON array format"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden.",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "The HTTP method is not valid",
+            "headers": {
+              "Allow": {
+                "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              },
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "unknown error",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        },
+        "summary": "OpenID Connect jwks endpoint"
       }
     }
   },
