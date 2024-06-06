@@ -1,4 +1,4 @@
-package it.pagopa.oneid.client;
+package it.pagopa.oneid.connector;
 
 import it.pagopa.oneid.model.session.Session;
 
