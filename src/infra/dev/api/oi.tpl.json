@@ -598,7 +598,7 @@
               "responseParameters" : {}
             },
             "500" : {
-              "statusCode" : "400",
+              "statusCode" : "500",
               "responseParameters" : {}
             }
           }
