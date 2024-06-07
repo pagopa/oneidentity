@@ -24,11 +24,11 @@ externalDocs:
 servers:
   - url: https://dev.oneidentity.pagopa.it/api/v1
 paths:
-  /ping:
+  /status:
     get:
       tags:
         - Authorization Server APIs
-      description: "[SHOULD BE RENAMED TO /status] An endpoint that can be used to verify the actual service health"
+      description: "An endpoint that can be used to verify the actual service health"
       operationId: Get_request_health_check
       responses:
         "200":
@@ -1200,22 +1200,28 @@ paths:
       tags:
         - SAML APIs
       description: This route will handle all SAML response as a callback from IDP
-      parameters:
-        - name: SAMLResponse
-          in: query
-          required: true
-          description: "This is the 'SAMLResponse' of the requesting AUTHnreq."
-          schema:
-            type: string
-        - name: RelayState
-          in: query
-          required: true
-          description: "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html"
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                SAMLResponse:
+                  description: "This is the 'SAMLResponse' of the requesting AUTHnreq."
+                  type: string
+                RelayState:
+                  description: "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html"
+                  type: string
+              required:
+                - SAMLResponse
+                - RelayState
       responses:
-        "200":
-          description: Response OK
+        "302":
+          description: Redirect user to a static html page after successful or not successfull authentication process
+          content:
+            text/html:
+              schema:
+                type: string
         "400":
           description: Missing or invalid parameters.
           headers:

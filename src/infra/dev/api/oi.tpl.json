@@ -362,48 +362,34 @@
         },
         "requestBody": {
           "content": {
-            "text/html": {
+            "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                  "SAMLResponse": {
+                    "description": "This is the 'SAMLResponse' of the requesting AUTHnreq.",
+                    "type": "string"
+                  },
+                  "RelayState": {
+                    "description": "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html",
+                    "type": "string"
+                  }
+                },
+                "required": ["SAMLResponse", "RelayState"]
               }
             }
-          },
-          "required": false
+          }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "headers": {
-              "location": {
-                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
+          "302": {
+            "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "content": {
+              "text/html": {
                 "schema": {
                   "type": "string"
                 }
               }
             }
-          },
-          "302": {
-            "description": "Redirect user to a static html page after successful or not successfull authentication process",
-            "headers": {
-              "location": {
-                "description": "Location (URL)",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
           },
           "400": {
             "description": "Missing or invalid parameters.",
