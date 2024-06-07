@@ -24,9 +24,5 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-impl</artifactId>
         </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>dynamodb-enhanced</artifactId>
-        </dependency>
     </dependencies>
 </project>

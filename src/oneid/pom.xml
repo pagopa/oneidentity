@@ -24,7 +24,7 @@
         <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
         <opensaml.version>4.3.0</opensaml.version>
-        <aws.java.sdk.version>2.25.63</aws.java.sdk.version>
+        <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
 
     </properties>
     <repositories>
@@ -61,9 +61,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>bom</artifactId>
-                <version>${aws.java.sdk.version}</version>
+                <groupId>io.quarkiverse.amazonservices</groupId>
+                <artifactId>quarkus-amazon-services-bom</artifactId>
+                <version>${quarkus-amazon-services.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
