@@ -133,55 +133,55 @@
         ],
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod":"GET",
-          "uri" : "${uri}/login",
-          "connectionType" : "VPC_LINK",
-          "connectionId"        : "${connection_id}",
-          "requestParameters"   : {  
-              "integration.request.querystring.client_id": "method.request.querystring.client_id",
-              "integration.request.querystring.response_type": "method.request.querystring.response_type",
-              "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
-              "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
-              "integration.request.querystring.nonce": "method.request.querystring.nonce",
-              "integration.request.querystring.state": "method.request.querystring.state",
-              "integration.request.header.accept": "'text/html'"
+          "httpMethod": "GET",
+          "uri": "${uri}/login",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.querystring.client_id": "method.request.querystring.client_id",
+            "integration.request.querystring.response_type": "method.request.querystring.response_type",
+            "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+            "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
+            "integration.request.querystring.nonce": "method.request.querystring.nonce",
+            "integration.request.querystring.state": "method.request.querystring.state",
+            "integration.request.header.accept": "'text/html'"
           },
-          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
-          "responses" : {
-            "200" : {
-              "statusCode" : "200",
-              "responseParameters" : {
-                "method.response.header.content-type" : "'text/html'"
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
               }
             },
-            "400" : {
-              "statusCode" : "400",
+            "400": {
+              "statusCode": "400",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
-            "401" : {
-              "statusCode" : "401",
+            "401": {
+              "statusCode": "401",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
-            "403" : {
-              "statusCode" : "403",
+            "403": {
+              "statusCode": "403",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
-            "405" : {
-              "statusCode" : "405",
+            "405": {
+              "statusCode": "405",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
-            "500" : {
-              "statusCode" : "500",
+            "500": {
+              "statusCode": "500",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             }
           }
@@ -205,79 +205,13 @@
             }
           },
           "400": {
-            "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -286,29 +220,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -331,31 +243,31 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
             "400": {
               "statusCode": "400",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
             "405": {
               "statusCode": "405",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             },
             "500": {
               "statusCode": "500",
               "responseParameters": {
-                "method.response.header.content-type" : "'text/html'"
+                "method.response.header.content-type": "'text/html'"
               }
             }
           }
@@ -383,19 +295,22 @@
         "responses": {
           "302": {
             "description": "Redirect user to a static html page after successful or not successfull authentication process",
-            "content": {
-              "text/html": {
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
                 "schema": {
                   "type": "string"
                 }
               }
-            }
-          },
-          "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
+            },
+            "content-type": {
+              "description": "Content type response.",
+              "schema": {
+                "type": "string"
+              }
+            },
+            "content": {
+              "text/html": {
                 "schema": {
                   "type": "string",
                   "default": "no-cache"
@@ -407,14 +322,11 @@
                   "type": "string",
                   "default": "no-store"
                 }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -423,29 +335,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -526,61 +416,13 @@
             }
           },
           "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "Authentication - Authorization.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -589,23 +431,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -648,23 +474,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -734,61 +544,13 @@
             "$ref": "#/components/responses/auth302"
           },
           "400": {
-            "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -797,23 +559,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -888,67 +634,13 @@
             }
           },
           "400": {
-            "description": "Bad Request, see x-ca-err for possible error codes",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "WWW-Authenticate": {
-                "description": "This header is required by RFC 7235 if an authentication scheme has been used. It contains the used authentication scheme and an error message.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -957,23 +649,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "Unknown error.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -1049,23 +725,7 @@
             }
           },
           "400": {
-            "description": "Bad request",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           }
         },
         "summary": "OpenID Connect jwks endpoint"
@@ -1130,23 +790,7 @@
             }
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1155,23 +799,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "OpenID Connect jwks endpoint"
@@ -1181,7 +809,7 @@
   "components": {
     "responses": {
       "auth302": {
-        "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received. 'x-ca-err', string with default 3000108",
+        "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received.",
         "headers": {
           "location": {
             "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
@@ -1202,6 +830,12 @@
               "type": "string",
               "default": "no-store"
             }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
           }
         }
       },
@@ -1255,6 +889,12 @@
               "default": "no-store"
             }
           }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
         }
       },
       "rateLimit": {
@@ -1273,6 +913,137 @@
               "type": "string",
               "default": "no-store"
             }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "badRequest": {
+        "description": "Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "invalidParameters": {
+        "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "unauthorized": {
+        "description": "The client could not be authenticated.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "forbidden": {
+        "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "serverError": {
+        "description": "unknown error",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
           }
         }
       }

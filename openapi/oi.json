@@ -129,61 +129,13 @@
             }
           },
           "400": {
-            "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -192,23 +144,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -396,61 +332,13 @@
             "$ref": "#/components/responses/auth302"
           },
           "400": {
-            "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -459,23 +347,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -624,67 +496,13 @@
             }
           },
           "400": {
-            "description": "Bad Request, see x-ca-err for possible error codes",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           },
           "401": {
-            "description": "The client could not be authenticated.",
-            "headers": {
-              "WWW-Authenticate": {
-                "description": "This header is required by RFC 7235 if an authentication scheme has been used. It contains the used authentication scheme and an error message.",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -693,23 +511,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "Unknown error.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -929,42 +731,13 @@
             }
           },
           "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -973,23 +746,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "OpenID Connect Dynamic Registration endpoint",
@@ -1160,23 +917,7 @@
             }
           },
           "400": {
-            "description": "Bad request",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           }
         },
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
@@ -1340,61 +1081,13 @@
             }
           },
           "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "Authentication - Authorization.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1403,23 +1096,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
@@ -1475,23 +1152,7 @@
             }
           },
           "400": {
-            "description": "Bad request",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/badRequest"
           }
         },
         "summary": "OpenID Connect jwks endpoint"
@@ -1532,23 +1193,7 @@
             }
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1557,23 +1202,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "OpenID Connect jwks endpoint"
@@ -1667,23 +1296,7 @@
             }
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1692,23 +1305,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "OpenID Connect Discovery endpoint",
@@ -1747,6 +1344,14 @@
         "responses": {
           "302": {
             "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "text/html": {
                 "schema": {
@@ -1756,23 +1361,7 @@
             }
           },
           "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1781,23 +1370,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -1843,61 +1416,13 @@
             }
           },
           "400": {
-            "description": "Missing or invalid parameters.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/invalidParameters"
           },
           "401": {
-            "description": "Authentication - Authorization.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/unauthorized"
           },
           "403": {
-            "description": "Forbidden.",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/forbidden"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1906,23 +1431,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -1944,23 +1453,7 @@
             "$ref": "#/components/responses/rateLimit"
           },
           "500": {
-            "description": "unknown error",
-            "headers": {
-              "Pragma": {
-                "description": "Pragma browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
+            "$ref": "#/components/responses/serverError"
           }
         }
       }
@@ -1969,7 +1462,7 @@
   "components": {
     "responses": {
       "auth302": {
-        "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received. 'x-ca-err', string with default 3000108",
+        "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received.",
         "headers": {
           "location": {
             "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
@@ -2047,6 +1540,101 @@
       },
       "rateLimit": {
         "description": "Too many requests",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "badRequest": {
+        "description": "Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "invalidParameters": {
+        "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "unauthorized": {
+        "description": "The client could not be authenticated.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "forbidden": {
+        "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "serverError": {
+        "description": "unknown error",
         "headers": {
           "Pragma": {
             "description": "Pragma browser directive",
