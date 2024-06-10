@@ -350,18 +350,39 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'text/html'"
+          },
           "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
+            },
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
+            },
             "400": {
               "statusCode": "400",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "405": {
               "statusCode": "405",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "500": {
               "statusCode": "500",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             }
           }
         },
@@ -376,6 +397,40 @@
           "required": false
         },
         "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "location": {
+                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+          },
           "400": {
             "description": "Missing or invalid parameters.",
             "headers": {
@@ -391,6 +446,12 @@
                 "schema": {
                   "type": "string",
                   "default": "no-store"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -418,6 +479,12 @@
                   "type": "string",
                   "default": "no-store"
                 }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -436,6 +503,12 @@
                 "schema": {
                   "type": "string",
                   "default": "no-store"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
