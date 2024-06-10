@@ -34,9 +34,6 @@ jobs:
         with:
           build-scan-publish: false
 
-      - name: Setup Gradle
-        run: which gradlew  
-
       - name: Build with Gradle
         run: gradlew build
         working-directory: src/hello-java
