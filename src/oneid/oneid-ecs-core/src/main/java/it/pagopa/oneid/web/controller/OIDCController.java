@@ -4,10 +4,8 @@ import it.pagopa.oneid.common.DummyClient;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path(("/oidc"))
@@ -15,12 +13,14 @@ public class OIDCController {
 
     @GET
     @Path("/.well-known/openid-configuration")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response openIDConfig() {
         return Response.ok("OIDC Configuration Path").build();
     }
 
     @GET
     @Path("/keys")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response keys() {
         return Response.ok("OIDC Keys Path").build();
     }
@@ -33,6 +33,7 @@ public class OIDCController {
 
     @POST
     @Path("/token")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
         return Response.ok("Token Path").build();
     }
