@@ -137,41 +137,52 @@
           "uri" : "${uri}/login",
           "connectionType" : "VPC_LINK",
           "connectionId"        : "${connection_id}",
-          "requestParameters"   : {
-            "requestParameters" : {
+          "requestParameters"   : {  
               "integration.request.querystring.client_id": "method.request.querystring.client_id",
               "integration.request.querystring.response_type": "method.request.querystring.response_type",
               "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
               "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
               "integration.request.querystring.nonce": "method.request.querystring.nonce",
-              "integration.request.querystring.state": "method.request.querystring.state"
-            }
+              "integration.request.querystring.state": "method.request.querystring.state",
+              "integration.request.header.accept": "'text/html'"
           },
           "passthroughBehavior" : "WHEN_NO_TEMPLATES",
           "responses" : {
             "200" : {
               "statusCode" : "200",
-              "responseParameters": {}
+              "responseParameters" : {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "400" : {
               "statusCode" : "400",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "401" : {
               "statusCode" : "401",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "403" : {
               "statusCode" : "403",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "405" : {
               "statusCode" : "405",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             },
             "500" : {
               "statusCode" : "500",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type" : "'text/html'"
+              }
             }
           }
         },
@@ -181,6 +192,12 @@
             "headers": {
               "location": {
                 "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
                 "schema": {
                   "type": "string"
                 }
@@ -203,6 +220,12 @@
                   "type": "string",
                   "default": "no-store"
                 }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -221,6 +244,12 @@
                 "schema": {
                   "type": "string",
                   "default": "no-store"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -241,6 +270,12 @@
                   "type": "string",
                   "default": "no-store"
                 }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
               }
             }
           },
@@ -252,6 +287,12 @@
                 "schema": {
                   "type": "string",
                   "default": "GET,POST"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
                 }
               },
               "Pragma": {
@@ -278,6 +319,12 @@
                 "schema": {
                   "type": "string",
                   "default": "no-cache"
+                }
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
                 }
               },
               "Cache-Control": {
