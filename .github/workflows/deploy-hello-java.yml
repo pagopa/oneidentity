@@ -43,4 +43,3 @@ jobs:
         with:
           name: hello-java
           path: src/hello-java/build/libs/*.jar
-
