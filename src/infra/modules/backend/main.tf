@@ -382,7 +382,7 @@ module "elb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/ping"
+        path                = "/status"
         port                = var.service_core.container.containerPort
         healthy_threshold   = 3
         unhealthy_threshold = 3
