@@ -1171,6 +1171,11 @@
           },
           "passthroughBehavior" : "WHEN_NO_TEMPLATES",
           "responses" : {
+            "200" : {
+              "statusCode" : "200",
+              "requestParameters" : {
+              }
+            },
             "204" : {
               "statusCode" : "204",
               "requestParameters" : {
@@ -1184,6 +1189,18 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "This might not be necessary.",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, GET",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
             "headers": {
