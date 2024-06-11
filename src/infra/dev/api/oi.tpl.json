@@ -699,11 +699,17 @@
             "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
             "integration.request.header.Origin": "method.request.header.Origin"
           },
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "responses": {
-            "204": {
-              "statusCode": "204",
-              "requestParameters": {}
+          "passthroughBehavior" : "WHEN_NO_TEMPLATES",
+          "responses" : {
+            "200" : {
+              "statusCode" : "200",
+              "requestParameters" : {
+              }
+            },
+            "204" : {
+              "statusCode" : "204",
+              "requestParameters" : {
+              }
             },
             "400": {
               "statusCode": "400",
@@ -712,6 +718,18 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "This might not be necessary.",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, GET",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              }
+            }
+          },
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
             "headers": {
