@@ -361,28 +361,19 @@
         "operationId": "Create_request_token",
         "parameters": [
           {
+            "name": "Content-type",
+            "in": "header",
+            "required": true,
+            "description": "This must be application/x-www-form-urlencoded",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
-            "required": false,
+            "required": true,
             "description": "The HTTP basic authorization header containing the client credentials as base64 encoded string (authorization: Basic base64(client_id:client_secret)). This can only be used INSTEAD of the parameters 'client_id', 'client_secret'.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "client_id",
-            "in": "query",
-            "required": false,
-            "description": "The client_id. This can only be used INSTEAD of using the authorization header. Maximum 255 characters.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "client_secret",
-            "in": "query",
-            "required": false,
-            "description": "The client_secret. This can only be used INSTEAD of using the authorization header.",
             "schema": {
               "type": "string"
             }
@@ -391,16 +382,11 @@
             "name": "grant_type",
             "in": "query",
             "required": true,
-            "description": "For grant_type=password either authorization or client_id AND client_secret, username and password must be provided. For grant_type=client_credentials, either authorization or client_id AND client_secret must be provided. For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required. For grant_type=refresh_token: client_id and refresh_token are required. For grant_type=jwt or saml2-bearer: client_id and assertion are required",
+            "description": "For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.",
             "schema": {
               "type": "string",
               "enum": [
-                "password",
-                "refresh_token",
-                "authorization_code",
-                "client_credentials",
-                "urn:ietf:params:oauth:grant-type:jwt-bearer",
-                "urn:ietf:params:oauth:grant-type:saml2-bearer"
+                "authorization_code"
               ],
               "default": "authorization_code"
             }
@@ -408,7 +394,7 @@
           {
             "name": "code",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Required if grant_type is authorization_code",
             "schema": {
               "type": "string"
@@ -417,7 +403,7 @@
           {
             "name": "redirect_uri",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Required if grant_type is authorization_code.  Must contain a valid auth code",
             "schema": {
               "type": "string"
@@ -428,52 +414,6 @@
             "in": "query",
             "required": false,
             "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "username",
-            "in": "query",
-            "required": false,
-            "description": "If grant_type is password or client_credentials, this parameter must contain a valid username ",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "password",
-            "in": "query",
-            "required": false,
-            "description": "If grant_type is password or client_credentials, this parameter must contain a valid password",
-            "schema": {
-              "type": "string",
-              "format": "password"
-            }
-          },
-          {
-            "name": "assertion",
-            "in": "query",
-            "required": false,
-            "description": "If grant_type is saml2-bearer or jwt, this parameter must contain a base64 encoded SAML or JWT token that represents an authenticated resource owner.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "refresh_token",
-            "in": "query",
-            "required": false,
-            "description": "If grant_type is refresh_token, this parameter must contain a valid refresh_token.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_verifier",
-            "in": "query",
-            "required": false,
-            "description": "A random value of 43-256 characters. See https://tools.ietf.org/html/rfc7636#section-4 for details.  This parameter is required only when a code_challenge is provided with the authorization request for this session.",
             "schema": {
               "type": "string"
             }
