@@ -1,9 +1,11 @@
 package it.pagopa.oneid.common;
 
+import lombok.Data;
 import org.opensaml.saml.saml2.metadata.RequestedAttribute;
 
 import java.util.ArrayList;
 
+@Data
 public class Client {
 
     private String clientId;
