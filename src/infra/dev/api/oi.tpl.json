@@ -604,10 +604,15 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "''"
+          },
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
+              }
             },
             "204": {
               "statusCode": "204",
@@ -629,6 +634,10 @@
               "statusCode": "405",
               "responseParameters": {}
             },
+            "406": {
+              "statusCode": "406",
+              "responseParameters": {}
+            },
             "500": {
               "statusCode": "500",
               "responseParameters": {}
@@ -637,7 +646,16 @@
         },
         "responses": {
           "200": {
-            "$ref": "#/components/responses/authToken200"
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "content-type": {
+                "description": "Allowable Methods, POST",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              }
+            }
           },
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
@@ -661,6 +679,9 @@
             "$ref": "#/components/responses/forbidden"
           },
           "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "406": {
             "$ref": "#/components/responses/methodNotAllowed"
           },
           "429": {
