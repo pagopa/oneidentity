@@ -1,6 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
-import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
+import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -22,7 +22,7 @@ public class OneIDController {
     @GET
     @Path("/login")
     @Produces(MediaType.TEXT_HTML)
-    public Response login(@BeanParam AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
+    public Response login(@BeanParam AuthorizationRequestDTO authorizationRequestDTO) {
         // TODO remove this Mock and set @Valid
         String localIDP = "https://localhost:8443/samlsso";
         String localDemoIDP = "https://localhost:8443/demo/samlsso";
