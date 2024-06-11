@@ -569,59 +569,38 @@
         "tags": ["Token Server APIs"],
         "description": "Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.",
         "operationId": "Create_request_token",
-        "parameters": [
-          {
-            "name": "Content-type",
-            "in": "header",
-            "required": true,
-            "description": "This must be application/x-www-form-urlencoded",
-            "schema": {
-              "type": "string"
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["code", "redirect_uri", "grant_type"],
+                "properties": {
+                  "redirect_uri": {
+                    "type": "string",
+                    "description": "Required if grant_type is authorization_code. Must contain a valid auth code"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "Required if grant_type is authorization_code"
+                  },
+                  "grant_type": {
+                    "type": "string",
+                    "description": "For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.",
+                    "enum": ["authorization_code"],
+                    "default": "authorization_code"
+                  }
+                }
+              }
             }
-          },
+          }
+        },
+        "parameters": [
           {
             "name": "authorization",
             "in": "header",
             "required": true,
             "description": "The HTTP basic authorization header containing the client credentials as base64 encoded string (authorization: Basic base64(client_id:client_secret)). This can only be used INSTEAD of the parameters 'client_id', 'client_secret'.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "grant_type",
-            "in": "query",
-            "required": true,
-            "description": "For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.",
-            "schema": {
-              "type": "string",
-              "enum": ["authorization_code"],
-              "default": "authorization_code"
-            }
-          },
-          {
-            "name": "code",
-            "in": "query",
-            "required": true,
-            "description": "Required if grant_type is authorization_code",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "in": "query",
-            "required": true,
-            "description": "Required if grant_type is authorization_code.  Must contain a valid auth code",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "in": "query",
-            "required": false,
-            "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.",
             "schema": {
               "type": "string"
             }
