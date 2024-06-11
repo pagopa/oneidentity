@@ -240,12 +240,6 @@
             "integration.request.header.accept": "'text/html'"
           },
           "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
-            },
             "302": {
               "statusCode": "302",
               "responseParameters": {
@@ -255,19 +249,16 @@
             "400": {
               "statusCode": "400",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
               }
             },
             "405": {
               "statusCode": "405",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
               }
             },
             "500": {
               "statusCode": "500",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
               }
             }
           }
@@ -301,12 +292,12 @@
                 "schema": {
                   "type": "string"
                 }
-              }
-            },
-            "content-type": {
-              "description": "Content type response.",
-              "schema": {
-                "type": "string"
+              },
+              "content-type": {
+                "description": "Content type response.",
+                "schema": {
+                  "type": "string"
+                }
               }
             },
             "content": {
