@@ -47,6 +47,7 @@ jobs:
     deploy:
       runs-on: ubuntu-22.04
       needs: build
+      environment: dev
   
       steps:
       - name: Download build artifacts
