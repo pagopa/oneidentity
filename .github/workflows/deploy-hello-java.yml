@@ -43,3 +43,26 @@ jobs:
         with:
           name: hello-java
           path: src/hello-java/build/libs/*.jar
+
+    deploy:
+      runs-on: ubuntu-22.04
+      needs: build
+  
+      steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: hello-java
+          path: ./src/hello-java/build/libs
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_ECS }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy Lambda function
+        run: |
+            aws lambda update-function-code \
+            --function-name oneid-es-1-d-client-registration \
+            --zip-file fileb://src/hello-java/build/libs/hello-java.jar
