@@ -10,6 +10,10 @@ output "ecs_deploy_iam_role_arn" {
   value = aws_iam_role.githubecsdeploy.arn
 }
 
+output "lambda_deploy_iam_role_arn" {
+  value = aws_iam_policy.deploy_lambda.arn
+}
+
 output "jwt_sign_aliases" {
   value = module.jwt_sign.aliases
 }
