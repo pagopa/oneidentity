@@ -62,7 +62,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
-          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_ECS }}
+          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
       
       - name: Debug
