@@ -1,10 +1,11 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.exception.*;
-import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
-import it.pagopa.oneid.model.session.SAMLSession;
-import it.pagopa.oneid.model.session.enums.RecordType;
+import it.pagopa.oneid.exception.CallbackURINotFoundException;
+import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.IDPNotFoundException;
+import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
@@ -19,16 +21,20 @@ import it.pagopa.oneid.service.SAMLServiceImpl;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
+import java.util.HashMap;
 
 @Path(("/oidc"))
-public class OIDCController<T> {
+public class OIDCController {
 
     @Inject
     SAMLServiceImpl samlServiceImpl;
 
+    // TODO remove comment when layer ready
+    /*@Inject
+    SessionServiceImpl<SAMLSession> samlSessionService;*/
+
     @Inject
-    SessionServiceImpl<T> sessionServiceImpl;
+    HashMap<String, Client> clientsMap;
 
     @GET
     @Path("/.well-known/openid-configuration")
@@ -47,39 +53,45 @@ public class OIDCController<T> {
     @POST
     @Path("/authorize")
     @Produces(MediaType.TEXT_HTML)
-    public Response authorize(@BeanParam @Valid AuthorizationRequestDTO authorizationRequestDTO) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException {
+    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException {
         // TODO setup logging utility
 
+        // TODO setup ExceptionHandler
 
-        // TODO these hashmaps must be initialized during startup
-        // HashMap<String, IDP> idpsMap = new HashMap<String, String>(); -> from file
-        // HashMap<String, Client> clientsHashMap = new HashMap<String, Client>(); -> from DynamoDB
-
-        // TODO may these controls be executed by other components?
-
-        // 1. Check if idp exists leveraging on runtime map (CIE/SPID) {key: idp, value: idp sso endpoint}
-        if (!idpsMap.containsKey(authorizationRequestDTOExtended.getIdp())) {
+        // 1. Check if idp exists
+        if (samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp()).isEmpty()) {
             throw new IDPNotFoundException();
         }
 
-        // 2. Check if clientId exists leverage on runtime map {key: clientid, value: ClientRegistration}
-        if (!clientsHashMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
+        // 2. Check if clientId exists
+        if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
             throw new ClientNotFoundException();
         }
 
         // 3. Check if callbackUri exists among clientId parameters
-        if (!clientsHashMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI().contains(authorizationRequestDTOExtended.getRedirectUri())) {
+        if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI().contains(authorizationRequestDTOExtended.getRedirectUri())) {
             throw new CallbackURINotFoundException();
         }
 
-        Client client = clientsHashMap.get(authorizationRequestDTOExtended.getClientId());
-        String idpSSOEndpoint = idpsMap.get(authorizationRequestDTOExtended.getIdp()).getSSOEndpoint();
+        EntityDescriptor idp = samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp()).get();
+        Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
+
+        // TODO is it correct to retrieve the 0 indexed?
+        String idpSSOEndpoint = idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol").getSingleSignOnServices().getFirst().getLocation();
 
         // 4. Create SAML Authn Request using SAMLServiceImpl
-        AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex());
+        // TODO implement and replace when layer ready
+
+        String encodedAuthnRequest = "test";
+        String encodedRelayStateString = "test";
+
+        /*AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex());
 
         String encodedAuthnRequest = Base64.getEncoder().encodeToString(WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
         String encodedRelayStateString = Base64.getEncoder().encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
+        */
+
+        // TODO  implement when layer ready
 
         // 5. Persist SAMLSession
 
@@ -89,8 +101,8 @@ public class OIDCController<T> {
         // Calculate the expiration time (2 days from now) in epoch second format
         long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
-        SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime, ttl, encodedAuthnRequest);
-        sessionServiceImpl.saveSession(samlSession);
+        //SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime, ttl, encodedAuthnRequest);
+        //samlSessionService.saveSession(samlSession);
 
         String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
                 + " id='SAMLRequestForm'>" +
@@ -109,6 +121,7 @@ public class OIDCController<T> {
     @POST
     @Path("/token")
     @Produces(MediaType.APPLICATION_JSON)
+
     public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
         return Response.ok("Token Path").build();
     }
