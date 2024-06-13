@@ -81,7 +81,6 @@
             "description": "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types",
             "schema": {
               "type": "string",
-              "default": "code",
               "enum": [
                 "code",
                 "token",
@@ -97,7 +96,7 @@
           {
             "name": "redirect_uri",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY.",
             "schema": {
               "type": "string"
@@ -106,7 +105,7 @@
           {
             "name": "scope",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.",
             "schema": {
               "type": "string"
@@ -115,7 +114,7 @@
           {
             "name": "nonce",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused.",
             "schema": {
               "type": "string"
@@ -124,7 +123,7 @@
           {
             "name": "state",
             "in": "query",
-            "required": false,
+            "required": true,
             "description": "Value opaque to the server, used by the client to track its session. It will be returned as received.",
             "schema": {
               "type": "string"
@@ -137,52 +136,34 @@
           "uri": "${uri}/login",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
-          "requestParameters": {
-            "integration.request.querystring.client_id": "method.request.querystring.client_id",
-            "integration.request.querystring.response_type": "method.request.querystring.response_type",
-            "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
-            "integration.request.querystring.scope": "method.request.multivaluequerystring.scope",
-            "integration.request.querystring.nonce": "method.request.querystring.nonce",
-            "integration.request.querystring.state": "method.request.querystring.state",
-            "integration.request.header.accept": "'text/html'"
-          },
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "400": {
               "statusCode": "400",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "401": {
               "statusCode": "401",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "403": {
               "statusCode": "403",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "405": {
               "statusCode": "405",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "500": {
               "statusCode": "500",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             }
           }
         },
@@ -196,10 +177,11 @@
                   "type": "string"
                 }
               },
-              "content-type": {
-                "description": "Content type response.",
-                "schema": {
-                  "type": "string"
+              "content": {
+                "text/html": {
+                  "schema": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -237,29 +219,24 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'text/html'"
+            "integration.request.header.accept": "'*/*'"
           },
           "responses": {
             "302": {
               "statusCode": "302",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "400": {
               "statusCode": "400",
-              "responseParameters": {
-              }
+              "responseParameters": {}
             },
             "405": {
               "statusCode": "405",
-              "responseParameters": {
-              }
+              "responseParameters": {}
             },
             "500": {
               "statusCode": "500",
-              "responseParameters": {
-              }
+              "responseParameters": {}
             }
           }
         },
@@ -289,12 +266,6 @@
             "headers": {
               "location": {
                 "description": "Location (URL)",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "content-type": {
-                "description": "Content type response.",
                 "schema": {
                   "type": "string"
                 }
@@ -471,32 +442,96 @@
       }
     },
     "/oidc/authorize": {
-      "post": {
+      "get": {
         "tags": ["Authorization Server APIs"],
-        "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details.",
+        "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2.",
         "operationId": "Get_request_authorization",
-        "requestBody": {
-          "content": {
-            "text/html": {
-              "schema": {
-                "type": "string"
-              }
+        "parameters": [
+          {
+            "name": "idp",
+            "in": "query",
+            "required": true,
+            "description": "This is the requested 'idp' to initiate the authentication flow",
+            "schema": {
+              "type": "string"
             }
           },
-          "required": true
-        },
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "description": "This is the 'client_id' of the requesting client. Maximum 255 characters.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": true,
+            "description": "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code",
+                "token",
+                "token id_token",
+                "code id_token",
+                "id_token",
+                "code token",
+                "code id_token token",
+                "none"
+              ]
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "description": "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": true,
+            "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "required": true,
+            "description": "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "description": "Value opaque to the server, used by the client to track its session. It will be returned as received.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
-          "httpMethod": "POST",
+          "httpMethod": "GET",
           "uri": "${uri}/oidc/authorize",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
           "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {}
-            },
             "302": {
               "statusCode": "302",
               "responseParameters": {}
@@ -520,17 +555,125 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
-            "headers": {
-              "location": {
-                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
-                "schema": {
-                  "type": "string"
+          "302": {
+            "$ref": "#/components/responses/auth302"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Authorization Server APIs"],
+        "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2.",
+        "operationId": "Post_request_authorization",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "idp",
+                  "client_id",
+                  "response_type",
+                  "redirect_uri",
+                  "scope",
+                  "state",
+                  "nonce"
+                ],
+                "properties": {
+                  "idp": {
+                    "type": "string",
+                    "description": "This is the requested 'idp' to initiate the authentication flow"
+                  },
+                  "client_id": {
+                    "type": "string",
+                    "description": "This is the 'client_id' of the requesting client. Maximum 255 characters."
+                  },
+                  "response_type": {
+                    "type": "string",
+                    "description": "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types",
+                    "enum": [
+                      "code",
+                      "token",
+                      "token id_token",
+                      "code id_token",
+                      "id_token",
+                      "code token",
+                      "code id_token token",
+                      "none"
+                    ]
+                  },
+                  "redirect_uri": {
+                    "type": "string",
+                    "description": "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+                  },
+                  "scope": {
+                    "type": "string",
+                    "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Value opaque to the server, used by the client to track its session. It will be returned as received."
+                  },
+                  "nonce": {
+                    "type": "string",
+                    "description": "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+                  }
                 }
               }
             }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/oidc/authorize",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
           },
+          "responses": {
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
           "302": {
             "$ref": "#/components/responses/auth302"
           },
@@ -605,14 +748,12 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "''"
+            "integration.request.header.accept": "'*/*'"
           },
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
-              }
+              "responseParameters": {}
             },
             "204": {
               "statusCode": "204",
@@ -646,16 +787,7 @@
         },
         "responses": {
           "200": {
-            "description": "No Content, applicable to OPTIONS request with preflight configuration",
-            "headers": {
-              "content-type": {
-                "description": "Allowable Methods, POST",
-                "schema": {
-                  "type": "string",
-                  "default": "POST"
-                }
-              }
-            }
+            "$ref": "#/components/responses/authToken200"
           },
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
@@ -682,7 +814,7 @@
             "$ref": "#/components/responses/methodNotAllowed"
           },
           "406": {
-            "$ref": "#/components/responses/methodNotAllowed"
+            "$ref": "#/components/responses/notAcceptable"
           },
           "429": {
             "$ref": "#/components/responses/rateLimit"
@@ -949,6 +1081,25 @@
           "description": "Content type response.",
           "schema": {
             "type": "string"
+          }
+        }
+      },
+      "notAcceptable": {
+        "description": "The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
           }
         }
       },

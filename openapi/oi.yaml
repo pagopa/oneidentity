@@ -55,7 +55,6 @@ paths:
           description: "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types"
           schema:
             type: string
-            default: code
             enum:
               - code
               - token
@@ -67,25 +66,25 @@ paths:
               - none
         - name: redirect_uri
           in: query
-          required: false
+          required: true
           description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
           schema:
             type: string
         - name: scope
           in: query
-          required: false
+          required: true
           description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
           schema:
             type: string
         - name: nonce
           in: query
-          required: false
+          required: true
           description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
           schema:
             type: string
         - name: state
           in: query
-          required: false
+          required: true
           description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
           schema:
             type: string
@@ -95,6 +94,10 @@ paths:
           headers:
             location:
               description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
+              schema:
+                type: string
+          content:
+            text/html:
               schema:
                 type: string
         "400":
@@ -110,10 +113,10 @@ paths:
         "500":
           $ref: "#/components/responses/serverError"
   /oidc/authorize:
-    post:
+    get:
       tags:
         - Authorization Server APIs
-      description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details."
+      description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2."
       operationId: Get_request_authorization
       parameters:
         - name: idp
@@ -143,97 +146,95 @@ paths:
               - code token
               - code id_token token
               - none
-        - name: response_mode
-          in: query
-          required: false
-          description: "Specify the method of returning the authorization response. As per the OpenID specification, use of this parameter is NOT RECOMMENDED if you are using the same response mode as the default response mode for the given response type. It MUST be one of the listed values in order to be accepted: 'query', 'fragment', 'form_post'."
-          schema:
-            type: string
-            enum:
-              - query
-              - fragment
-              - form_post
         - name: redirect_uri
           in: query
-          required: false
+          required: true
           description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
           schema:
             type: string
         - name: scope
           in: query
-          required: false
+          required: true
           description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
           schema:
             type: string
         - name: nonce
           in: query
-          required: false
+          required: true
           description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
-          schema:
-            type: string
-        - name: display
-          in: query
-          required: false
-          description: "This is optional and used within the context of OpenID Connect (ie, response_type 'token id_token'). This parameter is not used here but forwarded to the /authorize/login API. Currently only 'page' are supported by default. The value 'social_login' will create a JSON message response instead of an HTML page containing a list of social login providers. The value 'local' will prevent the authorization server from displaying the social login buttons. This is the case if a user selected the local enterprise button for logging in."
-          schema:
-            type: string
-            enum:
-              - ""
-              - page
-              - social_login
-              - local
-            default: ""
-        - name: prompt
-          in: query
-          required: false
-          description: "This is used within the context of OpenID Connect. Indicates whether the server should prompt for login/consent. It is a space separated list of different values. The server supports the values 'none', 'login' and 'consent'. 'none' is only respected if 'id_token_hint' is not empty. 'consent' is only respected if the current user has an active OAuth session using the same client and the same SCOPE."
-          schema:
-            type: string
-            default: login consent
-        - name: id_token_hint
-          in: query
-          required: false
-          description: "This is used within the context of OpenID Connect. Contains a previously issued id_token. This parameter is only respected for 'prompt=none' or 'prompt=none consent'."
-          schema:
-            type: string
-        - name: acr_values
-          in: query
-          required: false
-          description: This is used within the context of OpenID Connect. Indicates which acr (additional cryptography) classes are acceptable for the user authentication. It is a space separated list of different values.
-          schema:
-            type: string
-        - name: code_challenge
-          in: query
-          required: false
-          description: The code_challenge value in the context of PKCE (RFC 7636).
-          schema:
-            type: string
-        - name: code_challenge_method
-          in: query
-          required: false
-          description: The method that was used to create the code_challenge (plain or S256).
           schema:
             type: string
         - name: state
           in: query
-          required: false
+          required: true
           description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
           schema:
             type: string
-        - name: login_hint
-          in: query
-          required: false
-          description: A suggested username. This parameter is described in the OpenID Connect core specification.
-          schema:
-            type: string
       responses:
-        "200":
-          description: OK
-          headers:
-            location:
-              description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
-              schema:
-                type: string
+        "302":
+          $ref: "#/components/responses/auth302"
+        "400":
+          $ref: "#/components/responses/invalidParameters"
+        "401":
+          $ref: "#/components/responses/unauthorized"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "405":
+          $ref: "#/components/responses/methodNotAllowed"
+        "429":
+          $ref: "#/components/responses/rateLimit"
+        "500":
+          $ref: "#/components/responses/serverError"
+    post:
+      tags:
+        - Authorization Server APIs
+      description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2."
+      operationId: Post_request_authorization
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - idp
+                - client_id
+                - response_type
+                - redirect_uri
+                - scope
+                - state
+                - nonce
+              properties:
+                idp:
+                  type: string
+                  description: This is the requested 'idp' to initiate the authentication flow
+                client_id:
+                  type: string
+                  description: "This is the 'client_id' of the requesting client. Maximum 255 characters."
+                response_type:
+                  type: string
+                  description: "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types"
+                  enum:
+                    - code
+                    - token
+                    - token id_token
+                    - code id_token
+                    - id_token
+                    - code token
+                    - code id_token token
+                    - none
+                redirect_uri:
+                  type: string
+                  description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+                scope:
+                  type: string
+                  description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
+                state:
+                  type: string
+                  description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
+                nonce:
+                  type: string
+                  description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+      responses:
         "302":
           $ref: "#/components/responses/auth302"
         "400":
@@ -302,6 +303,8 @@ paths:
           $ref: "#/components/responses/forbidden"
         "405":
           $ref: "#/components/responses/methodNotAllowed"
+        "406":
+          $ref: "#/components/responses/notAcceptable"
         "429":
           $ref: "#/components/responses/rateLimit"
         "500":
@@ -1007,6 +1010,19 @@ components:
           schema:
             type: string
             default: "GET"
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
+    notAcceptable:
+      description: The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.
+      headers:
         Pragma:
           description: Pragma browser directive
           schema:
