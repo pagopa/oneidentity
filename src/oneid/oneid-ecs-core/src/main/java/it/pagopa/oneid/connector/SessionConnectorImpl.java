@@ -33,6 +33,20 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
     @Override
     public void saveSession(T session) {
+        switch (session) {
+            case SAMLSession samlSession -> {
+                samlSessionMapper.putItem(samlSession);
+            }
+            case OIDCSession oidcSession -> {
+                break;
+            }
+            case AccessTokenSession accessTokenSession -> {
+                break;
+            }
+            default -> {
+                break;
+            }
+        }
     }
 
     @Override
@@ -42,6 +56,5 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
     @Override
     public void updateSAMLSession(String samlRequestID, String SAMLResponse) {
-
     }
 }
