@@ -1,5 +1,8 @@
 package it.pagopa.oneid.model.session.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ResponseType {
     CODE("code"),
     TOKEN("token"),
@@ -16,7 +19,4 @@ public enum ResponseType {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
 }
