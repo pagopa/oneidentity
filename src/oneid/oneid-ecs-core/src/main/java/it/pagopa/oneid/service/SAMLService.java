@@ -5,8 +5,10 @@ import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SAMLService {
 
@@ -17,5 +19,7 @@ public interface SAMLService {
     boolean validateSAMLResponse(Response SAMLResponse, String idpID);
 
     List<Attribute> getAttributesFromSAMLResponse(Response SAMLResponse);
+
+    Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID);
 
 }
