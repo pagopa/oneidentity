@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface SAMLService {
 
-    AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String purpose) throws SecurityException, CertificateException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, MarshallingException, TransformerException;
+    AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String purpose, String spidLevel) throws SecurityException, CertificateException, IOException, NoSuchAlgorithmException, InvalidKeySpecException, SignatureException, MarshallingException, TransformerException;
 
     Response getSAMLResponseFromString(String SAMLResponse);
 

@@ -2,33 +2,35 @@ package it.pagopa.oneid.service.utils;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
 import org.opensaml.saml.saml2.core.*;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -39,30 +41,85 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class SAMLUtils {
-
-
-    private static Logger logger = LoggerFactory.getLogger(SAMLUtils.class);
     public BasicX509Credential X509Credential;
     public KeyInfoGenerator keyInfoGenerator;
     private static RandomIdentifierGenerationStrategy secureRandomIdGenerator;
+
+    @ConfigProperty(name = "metadata_url") //TODO substitute with quarkus annotation
+    private static final String METADATA_URL = System.getenv("METADATA_URL");
+
 
     static {
         secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
     }
 
+    private final FilesystemMetadataResolver metadataResolver;
+
+
+    @Inject
     public SAMLUtils() throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
         ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
-        registry.setParserPool(getParserPool());
+        registry.setParserPool(getBasicParserPool());
+        BasicParserPool parserPool = getBasicParserPool();
+        try {
+            parserPool.initialize();
+        } catch (ComponentInitializationException e) {
+            throw new RuntimeException(e);
+        }
+
         try {
             InitializationService.initialize();
         } catch (InitializationException e) {
-            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
+
+        String fileName = "metadata/spid.xml";
+
+        InputStream is = getFileFromResourceAsStream(fileName);
+        File targetFile = new File("targetFile.xml");
+        OutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream(targetFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] buffer = new byte[8 * 1024];
+        int bytesRead;
+        while (true) {
+            try {
+                if ((bytesRead = is.read(buffer)) == -1) break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                outStream.write(buffer, 0, bytesRead);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        IOUtils.closeQuietly(is);
+        IOUtils.closeQuietly(outStream);
+        try {
+            metadataResolver = new FilesystemMetadataResolver(targetFile);
+        } catch (ResolverException e) {
+            throw new RuntimeException(e);
+        }
+
+        metadataResolver.setId("spidMetadataResolver");
+        metadataResolver.setParserPool(parserPool);
+        try {
+            metadataResolver.initialize();
+        } catch (ComponentInitializationException e) {
+            throw new RuntimeException(e);
+        }
+
         setX509Credential();
         setnewKeyInfoGenerator();
     }
@@ -80,8 +137,7 @@ public class SAMLUtils {
         return object;
     }
 
-    private static ParserPool getParserPool() {
-
+    private static BasicParserPool getBasicParserPool() {
         BasicParserPool parserPool = new BasicParserPool();
         parserPool.setMaxPoolSize(100);
         parserPool.setCoalescing(true);
@@ -100,13 +156,6 @@ public class SAMLUtils {
 
         parserPool.setBuilderFeatures(features);
         parserPool.setBuilderAttributes(new HashMap<String, Object>());
-
-        try {
-            parserPool.initialize();
-        } catch (ComponentInitializationException e) {
-            logger.error(e.getMessage(), e);
-        }
-
         return parserPool;
     }
 
@@ -116,11 +165,19 @@ public class SAMLUtils {
 
     public static Issuer buildIssuer() {
         Issuer issuer = buildSAMLObject(Issuer.class);
-        issuer.setValue(System.getenv("METADATA_URL"));
+        issuer.setValue(METADATA_URL);
         issuer.setNameQualifier("test");
         issuer.setFormat(NameIDType.ENTITY);
 
         return issuer;
+    }
+
+    public String buildDestination(String idpID) {
+        EntityDescriptor idp = getEntityDescriptor(idpID).get();
+        return idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
+                .getSingleSignOnServices()
+                .getFirst()
+                .getLocation();
     }
 
     public static NameIDPolicy buildNameIdPolicy() {
@@ -130,17 +187,17 @@ public class SAMLUtils {
         return nameIDPolicy;
     }
 
-    public static RequestedAuthnContext buildRequestedAuthnContext() {
+    public static RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
         RequestedAuthnContext requestedAuthnContext = buildSAMLObject(RequestedAuthnContext.class);
         requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
 
-        requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef());
+        requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef(spidLevel));
         return requestedAuthnContext;
     }
 
-    private static AuthnContextClassRef buildAuthnContextClassRef() {
+    private static AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
         AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
-        authnContextClassRef.setURI("https://www.spid.gov.it/SpidL2");
+        authnContextClassRef.setURI(spidLevel);
         return authnContextClassRef;
     }
 
@@ -204,5 +261,36 @@ public class SAMLUtils {
         keyInfoGeneratorFactory.setEmitEntityCertificate(true);
         this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
     }
+
+    public Optional<EntityDescriptor> getEntityDescriptor(String entityID) {
+        // TODO do we need to add a cache layer? (With ConcurrentHashMap)
+        CriteriaSet criteriaSet = new CriteriaSet();
+        criteriaSet.add(new EntityIdCriterion(entityID));
+
+        EntityDescriptor entityDescriptor;
+        try {
+            entityDescriptor = metadataResolver.resolveSingle(criteriaSet);
+        } catch (ResolverException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Optional.ofNullable(entityDescriptor);
+    }
+
+    private InputStream getFileFromResourceAsStream(String fileName) {
+
+        // The class loader that loaded the class
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+
+        // the stream holding the file content
+        if (inputStream == null) {
+            throw new IllegalArgumentException("file not found! " + fileName);
+        } else {
+            return inputStream;
+        }
+
+    }
+
 
 }
