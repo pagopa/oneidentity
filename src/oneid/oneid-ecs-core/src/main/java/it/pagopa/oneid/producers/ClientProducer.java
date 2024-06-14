@@ -19,7 +19,7 @@ public class ClientProducer {
 
     @ApplicationScoped
     @Produces
-    Map<String, Client> clientsMap() {
+    Map<String, Client> clientsMap() throws ClientNotFoundException {
         Map<String, Client> map = new HashMap<>();
         ArrayList<Client> clients =
                 clientConnectorImpl.findAll()
