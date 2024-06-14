@@ -7,8 +7,12 @@ public enum ErrorCode {
 
     MARSHALLER_ERROR("MARSHALLER_ERROR", "Empty marshaller"),
     IDPSSOENDPOINT_NOT_FOUND("IDPSSOENDPOINT_NOT_FOUND", "Unable to find the idp-sso endpoint"),
-    GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION("GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION", "Generic AuthnRequest Exception"),
-    SAMLUTILS_EXCEPTION("SAMLUTILS_EXCEPTION", "Generic exception inside SAMLUtils");
+    GENERIC_AUTHN_REQUEST_CREATION("GENERIC_AUTHN_REQUEST_CREATION", "Generic AuthnRequest Exception"),
+    SAMLUTILS_ERROR("SAMLUTILS_ERROR", "Generic exception inside SAMLUtils"),
+    CALLBACK_URINOT_FOUND("CALLBACK_URINOT_FOUND", ""),
+    CLIENT_NOT_FOUND("CLIENT_NOT_FOUND", ""),
+    IDPNOT_FOUND("IDPNOT_FOUND", ""),
+    ;
 
 
     private final String errorCode;

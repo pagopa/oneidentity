@@ -24,5 +24,13 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.amazonservices</groupId>
+            <artifactId>quarkus-amazon-dynamodb-enhanced</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+        </dependency>
     </dependencies>
 </project>

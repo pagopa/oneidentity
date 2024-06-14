@@ -1,22 +1,41 @@
 package it.pagopa.oneid.common;
 
-import org.opensaml.saml.saml2.metadata.RequestedAttribute;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
-import java.util.ArrayList;
+import java.util.List;
+
+@DynamoDbBean
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 
 public class Client {
 
+    @Getter(onMethod_ = @DynamoDbPartitionKey)
+    @NotNull
     private String clientId;
 
+    @NotNull
     private String friendlyName;
 
-    private ArrayList<String> callbackURI;
+    @NotNull
+    private List<String> callbackURI;// TODO it should be String array
 
-    private ArrayList<RequestedAttribute> requestedParameters;
+    @NotNull
+    private List<String> requestedParameters; // TODO it should be String array
 
+    @NotNull
     private int acsIndex;
 
+    @NotNull
     private int attributeIndex;
 
+    @NotNull
     private boolean isActive;
 }

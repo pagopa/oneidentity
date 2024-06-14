@@ -13,12 +13,14 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static it.pagopa.oneid.service.utils.SAMLUtils.*;
 
@@ -72,7 +74,6 @@ public class SAMLServiceImpl implements SAMLService {
         return authnRequest;
     }
 
-
     @Override
     public Response getSAMLResponseFromString(String SAMLResponse) {
         return null;
@@ -87,4 +88,12 @@ public class SAMLServiceImpl implements SAMLService {
     public List<Attribute> getAttributesFromSAMLResponse(Response SAMLResponse) {
         return List.of();
     }
+
+    @Override
+    public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID) {
+
+        return samlUtils.getEntityDescriptor(entityID);
+
+    }
 }
+
