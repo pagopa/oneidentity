@@ -6,8 +6,9 @@ import lombok.Getter;
 public enum ErrorCode {
 
     MARSHALLER_ERROR("MARSHALLER_ERROR", "Empty marshaller"),
-    IDPSSOENDPOINT_NOT_FOUND("IDPSSOENDPOINT_NOT_FOUND", "message custom"), //FIXME CHANGE THIS
-    GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION("GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION", "message custom"); //FIXME CHANGE THIS
+    IDPSSOENDPOINT_NOT_FOUND("IDPSSOENDPOINT_NOT_FOUND", "Unable to find the idp-sso endpoint"),
+    GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION("GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION", "Generic AuthnRequest Exception"),
+    SAMLUTILS_EXCEPTION("SAMLUTILS_EXCEPTION", "Generic exception inside SAMLUtils");
 
 
     private final String errorCode;
