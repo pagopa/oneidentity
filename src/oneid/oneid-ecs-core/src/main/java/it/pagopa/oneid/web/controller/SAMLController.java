@@ -13,36 +13,36 @@ import java.net.URISyntaxException;
 @Path(("/saml"))
 public class SAMLController {
 
-  @POST
-  @Path("/acs")
-  @Produces(MediaType.TEXT_HTML)
+    @POST
+    @Path("/acs")
+    @Produces(MediaType.TEXT_HTML)
 
-  public Response samlACS(@BeanParam SAMLResponseDTO samlResponseDTO) {
-    // TODO Remove mock and set @Valid param
-    if ((samlResponseDTO.getSAMLResponse() != null) && (samlResponseDTO.getSAMLResponse().equals("test"))) {
-      try {
-        return Response
-            .status(302)
-            .location(new URI("/login"))
-            .build();
-      } catch (URISyntaxException e) {
-        // throw new RuntimeException(e);
-        return Response.status(400).build();
-      }
-    } else {
-      try {
-        return Response.status(302).location(new URI("/static/sample_index.html")).build();
-      } catch (URISyntaxException e) {
-        // throw new RuntimeException(e);
-        return Response.status(400).build();
-      }
+    public Response samlACS(@BeanParam SAMLResponseDTO samlResponseDTO) {
+        // TODO Remove mock and set @Valid param
+        if ((samlResponseDTO.getSAMLResponse() != null) && (samlResponseDTO.getSAMLResponse().equals("test"))) {
+            try {
+                return Response
+                        .status(302)
+                        .location(new URI("/login"))
+                        .build();
+            } catch (URISyntaxException e) {
+                // throw new RuntimeException(e);
+                return Response.status(400).build();
+            }
+        } else {
+            try {
+                return Response.status(302).location(new URI("/static/sample_index.html")).build();
+            } catch (URISyntaxException e) {
+                // throw new RuntimeException(e);
+                return Response.status(400).build();
+            }
+        }
     }
-  }
 
-  @GET
-  @Path("/assertion")
-  public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
-    return Response.ok("Assertion Path").build();
-  }
+    @GET
+    @Path("/assertion")
+    public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
+        return Response.ok("Assertion Path").build();
+    }
 
 }
