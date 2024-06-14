@@ -12,6 +12,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>connector</artifactId>
         </dependency>
