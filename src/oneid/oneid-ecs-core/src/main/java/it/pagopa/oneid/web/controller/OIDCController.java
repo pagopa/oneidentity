@@ -21,7 +21,7 @@ import it.pagopa.oneid.service.SAMLServiceImpl;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.Map;
 
 @Path(("/oidc"))
 public class OIDCController {
@@ -34,7 +34,7 @@ public class OIDCController {
     SessionServiceImpl<SAMLSession> samlSessionService;*/
 
     @Inject
-    HashMap<String, Client> clientsMap;
+    Map<String, Client> clientsMap;
 
     @GET
     @Path("/.well-known/openid-configuration")
