@@ -1,9 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.exception.CallbackURINotFoundException;
-import it.pagopa.oneid.exception.ClientNotFoundException;
-import it.pagopa.oneid.exception.IDPNotFoundException;
+import it.pagopa.oneid.exception.*;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
@@ -13,14 +11,12 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
-import it.pagopa.oneid.service.SAMLServiceImpl;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Map;
 
 @Path(("/oidc"))
@@ -53,7 +49,8 @@ public class OIDCController {
     @POST
     @Path("/authorize")
     @Produces(MediaType.TEXT_HTML)
-    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException {
+    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException {
+
         // TODO setup logging utility
 
         // TODO setup ExceptionHandler
@@ -80,16 +77,12 @@ public class OIDCController {
         String idpSSOEndpoint = idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol").getSingleSignOnServices().getFirst().getLocation();
 
         // 4. Create SAML Authn Request using SAMLServiceImpl
-        // TODO implement and replace when layer ready
 
-        String encodedAuthnRequest = "test";
-        String encodedRelayStateString = "test";
-
-        /*AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex());
+        // TODO who owns spid levl?
+        AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(), "");
 
         String encodedAuthnRequest = Base64.getEncoder().encodeToString(WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
         String encodedRelayStateString = Base64.getEncoder().encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
-        */
 
         // TODO  implement when layer ready
 
