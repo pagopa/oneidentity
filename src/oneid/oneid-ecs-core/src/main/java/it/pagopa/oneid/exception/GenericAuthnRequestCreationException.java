@@ -5,7 +5,7 @@ import it.pagopa.oneid.exception.enums.ErrorCode;
 public class GenericAuthnRequestCreationException extends OneIdentityException {
 
     public GenericAuthnRequestCreationException() {
-        super(ErrorCode.GENERIC_AUTHN_REQUEST_CREATION_EXCEPTION);
+        super(ErrorCode.GENERIC_AUTHN_REQUEST_CREATION);
     }
 
     public GenericAuthnRequestCreationException(String message) {

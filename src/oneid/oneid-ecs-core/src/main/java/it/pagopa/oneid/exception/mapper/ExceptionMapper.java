@@ -1,8 +1,7 @@
 package it.pagopa.oneid.exception.mapper;
 
 
-import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.*;
 import it.pagopa.oneid.model.ErrorResponse;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -14,6 +13,13 @@ import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 public class ExceptionMapper {
 
     @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
+        Response.Status status = INTERNAL_SERVER_ERROR;
+        String message = "Error during execution.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
     public RestResponse<ErrorResponse> mapGenericAuthnRequestCreationException(GenericAuthnRequestCreationException genericAuthnRequestCreationException) {
         Response.Status status = INTERNAL_SERVER_ERROR;
         String message = "Error during generation of AuthnRequest.";
@@ -21,9 +27,37 @@ public class ExceptionMapper {
     }
 
     @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapSamlUtilsException(SAMLUtilsException samlUtilsException) {
+        Response.Status status = INTERNAL_SERVER_ERROR;
+        String message = "Error during SAMLUtils execution.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
     public RestResponse<ErrorResponse> mapIDPSSOEndpointNotFoundException(IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
         Response.Status status = BAD_REQUEST;
         String message = "IDPSSO endpoint not found for selected idp.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapCallbackUriNotFoundException(CallbackURINotFoundException callbackURINotFoundException) {
+        Response.Status status = BAD_REQUEST;
+        String message = "Callback URI not found.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapClientNotFoundException(ClientNotFoundException clientNotFoundException) {
+        Response.Status status = BAD_REQUEST;
+        String message = "Client not found.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapIdpNotFoundException(IDPNotFoundException idpNotFoundException) {
+        Response.Status status = BAD_REQUEST;
+        String message = "IDP not found";
         return RestResponse.status(status, buildErrorResponse(status, message));
     }
 

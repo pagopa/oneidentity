@@ -1,4 +1,17 @@
 package it.pagopa.oneid.exception;
 
-public class IDPNotFoundException extends RuntimeException {
+import it.pagopa.oneid.exception.enums.ErrorCode;
+
+public class IDPNotFoundException extends OneIdentityException {
+    public IDPNotFoundException() {
+        super(ErrorCode.IDPNOT_FOUND);
+    }
+
+    public IDPNotFoundException(String customErrorMessage) {
+        super(customErrorMessage);
+    }
+
+    public IDPNotFoundException(Throwable cause) {
+        super(cause);
+    }
 }
