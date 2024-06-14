@@ -12,6 +12,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>connector</artifactId>
         </dependency>
@@ -30,6 +34,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.web-bundler</groupId>
+            <artifactId>quarkus-web-bundler</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

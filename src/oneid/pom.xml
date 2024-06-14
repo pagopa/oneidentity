@@ -25,6 +25,7 @@
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
         <opensaml.version>4.3.0</opensaml.version>
         <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
+        <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
 
     </properties>
     <repositories>
@@ -36,6 +37,11 @@
     </repositories>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.16.1</version>
+            </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-core</artifactId>
@@ -66,6 +72,12 @@
                 <version>${quarkus-amazon-services.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkiverse.web-bundler</groupId>
+                <artifactId>quarkus-web-bundler</artifactId>
+                <version>${quarkus-web-bundler.version}</version>
+                <scope>compile</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
             <dependency>

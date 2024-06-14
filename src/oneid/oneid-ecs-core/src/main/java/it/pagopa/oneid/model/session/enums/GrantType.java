@@ -1,5 +1,8 @@
 package it.pagopa.oneid.model.session.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum GrantType {
     PASSWORD("password"),
     REFRESH_TOKEN("refresh_token"),
@@ -12,10 +15,6 @@ public enum GrantType {
 
     GrantType(String value) {
         this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
 }
