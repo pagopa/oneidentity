@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service.utils;
 
 
+import it.pagopa.oneid.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -10,7 +11,6 @@ import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGener
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
@@ -29,6 +29,7 @@ import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
+
 import javax.xml.namespace.QName;
 import java.io.*;
 import java.security.KeyFactory;
@@ -43,26 +44,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static it.pagopa.oneid.service.utils.SAMLConstants.METADATA_URL;
+import static it.pagopa.oneid.service.utils.SAMLConstants.SERVICE_PROVIDER_URI;
+
 @ApplicationScoped
 public class SAMLUtils {
-    public BasicX509Credential X509Credential;
-    public KeyInfoGenerator keyInfoGenerator;
-    private static RandomIdentifierGenerationStrategy secureRandomIdGenerator;
 
-    @ConfigProperty(name = "metadata_url") //TODO substitute with quarkus annotation
-    private static final String METADATA_URL = System.getenv("METADATA_URL");
-
+    private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator;
 
     static {
         secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
     }
 
     private final FilesystemMetadataResolver metadataResolver;
+    public BasicX509Credential X509Credential;
+    public KeyInfoGenerator keyInfoGenerator;
 
 
     @Inject
-    public SAMLUtils() throws CertificateException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-
+    public SAMLUtils() throws SAMLUtilsException {
+        // TODO consider refactor
         XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
         ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
         registry.setParserPool(getBasicParserPool());
@@ -70,13 +71,13 @@ public class SAMLUtils {
         try {
             parserPool.initialize();
         } catch (ComponentInitializationException e) {
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         try {
             InitializationService.initialize();
         } catch (InitializationException e) {
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         String fileName = "metadata/spid.xml";
@@ -87,7 +88,7 @@ public class SAMLUtils {
         try {
             outStream = new FileOutputStream(targetFile);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         byte[] buffer = new byte[8 * 1024];
@@ -96,12 +97,12 @@ public class SAMLUtils {
             try {
                 if ((bytesRead = is.read(buffer)) == -1) break;
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SAMLUtilsException(e);
             }
             try {
                 outStream.write(buffer, 0, bytesRead);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SAMLUtilsException(e);
             }
         }
         IOUtils.closeQuietly(is);
@@ -109,7 +110,7 @@ public class SAMLUtils {
         try {
             metadataResolver = new FilesystemMetadataResolver(targetFile);
         } catch (ResolverException e) {
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         metadataResolver.setId("spidMetadataResolver");
@@ -166,18 +167,10 @@ public class SAMLUtils {
     public static Issuer buildIssuer() {
         Issuer issuer = buildSAMLObject(Issuer.class);
         issuer.setValue(METADATA_URL);
-        issuer.setNameQualifier("test");
+        issuer.setNameQualifier(SERVICE_PROVIDER_URI);
         issuer.setFormat(NameIDType.ENTITY);
 
         return issuer;
-    }
-
-    public String buildDestination(String idpID) {
-        EntityDescriptor idp = getEntityDescriptor(idpID).get();
-        return idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
-                .getSingleSignOnServices()
-                .getFirst()
-                .getLocation();
     }
 
     public static NameIDPolicy buildNameIdPolicy() {
@@ -190,76 +183,16 @@ public class SAMLUtils {
     public static RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
         RequestedAuthnContext requestedAuthnContext = buildSAMLObject(RequestedAuthnContext.class);
         requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
-
         requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef(spidLevel));
+
         return requestedAuthnContext;
     }
 
     private static AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
         AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
         authnContextClassRef.setURI(spidLevel);
+
         return authnContextClassRef;
-    }
-
-
-
-    public Signature buildSignature(SignableSAMLObject signableSAMLObject) throws SecurityException {
-
-        Signature signature = buildSAMLObject(Signature.class);
-
-        signature.setSigningCredential(this.X509Credential);
-        signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
-        signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-        signature.setKeyInfo(this.keyInfoGenerator.generate(this.X509Credential));
-
-        SAMLObjectContentReference contentReference = new SAMLObjectContentReference(signableSAMLObject);
-        contentReference.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA512);
-        signature.getContentReferences().add(contentReference);
-
-        return signature;
-    }
-
-    public void setX509Credential() throws IOException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException {
-        InputStream inputStreamCert = getClass().getClassLoader().getResourceAsStream("credentials/crt.pem");
-
-        byte[] byteCert = new byte[inputStreamCert.available()];
-
-        inputStreamCert.read(byteCert);
-        String stringCert = new String(byteCert);
-
-        InputStream targetStream = new ByteArrayInputStream(stringCert.getBytes());
-        X509Certificate cert = (X509Certificate) CertificateFactory
-                .getInstance("X509")
-                .generateCertificate(targetStream);
-
-
-        this.X509Credential = new BasicX509Credential(cert);
-        InputStream inputStreamKey = getClass().getClassLoader().getResourceAsStream("credentials/key.pem");
-
-        byte[] byteKey = new byte[inputStreamKey.available()];
-        inputStreamKey.read(byteKey);
-        String stringKey = new String(byteKey);
-
-        String privateKeyPEM = stringKey
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replaceAll(System.lineSeparator(), "")
-                .replace("-----END PRIVATE KEY-----", "");
-
-        byte[] byteKeyDecoded = Base64.decodeBase64(privateKeyPEM);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(byteKeyDecoded);
-
-        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) KeyFactory
-                .getInstance("RSA")
-                .generatePrivate(keySpec);
-
-        this.X509Credential.setPrivateKey(rsaPrivateKey);
-
-    }
-
-    public void setnewKeyInfoGenerator() {
-        X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
-        keyInfoGeneratorFactory.setEmitEntityCertificate(true);
-        this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
     }
 
     public Optional<EntityDescriptor> getEntityDescriptor(String entityID) {
@@ -275,6 +208,105 @@ public class SAMLUtils {
         }
 
         return Optional.ofNullable(entityDescriptor);
+    }
+
+    public Optional<String> buildDestination(String idpID) {
+
+        return getEntityDescriptor(idpID)
+                .map(descriptor -> descriptor.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
+                        .getSingleSignOnServices()
+                        .getFirst()
+                        .getLocation()
+                );
+    }
+
+    public Signature buildSignature(SignableSAMLObject signableSAMLObject) throws SAMLUtilsException {
+
+        Signature signature = buildSAMLObject(Signature.class);
+
+        signature.setSigningCredential(this.X509Credential);
+        signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
+        signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+        try {
+            signature.setKeyInfo(this.keyInfoGenerator.generate(this.X509Credential));
+        } catch (SecurityException e) {
+            throw new SAMLUtilsException(e);
+        }
+
+        SAMLObjectContentReference contentReference = new SAMLObjectContentReference(signableSAMLObject);
+        contentReference.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA512);
+        signature.getContentReferences().add(contentReference);
+
+        return signature;
+    }
+
+    public void setX509Credential() throws SAMLUtilsException {
+
+        InputStream inputStreamCert = getClass().getClassLoader().getResourceAsStream("credentials/crt.pem");
+
+        byte[] byteCert = null;
+        try {
+            byteCert = new byte[inputStreamCert.available()];
+        } catch (IOException e) {
+            throw new SAMLUtilsException(e);
+        }
+
+        try {
+            inputStreamCert.read(byteCert);
+        } catch (IOException e) {
+            throw new SAMLUtilsException(e);
+
+        }
+        String stringCert = new String(byteCert);
+
+        InputStream targetStream = new ByteArrayInputStream(stringCert.getBytes());
+        X509Certificate cert = null;
+        try {
+            cert = (X509Certificate) CertificateFactory
+                    .getInstance("X509")
+                    .generateCertificate(targetStream);
+        } catch (CertificateException e) {
+            throw new SAMLUtilsException(e);
+
+        }
+
+        this.X509Credential = new BasicX509Credential(cert);
+        InputStream inputStreamKey = getClass().getClassLoader().getResourceAsStream("credentials/key.pem");
+
+        byte[] byteKey = null;
+        try {
+            byteKey = new byte[inputStreamKey.available()];
+            inputStreamKey.read(byteKey);
+        } catch (IOException e) {
+            throw new SAMLUtilsException(e);
+        }
+        String stringKey = new String(byteKey);
+
+        String privateKeyPEM = stringKey
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replaceAll(System.lineSeparator(), "")
+                .replace("-----END PRIVATE KEY-----", "");
+
+        byte[] byteKeyDecoded = Base64.decodeBase64(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(byteKeyDecoded);
+
+        RSAPrivateKey rsaPrivateKey = null;
+        try {
+            rsaPrivateKey = (RSAPrivateKey) KeyFactory
+                    .getInstance("RSA")
+                    .generatePrivate(keySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new SAMLUtilsException(e);
+        }
+
+        this.X509Credential.setPrivateKey(rsaPrivateKey);
+
+    }
+
+    public void setnewKeyInfoGenerator() {
+        X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
+        keyInfoGeneratorFactory.setEmitEntityCertificate(true);
+        this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
     }
 
     private InputStream getFileFromResourceAsStream(String fileName) {
