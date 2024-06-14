@@ -9,6 +9,7 @@ import jakarta.ws.rs.Produces;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @ApplicationScoped
 public class ClientProducer {
@@ -18,8 +19,8 @@ public class ClientProducer {
 
     @ApplicationScoped
     @Produces
-    HashMap<String, Client> clientsMap() {
-        HashMap<String, Client> map = new HashMap<>();
+    Map<String, Client> clientsMap() {
+        Map<String, Client> map = new HashMap<>();
         ArrayList<Client> clients =
                 clientConnectorImpl.findAll()
                         .orElseThrow(ClientNotFoundException::new); // TODO valutare se cambiare eccezione
