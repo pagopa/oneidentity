@@ -1,5 +1,6 @@
 package it.pagopa.oneid.model.dto;
 
+// import it.pagopa.oneid.common.validator.EnumValidator;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,26 +11,27 @@ import org.jboss.resteasy.reactive.RestQuery;
 @Data
 public class AuthorizationRequestDTO {
 
-    @NotBlank
-    @Size(max = 255)
-    @RestQuery("client_id")
-    private String clientId;
+  @NotBlank
+  @Size(max = 255)
+  @RestQuery("client_id")
+  private String clientId;
 
-    @NotNull
-    @RestQuery("response_type")
-    private ResponseType responseType;
+  @NotNull
+  @RestQuery("response_type")
+  //@EnumValidator(enumClass = ResponseType.class, message = "not valid response type")
+  private ResponseType responseType;
 
-    @RestQuery("redirect_uri")
-    private String redirectUri;
 
-    @RestQuery
-    private String scope;
+  @RestQuery("redirect_uri")
+  private String redirectUri;
 
-    @RestQuery
-    private String nonce;
+  @RestQuery
+  private String scope;
 
-    @RestQuery
-    private String state;
+  @RestQuery
+  private String nonce;
+
+  @RestQuery
+  private String state;
 
 }
-
