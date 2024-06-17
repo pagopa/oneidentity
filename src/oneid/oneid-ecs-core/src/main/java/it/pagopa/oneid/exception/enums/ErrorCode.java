@@ -12,7 +12,7 @@ public enum ErrorCode {
     CALLBACK_URINOT_FOUND("CALLBACK_URINOT_FOUND", ""),
     CLIENT_NOT_FOUND("CLIENT_NOT_FOUND", ""),
     IDPNOT_FOUND("IDPNOT_FOUND", ""),
-    ;
+    SESSION_ERROR("SESSION_ERROR", "");
 
 
     private final String errorCode;

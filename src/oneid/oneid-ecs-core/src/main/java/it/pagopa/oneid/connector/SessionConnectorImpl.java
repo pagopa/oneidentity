@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -32,7 +33,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
     }
 
     @Override
-    public void saveSession(T session) {
+    public void saveSession(T session) throws SessionException {
         switch (session) {
             case SAMLSession samlSession -> samlSessionMapper.putItem(samlSession);
             case OIDCSession oidcSession -> {
@@ -44,7 +45,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 break;
             }
             default -> {
-                return;
+                throw new SessionException();
             }
         }
     }

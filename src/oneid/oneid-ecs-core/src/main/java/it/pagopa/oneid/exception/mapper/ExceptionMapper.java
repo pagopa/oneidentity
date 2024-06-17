@@ -34,8 +34,15 @@ public class ExceptionMapper {
     }
 
     @ServerExceptionMapper
+    public RestResponse<ErrorResponse> mapSessionException(SessionException sessionException) {
+        Response.Status status = INTERNAL_SERVER_ERROR;
+        String message = "Error during Session management.";
+        return RestResponse.status(status, buildErrorResponse(status, message));
+    }
+
+    @ServerExceptionMapper
     public RestResponse<ErrorResponse> mapIDPSSOEndpointNotFoundException(IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
-        Response.Status status = BAD_REQUEST;
+        Response.Status status = INTERNAL_SERVER_ERROR;
         String message = "IDPSSO endpoint not found for selected idp.";
         return RestResponse.status(status, buildErrorResponse(status, message));
     }
@@ -48,6 +55,7 @@ public class ExceptionMapper {
     }
 
     @ServerExceptionMapper
+    // TODO consider adding a new exception for empty client table
     public RestResponse<ErrorResponse> mapClientNotFoundException(ClientNotFoundException clientNotFoundException) {
         Response.Status status = BAD_REQUEST;
         String message = "Client not found.";
