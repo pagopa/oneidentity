@@ -1,4 +1,9 @@
-module "kms_table_saml_responses" {
+locals {
+  kms_sessions_table_alias = "/dynamodb/sessions"
+}
+
+
+module "kms_sessions_table" {
   source  = "terraform-aws-modules/kms/aws"
   version = "2.2.1"
 
@@ -6,34 +11,27 @@ module "kms_table_saml_responses" {
   key_usage   = "ENCRYPT_DECRYPT"
 
   # Aliases
-  aliases = ["saml_responses/dynamodb"]
+  aliases = [local.kms_sessions_table_alias]
 }
 
-
-
-module "dynamodb_table_saml_responses" {
+module "dynamodb_sessions_table" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "4.0.1"
 
-  name = var.saml_responses_table.name
+  name = "Sessions"
 
-  hash_key = "accessToken"
+  hash_key  = "samlRequestID"
+  range_key = "recordType"
 
   attributes = [
     {
-      name = "accessToken"
-      type = "S"
-    },
-    /*
-    {
-      name = "samlResponse"
+      name = "samlRequestID"
       type = "S"
     },
     {
-      name = "expirationTime"
-      type = "N"
+      name = "recordType"
+      type = "S"
     }
-    */
   ]
 
   ttl_attribute_name = "expirationTime"
@@ -44,10 +42,10 @@ module "dynamodb_table_saml_responses" {
   point_in_time_recovery_enabled = var.saml_responses_table.point_in_time_recovery_enabled
 
   server_side_encryption_enabled     = true
-  server_side_encryption_kms_key_arn = module.kms_table_saml_responses.aliases["saml_responses/dynamodb"].target_key_arn
+  server_side_encryption_kms_key_arn = module.kms_sessions_table.aliases[local.kms_sessions_table_alias].target_key_arn
 
   tags = {
-    Name = var.saml_responses_table.name
+    Name = "Session"
   }
 
 }
