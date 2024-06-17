@@ -9,7 +9,8 @@ import org.jboss.resteasy.reactive.RestQuery;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AuthorizationRequestDTOExtended extends AuthorizationRequestDTO {
-    @RestQuery
-    @NotBlank
-    private String idp;
+
+  @RestQuery
+  @NotBlank
+  private String idp;
 }

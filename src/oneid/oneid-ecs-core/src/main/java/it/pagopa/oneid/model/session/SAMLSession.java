@@ -15,13 +15,14 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @NoArgsConstructor
 public class SAMLSession extends Session {
 
-    @NotNull
-    private String SAMLRequest;
+  @NotNull
+  private String SAMLRequest;
 
-    private String SAMLResponse;
+  private String SAMLResponse;
 
-    public SAMLSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType, @NotNull long creationTime, @NotNull long ttl, String SAMLRequest) {
-        super(SAMLRequestID, recordType, creationTime, ttl);
-        this.SAMLRequest = SAMLRequest;
-    }
+  public SAMLSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
+      @NotNull long creationTime, @NotNull long ttl, String SAMLRequest) {
+    super(SAMLRequestID, recordType, creationTime, ttl);
+    this.SAMLRequest = SAMLRequest;
+  }
 }

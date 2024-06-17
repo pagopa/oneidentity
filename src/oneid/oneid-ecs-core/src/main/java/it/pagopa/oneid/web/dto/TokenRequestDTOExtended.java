@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class TokenRequestDTOExtended extends TokenRequestDTO {
 
-    @HeaderParam("Authorization")
-    private String authorization;
+  @HeaderParam("Authorization")
+  private String authorization;
 
 }

@@ -10,26 +10,26 @@ import org.jboss.resteasy.reactive.RestQuery;
 @Data
 public class AuthorizationRequestDTO {
 
-    @NotBlank
-    @Size(max = 255)
-    @RestQuery("client_id")
-    private String clientId;
+  @NotBlank
+  @Size(max = 255)
+  @RestQuery("client_id")
+  private String clientId;
 
-    @NotNull
-    @RestQuery("response_type")
-    private ResponseType responseType;
+  @NotNull
+  @RestQuery("response_type")
+  private ResponseType responseType;
 
-    @RestQuery("redirect_uri")
-    private String redirectUri;
+  @RestQuery("redirect_uri")
+  private String redirectUri;
 
-    @RestQuery
-    private String scope;
+  @RestQuery
+  private String scope;
 
-    @RestQuery
-    private String nonce;
+  @RestQuery
+  private String nonce;
 
-    @RestQuery
-    private String state;
+  @RestQuery
+  private String state;
 
 }
 

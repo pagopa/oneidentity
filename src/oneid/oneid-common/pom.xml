@@ -1,16 +1,17 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>it.pagopa.oneid</groupId>
-        <artifactId>oneid</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
-    <groupId>it.pagopa.oneid.common</groupId>
-    <artifactId>oneid-common</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>connector</module>
-        <module>model</module>
-    </modules>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <artifactId>oneid-common</artifactId>
+  <groupId>it.pagopa.oneid.common</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <modules>
+    <module>connector</module>
+    <module>model</module>
+  </modules>
+  <packaging>pom</packaging>
+  <parent>
+    <artifactId>oneid</artifactId>
+    <groupId>it.pagopa.oneid</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
 </project>

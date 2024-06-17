@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class AttributeDTO<T> {
 
-    String attributeName;
-    T attributeValue;
+  String attributeName;
+  T attributeValue;
 }

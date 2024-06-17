@@ -9,17 +9,17 @@ import org.jboss.resteasy.reactive.RestForm;
 @Data
 public class TokenRequestDTO {
 
-    @RestForm("grant_type")
-    @NotNull
-    private GrantType grantType;
+  @RestForm("grant_type")
+  @NotNull
+  private GrantType grantType;
 
-    @RestForm
-    @NotBlank
-    private String code;
+  @RestForm
+  @NotBlank
+  private String code;
 
-    @RestForm("redirect_uri")
-    @NotBlank
-    private String redirectUri;
+  @RestForm("redirect_uri")
+  @NotBlank
+  private String redirectUri;
 
 }
 
