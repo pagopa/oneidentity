@@ -118,6 +118,7 @@ public class SAMLUtils {
         try {
             metadataResolver.initialize();
         } catch (ComponentInitializationException e) {
+            // TODO needs to be refactored?
             throw new RuntimeException(e);
         }
 
@@ -204,6 +205,7 @@ public class SAMLUtils {
         try {
             entityDescriptor = metadataResolver.resolveSingle(criteriaSet);
         } catch (ResolverException e) {
+            // TODO needs to be refactored?
             throw new RuntimeException(e);
         }
 
@@ -317,6 +319,7 @@ public class SAMLUtils {
 
         // the stream holding the file content
         if (inputStream == null) {
+            // TODO
             throw new IllegalArgumentException("file not found! " + fileName);
         } else {
             return inputStream;

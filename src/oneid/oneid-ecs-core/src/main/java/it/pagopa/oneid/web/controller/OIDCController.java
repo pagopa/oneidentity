@@ -1,8 +1,14 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.exception.*;
+import it.pagopa.oneid.exception.CallbackURINotFoundException;
+import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.IDPNotFoundException;
+import it.pagopa.oneid.exception.OneIdentityException;
+import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
@@ -25,9 +31,8 @@ public class OIDCController {
     @Inject
     SAMLServiceImpl samlServiceImpl;
 
-    // TODO remove comment when layer ready
-    /*@Inject
-    SessionServiceImpl<SAMLSession> samlSessionService;*/
+    @Inject
+    SessionServiceImpl<SAMLSession> samlSessionServiceImpl;
 
     @Inject
     Map<String, Client> clientsMap;
@@ -49,11 +54,8 @@ public class OIDCController {
     @POST
     @Path("/authorize")
     @Produces(MediaType.TEXT_HTML)
-    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException {
-
+    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws OneIdentityException {
         // TODO setup logging utility
-
-        // TODO setup ExceptionHandler
 
         // 1. Check if idp exists
         if (samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp()).isEmpty()) {
@@ -78,13 +80,11 @@ public class OIDCController {
 
         // 4. Create SAML Authn Request using SAMLServiceImpl
 
-        // TODO who owns spid levl?
-        AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(), "");
+        // TODO who owns spid level?
+        AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(), "https://www.spid.gov.it/SpidL2");
 
         String encodedAuthnRequest = Base64.getEncoder().encodeToString(WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
         String encodedRelayStateString = Base64.getEncoder().encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
-
-        // TODO  implement when layer ready
 
         // 5. Persist SAMLSession
 
@@ -94,8 +94,8 @@ public class OIDCController {
         // Calculate the expiration time (2 days from now) in epoch second format
         long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
-        //SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime, ttl, encodedAuthnRequest);
-        //samlSessionService.saveSession(samlSession);
+        SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime, ttl, encodedAuthnRequest);
+        samlSessionServiceImpl.saveSession(samlSession);
 
         String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
                 + " id='SAMLRequestForm'>" +
