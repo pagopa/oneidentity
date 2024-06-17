@@ -10,9 +10,10 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 @DynamoDbBean
 @Data
 public class AccessTokenSession extends Session {
-    // TODO indexNames by constant
-    @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
-    private String accessToken;
 
-    private String idToken;
+  // TODO indexNames by constant
+  @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
+  private String accessToken;
+
+  private String idToken;
 }

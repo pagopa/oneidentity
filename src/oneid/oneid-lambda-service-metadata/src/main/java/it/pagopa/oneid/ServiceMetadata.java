@@ -7,9 +7,9 @@ import jakarta.ws.rs.core.Response;
 @Path("/")
 public class ServiceMetadata {
 
-    @GET
-    @Path("/metadata")
-    public Response metadata() {
-        return Response.ok("Metadata path").build();
-    }
+  @GET
+  @Path("/metadata")
+  public Response metadata() {
+    return Response.ok("Metadata path").build();
+  }
 }

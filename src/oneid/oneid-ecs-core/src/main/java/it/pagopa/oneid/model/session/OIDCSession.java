@@ -10,9 +10,9 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 @DynamoDbBean
 @Data
 public class OIDCSession extends Session {
-    
-    // TODO indexNames by constant
-    @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
-    private String authorizationCode;
+
+  // TODO indexNames by constant
+  @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
+  private String authorizationCode;
 
 }

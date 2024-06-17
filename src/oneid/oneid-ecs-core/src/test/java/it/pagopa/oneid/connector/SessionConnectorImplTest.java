@@ -8,20 +8,20 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 class SessionConnectorImplTest {
 
-    @Inject
-    SessionConnectorImpl<SAMLSession> samlSessionConnectorImpl;
+  @Inject
+  SessionConnectorImpl<SAMLSession> samlSessionConnectorImpl;
 
-    @Test
-        //TODO implement this
-    void saveSAMLSession() {
+  @Test
+    //TODO implement this
+  void saveSAMLSession() {
 
-        //given
-        //SAMLSession session = new SAMLSession();
+    //given
+    //SAMLSession session = new SAMLSession();
 
-        //Executable executable = () -> samlSessionConnectorImpl.saveSession(session);
+    //Executable executable = () -> samlSessionConnectorImpl.saveSession(session);
 
-        //then
-        //assertDoesNotThrow(executable);
+    //then
+    //assertDoesNotThrow(executable);
 
-    }
+  }
 }

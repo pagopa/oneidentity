@@ -5,17 +5,17 @@ import it.pagopa.oneid.exception.enums.ErrorCode;
 
 public class OneIdentityException extends Exception {
 
-    public OneIdentityException(ErrorCode e) {
-        super(e.getErrorMessage());
-    }
+  public OneIdentityException(ErrorCode e) {
+    super(e.getErrorMessage());
+  }
 
-    public OneIdentityException(String customErrorMessage) {
-        super(customErrorMessage);
-    }
+  public OneIdentityException(String customErrorMessage) {
+    super(customErrorMessage);
+  }
 
-    public OneIdentityException(Throwable cause) {
-        super(cause);
-    }
+  public OneIdentityException(Throwable cause) {
+    super(cause);
+  }
 
 
 }

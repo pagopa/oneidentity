@@ -11,9 +11,9 @@ import lombok.extern.jackson.Jacksonized;
 @JsonPropertyOrder({"title", "status", "detail"})
 public class ErrorResponse {
 
-    private String title;
+  private String title;
 
-    private int status;
+  private int status;
 
-    private String detail;
+  private String detail;
 }

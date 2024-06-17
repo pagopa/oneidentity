@@ -6,7 +6,8 @@ import org.jboss.resteasy.reactive.RestQuery;
 
 @Data
 public class AccessTokenDTO {
-    @RestQuery("access_token")
-    @NotBlank
-    private String accessToken;
+
+  @RestQuery("access_token")
+  @NotBlank
+  private String accessToken;
 }

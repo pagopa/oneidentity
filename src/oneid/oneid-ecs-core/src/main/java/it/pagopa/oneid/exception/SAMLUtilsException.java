@@ -5,15 +5,15 @@ import it.pagopa.oneid.exception.enums.ErrorCode;
 
 public class SAMLUtilsException extends OneIdentityException {
 
-    public SAMLUtilsException() {
-        super(ErrorCode.SAMLUTILS_ERROR);
-    }
+  public SAMLUtilsException() {
+    super(ErrorCode.SAMLUTILS_ERROR);
+  }
 
-    public SAMLUtilsException(String customErrorMessage) {
-        super(customErrorMessage);
-    }
+  public SAMLUtilsException(String customErrorMessage) {
+    super(customErrorMessage);
+  }
 
-    public SAMLUtilsException(Throwable cause) {
-        super(cause);
-    }
+  public SAMLUtilsException(Throwable cause) {
+    super(cause);
+  }
 }

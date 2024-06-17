@@ -7,10 +7,10 @@ import jakarta.ws.rs.core.Response;
 @Path("/")
 public class DynamicRegistration {
 
-    @POST
-    @Path("/register")
-    public Response register() {
-        return Response.ok("Register path").build();
-    }
+  @POST
+  @Path("/register")
+  public Response register() {
+    return Response.ok("Register path").build();
+  }
 
 }
