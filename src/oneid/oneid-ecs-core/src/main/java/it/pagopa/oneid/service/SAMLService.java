@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.SAMLUtilsException;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 public interface SAMLService {
 
-    AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException;
+    AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException;
 
     Response getSAMLResponseFromString(String SAMLResponse);
 
@@ -20,6 +21,6 @@ public interface SAMLService {
 
     List<Attribute> getAttributesFromSAMLResponse(Response SAMLResponse);
 
-    Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID);
+    Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID) throws SAMLUtilsException;
 
 }

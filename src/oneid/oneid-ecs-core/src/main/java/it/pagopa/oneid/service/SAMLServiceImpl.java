@@ -31,11 +31,11 @@ public class SAMLServiceImpl implements SAMLService {
     SAMLUtils samlUtils;
 
     @Override
-    public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException {
+    public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
         return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex, attributeConsumingServiceIndex, "", spidLevel);
     }
 
-    private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String purpose, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException {
+    private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex, int attributeConsumingServiceIndex, String purpose, String spidLevel) throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
         //TODO: add support for CIEid
 
         AuthnRequest authnRequest = SAMLUtils.buildSAMLObject(AuthnRequest.class);
@@ -90,7 +90,7 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     @Override
-    public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID) {
+    public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID) throws SAMLUtilsException {
 
         return samlUtils.getEntityDescriptor(entityID);
 

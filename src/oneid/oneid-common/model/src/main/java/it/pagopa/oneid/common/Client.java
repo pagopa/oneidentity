@@ -25,10 +25,10 @@ public class Client {
     private String friendlyName;
 
     @NotNull
-    private List<String> callbackURI;// TODO it should be String array
+    private List<String> callbackURI;
 
     @NotNull
-    private List<String> requestedParameters; // TODO it should be String array
+    private List<String> requestedParameters;
 
     @NotNull
     private int acsIndex;

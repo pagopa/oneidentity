@@ -41,9 +41,8 @@ public class ExceptionMapper {
     }
 
     @ServerExceptionMapper
-    // TODO maybe INTERNAL_SERVER_ERROR
     public RestResponse<ErrorResponse> mapIDPSSOEndpointNotFoundException(IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
-        Response.Status status = BAD_REQUEST;
+        Response.Status status = INTERNAL_SERVER_ERROR;
         String message = "IDPSSO endpoint not found for selected idp.";
         return RestResponse.status(status, buildErrorResponse(status, message));
     }

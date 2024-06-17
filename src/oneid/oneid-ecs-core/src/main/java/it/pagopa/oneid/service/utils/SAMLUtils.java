@@ -118,8 +118,7 @@ public class SAMLUtils {
         try {
             metadataResolver.initialize();
         } catch (ComponentInitializationException e) {
-            // TODO needs to be refactored?
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         setX509Credential();
@@ -196,7 +195,7 @@ public class SAMLUtils {
         return authnContextClassRef;
     }
 
-    public Optional<EntityDescriptor> getEntityDescriptor(String entityID) {
+    public Optional<EntityDescriptor> getEntityDescriptor(String entityID) throws SAMLUtilsException {
         // TODO do we need to add a cache layer? (With ConcurrentHashMap)
         CriteriaSet criteriaSet = new CriteriaSet();
         criteriaSet.add(new EntityIdCriterion(entityID));
@@ -205,14 +204,13 @@ public class SAMLUtils {
         try {
             entityDescriptor = metadataResolver.resolveSingle(criteriaSet);
         } catch (ResolverException e) {
-            // TODO needs to be refactored?
-            throw new RuntimeException(e);
+            throw new SAMLUtilsException(e);
         }
 
         return Optional.ofNullable(entityDescriptor);
     }
 
-    public Optional<String> buildDestination(String idpID) {
+    public Optional<String> buildDestination(String idpID) throws SAMLUtilsException {
 
         return getEntityDescriptor(idpID)
                 .map(descriptor -> descriptor.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
@@ -311,7 +309,7 @@ public class SAMLUtils {
         this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
     }
 
-    private InputStream getFileFromResourceAsStream(String fileName) {
+    private InputStream getFileFromResourceAsStream(String fileName) throws SAMLUtilsException {
 
         // The class loader that loaded the class
         ClassLoader classLoader = getClass().getClassLoader();
@@ -319,8 +317,7 @@ public class SAMLUtils {
 
         // the stream holding the file content
         if (inputStream == null) {
-            // TODO
-            throw new IllegalArgumentException("file not found! " + fileName);
+            throw new SAMLUtilsException("File not found! " + fileName);
         } else {
             return inputStream;
         }
