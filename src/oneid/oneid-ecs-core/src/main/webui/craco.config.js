@@ -1,6 +1,10 @@
 module.exports = {
   webpack: {
     configure: {
+      resolve: {
+        extensions: [".ts", ".js", ".mjs", ".json", ".tsx"],
+        enforceExtension: false
+      },
       module: {
         rules: [
           {

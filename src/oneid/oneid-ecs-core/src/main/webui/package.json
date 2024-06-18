@@ -20,6 +20,7 @@
     "react-datepicker": "^7.0.0",
     "react-dom": "^18.3.1",
     "react-i18next": "^14.1.2",
+    "react-md-spinner": "^1.0.0",
     "react-router": "^6.23.1",
     "react-scripts": "5.0.1",
     "typescript": "^5.4.5",
@@ -42,6 +43,16 @@
       "react-app/jest"
     ]
   },
+  "extensions": [
+    ".web.js",
+    ".mjs",
+    ".js",
+    ".json",
+    ".web.jsx",
+    ".jsx",
+    "ts",
+    "tsx"
+  ],
   "browserslist": {
     "production": [
       ">0.2%",

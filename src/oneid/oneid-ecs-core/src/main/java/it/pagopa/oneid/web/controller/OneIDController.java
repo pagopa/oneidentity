@@ -20,7 +20,7 @@ public class OneIDController {
   }
 
   @GET
-  @Path("/login")
+  @Path("/login2")
   @Produces(MediaType.TEXT_HTML)
   public Response login(@BeanParam AuthorizationRequestDTO authorizationRequestDTO) {
     // TODO remove this Mock and set @Valid
