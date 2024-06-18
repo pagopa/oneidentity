@@ -116,7 +116,7 @@ module "backend" {
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
 
-  table_saml_responces_arn = module.database.table_saml_responses_arn
+  table_saml_responces_arn = module.database.table_sessions_arn
 
   client_registration_lambda = {
     name                           = format("%s-client-registration", local.project)

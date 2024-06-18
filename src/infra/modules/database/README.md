@@ -13,8 +13,9 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_dynamodb_table_saml_responses"></a> [dynamodb\_table\_saml\_responses](#module\_dynamodb\_table\_saml\_responses) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
-| <a name="module_kms_table_saml_responses"></a> [kms\_table\_saml\_responses](#module\_kms\_table\_saml\_responses) | terraform-aws-modules/kms/aws | 2.2.1 |
+| <a name="module_dynamodb_sessions_table"></a> [dynamodb\_sessions\_table](#module\_dynamodb\_sessions\_table) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
+| <a name="module_dynamodb_table_client_registrations"></a> [dynamodb\_table\_client\_registrations](#module\_dynamodb\_table\_client\_registrations) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
+| <a name="module_kms_sessions_table"></a> [kms\_sessions\_table](#module\_kms\_sessions\_table) | terraform-aws-modules/kms/aws | 2.2.1 |
 
 ## Resources
 
@@ -24,11 +25,14 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations. | <pre>object({<br>    name                           = string<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | n/a | yes |
 | <a name="input_saml_responses_table"></a> [saml\_responses\_table](#input\_saml\_responses\_table) | Saml responses table configurations. | <pre>object({<br>    name                           = string<br>    ttl_enabled                    = optional(bool, true)<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_saml_responses_table_arn"></a> [saml\_responses\_table\_arn](#output\_saml\_responses\_table\_arn) | n/a |
-| <a name="output_saml_responses_table_name"></a> [saml\_responses\_table\_name](#output\_saml\_responses\_table\_name) | n/a |
+| <a name="output_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#output\_table\_client\_registrations\_arn) | n/a |
+| <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
+| <a name="output_table_sessions_arn"></a> [table\_sessions\_arn](#output\_table\_sessions\_arn) | n/a |
+| <a name="output_table_sessions_name"></a> [table\_sessions\_name](#output\_table\_sessions\_name) | n/a |

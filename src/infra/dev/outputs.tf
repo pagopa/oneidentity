@@ -51,7 +51,7 @@ output "assertions_bucket_arn" {
 
 # Database
 output "table_saml_responses_name" {
-  value = module.database.table_saml_responses_name
+  value = module.database.table_sessions_name
 }
 
 output "table_client_registrations_name" {
