@@ -529,7 +529,14 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.querystring.idp": "method.request.querystring.idp",
+            "integration.request.querystring.client_id": "method.request.querystring.client_id",
+            "integration.request.querystring.response_type": "method.request.querystring.response_type",
+            "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+            "integration.request.querystring.scope": "method.request.querystring.scope",
+            "integration.request.querystring.nonce": "method.request.querystring.nonce",
+            "integration.request.querystring.state": "method.request.querystring.state"
           },
           "responses": {
             "302": {
