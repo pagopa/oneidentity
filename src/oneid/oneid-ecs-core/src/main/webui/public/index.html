@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <!-- <base href="%PUBLIC_URL%/" /> -->
+
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="pragma" content="no-cache" />
+
+    <title>PagoPA One Identity – Login</title>
+    <meta name="description" content="Modulo di Login One Identity di PagoPA" />
+
+    <meta name="theme-color" content="#00a1b0" />
+    <script src="https://italia.github.io/spid-smart-button/spid-button.min.js"></script>
+
+  <body>
+    <noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
+    <div id="root"></div>
+    <div id="spid-button"></div>
+    <script>
+      const searchParams = new URLSearchParams(window.location.search);
+    for (const param of searchParams) {
+      console.log(param);
+    }
+    console.log(searchParams);
+    const params = encodeURIComponent(searchParams)
+    console.log(`/oidc/authorize?idp={{idp}}&${decodeURIComponent(params)}`);
+    SPID.init({
+      url: `/oidc/authorize?idp={{idp}}&${decodeURIComponent(params)}`,
+      method: 'POST',
+      supported: ["https://demo.spid.gov.it"],
+      extraProviders: [
+        {
+          protocols: ["SAML"],
+          entityName: "IDP test",
+          logo: "spid-idp-aruba.svg",
+          entityID: "https://localhost:8443/samlsso",
+          active: true,
+        },
+        {
+          protocols: ["SAML"],
+          entityName: "IDP demo",
+          logo: "spid-idp-aruba.svg",
+          entityID: "https://demo.spid.gov.it",
+          active: true,
+        },
+        {
+          protocols: ["SAML"],
+          entityName: "IDP local demo",
+          logo: "spid-idp-aruba.svg",
+          entityID: "https://localhost:8443/demo/samlsso",
+          active: true,
+        },
+      ],
+    });
+    </script>
+  </body>
+</html>
