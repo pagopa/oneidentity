@@ -23,7 +23,7 @@ public class AuthorizationRequestDTO {
   @RestQuery("response_type")
   private ResponseType responseType;
 
-  @RestQuery
+  @RestQuery("redirect_uri")
   private String redirectUri;
 
   @RestQuery
@@ -31,7 +31,7 @@ public class AuthorizationRequestDTO {
 
   @RestQuery
   private String nonce;
-  
+
   @RestQuery
   private String state;
 
