@@ -1,16 +1,23 @@
 package it.pagopa.oneid.web.dto;
 
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.session.enums.ResponseType;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import org.jboss.resteasy.reactive.RestQuery;
+import lombok.Getter;
 
+@Getter
 @EqualsAndHashCode(callSuper = true)
-@Data
 public class AuthorizationRequestDTOExtended extends AuthorizationRequestDTO {
 
-  @RestQuery
   @NotBlank
   private String idp;
+
+  @Builder
+  public AuthorizationRequestDTOExtended(String idp, String clientId, ResponseType responseType,
+      String redirectUri, String scope, String nonce, String state) {
+    super(clientId, responseType, redirectUri, scope, nonce, state);
+    this.idp = idp;
+  }
 }

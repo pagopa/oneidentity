@@ -3,7 +3,6 @@ package it.pagopa.oneid.exception.mapper;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -12,6 +11,7 @@ import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -77,11 +77,13 @@ public class ExceptionMapper {
       IDPNotFoundException idpNotFoundException) {
     Response.Status status = BAD_REQUEST;
     String message = "IDP not found";
-    return RestResponse.status(status, buildErrorResponse(status, message));
+    return RestResponse.
+        status(status, buildErrorResponse(status, message));
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
     return ErrorResponse.builder()
+        .type(MediaType.APPLICATION_JSON)
         .title(status.getReasonPhrase())
         .status(status.getStatusCode())
         .detail(message)

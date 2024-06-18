@@ -1,38 +1,38 @@
-package it.pagopa.oneid.model.dto;
+package it.pagopa.oneid.web.dto;
 
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.jboss.resteasy.reactive.RestQuery;
+import lombok.Data;
+import org.jboss.resteasy.reactive.RestForm;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class AuthorizationRequestDTO {
+@Data
+public class AuthorizationRequestDTOExtendedPost {
+
+  @NotBlank
+  @RestForm
+  private String idp;
 
   @NotBlank
   @Size(max = 255)
-  @RestQuery("client_id")
+  @RestForm("client_id")
   private String clientId;
 
   @NotNull
-  @RestQuery("response_type")
+  @RestForm("response_type")
   private ResponseType responseType;
 
-  @RestQuery
+  @RestForm("redirect_uri")
   private String redirectUri;
 
-  @RestQuery
+  @RestForm
   private String scope;
 
-  @RestQuery
+  @RestForm
   private String nonce;
-  
-  @RestQuery
+
+  @RestForm
   private String state;
 
 }

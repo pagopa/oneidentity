@@ -3,13 +3,19 @@ package it.pagopa.oneid.web.controller;
 import it.pagopa.oneid.common.Client;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
+import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.OneIdentityException;
+import it.pagopa.oneid.exception.SAMLUtilsException;
+import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
@@ -40,6 +46,36 @@ public class OIDCController {
   @Inject
   Map<String, Client> clientsMap;
 
+  private <T> AuthorizationRequestDTOExtended getObject(T object) throws OneIdentityException {
+    switch (object) {
+      case AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet -> {
+        return AuthorizationRequestDTOExtended.builder()
+            .idp(authorizationRequestDTOExtendedGet.getIdp())
+            .clientId(authorizationRequestDTOExtendedGet.getClientId())
+            .redirectUri(authorizationRequestDTOExtendedGet.getRedirectUri())
+            .responseType(authorizationRequestDTOExtendedGet.getResponseType())
+            .nonce(authorizationRequestDTOExtendedGet.getNonce())
+            .scope(authorizationRequestDTOExtendedGet.getScope())
+            .state(authorizationRequestDTOExtendedGet.getState())
+            .build();
+      }
+      case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
+        return AuthorizationRequestDTOExtended.builder()
+            .idp(authorizationRequestDTOExtendedPost.getIdp())
+            .clientId(authorizationRequestDTOExtendedPost.getClientId())
+            .redirectUri(authorizationRequestDTOExtendedPost.getRedirectUri())
+            .responseType(authorizationRequestDTOExtendedPost.getResponseType())
+            .nonce(authorizationRequestDTOExtendedPost.getNonce())
+            .scope(authorizationRequestDTOExtendedPost.getScope())
+            .state(authorizationRequestDTOExtendedPost.getState())
+            .build();
+      }
+      default -> {
+        throw new OneIdentityException("Invalid object for /oidc/authorize route");
+      }
+    }
+  }
+
   @GET
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
@@ -56,10 +92,24 @@ public class OIDCController {
 
   @POST
   @Path("/authorize")
-  @Produces(MediaType.TEXT_HTML)
-  public Response authorize(
-      @BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  public Response authorizePost(
+      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost)
       throws OneIdentityException {
+    return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+  }
+
+  @GET
+  @Path("/authorize")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  public Response authorizeGet(
+      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet)
+      throws OneIdentityException {
+    return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+  }
+
+  private Response handleAuthorize(AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
+      throws SAMLUtilsException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException, GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SessionException {
     // TODO setup logging utility
 
     // 1. Check if idp exists
@@ -122,6 +172,7 @@ public class OIDCController {
 
     return Response
         .ok(redirectAutoSubmitPOSTForm)
+        .type(MediaType.TEXT_HTML)
         .build();
   }
 
