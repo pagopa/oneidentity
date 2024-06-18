@@ -3,17 +3,13 @@ package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.service.utils.SAMLConstants.METADATA_URL;
 import static it.pagopa.oneid.service.utils.SAMLConstants.SERVICE_PROVIDER_URI;
-
 import it.pagopa.oneid.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -32,7 +28,6 @@ import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
@@ -89,38 +84,11 @@ public class SAMLUtils {
     } catch (InitializationException e) {
       throw new SAMLUtilsException(e);
     }
-
+    //TODO: add CIE metadata resolver
     String fileName = "metadata/spid.xml";
 
-    InputStream is = getFileFromResourceAsStream(fileName);
-    File targetFile = new File("targetFile.xml");
-    OutputStream outStream = null;
     try {
-      outStream = new FileOutputStream(targetFile);
-    } catch (FileNotFoundException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    byte[] buffer = new byte[8 * 1024];
-    int bytesRead;
-    while (true) {
-      try {
-        if ((bytesRead = is.read(buffer)) == -1) {
-          break;
-        }
-      } catch (IOException e) {
-        throw new SAMLUtilsException(e);
-      }
-      try {
-        outStream.write(buffer, 0, bytesRead);
-      } catch (IOException e) {
-        throw new SAMLUtilsException(e);
-      }
-    }
-    IOUtils.closeQuietly(is);
-    IOUtils.closeQuietly(outStream);
-    try {
-      metadataResolver = new FilesystemMetadataResolver(targetFile);
+      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
     } catch (ResolverException e) {
       throw new SAMLUtilsException(e);
     }
