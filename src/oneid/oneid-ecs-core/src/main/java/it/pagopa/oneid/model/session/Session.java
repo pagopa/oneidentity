@@ -16,17 +16,17 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @NoArgsConstructor
 public abstract class Session {
 
-    @Getter(onMethod_ = @DynamoDbPartitionKey)
-    @NotNull
-    private String SAMLRequestID;
+  @Getter(onMethod_ = @DynamoDbPartitionKey)
+  @NotNull
+  private String SAMLRequestID;
 
-    @Getter(onMethod_ = @DynamoDbSortKey)
-    @NotNull
-    private RecordType recordType;
+  @Getter(onMethod_ = @DynamoDbSortKey)
+  @NotNull
+  private RecordType recordType;
 
-    @NotNull
-    private long creationTime;
+  @NotNull
+  private long creationTime;
 
-    @NotNull
-    private long ttl;
+  @NotNull
+  private long ttl;
 }

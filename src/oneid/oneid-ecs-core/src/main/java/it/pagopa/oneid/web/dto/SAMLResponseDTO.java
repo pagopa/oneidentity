@@ -7,10 +7,10 @@ import org.jboss.resteasy.reactive.RestForm;
 @Data
 public class SAMLResponseDTO {
 
-    @RestForm
-    @NotBlank
-    String SAMLResponse;
-    @RestForm
-    @NotBlank
-    String RelayState;
+  @RestForm
+  @NotBlank
+  String SAMLResponse;
+  @RestForm
+  @NotBlank
+  String RelayState;
 }

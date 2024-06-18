@@ -1,122 +1,187 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.exception.*;
+import it.pagopa.oneid.exception.CallbackURINotFoundException;
+import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
+import it.pagopa.oneid.exception.IDPNotFoundException;
+import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.OneIdentityException;
+import it.pagopa.oneid.exception.SAMLUtilsException;
+import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
+import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 @Path(("/oidc"))
 public class OIDCController {
 
-    @Inject
-    SAMLServiceImpl samlServiceImpl;
+  @Inject
+  SAMLServiceImpl samlServiceImpl;
 
-    // TODO remove comment when layer ready
-    /*@Inject
-    SessionServiceImpl<SAMLSession> samlSessionService;*/
+  @Inject
+  SessionServiceImpl<SAMLSession> samlSessionServiceImpl;
 
-    @Inject
-    Map<String, Client> clientsMap;
+  @Inject
+  Map<String, Client> clientsMap;
 
-    @GET
-    @Path("/.well-known/openid-configuration")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response openIDConfig() {
-        return Response.ok("OIDC Configuration Path").build();
+  private <T> AuthorizationRequestDTOExtended getObject(T object) throws OneIdentityException {
+    switch (object) {
+      case AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet -> {
+        return AuthorizationRequestDTOExtended.builder()
+            .idp(authorizationRequestDTOExtendedGet.getIdp())
+            .clientId(authorizationRequestDTOExtendedGet.getClientId())
+            .redirectUri(authorizationRequestDTOExtendedGet.getRedirectUri())
+            .responseType(authorizationRequestDTOExtendedGet.getResponseType())
+            .nonce(authorizationRequestDTOExtendedGet.getNonce())
+            .scope(authorizationRequestDTOExtendedGet.getScope())
+            .state(authorizationRequestDTOExtendedGet.getState())
+            .build();
+      }
+      case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
+        return AuthorizationRequestDTOExtended.builder()
+            .idp(authorizationRequestDTOExtendedPost.getIdp())
+            .clientId(authorizationRequestDTOExtendedPost.getClientId())
+            .redirectUri(authorizationRequestDTOExtendedPost.getRedirectUri())
+            .responseType(authorizationRequestDTOExtendedPost.getResponseType())
+            .nonce(authorizationRequestDTOExtendedPost.getNonce())
+            .scope(authorizationRequestDTOExtendedPost.getScope())
+            .state(authorizationRequestDTOExtendedPost.getState())
+            .build();
+      }
+      default -> {
+        throw new OneIdentityException("Invalid object for /oidc/authorize route");
+      }
+    }
+  }
+
+  @GET
+  @Path("/.well-known/openid-configuration")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response openIDConfig() {
+    return Response.ok("OIDC Configuration Path").build();
+  }
+
+  @GET
+  @Path("/keys")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response keys() {
+    return Response.ok("OIDC Keys Path").build();
+  }
+
+  @POST
+  @Path("/authorize")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  public Response authorizePost(
+      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost)
+      throws OneIdentityException {
+    return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+  }
+
+  @GET
+  @Path("/authorize")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  public Response authorizeGet(
+      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet)
+      throws OneIdentityException {
+    return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+  }
+
+  private Response handleAuthorize(AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
+      throws SAMLUtilsException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException, GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SessionException {
+    // TODO setup logging utility
+
+    // 1. Check if idp exists
+    if (samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp())
+        .isEmpty()) {
+      throw new IDPNotFoundException();
     }
 
-    @GET
-    @Path("/keys")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response keys() {
-        return Response.ok("OIDC Keys Path").build();
+    // 2. Check if clientId exists
+    if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
+      throw new ClientNotFoundException();
     }
 
-    @POST
-    @Path("/authorize")
-    @Produces(MediaType.TEXT_HTML)
-    public Response authorize(@BeanParam @Valid AuthorizationRequestDTOExtended authorizationRequestDTOExtended) throws IDPSSOEndpointNotFoundException, GenericAuthnRequestCreationException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException {
-
-        // TODO setup logging utility
-
-        // TODO setup ExceptionHandler
-
-        // 1. Check if idp exists
-        if (samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp()).isEmpty()) {
-            throw new IDPNotFoundException();
-        }
-
-        // 2. Check if clientId exists
-        if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
-            throw new ClientNotFoundException();
-        }
-
-        // 3. Check if callbackUri exists among clientId parameters
-        if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI().contains(authorizationRequestDTOExtended.getRedirectUri())) {
-            throw new CallbackURINotFoundException();
-        }
-
-        EntityDescriptor idp = samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp()).get();
-        Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
-
-        // TODO is it correct to retrieve the 0 indexed?
-        String idpSSOEndpoint = idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol").getSingleSignOnServices().getFirst().getLocation();
-
-        // 4. Create SAML Authn Request using SAMLServiceImpl
-
-        // TODO who owns spid levl?
-        AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(), "");
-
-        String encodedAuthnRequest = Base64.getEncoder().encodeToString(WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
-        String encodedRelayStateString = Base64.getEncoder().encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
-
-        // TODO  implement when layer ready
-
-        // 5. Persist SAMLSession
-
-        // Get the current time in epoch second format
-        long creationTime = Instant.now().getEpochSecond();
-
-        // Calculate the expiration time (2 days from now) in epoch second format
-        long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
-
-        //SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime, ttl, encodedAuthnRequest);
-        //samlSessionService.saveSession(samlSession);
-
-        String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
-                + " id='SAMLRequestForm'>" +
-                "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />" +
-                "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />" +
-                "<input id='SAMLSubmitButton' type='submit' value='Submit' />" +
-                "</form>" +
-                "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
-                "document.getElementById('SAMLRequestForm').submit();</script>";
-
-        return Response
-                .ok(redirectAutoSubmitPOSTForm)
-                .build();
+    // 3. Check if callbackUri exists among clientId parameters
+    if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
+        .contains(authorizationRequestDTOExtended.getRedirectUri())) {
+      throw new CallbackURINotFoundException();
     }
 
-    @POST
-    @Path("/token")
-    @Produces(MediaType.APPLICATION_JSON)
+    EntityDescriptor idp = samlServiceImpl.getEntityDescriptorFromEntityID(
+        authorizationRequestDTOExtended.getIdp()).get();
+    Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
 
-    public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
-        return Response.ok("Token Path").build();
-    }
+    // TODO is it correct to retrieve the 0 indexed?
+    String idpSSOEndpoint = idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
+        .getSingleSignOnServices().getFirst().getLocation();
+
+    // 4. Create SAML Authn Request using SAMLServiceImpl
+
+    // TODO who owns spid level?
+    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(
+        authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(),
+        "https://www.spid.gov.it/SpidL2");
+
+    String encodedAuthnRequest = Base64.getEncoder().encodeToString(
+        WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
+    String encodedRelayStateString = Base64.getEncoder()
+        .encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
+
+    // 5. Persist SAMLSession
+
+    // Get the current time in epoch second format
+    long creationTime = Instant.now().getEpochSecond();
+
+    // Calculate the expiration time (2 days from now) in epoch second format
+    long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
+
+    SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime,
+        ttl, encodedAuthnRequest);
+    samlSessionServiceImpl.saveSession(samlSession);
+
+    String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
+        + " id='SAMLRequestForm'>" +
+        "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />" +
+        "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />" +
+        "<input id='SAMLSubmitButton' type='submit' value='Submit' />" +
+        "</form>" +
+        "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
+        "document.getElementById('SAMLRequestForm').submit();</script>";
+
+    return Response
+        .ok(redirectAutoSubmitPOSTForm)
+        .type(MediaType.TEXT_HTML)
+        .build();
+  }
+
+  @POST
+  @Path("/token")
+  @Produces(MediaType.APPLICATION_JSON)
+
+  public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
+    return Response.ok("Token Path").build();
+  }
 
 }

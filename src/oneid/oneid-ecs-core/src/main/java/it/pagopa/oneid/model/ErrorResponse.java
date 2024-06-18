@@ -8,12 +8,14 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @Builder
 @Jacksonized
-@JsonPropertyOrder({"title", "status", "detail"})
+@JsonPropertyOrder({"type", "title", "status", "detail"})
 public class ErrorResponse {
 
-    private String title;
+  private String type;
+  
+  private String title;
 
-    private int status;
+  private int status;
 
-    private String detail;
+  private String detail;
 }
