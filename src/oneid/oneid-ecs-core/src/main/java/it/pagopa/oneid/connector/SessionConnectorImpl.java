@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
   // TODO how to obtain TABLE_NAME and GSI_IDX_NAME
-  private static final String TABLE_NAME = "Session";
+  private static final String TABLE_NAME = "Sessions";
   private static final String GSI_IDX_NAME = "gsi_code_idx";
 
 

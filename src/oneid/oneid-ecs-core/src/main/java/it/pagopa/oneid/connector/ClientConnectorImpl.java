@@ -15,7 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 public class ClientConnectorImpl implements ClientConnector {
 
   // TODO how to obtain TABLE_NAME
-  private static final String TABLE_NAME = "Client";
+  private static final String TABLE_NAME = "ClientRegistrations";
 
   private final DynamoDbTable<Client> clientMapper;
 
