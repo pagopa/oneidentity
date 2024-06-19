@@ -72,12 +72,12 @@ public class SAMLController {
 
     AuthorizationRequest authorizationRequest = oidcserviceImpl.buildAuthorizationRequest(
         new AuthorizationRequestDTO(
-            relayState.get("clientId").getAsString(),
-            ResponseType.valueOf(relayState.get("response_type").getAsString()),
-            relayState.get("redirect_uri").getAsString(),
-            relayState.get("scope").getAsString(),
-            relayState.get("nonce").getAsString(),
-            relayState.get("state").getAsString()
+            relayState.get("clientId").toString(),
+            ResponseType.valueOf(relayState.get("response_type").toString()),
+            relayState.get("redirect_uri").toString(),
+            relayState.get("scope").toString(),
+            relayState.get("nonce").toString(),
+            relayState.get("state").toString()
         ));
 
     AuthorizationResponse authorizationResponse = oidcserviceImpl.getAuthorizationResponse(
@@ -98,7 +98,7 @@ public class SAMLController {
         .getAuthorizationCode();
 
     // get Nonce
-    String nonce = relayState.get("nonce").getAsString();
+    String nonce = relayState.get("nonce").toString();
 
     OIDCSession oidcSession = new OIDCSession(response.getInResponseTo(), RecordType.OIDC,
         creationTime,
@@ -107,7 +107,7 @@ public class SAMLController {
     oidcSessionSessionService.saveSession(oidcSession);
 
     // 7. Redirect to client callback
-    String clientCallbackUri = relayState.get("redirect_uri").getAsString();
+    String clientCallbackUri = relayState.get("redirect_uri").toString();
 
     URI redirectStringResponse;
     try {

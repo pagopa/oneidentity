@@ -34,12 +34,12 @@ public class ExceptionMapper {
 
   }
 
-  @ServerExceptionMapper
+ /* @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
-  }
+  }*/
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericAuthnRequestCreationException(

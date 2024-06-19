@@ -55,7 +55,7 @@ public class WebUtils {
     relayState.addProperty("nonce", authorizationRequestDTO.getNonce());
     relayState.addProperty("callback_uri", authorizationRequestDTO.getRedirectUri());
 
-    return relayState.getAsString();
+    return relayState.toString();
   }
 
   public static JsonObject getJSONRelayState(String relayState) {
