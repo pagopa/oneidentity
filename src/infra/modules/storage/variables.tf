@@ -11,3 +11,10 @@ variable "assertion_bucket" {
     enable_key_rotation           = optional(bool, false)
   })
 }
+
+variable "metadata_bucket" {
+  type = object({
+    name_prefix                     = string
+    mfa_delete                      = optional(bool, false)
+  })
+}
