@@ -2,6 +2,7 @@ package it.pagopa.oneid.exception.mapper;
 
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
@@ -9,14 +10,29 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLUtilsException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMapper {
+
+  // TODO refactor this method??
+  @ServerExceptionMapper
+  public Response mapSAMLResponseStatusException(
+      SAMLValidationException samlValidationException) {
+    try {
+      return Response.status(FOUND).location(new URI("/static/sample_error.html")).build();
+    } catch (URISyntaxException e) {
+      return Response.status(INTERNAL_SERVER_ERROR).build();
+    }
+
+  }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
@@ -52,6 +68,14 @@ public class ExceptionMapper {
       IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "IDPSSO endpoint not found for selected idp.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapSAMLValidationException(
+      SAMLValidationException samlValidationException) {
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during SAML Response validation.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
