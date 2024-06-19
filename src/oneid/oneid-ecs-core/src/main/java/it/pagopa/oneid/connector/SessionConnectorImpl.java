@@ -11,6 +11,7 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.time.Instant;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -26,17 +27,17 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @Dependent
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
-  // TODO how to obtain TABLE_NAME and GSI_IDX_NAME
-  private static final String TABLE_NAME = "Sessions";
+  // TODO how to obtain GSI_IDX_NAME
   private static final String GSI_IDX_NAME = "gsi_code_idx";
-
-
   private final DynamoDbTable<SAMLSession> samlSessionMapper;
   private final DynamoDbTable<OIDCSession> oidcSessionMapper;
   private final DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
 
+
   @Inject
-  SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+  SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
+      @ConfigProperty(name = "sessions_table_name")
+      String TABLE_NAME) {
     samlSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(SAMLSession.class));
     oidcSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,

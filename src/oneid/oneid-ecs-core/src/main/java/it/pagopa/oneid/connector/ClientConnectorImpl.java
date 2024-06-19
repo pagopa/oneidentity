@@ -15,12 +15,12 @@ import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 @ApplicationScoped
 public class ClientConnectorImpl implements ClientConnector {
 
-  @ConfigProperty(name = "client_registrations_table_name")
-  private static String TABLE_NAME;
   private final DynamoDbTable<Client> clientMapper;
 
+
   @Inject
-  ClientConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+  ClientConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
+      @ConfigProperty(name = "client_registrations_table_name") String TABLE_NAME) {
     clientMapper = dynamoDbEnhancedClient.table(TABLE_NAME, TableSchema.fromBean(Client.class));
   }
 
@@ -30,7 +30,6 @@ public class ClientConnectorImpl implements ClientConnector {
     ArrayList<Client> clients = new ArrayList<>();
     ScanEnhancedRequest request = ScanEnhancedRequest.builder()
         .build();
-
     PageIterable<Client> pagedResults = clientMapper.scan(request);
     pagedResults.items().stream()
         .forEach(
