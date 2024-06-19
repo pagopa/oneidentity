@@ -30,6 +30,9 @@ public class Client {
   private List<String> requestedParameters;
 
   @NotNull
+  private String authLevel;
+
+  @NotNull
   private int acsIndex;
 
   @NotNull
