@@ -130,13 +130,11 @@ module "backend" {
 module "database" {
   source = "../modules/database"
 
-  saml_responses_table = {
-    name                           = "SamlResponses"
+  sessions_table = {
     point_in_time_recovery_enabled = false
   }
 
   client_registrations_table = {
-    name                           = "ClientRegistrations"
     point_in_time_recovery_enabled = true
   }
 

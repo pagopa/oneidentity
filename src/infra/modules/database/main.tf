@@ -35,11 +35,11 @@ module "dynamodb_sessions_table" {
   ]
 
   ttl_attribute_name = "expirationTime"
-  ttl_enabled        = var.saml_responses_table.ttl_enabled
+  ttl_enabled        = var.sessions_table.ttl_enabled
 
   billing_mode = "PAY_PER_REQUEST"
 
-  point_in_time_recovery_enabled = var.saml_responses_table.point_in_time_recovery_enabled
+  point_in_time_recovery_enabled = var.sessions_table.point_in_time_recovery_enabled
 
   server_side_encryption_enabled     = true
   server_side_encryption_kms_key_arn = module.kms_sessions_table.aliases[local.kms_sessions_table_alias].target_key_arn
@@ -55,7 +55,7 @@ module "dynamodb_table_client_registrations" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "4.0.1"
 
-  name = var.client_registrations_table.name
+  name = "ClientRegistrations"
 
   hash_key = "clientId"
 
@@ -68,10 +68,10 @@ module "dynamodb_table_client_registrations" {
 
   billing_mode = "PAY_PER_REQUEST"
 
-  point_in_time_recovery_enabled = var.saml_responses_table.point_in_time_recovery_enabled
+  point_in_time_recovery_enabled = var.sessions_table.point_in_time_recovery_enabled
 
   tags = {
-    Name = var.client_registrations_table.name
+    Name = "ClientRegistrations"
   }
 
 }
