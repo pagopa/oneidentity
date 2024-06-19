@@ -58,6 +58,10 @@ module "storage" {
     enable_key_rotation      = true
   }
 
+  metadata_bucket = {
+    name_prefix              = "metadata"
+  }
+
 }
 
 
