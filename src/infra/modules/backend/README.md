@@ -48,7 +48,8 @@
 | <a name="input_nlb_name"></a> [nlb\_name](#input\_nlb\_name) | Network load balancer name | `string` | n/a | yes |
 | <a name="input_private_subnets"></a> [private\_subnets](#input\_private\_subnets) | Private subnets ids. | `list(string)` | n/a | yes |
 | <a name="input_service_core"></a> [service\_core](#input\_service\_core) | n/a | <pre>object({<br>    service_name           = string<br>    cpu                    = number<br>    memory                 = number<br>    enable_execute_command = optional(bool, true)<br>    container = object({<br>      name          = string<br>      cpu           = number<br>      memory        = number<br>      image_name    = string<br>      image_version = string<br>      containerPort = number<br>      hostPort      = number<br>    })<br>    autoscaling = object({<br>      enable       = bool<br>      min_capacity = number<br>      max_capacity = number<br>    })<br>  })</pre> | n/a | yes |
-| <a name="input_table_saml_responces_arn"></a> [table\_saml\_responces\_arn](#input\_table\_saml\_responces\_arn) | Dynamodb table saml responses arn. | `string` | n/a | yes |
+| <a name="input_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#input\_table\_client\_registrations\_arn) | Dynamodb table client registrations arn. | `string` | n/a | yes |
+| <a name="input_table_sessions_arn"></a> [table\_sessions\_arn](#input\_table\_sessions\_arn) | Dynamodb table sessions arn. | `string` | n/a | yes |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPC cidr block. | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
 | <a name="input_enable_container_insights"></a> [enable\_container\_insights](#input\_enable\_container\_insights) | ECS enable container insight. | `bool` | `true` | no |

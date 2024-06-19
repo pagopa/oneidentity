@@ -81,14 +81,24 @@ resource "aws_iam_policy" "ecs_core_task" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "DynamoDBRW"
+        Sid    = "DynamoDBSessionsRW"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
         ]
         Resource = [
-          "${var.table_saml_responces_arn}"
+          "${var.table_sessions_arn}"
+        ]
+      },
+      {
+        Sid    = "DynamoDBClientRegistrationsR"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+        ]
+        Resource = [
+          "${var.table_client_registrations_arn}"
         ]
       },
       {
