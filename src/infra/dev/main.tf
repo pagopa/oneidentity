@@ -57,6 +57,7 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
+
 }
 
 

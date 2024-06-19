@@ -1,11 +1,12 @@
-resource "random_integer" "assetion_bucket_suffix" {
+resource "random_integer" "assertion_bucket_suffix" {
   min = 1000
   max = 9999
 }
 
 locals {
   bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
-  random_integer.assetion_bucket_suffix.result)
+  random_integer.assertion_bucket_suffix.result)
+
 }
 
 module "kms_assertions_bucket" {
@@ -21,7 +22,7 @@ module "kms_assertions_bucket" {
 }
 
 
-module "s3_assetions_bucket" {
+module "s3_assertions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
