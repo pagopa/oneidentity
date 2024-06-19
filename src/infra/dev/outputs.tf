@@ -49,10 +49,6 @@ output "assertions_bucket_arn" {
   value = module.storage.assertions_bucket_arn
 }
 
-output "metadata_bucket_arn" {
-  value = module.storage.metadata_bucket_arn
-}
-
 # Database
 output "table_saml_responses_name" {
   value = module.database.table_sessions_name
