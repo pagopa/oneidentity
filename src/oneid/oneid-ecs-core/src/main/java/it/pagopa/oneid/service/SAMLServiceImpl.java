@@ -4,11 +4,14 @@ import static it.pagopa.oneid.service.utils.SAMLUtils.buildIssuer;
 import static it.pagopa.oneid.service.utils.SAMLUtils.buildNameIdPolicy;
 import static it.pagopa.oneid.service.utils.SAMLUtils.buildRequestedAuthnContext;
 import static it.pagopa.oneid.service.utils.SAMLUtils.generateSecureRandomId;
-
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.OneIdentityException;
+import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLUtilsException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.utils.SAMLUtils;
+import it.pagopa.oneid.service.utils.SAMLUtilsConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -18,9 +21,12 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
@@ -31,6 +37,20 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Inject
   SAMLUtils samlUtils;
+
+  @Override
+  public void checkSAMLStatus(Response response) throws OneIdentityException {
+    String statusCode = response.getStatus().getStatusCode().getValue();
+    String statusMessage = response.getStatus().getStatusMessage().getValue();
+
+    if (!statusCode.equals(StatusCode.SUCCESS)) {
+      if (statusMessage != null) {
+        throw new SAMLResponseStatusException(statusMessage);
+      } else {
+        throw new OneIdentityException("Status message not set.");
+      }
+    }
+  }
 
   @Override
   public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
@@ -86,13 +106,32 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public Response getSAMLResponseFromString(String SAMLResponse) {
-    return null;
+  public void validateSAMLResponse(Response samlResponse)
+      throws SAMLValidationException, SAMLUtilsException {
+
+    // TODO is it ok to be 0-indexed?
+    Assertion assertion = samlResponse.getAssertions().getFirst();
+
+    SubjectConfirmationData subjectConfirmationData = assertion.getSubject()
+        .getSubjectConfirmations().getLast()
+        .getSubjectConfirmationData();
+
+    // Check if 'recipient' matches ACS URL
+    if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
+      throw new SAMLValidationException();
+    }
+    // Check if 'NotOnOrAfter' is expired
+    if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) <= 0) {
+      throw new SAMLValidationException();
+    }
+
+    // Validate SAMLResponse signature (Response and Assertion)
+    samlUtils.validateSignature(samlResponse);
   }
 
   @Override
-  public boolean validateSAMLResponse(Response SAMLResponse, String idpID) {
-    return false;
+  public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
+    return SAMLUtils.getSAMLResponseFromString(SAMLResponse);
   }
 
   @Override
