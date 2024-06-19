@@ -38,10 +38,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   public void saveSession(T session) throws SessionException {
     switch (session) {
       case SAMLSession samlSession -> samlSessionMapper.putItem(samlSession);
-      case OIDCSession oidcSession -> {
-        //TODO implement
-        break;
-      }
+      case OIDCSession oidcSession -> oidcSessionMapper.putItem(oidcSession);
       case AccessTokenSession accessTokenSession -> {
         //TODO implement
         break;
