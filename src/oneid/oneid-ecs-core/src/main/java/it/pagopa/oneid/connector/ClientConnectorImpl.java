@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -14,9 +15,8 @@ import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 @ApplicationScoped
 public class ClientConnectorImpl implements ClientConnector {
 
-  // TODO how to obtain TABLE_NAME
-  private static final String TABLE_NAME = "ClientRegistrations";
-
+  @ConfigProperty(name = "client_registrations_table_name")
+  private static String TABLE_NAME;
   private final DynamoDbTable<Client> clientMapper;
 
   @Inject
