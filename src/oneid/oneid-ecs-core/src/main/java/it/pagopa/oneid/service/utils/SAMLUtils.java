@@ -1,8 +1,9 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.service.utils.SAMLConstants.METADATA_URL;
-import static it.pagopa.oneid.service.utils.SAMLConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.service.utils.SAMLUtilsConstants.METADATA_URL;
+import static it.pagopa.oneid.service.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import it.pagopa.oneid.exception.OneIdentityException;
 import it.pagopa.oneid.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -27,6 +28,7 @@ import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
@@ -35,34 +37,56 @@ import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.criterion.EntityRoleCriterion;
+import org.opensaml.saml.criterion.ProtocolCriterion;
 import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
+import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
+import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.security.impl.MetadataCredentialResolver;
+import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.SecurityException;
+import org.opensaml.security.credential.Credential;
+import org.opensaml.security.credential.UsageType;
+import org.opensaml.security.criteria.UsageCriterion;
 import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
 @ApplicationScoped
 public class SAMLUtils {
 
+  // TODO consider adding a BasicParserPool parameter
   private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator;
 
   static {
     secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
   }
 
+  private final MetadataCredentialResolver metadataCredentialResolver;
   private final FilesystemMetadataResolver metadataResolver;
+
+  // TODO refactor with AWS ACM
   public BasicX509Credential X509Credential;
+  // TODO refactor with AWS ACM
   public KeyInfoGenerator keyInfoGenerator;
 
 
@@ -85,6 +109,7 @@ public class SAMLUtils {
       throw new SAMLUtilsException(e);
     }
     //TODO: add CIE metadata resolver
+    // TODO: env var fileName (DEV, UAT, PROD)
     String fileName = "metadata/spid.xml";
 
     try {
@@ -97,6 +122,20 @@ public class SAMLUtils {
     metadataResolver.setParserPool(parserPool);
     try {
       metadataResolver.initialize();
+    } catch (ComponentInitializationException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    metadataCredentialResolver = new MetadataCredentialResolver();
+    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
+        metadataResolver);
+    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
+    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
+
+    try {
+      metadataCredentialResolver.initialize();
+      roleResolver.initialize();
     } catch (ComponentInitializationException e) {
       throw new SAMLUtilsException(e);
     }
@@ -174,6 +213,68 @@ public class SAMLUtils {
     authnContextClassRef.setURI(spidLevel);
 
     return authnContextClassRef;
+  }
+
+  public static Response getSAMLResponseFromString(String SAMLResponse)
+      throws OneIdentityException {
+
+    byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
+
+    try {
+      return (Response) XMLObjectSupport.unmarshallFromInputStream(getBasicParserPool(),
+          new ByteArrayInputStream(decodedSamlResponse));
+    } catch (XMLParserException | UnmarshallingException e) {
+      throw new OneIdentityException(e);
+    }
+  }
+
+  public void validateSignature(Response response) throws SAMLUtilsException {
+    SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
+    Assertion assertion = response.getAssertions().getFirst();
+
+    Optional<Credential> credential = getCredential(assertion.getIssuer().toString());
+
+    if (credential.isPresent()) {
+      // Validate 'Response' signature
+      if (response.getSignature() != null) {
+        try {
+          profileValidator.validate(response.getSignature());
+          SignatureValidator.validate(response.getSignature(), credential.get());
+        } catch (SignatureException e) {
+          throw new SAMLUtilsException(e);
+        }
+      }
+      // Validate 'Assertion' signature
+      if (assertion.getSignature() != null) {
+        try {
+          profileValidator.validate(assertion.getSignature());
+          SignatureValidator.validate(assertion.getSignature(), credential.get());
+        } catch (SignatureException e) {
+          throw new SAMLUtilsException(e);
+        }
+      }
+    } else {
+      throw new SAMLUtilsException("Credential not found for selected IDP");
+    }
+  }
+
+  public Optional<Credential> getCredential(String entityID) throws SAMLUtilsException {
+    // TODO do we need to add a cache layer? (With ConcurrentHashMap)
+    CriteriaSet criteriaSet = new CriteriaSet();
+    criteriaSet.add(new EntityIdCriterion(entityID));
+    criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
+    criteriaSet.add(new EntityRoleCriterion(
+        new QName("urn:oasis:names:tc:SAML:2.0:metadata", "IDPSSODescriptor", "md")));
+    criteriaSet.add(new ProtocolCriterion(SAMLConstants.SAML20P_NS));
+
+    Credential credential;
+    try {
+      credential = metadataCredentialResolver.resolveSingle(criteriaSet);
+    } catch (ResolverException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    return Optional.ofNullable(credential);
   }
 
   public Optional<EntityDescriptor> getEntityDescriptor(String entityID) throws SAMLUtilsException {
@@ -292,21 +393,5 @@ public class SAMLUtils {
     keyInfoGeneratorFactory.setEmitEntityCertificate(true);
     this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
   }
-
-  private InputStream getFileFromResourceAsStream(String fileName) throws SAMLUtilsException {
-
-    // The class loader that loaded the class
-    ClassLoader classLoader = getClass().getClassLoader();
-    InputStream inputStream = classLoader.getResourceAsStream(fileName);
-
-    // the stream holding the file content
-    if (inputStream == null) {
-      throw new SAMLUtilsException("File not found! " + fileName);
-    } else {
-      return inputStream;
-    }
-
-  }
-
 
 }
