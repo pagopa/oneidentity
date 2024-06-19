@@ -1,12 +1,14 @@
 package it.pagopa.oneid.web.utils;
 
+import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.shaded.gson.JsonParser;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import java.io.StringWriter;
+import java.util.Base64;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import net.minidev.json.JSONObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -44,16 +46,21 @@ public class WebUtils {
   }
 
   public static String getRelayState(AuthorizationRequestDTO authorizationRequestDTO) {
-    JSONObject relayState = new JSONObject();
+    JsonObject relayState = new JsonObject();
 
-    relayState.put("response_type", authorizationRequestDTO.getResponseType());
-    relayState.put("scope", authorizationRequestDTO.getScope());
-    relayState.put("client_id", authorizationRequestDTO.getClientId());
-    relayState.put("state", authorizationRequestDTO.getState());
-    relayState.put("nonce", authorizationRequestDTO.getNonce());
-    relayState.put("callback_uri", authorizationRequestDTO.getRedirectUri());
+    relayState.addProperty("response_type", authorizationRequestDTO.getResponseType().getValue());
+    relayState.addProperty("scope", authorizationRequestDTO.getScope());
+    relayState.addProperty("client_id", authorizationRequestDTO.getClientId());
+    relayState.addProperty("state", authorizationRequestDTO.getState());
+    relayState.addProperty("nonce", authorizationRequestDTO.getNonce());
+    relayState.addProperty("callback_uri", authorizationRequestDTO.getRedirectUri());
 
-    return relayState.toJSONString();
+    return relayState.getAsString();
+  }
+
+  public static JsonObject getJSONRelayState(String relayState) {
+    return JsonParser.parseString(new String(Base64.getDecoder().decode(relayState.getBytes())))
+        .getAsJsonObject();
   }
 
 
