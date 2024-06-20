@@ -2,6 +2,7 @@ package it.pagopa.oneid.connector;
 
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.Session;
+import it.pagopa.oneid.model.session.enums.RecordType;
 import java.util.Optional;
 
 public interface SessionConnector<T extends Session> {
@@ -15,10 +16,10 @@ public interface SessionConnector<T extends Session> {
   //   SAMLRequestID for SAMLSession;
   //  authorizationCode for OIDCSession;
   //  accessToken for AccessTokenSession;
-  Optional<T> findSession(String identifier);
+  Optional<T> findSession(String identifier, RecordType recordType) throws SessionException;
 
 
-  void updateSAMLSession(String samlRequestID, String SAMLResponse);
+  void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException;
 
 
 }

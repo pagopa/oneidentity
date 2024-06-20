@@ -18,6 +18,8 @@ public class SAMLSession extends Session {
   @NotNull
   private String SAMLRequest;
 
+  // TODO: evaluate if this is better than throwing an exception on update
+  // @Getter(onMethod_ = @DynamoDbUpdateBehavior(UpdateBehavior.WRITE_IF_NOT_EXISTS))
   private String SAMLResponse;
 
   public SAMLSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
