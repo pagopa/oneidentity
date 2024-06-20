@@ -75,7 +75,6 @@ import org.opensaml.xmlsec.signature.support.SignatureValidator;
 @ApplicationScoped
 public class SAMLUtils {
 
-  // TODO consider adding a BasicParserPool parameter
   private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator;
 
   static {
@@ -84,6 +83,7 @@ public class SAMLUtils {
 
   private final MetadataCredentialResolver metadataCredentialResolver;
   private final FilesystemMetadataResolver metadataResolver;
+  private final BasicParserPool basicParserPool;
 
   // TODO refactor with AWS ACM
   public BasicX509Credential X509Credential;
@@ -97,9 +97,9 @@ public class SAMLUtils {
     XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
     ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
     registry.setParserPool(getBasicParserPool());
-    BasicParserPool parserPool = getBasicParserPool();
+    basicParserPool = getBasicParserPool();
     try {
-      parserPool.initialize();
+      basicParserPool.initialize();
     } catch (ComponentInitializationException e) {
       throw new SAMLUtilsException(e);
     }
@@ -120,7 +120,7 @@ public class SAMLUtils {
     }
 
     metadataResolver.setId("spidMetadataResolver");
-    metadataResolver.setParserPool(parserPool);
+    metadataResolver.setParserPool(basicParserPool);
     try {
       metadataResolver.initialize();
     } catch (ComponentInitializationException e) {
@@ -216,14 +216,14 @@ public class SAMLUtils {
     return authnContextClassRef;
   }
 
-  public static Response getSAMLResponseFromString(String SAMLResponse)
+  public Response getSAMLResponseFromString(String SAMLResponse)
       throws OneIdentityException {
     Log.debug("[SAMLUtils.getSAMLResponseFromString] start");
 
     byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
 
     try {
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(getBasicParserPool(),
+      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
       Log.error("[SAMLUtils.getSAMLResponseFromString] Error unmarshalling " + e.getMessage());
