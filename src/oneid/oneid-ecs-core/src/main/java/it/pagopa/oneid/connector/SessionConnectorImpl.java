@@ -48,43 +48,38 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   @Override
   public void saveSession(T session) throws SessionException {
     Log.debug("[SessionConnectorImpl.saveSession] start");
-    // TODO: find a better way to avoid duplication
+    try {
+      saveItem(session);
+      Log.debug("[SessionConnectorImpl.saveSession] successfully saved session");
+    } catch (ConditionalCheckFailedException e) {
+      Log.debug(
+          "[SessionConnectorImpl.saveSession] a record with the same SAMLRequestID already exists");
+      throw new SessionException("Existing session for the specified SAMLRequestID");
+    }
+  }
+
+  private void saveItem(T session)
+      throws ConditionalCheckFailedException, SessionException {
     switch (session) {
       case SAMLSession samlSession -> {
-        try {
-          samlSessionMapper.putItem(
-              PutItemEnhancedRequest.builder(SAMLSession.class)
-                  .item(samlSession)
-                  .conditionExpression(
-                      Expression.builder().expression(
-                              "attribute_not_exists(SAMLRequestID)")
-                          .build())
-                  .build());
-        } catch (ConditionalCheckFailedException e) {
-          Log.debug(
-              "[SessionConnectorImpl.saveSession] a record with the same SAMLRequestID already exists");
-          throw new SessionException("Existing SAMLSession for the specified SAMLRequestID");
-        }
-        Log.debug("[SessionConnectorImpl.saveSession] successfully saved SamlSession");
+        samlSessionMapper.putItem(
+            PutItemEnhancedRequest.builder(SAMLSession.class)
+                .item(samlSession)
+                .conditionExpression(
+                    Expression.builder().expression(
+                            "attribute_not_exists(SAMLRequestID)")
+                        .build())
+                .build());
       }
-
       case OIDCSession oidcSession -> {
-        try {
-          oidcSessionMapper.putItem(
-              PutItemEnhancedRequest.builder(OIDCSession.class)
-                  .item(oidcSession)
-                  .conditionExpression(
-                      Expression.builder().expression(
-                              "attribute_not_exists(SAMLRequestID)")
-                          .build())
-                  .build());
-
-        } catch (ConditionalCheckFailedException e) {
-          Log.debug(
-              "[SessionConnectorImpl.saveSession] a record with the same SAMLRequestID already exists");
-          throw new SessionException("Existing OIDCSession for the specified SAMLRequestID");
-        }
-        Log.debug("[SessionConnectorImpl.saveSession] successfully saved OIDCSession");
+        oidcSessionMapper.putItem(
+            PutItemEnhancedRequest.builder(OIDCSession.class)
+                .item(oidcSession)
+                .conditionExpression(
+                    Expression.builder().expression(
+                            "attribute_not_exists(SAMLRequestID)")
+                        .build())
+                .build());
       }
       case AccessTokenSession accessTokenSession -> {
         //TODO implement
@@ -166,6 +161,4 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
     }
   }
-
-
 }
