@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.Session;
@@ -16,9 +17,12 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
 
   @Override
   public void saveSession(T session) throws SessionException {
+    Log.debug("[SessionServiceImpl.saveSession] start");
     if (session != null) {
+      Log.debug("[SessionServiceImpl.saveSession] session successfully saved");
       sessionConnectorImpl.saveSession(session);
     } else {
+      Log.debug("[SessionServiceImpl.saveSession] save failed");
       throw new SessionException();
     }
   }
