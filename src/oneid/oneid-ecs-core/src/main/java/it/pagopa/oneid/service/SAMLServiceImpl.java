@@ -143,7 +143,7 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException();
     }
     // Check if 'NotOnOrAfter' is expired
-    if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) <= 0) {
+    if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) >= 0) {
       Log.error(
           "[SAMLServiceImpl.validateSAMLResponse] NonOnOrAfter parameter from Subject Confirmation Data expired");
       throw new SAMLValidationException();
