@@ -1,6 +1,9 @@
 import { Button, Dialog, Grid, Icon, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { IDPS, IdentityProvider } from '../../utils/IDPS';
+import { trackEvent } from '../../services/analyticsService';
+import { forwardSearchParams } from '../../utils/utils';
+import { ENV } from '../../utils/env';
 
 type Props = {
   openSpidModal: boolean;
@@ -11,17 +14,17 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal }: Props) => {
   const { t } = useTranslation();
 
   const getSPID = (IDP: IdentityProvider) => {
-    // storageSpidSelectedOps.write(IDP.entityId);
-    const redirectUrl = `/oidc/authorize?idp=${IDP.entityId}&client_id=90349&response_type=CODE&redirect_uri=http://localhost:8080`;
-    // trackEvent(
-    //   'LOGIN_IDP_SELECTED',
-    //   {
-    //     SPID_IDP_NAME: IDP.name,
-    //     SPID_IDP_ID: IDP.entityId,
-    //   },
-    //   () => window.location.assign(redirectUrl)
-    // );
-    window.location.assign(redirectUrl);
+    const params = forwardSearchParams();
+    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?idp=${IDP.entityId}&${params}`;
+    trackEvent(
+      'LOGIN_IDP_SELECTED',
+      {
+        SPID_IDP_NAME: IDP.name,
+        SPID_IDP_ID: IDP.entityId,
+        FORWARD_PARAMETERS: params,
+      },
+      () => window.location.assign(redirectUrl)
+    );
   };
 
   return (

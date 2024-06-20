@@ -13,7 +13,8 @@ import SpidIcon from '../../assets/SpidIcon.svg';
 import CIEIcon from '../../assets/CIEIcon.svg';
 import { ENV } from '../../utils/env';
 import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
-import { isPnpg } from '../../utils/utils';
+import { trackEvent } from '../../services/analyticsService';
+import { forwardSearchParams } from '../../utils/utils';
 import SpidSelect from './SpidSelect';
 import SpidModal from './SpidModal';
 
@@ -38,10 +39,10 @@ export const cieIcon = () => (
 const Login = () => {
   const [showIDPS, setShowIDPS] = useState(false);
   const [fromOnboarding, setFromOnboarding] = useState<boolean>();
-  const [product, setProduct] = useState<string>('');
+  const [_, setProduct] = useState<string>('');
   const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
   const [openSpidModal, setOpenSpidModal] = useState(false);
-  const [isPT, setIsPT] = useState(false);
+  const [__, setIsPT] = useState(false);
 
   const mapToArray = (json: { [key: string]: BannerContent }) => {
     const mapped = Object.values(json);
@@ -111,25 +112,23 @@ const Login = () => {
   const { t } = useTranslation();
 
   const goCIE = () => {
-    // storageSpidSelectedOps.write(ENV.SPID_CIE_ENTITY_ID);
-    // trackEvent(
-    //   'LOGIN_IDP_SELECTED',
-    //   {
-    //     SPID_IDP_NAME: 'CIE',
-    //     SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
-    //   },
-    //   () =>
-    //     window.location.assign(
-    //       `${ENV.URL_API.LOGIN}/login?entityID=${ENV.SPID_CIE_ENTITY_ID}&authLevel=SpidL2`
-    //     )
-    // );
-    window.location.assign(
-      `${ENV.URL_API.LOGIN}/login?entityID=${ENV.SPID_CIE_ENTITY_ID}&authLevel=SpidL2`
+    const params = forwardSearchParams();
+    trackEvent(
+      'LOGIN_IDP_SELECTED',
+      {
+        SPID_IDP_NAME: 'CIE',
+        SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
+        FORWARD_PARAMETERS: params,
+      },
+      () =>
+        window.location.assign(
+          `${ENV.URL_API.AUTHORIZE}?idp=${ENV.SPID_CIE_ENTITY_ID}&authLevel=SpidL2&${params}`
+        )
     );
   };
 
   const goBackToLandingPage = () => {
-    window.location.assign(`${ENV.URL_FE.LANDING}`);
+    window.location.assign(`${ENV.URL_FE.LOGIN}`);
   };
 
   const onBackAction = () => {
@@ -168,7 +167,7 @@ const Login = () => {
             )}
           </Grid>
         </Grid>
-        <Grid container item justifyContent="center" mb={isPnpg ? 8 : 0}>
+        <Grid container item justifyContent="center" mb={0}>
           <Grid item xs={4} maxWidth="100%">
             <Typography
               variant="h3"
@@ -179,43 +178,11 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {fromOnboarding || isPnpg ? t('loginPageFromOnboarding.title') : t('loginPage.title')}
+              {fromOnboarding || t('loginPage.title')}
             </Typography>
           </Grid>
         </Grid>
 
-        {!isPnpg && (
-          <Grid container item justifyContent="center">
-            <Grid item xs={6}>
-              <Typography
-                variant="body1"
-                mb={5}
-                color="textPrimary"
-                sx={{
-                  textAlign: 'center',
-                }}
-              >
-                {fromOnboarding ? (
-                  <Trans
-                    i18nKey={
-                      isPT
-                        ? 'loginPageFromOnboarding.descriptionPT'
-                        : 'loginPageFromOnboarding.description'
-                    }
-                    values={{ nomeProdotto: product }}
-                    components={{ 1: <br />, 3: <strong /> }}
-                  >
-                    {isPT
-                      ? 'Seleziona la modalità che preferisci per accedere e registrarti <1 /> come Partner tecnologico per il prodotto <3>{{nomeProdotto}}<3/>.'
-                      : `Seleziona la modalità di accesso che preferisci e inizia il <1 /> processo di  adesione al prodotto <3>{{nomeProdotto}}<3/>.`}
-                  </Trans>
-                ) : (
-                  t('loginPage.description')
-                )}
-              </Typography>
-            </Grid>
-          </Grid>
-        )}
         {ENV.ENABLED_SPID && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>

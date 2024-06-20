@@ -15,22 +15,26 @@ export const ENV = {
   },
 
   JSON_URL: {
-    PRODUCTS: env.get('REACT_APP_PRODUCTS_ASSET').required().asString(),
     ALERT: env.get('REACT_APP_LOGIN_ALERT_BANNER').required().asString(),
   },
 
   URL_FE: {
+    LOGIN: PUBLIC_URL + '/login',
     LOGOUT: PUBLIC_URL + '/logout',
-    ONBOARDING: env.get('REACT_APP_URL_FE_ONBOARDING').required().asString(),
-    DASHBOARD: env.get('REACT_APP_URL_FE_DASHBOARD').required().asString(),
-    LANDING: env.get('REACT_APP_URL_FE_LANDING').required().asString(),
-    ASSISTANCE: env.get('REACT_APP_URL_FE_ASSISTANCE').required().asString(),
+  },
+
+  HEADER: {
+    LINK: {
+      ROOTLINK: env.get('REACT_APP_HEADER_LINK_ROOTLINK').required().asString(),
+      PRODUCTURL: env.get('REACT_APP_HEADER_LINK_PRODUCTURL').required().asString(),
+    },
   },
 
   URL_DOCUMENTATION: ' https://docs.pagopa.it/area-riservata/',
 
   URL_API: {
     LOGIN: env.get('REACT_APP_URL_API_LOGIN').required().asString(),
+    AUTHORIZE: env.get('REACT_APP_URL_API_AUTHORIZE').required().asString(),
   },
 
   URL_FOOTER: {
@@ -46,10 +50,10 @@ export const ENV = {
     ENABLE: env.get('REACT_APP_ANALYTICS_ENABLE').default('false').asBool(),
     MOCK: env.get('REACT_APP_ANALYTICS_MOCK').default('false').asBool(),
     DEBUG: env.get('REACT_APP_ANALYTICS_DEBUG').default('false').asBool(),
-    TOKEN: env.get('REACT_APP_MIXPANEL_TOKEN').required().asString(),
+    TOKEN: env.get('REACT_APP_SERVICE_EXAMPLE_TOKEN').required().asString(),
     API_HOST: env
-      .get('REACT_APP_MIXPANEL_API_HOST')
-      .default('https://api-eu.mixpanel.com')
+      .get('REACT_APP_SERVICE_EXAMPLE_API_HOST')
+      .default('https://examples.com')
       .asString(),
   },
 };

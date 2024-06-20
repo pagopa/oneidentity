@@ -15,7 +15,7 @@ export const redirectSuccessLogin = () => {
   const redirectTo =
     onSuccess && validOnSuccessPattern.test(onSuccess)
       ? window.location.origin + '/' + onSuccess.replace(/^\//, '')
-      : ENV.URL_FE.DASHBOARD;
+      : ENV.URL_FE.LOGIN;
   // storageOnSuccessOps.delete();
   window.location.assign(redirectTo);
 };

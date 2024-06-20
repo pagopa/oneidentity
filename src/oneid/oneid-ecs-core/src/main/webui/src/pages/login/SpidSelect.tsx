@@ -10,24 +10,26 @@ import { IdentityProvider, IDPS } from '../../utils/IDPS';
 import SpidBig from '../../assets/spid_big.svg';
 import { ENV } from '../../utils/env';
 import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
+import { trackEvent } from '../../services/analyticsService';
+import { forwardSearchParams } from '../../utils/utils';
 
 const Login = ({ onBack }: { onBack: () => void }) => {
   const { t } = useTranslation();
   const getSPID = (IDP: IdentityProvider) => {
-    // storageSpidSelectedOps.write(IDP.entityId);
-    const redirectUrl = `/oidc/authorize?idp=${IDP.entityId}&client_id=90349&response_type=CODE&redirect_uri=http://localhost:8080`;
-    // trackEvent(
-    //   'LOGIN_IDP_SELECTED',
-    //   {
-    //     SPID_IDP_NAME: IDP.name,
-    //     SPID_IDP_ID: IDP.entityId,
-    //   },
-    //   () => window.location.assign(redirectUrl)
-    // );
-    window.location.assign(redirectUrl);
+    const params = forwardSearchParams();
+    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?idp=${IDP.entityId}&${params}`;
+    trackEvent(
+      'LOGIN_IDP_SELECTED',
+      {
+        SPID_IDP_NAME: IDP.name,
+        SPID_IDP_ID: IDP.entityId,
+        FORWARD_PARAMETERS: params,
+      },
+      () => window.location.assign(redirectUrl)
+    );
   };
   const goBackToLandingPage = () => {
-    window.location.assign(`${ENV.URL_FE.LANDING}`);
+    window.location.assign(`${ENV.URL_FE.LOGIN}`);
   };
 
   return (

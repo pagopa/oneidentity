@@ -1,7 +1,10 @@
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import { IllusError } from '@pagopa/mui-italia';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
+import EndingPage from '../../components/EndingPage';
+import { redirectToLogin } from '../../utils/utils';
 
 const LoginError = () => {
   const { t } = useTranslation();
@@ -120,9 +123,8 @@ const LoginError = () => {
     <LoadingOverlay loadingText="" />
   ) : (
     <Layout>
-      <h1>loginerror</h1>
       {/* TODO add footer */}
-      {/* <EndingPage
+      <EndingPage
         minHeight={'100vh'}
         icon={<IllusError size={60} />}
         variantTitle="h4"
@@ -136,7 +138,7 @@ const LoginError = () => {
         onButtonClick={redirectToLogin}
         onSecondButtonClick={() => history.go(-1)}
         haveTwoButtons={haveRetryButton}
-      /> */}
+      />
     </Layout>
   );
 };
