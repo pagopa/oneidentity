@@ -9,7 +9,8 @@ public interface SessionService<T extends Session> {
 
   void saveSession(T session) throws SessionException;
 
-  Optional<T> getSession(String id);
+  Optional<T> getSession(String id, RecordType recordType)
+      throws SessionException;
 
   void setSAMLResponse(String samlRequestID, Response response);
 }

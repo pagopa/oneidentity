@@ -1,11 +1,13 @@
 package it.pagopa.oneid.connector;
 
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.Session;
+import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -16,7 +18,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 @Dependent
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
@@ -92,8 +96,45 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   }
 
   @Override
-  public Optional<T> findSession(String identifier) {
-    return Optional.empty();
+  public Optional<T> findSession(String identifier, RecordType recordType) throws SessionException {
+    Log.debug("[SessionConnectorImpl.findSession] start");
+
+    switch (recordType) {
+      case RecordType.SAML -> {
+        SAMLSession samlSession;
+        samlSession = samlSessionMapper
+            .getItem(GetItemEnhancedRequest.builder()
+                .key(Key.builder().partitionValue(identifier).sortValue(recordType.name())
+                    .build())
+                .consistentRead(true)
+                .build());
+
+        if (samlSession == null) {
+          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          return Optional.empty();
+        }
+        if (
+            samlSession.getCreationTime() < Instant.now()
+                .minus(VALID_TIME_SAML, ChronoUnit.MINUTES)
+                .getEpochSecond()) {
+          Log.debug("[SessionConnectorImpl.findSession] session expired");
+          return Optional.empty();
+        }
+
+        Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+        return (Optional<T>) Optional.ofNullable(samlSession);
+      }
+      case RecordType.OIDC -> {
+        return Optional.empty();
+      }
+      case RecordType.ACCESS_TOKEN -> {
+        return Optional.empty();
+      }
+      default -> {
+        Log.debug("[SessionConnectorImpl.findSession] not valid RecordType");
+        throw new SessionException();
+      }
+    }
   }
 
   @Override
