@@ -21,13 +21,10 @@ public class OIDCSession extends Session {
   @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
   private String authorizationCode;
 
-  private String nonce;
-
   public OIDCSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
-      @NotNull long creationTime, @NotNull long ttl, String authorizationCode, String nonce) {
+      @NotNull long creationTime, @NotNull long ttl, String authorizationCode) {
     super(SAMLRequestID, recordType, creationTime, ttl);
     this.authorizationCode = authorizationCode;
-    this.nonce = nonce;
   }
 
 }

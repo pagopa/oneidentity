@@ -231,12 +231,12 @@ public class SAMLUtils {
     }
   }
 
-  public void validateSignature(Response response) throws SAMLUtilsException {
+  public void validateSignature(Response response, String entityID) throws SAMLUtilsException {
     Log.debug("[SAMLUtils.validateSignature] start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
-    Optional<Credential> credential = getCredential(assertion.getIssuer().toString());
+    Optional<Credential> credential = getCredential(entityID);
 
     if (credential.isPresent()) {
       // Validate 'Response' signature
@@ -246,7 +246,7 @@ public class SAMLUtils {
           SignatureValidator.validate(response.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[SAMLUtils.getSAMLResponseFromString] Error during Response signature validation "
+              "[SAMLUtils.validateSignature] Error during Response signature validation "
                   + e.getMessage());
           throw new SAMLUtilsException(e);
         }
@@ -264,7 +264,8 @@ public class SAMLUtils {
         }
       }
     } else {
-      Log.error("[SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP");
+      Log.error("[SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP "
+          + assertion.getIssuer().getValue());
       throw new SAMLUtilsException("Credential not found for selected IDP");
     }
   }

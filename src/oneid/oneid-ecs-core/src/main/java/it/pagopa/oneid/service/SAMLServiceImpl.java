@@ -42,11 +42,25 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
     Log.debug("[SAMLServiceImpl.checkSAMLStatus] start");
-    String statusCode = response.getStatus().getStatusCode().getValue();
-    String statusMessage = response.getStatus().getStatusMessage().getValue();
+    String statusCode = "";
+    String statusMessage = "";
+    if (response.getStatus() != null) {
+      if (response.getStatus().getStatusCode() != null) {
+        statusCode = response.getStatus().getStatusCode().getValue();
+      } else {
+        Log.error("[SAMLServiceImpl.checkSAMLStatus] SAML Status Code cannot be null");
+        throw new OneIdentityException("Status Code not set.");
+      }
+      if (response.getStatus().getStatusMessage() != null) {
+        statusMessage = response.getStatus().getStatusMessage().getValue();
+      } else {
+        Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Status Code cannot be null");
+
+      }
+    }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
-      if (statusMessage != null) {
+      if (!statusMessage.isEmpty()) {
         Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Response status code: " + statusCode
             + statusMessage);
         throw new SAMLResponseStatusException(statusMessage);
@@ -61,14 +75,14 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String spidLevel)
+      int attributeConsumingServiceIndex, String authLevel)
       throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
     return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, "", spidLevel);
+        attributeConsumingServiceIndex, "", authLevel);
   }
 
   private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String spidLevel)
+      int attributeConsumingServiceIndex, String purpose, String authLevel)
       throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
     //TODO: add support for CIEid
 
@@ -81,7 +95,7 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setID(generateSecureRandomId()); // TODO review, is it correct as a RandomID?
     authnRequest.setIssuer(buildIssuer());
     authnRequest.setNameIDPolicy(buildNameIdPolicy());
-    authnRequest.setRequestedAuthnContext(buildRequestedAuthnContext(spidLevel));
+    authnRequest.setRequestedAuthnContext(buildRequestedAuthnContext(authLevel));
 
     authnRequest.setDestination(
         samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
@@ -113,7 +127,7 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public void validateSAMLResponse(Response samlResponse)
+  public void validateSAMLResponse(Response samlResponse, String entityID)
       throws SAMLValidationException, SAMLUtilsException {
     Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
 
@@ -139,7 +153,7 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     // Validate SAMLResponse signature (Response and Assertion)
-    samlUtils.validateSignature(samlResponse);
+    samlUtils.validateSignature(samlResponse, entityID);
   }
 
   @Override

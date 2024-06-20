@@ -142,12 +142,11 @@ public class OIDCController {
     // TODO who owns spid level?
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(
         authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(),
-        "https://www.spid.gov.it/SpidL2");
+        client.getAuthLevel());
 
     String encodedAuthnRequest = Base64.getEncoder().encodeToString(
         WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
-    String encodedRelayStateString = Base64.getEncoder()
-        .encodeToString(WebUtils.getRelayState(authorizationRequestDTOExtended).getBytes());
+    String encodedRelayStateString = "";
 
     // 5. Persist SAMLSession
 
@@ -158,7 +157,7 @@ public class OIDCController {
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
     SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime,
-        ttl, encodedAuthnRequest);
+        ttl, encodedAuthnRequest, authorizationRequestDTOExtended);
     samlSessionServiceImpl.saveSession(samlSession);
 
     String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint

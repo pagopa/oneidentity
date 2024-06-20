@@ -1,23 +1,19 @@
 package it.pagopa.oneid.web.controller;
 
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.OneIdentityException;
-import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
-import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AccessTokenDTO;
 import it.pagopa.oneid.web.dto.SAMLResponseDTO;
-import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
@@ -37,7 +33,7 @@ public class SAMLController {
   SAMLServiceImpl samlServiceImpl;
 
   @Inject
-  OIDCServiceImpl oidcserviceImpl;
+  OIDCServiceImpl oidcServiceImpl;
 
   @Inject
   SessionServiceImpl<SAMLSession> samlSessionSessionService;
@@ -54,33 +50,31 @@ public class SAMLController {
 
     org.opensaml.saml.saml2.core.Response response = samlServiceImpl.getSAMLResponseFromString(
         samlResponseDTO.getSAMLResponse());
-    
-    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
-    samlSessionSessionService.getSession(response.getInResponseTo(), RecordType.SAML)
-        .orElseThrow(SessionException::new);
+
+    //1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
+    SAMLSession samlSession = samlSessionSessionService.getSession(response.getInResponseTo(),
+        RecordType.SAML);
 
     // 1b. Check if Signatures are valid (Response and Assertion) and SubjectConfirmationData are correct
-    samlServiceImpl.validateSAMLResponse(response);
+    samlServiceImpl.validateSAMLResponse(response,
+        samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
     // 2. Check status, will raise CustomException in case of error mapped to a custom html error page
     samlServiceImpl.checkSAMLStatus(response);
 
-    // 3. Parse RelayState
-    JsonObject relayState = WebUtils.getJSONRelayState(samlResponseDTO.getRelayState());
-
     // 4. Get Authorization Response
 
-    AuthorizationRequest authorizationRequest = oidcserviceImpl.buildAuthorizationRequest(
+    AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
         new AuthorizationRequestDTO(
-            relayState.get("clientId").toString(),
-            ResponseType.valueOf(relayState.get("response_type").toString()),
-            relayState.get("redirect_uri").toString(),
-            relayState.get("scope").toString(),
-            relayState.get("nonce").toString(),
-            relayState.get("state").toString()
+            samlSession.getAuthorizationRequestDTOExtended().getClientId(),
+            samlSession.getAuthorizationRequestDTOExtended().getResponseType(),
+            samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
+            samlSession.getAuthorizationRequestDTOExtended().getScope(),
+            samlSession.getAuthorizationRequestDTOExtended().getNonce(),
+            samlSession.getAuthorizationRequestDTOExtended().getState()
         ));
 
-    AuthorizationResponse authorizationResponse = oidcserviceImpl.getAuthorizationResponse(
+    AuthorizationResponse authorizationResponse = oidcServiceImpl.getAuthorizationResponse(
         authorizationRequest);
 
     // 5. Update SAMLSession with SAMLResponse attribute
@@ -97,17 +91,14 @@ public class SAMLController {
     AuthorizationCode authorizationCode = authorizationResponse.toSuccessResponse()
         .getAuthorizationCode();
 
-    // get Nonce
-    String nonce = relayState.get("nonce").toString();
-
     OIDCSession oidcSession = new OIDCSession(response.getInResponseTo(), RecordType.OIDC,
         creationTime,
-        ttl, authorizationCode.getValue(), nonce);
+        ttl, authorizationCode.getValue());
 
     oidcSessionSessionService.saveSession(oidcSession);
 
     // 7. Redirect to client callback
-    String clientCallbackUri = relayState.get("redirect_uri").toString();
+    String clientCallbackUri = samlSession.getAuthorizationRequestDTOExtended().getRedirectUri();
 
     URI redirectStringResponse;
     try {

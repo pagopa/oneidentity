@@ -8,8 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jboss.resteasy.reactive.RestQuery;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Getter
+@DynamoDbBean
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthorizationRequestDTO {
