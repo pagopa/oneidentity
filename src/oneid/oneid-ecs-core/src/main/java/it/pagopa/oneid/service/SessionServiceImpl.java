@@ -46,7 +46,7 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
   }
 
   @Override
-  public void setSAMLResponse(String samlRequestID, Response response) {
-
+  public void setSAMLResponse(String samlRequestID, String response) throws SessionException {
+    sessionConnectorImpl.updateSAMLSession(samlRequestID, response);
   }
 }

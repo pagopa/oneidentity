@@ -19,7 +19,7 @@ public interface SessionConnector<T extends Session> {
   Optional<T> findSession(String identifier, RecordType recordType) throws SessionException;
 
 
-  void updateSAMLSession(String samlRequestID, String SAMLResponse);
+  void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException;
 
 
 }

@@ -20,6 +20,7 @@ import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 @Dependent
@@ -138,6 +139,33 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   }
 
   @Override
-  public void updateSAMLSession(String samlRequestID, String SAMLResponse) {
+  public void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException {
+    Log.debug("[SessionConnectorImpl.updateSAMLSession] invoked");
+
+    SAMLSession samlSession = null;
+    try {
+      samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).get();
+    } catch (SessionException e) {
+      Log.debug("[SessionConnectorImpl.updateSAMLSession] session to update not found");
+    }
+
+    samlSession.setSAMLResponse(SAMLResponse);
+    try {
+      samlSessionMapper
+          .updateItem(UpdateItemEnhancedRequest.builder(SAMLSession.class)
+              .item(samlSession)
+              .conditionExpression(Expression.builder()
+                  .expression("attribute_not_exists(SAMLResponse)")
+                  .build())
+              .build());
+      Log.debug("[SessionConnectorImpl.updateSAMLSession] session successfully updated");
+
+    } catch (ConditionalCheckFailedException e) {
+      Log.debug(
+          "[SessionConnectorImpl.updateSAMLSession] the record contains already the samlResponse");
+      throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
+    }
   }
+
+
 }
