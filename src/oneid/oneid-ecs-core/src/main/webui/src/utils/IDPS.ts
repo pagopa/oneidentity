@@ -6,6 +6,7 @@ export type IdentityProvider = {
   imageUrl: string;
 };
 
+// this need to be fetched through be api
 const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string } = {
   identityProviders: [
     {
@@ -83,6 +84,7 @@ const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string }
   ].sort(() => 0.5 - Math.random()),
   richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
 };
+console.log("spid", ENV.SPID_TEST_ENV_ENABLED);
 
 if (ENV.SPID_TEST_ENV_ENABLED) {
   // eslint-disable-next-line functional/immutable-data

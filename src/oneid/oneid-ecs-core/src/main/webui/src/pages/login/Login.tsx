@@ -143,10 +143,10 @@ const Login = () => {
     return <SpidSelect onBack={onBackAction} />;
   }
 
-  // const redirectPrivacyLink = () =>
-  //   trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-  //     window.location.assign(ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
-  //   );
+  const redirectPrivacyLink = () =>
+    trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
+      window.location.assign(ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
+    );
 
   const columnsOccupiedByAlert = 5;
 
@@ -295,9 +295,9 @@ const Login = () => {
                     color: 'primary.main',
                   }}
                   onClick={() => {
-                    // trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-                    //   window.location.assign(ENV.URL_FOOTER.TERMS_AND_CONDITIONS)
-                    // );
+                    trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
+                      window.location.assign(ENV.URL_FOOTER.TERMS_AND_CONDITIONS)
+                    );
                   }}
                 >
                   {'Termini e condizioni d’uso'}
@@ -312,7 +312,7 @@ const Login = () => {
                     fontWeight: '400',
                     color: 'primary.main',
                   }}
-                  // onClick={redirectPrivacyLink}
+                  onClick={redirectPrivacyLink}
                 >
                   Informativa Privacy
                 </Link>
