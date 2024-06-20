@@ -145,7 +145,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
     Log.debug("[getSAMLResponseFromString] start");
-    return SAMLUtils.getSAMLResponseFromString(SAMLResponse);
+    return samlUtils.getSAMLResponseFromString(SAMLResponse);
   }
 
   @Override
