@@ -96,6 +96,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
+          "dynamodb:Scan",
         ]
         Resource = [
           "${var.table_client_registrations_arn}"
