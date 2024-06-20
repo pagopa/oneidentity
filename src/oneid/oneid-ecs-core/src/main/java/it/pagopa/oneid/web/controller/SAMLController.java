@@ -5,7 +5,6 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.OneIdentityException;
-import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
@@ -65,14 +64,7 @@ public class SAMLController {
     // 4. Get Authorization Response
 
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
-        new AuthorizationRequestDTO(
-            samlSession.getAuthorizationRequestDTOExtended().getClientId(),
-            samlSession.getAuthorizationRequestDTOExtended().getResponseType(),
-            samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
-            samlSession.getAuthorizationRequestDTOExtended().getScope(),
-            samlSession.getAuthorizationRequestDTOExtended().getNonce(),
-            samlSession.getAuthorizationRequestDTOExtended().getState()
-        ));
+        samlSession.getAuthorizationRequestDTOExtended());
 
     AuthorizationResponse authorizationResponse = oidcServiceImpl.getAuthorizationResponse(
         authorizationRequest);

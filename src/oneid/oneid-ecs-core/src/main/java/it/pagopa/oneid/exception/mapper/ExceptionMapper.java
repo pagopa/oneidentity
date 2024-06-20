@@ -22,6 +22,14 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMapper {
 
+  // TODO re-add this method
+ /* @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during execution.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }*/
+  
   // TODO refactor this method??
   @ServerExceptionMapper
   public Response mapSAMLResponseStatusException(
@@ -33,14 +41,6 @@ public class ExceptionMapper {
     }
 
   }
-
-  // TODO re-add this method
- /* @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
-    Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during execution.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
-  }*/
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericAuthnRequestCreationException(

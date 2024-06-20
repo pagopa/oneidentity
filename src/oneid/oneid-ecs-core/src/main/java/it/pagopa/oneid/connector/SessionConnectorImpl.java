@@ -72,6 +72,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                         .build())
                 .build());
       }
+
       case OIDCSession oidcSession -> {
         oidcSessionMapper.putItem(
             PutItemEnhancedRequest.builder(OIDCSession.class)
@@ -138,12 +139,8 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   public void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException {
     Log.debug("[SessionConnectorImpl.updateSAMLSession] invoked");
 
-    SAMLSession samlSession = null;
-    try {
-      samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).get();
-    } catch (SessionException e) {
-      Log.debug("[SessionConnectorImpl.updateSAMLSession] session to update not found");
-    }
+    SAMLSession samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).orElseThrow(
+        SessionException::new);
 
     samlSession.setSAMLResponse(SAMLResponse);
     try {

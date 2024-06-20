@@ -1,11 +1,6 @@
 package it.pagopa.oneid.web.utils;
 
-import com.nimbusds.jose.shaded.gson.JsonObject;
-import com.nimbusds.jose.shaded.gson.JsonParser;
-import io.quarkus.logging.Log;
-import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import java.io.StringWriter;
-import java.util.Base64;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -44,26 +39,6 @@ public class WebUtils {
     }
 
     return plaintextElement;
-  }
-
-  public static String getRelayState(AuthorizationRequestDTO authorizationRequestDTO) {
-    Log.debug("[WebUtils.getRelayState] start");
-    JsonObject relayState = new JsonObject();
-
-    relayState.addProperty("response_type", authorizationRequestDTO.getResponseType().getValue());
-    relayState.addProperty("scope", authorizationRequestDTO.getScope());
-    relayState.addProperty("client_id", authorizationRequestDTO.getClientId());
-    relayState.addProperty("state", authorizationRequestDTO.getState());
-    relayState.addProperty("nonce", authorizationRequestDTO.getNonce());
-    relayState.addProperty("callback_uri", authorizationRequestDTO.getRedirectUri());
-
-    return relayState.toString();
-  }
-
-  public static JsonObject getJSONRelayState(String relayState) {
-    Log.debug("[WebUtils.getJSONRelayState] start");
-    return JsonParser.parseString(new String(Base64.getDecoder().decode(relayState.getBytes())))
-        .getAsJsonObject();
   }
 
 
