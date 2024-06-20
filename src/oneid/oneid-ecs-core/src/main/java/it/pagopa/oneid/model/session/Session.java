@@ -18,7 +18,7 @@ public abstract class Session {
 
   @Getter(onMethod_ = @DynamoDbPartitionKey)
   @NotNull
-  private String SAMLRequestID;
+  private String samlRequestID;
 
   @Getter(onMethod_ = @DynamoDbSortKey)
   @NotNull

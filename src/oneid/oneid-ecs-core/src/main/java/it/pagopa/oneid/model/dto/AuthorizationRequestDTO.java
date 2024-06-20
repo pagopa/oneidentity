@@ -5,13 +5,17 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jboss.resteasy.reactive.RestQuery;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamoDbBean
 public class AuthorizationRequestDTO {
 
   @NotBlank

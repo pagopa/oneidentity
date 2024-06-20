@@ -13,7 +13,7 @@ public interface SessionConnector<T extends Session> {
   void saveSession(T session) throws SessionException;
 
   // TODO - remove comment - id is: (find a better name)
-  //   SAMLRequestID for SAMLSession;
+  //   samlRequestID for SAMLSession;
   //  authorizationCode for OIDCSession;
   //  accessToken for AccessTokenSession;
   Optional<T> findSession(String identifier, RecordType recordType) throws SessionException;

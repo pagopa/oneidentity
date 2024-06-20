@@ -11,6 +11,7 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.time.Instant;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -26,17 +27,17 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @Dependent
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
-  // TODO how to obtain TABLE_NAME and GSI_IDX_NAME
-  private static final String TABLE_NAME = "Session";
+  // TODO how to obtain GSI_IDX_NAME
   private static final String GSI_IDX_NAME = "gsi_code_idx";
-
-
   private final DynamoDbTable<SAMLSession> samlSessionMapper;
   private final DynamoDbTable<OIDCSession> oidcSessionMapper;
   private final DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
 
+
   @Inject
-  SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+  SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
+      @ConfigProperty(name = "sessions_table_name")
+      String TABLE_NAME) {
     samlSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(SAMLSession.class));
     oidcSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
@@ -71,6 +72,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                         .build())
                 .build());
       }
+
       case OIDCSession oidcSession -> {
         oidcSessionMapper.putItem(
             PutItemEnhancedRequest.builder(OIDCSession.class)
@@ -137,12 +139,8 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   public void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException {
     Log.debug("[SessionConnectorImpl.updateSAMLSession] invoked");
 
-    SAMLSession samlSession = null;
-    try {
-      samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).get();
-    } catch (SessionException e) {
-      Log.debug("[SessionConnectorImpl.updateSAMLSession] session to update not found");
-    }
+    SAMLSession samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).orElseThrow(
+        SessionException::new);
 
     samlSession.setSAMLResponse(SAMLResponse);
     try {

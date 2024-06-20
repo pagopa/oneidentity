@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -14,13 +15,12 @@ import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 @ApplicationScoped
 public class ClientConnectorImpl implements ClientConnector {
 
-  // TODO how to obtain TABLE_NAME
-  private static final String TABLE_NAME = "Client";
-
   private final DynamoDbTable<Client> clientMapper;
 
+
   @Inject
-  ClientConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient) {
+  ClientConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
+      @ConfigProperty(name = "client_registrations_table_name") String TABLE_NAME) {
     clientMapper = dynamoDbEnhancedClient.table(TABLE_NAME, TableSchema.fromBean(Client.class));
   }
 
@@ -30,7 +30,6 @@ public class ClientConnectorImpl implements ClientConnector {
     ArrayList<Client> clients = new ArrayList<>();
     ScanEnhancedRequest request = ScanEnhancedRequest.builder()
         .build();
-
     PageIterable<Client> pagedResults = clientMapper.scan(request);
     pagedResults.items().stream()
         .forEach(
