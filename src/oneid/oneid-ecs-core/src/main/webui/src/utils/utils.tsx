@@ -1,7 +1,7 @@
 import { ROUTE_LOGIN } from './constants';
 
 export const redirectToLogin = () => {
-  window.location.assign(ROUTE_LOGIN);
+  window.location.assign(`${ROUTE_LOGIN}?${forwardSearchParams()}`);
 };
 
 export const forwardSearchParams = () => {

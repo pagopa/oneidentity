@@ -9,39 +9,27 @@ import LoginSuccess from './pages/loginSuccess/LoginSuccess';
 import { redirectToLogin } from './utils/utils';
 import Logout from './pages/logout/Logout';
 import LoginError from './pages/loginError/LoginError';
+import { trackEvent } from './services/analyticsService';
 
 const onLogout = () => <Logout />;
 const onLoginError = () => <LoginError />;
 
-/** if exists already a session */
-// const onAlreadyInSession = (sessionToken: string) => (
-//   <ValidateSession sessionToken={sessionToken} />
-// );
-
 /** login request operations */
 const onLoginRequest = () => {
-  // storageOnSuccessOps.delete();
   handleLoginRequestOnSuccessRequest();
   return <Login />;
 };
 
 const handleLoginRequestOnSuccessRequest = () => {
-  // const onSuccess: string | null = new URLSearchParams(window.location.search).get('onSuccess');
-  // trackEvent('LOGIN_INTENT', { target: onSuccess ?? 'dashboard' });
-  // if (onSuccess) {
-  //   storageOnSuccessOps.write(onSuccess);
-  // }
+  const onSuccess: string | null = new URLSearchParams(window.location.search).get('onSuccess');
+  trackEvent('LOGIN_INTENT', { target: onSuccess ?? 'dashboard' });
 };
 
 const onLoginSuccess = () => <LoginSuccess />;
 
 function App() {
-  // const token = storageTokenOps.read();
-
   if (window.location.pathname === ROUTE_LOGOUT) {
     return onLogout();
-    // } else if (token !== null && token !== undefined) {
-    //   return onAlreadyInSession(token);
   } else {
     switch (window.location.pathname) {
       case ROUTE_LOGIN:
