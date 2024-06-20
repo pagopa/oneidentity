@@ -3,6 +3,7 @@ package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.service.utils.SAMLUtilsConstants.METADATA_URL;
 import static it.pagopa.oneid.service.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.OneIdentityException;
 import it.pagopa.oneid.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -217,6 +218,7 @@ public class SAMLUtils {
 
   public static Response getSAMLResponseFromString(String SAMLResponse)
       throws OneIdentityException {
+    Log.debug("[SAMLUtils.getSAMLResponseFromString] start");
 
     byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
 
@@ -224,11 +226,13 @@ public class SAMLUtils {
       return (Response) XMLObjectSupport.unmarshallFromInputStream(getBasicParserPool(),
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
+      Log.error("[SAMLUtils.getSAMLResponseFromString] Error unmarshalling " + e.getMessage());
       throw new OneIdentityException(e);
     }
   }
 
   public void validateSignature(Response response) throws SAMLUtilsException {
+    Log.debug("[SAMLUtils.validateSignature] start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
@@ -241,6 +245,9 @@ public class SAMLUtils {
           profileValidator.validate(response.getSignature());
           SignatureValidator.validate(response.getSignature(), credential.get());
         } catch (SignatureException e) {
+          Log.error(
+              "[SAMLUtils.getSAMLResponseFromString] Error during Response signature validation "
+                  + e.getMessage());
           throw new SAMLUtilsException(e);
         }
       }
@@ -250,10 +257,14 @@ public class SAMLUtils {
           profileValidator.validate(assertion.getSignature());
           SignatureValidator.validate(assertion.getSignature(), credential.get());
         } catch (SignatureException e) {
+          Log.error(
+              "[SAMLUtils.getSAMLResponseFromString] Error during Assertion signature validation "
+                  + e.getMessage());
           throw new SAMLUtilsException(e);
         }
       }
     } else {
+      Log.error("[SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP");
       throw new SAMLUtilsException("Credential not found for selected IDP");
     }
   }
@@ -271,6 +282,8 @@ public class SAMLUtils {
     try {
       credential = metadataCredentialResolver.resolveSingle(criteriaSet);
     } catch (ResolverException e) {
+      Log.error(
+          "[SAMLUtils.getCredential] Error during credential resolving " + e.getMessage());
       throw new SAMLUtilsException(e);
     }
 

@@ -15,6 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @NoArgsConstructor
 public class SAMLSession extends Session {
 
+  // TODO consider adding state, scope and nonce fields without relying on RelayState
   @NotNull
   private String SAMLRequest;
 

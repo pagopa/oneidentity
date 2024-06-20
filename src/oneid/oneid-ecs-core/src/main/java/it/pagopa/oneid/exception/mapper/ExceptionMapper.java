@@ -34,6 +34,7 @@ public class ExceptionMapper {
 
   }
 
+  // TODO re-add this method
  /* @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
     Response.Status status = INTERNAL_SERVER_ERROR;

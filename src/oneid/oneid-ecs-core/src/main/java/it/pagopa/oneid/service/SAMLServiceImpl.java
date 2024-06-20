@@ -4,6 +4,7 @@ import static it.pagopa.oneid.service.utils.SAMLUtils.buildIssuer;
 import static it.pagopa.oneid.service.utils.SAMLUtils.buildNameIdPolicy;
 import static it.pagopa.oneid.service.utils.SAMLUtils.buildRequestedAuthnContext;
 import static it.pagopa.oneid.service.utils.SAMLUtils.generateSecureRandomId;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.OneIdentityException;
@@ -40,13 +41,19 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
+    Log.debug("[SAMLServiceImpl.checkSAMLStatus] start");
     String statusCode = response.getStatus().getStatusCode().getValue();
     String statusMessage = response.getStatus().getStatusMessage().getValue();
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (statusMessage != null) {
+        Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Response status code: " + statusCode
+            + statusMessage);
         throw new SAMLResponseStatusException(statusMessage);
       } else {
+        Log.error(
+            "[SAMLServiceImpl.checkSAMLStatus] SAML Status message not found for " + statusCode
+                + " status code");
         throw new OneIdentityException("Status message not set.");
       }
     }
@@ -108,6 +115,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse)
       throws SAMLValidationException, SAMLUtilsException {
+    Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
 
     // TODO is it ok to be 0-indexed?
     Assertion assertion = samlResponse.getAssertions().getFirst();
@@ -118,10 +126,15 @@ public class SAMLServiceImpl implements SAMLService {
 
     // Check if 'recipient' matches ACS URL
     if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
+      Log.error(
+          "[SAMLServiceImpl.validateSAMLResponse] Recipient parameter from Subject Confirmation Data does not matches ACS url: "
+              + subjectConfirmationData.getRecipient());
       throw new SAMLValidationException();
     }
     // Check if 'NotOnOrAfter' is expired
     if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) <= 0) {
+      Log.error(
+          "[SAMLServiceImpl.validateSAMLResponse] NonOnOrAfter parameter from Subject Confirmation Data expired");
       throw new SAMLValidationException();
     }
 
@@ -131,6 +144,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
+    Log.debug("[getSAMLResponseFromString] start");
     return SAMLUtils.getSAMLResponseFromString(SAMLResponse);
   }
 

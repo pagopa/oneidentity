@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.utils;
 
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import java.io.StringWriter;
 import java.util.Base64;
@@ -46,6 +47,7 @@ public class WebUtils {
   }
 
   public static String getRelayState(AuthorizationRequestDTO authorizationRequestDTO) {
+    Log.debug("[WebUtils.getRelayState] start");
     JsonObject relayState = new JsonObject();
 
     relayState.addProperty("response_type", authorizationRequestDTO.getResponseType().getValue());
@@ -59,6 +61,7 @@ public class WebUtils {
   }
 
   public static JsonObject getJSONRelayState(String relayState) {
+    Log.debug("[WebUtils.getJSONRelayState] start");
     return JsonParser.parseString(new String(Base64.getDecoder().decode(relayState.getBytes())))
         .getAsJsonObject();
   }

@@ -9,6 +9,7 @@ import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.Client;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
@@ -29,6 +30,7 @@ public class OIDCServiceImpl implements OIDCService {
   public AuthorizationRequest buildAuthorizationRequest(
       AuthorizationRequestDTO authorizationRequestDTO) {
 
+    Log.debug("[OIDCServiceImpl.buildAuthorizationRequest] start");
     // The client identifier provisioned by the server
     ClientID clientID = new ClientID(authorizationRequestDTO.getClientId());
 
@@ -38,8 +40,10 @@ public class OIDCServiceImpl implements OIDCService {
     // The client callback URI, typically pre-registered with the server
     URI callback = null;
     try {
-      callback = new URI(authorizationRequestDTO.getScope());
+      callback = new URI(authorizationRequestDTO.getRedirectUri());
     } catch (URISyntaxException e) {
+      Log.error("[OIDCServiceImpl.buildAuthorizationRequest] error during setting of Callback URI: "
+          + authorizationRequestDTO.getRedirectUri() + "error: " + e.getMessage());
       throw new RuntimeException(e);
     }
 
@@ -58,6 +62,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest) {
+    Log.info("[OIDCServiceImpl.getAuthorizationResponse] start");
     // TODO lookup the client
     ClientID clientID = authorizationRequest.getClientID();
 

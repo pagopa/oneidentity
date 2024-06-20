@@ -50,12 +50,12 @@ public class SAMLController {
   @Path("/acs")
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO)
       throws OneIdentityException {
-    // TODO Remove mock and set @Valid param
-    Log.info("[samlACS] start");
+    Log.info("[SAMLController.samlACS] start");
 
-    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
     org.opensaml.saml.saml2.core.Response response = samlServiceImpl.getSAMLResponseFromString(
         samlResponseDTO.getSAMLResponse());
+    
+    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
     samlSessionSessionService.getSession(response.getInResponseTo(), RecordType.SAML)
         .orElseThrow(SessionException::new);
 
@@ -115,10 +115,12 @@ public class SAMLController {
           clientCallbackUri + "?code=" + authorizationCode + "&state="
               + authorizationResponse.getState());
     } catch (URISyntaxException e) {
+      Log.error("[SAMLController.samlACS] error during setting of Callback URI: "
+          + clientCallbackUri + "error: " + e.getMessage());
       throw new RuntimeException(e);
     }
 
-    Log.info("[samlACS] end");
+    Log.info("[SAMLController.samlACS] end");
 
     return jakarta.ws.rs.core.Response
         .status(302)
