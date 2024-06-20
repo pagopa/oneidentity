@@ -67,7 +67,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .item(samlSession)
                 .conditionExpression(
                     Expression.builder().expression(
-                            "attribute_not_exists(SAMLRequestID)")
+                            "attribute_not_exists(samlRequestID)")
                         .build())
                 .build());
       }
