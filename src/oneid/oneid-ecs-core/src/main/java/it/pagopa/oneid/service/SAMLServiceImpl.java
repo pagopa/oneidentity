@@ -53,9 +53,6 @@ public class SAMLServiceImpl implements SAMLService {
       }
       if (response.getStatus().getStatusMessage() != null) {
         statusMessage = response.getStatus().getStatusMessage().getValue();
-      } else {
-        Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Status Code cannot be null");
-
       }
     }
 
