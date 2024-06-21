@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.jboss.resteasy.reactive.RestForm;
-import org.jboss.resteasy.reactive.RestQuery;
 
 @Data
 public class AuthorizationRequestDTOExtendedPost {
@@ -17,24 +16,23 @@ public class AuthorizationRequestDTOExtendedPost {
 
   @NotBlank
   @Size(max = 255)
-  @RestQuery("client_id")
+  @RestForm("client_id")
   private String clientId;
 
   @NotNull
-  @RestQuery("response_type")
+  @RestForm("response_type")
   private ResponseType responseType;
 
-  @RestQuery("redirect_uri")
+  @RestForm("redirect_uri")
   private String redirectUri;
 
-  @RestQuery
+  @RestForm
   private String scope;
 
-  @RestQuery
+  @RestForm
   private String nonce;
 
-  @RestQuery
+  @RestForm
   private String state;
 
 }
-
