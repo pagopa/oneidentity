@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service.utils;
+package it.pagopa.oneid.common;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 

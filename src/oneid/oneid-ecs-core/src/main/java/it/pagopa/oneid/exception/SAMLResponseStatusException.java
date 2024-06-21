@@ -1,6 +1,7 @@
 package it.pagopa.oneid.exception;
 
-import it.pagopa.oneid.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.exception.OneIdentityException;
+import it.pagopa.oneid.common.exception.enums.ErrorCode;
 
 public class SAMLResponseStatusException extends OneIdentityException {
 

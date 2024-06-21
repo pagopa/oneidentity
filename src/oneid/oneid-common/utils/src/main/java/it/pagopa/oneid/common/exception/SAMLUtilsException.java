@@ -1,7 +1,7 @@
-package it.pagopa.oneid.exception;
+package it.pagopa.oneid.common.exception;
 
 
-import it.pagopa.oneid.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.exception.enums.ErrorCode;
 
 public class SAMLUtilsException extends OneIdentityException {
 

@@ -1,4 +1,4 @@
-package it.pagopa.oneid.exception.enums;
+package it.pagopa.oneid.common.exception.enums;
 
 import lombok.Getter;
 

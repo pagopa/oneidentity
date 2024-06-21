@@ -1,13 +1,13 @@
 package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.Client;
+import it.pagopa.oneid.common.exception.OneIdentityException;
+import it.pagopa.oneid.common.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
-import it.pagopa.oneid.exception.OneIdentityException;
-import it.pagopa.oneid.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -19,10 +20,14 @@
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <it.pagopa.oneid.common.group-id>it.pagopa.oneid.common</it.pagopa.oneid.common.group-id>
-        <it.pagopa.oneid.common.connector.artifact-id>connector</it.pagopa.oneid.common.connector.artifact-id>
-        <it.pagopa.oneid.common.connector.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.connector.version>
+        <it.pagopa.oneid.common.connector.artifact-id>connector
+        </it.pagopa.oneid.common.connector.artifact-id>
+        <it.pagopa.oneid.common.connector.version>1.0.0-SNAPSHOT
+        </it.pagopa.oneid.common.connector.version>
         <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
+        <it.pagopa.oneid.common.utils.artifact-id>utils</it.pagopa.oneid.common.utils.artifact-id>
+        <it.pagopa.oneid.common.utils.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.utils.version>
         <opensaml.version>4.3.0</opensaml.version>
         <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
         <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
@@ -121,6 +126,11 @@
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
                 <artifactId>${it.pagopa.oneid.common.model.artifact-id}</artifactId>
                 <version>${it.pagopa.oneid.common.model.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${it.pagopa.oneid.common.group-id}</groupId>
+                <artifactId>${it.pagopa.oneid.common.utils.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.utils.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.nimbusds/oauth2-oidc-sdk -->
             <dependency>

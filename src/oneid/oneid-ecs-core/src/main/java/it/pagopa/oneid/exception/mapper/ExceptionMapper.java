@@ -4,12 +4,12 @@ package it.pagopa.oneid.exception.mapper;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import it.pagopa.oneid.common.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
-import it.pagopa.oneid.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
@@ -29,7 +29,7 @@ public class ExceptionMapper {
     String message = "Error during execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }*/
-  
+
   // TODO refactor this method??
   @ServerExceptionMapper
   public Response mapSAMLResponseStatusException(
