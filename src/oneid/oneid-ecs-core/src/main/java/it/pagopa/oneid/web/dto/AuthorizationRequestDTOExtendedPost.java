@@ -36,4 +36,3 @@ public class AuthorizationRequestDTOExtendedPost {
   private String state;
 
 }
-
