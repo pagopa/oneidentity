@@ -71,6 +71,11 @@ variable "table_client_registrations_arn" {
   description = "Dynamodb table client registrations arn."
 }
 
+variable "kms_sessions_table_alias_arn" {
+  type        = string
+  description = "Kms key used to encrypt and dectypt session table."
+}
+
 variable "client_registration_lambda" {
   type = object({
     name                           = string

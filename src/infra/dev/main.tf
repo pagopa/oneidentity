@@ -119,6 +119,8 @@ module "backend" {
   table_sessions_arn             = module.database.table_sessions_arn
   table_client_registrations_arn = module.database.table_client_registrations_arn
 
+  kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+
   client_registration_lambda = {
     name                           = format("%s-client-registration", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
