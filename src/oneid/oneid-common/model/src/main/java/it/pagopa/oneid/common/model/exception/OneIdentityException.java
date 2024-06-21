@@ -1,7 +1,7 @@
-package it.pagopa.oneid.common.exception;
+package it.pagopa.oneid.common.model.exception;
 
 
-import it.pagopa.oneid.common.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
 public class OneIdentityException extends Exception {
 

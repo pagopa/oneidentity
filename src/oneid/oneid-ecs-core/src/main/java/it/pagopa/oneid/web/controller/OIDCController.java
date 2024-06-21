@@ -1,8 +1,8 @@
 package it.pagopa.oneid.web.controller;
 
-import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.common.exception.OneIdentityException;
-import it.pagopa.oneid.common.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;

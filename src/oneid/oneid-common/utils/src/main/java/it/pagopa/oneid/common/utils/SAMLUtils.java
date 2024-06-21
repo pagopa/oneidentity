@@ -1,7 +1,6 @@
-package it.pagopa.oneid.common;
+package it.pagopa.oneid.common.utils;
 
-
-import it.pagopa.oneid.common.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;

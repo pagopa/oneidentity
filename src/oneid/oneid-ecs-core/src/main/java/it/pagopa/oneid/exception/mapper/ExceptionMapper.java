@@ -4,7 +4,7 @@ package it.pagopa.oneid.exception.mapper;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import it.pagopa.oneid.common.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -53,7 +53,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapSamlUtilsException(SAMLUtilsException samlUtilsException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during SAMLUtils execution.";
+    String message = "Error during it.pagopa.oneid.common.utils.SAMLUtils execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 

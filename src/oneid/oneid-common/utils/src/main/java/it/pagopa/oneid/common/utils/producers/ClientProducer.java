@@ -1,7 +1,7 @@
-package it.pagopa.oneid.producers;
+package it.pagopa.oneid.common.utils.producers;
 
-import it.pagopa.oneid.common.Client;
-import it.pagopa.oneid.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Produces;

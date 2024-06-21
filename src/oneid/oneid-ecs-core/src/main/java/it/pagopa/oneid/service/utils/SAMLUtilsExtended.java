@@ -1,12 +1,12 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.common.SAMLUtilsConstants.METADATA_URL;
-import static it.pagopa.oneid.common.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.model.SAMLUtilsConstants.METADATA_URL;
+import static it.pagopa.oneid.common.model.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.SAMLUtils;
-import it.pagopa.oneid.common.exception.OneIdentityException;
-import it.pagopa.oneid.common.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.utils.SAMLUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -79,7 +79,7 @@ public class SAMLUtilsExtended extends SAMLUtils {
 
   public Response getSAMLResponseFromString(String SAMLResponse)
       throws OneIdentityException {
-    Log.debug("[SAMLUtils.getSAMLResponseFromString] start");
+    Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] start");
 
     byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
 
@@ -87,13 +87,15 @@ public class SAMLUtilsExtended extends SAMLUtils {
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
-      Log.error("[SAMLUtils.getSAMLResponseFromString] Error unmarshalling " + e.getMessage());
+      Log.error(
+          "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] Error unmarshalling "
+              + e.getMessage());
       throw new OneIdentityException(e);
     }
   }
 
   public void validateSignature(Response response, String entityID) throws SAMLUtilsException {
-    Log.debug("[SAMLUtils.validateSignature] start");
+    Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.validateSignature] start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
@@ -107,7 +109,7 @@ public class SAMLUtilsExtended extends SAMLUtils {
           SignatureValidator.validate(response.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[SAMLUtils.validateSignature] Error during Response signature validation "
+              "[it.pagopa.oneid.common.utils.SAMLUtils.validateSignature] Error during Response signature validation "
                   + e.getMessage());
           throw new SAMLUtilsException(e);
         }
@@ -119,14 +121,15 @@ public class SAMLUtilsExtended extends SAMLUtils {
           SignatureValidator.validate(assertion.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[SAMLUtils.getSAMLResponseFromString] Error during Assertion signature validation "
+              "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] Error during Assertion signature validation "
                   + e.getMessage());
           throw new SAMLUtilsException(e);
         }
       }
     } else {
-      Log.error("[SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP "
-          + assertion.getIssuer().getValue());
+      Log.error(
+          "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP "
+              + assertion.getIssuer().getValue());
       throw new SAMLUtilsException("Credential not found for selected IDP");
     }
   }
@@ -145,7 +148,8 @@ public class SAMLUtilsExtended extends SAMLUtils {
       credential = metadataCredentialResolver.resolveSingle(criteriaSet);
     } catch (ResolverException e) {
       Log.error(
-          "[SAMLUtils.getCredential] Error during credential resolving " + e.getMessage());
+          "[it.pagopa.oneid.common.utils.SAMLUtils.getCredential] Error during credential resolving "
+              + e.getMessage());
       throw new SAMLUtilsException(e);
     }
 

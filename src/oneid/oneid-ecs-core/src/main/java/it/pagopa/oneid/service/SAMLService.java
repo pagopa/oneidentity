@@ -1,7 +1,7 @@
 package it.pagopa.oneid.service;
 
-import it.pagopa.oneid.common.exception.OneIdentityException;
-import it.pagopa.oneid.common.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLValidationException;

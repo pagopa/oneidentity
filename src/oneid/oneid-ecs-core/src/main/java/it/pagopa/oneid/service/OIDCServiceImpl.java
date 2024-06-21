@@ -10,7 +10,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.Client;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import jakarta.enterprise.context.ApplicationScoped;
