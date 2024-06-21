@@ -106,10 +106,21 @@ resource "aws_iam_policy" "ecs_core_task" {
         Sid    = "KSMSign"
         Effect = "Allow"
         Action = [
-          "kms:Sign"
+          "kms:Sign",
         ]
         Resource = [
           "${module.jwt_sign.aliases.test-sign-jwt.target_key_arn}"
+        ]
+      },
+      {
+        Sid    = "KMSDecryptEncryptSessions"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+        ]
+        Resource = [
+          var.kms_sessions_table_alias_arn
         ]
       }
     ]
@@ -149,9 +160,17 @@ module "ecs_core_service" {
 
   enable_execute_command = var.service_core.enable_execute_command
 
+  /*
   task_exec_iam_role_policies = {
     ecs_core_task = aws_iam_policy.ecs_core_task.arn
   }
+  */
+
+  tasks_iam_role_policies = {
+    ecs_core_task = aws_iam_policy.ecs_core_task.arn
+  }
+
+
   container_definitions = {
     "${var.service_core.container.name}" = {
       cpu    = var.service_core.container.cpu

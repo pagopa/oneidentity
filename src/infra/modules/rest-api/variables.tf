@@ -50,8 +50,8 @@ variable "plan" {
   type = object({
     name                 = string
     throttle_burst_limit = number
-    throttle_rate_limit = number
-    
+    throttle_rate_limit  = number
+
   })
   description = "Name of the plan associated to the set of apis."
 }
