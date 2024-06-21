@@ -117,22 +117,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "headers": {
-              "location": {
-                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -238,8 +223,8 @@
           }
         ],
         "responses": {
-          "302": {
-            "$ref": "#/components/responses/auth302"
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -326,8 +311,8 @@
           }
         },
         "responses": {
-          "302": {
-            "$ref": "#/components/responses/auth302"
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -1406,6 +1391,24 @@
             "schema": {
               "type": "string",
               "default": "no-store"
+            }
+          }
+        }
+      },
+      "responseOkHtml": {
+        "description": "OK",
+        "headers": {
+          "location": {
+            "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
             }
           }
         }

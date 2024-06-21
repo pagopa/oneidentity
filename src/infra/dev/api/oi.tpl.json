@@ -178,29 +178,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "headers": {
-              "location": {
-                "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "content-type": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              },
-              "content": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -555,8 +533,8 @@
             "integration.request.querystring.state": "method.request.querystring.state"
           },
           "responses": {
-            "302": {
-              "statusCode": "302",
+            "200": {
+              "statusCode": "200",
               "responseParameters": {}
             },
             "400": {
@@ -578,8 +556,8 @@
           }
         },
         "responses": {
-          "302": {
-            "$ref": "#/components/responses/auth302"
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -674,8 +652,8 @@
             "integration.request.header.accept": "'*/*'"
           },
           "responses": {
-            "302": {
-              "statusCode": "302",
+            "200": {
+              "statusCode": "200",
               "responseParameters": {}
             },
             "400": {
@@ -697,8 +675,8 @@
           }
         },
         "responses": {
-          "302": {
-            "$ref": "#/components/responses/auth302"
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -1046,6 +1024,24 @@
           "description": "Content type response.",
           "schema": {
             "type": "string"
+          }
+        }
+      },
+      "responseOkHtml": {
+        "description": "OK",
+        "headers": {
+          "location": {
+            "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
           }
         }
       },
