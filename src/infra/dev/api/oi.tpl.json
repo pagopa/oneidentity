@@ -1031,9 +1031,16 @@
         "description": "OK",
         "headers": {
           "location": {
-            "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
+            "description": "Response OK, serving html",
             "schema": {
               "type": "string"
+            }
+          },
+          "content-type": {
+            "text/html": {
+              "schema": {
+                "type": "string"
+              }
             }
           }
         },
