@@ -1,8 +1,8 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.common.model.SAMLUtilsConstants.METADATA_URL;
-import static it.pagopa.oneid.common.model.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;

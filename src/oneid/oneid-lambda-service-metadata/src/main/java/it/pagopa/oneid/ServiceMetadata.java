@@ -1,16 +1,84 @@
 package it.pagopa.oneid;
 
+import static it.pagopa.oneid.SAMLUtilsExtended.buildAssertionConsumerService;
+import static it.pagopa.oneid.SAMLUtilsExtended.buildContactPerson;
+import static it.pagopa.oneid.SAMLUtilsExtended.buildKeyDescriptor;
+import static it.pagopa.oneid.SAMLUtilsExtended.buildNameIDFormat;
+import static it.pagopa.oneid.SAMLUtilsExtended.buildOrganization;
+import static it.pagopa.oneid.SAMLUtilsExtended.buildSPSSODescriptor;
+import static it.pagopa.oneid.common.utils.SAMLUtils.buildSignature;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
+import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.utils.SAMLUtils;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
+import java.util.Map;
+import org.opensaml.core.xml.Namespace;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Element;
 
 @Path("/saml")
 public class ServiceMetadata {
 
+  @Inject
+  Map<String, Client> clientsMap;
+
+  @Inject
+  SAMLUtils samlUtils;
+
   @GET
   @Path("/metadata")
-  public Response metadata() {
-    
-    return Response.ok("Metadata path").build();
+  public Response metadata() throws SAMLUtilsException {
+
+    EntityDescriptor entityDescriptor = SAMLUtils.buildSAMLObject(EntityDescriptor.class);
+    entityDescriptor.setEntityID(METADATA_URL);
+
+    SPSSODescriptor spssoDescriptor = buildSPSSODescriptor();
+    spssoDescriptor.getKeyDescriptors().add(buildKeyDescriptor());
+    spssoDescriptor.getNameIDFormats().add(buildNameIDFormat());
+    spssoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService());
+    spssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
+    // TODO construct AttributeConsumingService relying on clientsMap
+
+    // TODO add when AttributeConsumingServiceReady
+    // spssoDescriptor.getAttributeConsumingServices().add(buildAttributeConsumingService());
+
+    entityDescriptor.setOrganization(buildOrganization());
+    entityDescriptor.getContactPersons().add(buildContactPerson());
+    entityDescriptor.getRoleDescriptors().add(spssoDescriptor);
+    entityDescriptor.getNamespaceManager()
+        .registerNamespaceDeclaration(new Namespace(NAMESPACE_URI, NAMESPACE_PREFIX));
+
+    Signature signature = buildSignature(entityDescriptor);
+    entityDescriptor.setSignature(signature);
+    Marshaller out = XMLObjectProviderRegistrySupport.getMarshallerFactory()
+        .getMarshaller(entityDescriptor);
+
+    try {
+      Element plaintextElement = out.marshall(entityDescriptor);
+    } catch (MarshallingException e) {
+      throw new RuntimeException(e);
+    }
+
+    try {
+      Signer.signObject(signature);
+    } catch (SignatureException e) {
+      throw new RuntimeException(e);
+    }
+
+    return Response.ok(entityDescriptor).build();
   }
 }

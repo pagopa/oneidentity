@@ -47,6 +47,10 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 public class SAMLUtils {
 
   private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator;
+  // TODO refactor with AWS ACM
+  protected static BasicX509Credential X509Credential;
+  // TODO refactor with AWS ACM
+  protected static KeyInfoGenerator keyInfoGenerator;
 
   static {
     secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
@@ -55,11 +59,6 @@ public class SAMLUtils {
   protected final MetadataCredentialResolver metadataCredentialResolver;
   protected final FilesystemMetadataResolver metadataResolver;
   protected final BasicParserPool basicParserPool;
-
-  // TODO refactor with AWS ACM
-  protected BasicX509Credential X509Credential;
-  // TODO refactor with AWS ACM
-  protected KeyInfoGenerator keyInfoGenerator;
 
 
   @Inject
@@ -156,15 +155,16 @@ public class SAMLUtils {
     return secureRandomIdGenerator.generateIdentifier();
   }
 
-  public Signature buildSignature(SignableSAMLObject signableSAMLObject) throws SAMLUtilsException {
+  public static Signature buildSignature(SignableSAMLObject signableSAMLObject)
+      throws SAMLUtilsException {
 
     Signature signature = buildSAMLObject(Signature.class);
 
-    signature.setSigningCredential(this.X509Credential);
+    signature.setSigningCredential(X509Credential);
     signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
     signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
     try {
-      signature.setKeyInfo(this.keyInfoGenerator.generate(this.X509Credential));
+      signature.setKeyInfo(keyInfoGenerator.generate(X509Credential));
     } catch (SecurityException e) {
       throw new SAMLUtilsException(e);
     }
