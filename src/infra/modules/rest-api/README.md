@@ -38,7 +38,7 @@ No modules.
 | <a name="input_body"></a> [body](#input\_body) | Open api json body | `string` | n/a | yes |
 | <a name="input_endpoint_configuration"></a> [endpoint\_configuration](#input\_endpoint\_configuration) | n/a | <pre>object({<br>    types            = list(string)<br>    vpc_endpoint_ids = optional(list(string), null)<br>  })</pre> | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Rest api name | `string` | n/a | yes |
-| <a name="input_plan"></a> [plan](#input\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit = number<br>    <br>  })</pre> | n/a | yes |
+| <a name="input_plan"></a> [plan](#input\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit  = number<br><br>  })</pre> | n/a | yes |
 | <a name="input_stage_name"></a> [stage\_name](#input\_stage\_name) | Stage name. | `string` | n/a | yes |
 | <a name="input_api_mapping_key"></a> [api\_mapping\_key](#input\_api\_mapping\_key) | The API mapping key. | `string` | `null` | no |
 | <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | Api Gateway certificate arn | `string` | `null` | no |
