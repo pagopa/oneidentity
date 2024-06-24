@@ -232,8 +232,6 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
   public static RequestedAttribute buildRequestedAttribute(String requestedParameter) {
     RequestedAttribute attribute = buildSAMLObject(RequestedAttribute.class);
-    // TODO do we need to make client choose if an attribute is required or not?
-    //attribute.setIsRequired(true);
     attribute.setNameFormat(NAME_FORMAT);
     attribute.setName(Identifier.valueOf(requestedParameter).name());
     attribute.setFriendlyName(Identifier.valueOf(requestedParameter).getFriendlyName());
