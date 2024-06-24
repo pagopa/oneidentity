@@ -2,7 +2,10 @@ package example;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HelloWorld implements RequestHandler<Object, String> {
     @Override
