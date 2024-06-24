@@ -7,10 +7,10 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HelloWorld implements RequestHandler<Object, String> {
-    
-    
-    public APIGatewayProxyResponseEvent handleRequest(Object input, Context context) {
+public class HelloWorld implements RequestHandler<Object, APIGatewayProxyResponseEvent> {
+
+    @Override
+    public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
         JSONObject responseBody = new JSONObject();
         responseBody.put("message", "Hello, World!");
 
