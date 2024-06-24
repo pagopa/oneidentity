@@ -44,7 +44,9 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
-metadata_lamba_name = module.backend.metadata_lambda_name
+  metadata_lamba_name = module.backend.metadata_lambda_name
+  metadata_lamba_arn  = module.backend.metadata_lambda_arn
+  aws_region          = var.aws_region
 
 }
 
@@ -129,8 +131,8 @@ module "backend" {
     table_client_registrations_arn = module.database.table_client_registrations_arn
 
   }
- 
- metadata_lambda = {
+
+  metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn = module.database.table_client_registrations_arn

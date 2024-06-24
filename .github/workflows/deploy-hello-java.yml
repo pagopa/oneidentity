@@ -71,5 +71,5 @@ jobs:
       - name: Deploy Lambda function
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-d-client-registration \
+            --function-name oneid-es-1-d-metadata \
             --zip-file fileb://src/hello-java/build/libs/hello-java-1.0.jar

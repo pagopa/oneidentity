@@ -1,3 +1,8 @@
+variable "aws_region" {
+  type = string
+  description = "AWS Region."
+}
+
 variable "vpc_id" {
   type        = string
   description = "VPC id."
@@ -49,6 +54,11 @@ variable "nlb_dns_name" {
 }
 
 variable "metadata_lamba_name" {
+  type = string
+  description = "lambda metadata name"
+}
+
+variable "metadata_lamba_arn" {
   type = string
   description = "lambda metadata arn"
 }
