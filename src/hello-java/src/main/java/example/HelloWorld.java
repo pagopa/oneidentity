@@ -6,10 +6,14 @@ import org.json.JSONObject;
 
 public class HelloWorld implements RequestHandler<Object, String> {
     @Override
-    public String handleRequest(Object input, Context context) {
-        JSONObject response = new JSONObject();
-        response.put("message", "Hello, World!");
+    public APIGatewayProxyResponseEvent handleRequest(Object input, Context context) {
+        JSONObject responseBody = new JSONObject();
+        responseBody.put("message", "Hello, World!");
 
-        return response.toString();
-    }
+        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+        response.setStatusCode(200);
+        response.setHeaders(Map.of("Content-Type", "application/json"));
+        response.setBody(responseBody.toString());
+
+        return response;
 }
