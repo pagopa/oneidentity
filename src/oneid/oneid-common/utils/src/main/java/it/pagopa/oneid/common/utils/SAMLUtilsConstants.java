@@ -9,6 +9,7 @@ public class SAMLUtilsConstants {
 
   public static String METADATA_URL;
   public static String ACS_URL;
+  public static String SLO_URL;
   public static String SERVICE_PROVIDER_URI;
   public static String ORGANIZATION_NAME;
   public static String ORGANIZATION_NAME_XML_LANG = "it";
@@ -24,12 +25,14 @@ public class SAMLUtilsConstants {
   public static String NAMESPACE_PREFIX = "spid";
   public static String LOCAL_NAME_IPA = "IPACode";
   public static String IPA_CODE = "h_c501";
-  public static String LOCAL_NAME_PUBLIC = "public";
+  public static String LOCAL_NAME_PUBLIC = "Public";
+  public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
 
   @Inject
   SAMLUtilsConstants(
       @ConfigProperty(name = "metadata_url") String metadata_url,
       @ConfigProperty(name = "acs_url") String acs_url,
+      @ConfigProperty(name = "slo_url") String slo_url,
       @ConfigProperty(name = "service_provider_uri") String service_provider_uri,
       @ConfigProperty(name = "organization_name") String organization_name,
       @ConfigProperty(name = "organization_display_name") String organization_display_name,
@@ -41,6 +44,7 @@ public class SAMLUtilsConstants {
   ) {
     METADATA_URL = metadata_url;
     ACS_URL = acs_url;
+    SLO_URL = slo_url;
     SERVICE_PROVIDER_URI = service_provider_uri;
     ORGANIZATION_NAME = organization_name;
     ORGANIZATION_DISPLAY_NAME = organization_display_name;

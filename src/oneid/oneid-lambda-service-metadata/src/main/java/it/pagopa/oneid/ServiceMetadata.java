@@ -1,11 +1,13 @@
 package it.pagopa.oneid;
 
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildAssertionConsumerService;
+import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildAttributeConsumingService;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildContactPerson;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildKeyDescriptor;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildNameIDFormat;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildOrganization;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSPSSODescriptor;
+import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSingleLogoutService;
 import static it.pagopa.oneid.common.utils.SAMLUtils.buildSignature;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
@@ -75,11 +77,12 @@ public class ServiceMetadata {
     spssoDescriptor.getKeyDescriptors().add(buildKeyDescriptor());
     spssoDescriptor.getNameIDFormats().add(buildNameIDFormat());
     spssoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService());
+    spssoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService());
     spssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
-    // TODO construct AttributeConsumingService relying on clientsMap
 
-    // TODO add when AttributeConsumingServiceReady
-    // spssoDescriptor.getAttributeConsumingServices().add(buildAttributeConsumingService());
+    for (Client client : clientsMap.values()) {
+      spssoDescriptor.getAttributeConsumingServices().add(buildAttributeConsumingService(client));
+    }
 
     entityDescriptor.setOrganization(buildOrganization());
     entityDescriptor.getContactPersons().add(buildContactPerson());
