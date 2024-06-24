@@ -2,11 +2,13 @@ package example;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import java.util.Map;
 
-public class HelloWorld implements RequestHandler<Object, String> {
+public class HelloWorld implements RequestHandler<Map<String, Object>, String>{
+    
     @Override
-    public String handleRequest(Object input, Context context) {
+    public String handleRequest(Map<String, Object> stringStringMap, Context context) {
         JSONObject obj = new JSONObject();
         JSONObject obj2 = new JSONObject();
         obj2.put("Content-Type", "application/json");
