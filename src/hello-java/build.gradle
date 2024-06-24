@@ -35,10 +35,9 @@ task copyJar(type: Copy) {
 }
 
 task buildZip(type: Zip) {
-    from compileJava
-    from processResources
     into('lib') {
-        from configurations.runtimeClasspath
+        from(jar)
+        from(configurations.runtimeClasspath)
     }
 }
 
