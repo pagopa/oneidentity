@@ -68,10 +68,7 @@ jobs:
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
-      
-      - name: Debug
-        run: ls -l ./src/hello-java/build/libs
-
+          
       - name: Deploy Lambda function
         run: |
             aws lambda update-function-code \
