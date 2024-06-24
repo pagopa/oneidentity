@@ -3,8 +3,6 @@ package it.pagopa.oneid;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ACS_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_COMPANY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_EMAIL_ADDRESS;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_GIVEN_NAME;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_TELEPHONE_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.IPA_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
@@ -35,7 +33,6 @@ import org.opensaml.saml.saml2.metadata.ContactPerson;
 import org.opensaml.saml.saml2.metadata.ContactPersonTypeEnumeration;
 import org.opensaml.saml.saml2.metadata.EmailAddress;
 import org.opensaml.saml.saml2.metadata.Extensions;
-import org.opensaml.saml.saml2.metadata.GivenName;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml.saml2.metadata.Organization;
@@ -47,7 +44,6 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.ServiceDescription;
 import org.opensaml.saml.saml2.metadata.ServiceName;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
-import org.opensaml.saml.saml2.metadata.TelephoneNumber;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.UsageType;
 
@@ -145,9 +141,7 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
     contactPerson.setType(ContactPersonTypeEnumeration.OTHER);
-    contactPerson.setGivenName(buildGivenName());
     contactPerson.getEmailAddresses().add(buildEmailAddress());
-    contactPerson.getTelephoneNumbers().add(buildTelephoneNumber());
     contactPerson.setExtensions(buildExtensions());
 
     return contactPerson;
@@ -160,26 +154,11 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return company;
   }
 
-
-  public static GivenName buildGivenName() {
-    GivenName givenName = buildSAMLObject(GivenName.class);
-    givenName.setValue(CONTACT_PERSON_GIVEN_NAME);
-
-    return givenName;
-  }
-
   public static EmailAddress buildEmailAddress() {
     EmailAddress emailAddress = buildSAMLObject(EmailAddress.class);
     emailAddress.setURI(CONTACT_PERSON_EMAIL_ADDRESS);
 
     return emailAddress;
-  }
-
-  public static TelephoneNumber buildTelephoneNumber() {
-    TelephoneNumber telephoneNumber = buildSAMLObject(TelephoneNumber.class);
-    telephoneNumber.setValue(CONTACT_PERSON_TELEPHONE_NUMBER);
-
-    return telephoneNumber;
   }
 
   public static Extensions buildExtensions() {
