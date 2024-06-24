@@ -2,7 +2,7 @@ package example;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import org.json.JSONObject
+import org.json.JSONObject;
 
 public class HelloWorld implements RequestHandler<Object, String> {
     @Override
