@@ -535,7 +535,9 @@
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
+              }
             },
             "400": {
               "statusCode": "400",
@@ -654,7 +656,9 @@
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
+              }
             },
             "400": {
               "statusCode": "400",
