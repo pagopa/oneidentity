@@ -4,7 +4,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;

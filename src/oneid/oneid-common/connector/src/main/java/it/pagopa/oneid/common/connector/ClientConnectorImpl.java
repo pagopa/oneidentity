@@ -1,6 +1,6 @@
-package it.pagopa.oneid.connector;
+package it.pagopa.oneid.common.connector;
 
-import it.pagopa.oneid.common.Client;
+import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;

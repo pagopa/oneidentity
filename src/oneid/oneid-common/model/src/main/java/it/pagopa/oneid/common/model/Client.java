@@ -1,4 +1,4 @@
-package it.pagopa.oneid.common;
+package it.pagopa.oneid.common.model;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.List;

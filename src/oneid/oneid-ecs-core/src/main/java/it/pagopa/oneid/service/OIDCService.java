@@ -3,7 +3,7 @@ package it.pagopa.oneid.service;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.TokenResponse;
-import it.pagopa.oneid.common.Client;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import java.util.List;

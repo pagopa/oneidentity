@@ -1,18 +1,18 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.service.utils.SAMLUtils.buildIssuer;
-import static it.pagopa.oneid.service.utils.SAMLUtils.buildNameIdPolicy;
-import static it.pagopa.oneid.service.utils.SAMLUtils.buildRequestedAuthnContext;
-import static it.pagopa.oneid.service.utils.SAMLUtils.generateSecureRandomId;
+import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildIssuer;
+import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildNameIdPolicy;
+import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildRequestedAuthnContext;
+import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.generateSecureRandomId;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
-import it.pagopa.oneid.exception.OneIdentityException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
-import it.pagopa.oneid.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.service.utils.SAMLUtils;
-import it.pagopa.oneid.service.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -37,7 +37,7 @@ import org.opensaml.xmlsec.signature.support.Signer;
 public class SAMLServiceImpl implements SAMLService {
 
   @Inject
-  SAMLUtils samlUtils;
+  SAMLUtilsExtendedCore samlUtils;
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
@@ -83,7 +83,7 @@ public class SAMLServiceImpl implements SAMLService {
       throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
     //TODO: add support for CIEid
 
-    AuthnRequest authnRequest = SAMLUtils.buildSAMLObject(AuthnRequest.class);
+    AuthnRequest authnRequest = SAMLUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
 
     // Create AuthnRequest
     authnRequest.setIssueInstant(Instant.now());
