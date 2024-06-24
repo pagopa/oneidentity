@@ -17,3 +17,7 @@ output "regional_domain_name" {
 output "regional_zone_id" {
   value = try(aws_api_gateway_domain_name.main[0].regional_zone_id, null)
 }
+
+output "rest_api_execution_arn" {
+  value = aws_api_gateway_rest_api.main.execution_arn
+}
