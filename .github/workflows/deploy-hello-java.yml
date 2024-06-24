@@ -45,7 +45,10 @@ jobs:
           path: src/hello-java/build/libs/*.jar
       
       - name: Debug
-        run: ls -lrt src/hello-java/build/libs/
+        run: |
+          ls -lrt src/hello-java/build/libs/
+          ls -lrt src/hello-java/build/distributions
+          tree 
 
     deploy:
       runs-on: ubuntu-22.04
