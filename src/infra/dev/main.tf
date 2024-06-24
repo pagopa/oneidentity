@@ -44,6 +44,8 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
+metadata_lamba_name = module.backend.metadata_lambda_name
+
 }
 
 
