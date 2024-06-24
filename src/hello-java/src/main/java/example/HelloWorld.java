@@ -16,4 +16,5 @@ public class HelloWorld implements RequestHandler<Object, String> {
         response.setBody(responseBody.toString());
 
         return response;
+    }
 }
