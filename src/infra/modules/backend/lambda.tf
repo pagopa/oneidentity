@@ -85,3 +85,41 @@ module "client_registration_lambda" {
   timeout     = 30
 
 }
+
+data "aws_iam_policy_document" "metadata_lambda" {
+  //name = format("%s-task-policy", var.metadata_lambda.name)
+  //policy = jsonencode({
+    //Version = "2012-10-17"
+    statement {
+      effect = "Allow"
+      actions = ["dynamodb:Scan"]
+      resources = [ "${var.table_client_registrations_arn}" ]
+    } 
+
+}
+
+
+module "metadata_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.metadata_lambda.name
+  description             = "Lambda function metadata."
+  runtime                 = "java17"
+  handler                 = "example.HelloWorld::handleRequest"
+  create_package          = false
+  local_existing_package  = var.metadata_lambda.filename
+  ignore_source_code_hash = false
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.metadata_lambda.json
+
+  environment_variables = {
+  }
+
+  memory_size = 128
+  timeout     = 30
+
+}

@@ -85,6 +85,15 @@ variable "client_registration_lambda" {
 
 }
 
+variable "metadata_lambda" {
+  type = object({
+    name                           = string
+    filename                       = string
+    table_client_registrations_arn = string
+  })
+
+}
+
 ## Network load balancer ##
 variable "nlb_name" {
   type        = string

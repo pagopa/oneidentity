@@ -127,6 +127,13 @@ module "backend" {
     table_client_registrations_arn = module.database.table_client_registrations_arn
 
   }
+ 
+ metadata_lambda = {
+    name                           = format("%s-metadata", local.project)
+    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    table_client_registrations_arn = module.database.table_client_registrations_arn
+
+  }
 
 }
 
