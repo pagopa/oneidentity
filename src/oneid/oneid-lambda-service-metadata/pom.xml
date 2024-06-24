@@ -31,8 +31,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>it.pagopa.oneid.common</groupId>
-            <artifactId>connector</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-config-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>it.pagopa.oneid.common</groupId>

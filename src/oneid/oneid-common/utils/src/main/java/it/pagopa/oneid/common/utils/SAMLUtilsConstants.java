@@ -1,44 +1,54 @@
 package it.pagopa.oneid.common.utils;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-public abstract class SAMLUtilsConstants {
+@Singleton
+public class SAMLUtilsConstants {
 
-
-  @ConfigProperty(name = "metadata_url")
   public static String METADATA_URL;
-  @ConfigProperty(name = "service_provider_uri")
-  public static String SERVICE_PROVIDER_URI;
-  @ConfigProperty(name = "acs_url")
   public static String ACS_URL;
-  @ConfigProperty(name = "organization_name")
+  public static String SERVICE_PROVIDER_URI;
   public static String ORGANIZATION_NAME;
-  @ConfigProperty(name = "organization_name_xml_lang")
-  public static String ORGANIZATION_NAME_XML_LANG;
-  @ConfigProperty(name = "organization_display_name")
+  public static String ORGANIZATION_NAME_XML_LANG = "it";
   public static String ORGANIZATION_DISPLAY_NAME;
-  @ConfigProperty(name = "organization_display_name_xml_lang")
-  public static String ORGANIZATION_DISPLAY_NAME_XML_LANG;
-  @ConfigProperty(name = "organization_url")
+  public static String ORGANIZATION_DISPLAY_NAME_XML_LANG = "it";
   public static String ORGANIZATION_URL;
-  @ConfigProperty(name = "organization_url_xml_lang")
-  public static String ORGANIZATION_URL_XML_LANG;
-  @ConfigProperty(name = "contact_person_company")
+  public static String ORGANIZATION_URL_XML_LANG = "it";
   public static String CONTACT_PERSON_COMPANY;
-  @ConfigProperty(name = "contact_person_given_name")
   public static String CONTACT_PERSON_GIVEN_NAME;
-  @ConfigProperty(name = "contact_person_email_address")
   public static String CONTACT_PERSON_EMAIL_ADDRESS;
-  @ConfigProperty(name = "contact_person_telephone_number")
   public static String CONTACT_PERSON_TELEPHONE_NUMBER;
-  @ConfigProperty(name = "namespace_uri")
-  public static String NAMESPACE_URI;
-  @ConfigProperty(name = "namespace_prefix")
-  public static String NAMESPACE_PREFIX;
-  @ConfigProperty(name = "local_name_ipa")
-  public static String LOCAL_NAME_IPA;
-  @ConfigProperty(name = "ipa_code")
-  public static String IPA_CODE;
-  @ConfigProperty(name = "local_name_public")
-  public static String LOCAL_NAME_PUBLIC;
+  public static String NAMESPACE_URI = "https://spid.gov.it/saml-extensions";
+  public static String NAMESPACE_PREFIX = "spid";
+  public static String LOCAL_NAME_IPA = "IPACode";
+  public static String IPA_CODE = "h_c501";
+  public static String LOCAL_NAME_PUBLIC = "public";
+
+  @Inject
+  SAMLUtilsConstants(
+      @ConfigProperty(name = "metadata_url") String metadata_url,
+      @ConfigProperty(name = "acs_url") String acs_url,
+      @ConfigProperty(name = "service_provider_uri") String service_provider_uri,
+      @ConfigProperty(name = "organization_name") String organization_name,
+      @ConfigProperty(name = "organization_display_name") String organization_display_name,
+      @ConfigProperty(name = "organization_url") String organization_url,
+      @ConfigProperty(name = "contact_person_company") String contact_person_company,
+      @ConfigProperty(name = "contact_person_given_name") String contact_person_given_name,
+      @ConfigProperty(name = "contact_person_email_address") String contact_person_email_address,
+      @ConfigProperty(name = "contact_person_telephone_number") String contact_person_telephone_number
+  ) {
+    METADATA_URL = metadata_url;
+    ACS_URL = acs_url;
+    SERVICE_PROVIDER_URI = service_provider_uri;
+    ORGANIZATION_NAME = organization_name;
+    ORGANIZATION_DISPLAY_NAME = organization_display_name;
+    ORGANIZATION_URL = organization_url;
+    CONTACT_PERSON_COMPANY = contact_person_company;
+    CONTACT_PERSON_GIVEN_NAME = contact_person_given_name;
+    CONTACT_PERSON_EMAIL_ADDRESS = contact_person_email_address;
+    CONTACT_PERSON_TELEPHONE_NUMBER = contact_person_telephone_number;
+  }
+
 }

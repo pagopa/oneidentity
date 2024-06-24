@@ -10,7 +10,6 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_XML_LANG;
@@ -18,6 +17,9 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -39,10 +41,14 @@ import org.opensaml.saml.saml2.metadata.TelephoneNumber;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.UsageType;
 
-public class SAMLUtilsExtended extends SAMLUtils {
+@ApplicationScoped
+public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
+  @Inject
+  SAMLUtilsConstants samlUtilsConstants;
 
-  public SAMLUtilsExtended() throws SAMLUtilsException {
+  public SAMLUtilsExtendedMetadata() throws SAMLUtilsException {
+    super();
   }
 
   public static SPSSODescriptor buildSPSSODescriptor() {
@@ -103,8 +109,8 @@ public class SAMLUtilsExtended extends SAMLUtils {
 
   public static OrganizationDisplayName buildDisplayName() {
     OrganizationDisplayName orgDisplayName = buildSAMLObject(OrganizationDisplayName.class);
-    orgDisplayName.setValue(ORGANIZATION_DISPLAY_NAME);
-    orgDisplayName.setValue(ORGANIZATION_DISPLAY_NAME_XML_LANG);
+    orgDisplayName.setValue(SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME);
+    orgDisplayName.setXMLLang(ORGANIZATION_DISPLAY_NAME_XML_LANG);
 
     return orgDisplayName;
   }

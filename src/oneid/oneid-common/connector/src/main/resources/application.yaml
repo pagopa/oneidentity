@@ -1,0 +1,24 @@
+quarkus:
+  dynamodb:
+    devservices:
+      enabled: 'false'
+'%dev':
+  quarkus:
+    dynamodb:
+      aws:
+        credentials:
+          type: static
+          static-provider:
+            secret-access-key: testsecret
+            access-key-id: testkey
+        region: local
+      endpoint-override: http://localhost:8000
+'%prod':
+  quarkus:
+    dynamodb:
+      aws:
+        credentials:
+          type: default
+        region: eu-south-1
+
+client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}

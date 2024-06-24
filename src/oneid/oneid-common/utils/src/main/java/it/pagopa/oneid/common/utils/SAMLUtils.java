@@ -4,7 +4,6 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.apache.commons.codec.binary.Base64;
@@ -31,13 +29,8 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
-import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
-import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
-import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.x509.BasicX509Credential;
-import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
-import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
@@ -56,8 +49,6 @@ public class SAMLUtils {
     secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
   }
 
-  protected final MetadataCredentialResolver metadataCredentialResolver;
-  protected final FilesystemMetadataResolver metadataResolver;
   protected final BasicParserPool basicParserPool;
 
 
@@ -77,37 +68,6 @@ public class SAMLUtils {
     try {
       InitializationService.initialize();
     } catch (InitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
-    //TODO: add CIE metadata resolver
-    // TODO: env var fileName (DEV, UAT, PROD)
-    String fileName = "metadata/spid.xml";
-
-    try {
-      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
-    } catch (ResolverException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataResolver.setId("spidMetadataResolver");
-    metadataResolver.setParserPool(basicParserPool);
-    try {
-      metadataResolver.initialize();
-    } catch (ComponentInitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataCredentialResolver = new MetadataCredentialResolver();
-    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
-        metadataResolver);
-    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
-    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
-
-    try {
-      metadataCredentialResolver.initialize();
-      roleResolver.initialize();
-    } catch (ComponentInitializationException e) {
       throw new SAMLUtilsException(e);
     }
 
@@ -208,7 +168,7 @@ public class SAMLUtils {
 
     }
 
-    this.X509Credential = new BasicX509Credential(cert);
+    X509Credential = new BasicX509Credential(cert);
     InputStream inputStreamKey = getClass().getClassLoader()
         .getResourceAsStream("credentials/key.pem");
 
@@ -238,14 +198,14 @@ public class SAMLUtils {
       throw new SAMLUtilsException(e);
     }
 
-    this.X509Credential.setPrivateKey(rsaPrivateKey);
+    X509Credential.setPrivateKey(rsaPrivateKey);
 
   }
 
   public void setnewKeyInfoGenerator() {
     X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
     keyInfoGeneratorFactory.setEmitEntityCertificate(true);
-    this.keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
+    keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
   }
 
 }

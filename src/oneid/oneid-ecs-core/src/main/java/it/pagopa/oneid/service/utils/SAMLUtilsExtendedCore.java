@@ -7,11 +7,14 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.Optional;
 import javax.xml.namespace.QName;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
@@ -22,6 +25,8 @@ import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
 import org.opensaml.saml.criterion.ProtocolCriterion;
+import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
@@ -31,19 +36,59 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.criteria.UsageCriterion;
+import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
+import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
 @ApplicationScoped
-public class SAMLUtilsExtended extends SAMLUtils {
+public class SAMLUtilsExtendedCore extends SAMLUtils {
+
+  private final MetadataCredentialResolver metadataCredentialResolver;
+  private final FilesystemMetadataResolver metadataResolver;
 
   @Inject
-  public SAMLUtilsExtended() throws SAMLUtilsException {
+  SAMLUtilsConstants samlUtilsConstants;
+
+  @Inject
+  public SAMLUtilsExtendedCore() throws SAMLUtilsException {
     super();
+    //TODO: add CIE metadata resolver
+    // TODO: env var fileName (DEV, UAT, PROD)
+    String fileName = "metadata/spid.xml";
+
+    try {
+      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
+    } catch (ResolverException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    metadataResolver.setId("spidMetadataResolver");
+    metadataResolver.setParserPool(basicParserPool);
+    try {
+      metadataResolver.initialize();
+    } catch (ComponentInitializationException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    metadataCredentialResolver = new MetadataCredentialResolver();
+    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
+        metadataResolver);
+    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
+    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
+
+    try {
+      metadataCredentialResolver.initialize();
+      roleResolver.initialize();
+    } catch (ComponentInitializationException e) {
+      throw new SAMLUtilsException(e);
+    }
   }
 
   public static Issuer buildIssuer() {
