@@ -992,6 +992,35 @@
         },
         "summary": "OpenID Connect jwks endpoint"
       }
+    },
+    "/static/{proxy+}" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "proxy",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "x-amazon-apigateway-integration" : {
+          "type" : "http_proxy",
+          "connectionId" : "${connection_id}",
+          "httpMethod" : "GET",
+          "uri" : "${uri}/static/{proxy}",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200"
+            }
+          },
+          "requestParameters" : {
+            "integration.request.path.proxy" : "method.request.path.proxy"
+          },
+          "passthroughBehavior" : "when_no_match",
+          "connectionType" : "VPC_LINK",
+          "cacheKeyParameters" : [ "method.request.path.proxy" ]
+        }
+      }
     }
   },
   "components": {
