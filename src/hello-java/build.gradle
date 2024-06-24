@@ -11,8 +11,7 @@ repositories {
 
 dependencies {
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
-    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
-    implementation 'org.json:json:20210307' 
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0' 
 }
 
 java {
@@ -33,12 +32,3 @@ task copyJar(type: Copy) {
         into '.'
     }
 }
-
-task buildZip(type: Zip) {
-    into('lib') {
-        from(jar)
-        from(configurations.runtimeClasspath)
-    }
-}
-
-build.dependsOn buildZip

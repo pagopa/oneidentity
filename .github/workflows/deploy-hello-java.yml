@@ -38,16 +38,12 @@ jobs:
         run: gradle build
         working-directory: src/hello-java
 
-      - name: Debug
-        run: |
-          ls -lrt src/hello-java/build/distributions
-
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: hello-java
-          path: src/hello-java/build/distributions/*.zip
-      
+          path: src/hello-java/build/libs/*.jar
+
     deploy:
       runs-on: ubuntu-22.04
       needs: build
@@ -61,16 +57,19 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: hello-java
-          path: ./src/hello-java/build/distributions
+          path: ./src/hello-java/build/libs
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
-          
+      
+      - name: Debug
+        run: ls -l ./src/hello-java/build/libs
+
       - name: Deploy Lambda function
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-d-metadata \
-            --zip-file fileb://src/hello-java/build/distributions/hello-java-1.0.zip
+            --function-name oneid-es-1-d-client-registration \
+            --zip-file fileb://src/hello-java/build/libs/hello-java-1.0.jar
