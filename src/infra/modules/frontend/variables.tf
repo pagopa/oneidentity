@@ -47,3 +47,8 @@ variable "nlb_dns_name" {
   type        = string
   description = "NLB dns name."
 }
+
+variable "metadata_lamba_name" {
+  type = string
+  description = "lambda metadata arn"
+}

@@ -26,3 +26,7 @@ output "nlb_arn" {
 output "nlb_dns_name" {
   value = module.elb.dns_name
 }
+
+output "metadata_lambda_name" {
+  value = module.metadata_lambda.lambda_function_name
+}
