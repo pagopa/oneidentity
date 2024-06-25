@@ -144,7 +144,7 @@ module "backend" {
       "SERVICE_PROVIDER_URI"            = "https://${var.r53_dns_zone.name}"
       "ORGANIZATION_NAME"               = "PagoPA S.p.A."
       "ACS_URL"                         = "https://${var.r53_dns_zone.name}/saml/acs"
-      "SLO_UR"                          = "https://${var.r53_dns_zone.name}/saml/slo"
+      "SLO_URL"                         = "https://${var.r53_dns_zone.name}/saml/slo"
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
