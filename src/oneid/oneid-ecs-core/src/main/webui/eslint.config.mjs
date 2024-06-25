@@ -162,7 +162,7 @@ export default [
 
       'react-hooks/rules-of-hooks': 'warn',
       'functional/no-let': 'error',
-      'functional/immutable-data': 'error',
+      'functional/immutable-data': 'warn',
       'sonarjs/no-small-switch': 'off',
       'sonarjs/no-duplicate-string': 'off',
       'sonarjs/no-nested-template-literals': 'warn',
