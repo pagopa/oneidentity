@@ -44,6 +44,10 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
+  metadata_lamba_name = module.backend.metadata_lambda_name
+  metadata_lamba_arn  = module.backend.metadata_lambda_arn
+  aws_region          = var.aws_region
+
 }
 
 
@@ -126,6 +130,24 @@ module "backend" {
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn = module.database.table_client_registrations_arn
 
+  }
+
+  metadata_lambda = {
+    name                           = format("%s-metadata", local.project)
+    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    table_client_registrations_arn = module.database.table_client_registrations_arn
+    environment_variables = {
+      "ORGANIZATION_URL"                = "https://www.pagopa.it"
+      "CONTACT_PERSON_EMAIL_ADDRESS"    = "pagopa@pec.governo.it"
+      "ORGANIZATION_DISPLAY_NAME"       = "PagoPA S.p.A."
+      "METADATA_URL"                    = "https://${var.r53_dns_zone.name}/saml/metadata"
+      "SERVICE_PROVIDER_URI"            = "https://${var.r53_dns_zone.name}"
+      "ORGANIZATION_NAME"               = "PagoPA S.p.A."
+      "ACS_URL"                         = "https://${var.r53_dns_zone.name}/saml/acs"
+      "SLO_UR"                          = "https://${var.r53_dns_zone.name}/saml/slo"
+      "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
+      "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
+    }
   }
 
 }

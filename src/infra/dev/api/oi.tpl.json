@@ -397,31 +397,17 @@
         "tags": ["SAML APIs"],
         "description": "This route will serves SAML metadata",
         "x-amazon-apigateway-integration": {
-          "type": "HTTP",
-          "httpMethod": "GET",
-          "uri": "${uri}/saml/metadata",
-          "connectionType": "VPC_LINK",
-          "connectionId": "${connection_id}",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${metadata_lambda_arn}/invocations",
+          "passthroughBehavior": "when_no_match",
+          "httpMethod": "POST",
+          "cacheKeyParameters": [],
+          "type": "aws_proxy",
           "requestParameters": {},
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
+          "responses": {}
+       },
+       "responses": {
           "200": {
-            "description": "SAML metadata"
+            "$ref": "#/components/responses/responseOkXml"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -657,7 +643,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
+                "method.response.header.content-type": "'application/xml'"
               }
             },
             "400": {
@@ -1079,6 +1065,31 @@
         },
         "content": {
           "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "responseOkXml": {
+        "description": "OK",
+        "headers": {
+          "location": {
+            "description": "Response OK, serving xml",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "content-type": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/xml": {
             "schema": {
               "type": "string"
             }

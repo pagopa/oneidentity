@@ -25,6 +25,7 @@
 | Name | Type |
 |------|------|
 | [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_vpc_link) | resource |
+| [aws_lambda_permission.allow_api_gw_invoke_metadata](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/lambda_permission) | resource |
 
 ## Inputs
 
@@ -32,6 +33,9 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_api_gateway_plan"></a> [api\_gateway\_plan](#input\_api\_gateway\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit  = number<br>  })</pre> | n/a | yes |
 | <a name="input_api_gateway_target_arns"></a> [api\_gateway\_target\_arns](#input\_api\_gateway\_target\_arns) | List of target arn for the api gateway. | `list(string)` | n/a | yes |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
+| <a name="input_metadata_lamba_arn"></a> [metadata\_lamba\_arn](#input\_metadata\_lamba\_arn) | lambda metadata arn | `string` | n/a | yes |
+| <a name="input_metadata_lamba_name"></a> [metadata\_lamba\_name](#input\_metadata\_lamba\_name) | lambda metadata name | `string` | n/a | yes |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
 | <a name="input_public_subnet_ids"></a> [public\_subnet\_ids](#input\_public\_subnet\_ids) | Public subnet ids. | `list(string)` | n/a | yes |
 | <a name="input_r53_dns_zones"></a> [r53\_dns\_zones](#input\_r53\_dns\_zones) | R53 DNS Zones. | `any` | n/a | yes |
