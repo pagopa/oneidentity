@@ -19,7 +19,7 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
     Log.debug("[SessionServiceImpl.saveSession] start");
     if (session != null) {
       Log.debug("[SessionServiceImpl.saveSession] session successfully saved");
-      sessionConnectorImpl.saveSession(session);
+      sessionConnectorImpl.saveSessionIfNotExists(session);
     } else {
       Log.error("[SessionServiceImpl.saveSession] session object is null");
       throw new SessionException();

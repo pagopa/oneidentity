@@ -52,7 +52,9 @@ public class SAMLServiceImpl implements SAMLService {
         throw new OneIdentityException("Status Code not set.");
       }
       if (response.getStatus().getStatusMessage() != null) {
-        statusMessage = response.getStatus().getStatusMessage().getValue();
+        if (response.getStatus().getStatusMessage().getValue() != null) {
+          statusMessage = response.getStatus().getStatusMessage().getValue();
+        }
       }
     }
 

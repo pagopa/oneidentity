@@ -50,7 +50,7 @@ public class SAMLController {
     org.opensaml.saml.saml2.core.Response response = samlServiceImpl.getSAMLResponseFromString(
         samlResponseDTO.getSAMLResponse());
 
-    //1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
+    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
     SAMLSession samlSession = samlSessionSessionService.getSession(response.getInResponseTo(),
         RecordType.SAML);
 
@@ -61,23 +61,18 @@ public class SAMLController {
     // 2. Check status, will raise CustomException in case of error mapped to a custom html error page
     samlServiceImpl.checkSAMLStatus(response);
 
-    // 4. Get Authorization Response
-
+    // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
         samlSession.getAuthorizationRequestDTOExtended());
 
     AuthorizationResponse authorizationResponse = oidcServiceImpl.getAuthorizationResponse(
         authorizationRequest);
 
-    // 5. Update SAMLSession with SAMLResponse attribute
+    // 4. Update SAMLSession with SAMLResponse attribute
     samlSessionSessionService.setSAMLResponse(response.getInResponseTo(),
         samlResponseDTO.getSAMLResponse());
 
-    // 6. Persist OIDC Session
-
-    // Get the current time in epoch second format
     long creationTime = Instant.now().getEpochSecond();
-    // Calculate the expiration time (2 days from now) in epoch second format
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
     AuthorizationCode authorizationCode = authorizationResponse.toSuccessResponse()
@@ -87,9 +82,9 @@ public class SAMLController {
         creationTime,
         ttl, authorizationCode.getValue());
 
+    // 5. Save OIDC session
     oidcSessionSessionService.saveSession(oidcSession);
 
-    // 7. Redirect to client callback
     String clientCallbackUri = samlSession.getAuthorizationRequestDTOExtended().getRedirectUri();
 
     URI redirectStringResponse;
@@ -105,6 +100,7 @@ public class SAMLController {
 
     Log.info("[SAMLController.samlACS] end");
 
+    // 6. Redirect to client callback URI
     return jakarta.ws.rs.core.Response
         .status(302)
         .location(redirectStringResponse)

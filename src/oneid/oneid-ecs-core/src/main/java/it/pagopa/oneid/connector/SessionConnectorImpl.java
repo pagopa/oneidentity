@@ -11,9 +11,9 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.time.Instant;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -47,19 +47,19 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   }
 
   @Override
-  public void saveSession(T session) throws SessionException {
-    Log.debug("[SessionConnectorImpl.saveSession] start");
+  public void saveSessionIfNotExists(T session) throws SessionException {
+    Log.debug("[SessionConnectorImpl.saveSessionIfNotExists] start");
     try {
-      saveItem(session);
-      Log.debug("[SessionConnectorImpl.saveSession] successfully saved session");
+      saveItemIfNotExists(session);
+      Log.debug("[SessionConnectorImpl.saveSessionIfNotExists] successfully saved session");
     } catch (ConditionalCheckFailedException e) {
-      Log.debug(
-          "[SessionConnectorImpl.saveSession] a record with the same SAMLRequestID already exists");
+      Log.error(
+          "[SessionConnectorImpl.saveSessionIfNotExists] a record with the same SAMLRequestID already exists");
       throw new SessionException("Existing session for the specified SAMLRequestID");
     }
   }
 
-  private void saveItem(T session)
+  private void saveItemIfNotExists(T session)
       throws ConditionalCheckFailedException, SessionException {
     switch (session) {
       case SAMLSession samlSession -> {
@@ -154,7 +154,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       Log.debug("[SessionConnectorImpl.updateSAMLSession] session successfully updated");
 
     } catch (ConditionalCheckFailedException e) {
-      Log.debug(
+      Log.error(
           "[SessionConnectorImpl.updateSAMLSession] the record contains already the samlResponse");
       throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
     }
