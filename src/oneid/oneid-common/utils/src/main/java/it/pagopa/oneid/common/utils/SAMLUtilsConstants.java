@@ -30,29 +30,29 @@ public class SAMLUtilsConstants {
 
   @Inject
   SAMLUtilsConstants(
-      @ConfigProperty(name = "metadata_url") String metadata_url,
-      @ConfigProperty(name = "acs_url") String acs_url,
-      @ConfigProperty(name = "slo_url") String slo_url,
-      @ConfigProperty(name = "service_provider_uri") String service_provider_uri,
-      @ConfigProperty(name = "organization_name") String organization_name,
-      @ConfigProperty(name = "organization_display_name") String organization_display_name,
-      @ConfigProperty(name = "organization_url") String organization_url,
-      @ConfigProperty(name = "contact_person_company") String contact_person_company,
-      @ConfigProperty(name = "contact_person_given_name") String contact_person_given_name,
-      @ConfigProperty(name = "contact_person_email_address") String contact_person_email_address,
-      @ConfigProperty(name = "contact_person_telephone_number") String contact_person_telephone_number
+      @ConfigProperty(name = "metadata_url") String metadataUrl,
+      @ConfigProperty(name = "acs_url") String acsUrl,
+      @ConfigProperty(name = "slo_url") String sloUrl,
+      @ConfigProperty(name = "service_provider_uri") String serviceProviderUri,
+      @ConfigProperty(name = "organization_name") String organizationName,
+      @ConfigProperty(name = "organization_display_name") String organizationDisplayName,
+      @ConfigProperty(name = "organization_url") String organizationUrl,
+      @ConfigProperty(name = "contact_person_company") String contactPersonCompany,
+      @ConfigProperty(name = "contact_person_given_name") String contactPersonGivenName,
+      @ConfigProperty(name = "contact_person_email_address") String contactPersonEmailAddress,
+      @ConfigProperty(name = "contact_person_telephone_number") String contactPersonTelephoneNumber
   ) {
-    METADATA_URL = metadata_url;
-    ACS_URL = acs_url;
-    SLO_URL = slo_url;
-    SERVICE_PROVIDER_URI = service_provider_uri;
-    ORGANIZATION_NAME = organization_name;
-    ORGANIZATION_DISPLAY_NAME = organization_display_name;
-    ORGANIZATION_URL = organization_url;
-    CONTACT_PERSON_COMPANY = contact_person_company;
-    CONTACT_PERSON_GIVEN_NAME = contact_person_given_name;
-    CONTACT_PERSON_EMAIL_ADDRESS = contact_person_email_address;
-    CONTACT_PERSON_TELEPHONE_NUMBER = contact_person_telephone_number;
+    METADATA_URL = metadataUrl;
+    ACS_URL = acsUrl;
+    SLO_URL = sloUrl;
+    SERVICE_PROVIDER_URI = serviceProviderUri;
+    ORGANIZATION_NAME = organizationName;
+    ORGANIZATION_DISPLAY_NAME = organizationDisplayName;
+    ORGANIZATION_URL = organizationUrl;
+    CONTACT_PERSON_COMPANY = contactPersonCompany;
+    CONTACT_PERSON_GIVEN_NAME = contactPersonGivenName;
+    CONTACT_PERSON_EMAIL_ADDRESS = contactPersonEmailAddress;
+    CONTACT_PERSON_TELEPHONE_NUMBER = contactPersonTelephoneNumber;
   }
 
 }

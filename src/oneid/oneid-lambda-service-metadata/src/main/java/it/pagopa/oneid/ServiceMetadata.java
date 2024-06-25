@@ -13,6 +13,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
@@ -68,7 +69,7 @@ public class ServiceMetadata {
   @GET
   @Path("/metadata")
   @Produces(MediaType.APPLICATION_XML)
-  public Response metadata() throws SAMLUtilsException {
+  public Response metadata() throws OneIdentityException {
 
     EntityDescriptor entityDescriptor = SAMLUtils.buildSAMLObject(EntityDescriptor.class);
     entityDescriptor.setEntityID(METADATA_URL);
@@ -99,13 +100,13 @@ public class ServiceMetadata {
     try {
       plaintextElement = out.marshall(entityDescriptor);
     } catch (MarshallingException e) {
-      throw new RuntimeException(e);
+      throw new OneIdentityException(e);
     }
 
     try {
       Signer.signObject(signature);
     } catch (SignatureException e) {
-      throw new RuntimeException(e);
+      throw new OneIdentityException(e);
     }
 
     return Response.ok(getStringValue(plaintextElement)).build();
