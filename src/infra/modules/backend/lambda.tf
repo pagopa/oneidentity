@@ -110,17 +110,16 @@ module "metadata_lambda" {
   handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   create_package          = false
   local_existing_package  = var.metadata_lambda.filename
-  ignore_source_code_hash = false
+  ignore_source_code_hash = true
 
   publish = true
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.metadata_lambda.json
 
-  environment_variables = {
-  }
+  environment_variables = var.metadata_lambda.environment_variables
 
-  memory_size = 128
+  memory_size = 512
   timeout     = 30
 
 }
