@@ -121,5 +121,6 @@ module "metadata_lambda" {
 
   memory_size = 512
   timeout     = 30
+  snap_start  = true
 
 }
