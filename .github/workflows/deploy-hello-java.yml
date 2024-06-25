@@ -30,7 +30,7 @@ jobs:
           java-version: '17'
      
       - name: Build with Maven
-        working-directory: src/hello-java
+        working-directory: src/oneid
         run: ./mvnw -f pom.xml -B package \
               -P oneid-lambda-service-metadata-aggregate 
         
