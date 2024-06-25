@@ -107,7 +107,7 @@ module "metadata_lambda" {
   function_name           = var.metadata_lambda.name
   description             = "Lambda function metadata."
   runtime                 = "java17"
-  handler                 = "example.HelloWorld::handleRequest"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   create_package          = false
   local_existing_package  = var.metadata_lambda.filename
   ignore_source_code_hash = false
