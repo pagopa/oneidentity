@@ -29,20 +29,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
      
-      - name: Setup Gradle 8.5
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: 8.5
-        
-      - name: Build with Gradle
-        run: gradle build
+      - name: Build with Maven
         working-directory: src/hello-java
-
+        run: ./mvnw -f pom.xml -B package \
+              -P oneid-lambda-service-metadata-aggregate 
+        
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: hello-java
-          path: src/hello-java/build/libs/*.jar
+          name: metadata-lambda
+          path: ./src/oneid/oneid-lambda-service-metadata/target/function.zip
 
     deploy:
       runs-on: ubuntu-22.04
@@ -56,20 +52,17 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: hello-java
-          path: ./src/hello-java/build/libs
+          name: metadata-lambda
+          path: ./src/oneid/oneid-lambda-service-metadata/target/function.zip
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
-      
-      - name: Debug
-        run: ls -l ./src/hello-java/build/libs
-
+   
       - name: Deploy Lambda function
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-d-client-registration \
-            --zip-file fileb://src/hello-java/build/libs/hello-java-1.0.jar
+            --function-name oneid-es-1-d-metadata \
+            --zip-file fileb://src/oneid/oneid-lambda-service-metadata/target/function.zip
