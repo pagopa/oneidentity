@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "lib": ["es6", "dom", "es2019"],
+    "lib": ["es6", "DOM", "es2022"],
     "jsx": "react-jsx",
     "noEmit": true,
     "strict": true,
@@ -24,5 +24,5 @@
     "resolveJsonModule": true
   },
   "include": ["src/**/*"],
-  "exclude": ["__mocks__", "dist", "node_modules", "**/__tests__/*", "Dangerfile.ts"]
+  "exclude": ["__mocks__", "dist", "build", "node_modules", "Dangerfile.ts"]
 }

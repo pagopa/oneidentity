@@ -34,15 +34,9 @@
     "test": "craco test -i",
     "test:coverage": "craco test -i --coverage",
     "eject": "craco eject",
-    "lint-autofix": "eslint . -c .eslintrc.js --ext .ts,.tsx --fix",
-    "lint": "eslint . -c .eslintrc.js --ext .ts,.tsx ",
+    "lint-autofix": "eslint --fix",
+    "lint": "eslint",
     "prettify": "prettier --write \"./**/*.{ts,tsx}\""
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "extensions": [
     ".web.js",
@@ -68,6 +62,9 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
+    "@eslint/compat": "^1.1.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.5.0",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",

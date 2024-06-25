@@ -87,7 +87,6 @@ const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string }
 console.log("spid", ENV.SPID_TEST_ENV_ENABLED);
 
 if (ENV.SPID_TEST_ENV_ENABLED) {
-  // eslint-disable-next-line functional/immutable-data
   IDPS.identityProviders.push({
     identifier: 'test',
     entityId: 'xx_testenv2',
