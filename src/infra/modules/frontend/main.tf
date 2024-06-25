@@ -58,10 +58,10 @@ module "rest_api" {
 
   body = templatefile("./api/oi.tpl.json",
     {
-      server_url    = keys(var.r53_dns_zones)[0]
-      uri           = format("http://%s:%s", var.nlb_dns_name, "8080"),
-      connection_id = aws_api_gateway_vpc_link.apigw.id
-      aws_region = var.aws_region
+      server_url          = keys(var.r53_dns_zones)[0]
+      uri                 = format("http://%s:%s", var.nlb_dns_name, "8080"),
+      connection_id       = aws_api_gateway_vpc_link.apigw.id
+      aws_region          = var.aws_region
       metadata_lambda_arn = var.metadata_lamba_arn
   })
 
@@ -81,10 +81,10 @@ resource "aws_api_gateway_vpc_link" "apigw" {
   target_arns = var.api_gateway_target_arns
 }
 
-resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {  
-  statement_id  = "allowInvokeLambdaMetadata"  
-  action        = "lambda:InvokeFunction"  
-  function_name = var.metadata_lamba_name  
-  principal     = "apigateway.amazonaws.com"  
-  source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/metadata"  
+resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
+  statement_id  = "allowInvokeLambdaMetadata"
+  action        = "lambda:InvokeFunction"
+  function_name = var.metadata_lamba_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/metadata"
 }

@@ -1,5 +1,5 @@
 variable "aws_region" {
-  type = string
+  type        = string
   description = "AWS Region."
 }
 
@@ -54,11 +54,11 @@ variable "nlb_dns_name" {
 }
 
 variable "metadata_lamba_name" {
-  type = string
+  type        = string
   description = "lambda metadata name"
 }
 
 variable "metadata_lamba_arn" {
-  type = string
+  type        = string
   description = "lambda metadata arn"
 }

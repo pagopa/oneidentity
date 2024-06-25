@@ -90,6 +90,7 @@ variable "metadata_lambda" {
     name                           = string
     filename                       = string
     table_client_registrations_arn = string
+    environment_variables          = map(string)
   })
 
 }

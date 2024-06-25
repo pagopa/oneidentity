@@ -89,15 +89,16 @@ module "client_registration_lambda" {
 data "aws_iam_policy_document" "metadata_lambda" {
   //name = format("%s-task-policy", var.metadata_lambda.name)
   //policy = jsonencode({
-    //Version = "2012-10-17"
-    statement {
-      effect = "Allow"
-      actions = ["dynamodb:Scan"]
-      resources = [ "${var.table_client_registrations_arn}" ]
-    } 
+  //Version = "2012-10-17"
+  statement {
+    effect    = "Allow"
+    actions   = ["dynamodb:Scan"]
+    resources = ["${var.table_client_registrations_arn}"]
+  }
 
 }
 
+## Lambda metadata
 
 module "metadata_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
