@@ -23,7 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
@@ -52,7 +52,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: metadata-lambda
-          path: ./src/oneid/oneid-lambda-service-metadata/target/function.zip
+          path: ./src/oneid/oneid-lambda-service-metadata/target
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
