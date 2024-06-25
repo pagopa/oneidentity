@@ -407,16 +407,7 @@
        },
        "responses": {
           "200": {
-            "description": "SAML metadata",
-            "headers" : {
-              "content-type": {
-                "text/html": {
-                  "schema": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
+            "$ref": "#/components/responses/responseOkXml"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -652,7 +643,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
+                "method.response.header.content-type": "'application/xml'"
               }
             },
             "400": {
@@ -1074,6 +1065,31 @@
         },
         "content": {
           "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "responseOkXml": {
+        "description": "OK",
+        "headers": {
+          "location": {
+            "description": "Response OK, serving xml",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "content-type": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/xml": {
             "schema": {
               "type": "string"
             }
