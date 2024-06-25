@@ -106,7 +106,7 @@ module "metadata_lambda" {
 
   function_name           = var.metadata_lambda.name
   description             = "Lambda function metadata."
-  runtime                 = "java17"
+  runtime                 = "java21"
   handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   create_package          = false
   local_existing_package  = var.metadata_lambda.filename
