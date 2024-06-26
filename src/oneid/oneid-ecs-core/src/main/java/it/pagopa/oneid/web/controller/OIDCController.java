@@ -180,6 +180,17 @@ public class OIDCController {
   @Produces(MediaType.APPLICATION_JSON)
 
   public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
+
+    // 1. Authenticate Client [Secret Manager]
+
+    // 2. Retrieve SAMLSession by code (code -> OIDCSession -> SAMLRequestID -> SAMLSession) [Dynamo]
+
+    // 3. Construct and sign JWT (ID-TOKEN) with parameters retrieved from SAMLResponse and Nonce (if present) + AccessToken [KMS]
+
+    // 4. Persist AccessTokenSession [Dynamo]
+
+    // 5. Return JSON with ACCESS-TOKEN + ID-TOKEN (JWT)
+
     return Response.ok("Token Path").build();
   }
 

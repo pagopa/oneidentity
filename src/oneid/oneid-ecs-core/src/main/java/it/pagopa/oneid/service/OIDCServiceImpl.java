@@ -86,6 +86,13 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public TokenResponse getTokenResponse(List<AttributeDTO<?>> attributeDTO) {
+
+    // 1. Create JWT Token with List of attributes
+
+    // 2. Sign JWT Token with KMS function
+
+    // 3. Construct and return TokenResponse with AccessToken and IDToken
+
     return null;
   }
 }
