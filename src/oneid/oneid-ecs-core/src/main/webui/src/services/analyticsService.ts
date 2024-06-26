@@ -25,7 +25,7 @@ export const trackAppError = (error: string): void => {
 export const trackEvent = (event_name: string, properties?: any, callback?: () => void): void => {
   if (ENV.ANALYTCS.ENABLE) {
     if (ENV.ANALYTCS.MOCK) {
-      // eslint-disable-next-line no-console
+       
       console.log(event_name, properties);
       if (callback) {
         callback();
