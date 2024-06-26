@@ -1,5 +1,7 @@
 package it.pagopa.oneid.connector;
 
+import software.amazon.awssdk.services.kms.model.SignResponse;
+
 public interface KMSConnector {
 
   static byte[] concatenateArrays(byte[] arr1, byte delimiter, byte[] arr2) {
@@ -10,5 +12,5 @@ public interface KMSConnector {
     return result;
   }
 
-  String sign(byte[] headerBytes, byte[] payloadBytes);
+  SignResponse sign(byte[] headerBytes, byte[] payloadBytes);
 }

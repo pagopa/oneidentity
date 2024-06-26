@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -8,18 +9,29 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.service.utils.OIDCUtils;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.List;
 
 @ApplicationScoped
 public class OIDCServiceImpl implements OIDCService {
+
+  @Inject
+  OIDCUtils oidcUtils;
 
   @Override
   public Client getClientRegistration(String clientID) {
@@ -85,14 +97,25 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public TokenResponse getTokenResponse(List<AttributeDTO<?>> attributeDTO) {
+  public TokenResponse getTokenResponse(List<AttributeDTO> attributeDTOList, String nonce)
+      throws OIDCSignJWTException {
 
-    // 1. Create JWT Token with List of attributes
+    // Create access token
+    AccessToken accessToken = new BearerAccessToken();
 
-    // 2. Sign JWT Token with KMS function
+    //Create signed JWT ID token
+    String signedJWTString = oidcUtils.createSignedJWT(attributeDTOList, nonce);
+    SignedJWT signedJWTIDToken;
+    try {
+      signedJWTIDToken = SignedJWT.parse(signedJWTString);
+    } catch (ParseException e) {
+      throw new OIDCSignJWTException(e);
+    }
 
-    // 3. Construct and return TokenResponse with AccessToken and IDToken
+    // Create OIDCTokens to return
+    OIDCTokens oidcTokens = new OIDCTokens(signedJWTIDToken, accessToken, null);
+    // Setup OIDCTokenResponse
 
-    return null;
+    return new OIDCTokenResponse(oidcTokens);
   }
 }
