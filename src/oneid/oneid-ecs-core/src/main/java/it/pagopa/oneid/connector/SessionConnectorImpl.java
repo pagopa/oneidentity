@@ -1,6 +1,7 @@
 package it.pagopa.oneid.connector;
 
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML;
+
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
@@ -84,10 +85,17 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
       }
       case AccessTokenSession accessTokenSession -> {
-        //TODO implement
-        break;
+        accessTokenSessionMapper.putItem(
+            PutItemEnhancedRequest.builder(AccessTokenSession.class)
+                .item(accessTokenSession)
+                .conditionExpression(
+                    Expression.builder().expression(
+                            "attribute_not_exists(samlRequestID)")
+                        .build())
+                .build());
       }
       default -> {
+        Log.debug("[SessionConnectorImpl.saveItemIfNotExists] not valid RecordType");
         throw new SessionException();
       }
     }
