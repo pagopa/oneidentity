@@ -123,11 +123,7 @@ module "backend" {
       {
         name  = "ACS_URL"
         value = "https://${var.r53_dns_zone.name}/saml/acs"
-      },
-      {
-        name  = "REACT_APP_SPID_TEST_ENV_ENABLED"
-        value = var.ecs_oneid_core.app_spid_test_enabled
-    }]
+      }]
   }
 
   ## NLB ##
