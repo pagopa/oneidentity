@@ -14,8 +14,8 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal }: Props) => {
   const { t } = useTranslation();
 
   const getSPID = (IDP: IdentityProvider) => {
-    const params = forwardSearchParams();
-    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?idp=${IDP.entityId}&${params}`;
+    const params = forwardSearchParams(IDP.entityId);
+    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
