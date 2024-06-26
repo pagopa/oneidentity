@@ -5,9 +5,10 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLValidationException;
+import it.pagopa.oneid.model.dto.AttributeDTO;
 import java.util.List;
 import java.util.Optional;
-import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -23,7 +24,7 @@ public interface SAMLService {
 
   Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException;
 
-  List<Attribute> getAttributesFromSAMLResponse(Response SAMLResponse);
+  List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion) throws SAMLUtilsException;
 
   Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
       throws SAMLUtilsException;
