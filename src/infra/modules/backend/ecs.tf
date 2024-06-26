@@ -70,6 +70,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         Action = [
           "dynamodb:GetItem",
           "dynamodb:Scan",
+          "dynamodb:UpdateItem",
         ]
         Resource = [
           "${var.table_client_registrations_arn}"
