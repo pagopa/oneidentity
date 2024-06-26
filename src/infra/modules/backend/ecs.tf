@@ -161,12 +161,12 @@ module "ecs_core_service" {
         }
       ]
 
-      environment = [
+      environment = setunion(var.service_core.environment_variables, [
         {
           name  = "KEY_ID"
           value = module.jwt_sign.aliases.test-sign-jwt.target_key_id
         }
-      ]
+      ])
 
       readonly_root_filesystem = false
     }

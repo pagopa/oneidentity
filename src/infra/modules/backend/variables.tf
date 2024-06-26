@@ -53,6 +53,10 @@ variable "service_core" {
       min_capacity = number
       max_capacity = number
     })
+    environment_variables = list(object({
+      name  = string
+      value = string
+    }))
   })
 }
 
