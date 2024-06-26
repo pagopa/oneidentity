@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.Session;
 import it.pagopa.oneid.model.session.enums.RecordType;
 
@@ -12,4 +13,6 @@ public interface SessionService<T extends Session> {
       throws SessionException;
 
   void setSAMLResponse(String samlRequestID, String response) throws SessionException;
+
+  SAMLSession getSAMLSessionByCode(String code) throws SessionException;
 }
