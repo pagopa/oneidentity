@@ -1,5 +1,7 @@
 package it.pagopa.oneid.connector;
 
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_OIDC;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML;
 
 import io.quarkus.logging.Log;
@@ -13,14 +15,20 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
@@ -28,23 +36,61 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @Dependent
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
-  // TODO how to obtain GSI_IDX_NAME
-  private static final String GSI_IDX_NAME = "gsi_code_idx";
   private final DynamoDbTable<SAMLSession> samlSessionMapper;
   private final DynamoDbTable<OIDCSession> oidcSessionMapper;
   private final DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
+  private final DynamoDbIndex<OIDCSession> oidcSessionDynamoDbIndex;
+  private final DynamoDbIndex<AccessTokenSession> accessTokenSessionDynamoDbIndex;
 
 
   @Inject
   SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
       @ConfigProperty(name = "sessions_table_name")
-      String TABLE_NAME) {
+      String TABLE_NAME, @ConfigProperty(name = "sessions_g_idx") String IDX_NAME) {
     samlSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(SAMLSession.class));
     oidcSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(OIDCSession.class));
     accessTokenSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(AccessTokenSession.class));
+    oidcSessionDynamoDbIndex = oidcSessionMapper.index(IDX_NAME);
+    accessTokenSessionDynamoDbIndex = accessTokenSessionMapper.index(IDX_NAME);
+  }
+
+  private static <T extends Session> boolean checkSessionValidity(
+      T session) throws SessionException {
+    switch (session) {
+      case SAMLSession samlSession -> {
+        if (
+            samlSession.getCreationTime() < Instant.now()
+                .minus(VALID_TIME_SAML, ChronoUnit.MINUTES)
+                .getEpochSecond()) {
+          return false;
+        }
+      }
+      case OIDCSession oidcSession -> {
+        if (
+            oidcSession.getCreationTime() < Instant.now()
+                .minus(VALID_TIME_OIDC, ChronoUnit.MINUTES)
+                .getEpochSecond()) {
+          return false;
+        }
+      }
+      case AccessTokenSession accessTokenSession -> {
+        if (
+            accessTokenSession.getCreationTime() < Instant.now()
+                .minus(VALID_TIME_ACCESS_TOKEN, ChronoUnit.MINUTES)
+                .getEpochSecond()) {
+          return false;
+        }
+      }
+      default -> {
+        Log.debug("[SessionConnectorImpl.checkSessionValidity] not valid RecordType");
+        throw new SessionException();
+      }
+    }
+
+    return true;
   }
 
   @Override
@@ -119,21 +165,55 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
           Log.debug("[SessionConnectorImpl.findSession] session not found");
           return Optional.empty();
         }
-        if (
-            samlSession.getCreationTime() < Instant.now()
-                .minus(VALID_TIME_SAML, ChronoUnit.MINUTES)
-                .getEpochSecond()) {
-          Log.debug("[SessionConnectorImpl.findSession] session expired");
-          return Optional.empty();
+        if (checkSessionValidity(samlSession)) {
+          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          return (Optional<T>) Optional.ofNullable(samlSession);
         }
+        return Optional.empty();
 
-        Log.debug("[SessionConnectorImpl.findSession] session successfully found");
-        return (Optional<T>) Optional.ofNullable(samlSession);
       }
       case RecordType.OIDC -> {
+
+        final SdkIterable<Page<OIDCSession>> pagedResult = oidcSessionDynamoDbIndex.query(q -> q
+            .consistentRead(Boolean.TRUE)
+            .limit(1)
+        );
+
+        List<OIDCSession> collectedItems = new ArrayList<>();
+        pagedResult.stream().forEach(page -> collectedItems.addAll(page.items()));
+        OIDCSession oidcSession;
+        try {
+          oidcSession = collectedItems.getFirst();
+        } catch (NoSuchElementException e) {
+          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          return Optional.empty();
+        }
+        if (checkSessionValidity(oidcSession)) {
+          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          return (Optional<T>) Optional.ofNullable(oidcSession);
+        }
         return Optional.empty();
       }
       case RecordType.ACCESS_TOKEN -> {
+        final SdkIterable<Page<AccessTokenSession>> pagedResult = accessTokenSessionDynamoDbIndex.query(
+            q -> q
+                .consistentRead(Boolean.TRUE)
+                .limit(1)
+        );
+
+        List<AccessTokenSession> collectedItems = new ArrayList<>();
+        pagedResult.stream().forEach(page -> collectedItems.addAll(page.items()));
+        AccessTokenSession accessTokenSession;
+        try {
+          accessTokenSession = collectedItems.getFirst();
+        } catch (NoSuchElementException e) {
+          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          return Optional.empty();
+        }
+        if (checkSessionValidity(accessTokenSession)) {
+          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          return (Optional<T>) Optional.ofNullable(accessTokenSession);
+        }
         return Optional.empty();
       }
       default -> {
