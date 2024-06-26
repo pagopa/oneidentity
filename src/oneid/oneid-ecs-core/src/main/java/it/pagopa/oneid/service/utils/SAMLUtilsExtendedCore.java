@@ -1,7 +1,6 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -93,7 +92,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public static Issuer buildIssuer() {
     Issuer issuer = buildSAMLObject(Issuer.class);
-    issuer.setValue(METADATA_URL);
+    issuer.setValue(SERVICE_PROVIDER_URI);
     issuer.setNameQualifier(SERVICE_PROVIDER_URI);
     issuer.setFormat(NameIDType.ENTITY);
 

@@ -9,9 +9,9 @@ import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildOrganization;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSPSSODescriptor;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSingleLogoutService;
 import static it.pagopa.oneid.common.utils.SAMLUtils.buildSignature;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.METADATA_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -72,7 +72,7 @@ public class ServiceMetadata {
   public Response metadata() throws OneIdentityException {
 
     EntityDescriptor entityDescriptor = SAMLUtils.buildSAMLObject(EntityDescriptor.class);
-    entityDescriptor.setEntityID(METADATA_URL);
+    entityDescriptor.setEntityID(SERVICE_PROVIDER_URI);
 
     SPSSODescriptor spssoDescriptor = buildSPSSODescriptor();
     spssoDescriptor.getKeyDescriptors().add(buildKeyDescriptor());
