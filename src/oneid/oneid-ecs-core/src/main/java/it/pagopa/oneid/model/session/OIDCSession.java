@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
@@ -18,7 +19,10 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 public class OIDCSession extends Session {
 
   // TODO indexNames by constant
-  @Getter(onMethod_ = @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"))
+  @Getter(onMethod_ = {
+      @DynamoDbSecondaryPartitionKey(indexNames = "gsi_code_idx"),
+      @DynamoDbAttribute("code")}
+  )
   private String authorizationCode;
 
   public OIDCSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
