@@ -3,7 +3,6 @@ package it.pagopa.oneid.connector;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_OIDC;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML;
-
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
@@ -30,6 +29,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
@@ -158,7 +158,6 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
             .getItem(GetItemEnhancedRequest.builder()
                 .key(Key.builder().partitionValue(identifier).sortValue(recordType.name())
                     .build())
-                .consistentRead(true)
                 .build());
 
         if (samlSession == null) {
@@ -174,8 +173,12 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       }
       case RecordType.OIDC -> {
 
+        QueryConditional queryConditional = QueryConditional.keyEqualTo(
+            Key.builder().partitionValue(identifier)
+                .build());
+
         final SdkIterable<Page<OIDCSession>> pagedResult = oidcSessionDynamoDbIndex.query(q -> q
-            .consistentRead(Boolean.TRUE)
+            .queryConditional(queryConditional)
             .limit(1)
         );
 
@@ -195,9 +198,14 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         return Optional.empty();
       }
       case RecordType.ACCESS_TOKEN -> {
+
+        QueryConditional queryConditional = QueryConditional.keyEqualTo(
+            Key.builder().partitionValue(identifier)
+                .build());
+
         final SdkIterable<Page<AccessTokenSession>> pagedResult = accessTokenSessionDynamoDbIndex.query(
             q -> q
-                .consistentRead(Boolean.TRUE)
+                .queryConditional(queryConditional)
                 .limit(1)
         );
 
