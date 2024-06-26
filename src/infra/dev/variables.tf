@@ -56,6 +56,7 @@ variable "ecs_oneid_core" {
       min_capacity = number
       max_capacity = number
     })
+    app_spid_test_enabled = optional(bool, false)
   })
 }
 

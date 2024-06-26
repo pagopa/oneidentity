@@ -112,6 +112,22 @@ module "backend" {
 
     subnet_ids = module.network.private_subnet_ids
 
+    environment_variables = [{
+      name  = "METADATA_URL",
+      value = "https://${var.r53_dns_zone.name}/saml/metadata"
+      },
+      {
+        name  = "SERVICE_PROVIDER_URI"
+        value = "https://${var.r53_dns_zone.name}"
+      },
+      {
+        name  = "ACS_URL"
+        value = "https://${var.r53_dns_zone.name}/saml/acs"
+      },
+      {
+        name  = "REACT_APP_SPID_TEST_ENV_ENABLED"
+        value = var.ecs_oneid_core.app_spid_test_enabled
+    }]
   }
 
   ## NLB ##

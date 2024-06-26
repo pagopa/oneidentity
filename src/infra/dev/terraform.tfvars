@@ -14,7 +14,7 @@ repository_image_tag_mutability = "MUTABLE"
 ## ECS ##
 
 ecs_oneid_core = {
-  image_version    = "0cca0e54ae102384261a464f2cc88fb6b6c091c7"
+  image_version    = "af79deb623b229d78b7a7d496c33138e99e25af2"
   cpu              = 512
   memory           = 1024
   container_cpu    = 512
@@ -24,6 +24,7 @@ ecs_oneid_core = {
     min_capacity = 1
     max_capacity = 2
   }
+  app_spid_test_enabled = true
 }
 
 ## Api Gateway ##
