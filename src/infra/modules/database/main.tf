@@ -34,7 +34,7 @@ module "dynamodb_sessions_table" {
     }
   ]
 
-  ttl_attribute_name = "expirationTime"
+  ttl_attribute_name = "ttl"
   ttl_enabled        = var.sessions_table.ttl_enabled
 
   billing_mode = "PAY_PER_REQUEST"
