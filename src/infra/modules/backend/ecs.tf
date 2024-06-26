@@ -59,18 +59,18 @@ resource "aws_iam_policy" "ecs_core_task" {
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
         ]
         Resource = [
           "${var.table_sessions_arn}"
         ]
       },
       {
-        Sid    = "DynamoDBClientRegistrationsR"
+        Sid    = "DynamoDBClientRegistrationsReadOnly"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
-          "dynamodb:Scan",
-          "dynamodb:UpdateItem",
+          "dynamodb:Scan"
         ]
         Resource = [
           "${var.table_client_registrations_arn}"
