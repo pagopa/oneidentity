@@ -12,6 +12,7 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
+import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,7 +24,6 @@ import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
@@ -157,13 +157,16 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
-    Log.debug("[getSAMLResponseFromString] start");
+    Log.debug("[SAMLServiceImpl.getSAMLResponseFromString] start");
     return samlUtils.getSAMLResponseFromString(SAMLResponse);
   }
 
   @Override
-  public List<Attribute> getAttributesFromSAMLResponse(Response SAMLResponse) {
-    return List.of();
+  public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
+      throws SAMLUtilsException {
+    Log.debug("[SAMLServiceImpl.getAttributesFromSAMLResponse] start");
+    return SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion(assertion)
+        .orElseThrow(SAMLUtilsException::new);
   }
 
   @Override

@@ -7,10 +7,13 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
@@ -19,7 +22,10 @@ import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.core.criterion.EntityIdCriterion;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.impl.XSAnyImpl;
 import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
@@ -27,6 +33,8 @@ import org.opensaml.saml.criterion.ProtocolCriterion;
 import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -119,6 +127,42 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     authnContextClassRef.setURI(spidLevel);
 
     return authnContextClassRef;
+  }
+
+  private static String getAttributeValue(XMLObject attributeValue) {
+    Log.debug("[SAMLUtilsExtendedCore.getAttributeValue] start");
+
+    return attributeValue == null ?
+        null :
+        attributeValue instanceof XSString ?
+            getStringAttributeValue((XSString) attributeValue) :
+            attributeValue instanceof XSAnyImpl ?
+                getAnyAttributeValue((XSAnyImpl) attributeValue) :
+                attributeValue.toString();
+  }
+
+  private static String getStringAttributeValue(XSString attributeValue) {
+    return attributeValue.getValue();
+  }
+
+  private static String getAnyAttributeValue(XSAnyImpl attributeValue) {
+    return attributeValue.getTextContent();
+  }
+
+  public static Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
+    Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] start");
+    List<AttributeDTO> attributes = new ArrayList<>();
+    for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
+      for (Attribute attribute : attributeStatement.getAttributes()) {
+        List<XMLObject> attributeValues = attribute.getAttributeValues();
+        if (!attributeValues.isEmpty()) {
+          attributes.add(new AttributeDTO(attribute.getName(), getAttributeValue(
+              attributeValues.getFirst())));
+        }
+      }
+    }
+    Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] end");
+    return Optional.of(attributes);
   }
 
   public Response getSAMLResponseFromString(String SAMLResponse)

@@ -3,6 +3,8 @@ package it.pagopa.oneid.service;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.model.session.OIDCSession;
+import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.Session;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
@@ -36,5 +38,16 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
   @Override
   public void setSAMLResponse(String samlRequestID, String response) throws SessionException {
     sessionConnectorImpl.updateSAMLSession(samlRequestID, response);
+  }
+
+  @Override
+  public SAMLSession getSAMLSessionByCode(String code) throws SessionException {
+
+    OIDCSession oidcSession = (OIDCSession) sessionConnectorImpl.findSession(code, RecordType.OIDC)
+        .orElseThrow(SessionException::new);
+
+    return (SAMLSession) sessionConnectorImpl.findSession(
+        oidcSession.getSamlRequestID(),
+        RecordType.SAML).orElseThrow(SessionException::new);
   }
 }
