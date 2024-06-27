@@ -392,17 +392,31 @@
         }
       }
     },
-    "/saml/metadata": {
+    "/saml/{type}/metadata": {
       "get": {
         "tags": ["SAML APIs"],
         "description": "This route will serves SAML metadata",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "description": "Spid or cie",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "x-amazon-apigateway-integration": {
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${metadata_lambda_arn}/invocations",
           "passthroughBehavior": "when_no_match",
           "httpMethod": "POST",
           "cacheKeyParameters": [],
           "type": "aws_proxy",
-          "requestParameters": {},
+          "requestParameters": {
+            "integration.request.path.type": "method.request.path.type"
+          },
           "responses": {}
        },
        "responses": {
