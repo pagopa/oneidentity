@@ -1,6 +1,5 @@
 package it.pagopa.oneid.web.controller;
 
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -20,6 +19,7 @@ import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
+import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
@@ -189,7 +189,7 @@ public class OIDCController {
   @POST
   @Path("/token")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
+  public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
     Log.debug("[OIDCController.token] start");
 
@@ -210,7 +210,7 @@ public class OIDCController {
             new String(Base64.getDecoder().decode(session.getSAMLResponse()))).getAssertions()
         .getFirst();
 
-    OIDCTokens oidcTokens = oidcServiceImpl.getOIDCTokens(
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(
         samlServiceImpl.getAttributesFromSAMLAssertion(assertion),
         session.getAuthorizationRequestDTOExtended().getNonce());
 
@@ -220,13 +220,13 @@ public class OIDCController {
     AccessTokenSession accessTokenSession = new AccessTokenSession(session.getSamlRequestID(),
         RecordType.ACCESS_TOKEN,
         creationTime,
-        ttl, oidcTokens.getIDToken().serialize(), oidcTokens.getAccessToken().toJSONString());
+        ttl, tokenDataDTO.getIdToken(), tokenDataDTO.getAccessToken());
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
     Log.debug("[OIDCController.token] end");
 
-    return Response.ok(oidcTokens.toJSONObject()).build();
+    return tokenDataDTO;
   }
 
 }

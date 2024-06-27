@@ -11,7 +11,6 @@ import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -22,6 +21,7 @@ import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
+import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
@@ -102,7 +102,7 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public OIDCTokens getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce)
+  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce)
       throws OIDCSignJWTException {
     Log.debug(("[OIDCServiceImpl.getOIDCTokens] start"));
 
@@ -119,7 +119,15 @@ public class OIDCServiceImpl implements OIDCService {
       throw new OIDCSignJWTException(e);
     }
 
-    return new OIDCTokens(signedJWTIDToken, accessToken, null);
+    return TokenDataDTO
+        .builder()
+        .idToken(signedJWTIDToken.toString())
+        .idTokenType("openid")
+        .accessToken(accessToken.toString())
+        .tokenType(accessToken.getType().getValue())
+        .expiresIn(String.valueOf(accessToken.getLifetime()))
+        .scope("openid")
+        .build();
   }
 
   @Override
