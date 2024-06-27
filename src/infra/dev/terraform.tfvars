@@ -33,6 +33,8 @@ rest_api_throttle_settings = {
   burst_limit = 100
 }
 
+api_cache_cluster_enabled = true
+
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging

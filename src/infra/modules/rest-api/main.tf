@@ -35,8 +35,8 @@ resource "aws_api_gateway_stage" "main" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   stage_name    = var.stage_name
 
-  cache_cluster_enabled = var.cache_cluster_enabled
-  cache_cluster_size    = var.cache_cluster_size
+  cache_cluster_enabled = var.api_cache_cluster_enabled
+  cache_cluster_size    = var.api_cache_cluster_size
 
   tags = {
     Name = format("%s-%s", var.name, var.stage_name)
@@ -118,11 +118,11 @@ resource "aws_cloudwatch_log_group" "main" {
 }
 
 resource "aws_api_gateway_method_settings" "main" {
-  for_each    = { for i in var.method_settings : i.method_path => i } 
-  
+  for_each = { for i in var.method_settings : i.method_path => i }
+
   rest_api_id = aws_api_gateway_rest_api.main.id
   stage_name  = aws_api_gateway_stage.main.stage_name
-  
+
   method_path = each.value.method_path
 
   settings {
