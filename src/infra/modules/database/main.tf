@@ -23,6 +23,14 @@ module "dynamodb_sessions_table" {
   hash_key  = "samlRequestID"
   range_key = "recordType"
 
+  global_secondary_indexes = [
+    {
+      name            = "gsi_code_idx"
+      hash_key        = "code"
+      projection_type = "ALL"
+    }
+  ]
+
   attributes = [
     {
       name = "samlRequestID"
@@ -30,6 +38,10 @@ module "dynamodb_sessions_table" {
     },
     {
       name = "recordType"
+      type = "S"
+    },
+    {
+      name = "code"
       type = "S"
     }
   ]

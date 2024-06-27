@@ -123,7 +123,7 @@ module "backend" {
       {
         name  = "ACS_URL"
         value = "https://${var.r53_dns_zone.name}/saml/acs"
-      }]
+    }]
   }
 
   ## NLB ##
