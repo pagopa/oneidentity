@@ -6,14 +6,11 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
-import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -24,6 +21,7 @@ import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
+import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
@@ -104,8 +102,9 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public TokenResponse getTokenResponse(List<AttributeDTO> attributeDTOList, String nonce)
+  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce)
       throws OIDCSignJWTException {
+    Log.debug(("[OIDCServiceImpl.getOIDCTokens] start"));
 
     // Create access token
     AccessToken accessToken = new BearerAccessToken();
@@ -116,20 +115,27 @@ public class OIDCServiceImpl implements OIDCService {
     try {
       signedJWTIDToken = SignedJWT.parse(signedJWTString);
     } catch (ParseException e) {
+      Log.error("[OIDCServiceImpl.getOIDCTokens] error during parsing JWT");
       throw new OIDCSignJWTException(e);
     }
 
-    // Create OIDCTokens to return
-    OIDCTokens oidcTokens = new OIDCTokens(signedJWTIDToken, accessToken, null);
-    // Setup OIDCTokenResponse
-
-    return new OIDCTokenResponse(oidcTokens);
+    return TokenDataDTO
+        .builder()
+        .idToken(signedJWTIDToken.toString())
+        .idTokenType("openid")
+        .accessToken(accessToken.toString())
+        .tokenType(accessToken.getType().getValue())
+        .expiresIn(String.valueOf(accessToken.getLifetime()))
+        .scope("openid")
+        .build();
   }
 
   @Override
   public void authorizeClient(String clientId, String clientSecret)
       throws OIDCAuthorizationException {
+    Log.debug("[OIDCServiceImpl.authorizeClient] start");
     if (clientsMap.get(clientId) != null) {
+      Log.debug("[OIDCServiceImpl.authorizeClient] client not found");
       throw new OIDCAuthorizationException();
     }
 
@@ -137,6 +143,7 @@ public class OIDCServiceImpl implements OIDCService {
         .orElseThrow(OIDCAuthorizationException::new);
 
     if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
+      Log.debug("[OIDCServiceImpl.authorizeClient] client secret not valid");
       throw new OIDCAuthorizationException();
     }
   }

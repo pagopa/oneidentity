@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -9,13 +10,16 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
+import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
+import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
@@ -31,6 +35,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
+import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
@@ -41,7 +46,13 @@ public class OIDCController {
   SAMLServiceImpl samlServiceImpl;
 
   @Inject
+  OIDCServiceImpl oidcServiceImpl;
+
+  @Inject
   SessionServiceImpl<SAMLSession> samlSessionServiceImpl;
+
+  @Inject
+  SessionServiceImpl<AccessTokenSession> accessTokenSessionServiceImpl;
 
   @Inject
   Map<String, Client> clientsMap;
@@ -178,20 +189,44 @@ public class OIDCController {
   @POST
   @Path("/token")
   @Produces(MediaType.APPLICATION_JSON)
+  public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
+      throws OneIdentityException {
+    Log.debug("[OIDCController.token] start");
 
-  public Response token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended) {
+    String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
 
-    // 1. Authenticate Client [Secret Manager]
+    byte[] decodedBytes = Base64.getDecoder().decode(authorization);
+    String decodedString = new String(decodedBytes);
 
-    // 2. Retrieve SAMLSession by code (code -> OIDCSession -> SAMLRequestID -> SAMLSession) [Dynamo]
+    String clientId = decodedString.split(":")[0];
+    String secret = decodedString.split(":")[1];
 
-    // 3. Construct and sign JWT (ID-TOKEN) with parameters retrieved from SAMLResponse and Nonce (if present) + AccessToken [KMS]
+    oidcServiceImpl.authorizeClient(clientId, secret);
 
-    // 4. Persist AccessTokenSession [Dynamo]
+    SAMLSession session = samlSessionServiceImpl.getSAMLSessionByCode(
+        tokenRequestDTOExtended.getCode());
 
-    // 5. Return JSON with ACCESS-TOKEN + ID-TOKEN (JWT)
+    Assertion assertion = samlServiceImpl.getSAMLResponseFromString(
+            new String(Base64.getDecoder().decode(session.getSAMLResponse()))).getAssertions()
+        .getFirst();
 
-    return Response.ok("Token Path").build();
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(
+        samlServiceImpl.getAttributesFromSAMLAssertion(assertion),
+        session.getAuthorizationRequestDTOExtended().getNonce());
+
+    long creationTime = Instant.now().getEpochSecond();
+    long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
+
+    AccessTokenSession accessTokenSession = new AccessTokenSession(session.getSamlRequestID(),
+        RecordType.ACCESS_TOKEN,
+        creationTime,
+        ttl, tokenDataDTO.getIdToken(), tokenDataDTO.getAccessToken());
+
+    accessTokenSessionServiceImpl.saveSession(accessTokenSession);
+
+    Log.debug("[OIDCController.token] end");
+
+    return tokenDataDTO;
   }
 
 }

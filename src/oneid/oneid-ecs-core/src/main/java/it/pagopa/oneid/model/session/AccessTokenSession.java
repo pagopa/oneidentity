@@ -1,8 +1,12 @@
 package it.pagopa.oneid.model.session;
 
+import it.pagopa.oneid.model.session.enums.RecordType;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
@@ -10,6 +14,8 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 @EqualsAndHashCode(callSuper = true)
 @DynamoDbBean
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccessTokenSession extends Session {
 
   // TODO indexNames by constant
@@ -20,4 +26,11 @@ public class AccessTokenSession extends Session {
   private String accessToken;
 
   private String idToken;
+
+  public AccessTokenSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
+      @NotNull long creationTime, @NotNull long ttl, String accessToken, String idToken) {
+    super(SAMLRequestID, recordType, creationTime, ttl);
+    this.accessToken = accessToken;
+    this.idToken = idToken;
+  }
 }
