@@ -21,10 +21,16 @@ public class SAMLUtilsConstants {
   public static String CONTACT_PERSON_GIVEN_NAME;
   public static String CONTACT_PERSON_EMAIL_ADDRESS;
   public static String CONTACT_PERSON_TELEPHONE_NUMBER;
-  public static String NAMESPACE_URI = "https://spid.gov.it/saml-extensions";
-  public static String NAMESPACE_PREFIX = "spid";
+  public static String NAMESPACE_URI_SPID = "https://spid.gov.it/saml-extensions";
+  public static String NAMESPACE_URI_CIE = "https://www.cartaidentita.interno.gov.it/saml-extensions";
+  public static String NAMESPACE_PREFIX_SPID = "spid";
+  public static String NAMESPACE_PREFIX_CIE = "cie";
   public static String LOCAL_NAME_IPA = "IPACode";
-  public static String IPA_CODE = "h_c501";
+  public static String LOCAL_NAME_VAT_NUMBER = "VATNumber";
+  public static String LOCAL_NAME_FISCAL_CODE = "FiscalCode";
+  public static String IPA_CODE = "5N2TR557";
+  public static String VAT_NUMBER = "IT15376371009";
+  public static String FISCAL_CODE = "15376371009";
   public static String LOCAL_NAME_PUBLIC = "Public";
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
 
