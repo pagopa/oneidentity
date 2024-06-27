@@ -9,17 +9,17 @@ import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildOrganization;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSPSSODescriptor;
 import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSingleLogoutService;
 import static it.pagopa.oneid.common.utils.SAMLUtils.buildSignature;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -67,9 +67,9 @@ public class ServiceMetadata {
   }
 
   @GET
-  @Path("/metadata")
+  @Path("/{id_type}/metadata")
   @Produces(MediaType.APPLICATION_XML)
-  public Response metadata() throws OneIdentityException {
+  public Response metadata(@PathParam("id_type") IdType idType) throws OneIdentityException {
 
     EntityDescriptor entityDescriptor = SAMLUtils.buildSAMLObject(EntityDescriptor.class);
     entityDescriptor.setEntityID(SERVICE_PROVIDER_URI);
@@ -86,10 +86,12 @@ public class ServiceMetadata {
     }
 
     entityDescriptor.setOrganization(buildOrganization());
-    entityDescriptor.getContactPersons().add(buildContactPerson());
+    entityDescriptor.getContactPersons()
+        .add(buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri()));
     entityDescriptor.getRoleDescriptors().add(spssoDescriptor);
     entityDescriptor.getNamespaceManager()
-        .registerNamespaceDeclaration(new Namespace(NAMESPACE_URI, NAMESPACE_PREFIX));
+        .registerNamespaceDeclaration(
+            new Namespace(idType.getNamespaceUri(), idType.getNamespacePrefix()));
 
     Signature signature = buildSignature(entityDescriptor);
     entityDescriptor.setSignature(signature);

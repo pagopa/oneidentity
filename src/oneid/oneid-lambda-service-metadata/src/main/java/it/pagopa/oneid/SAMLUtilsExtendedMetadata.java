@@ -3,11 +3,12 @@ package it.pagopa.oneid;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ACS_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_COMPANY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_EMAIL_ADDRESS;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.IPA_CODE;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME;
@@ -15,6 +16,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
@@ -137,12 +139,12 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return organizationURL;
   }
 
-  public static ContactPerson buildContactPerson() {
+  public static ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
     contactPerson.setType(ContactPersonTypeEnumeration.OTHER);
     contactPerson.getEmailAddresses().add(buildEmailAddress());
-    contactPerson.setExtensions(buildExtensions());
+    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
 
     return contactPerson;
   }
@@ -161,12 +163,24 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return emailAddress;
   }
 
-  public static Extensions buildExtensions() {
+  public static Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
     Extensions extensions = buildSAMLObject(Extensions.class);
-    XSAny ipaCode = new XSAnyBuilder().buildObject(NAMESPACE_URI, LOCAL_NAME_IPA, NAMESPACE_PREFIX);
+
+    XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
+        namespacePrefix);
     ipaCode.setTextContent(IPA_CODE);
     extensions.getUnknownXMLObjects().add(ipaCode);
-    XSAny pub = new XSAnyBuilder().buildObject(NAMESPACE_URI, LOCAL_NAME_PUBLIC, NAMESPACE_PREFIX);
+    XSAny vatNumber = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_VAT_NUMBER,
+        namespacePrefix);
+    vatNumber.setTextContent(VAT_NUMBER);
+    extensions.getUnknownXMLObjects().add(vatNumber);
+    XSAny fiscalCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_FISCAL_CODE,
+        namespacePrefix);
+    fiscalCode.setTextContent(FISCAL_CODE);
+    extensions.getUnknownXMLObjects().add(vatNumber);
+    XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
+        LOCAL_NAME_PUBLIC,
+        namespacePrefix);
     pub.setTextContent("");
     extensions.getUnknownXMLObjects().add(pub);
 
