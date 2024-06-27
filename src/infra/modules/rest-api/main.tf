@@ -118,9 +118,11 @@ resource "aws_cloudwatch_log_group" "main" {
 }
 
 resource "aws_api_gateway_method_settings" "main" {
+  for_each    = { for i in var.method_settings : i.method_path => i } 
+  
   rest_api_id = aws_api_gateway_rest_api.main.id
   stage_name  = aws_api_gateway_stage.main.stage_name
-  for_each    = { for i in var.method_settings : i.method_path => i } 
+  
   method_path = each.value.method_path
 
   settings {
