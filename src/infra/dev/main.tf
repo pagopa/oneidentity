@@ -47,7 +47,7 @@ module "frontend" {
   metadata_lamba_name = module.backend.metadata_lambda_name
   metadata_lamba_arn  = module.backend.metadata_lambda_arn
   aws_region          = var.aws_region
-
+  api_method_settings = var.api_method_settings
 }
 
 

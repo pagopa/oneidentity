@@ -78,17 +78,4 @@ variable "api_method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
-
-  default = [
-    {
-      method_path           = "*/*"
-      metrics_enabled       = true
-      logging_level         = "INFO"
-    },
-    {
-      method_path           = "/static/{proxy+}"
-      caching_enabled       = true
-      cache_ttl_in_seconds  = 3600
-    }
-  ]  
 }
