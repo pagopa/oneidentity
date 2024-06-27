@@ -120,11 +120,19 @@ resource "aws_cloudwatch_log_group" "main" {
 resource "aws_api_gateway_method_settings" "main" {
   rest_api_id = aws_api_gateway_rest_api.main.id
   stage_name  = aws_api_gateway_stage.main.stage_name
-  method_path = "*/*"
+  for_each    = { for i in var.method_settings : i.method_path => i } 
+  method_path = each.value.method_path
 
   settings {
-    metrics_enabled = true
-    logging_level   = "INFO"
+    metrics_enabled                         = each.value.metrics_enabled
+    logging_level                           = each.value.logging_level
+    data_trace_enabled                      = each.value.data_trace_enabled
+    throttling_rate_limit                   = each.value.throttling_rate_limit
+    throttling_burst_limit                  = each.value.throttling_burst_limit
+    caching_enabled                         = each.value.caching_enabled
+    cache_ttl_in_seconds                    = each.value.cache_ttl_in_seconds
+    cache_data_encrypted                    = each.value.cache_data_encrypted
+    require_authorization_for_cache_control = each.value.require_authorization_for_cache_control
   }
 }
 

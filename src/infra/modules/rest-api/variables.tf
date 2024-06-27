@@ -34,7 +34,7 @@ variable "cache_cluster_size" {
 }
 
 
-variable "method_settins" {
+variable "method_settings" {
   description = "List of Api Gateway method settings."
   type = list(object({
     method_path                             = string
@@ -45,12 +45,10 @@ variable "method_settins" {
     throttling_burst_limit                  = optional(number, -1)
     caching_enabled                         = optional(bool, false)
     cache_ttl_in_seconds                    = optional(number, 0)
-    cache_data_encrypted                    = otional(bool, false)
-    require_authorization_for_cache_control = optioanl(bool, false)
+    cache_data_encrypted                    = optional(bool, false)
+    require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
-
-  default = [{}]
 }
 
 
