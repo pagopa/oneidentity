@@ -10,6 +10,8 @@ import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.OIDCAuthorizationException;
+import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
@@ -47,6 +49,14 @@ public class ExceptionMapper {
       GenericAuthnRequestCreationException genericAuthnRequestCreationException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during generation of AuthnRequest.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapOIDCSignJWTException(
+      OIDCSignJWTException oidcSignJWTException) {
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during signing of JWT.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
@@ -104,6 +114,14 @@ public class ExceptionMapper {
     String message = "IDP not found";
     return RestResponse.
         status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapOIDCAuthorizationException(
+      OIDCAuthorizationException oidcAuthorizationException) {
+    Response.Status status = BAD_REQUEST;
+    String message = "Error during OIDC authorization flow.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {

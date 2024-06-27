@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AttributeDTO<T> {
+public class AttributeDTO {
 
   String attributeName;
-  T attributeValue;
+  String attributeValue;
 }

@@ -1,8 +1,8 @@
 package it.pagopa.oneid.connector;
 
-import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN;
-import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_OIDC;
-import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN_MIN;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_OIDC_MIN;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML_MIN;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
@@ -63,7 +63,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       case SAMLSession samlSession -> {
         if (
             samlSession.getCreationTime() < Instant.now()
-                .minus(VALID_TIME_SAML, ChronoUnit.MINUTES)
+                .minus(VALID_TIME_SAML_MIN, ChronoUnit.MINUTES)
                 .getEpochSecond()) {
           return false;
         }
@@ -71,7 +71,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       case OIDCSession oidcSession -> {
         if (
             oidcSession.getCreationTime() < Instant.now()
-                .minus(VALID_TIME_OIDC, ChronoUnit.MINUTES)
+                .minus(VALID_TIME_OIDC_MIN, ChronoUnit.MINUTES)
                 .getEpochSecond()) {
           return false;
         }
@@ -79,7 +79,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       case AccessTokenSession accessTokenSession -> {
         if (
             accessTokenSession.getCreationTime() < Instant.now()
-                .minus(VALID_TIME_ACCESS_TOKEN, ChronoUnit.MINUTES)
+                .minus(VALID_TIME_ACCESS_TOKEN_MIN, ChronoUnit.MINUTES)
                 .getEpochSecond()) {
           return false;
         }
