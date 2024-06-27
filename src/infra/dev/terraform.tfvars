@@ -33,6 +33,22 @@ rest_api_throttle_settings = {
   burst_limit = 100
 }
 
+api_cache_cluster_enabled = true
+api_method_settings = [
+  {
+    method_path     = "*/*"
+    metrics_enabled = true
+    logging_level   = "INFO"
+  },
+  {
+    method_path          = "static/*/GET"
+    caching_enabled      = true
+    cache_ttl_in_seconds = 3600
+  }
+]
+
+
+
 
 
 # Ref: https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/132810155/Azure+-+Naming+Tagging+Convention#Tagging

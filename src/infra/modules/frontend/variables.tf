@@ -48,19 +48,16 @@ variable "api_gateway_plan" {
   description = "Name of the plan associated to the set of apis."
 }
 
-variable "nlb_dns_name" {
-  type        = string
-  description = "NLB dns name."
+variable "api_cache_cluster_enabled" {
+  type        = bool
+  description = "Enablr cache cluster is enabled for the stage."
+  default     = false
 }
 
-variable "metadata_lamba_name" {
-  type        = string
-  description = "lambda metadata name"
-}
-
-variable "metadata_lamba_arn" {
-  type        = string
-  description = "lambda metadata arn"
+variable "api_cache_cluster_size" {
+  type        = number
+  description = "Size of the cache cluster for the stage, if enabled."
+  default     = 0.5
 }
 
 variable "api_method_settings" {
@@ -78,4 +75,22 @@ variable "api_method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
+  default = []
+}
+
+## Network loadbalancer.
+
+variable "nlb_dns_name" {
+  type        = string
+  description = "NLB dns name."
+}
+
+variable "metadata_lamba_name" {
+  type        = string
+  description = "lambda metadata name"
+}
+
+variable "metadata_lamba_arn" {
+  type        = string
+  description = "lambda metadata arn"
 }

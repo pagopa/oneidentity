@@ -21,13 +21,13 @@ variable "stage_name" {
   description = "Stage name."
 }
 
-variable "cache_cluster_enabled" {
+variable "api_cache_cluster_enabled" {
   type        = bool
   description = "Enablr cache cluster is enabled for the stage."
   default     = false
 }
 
-variable "cache_cluster_size" {
+variable "api_cache_cluster_size" {
   type        = number
   description = "Size of the cache cluster for the stage, if enabled."
   default     = 0.5
@@ -49,6 +49,7 @@ variable "method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
+  default = []
 }
 
 

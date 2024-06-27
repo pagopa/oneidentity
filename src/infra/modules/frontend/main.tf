@@ -71,8 +71,10 @@ module "rest_api" {
   certificate_arn           = module.acm.acm_certificate_arn
   api_mapping_key           = null
 
-  plan = var.api_gateway_plan
-  method_settings = var.api_method_settings
+  plan                      = var.api_gateway_plan
+  api_cache_cluster_enabled = var.api_cache_cluster_enabled
+  api_cache_cluster_size    = var.api_cache_cluster_size
+  method_settings           = var.api_method_settings
 
 }
 

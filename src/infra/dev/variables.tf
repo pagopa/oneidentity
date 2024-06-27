@@ -103,21 +103,18 @@ variable "dns_record_ttl" {
 }
 
 ## Api Gateway
-variable "rest_api_throttle_settings" {
-  type = object({
-    burst_limit = number
-    rate_limit  = number
-  })
-  description = "Rest api throttle settings."
+variable "api_cache_cluster_enabled" {
+  type        = bool
+  description = "Enablr cache cluster is enabled for the stage."
+  default     = false
 }
 
-
-variable "tags" {
-  type = map(any)
-  default = {
-    CreatedBy = "Terraform"
-  }
+variable "api_cache_cluster_size" {
+  type        = number
+  description = "Size of the cache cluster for the stage, if enabled."
+  default     = 0.5
 }
+
 
 variable "api_method_settings" {
   description = "List of Api Gateway method settings."
@@ -134,16 +131,21 @@ variable "api_method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
-  default = [
-    {
-      method_path     = "*/*"
-      metrics_enabled = true
-      logging_level   = "INFO"
-    },
-    {
-      method_path          = "/static/{proxy+}"
-      caching_enabled      = true
-      cache_ttl_in_seconds = 3600
-    }
-  ]
+  default = []
+}
+
+variable "rest_api_throttle_settings" {
+  type = object({
+    burst_limit = number
+    rate_limit  = number
+  })
+  description = "Rest api throttle settings."
+}
+
+
+variable "tags" {
+  type = map(any)
+  default = {
+    CreatedBy = "Terraform"
+  }
 }
