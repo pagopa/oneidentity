@@ -15,7 +15,11 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.dto.SecretDTO;
+import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
@@ -26,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class OIDCServiceImpl implements OIDCService {
@@ -33,10 +38,12 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   OIDCUtils oidcUtils;
 
-  @Override
-  public Client getClientRegistration(String clientID) {
-    return null;
-  }
+  @Inject
+  ClientConnectorImpl clientConnectorImpl;
+
+  @Inject
+  Map<String, Client> clientsMap;
+
 
   @Override
   public AuthorizationRequest buildAuthorizationRequest(
@@ -117,5 +124,20 @@ public class OIDCServiceImpl implements OIDCService {
     // Setup OIDCTokenResponse
 
     return new OIDCTokenResponse(oidcTokens);
+  }
+
+  @Override
+  public void authorizeClient(String clientId, String clientSecret)
+      throws OIDCAuthorizationException {
+    if (clientsMap.get(clientId) != null) {
+      throw new OIDCAuthorizationException();
+    }
+
+    SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
+        .orElseThrow(OIDCAuthorizationException::new);
+
+    if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
+      throw new OIDCAuthorizationException();
+    }
   }
 }

@@ -115,6 +115,14 @@ public class ExceptionMapper {
         status(status, buildErrorResponse(status, message));
   }
 
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapOIDCAuthorizationException(
+      OIDCAuthorizationException oidcAuthorizationException) {
+    Response.Status status = BAD_REQUEST;
+    String message = "Error during OIDC authorization flow.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
     return ErrorResponse.builder()
         .type(MediaType.APPLICATION_JSON)

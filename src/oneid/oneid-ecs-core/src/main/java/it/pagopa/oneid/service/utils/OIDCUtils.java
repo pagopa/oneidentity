@@ -1,6 +1,8 @@
 package it.pagopa.oneid.service.utils;
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import static it.pagopa.oneid.connector.KMSConnector.concatenateArrays;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_JWT_MIN;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -23,13 +25,17 @@ public class OIDCUtils {
   KMSConnectorImpl kmsConnectorImpl;
 
   private static JWTClaimsSet buildJWTClaimsSet(List<AttributeDTO> attributeDTOList, String nonce) {
-    return new JWTClaimsSet.Builder()
-        .subject("one-id")
-        .issuer("http://dev.oneidentity.pagopa.it/token")
-        .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-        .claim("fiscalNumber", fiscalNumber)
+    JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+        .subject(SERVICE_PROVIDER_URI)
+        .issuer(SERVICE_PROVIDER_URI)
         .claim("nonce", nonce)
+        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000))
         .build();
+
+    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.getClaims()
+        .put(attributeDTO.getAttributeName(), attributeDTO.getAttributeValue()));
+
+    return jwtClaimsSet;
   }
 
   public String createSignedJWT(List<AttributeDTO> attributeDTOList, String nonce) {
