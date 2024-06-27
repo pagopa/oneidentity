@@ -392,13 +392,13 @@
         }
       }
     },
-    "/saml/{type}/metadata": {
+    "/saml/{id_type}/metadata": {
       "get": {
         "tags": ["SAML APIs"],
         "description": "This route will serves SAML metadata",
         "parameters": [
           {
-            "name": "type",
+            "name": "id_type",
             "in": "path",
             "description": "Spid or cie",
             "required": true,
@@ -415,7 +415,7 @@
           "cacheKeyParameters": [],
           "type": "aws_proxy",
           "requestParameters": {
-            "integration.request.path.type": "method.request.path.type"
+            "integration.request.path.id_type": "method.request.path.id_type"
           },
           "responses": {}
        },
