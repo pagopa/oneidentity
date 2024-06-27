@@ -89,5 +89,5 @@ resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
   action        = "lambda:InvokeFunction"
   function_name = var.metadata_lamba_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/metadata"
+  source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/*/metadata"
 }
