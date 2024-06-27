@@ -74,7 +74,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         working-directory: src/oneid
         run: |
-          docker build -f ./oneid-ecs-core/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $(grep -v ^$ ./oneid-ecs-core/src/main/webui/.env.${{ matrix.env_short }} | sed 's@^@--build-arg @g' | paste -s -d " ") .
+          docker build -f ./oneid-ecs-core/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg ENVIRONMENT=${{ matrix.env_short }} .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
       

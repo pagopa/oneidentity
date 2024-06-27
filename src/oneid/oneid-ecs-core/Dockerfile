@@ -14,8 +14,13 @@ USER quarkus
 
 WORKDIR /code
 
+ARG ENVIRONMENT
+ARG ENVFILE=/code/oneid-ecs-core/src/main/webui/.env.${ENVIRONMENT}
+
 # Build oneid-ecs-core using oneid-ecs-core-aggregate
-RUN ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate
+# This will use a workaround to load an env file, since is
+# not supported in docker build
+RUN export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2
