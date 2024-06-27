@@ -49,7 +49,7 @@ variable "method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
-  default = [ {} ]
+  default = []
 }
 
 

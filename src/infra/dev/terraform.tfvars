@@ -34,6 +34,20 @@ rest_api_throttle_settings = {
 }
 
 api_cache_cluster_enabled = true
+api_method_settings = [
+  {
+    method_path     = "*/*"
+    metrics_enabled = true
+    logging_level   = "INFO"
+  },
+  {
+    method_path          = "static/*/GET"
+    caching_enabled      = true
+    cache_ttl_in_seconds = 3600
+  }
+]
+
+
 
 
 
