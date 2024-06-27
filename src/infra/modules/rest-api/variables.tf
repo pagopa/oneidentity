@@ -21,6 +21,36 @@ variable "stage_name" {
   description = "Stage name."
 }
 
+variable "cache_cluster_enabled" {
+  type        = bool
+  description = "Enablr cache cluster is enabled for the stage."
+  default     = false
+}
+
+variable "cache_cluster_size" {
+  type        = number
+  description = "Size of the cache cluster for the stage, if enabled."
+  default     = 0.5
+}
+
+
+variable "method_settings" {
+  description = "List of Api Gateway method settings."
+  type = list(object({
+    method_path                             = string
+    metrics_enabled                         = optional(bool, false)
+    logging_level                           = optional(string, "OFF")
+    data_trace_enabled                      = optional(bool, false)
+    throttling_rate_limit                   = optional(number, -1)
+    throttling_burst_limit                  = optional(number, -1)
+    caching_enabled                         = optional(bool, false)
+    cache_ttl_in_seconds                    = optional(number, 0)
+    cache_data_encrypted                    = optional(bool, false)
+    require_authorization_for_cache_control = optional(bool, false)
+    cache_key_parameters                    = optional(list(string), [])
+  }))
+}
+
 
 variable "custom_domain_name" {
   type        = string

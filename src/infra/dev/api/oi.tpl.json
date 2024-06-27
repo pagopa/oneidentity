@@ -1008,7 +1008,8 @@
           },
           "passthroughBehavior" : "when_no_match",
           "connectionType" : "VPC_LINK",
-          "cacheKeyParameters" : [ "method.request.path.proxy" ]
+          "cacheKeyParameters" : [ "method.request.path.proxy" ],
+          "cacheNamespace": "static-contents"
         }
       }
     }

@@ -72,6 +72,7 @@ module "rest_api" {
   api_mapping_key           = null
 
   plan = var.api_gateway_plan
+  method_settings = var.api_method_settings
 
 }
 

@@ -118,3 +118,32 @@ variable "tags" {
     CreatedBy = "Terraform"
   }
 }
+
+variable "api_method_settings" {
+  description = "List of Api Gateway method settings."
+  type = list(object({
+    method_path                             = string
+    metrics_enabled                         = optional(bool, false)
+    logging_level                           = optional(string, "OFF")
+    data_trace_enabled                      = optional(bool, false)
+    throttling_rate_limit                   = optional(number, -1)
+    throttling_burst_limit                  = optional(number, -1)
+    caching_enabled                         = optional(bool, false)
+    cache_ttl_in_seconds                    = optional(number, 0)
+    cache_data_encrypted                    = optional(bool, false)
+    require_authorization_for_cache_control = optional(bool, false)
+    cache_key_parameters                    = optional(list(string), [])
+  }))
+  default = [
+    {
+      method_path     = "*/*"
+      metrics_enabled = true
+      logging_level   = "INFO"
+    },
+    {
+      method_path          = "/static/{proxy+}"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    }
+  ]
+}
