@@ -404,7 +404,12 @@
             "required": true,
             "style": "simple",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "spid",
+                "cie"
+              ],
+              "description": "Allowed metadata type."
             }
           }
         ],
