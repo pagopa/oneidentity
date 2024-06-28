@@ -11,27 +11,17 @@ import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.namespace.QName;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.commons.codec.binary.Base64;
-import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.impl.XSAnyImpl;
 import org.opensaml.core.xml.util.XMLObjectSupport;
-import org.opensaml.saml.common.xml.SAMLConstants;
-import org.opensaml.saml.criterion.EntityRoleCriterion;
-import org.opensaml.saml.criterion.ProtocolCriterion;
-import org.opensaml.saml.metadata.resolver.impl.FilesystemMetadataResolver;
-import org.opensaml.saml.metadata.resolver.impl.PredicateRoleDescriptorResolver;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -43,13 +33,8 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml.security.impl.MetadataCredentialResolver;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
-import org.opensaml.security.credential.UsageType;
-import org.opensaml.security.criteria.UsageCriterion;
-import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
-import org.opensaml.xmlsec.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
@@ -59,15 +44,17 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
-  private MetadataCredentialResolver metadataCredentialResolver;
-  private FilesystemMetadataResolver metadataResolver;
+  @Inject
+  MetadataResolverExtended metadataResolverExtended;
 
   @Inject
-  public SAMLUtilsExtendedCore() throws SAMLUtilsException {
-    super();
+  public SAMLUtilsExtendedCore(BasicParserPool basicParserPool) throws SAMLUtilsException {
+    super(basicParserPool);
     // TODO: env var fileName (DEV, UAT, PROD)
-    metadataResolverSetter("metadata/spid.xml", "spidMetadataResolver");
-    metadataResolverSetter("metadata/cie.xml", "cieMetadataResolver");
+  }
+
+  public SAMLUtilsExtendedCore() {
+    super();
   }
 
   public static Issuer buildIssuer() {
@@ -137,36 +124,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return Optional.of(attributes);
   }
 
-  private void metadataResolverSetter(String fileName, String id) throws SAMLUtilsException {
-    try {
-      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
-    } catch (ResolverException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataResolver.setId(id);
-    metadataResolver.setParserPool(basicParserPool);
-    try {
-      metadataResolver.initialize();
-    } catch (ComponentInitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataCredentialResolver = new MetadataCredentialResolver();
-    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
-        metadataResolver);
-    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
-    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
-
-    try {
-      metadataCredentialResolver.initialize();
-      roleResolver.initialize();
-    } catch (ComponentInitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
-  }
-
   public Response getSAMLResponseFromString(String SAMLResponse)
       throws OneIdentityException {
     Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] start");
@@ -189,7 +146,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
-    Optional<Credential> credential = getCredential(entityID);
+    Optional<Credential> credential = metadataResolverExtended.getCredential(entityID);
 
     if (credential.isPresent()) {
       // Validate 'Response' signature
@@ -224,42 +181,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  public Optional<Credential> getCredential(String entityID) throws SAMLUtilsException {
-    // TODO do we need to add a cache layer? (With ConcurrentHashMap)
-    CriteriaSet criteriaSet = new CriteriaSet();
-    criteriaSet.add(new EntityIdCriterion(entityID));
-    criteriaSet.add(new UsageCriterion(UsageType.SIGNING));
-    criteriaSet.add(new EntityRoleCriterion(
-        new QName("urn:oasis:names:tc:SAML:2.0:metadata", "IDPSSODescriptor", "md")));
-    criteriaSet.add(new ProtocolCriterion(SAMLConstants.SAML20P_NS));
-
-    Credential credential;
-    try {
-      credential = metadataCredentialResolver.resolveSingle(criteriaSet);
-    } catch (ResolverException e) {
-      Log.error(
-          "[it.pagopa.oneid.common.utils.SAMLUtils.getCredential] Error during credential resolving "
-              + e.getMessage());
-      throw new SAMLUtilsException(e);
-    }
-
-    return Optional.ofNullable(credential);
-  }
-
-  public Optional<EntityDescriptor> getEntityDescriptor(String entityID) throws SAMLUtilsException {
-    // TODO do we need to add a cache layer? (With ConcurrentHashMap)
-    CriteriaSet criteriaSet = new CriteriaSet();
-    criteriaSet.add(new EntityIdCriterion(entityID));
-
-    EntityDescriptor entityDescriptor;
-    try {
-      entityDescriptor = metadataResolver.resolveSingle(criteriaSet);
-    } catch (ResolverException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    return Optional.ofNullable(entityDescriptor);
-  }
 
   public Optional<String> buildDestination(String idpID) throws SAMLUtilsException {
 
@@ -269,5 +190,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
             .getFirst()
             .getLocation()
         );
+  }
+
+  public Optional<EntityDescriptor> getEntityDescriptor(String id) throws SAMLUtilsException {
+    return metadataResolverExtended.getEntityDescriptor(id);
   }
 }
