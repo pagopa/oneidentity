@@ -38,11 +38,8 @@ export const cieIcon = () => (
 
 const Login = () => {
   const [showIDPS, setShowIDPS] = useState(false);
-  const [fromOnboarding, setFromOnboarding] = useState<boolean>();
-  const [_, setProduct] = useState<string>('');
   const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
   const [openSpidModal, setOpenSpidModal] = useState(false);
-  const [__, setIsPT] = useState(false);
 
   const mapToArray = (json: { [key: string]: BannerContent }) => {
     const mapped = Object.values(json);
@@ -63,56 +60,11 @@ const Login = () => {
     void alertMessage(ENV.JSON_URL.ALERT);
   }, []);
 
-  useEffect(() => {
-    const onboardingUrl = new URLSearchParams(window.location.search).get('onSuccess');
-
-    if (onboardingUrl && onboardingUrl.includes('institutionType=PT')) {
-      setIsPT(true);
-    } else {
-      setIsPT(false);
-    }
-
-    const onboardingUrlWithoutInstitution = onboardingUrl?.split('?')[0];
-
-    if (onboardingUrl?.includes('onboarding') && !onboardingUrl?.includes('confirm')) {
-      setFromOnboarding(true);
-      switch (onboardingUrlWithoutInstitution) {
-        case '/onboarding/prod-interop':
-          setProduct('Interoperabilità');
-          break;
-        case '/onboarding/prod-io':
-          setProduct('App Io');
-          break;
-        case '/onboarding/prod-io/prod-io-premium':
-          setProduct('App Io Premium');
-          break;
-        case '/onboarding/prod-io-sign':
-          setProduct('Firma con Io');
-          break;
-        case '/onboarding/prod-pn':
-          setProduct('SEND - Servizio Notifiche Digitali');
-          break;
-        case '/onboarding/prod-pagopa':
-          setProduct('Piattaforma pagoPA');
-          break;
-        case '/onboarding/prod-cgn':
-          setProduct('Carta Giovani');
-          break;
-        case '/onboarding/prod-ciban':
-          setProduct('Check-IBAN');
-          break;
-        default:
-          setProduct('');
-      }
-    } else {
-      setFromOnboarding(false);
-    }
-  }, []);
-
   const { t } = useTranslation();
 
   const goCIE = () => {
-    const params = forwardSearchParams();
+    const params = forwardSearchParams(ENV.SPID_CIE_ENTITY_ID);
+    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
@@ -120,10 +72,7 @@ const Login = () => {
         SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
         FORWARD_PARAMETERS: params,
       },
-      () =>
-        window.location.assign(
-          `${ENV.URL_API.AUTHORIZE}?idp=${ENV.SPID_CIE_ENTITY_ID}&authLevel=SpidL2&${params}`
-        )
+      () => window.location.assign(redirectUrl)
     );
   };
 
@@ -178,12 +127,26 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {fromOnboarding || t('loginPage.title')}
+              {t('loginPage.title')}
             </Typography>
           </Grid>
         </Grid>
 
-        {ENV.ENABLED_SPID && (
+        <Grid container item justifyContent="center">
+          <Grid item xs={6}>
+            <Typography
+              variant="body1"
+              mb={5}
+              color="textPrimary"
+              sx={{
+                textAlign: 'center',
+              }}
+            >
+              {t('loginPage.description')}
+            </Typography>
+          </Grid>
+        </Grid>
+        {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>
               <Alert severity="warning">
@@ -199,8 +162,7 @@ const Login = () => {
             </Grid>
           </Grid>
         )}
-        {fromOnboarding &&
-          bannerContent &&
+        {bannerContent &&
           bannerContent.map(
             (bc, index) =>
               bc.enable && (

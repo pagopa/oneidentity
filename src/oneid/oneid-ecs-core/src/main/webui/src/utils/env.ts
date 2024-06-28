@@ -7,7 +7,7 @@ export const ENV = {
   ENV: currentEnv,
   PUBLIC_URL,
 
-  ENABLED_SPID: env.get('REACT_APP_LOGIN_SPID_ENABLED').required().asBool(),
+  ENABLED_SPID_TEMPORARY_SELECT: env.get('REACT_APP_LOGIN_SPID_ENABLED_TEMPORARY_SELECT').required().asBool(),
 
   ASSISTANCE: {
     ENABLE: env.get('REACT_APP_ENABLE_ASSISTANCE').required().asBool(),
