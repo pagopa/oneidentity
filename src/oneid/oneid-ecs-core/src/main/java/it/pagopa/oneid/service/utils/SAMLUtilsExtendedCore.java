@@ -56,46 +56,18 @@ import org.opensaml.xmlsec.signature.support.SignatureValidator;
 @ApplicationScoped
 public class SAMLUtilsExtendedCore extends SAMLUtils {
 
-  private final MetadataCredentialResolver metadataCredentialResolver;
-  private final FilesystemMetadataResolver metadataResolver;
-
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
+
+  private MetadataCredentialResolver metadataCredentialResolver;
+  private FilesystemMetadataResolver metadataResolver;
 
   @Inject
   public SAMLUtilsExtendedCore() throws SAMLUtilsException {
     super();
-    //TODO: add CIE metadata resolver
     // TODO: env var fileName (DEV, UAT, PROD)
-    String fileName = "metadata/spid.xml";
-
-    try {
-      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
-    } catch (ResolverException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataResolver.setId("spidMetadataResolver");
-    metadataResolver.setParserPool(basicParserPool);
-    try {
-      metadataResolver.initialize();
-    } catch (ComponentInitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
-
-    metadataCredentialResolver = new MetadataCredentialResolver();
-    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
-        metadataResolver);
-    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
-    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
-    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
-
-    try {
-      metadataCredentialResolver.initialize();
-      roleResolver.initialize();
-    } catch (ComponentInitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
+    metadataResolverSetter("metadata/spid.xml", "spidMetadataResolver");
+    metadataResolverSetter("metadata/cie.xml", "cieMetadataResolver");
   }
 
   public static Issuer buildIssuer() {
@@ -163,6 +135,36 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
     Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] end");
     return Optional.of(attributes);
+  }
+
+  private void metadataResolverSetter(String fileName, String id) throws SAMLUtilsException {
+    try {
+      metadataResolver = new FilesystemMetadataResolver(new File(fileName));
+    } catch (ResolverException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    metadataResolver.setId(id);
+    metadataResolver.setParserPool(basicParserPool);
+    try {
+      metadataResolver.initialize();
+    } catch (ComponentInitializationException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    metadataCredentialResolver = new MetadataCredentialResolver();
+    PredicateRoleDescriptorResolver roleResolver = new PredicateRoleDescriptorResolver(
+        metadataResolver);
+    KeyInfoCredentialResolver keyResolver = DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver();
+    metadataCredentialResolver.setKeyInfoCredentialResolver(keyResolver);
+    metadataCredentialResolver.setRoleDescriptorResolver(roleResolver);
+
+    try {
+      metadataCredentialResolver.initialize();
+      roleResolver.initialize();
+    } catch (ComponentInitializationException e) {
+      throw new SAMLUtilsException(e);
+    }
   }
 
   public Response getSAMLResponseFromString(String SAMLResponse)
