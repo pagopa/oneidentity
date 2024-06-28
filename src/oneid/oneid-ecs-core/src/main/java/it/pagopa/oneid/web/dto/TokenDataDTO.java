@@ -1,6 +1,6 @@
 package it.pagopa.oneid.web.dto;
 
-import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,30 +11,30 @@ import lombok.Data;
 @Builder
 public class TokenDataDTO {
 
-  @SerializedName("access_token")
+  @JsonProperty("access_token")
   @NotNull
   String accessToken;
 
-  @SerializedName("token_type")
+  @JsonProperty("token_type")
   @NotNull
   String tokenType;
 
-  @SerializedName("expires_in")
+  @JsonProperty("expires_in")
   @NotNull
   String expiresIn;
 
-  @SerializedName("refresh_token")
+  @JsonProperty("refresh_token")
   String refreshToken;
 
-  @SerializedName("scope")
+  @JsonProperty("scope")
   @NotNull
   String scope;
 
-  @SerializedName("id_token")
+  @JsonProperty("id_token")
   @NotNull
   String idToken;
 
-  @SerializedName("id_token_type")
+  @JsonProperty("id_token_type")
   @NotNull
   String idTokenType;
 }

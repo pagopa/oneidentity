@@ -121,7 +121,7 @@ public class OIDCServiceImpl implements OIDCService {
 
     return TokenDataDTO
         .builder()
-        .idToken(signedJWTIDToken.toString())
+        .idToken(signedJWTIDToken.serialize())
         .idTokenType("openid")
         .accessToken(accessToken.toString())
         .tokenType(accessToken.getType().getValue())
