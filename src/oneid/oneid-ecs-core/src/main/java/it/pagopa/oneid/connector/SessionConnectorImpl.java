@@ -161,7 +161,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
 
         if (samlSession == null) {
-          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          Log.debug("[SessionConnectorImpl.findSession] saml session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(samlSession)) {
@@ -188,7 +188,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         try {
           oidcSession = collectedItems.getFirst();
         } catch (NoSuchElementException e) {
-          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          Log.debug("[SessionConnectorImpl.findSession] oidc session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(oidcSession)) {
@@ -215,7 +215,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         try {
           accessTokenSession = collectedItems.getFirst();
         } catch (NoSuchElementException e) {
-          Log.debug("[SessionConnectorImpl.findSession] session not found");
+          Log.debug("[SessionConnectorImpl.findSession] access token session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(accessTokenSession)) {
