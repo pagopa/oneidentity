@@ -220,7 +220,7 @@ public class OIDCController {
     AccessTokenSession accessTokenSession = new AccessTokenSession(session.getSamlRequestID(),
         RecordType.ACCESS_TOKEN,
         creationTime,
-        ttl, tokenDataDTO.getIdToken(), tokenDataDTO.getAccessToken());
+        ttl, tokenDataDTO.getAccessToken(), tokenDataDTO.getIdToken());
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
