@@ -14,8 +14,6 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.HashMap;
-import java.util.Map;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
@@ -49,16 +47,18 @@ public class SAMLUtils {
     secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
   }
 
-  protected final BasicParserPool basicParserPool;
+  protected BasicParserPool basicParserPool;
 
+  public SAMLUtils() {
+  }
 
   @Inject
-  public SAMLUtils() throws SAMLUtilsException {
+  public SAMLUtils(BasicParserPool basicParserPool) throws SAMLUtilsException {
     // TODO consider refactor
+    this.basicParserPool = basicParserPool;
     XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
     ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
-    registry.setParserPool(getBasicParserPool());
-    basicParserPool = getBasicParserPool();
+    registry.setParserPool(basicParserPool);
     try {
       basicParserPool.initialize();
     } catch (ComponentInitializationException e) {
@@ -88,28 +88,6 @@ public class SAMLUtils {
     return object;
   }
 
-  private static BasicParserPool getBasicParserPool() {
-    BasicParserPool parserPool = new BasicParserPool();
-    parserPool.setMaxPoolSize(100);
-    parserPool.setCoalescing(true);
-    parserPool.setIgnoreComments(true);
-    parserPool.setIgnoreElementContentWhitespace(true);
-    parserPool.setNamespaceAware(true);
-    parserPool.setExpandEntityReferences(false);
-    parserPool.setXincludeAware(false);
-
-    final Map<String, Boolean> features = new HashMap<String, Boolean>();
-    features.put("http://xml.org/sax/features/external-general-entities", Boolean.FALSE);
-    features.put("http://xml.org/sax/features/external-parameter-entities", Boolean.FALSE);
-    features.put("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
-    features.put("http://apache.org/xml/features/validation/schema/normalized-value",
-        Boolean.FALSE);
-    features.put("http://javax.xml.XMLConstants/feature/secure-processing", Boolean.TRUE);
-
-    parserPool.setBuilderFeatures(features);
-    parserPool.setBuilderAttributes(new HashMap<String, Object>());
-    return parserPool;
-  }
 
   public static String generateSecureRandomId() {
     return secureRandomIdGenerator.generateIdentifier();
