@@ -206,8 +206,8 @@ public class OIDCController {
     SAMLSession session = samlSessionServiceImpl.getSAMLSessionByCode(
         tokenRequestDTOExtended.getCode());
 
-    Assertion assertion = samlServiceImpl.getSAMLResponseFromString(
-            new String(Base64.getDecoder().decode(session.getSAMLResponse()))).getAssertions()
+    Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())
+        .getAssertions()
         .getFirst();
 
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(

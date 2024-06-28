@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.dto;
 
 import it.pagopa.oneid.model.dto.TokenRequestDTO;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.HeaderParam;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,6 +11,7 @@ import lombok.EqualsAndHashCode;
 public class TokenRequestDTOExtended extends TokenRequestDTO {
 
   @HeaderParam("Authorization")
+  @NotNull
   private String authorization;
 
 }

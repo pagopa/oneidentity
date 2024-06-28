@@ -134,7 +134,7 @@ public class OIDCServiceImpl implements OIDCService {
   public void authorizeClient(String clientId, String clientSecret)
       throws OIDCAuthorizationException {
     Log.debug("[OIDCServiceImpl.authorizeClient] start");
-    if (clientsMap.get(clientId) != null) {
+    if (clientsMap.get(clientId) == null) {
       Log.debug("[OIDCServiceImpl.authorizeClient] client not found");
       throw new OIDCAuthorizationException();
     }

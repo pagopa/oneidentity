@@ -14,9 +14,14 @@ public class HASHUtils {
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
-    md.update(salt.getBytes());
+    md.update(salt.getBytes(StandardCharsets.UTF_8));
+    byte[] bytes = md.digest(secret.getBytes(StandardCharsets.UTF_8));
+    StringBuilder sb = new StringBuilder();
+    for (byte aByte : bytes) {
+      sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+    }
 
-    return new String(md.digest(secret.getBytes(StandardCharsets.UTF_8)));
+    return sb.toString();
 
   }
 

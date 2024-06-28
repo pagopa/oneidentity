@@ -25,17 +25,16 @@ public class OIDCUtils {
   KMSConnectorImpl kmsConnectorImpl;
 
   private static JWTClaimsSet buildJWTClaimsSet(List<AttributeDTO> attributeDTOList, String nonce) {
-    JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+    JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
         .subject(SERVICE_PROVIDER_URI)
         .issuer(SERVICE_PROVIDER_URI)
         .claim("nonce", nonce)
-        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000))
-        .build();
+        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
-    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.getClaims()
-        .put(attributeDTO.getAttributeName(), attributeDTO.getAttributeValue()));
+    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
+        attributeDTO.getAttributeValue()));
 
-    return jwtClaimsSet;
+    return jwtClaimsSet.build();
   }
 
   public String createSignedJWT(List<AttributeDTO> attributeDTOList, String nonce) {
