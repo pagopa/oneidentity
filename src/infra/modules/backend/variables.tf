@@ -65,10 +65,14 @@ variable "github_repository" {
   description = "Github repository responsible to deploy ECS tasks in the form <organization|user/repository>."
 }
 
-variable "table_sessions_arn" {
-  type        = string
-  description = "Dynamodb table sessions arn."
+variable "dynamodb_table_sessions" {
+  type = object({
+    table_arn    = string
+    gsi_code_arn = string
+  })
+  description = "Dynamodb table sessions anrs"
 }
+
 
 variable "table_client_registrations_arn" {
   type        = string

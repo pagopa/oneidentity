@@ -15,12 +15,12 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend | n/a |
-| <a name="module_database"></a> [database](#module\_database) | ../modules/database | n/a |
-| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend | n/a |
-| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
-| <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
-| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend |  |
+| <a name="module_database"></a> [database](#module\_database) | ../modules/database |  |
+| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend |  |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
+| <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
 
 ## Resources
 
@@ -37,7 +37,7 @@
 | <a name="input_rest_api_throttle_settings"></a> [rest\_api\_throttle\_settings](#input\_rest\_api\_throttle\_settings) | Rest api throttle settings. | <pre>object({<br>    burst_limit = number<br>    rate_limit  = number<br>  })</pre> | n/a | yes |
 | <a name="input_api_cache_cluster_enabled"></a> [api\_cache\_cluster\_enabled](#input\_api\_cache\_cluster\_enabled) | Enablr cache cluster is enabled for the stage. | `bool` | `false` | no |
 | <a name="input_api_cache_cluster_size"></a> [api\_cache\_cluster\_size](#input\_api\_cache\_cluster\_size) | Size of the cache cluster for the stage, if enabled. | `number` | `0.5` | no |
-| <a name="input_api_method_settings"></a> [api\_method\_settings](#input\_api\_method\_settings) | List of Api Gateway method settings. | <pre>list(object({<br>    method_path                             = string<br>    metrics_enabled                         = optional(bool, false)<br>    logging_level                           = optional(string, "OFF")<br>    data_trace_enabled                      = optional(bool, false)<br>    throttling_rate_limit                   = optional(number, -1)<br>    throttling_burst_limit                  = optional(number, -1)<br>    caching_enabled                         = optional(bool, false)<br>    cache_ttl_in_seconds                    = optional(number, 0)<br>    cache_data_encrypted                    = optional(bool, false)<br>    require_authorization_for_cache_control = optional(bool, false)<br>    cache_key_parameters                    = optional(list(string), [])<br>  }))</pre> | <pre>[<br>  {<br>    "logging_level": "INFO",<br>    "method_path": "*/*",<br>    "metrics_enabled": true<br>  },<br>  {<br>    "cache_ttl_in_seconds": 3600,<br>    "caching_enabled": true,<br>    "method_path": "/static/{proxy+}"<br>  }<br>]</pre> | no |
+| <a name="input_api_method_settings"></a> [api\_method\_settings](#input\_api\_method\_settings) | List of Api Gateway method settings. | <pre>list(object({<br>    method_path                             = string<br>    metrics_enabled                         = optional(bool, false)<br>    logging_level                           = optional(string, "OFF")<br>    data_trace_enabled                      = optional(bool, false)<br>    throttling_rate_limit                   = optional(number, -1)<br>    throttling_burst_limit                  = optional(number, -1)<br>    caching_enabled                         = optional(bool, false)<br>    cache_ttl_in_seconds                    = optional(number, 0)<br>    cache_data_encrypted                    = optional(bool, false)<br>    require_authorization_for_cache_control = optional(bool, false)<br>    cache_key_parameters                    = optional(list(string), [])<br>  }))</pre> | `[]` | no |
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | App name. | `string` | `"oneid"` | no |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | # Storage S3 ## | <pre>object({<br>    mfa_delete               = bool<br>    gracier_transaction_days = number<br>    expiration_days          = number<br>  })</pre> | <pre>{<br>  "expiration_days": 100,<br>  "gracier_transaction_days": 90,<br>  "mfa_delete": false<br>}</pre> | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to create resources. Default Milan | `string` | `"eu-south-1"` | no |

@@ -133,7 +133,11 @@ module "backend" {
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
 
-  table_sessions_arn             = module.database.table_sessions_arn
+  dynamodb_table_sessions = {
+    table_arn    = module.database.table_sessions_arn
+    gsi_code_arn = module.database.table_sessions_gsi_code_arn
+  }
+
   table_client_registrations_arn = module.database.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn

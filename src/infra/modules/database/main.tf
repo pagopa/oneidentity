@@ -1,5 +1,6 @@
 locals {
   kms_sessions_table_alias = "/dynamodb/sessions"
+  gsi_code = "gsi_code_idx"
 }
 
 
@@ -25,7 +26,7 @@ module "dynamodb_sessions_table" {
 
   global_secondary_indexes = [
     {
-      name            = "gsi_code_idx"
+      name            = load.gsi_code
       hash_key        = "code"
       projection_type = "ALL"
     }
