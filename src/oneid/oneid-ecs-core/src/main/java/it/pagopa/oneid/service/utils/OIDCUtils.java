@@ -59,5 +59,4 @@ public class OIDCUtils {
     return new String(concatenateArrays(headerPayloadBytes, (byte) '.', base64Sign.getBytes()));
   }
 
-
 }

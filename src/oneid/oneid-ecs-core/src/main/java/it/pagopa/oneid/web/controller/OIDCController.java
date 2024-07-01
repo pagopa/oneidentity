@@ -98,7 +98,7 @@ public class OIDCController {
   @Path("/keys")
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
-    return Response.ok("OIDC Keys Path").build();
+    return Response.ok(oidcServiceImpl.getJWSKPublicKey()).build();
   }
 
   @POST

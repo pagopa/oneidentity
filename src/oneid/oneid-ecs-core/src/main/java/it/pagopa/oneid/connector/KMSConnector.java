@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 import software.amazon.awssdk.services.kms.model.SignResponse;
 
 public interface KMSConnector {
@@ -13,4 +14,6 @@ public interface KMSConnector {
   }
 
   SignResponse sign(byte[] headerBytes, byte[] payloadBytes);
+
+  GetPublicKeyResponse getPublicKey();
 }
