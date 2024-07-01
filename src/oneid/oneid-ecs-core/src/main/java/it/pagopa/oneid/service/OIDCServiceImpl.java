@@ -29,6 +29,7 @@ import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
@@ -65,7 +66,7 @@ public class OIDCServiceImpl implements OIDCService {
   SAMLUtilsConstants samlConstants;
 
   @Override
-  public JWKSUriMetadataDTO getJWSKPublicKey() {
+  public JWKSSetDTO getJWSKPublicKey() {
     GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
     RSAPublicKey rsaPublicKey;
     try {
@@ -76,7 +77,10 @@ public class OIDCServiceImpl implements OIDCService {
       throw new RuntimeException(e);
     }
 
-    return new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey);
+    return JWKSSetDTO.builder()
+        .keyList(List.of(
+            new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
+        .build();
   }
 
   @Override
