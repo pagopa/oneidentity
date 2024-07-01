@@ -2,7 +2,7 @@ module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "1.6.0"
 
-  for_each = { for r in var.ecr_registers : r.name => r }
+  for_each = {for r in var.ecr_registers : r.name => r}
 
   repository_name = each.key
 
@@ -41,7 +41,7 @@ module "jwt_sign" {
   description              = "KMS key to sign Jwt tokens"
   key_usage                = "SIGN_VERIFY"
   customer_master_key_spec = "RSA_2048"
-  enable_key_rotation      = false
+  enable_key_rotation = false
 
 
   # Aliases
@@ -49,9 +49,9 @@ module "jwt_sign" {
 }
 
 resource "aws_iam_policy" "ecs_core_task" {
-  name = format("%s-task-policy", var.service_core.service_name)
+  name   = format("%s-task-policy", var.service_core.service_name)
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
         Sid    = "DynamoDBSessionsRW"
@@ -66,11 +66,11 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
-        Sid = "DynamoDBGSISessionsR"
+        Sid    = "DynamoDBGSISessionsR"
         Action = [
           "dynamodb:Query",
         ]
-        Effect = "Allow"
+        Effect   = "Allow"
         Resource = [
           "${var.dynamodb_table_sessions.gsi_code_arn}",
         ]
@@ -91,6 +91,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         Effect = "Allow"
         Action = [
           "kms:Sign",
+          "kms:GetPublicKey",
         ]
         Resource = [
           "${module.jwt_sign.aliases.test-sign-jwt.target_key_arn}"
@@ -120,9 +121,10 @@ module "ecs" {
 
   cluster_name = var.ecs_cluster_name
 
-  cluster_settings = [{
-    name  = "containerInsights"
-    value = var.enable_container_insights ? "enabled" : "disabled"
+  cluster_settings = [
+    {
+      name  = "containerInsights"
+      value = var.enable_container_insights ? "enabled" : "disabled"
     }
   ]
 
@@ -200,10 +202,10 @@ module "ecs_core_service" {
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type        = "ingress"
-      from_port   = var.service_core.container.containerPort
-      to_port     = var.service_core.container.containerPort
-      protocol    = "tcp"
+      type                     = "ingress"
+      from_port                = var.service_core.container.containerPort
+      to_port                  = var.service_core.container.containerPort
+      protocol                 = "tcp"
       description = "Service port"
       #source_security_group_id = var.service_core.load_balancer.security_group_id
       source_security_group_id = module.elb.security_group_id
@@ -236,7 +238,7 @@ resource "aws_iam_policy" "deploy_ecs" {
   description = "Policy to allow deploy on ECS."
 
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
 
       {
@@ -267,8 +269,8 @@ resource "aws_iam_policy" "deploy_ecs" {
         Sid      = "ECSTaskDefinition"
       },
       {
-        Effect = "Allow"
-        Action = "iam:PassRole"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
         Resource = [
           module.ecs_core_service.tasks_iam_role_arn,
           module.ecs_core_service.task_exec_iam_role_arn,
