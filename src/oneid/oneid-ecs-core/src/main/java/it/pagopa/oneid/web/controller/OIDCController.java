@@ -91,7 +91,7 @@ public class OIDCController {
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
   public Response openIDConfig() {
-    return Response.ok("OIDC Configuration Path").build();
+    return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
   }
 
   @GET
