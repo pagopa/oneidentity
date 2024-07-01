@@ -7,10 +7,10 @@ info:
 
     Some useful links:
 
-    - [One Identity
-    repository](https://github.com/pagopa/oneidentity)
+    - [One Identity repository](https://github.com/pagopa/oneidentity)
 
-    - [The source API definition for OI](https://github.com/pagopa/oneidentity/blob/master/src/main/resources/openapi.yaml)
+    - [The source API definition for
+    OI](https://github.com/pagopa/oneidentity/blob/master/src/main/resources/openapi.yaml)
   termsOfService: http://pagopa.it/terms/
   contact:
     email: xxx@pagopa.it
@@ -28,31 +28,48 @@ paths:
     get:
       tags:
         - Authorization Server APIs
-      description: "An endpoint that can be used to verify the actual service health"
+      description: An endpoint that can be used to verify the actual service health
       operationId: Get_request_health_check
       responses:
         "200":
           description: Responds with no content
         "500":
-          description: 'Responds with "error". This can be due to missing or incorrect API key. Check audit log messages for more information.'
+          description: >-
+            Responds with "error". This can be due to missing or incorrect API
+            key. Check audit log messages for more information.
         "503":
-          description: 'Responds with "error". Returned on health check failure. This can be returned due to bad database configuration, bad certification configuration, etc. Check the audit log messages for more information.'
+          description: >-
+            Responds with "error". Returned on health check failure. This can be
+            returned due to bad database configuration, bad certification
+            configuration, etc. Check the audit log messages for more
+            information.
   /login:
     get:
       tags:
         - Login landing page
-      description: This route will serve the login landing page, where users can choose which IDP use
+      description: >-
+        This route will serve the login landing page, where users can choose
+        which IDP use
       parameters:
         - name: client_id
           in: query
           required: true
-          description: "This is the 'client_id' of the requesting client. Maximum 255 characters."
+          description: >-
+            This is the 'client_id' of the requesting client. Maximum 255
+            characters.
           schema:
             type: string
         - name: response_type
           in: query
           required: true
-          description: "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types"
+          description: >-
+            MUST be one of the listed available values. Any response_type other
+            than 'code' or 'token' is only supported in conjunction with
+            scope=openid. As per the OAuth specification: 'code' is used for
+            authorization code grant type flow, 'token' is used for implicit
+            grant type flow, 'token id_token' is an extension provided by OpenID
+            Connect, and 'code id_token', 'id_token', and 'none' are extensions
+            provided by OpenID Connect Multiple Response Types
           schema:
             type: string
             enum:
@@ -67,25 +84,37 @@ paths:
         - name: redirect_uri
           in: query
           required: true
-          description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+          description: >-
+            The 'redirect_uri' that was registered for this client. It is
+            required if multiple redirect_uri's have been registered for this
+            client. If the scope contains openid, this field becomes MANDATORY.
           schema:
             type: string
         - name: scope
           in: query
           required: true
-          description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
+          description: >-
+            Only SCOPE values that were registered for this client will be
+            granted. If only non-matching SCOPE values are requested, the
+            request will fail.
           schema:
             type: string
         - name: nonce
           in: query
           required: true
-          description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+          description: >-
+            This is required for response_type 'token id_token'.  Typically, in
+            an OpenID authorization scheme, the nonce represents a
+            cryptographically strong random  string that is used to prevent
+            intercepted responses from being reused.
           schema:
             type: string
         - name: state
           in: query
           required: true
-          description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
+          description: >-
+            Value opaque to the server, used by the client to track its session.
+            It will be returned as received.
           schema:
             type: string
       responses:
@@ -107,25 +136,43 @@ paths:
     get:
       tags:
         - Authorization Server APIs
-      description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2."
+      description: >-
+        Initializes an OAuth 2.0 flow using a response_type. See RFC 6749
+        (https://tools.ietf.org/html/rfc6749) for more details. Authorization
+        Servers MUST support the use of the HTTP GET and POST methods defined in
+        RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the
+        HTTP GET or POST methods to send the Authorization Request to the
+        Authorization Server. If using the HTTP GET method, the request
+        parameters are serialized using URI Query String Serialization, per
+        Section 13.1. If using the HTTP POST method, the request parameters are
+        serialized using Form Serialization, per Section 13.2.
       operationId: Get_request_authorization
       parameters:
         - name: idp
           in: query
           required: true
-          description: "This is the requested 'idp' to initiate the authentication flow"
+          description: This is the requested 'idp' to initiate the authentication flow
           schema:
             type: string
         - name: client_id
           in: query
           required: true
-          description: "This is the 'client_id' of the requesting client. Maximum 255 characters."
+          description: >-
+            This is the 'client_id' of the requesting client. Maximum 255
+            characters.
           schema:
             type: string
         - name: response_type
           in: query
           required: true
-          description: "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types"
+          description: >-
+            MUST be one of the listed available values. Any response_type other
+            than 'code' or 'token' is only supported in conjunction with
+            scope=openid. As per the OAuth specification: 'code' is used for
+            authorization code grant type flow, 'token' is used for implicit
+            grant type flow, 'token id_token' is an extension provided by OpenID
+            Connect, and 'code id_token', 'id_token', and 'none' are extensions
+            provided by OpenID Connect Multiple Response Types
           schema:
             type: string
             enum:
@@ -140,25 +187,37 @@ paths:
         - name: redirect_uri
           in: query
           required: true
-          description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+          description: >-
+            The 'redirect_uri' that was registered for this client. It is
+            required if multiple redirect_uri's have been registered for this
+            client. If the scope contains openid, this field becomes MANDATORY.
           schema:
             type: string
         - name: scope
           in: query
           required: true
-          description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
+          description: >-
+            Only SCOPE values that were registered for this client will be
+            granted. If only non-matching SCOPE values are requested, the
+            request will fail.
           schema:
             type: string
         - name: nonce
           in: query
           required: true
-          description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+          description: >-
+            This is required for response_type 'token id_token'.  Typically, in
+            an OpenID authorization scheme, the nonce represents a
+            cryptographically strong random  string that is used to prevent
+            intercepted responses from being reused.
           schema:
             type: string
         - name: state
           in: query
           required: true
-          description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
+          description: >-
+            Value opaque to the server, used by the client to track its session.
+            It will be returned as received.
           schema:
             type: string
       responses:
@@ -179,7 +238,16 @@ paths:
     post:
       tags:
         - Authorization Server APIs
-      description: "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2."
+      description: >-
+        Initializes an OAuth 2.0 flow using a response_type. See RFC 6749
+        (https://tools.ietf.org/html/rfc6749) for more details. Authorization
+        Servers MUST support the use of the HTTP GET and POST methods defined in
+        RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the
+        HTTP GET or POST methods to send the Authorization Request to the
+        Authorization Server. If using the HTTP GET method, the request
+        parameters are serialized using URI Query String Serialization, per
+        Section 13.1. If using the HTTP POST method, the request parameters are
+        serialized using Form Serialization, per Section 13.2.
       operationId: Post_request_authorization
       requestBody:
         content:
@@ -197,13 +265,25 @@ paths:
               properties:
                 idp:
                   type: string
-                  description: This is the requested 'idp' to initiate the authentication flow
+                  description: >-
+                    This is the requested 'idp' to initiate the authentication
+                    flow
                 client_id:
                   type: string
-                  description: "This is the 'client_id' of the requesting client. Maximum 255 characters."
+                  description: >-
+                    This is the 'client_id' of the requesting client. Maximum
+                    255 characters.
                 response_type:
                   type: string
-                  description: "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types"
+                  description: >-
+                    MUST be one of the listed available values. Any
+                    response_type other than 'code' or 'token' is only supported
+                    in conjunction with scope=openid. As per the OAuth
+                    specification: 'code' is used for authorization code grant
+                    type flow, 'token' is used for implicit grant type flow,
+                    'token id_token' is an extension provided by OpenID Connect,
+                    and 'code id_token', 'id_token', and 'none' are extensions
+                    provided by OpenID Connect Multiple Response Types
                   enum:
                     - code
                     - token
@@ -215,16 +295,29 @@ paths:
                     - none
                 redirect_uri:
                   type: string
-                  description: "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY."
+                  description: >-
+                    The 'redirect_uri' that was registered for this client. It
+                    is required if multiple redirect_uri's have been registered
+                    for this client. If the scope contains openid, this field
+                    becomes MANDATORY.
                 scope:
                   type: string
-                  description: "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail."
+                  description: >-
+                    Only SCOPE values that were registered for this client will
+                    be granted. If only non-matching SCOPE values are requested,
+                    the request will fail.
                 state:
                   type: string
-                  description: "Value opaque to the server, used by the client to track its session. It will be returned as received."
+                  description: >-
+                    Value opaque to the server, used by the client to track its
+                    session. It will be returned as received.
                 nonce:
                   type: string
-                  description: "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused."
+                  description: >-
+                    This is required for response_type 'token id_token'. 
+                    Typically, in an OpenID authorization scheme, the nonce
+                    represents a cryptographically strong random  string that is
+                    used to prevent intercepted responses from being reused.
       responses:
         "200":
           $ref: "#/components/responses/responseOkHtml"
@@ -244,7 +337,12 @@ paths:
     post:
       tags:
         - Token Server APIs
-      description: "Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details."
+      description: >-
+        Request access_token or refresh_token using OAuth 2.0 grant_type:
+        password authorization_code refresh_token client_credentials
+        urn:ietf:params:oauth:grant-type:jwt-bearer
+        urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more
+        details.
       operationId: Create_request_token
       requestBody:
         content:
@@ -258,13 +356,17 @@ paths:
               properties:
                 redirect_uri:
                   type: string
-                  description: Required if grant_type is authorization_code. Must contain a valid auth code
+                  description: >-
+                    Required if grant_type is authorization_code. Must contain a
+                    valid auth code
                 code:
                   type: string
                   description: Required if grant_type is authorization_code
                 grant_type:
                   type: string
-                  description: "For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required."
+                  description: >-
+                    For grant_type=authorization_code: client_id, client_secret,
+                    code, and redirect_uri are required.
                   enum:
                     - authorization_code
                   default: authorization_code
@@ -272,17 +374,23 @@ paths:
         - name: authorization
           in: header
           required: true
-          description: "The HTTP basic authorization header containing the client credentials as base64 encoded string (authorization: Basic base64(client_id:client_secret)). This can only be used INSTEAD of the parameters 'client_id', 'client_secret'."
+          description: >-
+            The HTTP basic authorization header containing the client
+            credentials as base64 encoded string (authorization: Basic
+            base64(client_id:client_secret)). This can only be used INSTEAD of
+            the parameters 'client_id', 'client_secret'.
           schema:
             type: string
       responses:
         "200":
           $ref: "#/components/responses/authToken200"
         "204":
-          description: "No Content, applicable to OPTIONS request with preflight configuration"
+          description: >-
+            No Content, applicable to OPTIONS request with preflight
+            configuration
           headers:
             Access-Control-Allow-Methods:
-              description: "Allowable Methods, POST"
+              description: Allowable Methods, POST
               schema:
                 type: string
                 default: POST
@@ -310,13 +418,19 @@ paths:
         - name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Headers request header is used when
+            issuing a preflight request to let the server know which HTTP
+            headers will be used when the actual request is made.
           schema:
             type: string
         - name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Method request header is used when
+            issuing a preflight request to let the server know which HTTP method
+            will be used when the actual request is made.
           schema:
             type: string
         - name: Origin
@@ -327,10 +441,12 @@ paths:
             type: string
       responses:
         "204":
-          description: "No Content, applicable to OPTIONS request with preflight configuration"
+          description: >-
+            No Content, applicable to OPTIONS request with preflight
+            configuration
           headers:
             Access-Control-Allow-Methods:
-              description: "Allowable Methods, POST"
+              description: Allowable Methods, POST
               schema:
                 type: string
                 default: POST
@@ -351,11 +467,16 @@ paths:
     post:
       tags:
         - Authorization Server APIs
-      description: "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client."
+      description: >-
+        This endpoint follows the specification defined at
+        http://openid.net/specs/openid-connect-registration-1_0.html. It enables
+        a client to dynamically register itself as an OAuth 2.0 client.
       operationId: Post_oidc_register
       responses:
         "201":
-          description: Successful registration including details about the registered values.
+          description: >-
+            Successful registration including details about the registered
+            values.
           content:
             application/json:
               schema:
@@ -368,7 +489,9 @@ paths:
                   client_secret_expires_at:
                     type: integer
                     example: 0
-                    description: The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration
+                    description: >-
+                      The timestamp in seconds indicating the time of expiration
+                      for this value. 0 indicates no expiration
                   client_secret:
                     type: string
                     example: e4cccd81-1d19-41e7-b4b0-488aa28af77b
@@ -376,19 +499,28 @@ paths:
                   registration_access_token:
                     type: string
                     example: db4b7554-e359-43ed-bbf6-1a50909ceeef
-                    description: "An access_token to be used at {registration_client_uri} to retrieve the registered information"
+                    description: >-
+                      An access_token to be used at {registration_client_uri} to
+                      retrieve the registered information
                   registration_client_uri:
                     type: string
-                    example: "https://server.example.org/connect/register?client_id=s6BhdRkqt3"
+                    example: >-
+                      https://server.example.org/connect/register?client_id=s6BhdRkqt3
                     description: The URI to retrieved the registered values
                   client_id_issued_at:
                     type: integer
                     example: 1497455914
-                    description: The timestamp in seconds indicating the time of registration
+                    description: >-
+                      The timestamp in seconds indicating the time of
+                      registration
                   token_endpoint_auth_method:
                     type: string
                     example: client_secret_basic
-                    description: "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
+                    description: >-
+                      The requested client authentication method for the token
+                      endpoint. Supports: client_secret_post,
+                      client_secret_basic, client_secret_jwt, private_key_jwt,
+                      none
                   application_type:
                     type: string
                     example: web
@@ -398,12 +530,12 @@ paths:
                     items:
                       type: string
                     example:
-                      - "https://client.example.org/callback"
-                      - "https://client.example.org/callback2"
+                      - https://client.example.org/callback
+                      - https://client.example.org/callback2
                     description: The array of redirection URI values used by this client
                   client_name:
                     type: string
-                    example: "https://example.org"
+                    example: https://example.org
                     description: The name of the client to be presented to the end-user
                   subject_type:
                     type: string
@@ -416,7 +548,9 @@ paths:
                     example:
                       - user1@example.org
                       - user2@example.org
-                    description: The array of e-mail addresses of people responsible for this client
+                    description: >-
+                      The array of e-mail addresses of people responsible for
+                      this client
                   response_types:
                     type: array
                     items:
@@ -424,7 +558,10 @@ paths:
                     example:
                       - code
                       - token_id_token
-                    description: The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using
+                    description: >-
+                      The array containing a list of the OAuth 2.0 response_type
+                      values that this client is declaring that it will restrict
+                      itself to using
                   grant_types:
                     type: array
                     items:
@@ -432,23 +569,30 @@ paths:
                     example:
                       - authorization_code
                       - implicit
-                    description: The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using
+                    description: >-
+                      The array containing a list of the OAuth 2.0 grant types
+                      that this client is declaring that it will restrict itself
+                      to using
                   id_token_signed_response_alg:
                     type: string
                     example: RS256
-                    description: The algorithm requried for signing the ID token issued to this client
+                    description: >-
+                      The algorithm requried for signing the ID token issued to
+                      this client
                   environment:
                     type: string
                     example: ALL
-                    description: "The development environment of the client e.g., IOS"
+                    description: The development environment of the client e.g., IOS
                   organization:
                     type: string
-                    example: "https://organization.com"
+                    example: https://organization.com
                     description: The organization of the requestor
                   master:
                     type: boolean
                     example: false
-                    description: The value identifies the client as being used as a master-key
+                    description: >-
+                      The value identifies the client as being used as a
+                      master-key
                   description:
                     type: string
                     example: Registered via OpenID Connect Dynamic Registration
@@ -481,8 +625,8 @@ paths:
                   items:
                     type: string
                   example:
-                    - "https://client.example.org/callback"
-                    - "https://client.example.org/callback2"
+                    - https://client.example.org/callback
+                    - https://client.example.org/callback2
                 response_types:
                   type: array
                   items:
@@ -509,7 +653,7 @@ paths:
                     - user2@example.org
                 client_name:
                   type: string
-                  example: "https://example.org"
+                  example: https://example.org
                 subject_type:
                   type: string
                   example: pairwise
@@ -524,7 +668,7 @@ paths:
                   example: openid email profile openid_client_registration
                 organization:
                   type: string
-                  example: "https://organization.com"
+                  example: https://organization.com
                 description:
                   type: string
                   example: Registered via OpenID Connect Dynamic Registration
@@ -538,7 +682,9 @@ paths:
                   type: array
                   items:
                     type: string
-                  description: Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html
+                  description: >-
+                    Custom parameter which return all SPID attributes selected,
+                    https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html
                   example:
                     - spidCode
                     - name
@@ -546,7 +692,7 @@ paths:
                     - fiscalNumber
         description: Request body
         required: true
-  "/oidc/register/{client_id}":
+  /oidc/register/{client_id}:
     options:
       tags:
         - Authorization Server APIs
@@ -556,13 +702,19 @@ paths:
         - name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Headers request header is used when
+            issuing a preflight request to let the server know which HTTP
+            headers will be used when the actual request is made.
           schema:
             type: string
         - name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Method request header is used when
+            issuing a preflight request to let the server know which HTTP method
+            will be used when the actual request is made.
           schema:
             type: string
         - name: Origin
@@ -579,10 +731,12 @@ paths:
             type: string
       responses:
         "204":
-          description: "No Content, applicable to OPTIONS request with preflight configuration"
+          description: >-
+            No Content, applicable to OPTIONS request with preflight
+            configuration
           headers:
             Access-Control-Allow-Methods:
-              description: "Allowable Methods, GET"
+              description: Allowable Methods, GET
               schema:
                 type: string
                 default: GET
@@ -592,12 +746,18 @@ paths:
     get:
       tags:
         - Authorization Server APIs
-      description: "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'."
+      description: >-
+        This endpoint follows the specification defined at
+        http://openid.net/specs/openid-connect-registration-1_0.html. It
+        implements the 'registration_client_uri'.
       operationId: Get_oidc_register_config
       parameters:
         - in: header
           name: authorization
-          description: "MUST be 'Bearer the-access_token'. The access_token was issued as part of the client registration and is SCOPE'd to 'openid_client_registration'"
+          description: >-
+            MUST be 'Bearer the-access_token'. The access_token was issued as
+            part of the client registration and is SCOPE'd to
+            'openid_client_registration'
           required: true
           schema:
             type: string
@@ -609,7 +769,9 @@ paths:
             type: string
       responses:
         "200":
-          description: Successful response including details about the client registration. Additional details may also be included
+          description: >-
+            Successful response including details about the client registration.
+            Additional details may also be included
           content:
             application/json:
               schema:
@@ -622,23 +784,32 @@ paths:
                   client_secret_expires_at:
                     type: integer
                     example: 0
-                    description: The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration
+                    description: >-
+                      The timestamp in seconds indicating the time of expiration
+                      for this value. 0 indicates no expiration
                   client_secret:
                     type: string
                     example: e4cccd81-1d19-41e7-b4b0-488aa28af77b
                     description: The registered client_secret
                   registration_client_uri:
                     type: string
-                    example: "https://server.example.org/connect/register?client_id=s6BhdRkqt3"
+                    example: >-
+                      https://server.example.org/connect/register?client_id=s6BhdRkqt3
                     description: The URI to retrieved the registered values
                   client_id_issued_at:
                     type: integer
                     example: 1497455914
-                    description: The timestamp in seconds indicating the time of registration
+                    description: >-
+                      The timestamp in seconds indicating the time of
+                      registration
                   token_endpoint_auth_method:
                     type: string
                     example: client_secret_basic
-                    description: "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
+                    description: >-
+                      The requested client authentication method for the token
+                      endpoint. Supports: client_secret_post,
+                      client_secret_basic, client_secret_jwt, private_key_jwt,
+                      none
                   application_type:
                     type: string
                     example: web
@@ -648,12 +819,12 @@ paths:
                     items:
                       type: string
                     example:
-                      - "https://client.example.org/callback"
-                      - "https://client.example.org/callback2"
+                      - https://client.example.org/callback
+                      - https://client.example.org/callback2
                     description: The array of redirection URI values used by this client
                   client_name:
                     type: string
-                    example: "https://example.org"
+                    example: https://example.org
                     description: The name of the client to be presented to the end-user
                   subject_type:
                     type: string
@@ -666,7 +837,9 @@ paths:
                     example:
                       - user1@example.org
                       - user2@example.org
-                    description: The array of e-mail addresses of people responsible for this client
+                    description: >-
+                      The array of e-mail addresses of people responsible for
+                      this client
                   response_types:
                     type: array
                     items:
@@ -674,7 +847,10 @@ paths:
                     example:
                       - code
                       - token_id_token
-                    description: The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using
+                    description: >-
+                      The array containing a list of the OAuth 2.0 response_type
+                      values that this client is declaring that it will restrict
+                      itself to using
                   grant_types:
                     type: array
                     items:
@@ -682,23 +858,30 @@ paths:
                     example:
                       - authorization_code
                       - implicit
-                    description: The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using
+                    description: >-
+                      The array containing a list of the OAuth 2.0 grant types
+                      that this client is declaring that it will restrict itself
+                      to using
                   id_token_signed_response_alg:
                     type: string
                     example: RS256
-                    description: The algorithm requried for signing the ID token issued to this client
+                    description: >-
+                      The algorithm requried for signing the ID token issued to
+                      this client
                   environment:
                     type: string
                     example: ALL
-                    description: "The development environment of the client e.g., IOS"
+                    description: The development environment of the client e.g., IOS
                   organization:
                     type: string
-                    example: "https://organization.com"
+                    example: https://organization.com
                     description: The organization of the requestor
                   master:
                     type: boolean
                     example: false
-                    description: The value identifies the client as being used as a master-key
+                    description: >-
+                      The value identifies the client as being used as a
+                      master-key
                   description:
                     type: string
                     example: Registered via OpenID Connect Dynamic Registration
@@ -730,13 +913,19 @@ paths:
         - name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Headers request header is used when
+            issuing a preflight request to let the server know which HTTP
+            headers will be used when the actual request is made.
           schema:
             type: string
         - name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Method request header is used when
+            issuing a preflight request to let the server know which HTTP method
+            will be used when the actual request is made.
           schema:
             type: string
         - name: Origin
@@ -747,10 +936,12 @@ paths:
             type: string
       responses:
         "204":
-          description: "No Content, applicable to OPTIONS request with preflight configuration"
+          description: >-
+            No Content, applicable to OPTIONS request with preflight
+            configuration
           headers:
             Access-Control-Allow-Methods:
-              description: "Allowable Methods, GET"
+              description: Allowable Methods, GET
               schema:
                 type: string
                 default: GET
@@ -761,10 +952,14 @@ paths:
       tags:
         - Authorization Server APIs
       operationId: Get_jwk_set_
-      description: "This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata"
+      description: >-
+        This endpoint implements the JWKS_URI as specified at
+        http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
       responses:
         "200":
-          description: JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider
+          description: >-
+            JWK set containing public keys that enable clients to validate a
+            JSON Web Token (JWT) issued by this OpenID Connect Provider
           content:
             application/json:
               schema:
@@ -778,7 +973,8 @@ paths:
                       - kty: RSA
                         kid: default_ssl_key
                         use: sig
-                        "n": 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
+                        "n": >-
+                          58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
                         e: AQAB
                     description: JWK set in JSON array format
         "403":
@@ -800,13 +996,19 @@ paths:
         - name: Access-Control-Request-Headers
           in: header
           required: true
-          description: The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Headers request header is used when
+            issuing a preflight request to let the server know which HTTP
+            headers will be used when the actual request is made.
           schema:
             type: string
         - name: Access-Control-Request-Method
           in: header
           required: true
-          description: The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.
+          description: >-
+            The Access-Control-Request-Method request header is used when
+            issuing a preflight request to let the server know which HTTP method
+            will be used when the actual request is made.
           schema:
             type: string
         - name: Origin
@@ -817,10 +1019,12 @@ paths:
             type: string
       responses:
         "204":
-          description: "No Content, applicable to OPTIONS request with preflight configuration"
+          description: >-
+            No Content, applicable to OPTIONS request with preflight
+            configuration
           headers:
             Access-Control-Allow-Methods:
-              description: "Allowable Methods, GET"
+              description: Allowable Methods, GET
               schema:
                 type: string
                 default: GET
@@ -858,7 +1062,12 @@ paths:
         "500":
           $ref: "#/components/responses/serverError"
       summary: OpenID Connect Discovery endpoint
-      description: "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
+      description: >-
+        This endpoint follows the specification defined at
+        http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata.
+        It provides a mechanism for an OpenID Connect Relying Party to discover
+        the End-User's OpenID Provider and obtain information needed to interact
+        with it, including its OAuth 2.0 endpoint locations.
   /saml/acs:
     post:
       tags:
@@ -871,20 +1080,25 @@ paths:
               type: object
               properties:
                 SAMLResponse:
-                  description: "This is the 'SAMLResponse' of the requesting AUTHnreq."
+                  description: This is the 'SAMLResponse' of the requesting AUTHnreq.
                   type: string
                 RelayState:
-                  description: "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html"
+                  description: >-
+                    This is the 'RelayState' which identify the service
+                    requested.
+                    https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html
                   type: string
               required:
                 - SAMLResponse
                 - RelayState
       responses:
         "302":
-          description: Redirect user to a static html page after successful or not successfull authentication process
+          description: >-
+            Redirect user to a static html page after successful or not
+            successfull authentication process
           headers:
             location:
-              description: "Location (URL)"
+              description: Location (URL)
               schema:
                 type: string
           content:
@@ -903,30 +1117,33 @@ paths:
     get:
       tags:
         - SAML APIs
-      description: This route will serves SAML assertion, useful for clients who need it for their local scope
+      description: >-
+        This route will serves SAML assertion, useful for clients who need it
+        for their local scope
       parameters:
         - name: access_token
           in: query
           required: true
-          description: "This is the 'access_token' of the requesting client."
+          description: This is the 'access_token' of the requesting client.
           schema:
             type: string
       responses:
         "200":
-          description: Successful response including details about the request and a valid SAMLResponse.
+          description: >-
+            Successful response including details about the request and a valid
+            SAMLResponse.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  # TODO
                   request_id:
                     type: string
                     example: 47231c87-74f3-4990-99ad-31e8a801e3b5
                     description: Request ID
                   saml_response:
                     type: string
-                    example: "<xml? ....>"
+                    example: <xml? ....>
                     description: Requested SAMLResponse
         "400":
           $ref: "#/components/responses/invalidParameters"
@@ -940,17 +1157,26 @@ paths:
           $ref: "#/components/responses/rateLimit"
         "500":
           $ref: "#/components/responses/serverError"
-  /saml/metadata:
+  /saml/{id_type}/metadata:
     get:
       tags:
         - SAML APIs
       description: This route will serves SAML metadata
+      parameters:
+        - name: id_type
+          in: path
+          description: Spid or cie
+          required: true
+          style: simple
+          schema:
+            type: string
+            enum:
+              - spid
+              - cie
+            description: Allowed metadata type.
       responses:
         "200":
-          description: SAML metadata
-          # content:
-          #   application/xml:
-          #     schema:
+          $ref: "#/components/responses/responseOkXml"
         "405":
           $ref: "#/components/responses/methodNotAllowed"
         "429":
@@ -960,10 +1186,23 @@ paths:
 components:
   responses:
     auth302:
-      description: "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received."
+      description: >-
+        Will contain either: A success response including the redirect location
+        header to the server that handles the authentication.  The redirect
+        parameter 'sessionData's structure looks like the model schema shown OR
+        'invalid scope' OR 'unsupported response type' OR 'unauthorized client'.
+        The non-successful conditions may include redirect query params as
+        follows: 'error', string with default value:  invalid_request
+        'error_description', string with description of error 'state', string
+        with no default value.  It is opaque to the server and returned as
+        received.
       headers:
         location:
-          description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
+          description: >-
+            Location (URL) includes these required parameters: action=(display
+            or login depending on 'prompt' and 'id_token_hint') and sessionID
+            and sessionData (a JWT containing a JSON message holding session
+            data)
           schema:
             type: string
         Pragma:
@@ -980,15 +1219,32 @@ components:
       description: OK
       headers:
         location:
-          description: "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)"
+          description: >-
+            Location (URL) includes these required parameters: action=(display
+            or login depending on 'prompt' and 'id_token_hint') and sessionID
+            and sessionData (a JWT containing a JSON message holding session
+            data)
           schema:
             type: string
       content:
         text/html:
           schema:
             type: string
+    responseOkXml:
+      description: OK
+      headers:
+        location:
+          description: Response OK, serving xml
+          schema:
+            type: string
+      content:
+        application/xml:
+          schema:
+            type: string
     authToken200:
-      description: "A success response that includes the issued token, expire and other details from the OAuth Server"
+      description: >-
+        A success response that includes the issued token, expire and other
+        details from the OAuth Server
       headers:
         Pragma:
           description: Pragma browser directive
@@ -1008,10 +1264,12 @@ components:
       description: The HTTP method is not valid
       headers:
         Allow:
-          description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+          description: >-
+            This header is required by RFC 2616 and contains a comma separated
+            list of valid HTTP methods.
           schema:
             type: string
-            default: "GET"
+            default: GET
         Pragma:
           description: Pragma browser directive
           schema:
@@ -1023,7 +1281,12 @@ components:
             type: string
             default: no-store
     notAcceptable:
-      description: The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.
+      description: >-
+        The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error
+        response code indicates that the server cannot produce a response
+        matching the list of acceptable values defined in the request's
+        proactive content negotiation headers, and that the server is unwilling
+        to supply a default representation.
       headers:
         Pragma:
           description: Pragma browser directive
@@ -1062,7 +1325,9 @@ components:
             type: string
             default: no-store
     invalidParameters:
-      description: "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request"
+      description: >-
+        Invalid parameters | Invalid redirect_uri | invalid client type |
+        invalid response type | invalid code_challenge/method | Bad request
       headers:
         Pragma:
           description: Pragma browser directive
@@ -1130,21 +1395,25 @@ components:
           example: Bearer
         expires_in:
           type: string
-          description: "The expiry time, in seconds"
+          description: The expiry time, in seconds
           example: "3600"
         refresh_token:
           type: string
-          description: "The refresh token, if applicable"
+          description: The refresh token, if applicable
         scope:
           type: string
           description: The issued scope
           example: oob
         id_token:
           type: string
-          description: "If the requested SCOPE included 'msso' or 'openid', response includes an id_token"
+          description: >-
+            If the requested SCOPE included 'msso' or 'openid', response
+            includes an id_token
         id_token_type:
           type: string
-          description: "If the requested SCOPE included 'msso' or 'openid', response includes an id_token_type"
+          description: >-
+            If the requested SCOPE included 'msso' or 'openid', response
+            includes an id_token_type
       title: TokenData
     OpenIDDiscovery:
       required:
@@ -1159,11 +1428,11 @@ components:
       properties:
         userinfo_endpoint:
           type: string
-          example: "https://example.org/oidc/v1/userinfo"
+          example: https://example.org/oidc/v1/userinfo
           description: URL of the user info endpoint
         jwks_uri:
           type: string
-          example: "https://example.org/oidc/v1/keys"
+          example: https://example.org/oidc/v1/keys
           description: URL of JSON Web Key Set document
         scopes_supported:
           items:
@@ -1181,7 +1450,7 @@ components:
           description: list of the Subject Identifier types that this OP supports
         token_endpoint:
           type: string
-          example: "https://example.org/oidc/v1/token"
+          example: https://example.org/oidc/v1/token
           description: URL of the OAuth 2.0 token endpoint
         id_token_signing_alg_values_supported:
           items:
@@ -1190,7 +1459,9 @@ components:
           example:
             - RS256
             - HS256
-          description: list of the JWS signing algorithms (alg values) supported by the OP for the ID Token to encode the Claims in a JWT
+          description: >-
+            list of the JWS signing algorithms (alg values) supported by the OP
+            for the ID Token to encode the Claims in a JWT
         response_types_supported:
           items:
             type: string
@@ -1208,15 +1479,19 @@ components:
             - iss
             - auth_time
             - acr
-          description: list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for
+          description: >-
+            list of the Claim Names of the Claims that the OpenID Provider MAY
+            be able to supply values for
         authorization_endpoint:
           type: string
-          example: "https://example.org/oidc/v1/authorize"
+          example: https://example.org/oidc/v1/authorize
           description: URL of the OAuth 2.0 authorization endpoint
         issuer:
           type: string
-          example: "https://example.org"
-          description: "the identifier of the token's issuer. This is identical to the 'iss' Claim value in ID Tokens"
+          example: https://example.org
+          description: >-
+            the identifier of the token's issuer. This is identical to the 'iss'
+            Claim value in ID Tokens
         grant_types_supported:
           items:
             type: string
@@ -1230,22 +1505,31 @@ components:
             type: string
           type: array
           example:
-            - "urn:mace:incommon:iap:silver"
-          description: list of the Authentication Context Class References that this OP supports
+            - urn:mace:incommon:iap:silver
+          description: >-
+            list of the Authentication Context Class References that this OP
+            supports
         token_endpoint_auth_methods_supported:
           items:
             type: string
           type: array
           example:
             - client_secret_basic
-          description: list of Client Authentication methods supported by this Token Endpoint
+          description: >-
+            list of Client Authentication methods supported by this Token
+            Endpoint
         token_endpoint_auth_signing_alg_values_supported:
           items:
             type: string
           type: array
           example:
             - RS256
-          description: list of the JWS signing algorithms (alg values) supported by the Token Endpoint for the signature on the JWT used to authenticate the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods. Servers SHOULD support RS256. The value none MUST NOT be used.
+          description: >-
+            list of the JWS signing algorithms (alg values) supported by the
+            Token Endpoint for the signature on the JWT used to authenticate the
+            Client at the Token Endpoint for the private_key_jwt and
+            client_secret_jwt authentication methods. Servers SHOULD support
+            RS256. The value none MUST NOT be used.
         display_values_supported:
           items:
             type: string
@@ -1253,7 +1537,9 @@ components:
           example:
             - page
             - popup
-          description: list of the display parameter values that the OpenID Provider supports
+          description: >-
+            list of the display parameter values that the OpenID Provider
+            supports
         claim_types_supported:
           items:
             type: string
@@ -1263,8 +1549,10 @@ components:
           description: list of the Claim Types that the OpenID Provider supports
         service_documentation:
           type: string
-          example: "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth"
-          description: URL of a page containing human-readable information that developers might want or need to know when using the OpenID Provider
+          example: https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth
+          description: >-
+            URL of a page containing human-readable information that developers
+            might want or need to know when using the OpenID Provider
         ui_locales_supported:
           items:
             type: string
@@ -1273,4 +1561,6 @@ components:
             - en-US
             - en-GB
           description: Languages and scripts supported for the user interface
-      description: "The OpenID configuration document as defined by the specification: http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata"
+      description: >-
+        The OpenID configuration document as defined by the specification:
+        http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata

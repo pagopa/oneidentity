@@ -1005,6 +1005,157 @@
         "summary": "OpenID Connect jwks endpoint"
       }
     },
+    "/.well-known/openid-configuration": {
+      "options": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Options_getOpenIDDiscovery",
+        "description": "CORS preflight request",
+        "parameters": [
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "The Origin request header indicates where a fetch originates from.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "OPTIONS",
+          "uri": "${uri}/.well-known/openid-configuration",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
+            "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
+            "integration.request.header.Origin": "method.request.header.Origin"
+          },
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "requestParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "requestParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, GET",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        },
+        "summary": "OpenID Connect Discovery endpoint"
+      },
+      "get": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Get_OpenIDDiscovery",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP_PROXY",
+          "httpMethod": "GET",
+          "uri": "${uri}/.well-known/openid-configuration",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "requestParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "requestParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "requestParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "requestParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OpenID Discovery Configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpenIDDiscovery"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "summary": "OpenID Connect Discovery endpoint",
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
+      }
+    },
     "/static/{proxy+}" : {
       "get" : {
         "parameters" : [ {
