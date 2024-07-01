@@ -399,8 +399,8 @@ module "ecs_spid_validator" {
       port_mappings = [
         {
           name          = var.spid_validator.container.name
-          containerPort = 8443
-          hostPort      = 8443
+          containerPort = 8080
+          hostPort      = 8080
           protocol      = "tcp"
         }
       ]
@@ -417,15 +417,15 @@ module "ecs_spid_validator" {
     service = {
       target_group_arn = var.spid_validator.alb_target_group_arn
       container_name   = var.spid_validator.container.name
-      container_port   = 8443
+      container_port   = 8080
     }
   }
 
   security_group_rules = {
     alb_ingress_3000 = {
       type        = "ingress"
-      from_port   = 8443
-      to_port     = 8443
+      from_port   = 8080
+      to_port     = 8080
       protocol    = "tcp"
       description = "Service port"
       

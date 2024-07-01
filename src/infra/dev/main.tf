@@ -182,7 +182,7 @@ module "backend" {
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
-      image_version = "1.0.0"
+      image_version = "1.2.0"
     }
     alb_target_group_arn  = module.frontend.spid_validator_alb_target_group_arn
     alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
