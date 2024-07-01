@@ -90,7 +90,7 @@ if (ENV.SPID_TEST_ENV_ENABLED) {
    
   IDPS.identityProviders.push({
     identifier: 'test',
-    entityId: 'xx_testenv2',
+    entityId: 'https://localhost:8443',
     name: 'test',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg',
   }, 
