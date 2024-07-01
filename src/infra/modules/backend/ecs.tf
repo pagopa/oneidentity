@@ -361,3 +361,81 @@ module "elb" {
 
   tags = { Name : var.nlb_name }
 }
+
+
+## Spid Validator ##
+module "ecs_spid_validator" {
+  count = var.spid_validator != null ? 1 : 0
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "5.9.1"
+
+  name = var.spid_validator.service_name
+
+  cluster_arn = module.ecs.cluster_arn
+
+  cpu    = var.spid_validator.cpu
+  memory = var.spid_validator.memory
+
+  enable_execute_command = false
+
+
+  /*
+  tasks_iam_role_policies = {
+    ecs_core_task = aws_iam_policy.ecs_core_task.arn
+  }
+  */
+
+
+  container_definitions = {
+    "${var.spid_validator.container.name}" = {
+      cpu    = var.spid_validator.cpu
+      memory = var.spid_validator.memory
+
+      essential = true
+      image     = "${module.ecr[var.spid_validator.container.image_name].repository_url}:${var.spid_validator.container.image_version}",
+
+      port_mappings = [
+        {
+          name          = var.spid_validator.container.name
+          containerPort = 8443
+          hostPort      = 8443
+          protocol      = "tcp"
+        }
+      ]
+
+      readonly_root_filesystem = false
+    }
+  }
+
+
+  subnet_ids       = var.private_subnets
+  assign_public_ip = false
+
+  load_balancer = {
+    service = {
+      target_group_arn = var.spid_validator.alb_target_group_arn
+      container_name   = var.spid_validator.container.name
+      container_port   = 8443
+    }
+  }
+
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type        = "ingress"
+      from_port   = 8443
+      to_port     = 8443
+      protocol    = "tcp"
+      description = "Service port"
+      
+      source_security_group_id = var.spid_validator.alb_security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+}

@@ -123,3 +123,22 @@ variable "vpc_cidr_block" {
   type        = string
   description = "VPC cidr block."
 }
+
+
+variable "spid_validator" {
+  type = object({
+    service_name = string
+    cpu = optional(number, 512)
+    memory = optional(number, 1024)
+    container = object({
+      name = string
+      image_name = string
+      image_version = string
+    })
+    alb_target_group_arn = string
+    alb_security_group_id = string
+    
+  })
+
+  default = null
+}

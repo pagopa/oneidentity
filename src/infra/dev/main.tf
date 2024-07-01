@@ -49,6 +49,10 @@ module "frontend" {
   aws_region                = var.aws_region
   api_cache_cluster_enabled = var.api_cache_cluster_enabled
   api_method_settings       = var.api_method_settings
+
+  create_alb_spid_validator = true
+  alb_name                  = format("%s-spid-validator-alb", local.project)
+  vpc_cidr_block            = module.network.vpc_cidr_block
 }
 
 
@@ -75,7 +79,13 @@ module "backend" {
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
 
-  }]
+      }, {
+      name                            = local.ecr_spid_validator
+      number_of_images_to_keep        = 1
+      repository_image_tag_mutability = var.repository_image_tag_mutability
+
+    }
+  ]
 
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = true
@@ -165,6 +175,18 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
+  }
+
+  spid_validator = {
+    service_name = format("%s-spid-validator", local.project)
+    container = {
+      name          = "validator"
+      image_name    = format("%s-spid-validator", local.project)
+      image_version = "1.0.0"
+    }
+    alb_target_group_arn  = module.frontend.spid_validator_alb_target_group_arn
+    alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
+
   }
 
 }
