@@ -1,8 +1,9 @@
 package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.math.BigInteger;
+import com.nimbusds.jose.JWSAlgorithm;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,18 +26,19 @@ public class JWKSUriMetadataDTO {
   String algorithm;
 
   @JsonProperty("n")
-  BigInteger module;
+  String module;
 
   @JsonProperty("e")
-  BigInteger exponent;
+  String exponent;
 
-  public JWKSUriMetadataDTO(String keyID, String usage, RSAPublicKey rsaPublicKey) {
-    this.keyType = "RSA";
+  public JWKSUriMetadataDTO(String keyID, RSAPublicKey rsaPublicKey) {
+    this.keyType = rsaPublicKey.getAlgorithm();
     this.keyID = keyID;
-    this.usage = usage;
-    this.algorithm = rsaPublicKey.getAlgorithm();
-    this.module = rsaPublicKey.getModulus();
-    this.exponent = rsaPublicKey.getPublicExponent();
+    this.usage = "sig";
+    this.algorithm = JWSAlgorithm.RS256.getName();
+    this.module = Base64.getUrlEncoder().encodeToString(rsaPublicKey.getModulus().toByteArray());
+    this.exponent = Base64.getUrlEncoder()
+        .encodeToString(rsaPublicKey.getPublicExponent().toByteArray());
   }
 
 }

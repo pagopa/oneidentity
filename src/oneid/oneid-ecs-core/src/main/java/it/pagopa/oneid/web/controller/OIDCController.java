@@ -34,6 +34,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -98,7 +99,7 @@ public class OIDCController {
   @Path("/keys")
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
-    return Response.ok(oidcServiceImpl.getJWSKPublicKey()).build();
+    return Response.ok(List.of(oidcServiceImpl.getJWSKPublicKey())).build();
   }
 
   @POST

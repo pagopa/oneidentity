@@ -76,8 +76,7 @@ public class OIDCServiceImpl implements OIDCService {
       throw new RuntimeException(e);
     }
 
-    return new JWKSUriMetadataDTO(getPublicKeyResponse.keyId(),
-        getPublicKeyResponse.keyUsageAsString(), rsaPublicKey);
+    return new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey);
   }
 
   @Override
