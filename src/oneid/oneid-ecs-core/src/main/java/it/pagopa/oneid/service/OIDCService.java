@@ -7,10 +7,13 @@ import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import java.util.List;
 
 public interface OIDCService {
+
+  JWKSUriMetadataDTO getJWSKPublicKey();
 
   OIDCProviderMetadata buildOIDCProviderMetadata();
 

@@ -24,25 +24,36 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
 public class OIDCServiceImpl implements OIDCService {
 
   @Inject
   OIDCUtils oidcUtils;
+
+  @Inject
+  KMSConnectorImpl kmsConnectorImpl;
 
   @Inject
   ClientConnectorImpl clientConnectorImpl;
@@ -52,6 +63,22 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Inject
   SAMLUtilsConstants samlConstants;
+
+  @Override
+  public JWKSUriMetadataDTO getJWSKPublicKey() {
+    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
+    RSAPublicKey rsaPublicKey;
+    try {
+      rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
+          .generatePublic(
+              new X509EncodedKeySpec(getPublicKeyResponse.publicKey().asByteArray()));
+    } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+
+    return new JWKSUriMetadataDTO(getPublicKeyResponse.keyId(),
+        getPublicKeyResponse.keyUsageAsString(), rsaPublicKey);
+  }
 
   @Override
   public OIDCProviderMetadata buildOIDCProviderMetadata() {
