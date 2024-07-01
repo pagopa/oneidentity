@@ -100,7 +100,7 @@ public class OIDCServiceImpl implements OIDCService {
 
     /* Required */
     OIDCProviderMetadata oidcProviderMetadata = new OIDCProviderMetadata(issuer,
-        List.of(SubjectType.PAIRWISE), jwksURI);
+        List.of(SubjectType.PUBLIC), jwksURI);
 
     oidcProviderMetadata.setAuthorizationEndpointURI(authEndpointURI);
     oidcProviderMetadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.RS256));
