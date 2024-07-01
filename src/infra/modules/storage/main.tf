@@ -46,6 +46,11 @@ module "s3_assertions_bucket" {
     enabled    = true
     mfa_delete = var.assertion_bucket.mfa_delete
   }
+  
+  logging = {
+    target_bucket = local.bucket_name
+    target_prefix = "logs/"
+  }
 
   lifecycle_rule = [
     {
