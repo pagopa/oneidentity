@@ -62,7 +62,17 @@ resource "aws_iam_policy" "ecs_core_task" {
           "dynamodb:UpdateItem",
         ]
         Resource = [
-          "${var.table_sessions_arn}"
+          "${var.dynamodb_table_sessions.table_arn}"
+        ]
+      },
+      {
+        Sid = "DynamoDBGSISessionsR"
+        Action = [
+          "dynamodb:Query",
+        ]
+        Effect = "Allow"
+        Resource = [
+          "${var.dynamodb_table_sessions.gsi_code_arn}",
         ]
       },
       {
@@ -70,7 +80,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
-          "dynamodb:Scan"
+          "dynamodb:Scan",
         ]
         Resource = [
           "${var.table_client_registrations_arn}"

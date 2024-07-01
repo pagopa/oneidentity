@@ -218,7 +218,9 @@
           "responses": {
             "302": {
               "statusCode": "302",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.location" : "integration.response.header.Location"
+              }
             },
             "400": {
               "statusCode": "400",
@@ -758,7 +760,8 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.authorization" : "method.request.header.authorization"
           },
           "responses": {
             "200": {
