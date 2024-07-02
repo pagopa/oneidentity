@@ -5,6 +5,8 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
@@ -19,11 +21,14 @@ import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 
 @Path(("/saml"))
 public class SAMLController {
@@ -39,6 +44,9 @@ public class SAMLController {
 
   @Inject
   SessionServiceImpl<OIDCSession> oidcSessionSessionService;
+
+  @Inject
+  SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
 
 
   @POST
@@ -109,8 +117,11 @@ public class SAMLController {
 
   @GET
   @Path("/assertion")
-  public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
-    return Response.ok("Assertion Path").build();
+  @Produces(MediaType.APPLICATION_XML)
+  public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) throws SessionException {
+    String samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
+        accessToken.getAccessToken());
+    return Response.ok(Base64.getDecoder().decode(samlResponse)).build();
   }
 
 }
