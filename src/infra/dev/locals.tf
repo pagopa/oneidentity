@@ -5,6 +5,7 @@ locals {
   container_poc2_port = 8080
   container_name      = "oneid-core"
 
-  ecr_oneid_core = format("%s-core", local.project)
+  ecr_oneid_core     = format("%s-core", local.project)
+  ecr_spid_validator = format("%s-spid-validator", local.project)
 
 }

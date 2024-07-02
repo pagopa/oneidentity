@@ -2,7 +2,7 @@ module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "1.6.0"
 
-  for_each = {for r in var.ecr_registers : r.name => r}
+  for_each = { for r in var.ecr_registers : r.name => r }
 
   repository_name = each.key
 
@@ -41,7 +41,7 @@ module "jwt_sign" {
   description              = "KMS key to sign Jwt tokens"
   key_usage                = "SIGN_VERIFY"
   customer_master_key_spec = "RSA_2048"
-  enable_key_rotation = false
+  enable_key_rotation      = false
 
 
   # Aliases
@@ -49,9 +49,9 @@ module "jwt_sign" {
 }
 
 resource "aws_iam_policy" "ecs_core_task" {
-  name   = format("%s-task-policy", var.service_core.service_name)
+  name = format("%s-task-policy", var.service_core.service_name)
   policy = jsonencode({
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
         Sid    = "DynamoDBSessionsRW"
@@ -66,11 +66,11 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
-        Sid    = "DynamoDBGSISessionsR"
+        Sid = "DynamoDBGSISessionsR"
         Action = [
           "dynamodb:Query",
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "${var.dynamodb_table_sessions.gsi_code_arn}",
         ]
@@ -202,10 +202,10 @@ module "ecs_core_service" {
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type                     = "ingress"
-      from_port                = var.service_core.container.containerPort
-      to_port                  = var.service_core.container.containerPort
-      protocol                 = "tcp"
+      type        = "ingress"
+      from_port   = var.service_core.container.containerPort
+      to_port     = var.service_core.container.containerPort
+      protocol    = "tcp"
       description = "Service port"
       #source_security_group_id = var.service_core.load_balancer.security_group_id
       source_security_group_id = module.elb.security_group_id
@@ -238,7 +238,7 @@ resource "aws_iam_policy" "deploy_ecs" {
   description = "Policy to allow deploy on ECS."
 
   policy = jsonencode({
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
 
       {
@@ -269,8 +269,8 @@ resource "aws_iam_policy" "deploy_ecs" {
         Sid      = "ECSTaskDefinition"
       },
       {
-        Effect   = "Allow"
-        Action   = "iam:PassRole"
+        Effect = "Allow"
+        Action = "iam:PassRole"
         Resource = [
           module.ecs_core_service.tasks_iam_role_arn,
           module.ecs_core_service.task_exec_iam_role_arn,
@@ -362,4 +362,76 @@ module "elb" {
 
 
   tags = { Name : var.nlb_name }
+}
+
+
+## Spid Validator ##
+module "ecs_spid_validator" {
+  count   = var.spid_validator != null ? 1 : 0
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "5.9.1"
+
+  name = var.spid_validator.service_name
+
+  cluster_arn = module.ecs.cluster_arn
+
+  cpu                    = var.spid_validator.cpu
+  memory                 = var.spid_validator.memory
+  enable_execute_command = false
+
+  /*
+  tasks_iam_role_policies = {
+    ecs_core_task = aws_iam_policy.ecs_core_task.arn
+  }
+  */
+
+  container_definitions = {
+    "${var.spid_validator.container.name}" = {
+      cpu    = var.spid_validator.container.cpu
+      memory = var.spid_validator.container.memory
+
+      essential = true
+      image     = "${module.ecr[var.spid_validator.container.image_name].repository_url}:${var.spid_validator.container.image_version}",
+
+      port_mappings = [
+        {
+          name          = var.spid_validator.container.name
+          containerPort = 8080
+          hostPort      = 8080
+          protocol      = "tcp"
+        }
+      ]
+      readonly_root_filesystem = false
+    }
+  }
+
+  subnet_ids       = var.private_subnets
+  assign_public_ip = false
+
+  load_balancer = {
+    service = {
+      target_group_arn = var.spid_validator.alb_target_group_arn
+      container_name   = var.spid_validator.container.name
+      container_port   = 8080
+    }
+  }
+
+  security_group_rules = {
+    alb_ingress_8080 = {
+      type        = "ingress"
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      description = "Service port"
+
+      source_security_group_id = var.spid_validator.alb_security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 }
