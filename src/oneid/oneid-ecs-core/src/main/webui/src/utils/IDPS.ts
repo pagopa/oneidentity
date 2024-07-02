@@ -87,7 +87,7 @@ const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string }
 console.log("spid", ENV.SPID_TEST_ENV_ENABLED);
 
 if (ENV.SPID_TEST_ENV_ENABLED) {
-   
+
   IDPS.identityProviders.push({
     identifier: 'test',
     entityId: 'https://localhost:8443',
@@ -95,10 +95,16 @@ if (ENV.SPID_TEST_ENV_ENABLED) {
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Test-Logo.svg',
   }, 
   {
+    identifier: 'validator',
+    entityId: 'https://validator.dev.oneid.pagopa.it',
+    name: 'validator',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Validator-Test.png',
+  }, 
+  {
     identifier: 'demo',
     entityId: 'https://demo.spid.gov.it',
     name: 'demo',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Validator-Test.png',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/D.E.M.O._Logo_2006.svg',
   });
 }
 export { IDPS };
