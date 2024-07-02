@@ -7,6 +7,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -141,7 +142,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  public void validateSignature(Response response, String entityID) throws SAMLUtilsException {
+  public void validateSignature(Response response, String entityID)
+      throws SAMLUtilsException, SAMLValidationException {
     Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.validateSignature] start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
@@ -156,10 +158,13 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
           SignatureValidator.validate(response.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[it.pagopa.oneid.common.utils.SAMLUtils.validateSignature] Error during Response signature validation "
+              "[SAMLUtils.validateSignature] Error during Response signature validation "
                   + e.getMessage());
-          throw new SAMLUtilsException(e);
+          throw new SAMLValidationException(e);
         }
+      } else {
+        Log.error("[SAMLUtils.validateSignature] Response signature not present");
+        throw new SAMLValidationException();
       }
       // Validate 'Assertion' signature
       if (assertion.getSignature() != null) {
@@ -168,16 +173,19 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
           SignatureValidator.validate(assertion.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] Error during Assertion signature validation "
+              "[SAMLUtils.validateSignature] Error during Assertion signature validation "
                   + e.getMessage());
-          throw new SAMLUtilsException(e);
+          throw new SAMLValidationException(e);
         }
+      } else {
+        Log.error("[SAMLUtils.validateSignature] Assertion signature not present");
+        throw new SAMLValidationException();
       }
     } else {
       Log.error(
-          "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] credential not found for selected IDP "
+          "[SAMLUtils.validateSignature] credential not found for selected IDP "
               + assertion.getIssuer().getValue());
-      throw new SAMLUtilsException("Credential not found for selected IDP");
+      throw new SAMLValidationException("Credential not found for selected IDP");
     }
   }
 
