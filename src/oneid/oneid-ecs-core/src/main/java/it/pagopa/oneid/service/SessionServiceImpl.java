@@ -36,24 +36,28 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
 
   @Override
   public void setSAMLResponse(String samlRequestID, String response) throws SessionException {
+    Log.debug("[SessionServiceImpl.setSAMLResponse] start");
     sessionConnectorImpl.updateSAMLSession(samlRequestID, response);
   }
 
   @Override
   public SAMLSession getSAMLSessionByCode(String code) throws SessionException {
+    Log.debug("[SessionServiceImpl.getSAMLSessionByCode] start");
     return getSAMLSessionByCodeAndRecord(code, RecordType.OIDC);
   }
 
   @Override
   public String getSAMLResponseByCode(String code) throws SessionException {
+    Log.debug("[SessionServiceImpl.getSAMLResponseByCode] start");
     return getSAMLSessionByCodeAndRecord(code, RecordType.ACCESS_TOKEN).getSAMLResponse();
   }
 
   private SAMLSession getSAMLSessionByCodeAndRecord(String code, RecordType recordType)
       throws SessionException {
+    Log.debug("[SessionServiceImpl.getSAMLSessionByCodeAndRecord] start");
     T oidcSession = sessionConnectorImpl.findSession(code, recordType)
         .orElseThrow(SessionException::new);
-
+    Log.debug("[SessionServiceImpl.getSAMLSessionByCodeAndRecord] end");
     return (SAMLSession) sessionConnectorImpl.findSession(
         oidcSession.getSamlRequestID(),
         RecordType.SAML).orElseThrow(SessionException::new);

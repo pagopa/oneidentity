@@ -119,6 +119,7 @@ public class SAMLController {
   @Path("/assertion")
   @Produces(MediaType.APPLICATION_XML)
   public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) throws SessionException {
+    Log.info("[SAMLController.assertion] start");
     String samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
         accessToken.getAccessToken());
     return Response.ok(Base64.getDecoder().decode(samlResponse)).build();
