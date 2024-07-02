@@ -18,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
@@ -130,24 +131,48 @@ public class SAMLServiceImpl implements SAMLService {
       throws SAMLValidationException, SAMLUtilsException {
     Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
 
-    // TODO is it ok to be 0-indexed?
-    Assertion assertion = samlResponse.getAssertions().getFirst();
+    Assertion assertion;
+    try {
+      assertion = samlResponse.getAssertions().getFirst();
+    } catch (NoSuchElementException e) {
+      Log.error(
+          "[SAMLServiceImpl.validateSAMLResponse] Assertion not found");
+      throw new SAMLValidationException();
+    }
 
     SubjectConfirmationData subjectConfirmationData = assertion.getSubject()
         .getSubjectConfirmations().getLast()
         .getSubjectConfirmationData();
 
-    // Check if 'recipient' matches ACS URL
-    if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
+    if (subjectConfirmationData == null) {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] Recipient parameter from Subject Confirmation Data does not matches ACS url: "
-              + subjectConfirmationData.getRecipient());
+          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData not found");
+      throw new SAMLValidationException();
+    }
+
+    // Check if 'recipient' matches ACS URL
+    if (subjectConfirmationData.getRecipient() != null) {
+      if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
+        Log.error(
+            "[SAMLServiceImpl.validateSAMLResponse] Recipient parameter from Subject Confirmation Data does not matches ACS url: "
+                + subjectConfirmationData.getRecipient());
+        throw new SAMLValidationException();
+      }
+    } else {
+      Log.error(
+          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData.getRecipient not found");
       throw new SAMLValidationException();
     }
     // Check if 'NotOnOrAfter' is expired
-    if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) >= 0) {
+    if (subjectConfirmationData.getNotOnOrAfter() != null) {
+      if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) >= 0) {
+        Log.error(
+            "[SAMLServiceImpl.validateSAMLResponse] NotOnOrAfter parameter from Subject Confirmation Data expired");
+        throw new SAMLValidationException();
+      }
+    } else {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] NotOnOrAfter parameter from Subject Confirmation Data expired");
+          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData.getConfirmationData not found");
       throw new SAMLValidationException();
     }
 

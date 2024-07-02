@@ -5,6 +5,7 @@ import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
@@ -13,6 +14,7 @@ import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
+import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
@@ -20,29 +22,52 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMapper {
 
-  // TODO re-add this method
- /* @ServerExceptionMapper
+  @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
+    Log.error("[ExceptionMapper.mapGenericException]: " + ExceptionUtils.getStackTrace(
+        genericException));
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
-  }*/
+  }
+
+  // TODO check this exception
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapJakartaResourceNotFoundException(
+      jakarta.ws.rs.NotFoundException jakartaResourceNotFoundException) {
+    Log.error(
+        "[ExceptionMapper.mapJakartaResourceNotFoundException]: "
+            + jakartaResourceNotFoundException.getMessage());
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during execution.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
 
   // TODO refactor this method??
   @ServerExceptionMapper
   public Response mapSAMLResponseStatusException(
-      SAMLValidationException samlValidationException) {
+      SAMLResponseStatusException samlResponseStatusException) {
+    return genericHTMLError();
+  }
+
+  private Response genericHTMLError() {
     try {
       return Response.status(FOUND).location(new URI("/static/sample_error.html")).build();
     } catch (URISyntaxException e) {
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
+  }
 
+  @ServerExceptionMapper
+  public Response mapSAMLValidationException(
+      SAMLValidationException samlValidationException) {
+    return genericHTMLError();
   }
 
   @ServerExceptionMapper
@@ -80,14 +105,6 @@ public class ExceptionMapper {
       IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "IDPSSO endpoint not found for selected idp.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapSAMLValidationException(
-      SAMLValidationException samlValidationException) {
-    Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during SAML Response validation.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
