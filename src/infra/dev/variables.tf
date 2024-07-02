@@ -22,6 +22,30 @@ variable "env_short" {
   description = "Evnironment short."
 }
 
+variable "vpc_cidr" {
+  default = "10.0.0.0/17"
+}
+
+variable "vpc_private_subnets_cidr" {
+  default = ["10.0.80.0/20", "10.0.64.0/20", "10.0.48.0/20"]
+}
+
+variable "vpc_public_subnets_cidr" {
+  default = ["10.0.120.0/21", "10.0.112.0/21", "10.0.104.0/21"]
+}
+
+variable "vpc_internal_subnets_cidr" {
+  default = ["10.0.32.0/20", "10.0.16.0/20", "10.0.0.0/20"]
+}
+
+variable "enable_nat_gateway" {
+  default = true
+}
+
+variable "single_nat_gateway" {
+  default = true
+}
+
 ## R53 DNS zone ##
 variable "r53_dns_zone" {
   type = object({
