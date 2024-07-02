@@ -18,17 +18,14 @@ afterAll(() => {
 test('go to the spid url', () => {
   render(<SpidSelect onBack={() => {}} />);
 
-  idps.forEach((element) => {
+  idps.forEach((element, i) => {
     const spidImg = screen.getByAltText(element.name);
     const spidSpan = spidImg.parentNode;
-    const spidButton = spidSpan.parentNode;
+    const spidButton = spidSpan?.parentNode;
     fireEvent.click(spidButton);
-    let id = element.entityId;
-    expect(global.window.location.assign).toBeCalledWith(
-      ENV.URL_API.LOGIN +
-        '/login?entityID=' +
-        id +
-        '&authLevel=SpidL2&RelayState=selfcare_pagopa_it'
+    const id = element.entityId;
+    expect(global.window.location.assign).toHaveBeenCalledWith(
+      ENV.URL_API.AUTHORIZE + '?idp=' + encodeURIComponent(id)
     );
   });
 });

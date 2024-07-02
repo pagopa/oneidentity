@@ -1,11 +1,5 @@
 import Login from './pages/login/Login';
-import {
-  ROUTE_LOGIN,
-  ROUTE_LOGIN_ERROR,
-  ROUTE_LOGIN_SUCCESS,
-  ROUTE_LOGOUT,
-} from './utils/constants';
-import LoginSuccess from './pages/loginSuccess/LoginSuccess';
+import { ROUTE_LOGIN, ROUTE_LOGIN_ERROR, ROUTE_LOGOUT } from './utils/constants';
 import { redirectToLogin } from './utils/utils';
 import Logout from './pages/logout/Logout';
 import LoginError from './pages/loginError/LoginError';
@@ -25,8 +19,6 @@ const handleLoginRequestOnSuccessRequest = () => {
   trackEvent('LOGIN_INTENT', { target: onSuccess ?? 'dashboard' });
 };
 
-const onLoginSuccess = () => <LoginSuccess />;
-
 function App() {
   if (window.location.pathname === ROUTE_LOGOUT) {
     return onLogout();
@@ -34,8 +26,6 @@ function App() {
     switch (window.location.pathname) {
       case ROUTE_LOGIN:
         return onLoginRequest();
-      case ROUTE_LOGIN_SUCCESS:
-        return onLoginSuccess();
       case ROUTE_LOGIN_ERROR:
         return onLoginError();
       default:

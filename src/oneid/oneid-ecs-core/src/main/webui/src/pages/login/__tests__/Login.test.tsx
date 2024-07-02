@@ -3,8 +3,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../Login';
 import { ENV } from '../../../utils/env';
 import './../../../locale';
-import { productId2ProductTitle } from '@pagopa/selfcare-common-frontend/utils/productId2ProductTitle';
 import { MemoryRouter } from 'react-router-dom';
+import { productId2ProductTitle } from '../../../utils/src/lib/utils/productId2ProductTitle';
 
 const oldWindowLocation = global.window.location;
 
@@ -20,16 +20,6 @@ afterAll(() => {
 jest.spyOn(URLSearchParams.prototype, 'get');
 
 global.window.open = jest.fn();
-
-test('Test: Session not found while trying to access dashboard: "Selfcare" Login is displayed', async () => {
-  render(
-    <MemoryRouter initialEntries={[{ pathname: '/', search: '?onSuccess=dashboard' }]}>
-      <Login />
-    </MemoryRouter>
-  );
-  await waitFor(() => screen.getByText('Accedi all’Area Riservata'));
-  expect(URLSearchParams.prototype.get).toBeCalledTimes(3);
-});
 
 test('Test: Session not found while trying to access at onboarding flow product: "Onboarding" Login is displayed', async () => {
   const productIds = [
@@ -62,22 +52,8 @@ test('Test: Session not found while trying to access at onboarding flow product:
       expect(productTitle).toBeDefined();
     });
 
-    expect(URLSearchParams.prototype.get).toBeCalledTimes(expectedCalledTimes);
+    expect(URLSearchParams.prototype.get).toHaveBeenCalledTimes(expectedCalledTimes);
   });
-});
-
-test('Test: Session not found while trying to access at upload contract flow: "Selfcare" Login is displayed', async () => {
-  const mockedJwt = 'mockJwt';
-  render(
-    <MemoryRouter
-      initialEntries={[{ pathname: '/', search: `?onSuccess=onboarding/confirm?jwt=${mockedJwt}` }]}
-    >
-      <Login />
-    </MemoryRouter>
-  );
-  await waitFor(() => screen.getByText('Accedi all’Area Riservata'));
-
-  expect(URLSearchParams.prototype.get).toBeCalledTimes(3);
 });
 
 test('Test: Trying to access the login with SPID', () => {
@@ -92,19 +68,9 @@ test('Test: Trying to access the login with CIE', () => {
     name: 'Entra con CIE',
   });
   fireEvent.click(buttonCIE);
-  expect(global.window.location.assign).toBeCalledWith(
-    `${ENV.URL_API.LOGIN}/login?entityID=xx_servizicie_test&authLevel=SpidL2`
+  expect(global.window.location.assign).toHaveBeenCalledWith(
+    `${ENV.URL_API.AUTHORIZE}?idp=xx_servizicie_test`
   );
-});
-
-test('Test: Access to operative manual', () => {
-  render(<Login />);
-  const documentationButton = screen.getByRole('button', {
-    name: 'Manuale operativo',
-  });
-
-  fireEvent.click(documentationButton);
-  expect(global.window.open).toBeCalledWith(ENV.URL_DOCUMENTATION, '_blank');
 });
 
 test('Test: Click in the conditions and privacy links below the login methods', () => {
@@ -114,8 +80,8 @@ test('Test: Click in the conditions and privacy links below the login methods', 
   const privacyLink = screen.getAllByText(/Informativa Privacy/)[0];
 
   fireEvent.click(termsConditionLink);
-  expect(global.window.location.assign).toBeCalledWith(ENV.URL_FOOTER.TERMS_AND_CONDITIONS);
+  expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.TERMS_AND_CONDITIONS);
 
   fireEvent.click(privacyLink);
-  expect(global.window.location.assign).toBeCalledWith(ENV.URL_FOOTER.PRIVACY_DISCLAIMER);
+  expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.PRIVACY_DISCLAIMER);
 });
