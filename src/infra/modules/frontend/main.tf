@@ -11,7 +11,7 @@ module "records" {
 
   zone_name = keys(module.zones.route53_zone_zone_id)[0]
 
-  records = [
+  records = concat([
     {
       name = ""
       type = "A"
@@ -20,8 +20,9 @@ module "records" {
         zone_id                = module.rest_api.regional_zone_id
         evaluate_target_health = true
       }
-    },
-    {
+    }],
+    var.create_alb_spid_validator == true ?
+    [{
       name = "validator"
       type = "A"
       alias = {
@@ -29,8 +30,8 @@ module "records" {
         zone_id                = module.alb_spid_validator[0].zone_id
         evaluate_target_health = true
       }
-    },
-  ]
+    }] : []
+  )
 
   depends_on = [module.zones]
 }
@@ -102,9 +103,10 @@ resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
 }
 
 
-## ALB spid validator
+## ALB spid validator ##
 
 module "acm_validator" {
+  count   = var.create_alb_spid_validator ? 1 : 0
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
@@ -121,12 +123,12 @@ module "acm_validator" {
 }
 
 module "alb_spid_validator" {
-  count = var.create_alb_spid_validator ? 1 : 0
+  count   = var.create_alb_spid_validator ? 1 : 0
   source  = "terraform-aws-modules/alb/aws"
   version = "9.8.0"
 
-  name = var.alb_name
-  
+  name = var.alb_spid_validator_name
+
   load_balancer_type = "application"
 
   vpc_id  = var.vpc_id
@@ -134,9 +136,15 @@ module "alb_spid_validator" {
 
   # Security Group
   security_group_ingress_rules = {
-    all_http = {
+    all_https = {
       from_port   = 443
       to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+    all_http = {
+      from_port   = 80
+      to_port     = 80
       ip_protocol = "tcp"
       cidr_ipv4   = "0.0.0.0/0"
     }
@@ -161,10 +169,10 @@ module "alb_spid_validator" {
     }
 
     ex_https = {
-      port = 443
-      protocol = "HTTPS"
-      ssl_policy                  = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
-      certificate_arn             = module.acm_validator.acm_certificate_arn
+      port            = 443
+      protocol        = "HTTPS"
+      ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
+      certificate_arn = module.acm_validator[0].acm_certificate_arn
 
       forward = {
         target_group_key = "spid_validator"
@@ -188,7 +196,7 @@ module "alb_spid_validator" {
         matcher             = "200"
         path                = "/"
         port                = "traffic-port"
-        protocol            = "HTTPS"
+        protocol            = "HTTP"
         timeout             = 20
         unhealthy_threshold = 2
       }

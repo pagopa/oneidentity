@@ -9,9 +9,9 @@ variable "vpc_id" {
 }
 
 variable "vpc_cidr_block" {
-  type = string
+  type        = string
   description = "VPC Cidr block. Is required when you create the application load balancer."
-  default = null
+  default     = null
 }
 
 
@@ -93,22 +93,21 @@ variable "nlb_dns_name" {
 
 ## Application load balancer spid test
 variable "create_alb_spid_validator" {
-  type = bool
+  type        = bool
   description = "Create the ALB spid to expose the spid validator."
-  default = false
+  default     = false
 }
 
-variable "alb_name" {
-  type = string
-  description = "Public application load balancer name for spid validator." 
+variable "alb_spid_validator_name" {
+  type        = string
+  description = "Public application load balancer name for spid validator."
 }
 
-
-## Lambda 
+## Lambda medatada ##  
 
 variable "metadata_lamba_name" {
   type        = string
-  description = "lambda metadata name"
+  description = "Lambda metadata name"
 }
 
 variable "metadata_lamba_arn" {

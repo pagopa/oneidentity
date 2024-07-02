@@ -3,7 +3,6 @@ variable "account_id" {
   description = "AWS Account id."
 }
 
-
 variable "ecr_registers" {
   type = list(object({
     name                            = string
@@ -124,21 +123,24 @@ variable "vpc_cidr_block" {
   description = "VPC cidr block."
 }
 
-
 variable "spid_validator" {
   type = object({
     service_name = string
-    cpu = optional(number, 512)
-    memory = optional(number, 1024)
+    cpu          = optional(number, 512)
+    memory       = optional(number, 1024)
     container = object({
-      name = string
-      image_name = string
-      image_version = string
+      name             = string
+      image_name       = string
+      image_version    = string
+      cpu    = optional(number, 512)
+      memory = optional(number, 1024)
     })
-    alb_target_group_arn = string
+    alb_target_group_arn  = string
     alb_security_group_id = string
-    
+
   })
+
+  description = "Spid validator configurations. When null the resources won't be created."
 
   default = null
 }

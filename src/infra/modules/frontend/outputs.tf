@@ -20,15 +20,15 @@ output "rest_api_invoke_url" {
 ## ALB Spid Validator ## 
 
 output "spid_validator_alb_dns_name" {
-  value = module.alb_spid_validator[0].dns_name  
+  value = module.alb_spid_validator[0].dns_name
 }
 
 output "spid_validator_alb_arn" {
-  value = module.alb_spid_validator[0].arn  
+  value = module.alb_spid_validator[0].arn
 }
 
 output "spid_validator_alb_target_group_arn" {
-  value = module.alb_spid_validator[0].target_groups["spid_validator"].arn  
+  value = module.alb_spid_validator[0].target_groups["spid_validator"].arn
 }
 
 output "spid_validator_alb_security_group_id" {

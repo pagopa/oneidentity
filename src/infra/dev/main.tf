@@ -51,7 +51,7 @@ module "frontend" {
   api_method_settings       = var.api_method_settings
 
   create_alb_spid_validator = true
-  alb_name                  = format("%s-spid-validator-alb", local.project)
+  alb_spid_validator_name   = format("%s-spid-validator-alb", local.project)
   vpc_cidr_block            = module.network.vpc_cidr_block
 }
 
