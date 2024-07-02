@@ -1,12 +1,11 @@
 package it.pagopa.oneid.web;
 
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
-
 import io.vertx.ext.web.Router;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class SPARouting {
@@ -19,8 +18,10 @@ public class SPARouting {
   // use Vite
 
   // we might think to get them from properties file
-  private static final String[] PATH_PREFIXES = { "/oidc/", "/api/", "/@", "/saml/", "/ping" };
-  private static final Predicate<String> FILE_NAME_PREDICATE = Pattern.compile(".+\\.[a-zA-Z0-9]+$").asMatchPredicate();
+  private static final String[] PATH_PREFIXES = {"/oidc/", "/api/", "/@", "/saml/", "/ping",
+      "/.well-known/"};
+  private static final Predicate<String> FILE_NAME_PREDICATE = Pattern.compile(".+\\.[a-zA-Z0-9]+$")
+      .asMatchPredicate();
 
   public void init(@Observes Router router) {
     router.get("/*").handler(rc -> {
