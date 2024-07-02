@@ -18,6 +18,9 @@ ARG ENVIRONMENT
 ARG ENVFILE=/code/oneid-ecs-core/src/main/webui/.env.${ENVIRONMENT}
 
 # Build oneid-ecs-core using oneid-ecs-core-aggregate
+# Start downloading dependencies
+RUN ["./mvnw", "verify", "clean", "--fail-never"]
+
 # This will use a workaround to load an env file, since is
 # not supported in docker build
 RUN export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate
