@@ -205,6 +205,89 @@
         }
       }
     },
+    "/login/error": {
+      "get": {
+        "tags": [
+          "Login error page"
+        ],
+        "description": "This route will serve the login error page",
+        "parameters": [
+          {
+            "name": "errorCode",
+            "in": "query",
+            "required": true,
+            "description": "This is the 'errorCode' of the faced error.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "GET",
+          "uri": "${uri}/login/error",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.querystring.errorCode": "method.request.querystring.errorCode"
+          },
+          "responseParameters": {},
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    },
     "/saml/acs": {
       "post": {
         "tags": [
