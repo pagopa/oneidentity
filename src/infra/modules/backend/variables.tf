@@ -129,11 +129,11 @@ variable "spid_validator" {
     cpu          = optional(number, 512)
     memory       = optional(number, 1024)
     container = object({
-      name             = string
-      image_name       = string
-      image_version    = string
-      cpu    = optional(number, 512)
-      memory = optional(number, 1024)
+      name          = string
+      image_name    = string
+      image_version = string
+      cpu           = optional(number, 512)
+      memory        = optional(number, 1024)
     })
     alb_target_group_arn  = string
     alb_security_group_id = string

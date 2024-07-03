@@ -58,7 +58,7 @@
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPC cidr block. | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
 | <a name="input_enable_container_insights"></a> [enable\_container\_insights](#input\_enable\_container\_insights) | ECS enable container insight. | `bool` | `true` | no |
-| <a name="input_spid_validator"></a> [spid\_validator](#input\_spid\_validator) | Spid validator configurations. When null the resources won't be created. | <pre>object({<br>    service_name = string<br>    cpu          = optional(number, 512)<br>    memory       = optional(number, 1024)<br>    container = object({<br>      name             = string<br>      image_name       = string<br>      image_version    = string<br>      cpu    = optional(number, 512)<br>      memory = optional(number, 1024)<br>    })<br>    alb_target_group_arn  = string<br>    alb_security_group_id = string<br><br>  })</pre> | `null` | no |
+| <a name="input_spid_validator"></a> [spid\_validator](#input\_spid\_validator) | Spid validator configurations. When null the resources won't be created. | <pre>object({<br>    service_name = string<br>    cpu          = optional(number, 512)<br>    memory       = optional(number, 1024)<br>    container = object({<br>      name          = string<br>      image_name    = string<br>      image_version = string<br>      cpu           = optional(number, 512)<br>      memory        = optional(number, 1024)<br>    })<br>    alb_target_group_arn  = string<br>    alb_security_group_id = string<br><br>  })</pre> | `null` | no |
 
 ## Outputs
 

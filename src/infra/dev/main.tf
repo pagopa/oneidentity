@@ -55,14 +55,12 @@ module "frontend" {
   vpc_cidr_block            = module.network.vpc_cidr_block
 }
 
-
-
 module "storage" {
   source = "../modules/storage"
 
   assertion_bucket = {
     name_prefix              = "assertions"
-    gracier_transaction_days = 90
+    glacier_transaction_days = 90
     expiration_days          = 100
     enable_key_rotation      = true
   }
