@@ -12,12 +12,12 @@ module "network" {
 
   azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
 
-  vpc_cidr                  = "10.0.0.0/17"
-  vpc_private_subnets_cidr  = ["10.0.80.0/20", "10.0.64.0/20", "10.0.48.0/20"]
-  vpc_public_subnets_cidr   = ["10.0.120.0/21", "10.0.112.0/21", "10.0.104.0/21"]
-  vpc_internal_subnets_cidr = ["10.0.32.0/20", "10.0.16.0/20", "10.0.0.0/20"]
-  enable_nat_gateway        = false
-  single_nat_gateway        = true
+  vpc_cidr                  = var.vpc_cidr
+  vpc_private_subnets_cidr  = var.vpc_private_subnets_cidr
+  vpc_public_subnets_cidr   = var.vpc_public_subnets_cidr
+  vpc_internal_subnets_cidr = var.vpc_internal_subnets_cidr
+  enable_nat_gateway        = var.enable_nat_gateway
+  single_nat_gateway        = var.single_nat_gateway
 
 }
 
@@ -49,16 +49,18 @@ module "frontend" {
   aws_region                = var.aws_region
   api_cache_cluster_enabled = var.api_cache_cluster_enabled
   api_method_settings       = var.api_method_settings
+
+  create_alb_spid_validator = true
+  alb_spid_validator_name   = format("%s-spid-validator-alb", local.project)
+  vpc_cidr_block            = module.network.vpc_cidr_block
 }
-
-
 
 module "storage" {
   source = "../modules/storage"
 
   assertion_bucket = {
     name_prefix              = "assertions"
-    gracier_transaction_days = 90
+    glacier_transaction_days = 90
     expiration_days          = 100
     enable_key_rotation      = true
   }
@@ -75,7 +77,13 @@ module "backend" {
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
 
-  }]
+      }, {
+      name                            = local.ecr_spid_validator
+      number_of_images_to_keep        = 1
+      repository_image_tag_mutability = var.repository_image_tag_mutability
+
+    }
+  ]
 
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = true
@@ -165,6 +173,18 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
+  }
+
+  spid_validator = {
+    service_name = format("%s-spid-validator", local.project)
+    container = {
+      name          = "validator"
+      image_name    = format("%s-spid-validator", local.project)
+      image_version = "1.2.0"
+    }
+    alb_target_group_arn  = module.frontend.spid_validator_alb_target_group_arn
+    alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
+
   }
 
 }

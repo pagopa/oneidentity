@@ -1,6 +1,6 @@
 locals {
   kms_sessions_table_alias = "/dynamodb/sessions"
-  gsi_code = "gsi_code_idx"
+  gsi_code                 = "gsi_code_idx"
 }
 
 

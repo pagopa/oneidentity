@@ -22,12 +22,53 @@ variable "env_short" {
   description = "Evnironment short."
 }
 
+variable "vpc_cidr" {
+  type        = string
+  description = "VPC address space"
+  default     = "10.0.0.0/17"
+}
+
+variable "vpc_private_subnets_cidr" {
+  type        = list(string)
+  description = "Private subnets address spaces."
+  default     = ["10.0.80.0/20", "10.0.64.0/20", "10.0.48.0/20"]
+}
+
+variable "vpc_public_subnets_cidr" {
+  type        = list(string)
+  description = "Public subnets address spaces."
+  default     = ["10.0.120.0/21", "10.0.112.0/21", "10.0.104.0/21"]
+}
+
+variable "vpc_internal_subnets_cidr" {
+  type        = list(string)
+  description = "Internal subnets address spaces."
+  default     = ["10.0.32.0/20", "10.0.16.0/20", "10.0.0.0/20"]
+}
+
+variable "enable_nat_gateway" {
+  type        = bool
+  default     = true
+  description = "Create nat gateway(s)"
+}
+
+variable "single_nat_gateway" {
+  type        = bool
+  default     = true
+  description = "Create a single nat gateway to spare money."
+}
+
 ## R53 DNS zone ##
 variable "r53_dns_zone" {
   type = object({
     name    = string
     comment = string
   })
+
+  default = {
+    name    = "dev.oneid.pagopa.it"
+    comment = "Oneidentity dev zone."
+  }
 }
 
 ## ECS Cluster ##
@@ -43,7 +84,6 @@ variable "ecs_enable_container_insights" {
   default     = false
 }
 
-
 variable "ecs_oneid_core" {
   type = object({
     image_version    = string
@@ -58,18 +98,35 @@ variable "ecs_oneid_core" {
     })
     app_spid_test_enabled = optional(bool, false)
   })
+  description = "Oneidentity core backend configurations."
+
+  default = {
+    image_version    = "0bfd81912534495aad0bb8cac3bf1f5aeb763625"
+    cpu              = 512
+    memory           = 1024
+    container_cpu    = 512
+    container_memory = 1024
+    autoscaling = {
+      enable       = true
+      min_capacity = 1
+      max_capacity = 2
+    }
+    app_spid_test_enabled = true
+  }
 }
 
 ## Storage S3 ## 
 variable "assertion_bucket" {
   type = object({
     mfa_delete               = bool
-    gracier_transaction_days = number
+    glacier_transaction_days = number
     expiration_days          = number
   })
+
+  description = "Assetion storage configurations."
   default = {
     mfa_delete               = false
-    gracier_transaction_days = 90
+    glacier_transaction_days = 90
     expiration_days          = 100
   }
 
@@ -85,7 +142,7 @@ variable "number_of_images_to_keep" {
 variable "repository_image_tag_mutability" {
   type        = string
   description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE"
-  default     = "IMMUTABLE"
+  default     = "MUTABLE"
 }
 
 ## Database ##
@@ -99,14 +156,14 @@ variable "table_saml_responses_point_in_time_recovery_enabled" {
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
-  default     = 86400 # 24 hours
+  default     = 3600 # one minutes
 }
 
 ## Api Gateway
 variable "api_cache_cluster_enabled" {
   type        = bool
   description = "Enablr cache cluster is enabled for the stage."
-  default     = false
+  default     = true
 }
 
 variable "api_cache_cluster_size" {
@@ -114,7 +171,6 @@ variable "api_cache_cluster_size" {
   description = "Size of the cache cluster for the stage, if enabled."
   default     = 0.5
 }
-
 
 variable "api_method_settings" {
   description = "List of Api Gateway method settings."
@@ -131,7 +187,18 @@ variable "api_method_settings" {
     require_authorization_for_cache_control = optional(bool, false)
     cache_key_parameters                    = optional(list(string), [])
   }))
-  default = []
+  default = [
+    {
+      method_path     = "*/*"
+      metrics_enabled = true
+      logging_level   = "INFO"
+    },
+    {
+      method_path          = "static/*/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    }
+  ]
 }
 
 variable "rest_api_throttle_settings" {
@@ -140,12 +207,20 @@ variable "rest_api_throttle_settings" {
     rate_limit  = number
   })
   description = "Rest api throttle settings."
+  default = {
+    rate_limit  = 50
+    burst_limit = 100
+  }
 }
 
 
 variable "tags" {
   type = map(any)
   default = {
-    CreatedBy = "Terraform"
+    CreatedBy   = "Terraform"
+    Environment = "Dev"
+    Owner       = "Oneidentity"
+    Source      = "https://github.com/pagopa/oneidentity"
+    CostCenter  = "tier0"
   }
 }

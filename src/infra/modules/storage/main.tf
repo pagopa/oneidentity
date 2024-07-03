@@ -46,7 +46,7 @@ module "s3_assertions_bucket" {
     enabled    = true
     mfa_delete = var.assertion_bucket.mfa_delete
   }
-  
+
   logging = {
     target_bucket = local.bucket_name
     target_prefix = "logs/"
@@ -61,7 +61,7 @@ module "s3_assertions_bucket" {
 
       transition = [
         {
-          days          = var.assertion_bucket.gracier_transaction_days
+          days          = var.assertion_bucket.glacier_transaction_days
           storage_class = "GLACIER"
         }
       ]

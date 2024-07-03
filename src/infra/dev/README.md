@@ -15,12 +15,12 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend |  |
-| <a name="module_database"></a> [database](#module\_database) | ../modules/database |  |
-| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend |  |
-| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
-| <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
-| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend | n/a |
+| <a name="module_database"></a> [database](#module\_database) | ../modules/database | n/a |
+| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend | n/a |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
+| <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
 
 ## Resources
 
@@ -45,11 +45,17 @@
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | Dns record ttl (in sec) | `number` | `86400` | no |
 | <a name="input_ecr_keep_images"></a> [ecr\_keep\_images](#input\_ecr\_keep\_images) | Number of images to keep. | `number` | `3` | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
+| <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | n/a | `bool` | `true` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Evnironment short. | `string` | `"d"` | no |
 | <a name="input_number_of_images_to_keep"></a> [number\_of\_images\_to\_keep](#input\_number\_of\_images\_to\_keep) | Number of images to keeps in ECR. | `number` | `3` | no |
 | <a name="input_repository_image_tag_mutability"></a> [repository\_image\_tag\_mutability](#input\_repository\_image\_tag\_mutability) | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE | `string` | `"IMMUTABLE"` | no |
+| <a name="input_single_nat_gateway"></a> [single\_nat\_gateway](#input\_single\_nat\_gateway) | n/a | `bool` | `true` | no |
 | <a name="input_table_saml_responses_point_in_time_recovery_enabled"></a> [table\_saml\_responses\_point\_in\_time\_recovery\_enabled](#input\_table\_saml\_responses\_point\_in\_time\_recovery\_enabled) | Enable point in time recovery table saml responses | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | <pre>{<br>  "CreatedBy": "Terraform"<br>}</pre> | no |
+| <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | n/a | `string` | `"10.0.0.0/17"` | no |
+| <a name="input_vpc_internal_subnets_cidr"></a> [vpc\_internal\_subnets\_cidr](#input\_vpc\_internal\_subnets\_cidr) | n/a | `list` | <pre>[<br>  "10.0.32.0/20",<br>  "10.0.16.0/20",<br>  "10.0.0.0/20"<br>]</pre> | no |
+| <a name="input_vpc_private_subnets_cidr"></a> [vpc\_private\_subnets\_cidr](#input\_vpc\_private\_subnets\_cidr) | n/a | `list` | <pre>[<br>  "10.0.80.0/20",<br>  "10.0.64.0/20",<br>  "10.0.48.0/20"<br>]</pre> | no |
+| <a name="input_vpc_public_subnets_cidr"></a> [vpc\_public\_subnets\_cidr](#input\_vpc\_public\_subnets\_cidr) | n/a | `list` | <pre>[<br>  "10.0.120.0/21",<br>  "10.0.112.0/21",<br>  "10.0.104.0/21"<br>]</pre> | no |
 
 ## Outputs
 
