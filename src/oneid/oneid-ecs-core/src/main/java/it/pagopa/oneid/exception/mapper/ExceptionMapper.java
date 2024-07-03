@@ -1,6 +1,7 @@
 package it.pagopa.oneid.exception.mapper;
 
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -56,9 +57,11 @@ public class ExceptionMapper {
     return genericHTMLError();
   }
 
+  // TODO map errors to correct errorCode
   private Response genericHTMLError() {
     try {
-      return Response.status(FOUND).location(new URI("/static/sample_error.html")).build();
+      return Response.status(FOUND)
+          .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=0")).build();
     } catch (URISyntaxException e) {
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
