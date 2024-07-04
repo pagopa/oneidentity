@@ -146,10 +146,30 @@ variable "repository_image_tag_mutability" {
 }
 
 ## Database ##
-variable "table_saml_responses_point_in_time_recovery_enabled" {
-  type        = bool
-  description = "Enable point in time recovery table saml responses"
-  default     = false
+variable "sessions_table" {
+  type = object({
+    ttl_enabled                    = bool
+    point_in_time_recovery_enabled = bool
+    stream_enabled                 = bool
+    stream_view_type               = string
+  })
+  description = "Saml responses table configurations."
+  default = {
+    ttl_enabled                    = true
+    point_in_time_recovery_enabled = false
+    stream_enabled                 = true
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
+  }
+}
+
+variable "client_registrations_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Client configurations."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
 }
 
 # DNS

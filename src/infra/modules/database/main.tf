@@ -57,6 +57,9 @@ module "dynamodb_sessions_table" {
   server_side_encryption_enabled     = true
   server_side_encryption_kms_key_arn = module.kms_sessions_table.aliases[local.kms_sessions_table_alias].target_key_arn
 
+  stream_enabled   = var.sessions_table.stream_enabled
+  stream_view_type = var.sessions_table.stream_view_type
+
   tags = {
     Name = "Session"
   }
