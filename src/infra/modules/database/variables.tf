@@ -15,3 +15,12 @@ variable "client_registrations_table" {
   })
   description = "Client configurations."
 }
+
+
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name = string
+
+  })
+  default = null
+}
