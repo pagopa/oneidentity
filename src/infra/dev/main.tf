@@ -192,12 +192,6 @@ module "backend" {
 module "database" {
   source = "../modules/database"
 
-  sessions_table = {
-    point_in_time_recovery_enabled = false
-  }
-
-  client_registrations_table = {
-    point_in_time_recovery_enabled = true
-  }
-
+  sessions_table             = var.sessions_table
+  client_registrations_table = var.client_registrations_table
 }
