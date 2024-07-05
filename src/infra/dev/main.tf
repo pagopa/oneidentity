@@ -195,3 +195,11 @@ module "database" {
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
 }
+
+module "monitoring" {
+  source = "../modules/monitoring"
+  aws_region = var.aws_region
+  api_name = module.frontend.api_name
+  dynamodb_table_name = module.database.table_sessions_name
+  ecs = {service_name = module.backend.ecs_service_name, cluster_name = module.backend.ecs_cluster_name}
+}

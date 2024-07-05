@@ -1,0 +1,255 @@
+{
+    "widgets": [
+        {
+            "height": 6,
+            "width": 6,
+            "y": 1,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "height": 6,
+                "width": 6,
+                "y": 1,
+                "x": 0,
+                "type": "metric",
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", { "region": "eu-south-1" } ]
+                ],
+                "region": "eu-south-1",
+                "period": 300,
+                "stat": "Sum",
+                "title": "Api calls"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 1,
+            "x": 6,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1" } ],
+                    [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", { "region": "eu-south-1", "id": "m1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "period": 300,
+                "stat": "Average"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 1,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", { "region": "eu-south-1" } ],
+                    [ ".", "4XXError", ".", ".", { "region": "eu-south-1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "period": 300,
+                "stat": "Sum"
+            }
+        },
+        {
+            "height": 6,
+            "width": 12,
+            "y": 15,
+            "x": 12,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${dynamodb_table_name}", { "region": "eu-south-1", "id": "m1" } ],
+                    [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "eu-south-1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "period": 60,
+                "stat": "Average",
+                "title": "ReadUsage-SessionTable"
+            }
+        },
+        {
+            "height": 6,
+            "width": 12,
+            "y": 15,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "${dynamodb_table_name}", { "id": "m1", "region": "eu-south-1" } ],
+                    [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "eu-south-1" } ]
+                ],
+                "title": "WriteUsage-SessionTable",
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "period": 60,
+                "stat": "Average",
+                "yAxis": {
+                    "left": {
+                        "showUnits": false
+                    }
+                }
+            }
+        },
+        {
+            "height": 6,
+            "width": 8,
+            "y": 8,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "eu-south-1" } ],
+                    [ "ECS/ContainerInsights", "CpuUtilized", "ServiceName", "oneid-es-1-d-core", "ClusterName", "oneid-es-1-d-ecs", { "stat": "Minimum", "id": "m1", "region": "eu-south-1" } ],
+                    [ "...", { "stat": "Maximum", "id": "m2", "region": "eu-south-1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "stat": "Average",
+                "period": 300
+            }
+        },
+        {
+            "height": 6,
+            "width": 8,
+            "y": 8,
+            "x": 8,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "eu-south-1" } ],
+                    [ "AWS/ECS", "MemoryUtilization", "ServiceName", "oneid-es-1-d-core", "ClusterName", "oneid-es-1-d-ecs", { "id": "m1", "stat": "Minimum", "region": "eu-south-1" } ],
+                    [ "...", { "id": "m2", "stat": "Maximum", "region": "eu-south-1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "stat": "Average",
+                "period": 300
+            }
+        },
+        {
+            "height": 1,
+            "width": 24,
+            "y": 0,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "## Api-Gateway \n"
+            }
+        },
+        {
+            "height": 1,
+            "width": 24,
+            "y": 14,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "## DynamoDB \n"
+            }
+        },
+        {
+            "height": 1,
+            "width": 24,
+            "y": 7,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "## ECS\n"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 1,
+            "x": 18,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "eu-south-1" } ],
+                    [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", { "id": "m1", "region": "eu-south-1" } ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "title": "IntegrationLatency",
+                "stat": "Average",
+                "period": 60
+            }
+        },
+        {
+            "height": 1,
+            "width": 24,
+            "y": 21,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "\n## Index GSI\n"
+            }
+        },
+        {
+            "height": 6,
+            "width": 7,
+            "y": 22,
+            "x": 0,
+            "type": "metric",
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "${dynamodb_table_name}", "GlobalSecondaryIndexName", "gsi_code_idx" ],
+                    [ ".", "ConsumedReadCapacityUnits", ".", ".", ".", "." ]
+                ],
+                "stat": "Sum",
+                "region": "eu-south-1"
+            }
+        },
+        {
+            "height": 6,
+            "width": 6,
+            "y": 22,
+            "x": 7,
+            "type": "metric",
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/DynamoDB", "OnlineIndexThrottleEvents", "TableName", "${dynamodb_table_name}", "GlobalSecondaryIndexName", "gsi_code_idx" ]
+                ],
+                "region": "eu-south-1",
+                "stat": "Sum"
+            }
+        },
+        {
+            "height": 6,
+            "width": 8,
+            "y": 8,
+            "x": 16,
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    [ "AWS/NetworkELB", "UnHealthyHostCount", "TargetGroup", "targetgroup/t1-20240604084424069200000002/afe4e648580a9ba4", "LoadBalancer", "net/oneid-es-1-d-nlb/5eb82a9b709499d6" ],
+                    [ ".", "HealthyHostCount", ".", ".", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "eu-south-1",
+                "stat": "Maximum",
+                "period": 300,
+                "title": "Healthy Host Count, UnHealthy Host Count"
+            }
+        }
+    ]
+}

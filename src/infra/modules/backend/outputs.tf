@@ -6,6 +6,10 @@ output "ecs_cluster_name" {
   value = module.ecs.cluster_name
 }
 
+output "ecs_service_name" {
+  value = module.ecs_core_service.name
+}
+
 output "ecs_deploy_iam_role_arn" {
   value = aws_iam_role.githubecsdeploy.arn
 }
