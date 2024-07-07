@@ -6,7 +6,8 @@ resource "aws_cloudwatch_dashboard" "main" {
       aws_region               = var.aws_region
       api_name                 = var.api_name
       dynamodb_table_name      = var.dynamodb_table_name
-      ecs                      = var.ecs 
+      ecs                      = var.ecs
+      nlb                      = var.nlb
       
     }
   )

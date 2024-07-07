@@ -27,6 +27,14 @@ output "nlb_arn" {
   value = module.elb.arn
 }
 
+output "nlb_arn_suffix" {
+  value = module.elb.arn_suffix
+}
+
+output "nlb_target_group_suffix_arn" {
+  value = module.elb.target_groups["ecs-oneid-core"].arn
+}
+
 output "nlb_dns_name" {
   value = module.elb.dns_name
 }

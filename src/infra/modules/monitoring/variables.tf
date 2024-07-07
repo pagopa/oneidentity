@@ -16,3 +16,11 @@ variable "ecs" {
     cluster_name = string
   })
 }
+
+variable "nlb" {
+  type = object({
+    arn_suffix = string
+    target_group_arn_suffix = string
+  })
+  
+}
