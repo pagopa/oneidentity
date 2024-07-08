@@ -15,12 +15,13 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend | n/a |
-| <a name="module_database"></a> [database](#module\_database) | ../modules/database | n/a |
-| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend | n/a |
-| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
-| <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
-| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend |  |
+| <a name="module_database"></a> [database](#module\_database) | ../modules/database |  |
+| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend |  |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
+| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../modules/monitoring |  |
+| <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
 
 ## Resources
 

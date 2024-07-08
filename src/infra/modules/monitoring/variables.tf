@@ -1,3 +1,8 @@
+variable "main_dashboard_name" {
+  type        = string
+  description = "Name of the main dashboard."
+}
+
 variable "aws_region" {
   type = string
 }
@@ -19,8 +24,8 @@ variable "ecs" {
 
 variable "nlb" {
   type = object({
-    arn_suffix = string
+    arn_suffix              = string
     target_group_arn_suffix = string
   })
-  
+  description = "Network load balancer configurations."
 }
