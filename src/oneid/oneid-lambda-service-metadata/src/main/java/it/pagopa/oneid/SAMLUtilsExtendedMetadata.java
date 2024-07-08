@@ -66,6 +66,9 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     // TODO: env var fileName (DEV, UAT, PROD)
   }
 
+  public SAMLUtilsExtendedMetadata() {
+  }
+
   public AttributeConsumingService buildAttributeConsumingService(Client client) {
     AttributeConsumingService attributeConsumingService = buildSAMLObject(
         AttributeConsumingService.class);
