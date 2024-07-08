@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service.config;
+package it.pagopa.oneid.common.utils.config;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Produces;

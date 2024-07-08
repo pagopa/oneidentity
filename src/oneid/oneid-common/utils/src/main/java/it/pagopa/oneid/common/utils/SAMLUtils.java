@@ -75,7 +75,7 @@ public class SAMLUtils {
     setnewKeyInfoGenerator();
   }
 
-  public static <T> T buildSAMLObject(final Class<T> clazz) {
+  public <T> T buildSAMLObject(final Class<T> clazz) {
     T object = null;
     try {
       XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
@@ -89,11 +89,11 @@ public class SAMLUtils {
   }
 
 
-  public static String generateSecureRandomId() {
+  public String generateSecureRandomId() {
     return secureRandomIdGenerator.generateIdentifier();
   }
 
-  public static Signature buildSignature(SignableSAMLObject signableSAMLObject)
+  public Signature buildSignature(SignableSAMLObject signableSAMLObject)
       throws SAMLUtilsException {
 
     Signature signature = buildSAMLObject(Signature.class);

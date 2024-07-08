@@ -1,19 +1,9 @@
 package it.pagopa.oneid;
 
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildAssertionConsumerService;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildAttributeConsumingService;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildContactPerson;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildKeyDescriptor;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildNameIDFormat;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildOrganization;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSPSSODescriptor;
-import static it.pagopa.oneid.SAMLUtilsExtendedMetadata.buildSingleLogoutService;
-import static it.pagopa.oneid.common.utils.SAMLUtils.buildSignature;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
@@ -71,29 +61,30 @@ public class ServiceMetadata {
   @Produces(MediaType.APPLICATION_XML)
   public Response metadata(@PathParam("id_type") IdType idType) throws OneIdentityException {
 
-    EntityDescriptor entityDescriptor = SAMLUtils.buildSAMLObject(EntityDescriptor.class);
+    EntityDescriptor entityDescriptor = samlUtils.buildSAMLObject(EntityDescriptor.class);
     entityDescriptor.setEntityID(SERVICE_PROVIDER_URI);
 
-    SPSSODescriptor spssoDescriptor = buildSPSSODescriptor();
-    spssoDescriptor.getKeyDescriptors().add(buildKeyDescriptor());
-    spssoDescriptor.getNameIDFormats().add(buildNameIDFormat());
-    spssoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService());
-    spssoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService());
+    SPSSODescriptor spssoDescriptor = samlUtils.buildSPSSODescriptor();
+    spssoDescriptor.getKeyDescriptors().add(samlUtils.buildKeyDescriptor());
+    spssoDescriptor.getNameIDFormats().add(samlUtils.buildNameIDFormat());
+    spssoDescriptor.getAssertionConsumerServices().add(samlUtils.buildAssertionConsumerService());
+    spssoDescriptor.getSingleLogoutServices().add(samlUtils.buildSingleLogoutService());
     spssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 
     for (Client client : clientsMap.values()) {
-      spssoDescriptor.getAttributeConsumingServices().add(buildAttributeConsumingService(client));
+      spssoDescriptor.getAttributeConsumingServices()
+          .add(samlUtils.buildAttributeConsumingService(client));
     }
 
-    entityDescriptor.setOrganization(buildOrganization());
+    entityDescriptor.setOrganization(samlUtils.buildOrganization());
     entityDescriptor.getContactPersons()
-        .add(buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri()));
+        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri()));
     entityDescriptor.getRoleDescriptors().add(spssoDescriptor);
     entityDescriptor.getNamespaceManager()
         .registerNamespaceDeclaration(
             new Namespace(idType.getNamespaceUri(), idType.getNamespacePrefix()));
 
-    Signature signature = buildSignature(entityDescriptor);
+    Signature signature = samlUtils.buildSignature(entityDescriptor);
     entityDescriptor.setSignature(signature);
     Marshaller out = XMLObjectProviderRegistrySupport.getMarshallerFactory()
         .getMarshaller(entityDescriptor);

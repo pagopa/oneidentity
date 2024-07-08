@@ -28,11 +28,13 @@ public class SAMLUtilsConstants {
   public static String LOCAL_NAME_IPA = "IPACode";
   public static String LOCAL_NAME_VAT_NUMBER = "VATNumber";
   public static String LOCAL_NAME_FISCAL_CODE = "FiscalCode";
+  public static String LOCAL_NAME_MUNICIPALITY = "Municipality";
   public static String IPA_CODE = "5N2TR557";
   public static String VAT_NUMBER = "IT15376371009";
   public static String FISCAL_CODE = "15376371009";
   public static String LOCAL_NAME_PUBLIC = "Public";
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
+  public static String MUNICIPALITY = "H501";
 
   @Inject
   SAMLUtilsConstants(

@@ -1,9 +1,5 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildIssuer;
-import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildNameIdPolicy;
-import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.buildRequestedAuthnContext;
-import static it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore.generateSecureRandomId;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -86,16 +82,17 @@ public class SAMLServiceImpl implements SAMLService {
       throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
     //TODO: add support for CIEid
 
-    AuthnRequest authnRequest = SAMLUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
+    AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
 
     // Create AuthnRequest
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
     authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-    authnRequest.setID(generateSecureRandomId()); // TODO review, is it correct as a RandomID?
-    authnRequest.setIssuer(buildIssuer());
-    authnRequest.setNameIDPolicy(buildNameIdPolicy());
-    authnRequest.setRequestedAuthnContext(buildRequestedAuthnContext(authLevel));
+    authnRequest.setID(
+        samlUtils.generateSecureRandomId()); // TODO review, is it correct as a RandomID?
+    authnRequest.setIssuer(samlUtils.buildIssuer());
+    authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
+    authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
 
     authnRequest.setDestination(
         samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
@@ -190,7 +187,7 @@ public class SAMLServiceImpl implements SAMLService {
   public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws SAMLUtilsException {
     Log.debug("[SAMLServiceImpl.getAttributesFromSAMLResponse] start");
-    return SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion(assertion)
+    return samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(SAMLUtilsException::new);
   }
 

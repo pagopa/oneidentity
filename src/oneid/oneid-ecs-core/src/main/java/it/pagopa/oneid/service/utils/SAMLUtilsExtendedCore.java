@@ -58,7 +58,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     super();
   }
 
-  public static Issuer buildIssuer() {
+  public Issuer buildIssuer() {
     Issuer issuer = buildSAMLObject(Issuer.class);
     issuer.setValue(SERVICE_PROVIDER_URI);
     issuer.setNameQualifier(SERVICE_PROVIDER_URI);
@@ -67,14 +67,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return issuer;
   }
 
-  public static NameIDPolicy buildNameIdPolicy() {
+  public NameIDPolicy buildNameIdPolicy() {
     NameIDPolicy nameIDPolicy = buildSAMLObject(NameIDPolicy.class);
     nameIDPolicy.setFormat(NameIDType.TRANSIENT);
 
     return nameIDPolicy;
   }
 
-  public static RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
+  public RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
     RequestedAuthnContext requestedAuthnContext = buildSAMLObject(RequestedAuthnContext.class);
     requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
     requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef(spidLevel));
@@ -82,14 +82,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return requestedAuthnContext;
   }
 
-  private static AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
+  private AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
     AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
     authnContextClassRef.setURI(spidLevel);
 
     return authnContextClassRef;
   }
 
-  private static String getAttributeValue(XMLObject attributeValue) {
+  private String getAttributeValue(XMLObject attributeValue) {
     Log.debug("[SAMLUtilsExtendedCore.getAttributeValue] start");
 
     return attributeValue == null ?
@@ -101,15 +101,15 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
                 attributeValue.toString();
   }
 
-  private static String getStringAttributeValue(XSString attributeValue) {
+  private String getStringAttributeValue(XSString attributeValue) {
     return attributeValue.getValue();
   }
 
-  private static String getAnyAttributeValue(XSAnyImpl attributeValue) {
+  private String getAnyAttributeValue(XSAnyImpl attributeValue) {
     return attributeValue.getTextContent();
   }
 
-  public static Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
+  public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
     Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] start");
     List<AttributeDTO> attributes = new ArrayList<>();
     for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
