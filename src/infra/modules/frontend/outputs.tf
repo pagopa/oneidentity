@@ -34,3 +34,7 @@ output "spid_validator_alb_target_group_arn" {
 output "spid_validator_alb_security_group_id" {
   value = module.alb_spid_validator[0].security_group_id
 }
+
+output "api_name" {
+  value = module.rest_api.rest_api_name
+}

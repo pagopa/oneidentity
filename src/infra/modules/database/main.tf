@@ -95,13 +95,15 @@ module "dynamodb_table_client_registrations" {
 
 
 # CloudWatch Log Group
+# TODO: this is a temporary target. It must be a lambda function.
 resource "aws_cloudwatch_log_group" "pipe_logs" {
+  count = var.sessions_table.stream_enabled != null ? 1: 0
   name              = "/aws/pipes/dynamodb-to-cloudwatch-pipe"
   retention_in_days = 14 # Adjust as needed
 }
 
 resource "aws_iam_role" "pipe_sessions" {
-  count = var.eventbridge_pipe_sessions != null ? 1 : 0
+  count = var.sessions_table.stream_enabled != null ? 1 : 0
   name  = "${var.eventbridge_pipe_sessions.pipe_name}-role"
 
   assume_role_policy = jsonencode({
@@ -112,18 +114,17 @@ resource "aws_iam_role" "pipe_sessions" {
       Principal = {
         Service = "pipes.amazonaws.com"
       }
-      /*
       Condition = {
         StringEquals = {
           "aws:SourceAccount" = var.account_id
         }
-      } */
+      }
     }
   })
 }
 
 resource "aws_iam_role_policy" "pipe_source" {
-  #count = var.eventbridge_pipe_sessions != null ? 1 : 0
+  count = var.sessions_table.stream_enabled != null ? 1 : 0
   name = "AllowPipeConsumeStream"
 
   role = aws_iam_role.pipe_sessions[0].id
@@ -153,24 +154,27 @@ resource "aws_iam_role_policy" "pipe_source" {
         ]
       },
       {
+        #TODO this statement is not needed as soon as there will be a lambda function reading the pipe.
         Effect = "Allow"
         Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "${aws_cloudwatch_log_group.pipe_logs.arn}:*"
+        Resource = "${aws_cloudwatch_log_group.pipe_logs[0].arn}:*"
       },
     ]
   })
 }
 
 
+#TODO rename this resource and replace the targe.
 resource "aws_pipes_pipe" "dynamodb_to_cloudwatch" {
+  count = var.sessions_table.stream_enabled ? 1: 0
   name     = "dynamodb-to-cloudwatch-pipe"
   role_arn = aws_iam_role.pipe_sessions[0].arn
   source   = module.dynamodb_sessions_table.dynamodb_table_stream_arn
 
-  target = aws_cloudwatch_log_group.pipe_logs.arn
+  target = aws_cloudwatch_log_group.pipe_logs[0].arn
 
   source_parameters {
     dynamodb_stream_parameters {

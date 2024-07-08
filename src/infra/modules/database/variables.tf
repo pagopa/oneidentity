@@ -1,3 +1,9 @@
+variable "account_id" {
+  type = string
+  description = "AWS account id"
+  default = null
+}
+
 variable "sessions_table" {
   type = object({
     ttl_enabled                    = optional(bool, true)
