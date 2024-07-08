@@ -27,6 +27,7 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.enums.Identifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -58,117 +59,59 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
-  public SAMLUtilsExtendedMetadata() throws SAMLUtilsException {
-    super();
+
+  @Inject
+  public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool) throws SAMLUtilsException {
+    super(basicParserPool);
+    // TODO: env var fileName (DEV, UAT, PROD)
   }
 
-  public static SPSSODescriptor buildSPSSODescriptor() {
-    SPSSODescriptor spssoDescriptor = buildSAMLObject(SPSSODescriptor.class);
-    spssoDescriptor.setAuthnRequestsSigned(true);
-    spssoDescriptor.setWantAssertionsSigned(true);
+  public AttributeConsumingService buildAttributeConsumingService(Client client) {
+    AttributeConsumingService attributeConsumingService = buildSAMLObject(
+        AttributeConsumingService.class);
 
-    return spssoDescriptor;
+    attributeConsumingService.setIndex(client.getAttributeIndex());
+    attributeConsumingService.getNames().add(buildServiceName(client.getFriendlyName()));
+    // TODO consider adding a Service Description field in client object
+    attributeConsumingService.getDescriptions()
+        .add(buildServiceDescription(client.getFriendlyName()));
 
-  }
-
-  public static KeyDescriptor buildKeyDescriptor() throws SAMLUtilsException {
-    KeyDescriptor signKeyDescriptor = buildSAMLObject(KeyDescriptor.class);
-
-    signKeyDescriptor.setUse(UsageType.SIGNING);  //Set usage
-    try {
-      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(X509Credential));
-    } catch (SecurityException e) {
-      throw new SAMLUtilsException(e);
+    for (String requestedParameter : client.getRequestedParameters()) {
+      attributeConsumingService.getRequestedAttributes()
+          .add(buildRequestedAttribute(requestedParameter));
     }
-    return signKeyDescriptor;
+
+    return attributeConsumingService;
   }
 
-  public static NameIDFormat buildNameIDFormat() {
-    NameIDFormat nameIDFormat = buildSAMLObject(NameIDFormat.class);
-    nameIDFormat.setURI(NameIDType.TRANSIENT);
+  public ServiceName buildServiceName(String name) {
+    ServiceName serviceName = buildSAMLObject(ServiceName.class);
+    serviceName.setValue(name);
+    // TODO consider adding a field for xml lang on service name
+    serviceName.setXMLLang("it");
 
-    return nameIDFormat;
+    return serviceName;
   }
 
-  public static AssertionConsumerService buildAssertionConsumerService() {
-    AssertionConsumerService assertionConsumerService = buildSAMLObject(
-        AssertionConsumerService.class);
-    assertionConsumerService.setIndex(0);
-    assertionConsumerService.setIsDefault(true);
-    assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-    assertionConsumerService.setLocation(ACS_URL);
+  public ServiceDescription buildServiceDescription(String description) {
+    ServiceDescription serviceDescription = buildSAMLObject(ServiceDescription.class);
+    serviceDescription.setValue(description);
+    // TODO consider adding a field for xml lang on service description
+    serviceDescription.setXMLLang("it");
 
-    return assertionConsumerService;
+    return serviceDescription;
   }
 
-  public static SingleLogoutService buildSingleLogoutService() {
-    SingleLogoutService singleLogoutService = buildSAMLObject(SingleLogoutService.class);
-    singleLogoutService.setLocation(SLO_URL);
-    singleLogoutService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+  public RequestedAttribute buildRequestedAttribute(String requestedParameter) {
+    RequestedAttribute attribute = buildSAMLObject(RequestedAttribute.class);
+    attribute.setNameFormat(NAME_FORMAT);
+    attribute.setName(Identifier.valueOf(requestedParameter).name());
+    attribute.setFriendlyName(Identifier.valueOf(requestedParameter).getFriendlyName());
 
-    return singleLogoutService;
+    return attribute;
   }
 
-  public static Organization buildOrganization() {
-    Organization organization = buildSAMLObject(Organization.class);
-    organization.getOrganizationNames().add(buildOrganizationName());
-    organization.getDisplayNames().add(buildDisplayName());
-    organization.getURLs().add(buildOrganizationURL());
-
-    return organization;
-  }
-
-  public static OrganizationName buildOrganizationName() {
-    OrganizationName orgName = buildSAMLObject(OrganizationName.class);
-    orgName.setValue(ORGANIZATION_NAME);
-    orgName.setXMLLang(ORGANIZATION_NAME_XML_LANG);
-
-    return orgName;
-  }
-
-  public static OrganizationDisplayName buildDisplayName() {
-    OrganizationDisplayName orgDisplayName = buildSAMLObject(OrganizationDisplayName.class);
-    orgDisplayName.setValue(SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME);
-    orgDisplayName.setXMLLang(ORGANIZATION_DISPLAY_NAME_XML_LANG);
-
-    return orgDisplayName;
-  }
-
-  public static OrganizationURL buildOrganizationURL() {
-    OrganizationURL organizationURL = buildSAMLObject(OrganizationURL.class);
-    organizationURL.setURI(ORGANIZATION_URL);
-    organizationURL.setXMLLang(ORGANIZATION_URL_XML_LANG);
-
-    return organizationURL;
-  }
-
-  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
-    ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
-    contactPerson.setCompany(buildCompany());
-    contactPerson.setType(
-        (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) ? ContactPersonTypeEnumeration.ADMINISTRATIVE
-            : ContactPersonTypeEnumeration.OTHER);
-    contactPerson.getEmailAddresses().add(buildEmailAddress());
-    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
-
-    return contactPerson;
-  }
-
-  public static Company buildCompany() {
-    Company company = buildSAMLObject(Company.class);
-    company.setValue(CONTACT_PERSON_COMPANY);
-
-    return company;
-  }
-
-  public static EmailAddress buildEmailAddress() {
-    EmailAddress emailAddress = buildSAMLObject(EmailAddress.class);
-    emailAddress.setURI(CONTACT_PERSON_EMAIL_ADDRESS);
-
-    return emailAddress;
-  }
-
-  public static Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
+  public Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
     XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
@@ -188,53 +131,120 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
         namespacePrefix);
     pub.setTextContent("");
     extensions.getUnknownXMLObjects().add(pub);
+    if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
+      XSAny municipality = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_MUNICIPALITY,
+          namespacePrefix);
+      municipality.setTextContent(MUNICIPALITY);
+      extensions.getUnknownXMLObjects().add(municipality);
+    }
 
     return extensions;
   }
 
-  public static AttributeConsumingService buildAttributeConsumingService(Client client) {
-    AttributeConsumingService attributeConsumingService = buildSAMLObject(
-        AttributeConsumingService.class);
+  public SPSSODescriptor buildSPSSODescriptor() {
+    SPSSODescriptor spssoDescriptor = buildSAMLObject(SPSSODescriptor.class);
+    spssoDescriptor.setAuthnRequestsSigned(true);
+    spssoDescriptor.setWantAssertionsSigned(true);
 
-    attributeConsumingService.setIndex(client.getAttributeIndex());
-    attributeConsumingService.getNames().add(buildServiceName(client.getFriendlyName()));
-    // TODO consider adding a Service Description field in client object
-    attributeConsumingService.getDescriptions()
-        .add(buildServiceDescription(client.getFriendlyName()));
+    return spssoDescriptor;
 
-    for (String requestedParameter : client.getRequestedParameters()) {
-      attributeConsumingService.getRequestedAttributes()
-          .add(buildRequestedAttribute(requestedParameter));
+  }
+
+  public KeyDescriptor buildKeyDescriptor() throws SAMLUtilsException {
+    KeyDescriptor signKeyDescriptor = buildSAMLObject(KeyDescriptor.class);
+
+    signKeyDescriptor.setUse(UsageType.SIGNING);  //Set usage
+    try {
+      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(X509Credential));
+    } catch (SecurityException e) {
+      throw new SAMLUtilsException(e);
     }
-
-    return attributeConsumingService;
+    return signKeyDescriptor;
   }
 
-  public static ServiceName buildServiceName(String name) {
-    ServiceName serviceName = buildSAMLObject(ServiceName.class);
-    serviceName.setValue(name);
-    // TODO consider adding a field for xml lang on service name
-    serviceName.setXMLLang("it");
+  public NameIDFormat buildNameIDFormat() {
+    NameIDFormat nameIDFormat = buildSAMLObject(NameIDFormat.class);
+    nameIDFormat.setURI(NameIDType.TRANSIENT);
 
-    return serviceName;
+    return nameIDFormat;
   }
 
-  public static ServiceDescription buildServiceDescription(String description) {
-    ServiceDescription serviceDescription = buildSAMLObject(ServiceDescription.class);
-    serviceDescription.setValue(description);
-    // TODO consider adding a field for xml lang on service description
-    serviceDescription.setXMLLang("it");
+  public AssertionConsumerService buildAssertionConsumerService() {
+    AssertionConsumerService assertionConsumerService = buildSAMLObject(
+        AssertionConsumerService.class);
+    assertionConsumerService.setIndex(0);
+    assertionConsumerService.setIsDefault(true);
+    assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+    assertionConsumerService.setLocation(ACS_URL);
 
-    return serviceDescription;
+    return assertionConsumerService;
   }
 
-  public static RequestedAttribute buildRequestedAttribute(String requestedParameter) {
-    RequestedAttribute attribute = buildSAMLObject(RequestedAttribute.class);
-    attribute.setNameFormat(NAME_FORMAT);
-    attribute.setName(Identifier.valueOf(requestedParameter).name());
-    attribute.setFriendlyName(Identifier.valueOf(requestedParameter).getFriendlyName());
+  public SingleLogoutService buildSingleLogoutService() {
+    SingleLogoutService singleLogoutService = buildSAMLObject(SingleLogoutService.class);
+    singleLogoutService.setLocation(SLO_URL);
+    singleLogoutService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
 
-    return attribute;
+    return singleLogoutService;
+  }
+
+  public Organization buildOrganization() {
+    Organization organization = buildSAMLObject(Organization.class);
+    organization.getOrganizationNames().add(buildOrganizationName());
+    organization.getDisplayNames().add(buildDisplayName());
+    organization.getURLs().add(buildOrganizationURL());
+
+    return organization;
+  }
+
+  public OrganizationName buildOrganizationName() {
+    OrganizationName orgName = buildSAMLObject(OrganizationName.class);
+    orgName.setValue(ORGANIZATION_NAME);
+    orgName.setXMLLang(ORGANIZATION_NAME_XML_LANG);
+
+    return orgName;
+  }
+
+  public OrganizationDisplayName buildDisplayName() {
+    OrganizationDisplayName orgDisplayName = buildSAMLObject(OrganizationDisplayName.class);
+    orgDisplayName.setValue(SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME);
+    orgDisplayName.setXMLLang(ORGANIZATION_DISPLAY_NAME_XML_LANG);
+
+    return orgDisplayName;
+  }
+
+  public OrganizationURL buildOrganizationURL() {
+    OrganizationURL organizationURL = buildSAMLObject(OrganizationURL.class);
+    organizationURL.setURI(ORGANIZATION_URL);
+    organizationURL.setXMLLang(ORGANIZATION_URL_XML_LANG);
+
+    return organizationURL;
+  }
+
+  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
+    ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
+    contactPerson.setCompany(buildCompany());
+    contactPerson.setType(
+        (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) ? ContactPersonTypeEnumeration.ADMINISTRATIVE
+            : ContactPersonTypeEnumeration.OTHER);
+    contactPerson.getEmailAddresses().add(buildEmailAddress());
+    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
+
+    return contactPerson;
+  }
+
+  public Company buildCompany() {
+    Company company = buildSAMLObject(Company.class);
+    company.setValue(CONTACT_PERSON_COMPANY);
+
+    return company;
+  }
+
+  public EmailAddress buildEmailAddress() {
+    EmailAddress emailAddress = buildSAMLObject(EmailAddress.class);
+    emailAddress.setURI(CONTACT_PERSON_EMAIL_ADDRESS);
+
+    return emailAddress;
   }
 
 
