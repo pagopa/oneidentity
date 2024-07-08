@@ -7,8 +7,11 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.IPA_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME;
@@ -139,10 +142,12 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return organizationURL;
   }
 
-  public static ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
+  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
-    contactPerson.setType(ContactPersonTypeEnumeration.OTHER);
+    contactPerson.setType(
+        (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) ? ContactPersonTypeEnumeration.ADMINISTRATIVE
+            : ContactPersonTypeEnumeration.OTHER);
     contactPerson.getEmailAddresses().add(buildEmailAddress());
     contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
 
