@@ -196,6 +196,8 @@ module "database" {
   client_registrations_table = var.client_registrations_table
 }
 
+## Monitoring 
+
 module "monitoring" {
   source              = "../modules/monitoring"
   main_dashboard_name = format("%s-overall-dashboard", local.project)

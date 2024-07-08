@@ -3,7 +3,6 @@ variable "main_dashboard_name" {
   description = "Name of the main dashboard."
 }
 
-
 variable "aws_region" {
   type = string
 }
@@ -28,5 +27,5 @@ variable "nlb" {
     arn_suffix              = string
     target_group_arn_suffix = string
   })
-
+  description = "Network load balancer configurations."
 }

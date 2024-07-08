@@ -62,7 +62,11 @@ public class SAMLController {
     SAMLSession samlSession = samlSessionSessionService.getSession(response.getInResponseTo(),
         RecordType.SAML);
 
-    // 1b. Check if Signatures are valid (Response and Assertion) and SubjectConfirmationData are correct
+    // 1b. Update SAMLSession with SAMLResponse attribute
+    samlSessionSessionService.setSAMLResponse(response.getInResponseTo(),
+        samlResponseDTO.getSAMLResponse());
+
+    // 1c. Check if Signatures are valid (Response and Assertion) and SubjectConfirmationData are correct
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
@@ -76,10 +80,6 @@ public class SAMLController {
     AuthorizationResponse authorizationResponse = oidcServiceImpl.getAuthorizationResponse(
         authorizationRequest);
 
-    // 4. Update SAMLSession with SAMLResponse attribute
-    samlSessionSessionService.setSAMLResponse(response.getInResponseTo(),
-        samlResponseDTO.getSAMLResponse());
-
     long creationTime = Instant.now().getEpochSecond();
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
@@ -90,7 +90,7 @@ public class SAMLController {
         creationTime,
         ttl, authorizationCode.getValue());
 
-    // 5. Save OIDC session
+    // 4. Save OIDC session
     oidcSessionSessionService.saveSession(oidcSession);
 
     String clientCallbackUri = samlSession.getAuthorizationRequestDTOExtended().getRedirectUri();
@@ -108,7 +108,7 @@ public class SAMLController {
 
     Log.info("[SAMLController.samlACS] end");
 
-    // 6. Redirect to client callback URI
+    // 5. Redirect to client callback URI
     return jakarta.ws.rs.core.Response
         .status(302)
         .location(redirectStringResponse)
