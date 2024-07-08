@@ -1,16 +1,15 @@
 package it.pagopa.oneid.common.utils.config;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import java.util.HashMap;
 import java.util.Map;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 
-
-@ApplicationScoped
+@Singleton
 public class ConfigBasicParserPool {
 
-  @ApplicationScoped
+  @Singleton
   @Produces
   BasicParserPool basicParserPool() {
     BasicParserPool parserPool = new BasicParserPool();
