@@ -194,7 +194,12 @@ module "database" {
 
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
+
+  eventbridge_pipe_sessions = {
+    pipe_name = format("%s-sessions-pipe", local.project)
+  }
 }
+
 
 ## Monitoring 
 

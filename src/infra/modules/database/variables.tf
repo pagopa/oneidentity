@@ -1,3 +1,9 @@
+variable "account_id" {
+  type = string
+  description = "AWS account id"
+  default = null
+}
+
 variable "sessions_table" {
   type = object({
     ttl_enabled                    = optional(bool, true)
@@ -14,4 +20,13 @@ variable "client_registrations_table" {
     point_in_time_recovery_enabled = optional(bool, false)
   })
   description = "Client configurations."
+}
+
+
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name = string
+
+  })
+  default = null
 }
