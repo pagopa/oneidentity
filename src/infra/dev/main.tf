@@ -197,16 +197,17 @@ module "database" {
 }
 
 module "monitoring" {
-  source = "../modules/monitoring"
-  aws_region = var.aws_region
-  api_name = module.frontend.api_name
+  source              = "../modules/monitoring"
+  main_dashboard_name = format("%s-overall-dashboard", local.project)
+  aws_region          = var.aws_region
+  api_name            = module.frontend.api_name
   dynamodb_table_name = module.database.table_sessions_name
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
-    arn_suffix = module.backend.nlb_arn
+    arn_suffix              = module.backend.nlb_arn_suffix
   }
   ecs = {
-    service_name = module.backend.ecs_service_name, 
+    service_name = module.backend.ecs_service_name,
     cluster_name = module.backend.ecs_cluster_name
   }
 }

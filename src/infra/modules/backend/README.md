@@ -68,6 +68,7 @@
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | n/a |
 | <a name="output_ecs_deploy_iam_role_arn"></a> [ecs\_deploy\_iam\_role\_arn](#output\_ecs\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_ecs_service_name"></a> [ecs\_service\_name](#output\_ecs\_service\_name) | n/a |
+| <a name="output_elb"></a> [elb](#output\_elb) | n/a |
 | <a name="output_jwt_sign_aliases"></a> [jwt\_sign\_aliases](#output\_jwt\_sign\_aliases) | n/a |
 | <a name="output_lambda_deploy_iam_role_arn"></a> [lambda\_deploy\_iam\_role\_arn](#output\_lambda\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_metadata_lambda_arn"></a> [metadata\_lambda\_arn](#output\_metadata\_lambda\_arn) | n/a |
