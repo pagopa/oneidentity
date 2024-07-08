@@ -1,0 +1,44 @@
+...@classes
+vars: {
+  d2-config: @config.config
+}
+
+direction: right
+
+title: {
+  label: service metadata flow
+  class: title
+}
+
+user: {
+  class: user
+}
+
+
+aws: {
+  class: aws
+  vpc: {
+    class: vpc
+    oneid-service-metadata: {
+      class: lambda
+    }
+  }
+
+  bucketS3: {
+    class: s3
+  }
+
+  cloudfront: {
+   class: cloudfront     
+  }
+
+  dynamoDB :{
+    class: dynamo
+  }
+}
+
+aws.dynamoDB -> aws.vpc.oneid-service-metadata: 1. send db Event
+aws.dynamoDB <-> aws.vpc.oneid-service-metadata: 2. retrieve client metadata
+aws.vpc.oneid-service-metadata -> aws.bucketS3: 3. upate file
+
+user -> aws.Cloudfront -> aws.bucketS3: retrieve file
