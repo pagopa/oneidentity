@@ -310,14 +310,8 @@ module "elb" {
   # Security Group
   enforce_security_group_inbound_rules_on_private_link_traffic = "off"
 
+  # No ingress rules allow only access via private link
   security_group_ingress_rules = {
-    all_tcp = {
-      from_port   = var.service_core.container.containerPort
-      to_port     = var.service_core.container.containerPort
-      ip_protocol = "tcp"
-      description = "TCP traffic"
-      cidr_ipv4   = var.vpc_cidr_block
-    }
   }
 
   security_group_egress_rules = {
