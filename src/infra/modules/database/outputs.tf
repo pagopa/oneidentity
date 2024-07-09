@@ -21,3 +21,7 @@ output "table_client_registrations_arn" {
 output "kms_sessions_table_alias_arn" {
   value = module.kms_sessions_table.aliases[local.kms_sessions_table_alias].target_key_arn
 }
+
+output "dynamodb_table_stream_arn" {
+  value = module.dynamodb_sessions_table.dynamodb_table_stream_arn
+}

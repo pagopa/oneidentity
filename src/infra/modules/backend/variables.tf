@@ -3,6 +3,11 @@ variable "account_id" {
   description = "AWS Account id."
 }
 
+variable "aws_region" {
+  type        = string
+  description = "AWS Region."
+}
+
 variable "ecr_registers" {
   type = list(object({
     name                            = string
@@ -39,13 +44,14 @@ variable "service_core" {
     memory                 = number
     enable_execute_command = optional(bool, true)
     container = object({
-      name          = string
-      cpu           = number
-      memory        = number
-      image_name    = string
-      image_version = string
-      containerPort = number
-      hostPort      = number
+      name                = string
+      cpu                 = number
+      memory              = number
+      image_name          = string
+      image_version       = string
+      containerPort       = number
+      hostPort            = number
+      logs_retention_days = number
     })
     autoscaling = object({
       enable       = bool
@@ -129,11 +135,12 @@ variable "spid_validator" {
     cpu          = optional(number, 512)
     memory       = optional(number, 1024)
     container = object({
-      name          = string
-      image_name    = string
-      image_version = string
-      cpu           = optional(number, 512)
-      memory        = optional(number, 1024)
+      name                = string
+      image_name          = string
+      image_version       = string
+      cpu                 = optional(number, 512)
+      memory              = optional(number, 1024)
+      logs_retention_days = optional(number, 14)
     })
     alb_target_group_arn  = string
     alb_security_group_id = string
@@ -151,4 +158,22 @@ variable "assertion_lambda" {
     filename                   = string,
     kms_sessions_table_alias   = string
   })
+}
+
+
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name = string
+
+  })
+  default = null
+}
+
+variable "dynamodb_stream_enabled" {
+  type = bool
+}
+
+variable "dynamodb_table_stream_arn" {
+  type = string
+  default = null
 }

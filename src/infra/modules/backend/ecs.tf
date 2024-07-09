@@ -132,6 +132,11 @@ module "ecs" {
   fargate_capacity_providers = var.fargate_capacity_providers
 }
 
+resource "aws_cloudwatch_log_group" "ecs_core" {
+  name = format("/aws/ecs/%s/%s", var.service_core.service_name, var.service_core.container.name)
+
+  retention_in_days = var.service_core.container.logs_retention_days
+}
 
 module "ecs_core_service" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
@@ -173,6 +178,16 @@ module "ecs_core_service" {
           protocol      = "tcp"
         }
       ]
+
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_core.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+          mode                  = "non-blocking"
+        }
+      }
 
       environment = setunion(var.service_core.environment_variables, [
         {
@@ -310,14 +325,8 @@ module "elb" {
   # Security Group
   enforce_security_group_inbound_rules_on_private_link_traffic = "off"
 
+  # No ingress rules allow only access via private link
   security_group_ingress_rules = {
-    all_tcp = {
-      from_port   = var.service_core.container.containerPort
-      to_port     = var.service_core.container.containerPort
-      ip_protocol = "tcp"
-      description = "TCP traffic"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
   }
 
   security_group_egress_rules = {
@@ -364,6 +373,13 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
+resource "aws_cloudwatch_log_group" "ecs_spid_validator" {
+  count = var.spid_validator != null ? 1 : 0
+  name  = format("/aws/ecs/%s/%s", var.spid_validator.service_name, var.spid_validator.container.name)
+
+  retention_in_days = var.spid_validator.container.logs_retention_days
+}
+
 
 ## Spid Validator ##
 module "ecs_spid_validator" {
@@ -401,6 +417,17 @@ module "ecs_spid_validator" {
           protocol      = "tcp"
         }
       ]
+
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_spid_validator[0].name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+          mode                  = "non-blocking"
+        }
+      }
+
       readonly_root_filesystem = false
     }
   }

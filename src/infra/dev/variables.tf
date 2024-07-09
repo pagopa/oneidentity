@@ -96,12 +96,13 @@ variable "ecs_oneid_core" {
       min_capacity = number
       max_capacity = number
     })
+    logs_retention_days   = number
     app_spid_test_enabled = optional(bool, false)
   })
   description = "Oneidentity core backend configurations."
 
   default = {
-    image_version    = "0bfd81912534495aad0bb8cac3bf1f5aeb763625"
+    image_version    = "6e10eeb26779491a0840ab34f8f9c561da17b1fd"
     cpu              = 512
     memory           = 1024
     container_cpu    = 512
@@ -111,6 +112,7 @@ variable "ecs_oneid_core" {
       min_capacity = 1
       max_capacity = 2
     }
+    logs_retention_days   = 30
     app_spid_test_enabled = true
   }
 }
@@ -243,4 +245,12 @@ variable "tags" {
     Source      = "https://github.com/pagopa/oneidentity"
     CostCenter  = "tier0"
   }
+}
+
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name = string
+
+  })
+  default = {pipe_name = "dynamodb-to-lambda-pipe"}
 }

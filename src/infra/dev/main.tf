@@ -71,6 +71,8 @@ module "storage" {
 module "backend" {
   source = "../modules/backend"
 
+  aws_region = var.aws_region
+
   ecr_registers = [
     {
       name                            = local.ecr_oneid_core
@@ -108,13 +110,14 @@ module "backend" {
     memory = var.ecs_oneid_core.memory
 
     container = {
-      name          = "oneid-core"
-      cpu           = var.ecs_oneid_core.container_cpu
-      memory        = var.ecs_oneid_core.container_memory
-      image_name    = local.ecr_oneid_core
-      image_version = var.ecs_oneid_core.image_version
-      containerPort = 8080
-      hostPort      = 8080
+      name                = "oneid-core"
+      cpu                 = var.ecs_oneid_core.container_cpu
+      memory              = var.ecs_oneid_core.container_memory
+      image_name          = local.ecr_oneid_core
+      image_version       = var.ecs_oneid_core.image_version
+      containerPort       = 8080
+      hostPort            = 8080
+      logs_retention_days = var.ecs_oneid_core.logs_retention_days
     }
 
     autoscaling = var.ecs_oneid_core.autoscaling
@@ -174,7 +177,9 @@ module "backend" {
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
   }
-   
+  dynamodb_stream_enabled               = true 
+  dynamodb_table_stream_arn             = module.database.dynamodb_table_stream_arn
+  eventbridge_pipe_sessions             = var.eventbridge_pipe_sessions
   assertion_lambda = {
     name                       = format("%s-assertion", local.project)
     filename                   = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
@@ -201,9 +206,8 @@ module "database" {
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
 
-  eventbridge_pipe_sessions = {
-    pipe_name = format("%s-sessions-pipe", local.project)
-  }
+  account_id = data.aws_caller_identity.current.account_id
+
 }
 
 

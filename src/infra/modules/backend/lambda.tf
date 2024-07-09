@@ -125,7 +125,7 @@ module "metadata_lambda" {
 
 }
 resource "aws_iam_role" "pipe_sessions" {
-  count = var.sessions_table.stream_enabled != null ? 1 : 0
+  count = var.dynamodb_stream_enabled != null ? 1 : 0
   name  = "${var.eventbridge_pipe_sessions.pipe_name}-role"
 
   assume_role_policy = jsonencode({
@@ -146,7 +146,7 @@ resource "aws_iam_role" "pipe_sessions" {
 }
 
 resource "aws_iam_role_policy" "pipe_source" {
-  count = var.sessions_table.stream_enabled != null ? 1 : 0
+  count = var.dynamodb_stream_enabled != null ? 1 : 0
   name = "AllowPipeConsumeStream"
 
   role = aws_iam_role.pipe_sessions[0].id
@@ -162,7 +162,7 @@ resource "aws_iam_role_policy" "pipe_source" {
           "dynamodb:ListStreams"
         ],
         Resource = [
-          module.dynamodb_sessions_table.dynamodb_table_stream_arn
+          var.dynamodb_table_stream_arn
         ]
       },
       {
@@ -174,16 +174,7 @@ resource "aws_iam_role_policy" "pipe_source" {
         Resource = [
           var.assertion_lambda.kms_sessions_table_alias
         ]
-      },
-      {
-        #TODO this statement is not needed as soon as there will be a lambda function reading the pipe.
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "${aws_cloudwatch_log_group.pipe_logs[0].arn}:*"
-      },
+      }
     ]
   })
 }
@@ -191,10 +182,10 @@ resource "aws_iam_role_policy" "pipe_source" {
 
 #TODO rename this resource and replace the targe.
 resource "aws_pipes_pipe" "dynamodb_to_lambda" {
-  count = var.sessions_table.stream_enabled ? 1: 0
+  count = var.dynamodb_stream_enabled ? 1: 0
   name     = "dynamodb-to-lambda-pipe"
   role_arn = aws_iam_role.pipe_sessions[0].arn
-  source   = module.dynamodb_sessions_table.dynamodb_table_stream_arn
+  source   = var.dynamodb_table_stream_arn
 
   target = module.assertion_lambda[0].lambda_function_arn
   //target = aws_cloudwatch_log_group.pipe_logs[0].arn
@@ -251,7 +242,7 @@ EOF
 module "assertion_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
-
+  count                   = var.dynamodb_stream_enabled ? 1: 0
   function_name           = var.assertion_lambda.name
   description             = "Lambda function assertion."
   runtime                 = "python3.8"
@@ -270,7 +261,7 @@ module "assertion_lambda" {
   allowed_triggers = {
     OneRule = {
       principal  = "events.amazonaws.com"
-      source_arn = aws_pipes_pipe.dynamodb_to_lambda.arn
+      source_arn = aws_pipes_pipe.dynamodb_to_lambda[0].arn
       //source_arn = "arn:aws:events:eu-west-1:${data.aws_caller_identity.current.account_id}:rule/RunDaily"
     }
   }
