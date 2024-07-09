@@ -1,7 +1,7 @@
 variable "account_id" {
-  type = string
+  type        = string
   description = "AWS account id"
-  default = null
+  default     = null
 }
 
 variable "sessions_table" {
