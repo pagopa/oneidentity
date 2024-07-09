@@ -195,6 +195,8 @@ module "database" {
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
 
+  account_id = data.aws_caller_identity.current.account_id
+
   eventbridge_pipe_sessions = {
     pipe_name = format("%s-sessions-pipe", local.project)
   }
