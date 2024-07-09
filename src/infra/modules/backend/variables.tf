@@ -144,3 +144,11 @@ variable "spid_validator" {
 
   default = null
 }
+
+variable "assertion_lambda" {
+  type = object({
+    name                       = string,
+    filename                   = string,
+    kms_sessions_table_alias   = string
+  })
+}

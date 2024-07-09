@@ -52,3 +52,7 @@ output "metadata_lambda_name" {
 output "metadata_lambda_arn" {
   value = module.metadata_lambda.lambda_function_arn
 }
+
+output "assertion_lambda_arn" {
+  value = module.assertion_lambda.lambda_function_arn
+}

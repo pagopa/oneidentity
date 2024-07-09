@@ -174,6 +174,12 @@ module "backend" {
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
   }
+   
+  assertion_lambda = {
+    name                       = format("%s-assertion", local.project)
+    filename                   = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
+    kms_sessions_table_alias   = module.database.kms_sessions_table_alias_arn
+  }
 
   spid_validator = {
     service_name = format("%s-spid-validator", local.project)
