@@ -316,7 +316,7 @@ module "elb" {
       to_port     = var.service_core.container.containerPort
       ip_protocol = "tcp"
       description = "TCP traffic"
-      cidr_ipv4   = "0.0.0.0/0"
+      cidr_ipv4   = var.vpc_cidr_block
     }
   }
 
