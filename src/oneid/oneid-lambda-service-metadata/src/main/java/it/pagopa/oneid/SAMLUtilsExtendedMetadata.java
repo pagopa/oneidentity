@@ -117,6 +117,12 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   public Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
+    XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
+        LOCAL_NAME_PUBLIC,
+        namespacePrefix);
+    pub.setTextContent("");
+    extensions.getUnknownXMLObjects().add(pub);
+    
     XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
         namespacePrefix);
     ipaCode.setTextContent(IPA_CODE);
@@ -129,11 +135,6 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
         namespacePrefix);
     fiscalCode.setTextContent(FISCAL_CODE);
     extensions.getUnknownXMLObjects().add(vatNumber);
-    XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
-        LOCAL_NAME_PUBLIC,
-        namespacePrefix);
-    pub.setTextContent("");
-    extensions.getUnknownXMLObjects().add(pub);
     if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
       XSAny municipality = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_MUNICIPALITY,
           namespacePrefix);
