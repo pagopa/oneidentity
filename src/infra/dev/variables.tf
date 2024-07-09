@@ -96,6 +96,7 @@ variable "ecs_oneid_core" {
       min_capacity = number
       max_capacity = number
     })
+    logs_retention_days   = number
     app_spid_test_enabled = optional(bool, false)
   })
   description = "Oneidentity core backend configurations."
@@ -111,6 +112,7 @@ variable "ecs_oneid_core" {
       min_capacity = 1
       max_capacity = 2
     }
+    logs_retention_days   = 30
     app_spid_test_enabled = true
   }
 }
