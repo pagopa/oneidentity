@@ -71,6 +71,8 @@ module "storage" {
 module "backend" {
   source = "../modules/backend"
 
+  aws_region = var.aws_region
+
   ecr_registers = [
     {
       name                            = local.ecr_oneid_core
@@ -108,13 +110,14 @@ module "backend" {
     memory = var.ecs_oneid_core.memory
 
     container = {
-      name          = "oneid-core"
-      cpu           = var.ecs_oneid_core.container_cpu
-      memory        = var.ecs_oneid_core.container_memory
-      image_name    = local.ecr_oneid_core
-      image_version = var.ecs_oneid_core.image_version
-      containerPort = 8080
-      hostPort      = 8080
+      name                = "oneid-core"
+      cpu                 = var.ecs_oneid_core.container_cpu
+      memory              = var.ecs_oneid_core.container_memory
+      image_name          = local.ecr_oneid_core
+      image_version       = var.ecs_oneid_core.image_version
+      containerPort       = 8080
+      hostPort            = 8080
+      logs_retention_days = var.ecs_oneid_core.logs_retention_days
     }
 
     autoscaling = var.ecs_oneid_core.autoscaling
