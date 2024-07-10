@@ -55,13 +55,13 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public Response mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
-    return genericHTMLError();
+    return genericHTMLError(samlResponseStatusException.getMessage());
   }
 
-  // TODO map errors to correct errorCode
-  private Response genericHTMLError() {
+  private Response genericHTMLError(String errorCode) {
     try {
       return Response.status(FOUND)
+          // TODO map errors to correct errorCode using ?errorCode=errorCode
           .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=0")).build();
     } catch (URISyntaxException e) {
       return Response.status(INTERNAL_SERVER_ERROR).build();
@@ -71,7 +71,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public Response mapSAMLValidationException(
       SAMLValidationException samlValidationException) {
-    return genericHTMLError();
+    return genericHTMLError(samlValidationException.getMessage());
   }
 
   @ServerExceptionMapper
@@ -93,7 +93,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapSamlUtilsException(SAMLUtilsException samlUtilsException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during it.pagopa.oneid.common.utils.SAMLUtils execution.";
+    String message = "Error during SAMLUtils execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
@@ -113,29 +113,22 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapCallbackUriNotFoundException(
+  public Response mapCallbackUriNotFoundException(
       CallbackURINotFoundException callbackURINotFoundException) {
-    Response.Status status = BAD_REQUEST;
-    String message = "Callback URI not found.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
+    return genericHTMLError(callbackURINotFoundException.getMessage());
   }
 
   @ServerExceptionMapper
   // TODO consider adding a new exception for empty client table
-  public RestResponse<ErrorResponse> mapClientNotFoundException(
+  public Response mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
-    Response.Status status = BAD_REQUEST;
-    String message = "Client not found.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
+    return genericHTMLError(clientNotFoundException.getMessage());
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapIdpNotFoundException(
+  public Response mapIDPNotFoundException(
       IDPNotFoundException idpNotFoundException) {
-    Response.Status status = BAD_REQUEST;
-    String message = "IDP not found";
-    return RestResponse.
-        status(status, buildErrorResponse(status, message));
+    return genericHTMLError(idpNotFoundException.getMessage());
   }
 
   @ServerExceptionMapper
@@ -154,10 +147,10 @@ public class ExceptionMapper {
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
     return ErrorResponse.builder()
-        .type(MediaType.APPLICATION_JSON)
         .title(status.getReasonPhrase())
         .status(status.getStatusCode())
         .detail(message)
         .build();
   }
+
 }
