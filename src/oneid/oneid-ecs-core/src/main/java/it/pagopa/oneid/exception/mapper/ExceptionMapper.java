@@ -5,8 +5,10 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_U
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -142,6 +144,12 @@ public class ExceptionMapper {
     Response.Status status = BAD_REQUEST;
     String message = "Error during OIDC authorization flow.";
     return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public Response mapAssertionNotFoundException(
+      AssertionNotFoundException assertionNotFoundException) {
+    return Response.status(NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {

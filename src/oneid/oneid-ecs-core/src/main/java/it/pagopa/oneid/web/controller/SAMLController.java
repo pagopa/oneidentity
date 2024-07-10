@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
@@ -118,10 +119,16 @@ public class SAMLController {
   @GET
   @Path("/assertion")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) throws SessionException {
+  public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken)
+      throws AssertionNotFoundException {
     Log.info("[SAMLController.assertion] start");
-    String samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
-        accessToken.getAccessToken());
+    String samlResponse = null;
+    try {
+      samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
+          accessToken.getAccessToken());
+    } catch (SessionException e) {
+      throw new AssertionNotFoundException(e);
+    }
     return Response.ok(Base64.getDecoder().decode(samlResponse)).build();
   }
 
