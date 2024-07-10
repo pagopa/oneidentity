@@ -67,6 +67,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public JWKSSetDTO getJWSKPublicKey() {
+    Log.debug("[OIDCServiceImpl.getJWSKPublicKey] start");
     GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
     RSAPublicKey rsaPublicKey;
     try {
@@ -74,9 +75,12 @@ public class OIDCServiceImpl implements OIDCService {
           .generatePublic(
               new X509EncodedKeySpec(getPublicKeyResponse.publicKey().asByteArray()));
     } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+      Log.error("[OIDCServiceImpl.getJWSKPublicKey] error during public key instantiation: "
+          + e.getMessage());
       throw new RuntimeException(e);
     }
 
+    Log.debug("[OIDCServiceImpl.getJWSKPublicKey] end");
     return JWKSSetDTO.builder()
         .keyList(List.of(
             new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
@@ -85,7 +89,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public OIDCProviderMetadata buildOIDCProviderMetadata() {
-
+    Log.debug("[OIDCServiceImpl.buildOIDCProviderMetadata] start");
     Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
     URI jwksURI;
     URI authEndpointURI;
@@ -95,6 +99,8 @@ public class OIDCServiceImpl implements OIDCService {
       authEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/authorize");
       tokenEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/token");
     } catch (URISyntaxException e) {
+      Log.error("[OIDCServiceImpl.buildOIDCProviderMetadata] error during endpoints URI creation: "
+          + e.getMessage());
       throw new RuntimeException(e);
     }
 
@@ -112,6 +118,8 @@ public class OIDCServiceImpl implements OIDCService {
     oidcProviderMetadata.setGrantTypes(List.of(GrantType.AUTHORIZATION_CODE));
     oidcProviderMetadata.setTokenEndpointAuthMethods(
         List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
+
+    Log.debug("[OIDCServiceImpl.buildOIDCProviderMetadata] end");
 
     return oidcProviderMetadata;
 
