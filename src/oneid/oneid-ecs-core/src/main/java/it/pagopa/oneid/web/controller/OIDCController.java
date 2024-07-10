@@ -120,6 +120,7 @@ public class OIDCController {
 
   private Response handleAuthorize(AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
       throws IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException, GenericHTMLException {
+    // TODO do we need to support ResponseMode?
     Log.info("[OIDCController.handleAuthorize] start");
     Optional<EntityDescriptor> idp;
     // 1. Check if idp exists
