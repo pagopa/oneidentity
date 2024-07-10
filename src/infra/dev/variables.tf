@@ -235,6 +235,13 @@ variable "rest_api_throttle_settings" {
   }
 }
 
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name = string
+
+  })
+}
+
 
 variable "tags" {
   type = map(any)
@@ -245,12 +252,4 @@ variable "tags" {
     Source      = "https://github.com/pagopa/oneidentity"
     CostCenter  = "tier0"
   }
-}
-
-variable "eventbridge_pipe_sessions" {
-  type = object({
-    pipe_name = string
-
-  })
-  default = {pipe_name = "dynamodb-to-lambda-pipe"}
 }
