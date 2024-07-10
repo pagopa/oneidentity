@@ -9,6 +9,7 @@ import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -185,7 +186,7 @@ public class OIDCController {
   @Produces(MediaType.APPLICATION_JSON)
   public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
-    Log.debug("[OIDCController.token] start");
+    Log.info("[OIDCController.token] start");
 
     String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
 
@@ -197,8 +198,13 @@ public class OIDCController {
 
     oidcServiceImpl.authorizeClient(clientId, secret);
 
-    SAMLSession session = samlSessionServiceImpl.getSAMLSessionByCode(
-        tokenRequestDTOExtended.getCode());
+    SAMLSession session = null;
+    try {
+      session = samlSessionServiceImpl.getSAMLSessionByCode(
+          tokenRequestDTOExtended.getCode());
+    } catch (SessionException e) {
+      throw new OIDCAuthorizationException(e);
+    }
 
     Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())
         .getAssertions()
