@@ -5,6 +5,10 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
 public class OneIdentityException extends Exception {
 
+  public OneIdentityException() {
+
+  }
+
   public OneIdentityException(ErrorCode e) {
     super(e.getErrorMessage());
   }

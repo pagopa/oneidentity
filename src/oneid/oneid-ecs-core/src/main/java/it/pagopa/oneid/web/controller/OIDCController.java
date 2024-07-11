@@ -3,12 +3,14 @@ package it.pagopa.oneid.web.controller;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
+import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -35,6 +37,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -91,6 +94,7 @@ public class OIDCController {
   @Path("/keys")
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
+    Log.info("[OIDCController.keys] start");
     return Response.ok(oidcServiceImpl.getJWSKPublicKey()).build();
   }
 
@@ -98,55 +102,80 @@ public class OIDCController {
   @Path("/authorize")
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizePost(
-      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost)
-      throws OneIdentityException {
-    return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
+    Log.info("[OIDCController.authorizePost] start");
+    try {
+      return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+    } catch (OneIdentityException e) {
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
   }
 
   @GET
   @Path("/authorize")
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizeGet(
-      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet)
-      throws OneIdentityException {
-    return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
+    Log.info("[OIDCController.authorizeGet] start");
+    try {
+      return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+    } catch (OneIdentityException e) {
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
   }
 
-  private Response handleAuthorize(AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
-      throws SAMLUtilsException, IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException, GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SessionException {
-    // TODO setup logging utility
-
+  private Response handleAuthorize(
+      AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
+    // TODO do we need to support ResponseMode?
+    Log.info("[OIDCController.handleAuthorize] start");
+    Optional<EntityDescriptor> idp;
     // 1. Check if idp exists
-    if (samlServiceImpl.getEntityDescriptorFromEntityID(authorizationRequestDTOExtended.getIdp())
-        .isEmpty()) {
-      throw new IDPNotFoundException();
+    try {
+      idp = samlServiceImpl.getEntityDescriptorFromEntityID(
+          authorizationRequestDTOExtended.getIdp());
+      if (idp.isEmpty()) {
+        Log.debug("[OIDCController.handleAuthorize] selected IDP not found");
+        throw new IDPNotFoundException();
+      }
+    } catch (OneIdentityException e) {
+      Log.error(
+          "[OIDCController.handleAuthorize] error getting EntityDescriptor from provided EntityID");
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 2. Check if clientId exists
     if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
+      Log.debug("[OIDCController.handleAuthorize] selected Client not found");
       throw new ClientNotFoundException();
     }
 
     // 3. Check if callbackUri exists among clientId parameters
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
+      Log.debug("[OIDCController.handleAuthorize] redirect URI not found");
       throw new CallbackURINotFoundException();
     }
 
-    EntityDescriptor idp = samlServiceImpl.getEntityDescriptorFromEntityID(
-        authorizationRequestDTOExtended.getIdp()).get();
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
 
     // TODO is it correct to retrieve the 0 indexed?
-    String idpSSOEndpoint = idp.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
+    String idpSSOEndpoint = idp.get().getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
         .getSingleSignOnServices().getFirst().getLocation();
 
     // 4. Create SAML Authn Request using SAMLServiceImpl
 
-    // TODO who owns spid level?
-    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(
-        authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(), client.getAttributeIndex(),
-        client.getAuthLevel());
+    AuthnRequest authnRequest = null;
+    try {
+      authnRequest = samlServiceImpl.buildAuthnRequest(
+          authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(),
+          client.getAttributeIndex(),
+          client.getAuthLevel());
+    } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
+             OneIdentityException e) {
+      Log.error("[OIDCController.handleAuthorize] error building authorization request: "
+          + e.getMessage());
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
 
     String encodedAuthnRequest = Base64.getEncoder().encodeToString(
         WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
@@ -162,7 +191,14 @@ public class OIDCController {
 
     SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime,
         ttl, encodedAuthnRequest, authorizationRequestDTOExtended);
-    samlSessionServiceImpl.saveSession(samlSession);
+
+    try {
+      samlSessionServiceImpl.saveSession(samlSession);
+    } catch (SessionException e) {
+      Log.error("[OIDCController.handleAuthorize] error during session management "
+          + e.getMessage());
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+    }
 
     String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
         + " id='SAMLRequestForm'>" +
@@ -184,7 +220,7 @@ public class OIDCController {
   @Produces(MediaType.APPLICATION_JSON)
   public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
-    Log.debug("[OIDCController.token] start");
+    Log.info("[OIDCController.token] start");
 
     String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
 
@@ -196,8 +232,13 @@ public class OIDCController {
 
     oidcServiceImpl.authorizeClient(clientId, secret);
 
-    SAMLSession session = samlSessionServiceImpl.getSAMLSessionByCode(
-        tokenRequestDTOExtended.getCode());
+    SAMLSession session;
+    try {
+      session = samlSessionServiceImpl.getSAMLSessionByCode(
+          tokenRequestDTOExtended.getCode());
+    } catch (SessionException e) {
+      throw new OIDCAuthorizationException(e);
+    }
 
     Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())
         .getAssertions()
