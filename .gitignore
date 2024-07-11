@@ -43,6 +43,9 @@ maven-wrapper.jar
 **/build/
 !src/**/build/
 
+# python
+**/builds
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -71,4 +74,5 @@ gradle-app.setting
 src/oneid/oneid-ecs-core/src/main/webui/node_modules
 src/oneid/oneid-ecs-core/src/main/webui/build
 src/oneid/oneid-ecs-core/.quinoa
+
 
