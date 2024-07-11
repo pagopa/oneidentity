@@ -68,11 +68,12 @@ module "rest_api" {
 
   body = templatefile("./api/oi.tpl.json",
     {
-      server_url          = keys(var.r53_dns_zones)[0]
-      uri                 = format("http://%s:%s", var.nlb_dns_name, "8080"),
-      connection_id       = aws_api_gateway_vpc_link.apigw.id
-      aws_region          = var.aws_region
-      metadata_lambda_arn = var.metadata_lamba_arn
+      server_url                     = keys(var.r53_dns_zones)[0]
+      uri                            = format("http://%s:%s", var.nlb_dns_name, "8080"),
+      connection_id                  = aws_api_gateway_vpc_link.apigw.id
+      aws_region                     = var.aws_region
+      metadata_lambda_arn            = var.metadata_lamba_arn
+      client_registration_lambda_arn = var.client_registration_lambda_arn
   })
 
 
