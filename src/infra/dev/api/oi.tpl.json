@@ -288,6 +288,32 @@
         }
       }
     },
+    "/connect/register" : {
+      "post" : {
+        "x-amazon-apigateway-integration" : {
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "responses" : {},
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy"
+        },
+        "responses" : {
+          "201" : {
+            "$ref": "#/components/responses/createdOkJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    },
     "/saml/acs": {
       "post": {
         "tags": [
@@ -1396,6 +1422,25 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/TokenData"
+            }
+          }
+        }
+      },
+      "createdOkJson": {
+        "description": "Created",
+        "headers": { 
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string"
             }
           }
         }

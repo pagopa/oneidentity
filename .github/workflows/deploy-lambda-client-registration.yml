@@ -1,11 +1,11 @@
-name: Deploy Lambda metadata
+name: Deploy Lambda client registration
 
 on:
     push:
       branches:
         - "main"
       paths:
-        - "**/src/oneid/oneid-lambda-metadata/**"
+        - "**/src/oneid/oneid-client-registration/**"
         - "**/src/oneid/oneid-common/**"
     workflow_dispatch:
       inputs:
@@ -32,13 +32,13 @@ jobs:
      
       - name: Build with Maven
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -P oneid-lambda-service-metadata-aggregate 
+        run: ./mvnw -f pom.xml -B package -P oneid-lambda-client-registration-aggregate 
         
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: metadata-lambda
-          path: ./src/oneid/oneid-lambda-service-metadata/target/function.zip
+          name: client-registration-lambda
+          path: ./src/oneid/oneid-lambda-client-registration/target/function.zip
 
     deploy:
       runs-on: ubuntu-22.04
@@ -52,8 +52,8 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
-          name: metadata-lambda
-          path: ./src/oneid/oneid-lambda-service-metadata/target
+          name: client-registration-lambda
+          path: ./src/oneid/oneid-lambda-client-registration/target
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
@@ -65,4 +65,4 @@ jobs:
         run: |
             aws lambda update-function-code \
             --function-name oneid-es-1-d-metadata \
-            --zip-file fileb://src/oneid/oneid-lambda-service-metadata/target/function.zip
+            --zip-file fileb://src/oneid/oneid-lambda-client-registration/target/function.zip
