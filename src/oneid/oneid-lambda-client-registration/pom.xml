@@ -89,7 +89,18 @@
       <artifactId>quarkus-amazon-dynamodb-enhanced</artifactId>
       <groupId>io.quarkiverse.amazonservices</groupId>
     </dependency>
-
+    <dependency>
+      <artifactId>connector</artifactId>
+      <groupId>it.pagopa.oneid.common</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>model</artifactId>
+      <groupId>it.pagopa.oneid.common</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>utils</artifactId>
+      <groupId>it.pagopa.oneid.common</groupId>
+    </dependency>
     <dependency>
       <artifactId>quarkus-junit5</artifactId>
       <groupId>io.quarkus</groupId>
