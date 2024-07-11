@@ -1,4 +1,4 @@
-package it.pagopa.oneid.enums;
+package it.pagopa.oneid.common.model.enums;
 
 public enum Identifier {
   spidCode("xs:string", "Codice SPID"),

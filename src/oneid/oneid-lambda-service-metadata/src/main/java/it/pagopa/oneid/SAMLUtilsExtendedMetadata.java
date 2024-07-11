@@ -20,11 +20,12 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
+
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
-import it.pagopa.oneid.enums.Identifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
