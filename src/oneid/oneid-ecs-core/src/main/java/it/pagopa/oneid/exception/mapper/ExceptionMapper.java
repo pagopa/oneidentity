@@ -7,7 +7,6 @@ import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
@@ -19,14 +18,13 @@ import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.ErrorResponse;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMapper {
@@ -53,28 +51,28 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public Response mapGenericHTMLException(GenericHTMLException genericHTMLException) {
+  public RestResponse<Object> mapGenericHTMLException(GenericHTMLException genericHTMLException) {
     return genericHTMLError(genericHTMLException.getMessage());
   }
 
-  // TODO refactor this method??
   @ServerExceptionMapper
-  public Response mapSAMLResponseStatusException(
+  public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
     return genericHTMLError(samlResponseStatusException.getMessage());
   }
 
-  private Response genericHTMLError(String errorCode) {
+  private RestResponse<Object> genericHTMLError(String errorCode) {
     try {
-      return Response.status(FOUND)
+      return ResponseBuilder
+          .create(FOUND)
           .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=" + errorCode)).build();
     } catch (URISyntaxException e) {
-      return Response.status(INTERNAL_SERVER_ERROR).build();
+      return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
   }
 
   @ServerExceptionMapper
-  public Response mapSAMLValidationException(
+  public RestResponse<Object> mapSAMLValidationException(
       SAMLValidationException samlValidationException) {
     return genericHTMLError(samlValidationException.getMessage());
   }
@@ -96,20 +94,6 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapSamlUtilsException(SAMLUtilsException samlUtilsException) {
-    Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during SAMLUtils execution.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapSessionException(SessionException sessionException) {
-    Response.Status status = INTERNAL_SERVER_ERROR;
-    String message = "Error during Session management.";
-    return RestResponse.status(status, buildErrorResponse(status, message));
-  }
-
-  @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapIDPSSOEndpointNotFoundException(
       IDPSSOEndpointNotFoundException idpssoEndpointNotFoundException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
@@ -118,19 +102,19 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public Response mapCallbackUriNotFoundException(
+  public RestResponse<Object> mapCallbackUriNotFoundException(
       CallbackURINotFoundException callbackURINotFoundException) {
     return genericHTMLError(callbackURINotFoundException.getMessage());
   }
 
   @ServerExceptionMapper
-  public Response mapClientNotFoundException(
+  public RestResponse<Object> mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
     return genericHTMLError(clientNotFoundException.getMessage());
   }
 
   @ServerExceptionMapper
-  public Response mapIDPNotFoundException(
+  public RestResponse<Object> mapIDPNotFoundException(
       IDPNotFoundException idpNotFoundException) {
     return genericHTMLError(idpNotFoundException.getMessage());
   }
@@ -144,9 +128,11 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public Response mapAssertionNotFoundException(
+  public RestResponse<ErrorResponse> mapAssertionNotFoundException(
       AssertionNotFoundException assertionNotFoundException) {
-    return Response.status(NOT_FOUND).type(MediaType.APPLICATION_JSON).build();
+    Response.Status status = NOT_FOUND;
+    String message = "Assertion not found.";
+    return ResponseBuilder.create(status, buildErrorResponse(status, message)).build();
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
