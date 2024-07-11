@@ -73,15 +73,14 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel)
-      throws SAMLUtilsException {
+      int attributeConsumingServiceIndex, String authLevel) throws OneIdentityException {
     return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex, "", authLevel);
   }
 
   private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String purpose, String authLevel)
-      throws SAMLUtilsException {
+      throws OneIdentityException {
     //TODO: add support for CIEid
 
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
@@ -96,8 +95,12 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
     authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
 
-    authnRequest.setDestination(
-        samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
+    try {
+      authnRequest.setDestination(
+          samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
+    } catch (SAMLUtilsException e) {
+      throw new OneIdentityException(e);
+    }
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
 
@@ -127,7 +130,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID)
-      throws SAMLUtilsException {
+      throws OneIdentityException {
     Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
 
     Assertion assertion;
@@ -176,7 +179,11 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     // Validate SAMLResponse signature (Response and Assertion)
-    samlUtils.validateSignature(samlResponse, entityID);
+    try {
+      samlUtils.validateSignature(samlResponse, entityID);
+    } catch (SAMLUtilsException e) {
+      throw new OneIdentityException(e);
+    }
   }
 
   @Override
@@ -187,17 +194,20 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
-      throws SAMLUtilsException {
+      throws OneIdentityException {
     Log.debug("[SAMLServiceImpl.getAttributesFromSAMLResponse] start");
     return samlUtils.getAttributeDTOListFromAssertion(assertion)
-        .orElseThrow(SAMLUtilsException::new);
+        .orElseThrow(OneIdentityException::new);
   }
 
   @Override
   public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws SAMLUtilsException {
-
-    return samlUtils.getEntityDescriptor(entityID);
+      throws OneIdentityException {
+    try {
+      return samlUtils.getEntityDescriptor(entityID);
+    } catch (SAMLUtilsException e) {
+      throw new OneIdentityException(e);
+    }
 
   }
 }

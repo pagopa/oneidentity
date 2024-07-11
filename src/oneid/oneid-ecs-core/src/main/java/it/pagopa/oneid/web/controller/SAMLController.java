@@ -5,10 +5,9 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.GenericHTMLException;
-import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
@@ -64,7 +63,7 @@ public class SAMLController {
           samlResponseDTO.getSAMLResponse());
     } catch (OneIdentityException e) {
       Log.error("[SAMLController.samlACS] error getting SAML Response");
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
@@ -74,7 +73,7 @@ public class SAMLController {
           RecordType.SAML);
     } catch (SessionException e) {
       Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
     // 1b. Update SAMLSession with SAMLResponse attribute
@@ -83,7 +82,7 @@ public class SAMLController {
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
     // 1c. Check status, will raise CustomException in case of error mapped to a custom html error page
@@ -92,16 +91,16 @@ public class SAMLController {
     } catch (OneIdentityException e) {
       Log.error(
           "[SAMLController.samlACS] error during SAMLResponse status check: " + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 2. Check if Signatures are valid (Response and Assertion) and SubjectConfirmationData are correct
     try {
       samlServiceImpl.validateSAMLResponse(response,
           samlSession.getAuthorizationRequestDTOExtended().getIdp());
-    } catch (SAMLValidationException | SAMLUtilsException e) {
+    } catch (OneIdentityException e) {
       Log.error("[SAMLController.samlACS] error during SAMLResponse validation: " + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 3. Get Authorization Response
@@ -126,7 +125,7 @@ public class SAMLController {
       oidcSessionSessionService.saveSession(oidcSession);
     } catch (SessionException e) {
       Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
     String clientCallbackUri = samlSession.getAuthorizationRequestDTOExtended().getRedirectUri();
@@ -140,7 +139,7 @@ public class SAMLController {
       Log.error("[SAMLController.samlACS] error during setting of Callback URI: "
           + clientCallbackUri + "error: " + e.getMessage());
       Log.error("[SAMLController.samlACS] error during creation of Callback URI");
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     Log.info("[SAMLController.samlACS] end");

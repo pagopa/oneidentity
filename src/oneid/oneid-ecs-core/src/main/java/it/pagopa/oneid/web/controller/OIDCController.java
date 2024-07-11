@@ -3,7 +3,7 @@ package it.pagopa.oneid.web.controller;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -107,7 +107,7 @@ public class OIDCController {
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
     } catch (OneIdentityException e) {
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
   }
 
@@ -120,7 +120,7 @@ public class OIDCController {
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
     } catch (OneIdentityException e) {
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
   }
 
@@ -137,10 +137,10 @@ public class OIDCController {
         Log.debug("[OIDCController.handleAuthorize] selected IDP not found");
         throw new IDPNotFoundException();
       }
-    } catch (SAMLUtilsException e) {
+    } catch (OneIdentityException e) {
       Log.error(
           "[OIDCController.handleAuthorize] error getting EntityDescriptor from provided EntityID");
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 2. Check if clientId exists
@@ -171,10 +171,10 @@ public class OIDCController {
           client.getAttributeIndex(),
           client.getAuthLevel());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
-             SAMLUtilsException e) {
+             OneIdentityException e) {
       Log.error("[OIDCController.handleAuthorize] error building authorization request: "
           + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     String encodedAuthnRequest = Base64.getEncoder().encodeToString(
@@ -197,7 +197,7 @@ public class OIDCController {
     } catch (SessionException e) {
       Log.error("[OIDCController.handleAuthorize] error during session management "
           + e.getMessage());
-      throw new GenericHTMLException(e);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
     String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint

@@ -32,9 +32,9 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 public class ExceptionMapper {
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapGenericException(Exception genericException) {
-    Log.error("[ExceptionMapper.mapGenericException]: " + ExceptionUtils.getStackTrace(
-        genericException));
+  public RestResponse<ErrorResponse> mapException(Exception exception) {
+    Log.error("[ExceptionMapper.mapException]: " + ExceptionUtils.getStackTrace(
+        exception));
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
