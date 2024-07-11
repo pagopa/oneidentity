@@ -1,4 +1,4 @@
-package it.pagopa.oneid.model.session.enums;
+package it.pagopa.oneid.common.model.enums;
 
 import lombok.Getter;
 
