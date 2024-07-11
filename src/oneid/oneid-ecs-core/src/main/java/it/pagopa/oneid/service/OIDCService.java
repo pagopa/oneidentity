@@ -3,8 +3,6 @@ package it.pagopa.oneid.service;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-import it.pagopa.oneid.exception.OIDCAuthorizationException;
-import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
@@ -21,9 +19,8 @@ public interface OIDCService {
 
   AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);
 
-  TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce)
-      throws OIDCSignJWTException;
+  TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce);
 
-  void authorizeClient(String clientId, String secret) throws OIDCAuthorizationException;
+  void authorizeClient(String clientId, String secret);
 
 }

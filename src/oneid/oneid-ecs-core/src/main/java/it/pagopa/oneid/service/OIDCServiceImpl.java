@@ -184,8 +184,7 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce)
-      throws OIDCSignJWTException {
+  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce) {
     Log.debug(("[OIDCServiceImpl.getOIDCTokens] start"));
 
     // Create access token
@@ -213,8 +212,7 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public void authorizeClient(String clientId, String clientSecret)
-      throws OIDCAuthorizationException {
+  public void authorizeClient(String clientId, String clientSecret) {
     Log.debug("[OIDCServiceImpl.authorizeClient] start");
     if (clientsMap.get(clientId) == null) {
       Log.debug("[OIDCServiceImpl.authorizeClient] client not found");

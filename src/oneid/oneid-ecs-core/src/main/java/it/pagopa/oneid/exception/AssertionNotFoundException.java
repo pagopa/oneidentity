@@ -1,12 +1,11 @@
 package it.pagopa.oneid.exception;
 
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
-public class AssertionNotFoundException extends OneIdentityException {
+public class AssertionNotFoundException extends RuntimeException {
 
   public AssertionNotFoundException() {
-    super(ErrorCode.ASSERTION_NOT_FOUND);
+    super(String.valueOf(ErrorCode.ASSERTION_NOT_FOUND));
   }
 
   public AssertionNotFoundException(String customErrorMessage) {

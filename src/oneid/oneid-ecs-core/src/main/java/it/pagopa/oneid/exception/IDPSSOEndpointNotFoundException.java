@@ -1,19 +1,10 @@
 package it.pagopa.oneid.exception;
 
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
-public class IDPSSOEndpointNotFoundException extends OneIdentityException {
+public class IDPSSOEndpointNotFoundException extends RuntimeException {
 
   public IDPSSOEndpointNotFoundException() {
-    super(ErrorCode.IDPSSOENDPOINT_NOT_FOUND);
-  }
-
-  public IDPSSOEndpointNotFoundException(String customMessage) {
-    super(customMessage);
-  }
-
-  public IDPSSOEndpointNotFoundException(Throwable cause) {
-    super(cause);
+    super(String.valueOf(ErrorCode.IDP_SSO_ENDPOINT_NOT_FOUND));
   }
 }

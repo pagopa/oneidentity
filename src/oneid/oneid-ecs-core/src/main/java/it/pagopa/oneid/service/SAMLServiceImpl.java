@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
@@ -59,7 +60,8 @@ public class SAMLServiceImpl implements SAMLService {
       if (!statusMessage.isEmpty()) {
         Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Response status code: " + statusCode
             + statusMessage);
-        throw new SAMLResponseStatusException(statusMessage);
+        throw new SAMLResponseStatusException(
+            ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_")).getErrorCode());
       } else {
         Log.error(
             "[SAMLServiceImpl.checkSAMLStatus] SAML Status message not found for " + statusCode
@@ -72,14 +74,14 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String authLevel)
-      throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
+      throws SAMLUtilsException {
     return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex, "", authLevel);
   }
 
   private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String purpose, String authLevel)
-      throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException {
+      throws SAMLUtilsException {
     //TODO: add support for CIEid
 
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
@@ -125,7 +127,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID)
-      throws SAMLValidationException, SAMLUtilsException {
+      throws SAMLUtilsException {
     Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
 
     Assertion assertion;

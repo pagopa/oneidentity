@@ -12,6 +12,7 @@ import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
+import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.OIDCAuthorizationException;
@@ -51,6 +52,11 @@ public class ExceptionMapper {
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
+  @ServerExceptionMapper
+  public Response mapGenericHTMLException(GenericHTMLException genericHTMLException) {
+    return genericHTMLError(genericHTMLException.getMessage());
+  }
+
   // TODO refactor this method??
   @ServerExceptionMapper
   public Response mapSAMLResponseStatusException(
@@ -61,8 +67,7 @@ public class ExceptionMapper {
   private Response genericHTMLError(String errorCode) {
     try {
       return Response.status(FOUND)
-          // TODO map errors to correct errorCode using ?errorCode=errorCode
-          .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=0")).build();
+          .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=" + errorCode)).build();
     } catch (URISyntaxException e) {
       return Response.status(INTERNAL_SERVER_ERROR).build();
     }
@@ -119,7 +124,6 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  // TODO consider adding a new exception for empty client table
   public Response mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
     return genericHTMLError(clientNotFoundException.getMessage());

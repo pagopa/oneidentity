@@ -2,11 +2,11 @@ organization_url: ${ORGANIZATION_URL:http://localhost:8080}
 contact_person_email_address: ${CONTACT_PERSON_EMAIL_ADDRESS:test@mail.it}
 organization_display_name: ${ORGANIZATION_DISPLAY_NAME:testOrgDisplayName}
 metadata_url: ${METADATA_URL:http://localhost:8080/saml/metadata}
-service_provider_uri: ${SERVICE_PROVIDER_URI:http://localhost:8080}
+service_provider_uri: ${SERVICE_PROVIDER_URI:http://localhost:8081}
 contact_person_given_name: ${CONTACT_PERSON_GIVEN_NAME:test}
 organization_name: ${ORGANIZATION_NAME:testOrgName}
 contact_person_telephone_number: ${CONTACT_PERSON_TELEPHONE_NUMBER:+39333}
-acs_url: ${ACS_URL:http://localhost:8080/saml/acs}
-slo_url: ${SLO_URL:http://localhost:8080/saml/slo}
+acs_url: ${ACS_URL:http://localhost:8081/saml/acs}
+slo_url: ${SLO_URL:http://localhost:8081/saml/slo}
 contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}

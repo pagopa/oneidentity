@@ -102,24 +102,30 @@ public class OIDCController {
   @Path("/authorize")
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizePost(
-      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost)
-      throws OneIdentityException {
+      @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
     Log.info("[OIDCController.authorizePost] start");
-    return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+    try {
+      return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
+    } catch (OneIdentityException e) {
+      throw new GenericHTMLException(e);
+    }
   }
 
   @GET
   @Path("/authorize")
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizeGet(
-      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet)
-      throws OneIdentityException {
+      @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
     Log.info("[OIDCController.authorizeGet] start");
-    return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+    try {
+      return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
+    } catch (OneIdentityException e) {
+      throw new GenericHTMLException(e);
+    }
   }
 
-  private Response handleAuthorize(AuthorizationRequestDTOExtended authorizationRequestDTOExtended)
-      throws IDPNotFoundException, ClientNotFoundException, CallbackURINotFoundException, GenericHTMLException {
+  private Response handleAuthorize(
+      AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
     // TODO do we need to support ResponseMode?
     Log.info("[OIDCController.handleAuthorize] start");
     Optional<EntityDescriptor> idp;
@@ -158,7 +164,6 @@ public class OIDCController {
 
     // 4. Create SAML Authn Request using SAMLServiceImpl
 
-    // TODO who owns spid level?
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(
@@ -227,7 +232,7 @@ public class OIDCController {
 
     oidcServiceImpl.authorizeClient(clientId, secret);
 
-    SAMLSession session = null;
+    SAMLSession session;
     try {
       session = samlSessionServiceImpl.getSAMLSessionByCode(
           tokenRequestDTOExtended.getCode());
