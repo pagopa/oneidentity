@@ -23,5 +23,5 @@ locals {
     ]
   })
 
-  dynamodb_stream_enabled = var.dynamodb_table_stream_arn != null ? 1 : 0
+  dynamodb_stream_enabled = var.dynamodb_table_stream_arn != null ? true : false
 }

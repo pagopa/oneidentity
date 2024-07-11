@@ -235,14 +235,6 @@ variable "rest_api_throttle_settings" {
   }
 }
 
-variable "eventbridge_pipe_sessions" {
-  type = object({
-    pipe_name = string
-
-  })
-}
-
-
 variable "tags" {
   type = map(any)
   default = {

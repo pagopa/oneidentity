@@ -126,15 +126,16 @@ module "metadata_lambda" {
 }
 
 module "assertion_lambda" {
-  source                 = "terraform-aws-modules/lambda/aws"
-  version                = "7.4.0"
-  count                  = local.dynamodb_stream_enabled ? 1 : 0
-  function_name          = var.assertion_lambda.name
-  description            = "Lambda function assertion."
-  runtime                = "python3.8"
-  handler                = "assertion.lambda_handler"
-  create_package         = false
-  local_existing_package = var.assertion_lambda.filename
+  source         = "terraform-aws-modules/lambda/aws"
+  version        = "7.4.0"
+  count          = local.dynamodb_stream_enabled ? 1 : 0
+  function_name  = var.assertion_lambda.name
+  description    = "Lambda function assertion."
+  runtime        = "python3.8"
+  handler        = "index.lambda_handler"
+  create_package = true
+  source_path    = var.assertion_lambda.source_path
+
   //ignore_source_code_hash = true
 
   publish = true

@@ -186,8 +186,8 @@ module "backend" {
   }
 
   assertion_lambda = {
-    name     = format("%s-assertion", local.project)
-    filename = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
+    name        = format("%s-assertion", local.project)
+    source_path = "${path.module}/../../oneid/oneid-lambda-assertion"
   }
 
   spid_validator = {

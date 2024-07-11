@@ -154,8 +154,8 @@ variable "spid_validator" {
 
 variable "assertion_lambda" {
   type = object({
-    name     = string,
-    filename = string
+    name        = string,
+    source_path = string
   })
 }
 
