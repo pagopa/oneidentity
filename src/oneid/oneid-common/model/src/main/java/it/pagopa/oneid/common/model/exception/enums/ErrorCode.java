@@ -12,7 +12,7 @@ public enum ErrorCode {
   SAML_UTILS_ERROR("SAML_UTILS_ERROR", "Generic exception inside SAMLUtils"),
   CALLBACK_URI_NOT_FOUND("CALLBACK_URI_NOT_FOUND",
       "Callback URI not found from in Client metadata"),
-  CLIENT_NOT_FOUND("CLIENT_NOT_FOUND", "Client not registeres"),
+  CLIENT_NOT_FOUND("CLIENT_NOT_FOUND", "Client not registered"),
   ASSERTION_NOT_FOUND("ASSERTION_NOT_FOUND", "Assertion not found"),
   IDP_NOT_FOUND("IDP_NOT_FOUND", ""),
   SESSION_ERROR("SESSION_ERROR", ""),
