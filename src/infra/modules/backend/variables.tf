@@ -156,6 +156,8 @@ variable "assertion_lambda" {
   type = object({
     name        = string,
     source_path = string
+    s3_assertion_bucket_arn = string
+    kms_assertion_key_arn = string
   })
 }
 

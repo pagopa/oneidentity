@@ -186,8 +186,10 @@ module "backend" {
   }
 
   assertion_lambda = {
-    name        = format("%s-assertion", local.project)
-    source_path = "${path.module}/../../oneid/oneid-lambda-assertion"
+    name                    = format("%s-assertion", local.project)
+    source_path             = "${path.module}/../../oneid/oneid-lambda-assertion"
+    s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
+    kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
   }
 
   spid_validator = {

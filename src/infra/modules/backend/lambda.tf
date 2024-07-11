@@ -87,15 +87,11 @@ module "client_registration_lambda" {
 }
 
 data "aws_iam_policy_document" "metadata_lambda" {
-  //name = format("%s-task-policy", var.metadata_lambda.name)
-  //policy = jsonencode({
-  //Version = "2012-10-17"
   statement {
     effect    = "Allow"
     actions   = ["dynamodb:Scan"]
     resources = ["${var.table_client_registrations_arn}"]
   }
-
 }
 
 ## Lambda metadata
@@ -125,6 +121,24 @@ module "metadata_lambda" {
 
 }
 
+
+## Assertion Lambda ##
+
+data "aws_iam_policy_document" "assertion_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.assertion_lambda.s3_assertion_bucket_arn}/*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = ["kms:GenerateDataKey"]
+    resources = [var.assertion_lambda.kms_assertion_key_arn]
+  }
+
+}
+
 module "assertion_lambda" {
   source         = "terraform-aws-modules/lambda/aws"
   version        = "7.4.0"
@@ -140,8 +154,8 @@ module "assertion_lambda" {
 
   publish = true
 
-  //attach_policy_json = true
-  //policy_json        = data.aws_iam_policy_document.metadata_lambda.json
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.assertion_lambda.json
 
   allowed_triggers = {
     events = {

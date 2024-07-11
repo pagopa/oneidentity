@@ -22,13 +22,14 @@ resource "aws_iam_role" "pipe_sessions" {
 
 resource "aws_iam_role_policy" "pipe_source" {
   count = local.dynamodb_stream_enabled != null ? 1 : 0
-  name  = "AllowPipeConsumeStream"
+  name  = "AllowConsumeStreamAndInvokeLambda"
 
   role = aws_iam_role.pipe_sessions[0].id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "ReadFromStream"
         Effect = "Allow"
         Action = [
           "dynamodb:GetRecords",
@@ -41,13 +42,24 @@ resource "aws_iam_role_policy" "pipe_source" {
         ]
       },
       {
+        Sid = "DecryptWithCustomerKey"
         Effect = "Allow"
         Action = [
           "kms:Decrypt",
           "kms:Encrypt",
-        ],
+        ]
         Resource = [
           var.eventbridge_pipe_sessions.kms_sessions_table_alias
+        ]
+      },
+      {
+        Sid = "InvokeLambdaAssertion"
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction"
+        ]
+        Resource = [
+          module.assertion_lambda[0].lambda_function_arn
         ]
       }
     ]
