@@ -125,7 +125,7 @@ module "metadata_lambda" {
 
 }
 resource "aws_iam_role" "pipe_sessions" {
-  count = var.dynamodb_stream_enabled != null ? 1 : 0
+  count = locals.dynamodb_stream_enabled != null ? 1 : 0
   name  = "${var.eventbridge_pipe_sessions.pipe_name}-role"
 
   assume_role_policy = jsonencode({
@@ -146,7 +146,7 @@ resource "aws_iam_role" "pipe_sessions" {
 }
 
 resource "aws_iam_role_policy" "pipe_source" {
-  count = var.dynamodb_stream_enabled != null ? 1 : 0
+  count = locals.dynamodb_stream_enabled != null ? 1 : 0
   name = "AllowPipeConsumeStream"
 
   role = aws_iam_role.pipe_sessions[0].id
@@ -182,7 +182,7 @@ resource "aws_iam_role_policy" "pipe_source" {
 
 #TODO rename this resource and replace the targe.
 resource "aws_pipes_pipe" "dynamodb_to_lambda" {
-  count = var.dynamodb_stream_enabled ? 1: 0
+  count = locals.dynamodb_stream_enabled ? 1: 0
   name     = "dynamodb-to-lambda-pipe"
   role_arn = aws_iam_role.pipe_sessions[0].arn
   source   = var.dynamodb_table_stream_arn
@@ -242,7 +242,7 @@ EOF
 module "assertion_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
-  count                   = var.dynamodb_stream_enabled ? 1: 0
+  count                   = locals.dynamodb_stream_enabled ? 1: 0
   function_name           = var.assertion_lambda.name
   description             = "Lambda function assertion."
   runtime                 = "python3.8"
@@ -256,7 +256,7 @@ module "assertion_lambda" {
   //attach_policy_json = true
   //policy_json        = data.aws_iam_policy_document.metadata_lambda.json
 
-  //environment_variables = var.metadata_lambda.environment_variables
+  environment_variables = var.assertion_lambda.environment_variables
 
   allowed_triggers = {
     OneRule = {

@@ -160,7 +160,7 @@ variable "sessions_table" {
     ttl_enabled                    = true
     point_in_time_recovery_enabled = false
     stream_enabled                 = true
-    stream_view_type               = "NEW_AND_OLD_IMAGES"
+    stream_view_type               = "NEW_IMAGE"
   }
 }
 
@@ -235,7 +235,6 @@ variable "rest_api_throttle_settings" {
   }
 }
 
-
 variable "tags" {
   type = map(any)
   default = {
@@ -245,12 +244,4 @@ variable "tags" {
     Source      = "https://github.com/pagopa/oneidentity"
     CostCenter  = "tier0"
   }
-}
-
-variable "eventbridge_pipe_sessions" {
-  type = object({
-    pipe_name = string
-
-  })
-  default = {pipe_name = "dynamodb-to-lambda-pipe"}
 }

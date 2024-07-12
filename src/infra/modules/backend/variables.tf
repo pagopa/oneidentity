@@ -164,17 +164,13 @@ variable "assertion_lambda" {
 
 variable "eventbridge_pipe_sessions" {
   type = object({
-    pipe_name = string
-
+    pipe_name                = string
+    kms_sessions_table_alias = string
   })
   default = null
 }
 
-variable "dynamodb_stream_enabled" {
-  type = bool
-}
-
 variable "dynamodb_table_stream_arn" {
-  type = string
+  type    = string
   default = null
 }

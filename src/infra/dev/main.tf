@@ -177,9 +177,14 @@ module "backend" {
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
   }
-  dynamodb_stream_enabled               = true 
-  dynamodb_table_stream_arn             = module.database.dynamodb_table_stream_arn
-  eventbridge_pipe_sessions             = var.eventbridge_pipe_sessions
+
+
+  dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
+  eventbridge_pipe_sessions = {
+    pipe_name                = format("%s-sessions-pipe", local.project)
+    kms_sessions_table_alias = module.database.kms_sessions_table_alias_arn
+  }
+
   assertion_lambda = {
     name                       = format("%s-assertion", local.project)
     filename                   = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
