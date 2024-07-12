@@ -22,7 +22,7 @@ public enum ErrorCode {
   SAML_RESPONSE_STATUS_ERROR("SAML_RESPONSE_STATUS_ERROR", "Error found in SAML Response status"),
   GENERIC_HTML_ERROR("GENERIC_HTML_ERROR", "Error during execution"),
   AUTHORIZATION_ERROR("AUTHORIZATION_ERROR", "Authorization error"),
-  INVALID_SCOPE_ERROR("INVALID_SCOPE_ERROR", "Scope non supported"),
+  INVALID_SCOPE_ERROR("INVALID_SCOPE_ERROR", "Scope not supported"),
   UNSUPPORTED_RESPONSE_TYPE_ERROR("UNSUPPORTED_RESPONSE_TYPE_ERROR", "Response type not supported"),
   ERRORCODE_NR19("19", ""),
   ERRORCODE_NR20("20", ""),
