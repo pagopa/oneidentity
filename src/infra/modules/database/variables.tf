@@ -4,16 +4,6 @@ variable "account_id" {
   default     = null
 }
 
-variable "sessions_table" {
-  type = object({
-    ttl_enabled                    = optional(bool, true)
-    point_in_time_recovery_enabled = optional(bool, false)
-    stream_enabled                 = optional(bool, false)
-    stream_view_type               = string
-  })
-  description = "Saml responses table configurations."
-}
-
 
 variable "client_registrations_table" {
   type = object({
@@ -22,11 +12,12 @@ variable "client_registrations_table" {
   description = "Client configurations."
 }
 
-
-variable "eventbridge_pipe_sessions" {
+variable "sessions_table" {
   type = object({
-    pipe_name = string
-
+    ttl_enabled                    = optional(bool, true)
+    point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = string
   })
-  default = null
+  description = "Saml responses table configurations."
 }
