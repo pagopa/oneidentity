@@ -1,5 +1,6 @@
 package it.pagopa.oneid.common.model;
 
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class Client {
   private List<String> requestedParameters;
 
   @NotNull
-  private String authLevel;
+  private AuthLevel authLevel;
 
   @NotNull
   private int acsIndex;
