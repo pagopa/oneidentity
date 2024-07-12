@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -25,6 +26,7 @@ public class OneIDController {
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
   public Response openIDConfig() {
+    Log.info("[OneIDController.openIDConfig] start");
     return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
   }
 

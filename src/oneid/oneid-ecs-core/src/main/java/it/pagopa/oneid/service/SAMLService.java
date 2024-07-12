@@ -1,10 +1,6 @@
 package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
-import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import java.util.List;
 import java.util.Optional;
@@ -17,18 +13,19 @@ public interface SAMLService {
 
   AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String spidLevel)
-      throws GenericAuthnRequestCreationException, IDPSSOEndpointNotFoundException, SAMLUtilsException;
+      throws OneIdentityException;
 
   void validateSAMLResponse(Response SAMLResponse, String entityID)
-      throws SAMLValidationException, SAMLUtilsException;
+      throws OneIdentityException;
 
   Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException;
 
-  List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion) throws SAMLUtilsException;
+  List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
+      throws OneIdentityException;
 
   Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws SAMLUtilsException;
+      throws OneIdentityException;
 
-  void checkSAMLStatus(Response response) throws OneIdentityException, OneIdentityException;
+  void checkSAMLStatus(Response response) throws OneIdentityException;
 
 }
