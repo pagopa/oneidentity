@@ -184,6 +184,7 @@ module "backend" {
     name                       = format("%s-assertion", local.project)
     filename                   = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
     kms_sessions_table_alias   = module.database.kms_sessions_table_alias_arn
+    environment_variables      = {BUCKET = module.storage.assertions_bucket_name}
   }
 
   spid_validator = {
