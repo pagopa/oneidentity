@@ -58,4 +58,9 @@ public class ClientConnectorImpl implements ClientConnector {
         ClientExtended::clientSecretDTO
     );
   }
+
+  @Override
+  public void saveClientIfNotExists(Client client) {
+    //TODO implement
+  }
 }
