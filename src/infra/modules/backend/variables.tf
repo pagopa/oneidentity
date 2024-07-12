@@ -154,10 +154,11 @@ variable "spid_validator" {
 
 variable "assertion_lambda" {
   type = object({
-    name                       = string,
-    filename                   = string,
-    kms_sessions_table_alias   = string,
-    environment_variables      = map(string)
+    name                    = string
+    source_path             = string
+    s3_assertion_bucket_arn = string
+    kms_assertion_key_arn   = string
+    environment_variables   = map(string)
   })
 }
 
