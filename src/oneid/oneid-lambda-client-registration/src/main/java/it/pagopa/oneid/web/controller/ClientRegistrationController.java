@@ -9,14 +9,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/")
+@Path("/oidc")
 public class ClientRegistrationController {
 
   @Inject
   ClientRegistrationServiceImpl clientRegistrationService;
 
   @POST
-  @Path("/connect/register")
+  @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
   public Response register(ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     //TODO implement
