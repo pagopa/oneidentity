@@ -31,9 +31,9 @@ public class ClientExtended extends Client {
       @NotNull List<String> callbackURI,
       @NotNull List<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
-      String secret, String salt) {
+      String secret, String salt, long clientIdIssuedAt) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive);
+        attributeIndex, isActive, clientIdIssuedAt);
     this.secret = secret;
     this.salt = salt;
   }
