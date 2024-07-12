@@ -1,6 +1,6 @@
 package it.pagopa.oneid.web.converters;
 
-import it.pagopa.oneid.model.session.enums.GrantType;
+import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.ext.ParamConverter;

@@ -1,6 +1,6 @@
 package it.pagopa.oneid.model.dto;
 
-import it.pagopa.oneid.model.session.enums.GrantType;
+import it.pagopa.oneid.common.model.enums.GrantType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

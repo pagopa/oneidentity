@@ -6,7 +6,7 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 public class SAMLUtilsException extends OneIdentityException {
 
   public SAMLUtilsException() {
-    super(ErrorCode.SAMLUTILS_ERROR);
+    super(ErrorCode.SAML_UTILS_ERROR);
   }
 
   public SAMLUtilsException(String customErrorMessage) {
