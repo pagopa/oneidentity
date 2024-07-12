@@ -78,12 +78,14 @@ public class ExceptionMapper {
 
   private RestResponse<Object> authenticationErrorResponse(String callbackUri,
       String errorCode,
-      String errorMessage) {
+      String errorMessage,
+      String state) {
     try {
       return ResponseBuilder
           .create(FOUND)
           .location(
-              new URI(callbackUri + "?error=" + errorCode + "&error_description=" + errorMessage))
+              new URI(callbackUri + "?error=" + errorCode + "&error_description=" + errorMessage
+                  + "&state=" + state))
           .build();
     } catch (URISyntaxException e) {
       Log.error("[ExceptionMapper.authenticationErrorResponse] invalid URI for redirecting: "
@@ -133,7 +135,8 @@ public class ExceptionMapper {
       ClientNotFoundException clientNotFoundException) {
     return authenticationErrorResponse(clientNotFoundException.getCallbackUri(),
         OAuth2Error.UNAUTHORIZED_CLIENT_CODE,
-        ErrorCode.CLIENT_NOT_FOUND.getErrorMessage());
+        ErrorCode.CLIENT_NOT_FOUND.getErrorMessage(),
+        clientNotFoundException.getState());
   }
 
   @ServerExceptionMapper
@@ -141,7 +144,8 @@ public class ExceptionMapper {
       InvalidScopeException invalidScopeException) {
     return authenticationErrorResponse(invalidScopeException.getCallbackUri(),
         OAuth2Error.INVALID_SCOPE_CODE,
-        ErrorCode.INVALID_SCOPE_ERROR.getErrorMessage());
+        ErrorCode.INVALID_SCOPE_ERROR.getErrorMessage(),
+        invalidScopeException.getState());
 
   }
 
@@ -150,7 +154,8 @@ public class ExceptionMapper {
       UnsupportedResponseTypeException unsupportedResponseTypeException) {
     return authenticationErrorResponse(unsupportedResponseTypeException.getCallbackUri(),
         OAuth2Error.UNSUPPORTED_RESPONSE_TYPE_CODE,
-        ErrorCode.UNSUPPORTED_RESPONSE_TYPE_ERROR.getErrorMessage());
+        ErrorCode.UNSUPPORTED_RESPONSE_TYPE_ERROR.getErrorMessage(),
+        unsupportedResponseTypeException.getState());
 
   }
 
@@ -159,7 +164,8 @@ public class ExceptionMapper {
       AuthorizationErrorException authorizationErrorException) {
     return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
         OAuth2Error.SERVER_ERROR_CODE,
-        ErrorCode.AUTHORIZATION_ERROR.getErrorMessage());
+        ErrorCode.AUTHORIZATION_ERROR.getErrorMessage()
+        , authorizationErrorException.getState());
 
   }
 
@@ -168,7 +174,8 @@ public class ExceptionMapper {
       IDPNotFoundException idpNotFoundException) {
     return authenticationErrorResponse(idpNotFoundException.getCallbackUri(),
         OAuth2Error.INVALID_REQUEST_CODE,
-        ErrorCode.IDP_NOT_FOUND.getErrorMessage());
+        ErrorCode.IDP_NOT_FOUND.getErrorMessage(),
+        idpNotFoundException.getState());
   }
 
   @ServerExceptionMapper
