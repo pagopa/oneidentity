@@ -169,7 +169,7 @@ public class OIDCController {
       authnRequest = samlServiceImpl.buildAuthnRequest(
           authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(),
           client.getAttributeIndex(),
-          client.getAuthLevel());
+          client.getAuthLevel().getValue());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
              OneIdentityException e) {
       Log.error("[OIDCController.handleAuthorize] error building authorization request: "
