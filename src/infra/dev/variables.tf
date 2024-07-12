@@ -160,7 +160,7 @@ variable "sessions_table" {
     ttl_enabled                    = true
     point_in_time_recovery_enabled = false
     stream_enabled                 = true
-    stream_view_type               = "NEW_IMAGE"
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
   }
 }
 
