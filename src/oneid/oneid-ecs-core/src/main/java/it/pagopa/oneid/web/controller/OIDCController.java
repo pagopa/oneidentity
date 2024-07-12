@@ -4,17 +4,20 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.exception.AuthorizationErrorException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
-import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.InvalidScopeException;
 import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
+import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -126,16 +129,30 @@ public class OIDCController {
 
   private Response handleAuthorize(
       AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
-    // TODO do we need to support ResponseMode?
     Log.info("[OIDCController.handleAuthorize] start");
     Optional<EntityDescriptor> idp;
-    // 1. Check if idp exists
+
+    // 1. Check if clientId exists
+    if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
+      Log.debug("[OIDCController.handleAuthorize] selected Client not found");
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
+
+    // 1. Check if callbackUri exists among clientId parameters
+    if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
+        .contains(authorizationRequestDTOExtended.getRedirectUri())) {
+      Log.debug("[OIDCController.handleAuthorize] redirect URI not found");
+      throw new CallbackURINotFoundException();
+    }
+
+    // 2. Check if idp exists
     try {
       idp = samlServiceImpl.getEntityDescriptorFromEntityID(
           authorizationRequestDTOExtended.getIdp());
       if (idp.isEmpty()) {
         Log.debug("[OIDCController.handleAuthorize] selected IDP not found");
-        throw new IDPNotFoundException();
+        throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
+            authorizationRequestDTOExtended.getState());
       }
     } catch (OneIdentityException e) {
       Log.error(
@@ -143,17 +160,20 @@ public class OIDCController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    // 2. Check if clientId exists
-    if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
-      Log.debug("[OIDCController.handleAuthorize] selected Client not found");
-      throw new ClientNotFoundException();
+    // 4. Check if scope is "openid"
+    if (!authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
+      Log.error(
+          "[OIDCController.handleAuthorize] scope not supported");
+      throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
     }
 
-    // 3. Check if callbackUri exists among clientId parameters
-    if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
-        .contains(authorizationRequestDTOExtended.getRedirectUri())) {
-      Log.debug("[OIDCController.handleAuthorize] redirect URI not found");
-      throw new CallbackURINotFoundException();
+    // 5. Check if response type is "code"
+    if (!authorizationRequestDTOExtended.getResponseType().equals(ResponseType.CODE)) {
+      Log.error(
+          "[OIDCController.handleAuthorize] response type not supported");
+      throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
     }
 
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
@@ -162,7 +182,7 @@ public class OIDCController {
     String idpSSOEndpoint = idp.get().getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
         .getSingleSignOnServices().getFirst().getLocation();
 
-    // 4. Create SAML Authn Request using SAMLServiceImpl
+    // 5. Create SAML Authn Request using SAMLServiceImpl
 
     AuthnRequest authnRequest = null;
     try {
@@ -174,14 +194,15 @@ public class OIDCController {
              OneIdentityException e) {
       Log.error("[OIDCController.handleAuthorize] error building authorization request: "
           + e.getMessage());
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+      throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
     }
 
     String encodedAuthnRequest = Base64.getEncoder().encodeToString(
         WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
 
-    // 5. Persist SAMLSession
+    // 6. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = Instant.now().getEpochSecond();
@@ -197,7 +218,8 @@ public class OIDCController {
     } catch (SessionException e) {
       Log.error("[OIDCController.handleAuthorize] error during session management "
           + e.getMessage());
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+      throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
     }
 
     String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
