@@ -27,6 +27,8 @@ import it.pagopa.oneid.model.ErrorResponse;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
@@ -84,7 +86,9 @@ public class ExceptionMapper {
       return ResponseBuilder
           .create(FOUND)
           .location(
-              new URI(callbackUri + "?error=" + errorCode + "&error_description=" + errorMessage
+              new URI(callbackUri +
+                  "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
+                  StandardCharsets.UTF_8)
                   + "&state=" + state))
           .build();
     } catch (URISyntaxException e) {
