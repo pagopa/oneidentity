@@ -29,5 +29,5 @@ public enum AuthLevel {
   public static AuthLevel authLevelFromValue(String value) {
     return BY_VALUE.get(value);
   }
-  
+
 }

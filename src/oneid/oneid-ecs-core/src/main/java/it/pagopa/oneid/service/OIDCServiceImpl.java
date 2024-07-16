@@ -1,8 +1,14 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.nimbusds.oauth2.sdk.GrantType;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -29,8 +35,6 @@ import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyFactory;
@@ -41,187 +45,186 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
-
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
 public class OIDCServiceImpl implements OIDCService {
 
-    @Inject
-    OIDCUtils oidcUtils;
+  @Inject
+  OIDCUtils oidcUtils;
 
-    @Inject
-    KMSConnectorImpl kmsConnectorImpl;
+  @Inject
+  KMSConnectorImpl kmsConnectorImpl;
 
-    @Inject
-    ClientConnectorImpl clientConnectorImpl;
+  @Inject
+  ClientConnectorImpl clientConnectorImpl;
 
-    @Inject
-    Map<String, Client> clientsMap;
+  @Inject
+  Map<String, Client> clientsMap;
 
-    @Inject
-    SAMLUtilsConstants samlConstants;
+  @Inject
+  SAMLUtilsConstants samlConstants;
 
-    @Override
-    public JWKSSetDTO getJWSKPublicKey() {
-        Log.debug("start");
-        GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
-        RSAPublicKey rsaPublicKey;
-        try {
-            rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
-                    .generatePublic(
-                            new X509EncodedKeySpec(getPublicKeyResponse.publicKey().asByteArray()));
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            Log.error("error during public key instantiation: "
-                    + e.getMessage());
-            throw new RuntimeException(e);
-        }
-
-        Log.debug("end");
-        return JWKSSetDTO.builder()
-                .keyList(List.of(
-                        new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
-                .build();
+  @Override
+  public JWKSSetDTO getJWSKPublicKey() {
+    Log.debug("start");
+    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
+    RSAPublicKey rsaPublicKey;
+    try {
+      rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
+          .generatePublic(
+              new X509EncodedKeySpec(getPublicKeyResponse.publicKey().asByteArray()));
+    } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+      Log.error("error during public key instantiation: "
+          + e.getMessage());
+      throw new RuntimeException(e);
     }
 
-    @Override
-    public OIDCProviderMetadata buildOIDCProviderMetadata() {
-        Log.debug("start");
-        Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
-        URI jwksURI;
-        URI authEndpointURI;
-        URI tokenEndpointURI;
-        try {
-            jwksURI = new URI(SERVICE_PROVIDER_URI + "/oidc/keys");
-            authEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/authorize");
-            tokenEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/token");
-        } catch (URISyntaxException e) {
-            Log.error("error during endpoints URI creation: "
-                    + e.getMessage());
-            throw new RuntimeException(e);
-        }
+    Log.debug("end");
+    return JWKSSetDTO.builder()
+        .keyList(List.of(
+            new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
+        .build();
+  }
 
-        /* Required */
-        OIDCProviderMetadata oidcProviderMetadata = new OIDCProviderMetadata(issuer,
-                List.of(SubjectType.PUBLIC), jwksURI);
-
-        oidcProviderMetadata.setAuthorizationEndpointURI(authEndpointURI);
-        oidcProviderMetadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.RS256));
-        oidcProviderMetadata.setResponseTypes(List.of(ResponseType.CODE));
-        oidcProviderMetadata.setTokenEndpointURI(tokenEndpointURI);
-
-        /* Not required */
-        oidcProviderMetadata.setScopes(new Scope("openid"));
-        oidcProviderMetadata.setGrantTypes(List.of(GrantType.AUTHORIZATION_CODE));
-        oidcProviderMetadata.setTokenEndpointAuthMethods(
-                List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
-
-        Log.debug("end");
-
-        return oidcProviderMetadata;
-
+  @Override
+  public OIDCProviderMetadata buildOIDCProviderMetadata() {
+    Log.debug("start");
+    Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
+    URI jwksURI;
+    URI authEndpointURI;
+    URI tokenEndpointURI;
+    try {
+      jwksURI = new URI(SERVICE_PROVIDER_URI + "/oidc/keys");
+      authEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/authorize");
+      tokenEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/token");
+    } catch (URISyntaxException e) {
+      Log.error("error during endpoints URI creation: "
+          + e.getMessage());
+      throw new RuntimeException(e);
     }
 
-    @Override
-    public AuthorizationRequest buildAuthorizationRequest(
-            AuthorizationRequestDTO authorizationRequestDTO) {
+    /* Required */
+    OIDCProviderMetadata oidcProviderMetadata = new OIDCProviderMetadata(issuer,
+        List.of(SubjectType.PUBLIC), jwksURI);
 
-        Log.debug("start");
-        // The client identifier provisioned by the server
-        ClientID clientID = new ClientID(authorizationRequestDTO.getClientId());
+    oidcProviderMetadata.setAuthorizationEndpointURI(authEndpointURI);
+    oidcProviderMetadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.RS256));
+    oidcProviderMetadata.setResponseTypes(List.of(ResponseType.CODE));
+    oidcProviderMetadata.setTokenEndpointURI(tokenEndpointURI);
 
-        // The requested scope values for the token
-        Scope scope = new Scope(authorizationRequestDTO.getScope());
+    /* Not required */
+    oidcProviderMetadata.setScopes(new Scope("openid"));
+    oidcProviderMetadata.setGrantTypes(List.of(GrantType.AUTHORIZATION_CODE));
+    oidcProviderMetadata.setTokenEndpointAuthMethods(
+        List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 
-        // The client callback URI, typically pre-registered with the server
-        URI callback = null;
-        try {
-            callback = new URI(authorizationRequestDTO.getRedirectUri());
-        } catch (URISyntaxException e) {
-            Log.error("error during setting of Callback URI: "
-                    + authorizationRequestDTO.getRedirectUri() + "error: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+    Log.debug("end");
 
-        // Generate random state string for pairing the response to the request
-        State stateObj = new State(authorizationRequestDTO.getState());
+    return oidcProviderMetadata;
 
-        // Build the request
+  }
 
-        return new AuthorizationRequest.Builder(
-                new ResponseType(authorizationRequestDTO.getResponseType().getValue()), clientID)
-                .scope(scope)
-                .state(stateObj)
-                .redirectionURI(callback)
-                .build();
+  @Override
+  public AuthorizationRequest buildAuthorizationRequest(
+      AuthorizationRequestDTO authorizationRequestDTO) {
+
+    Log.debug("start");
+    // The client identifier provisioned by the server
+    ClientID clientID = new ClientID(authorizationRequestDTO.getClientId());
+
+    // The requested scope values for the token
+    Scope scope = new Scope(authorizationRequestDTO.getScope());
+
+    // The client callback URI, typically pre-registered with the server
+    URI callback = null;
+    try {
+      callback = new URI(authorizationRequestDTO.getRedirectUri());
+    } catch (URISyntaxException e) {
+      Log.error("error during setting of Callback URI: "
+          + authorizationRequestDTO.getRedirectUri() + "error: " + e.getMessage());
+      throw new RuntimeException(e);
     }
 
-    @Override
-    public AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest) {
-        Log.info("start");
-        // TODO lookup the client
-        ClientID clientID = authorizationRequest.getClientID();
+    // Generate random state string for pairing the response to the request
+    State stateObj = new State(authorizationRequestDTO.getState());
 
-        // The client callback URL, must be registered in the server's database
-        URI callback = authorizationRequest.getRedirectionURI();
+    // Build the request
 
-        // The state, must be echoed back with the response
-        State state = authorizationRequest.getState();
+    return new AuthorizationRequest.Builder(
+        new ResponseType(authorizationRequestDTO.getResponseType().getValue()), clientID)
+        .scope(scope)
+        .state(stateObj)
+        .redirectionURI(callback)
+        .build();
+  }
 
-        // The requested scope
-        // TODO how to handle this ?
-        Scope scope = authorizationRequest.getScope();
+  @Override
+  public AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest) {
+    Log.info("start");
+    // TODO lookup the client
+    ClientID clientID = authorizationRequest.getClientID();
 
-        // Generate the response...
+    // The client callback URL, must be registered in the server's database
+    URI callback = authorizationRequest.getRedirectionURI();
 
-        AuthorizationCode code = new AuthorizationCode();
+    // The state, must be echoed back with the response
+    State state = authorizationRequest.getState();
 
-        return new AuthenticationSuccessResponse(callback, code, null, null, state, null, null);
+    // The requested scope
+    // TODO how to handle this ?
+    Scope scope = authorizationRequest.getScope();
 
+    // Generate the response...
+
+    AuthorizationCode code = new AuthorizationCode();
+
+    return new AuthenticationSuccessResponse(callback, code, null, null, state, null, null);
+
+  }
+
+  @Override
+  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce) {
+    Log.debug(("start"));
+
+    // Create access token
+    AccessToken accessToken = new BearerAccessToken();
+
+    //Create signed JWT ID token
+    String signedJWTString = oidcUtils.createSignedJWT(attributeDTOList, nonce);
+    SignedJWT signedJWTIDToken;
+    try {
+      signedJWTIDToken = SignedJWT.parse(signedJWTString);
+    } catch (ParseException e) {
+      Log.error("error during parsing JWT");
+      throw new OIDCSignJWTException(e);
     }
 
-    @Override
-    public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce) {
-        Log.debug(("start"));
+    return TokenDataDTO
+        .builder()
+        .idToken(signedJWTIDToken.serialize())
+        .idTokenType("openid")
+        .accessToken(accessToken.toString())
+        .tokenType(accessToken.getType().getValue())
+        .expiresIn(String.valueOf(accessToken.getLifetime()))
+        .scope("openid")
+        .build();
+  }
 
-        // Create access token
-        AccessToken accessToken = new BearerAccessToken();
-
-        //Create signed JWT ID token
-        String signedJWTString = oidcUtils.createSignedJWT(attributeDTOList, nonce);
-        SignedJWT signedJWTIDToken;
-        try {
-            signedJWTIDToken = SignedJWT.parse(signedJWTString);
-        } catch (ParseException e) {
-            Log.error("error during parsing JWT");
-            throw new OIDCSignJWTException(e);
-        }
-
-        return TokenDataDTO
-                .builder()
-                .idToken(signedJWTIDToken.serialize())
-                .idTokenType("openid")
-                .accessToken(accessToken.toString())
-                .tokenType(accessToken.getType().getValue())
-                .expiresIn(String.valueOf(accessToken.getLifetime()))
-                .scope("openid")
-                .build();
+  @Override
+  public void authorizeClient(String clientId, String clientSecret) {
+    Log.debug("start");
+    if (clientsMap.get(clientId) == null) {
+      Log.debug("client not found");
+      throw new OIDCAuthorizationException();
     }
 
-    @Override
-    public void authorizeClient(String clientId, String clientSecret) {
-        Log.debug("start");
-        if (clientsMap.get(clientId) == null) {
-            Log.debug("client not found");
-            throw new OIDCAuthorizationException();
-        }
+    SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
+        .orElseThrow(OIDCAuthorizationException::new);
 
-        SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
-                .orElseThrow(OIDCAuthorizationException::new);
-
-        if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
-            Log.debug("client secret not valid");
-            throw new OIDCAuthorizationException();
-        }
+    if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
+      Log.debug("client secret not valid");
+      throw new OIDCAuthorizationException();
     }
+  }
 }

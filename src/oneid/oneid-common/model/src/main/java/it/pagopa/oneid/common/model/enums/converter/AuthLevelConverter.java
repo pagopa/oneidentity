@@ -8,7 +8,7 @@ import software.amazon.awssdk.enhanced.dynamodb.EnhancedType;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class AuthLevelConverter implements AttributeConverter<AuthLevel> {
-  
+
   @Inject
   public AuthLevelConverter() {
   }
