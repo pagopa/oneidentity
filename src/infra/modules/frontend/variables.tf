@@ -110,7 +110,14 @@ variable "metadata_lamba_name" {
   description = "Lambda metadata name"
 }
 
+## Lambda metadata
 variable "metadata_lamba_arn" {
   type        = string
   description = "lambda metadata arn"
+}
+
+## Lambda client registration
+variable "client_registration_lambda_arn" {
+  type        = string
+  description = "lambda client registration arn"
 }

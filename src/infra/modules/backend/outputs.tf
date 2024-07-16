@@ -41,7 +41,6 @@ output "nlb_dns_name" {
 
 output "elb" {
   value = module.elb
-
 }
 
 #TODO get the name from the arn
@@ -53,6 +52,12 @@ output "metadata_lambda_arn" {
   value = module.metadata_lambda.lambda_function_arn
 }
 
+## Client registration lambda
+output "client_registration_lambda_arn" {
+  value = module.client_registration_lambda.lambda_function_arn
+}
+
+## Metadata lambda ##
 output "assertion_lambda_arn" {
   value = module.assertion_lambda[0].lambda_function_arn
 }

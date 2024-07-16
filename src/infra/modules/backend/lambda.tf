@@ -51,7 +51,8 @@ data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:GetItem"
+      "dynamodb:GetItem",
+      "dynamodb:PutItem"
     ]
     resources = [
       var.client_registration_lambda.table_client_registrations_arn
@@ -74,8 +75,8 @@ module "client_registration_lambda" {
 
   publish = true
 
-  #attach_policy_json = true
-  #policy_json        = data.aws_iam_policy_document.lambda_webhook2.json
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.client_registration_lambda.json
 
   environment_variables = {
   }
@@ -125,7 +126,6 @@ module "metadata_lambda" {
 }
 
 ## Assertion Lambda ##
-
 data "aws_iam_policy_document" "assertion_lambda" {
   statement {
     effect    = "Allow"
@@ -138,7 +138,6 @@ data "aws_iam_policy_document" "assertion_lambda" {
     actions   = ["kms:GenerateDataKey"]
     resources = [var.assertion_lambda.kms_assertion_key_arn]
   }
-
 }
 
 module "assertion_lambda" {
