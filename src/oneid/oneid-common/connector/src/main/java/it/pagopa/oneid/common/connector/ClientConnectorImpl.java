@@ -11,9 +11,11 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 @ApplicationScoped
@@ -60,7 +62,15 @@ public class ClientConnectorImpl implements ClientConnector {
   }
 
   @Override
-  public void saveClientIfNotExists(Client client) {
-    //TODO implement
+  public void saveClientIfNotExists(ClientExtended client) {
+    Log.debug("start");
+    clientExtendedMapper.putItem(
+        PutItemEnhancedRequest.builder(ClientExtended.class)
+            .item(client)
+            .conditionExpression(
+                Expression.builder().expression(
+                        "attribute_not_exists(clientId)")
+                    .build())
+            .build());
   }
 }
