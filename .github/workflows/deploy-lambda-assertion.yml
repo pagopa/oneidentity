@@ -6,7 +6,6 @@ on:
         - "main"
       paths:
         - "**/src/oneid/oneid-lambda-assertion/**"
-        - "**/src/oneid/oneid-common/**"
     workflow_dispatch:
       inputs:
         environment:
