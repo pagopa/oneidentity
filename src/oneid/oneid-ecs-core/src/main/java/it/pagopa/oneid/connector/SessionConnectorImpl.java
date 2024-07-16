@@ -85,7 +85,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         }
       }
       default -> {
-        Log.debug("[SessionConnectorImpl.checkSessionValidity] not valid RecordType");
+        Log.debug("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -95,13 +95,13 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public void saveSessionIfNotExists(T session) throws SessionException {
-    Log.debug("[SessionConnectorImpl.saveSessionIfNotExists] start");
+    Log.debug("start");
     try {
       saveItemIfNotExists(session);
-      Log.debug("[SessionConnectorImpl.saveSessionIfNotExists] successfully saved session");
+      Log.debug("successfully saved session");
     } catch (ConditionalCheckFailedException e) {
       Log.error(
-          "[SessionConnectorImpl.saveSessionIfNotExists] a record with the same SAMLRequestID already exists");
+          "a record with the same SAMLRequestID already exists");
       throw new SessionException("Existing session for the specified SAMLRequestID");
     }
   }
@@ -141,7 +141,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
       }
       default -> {
-        Log.debug("[SessionConnectorImpl.saveItemIfNotExists] not valid RecordType");
+        Log.debug("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -149,7 +149,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public Optional<T> findSession(String identifier, RecordType recordType) throws SessionException {
-    Log.debug("[SessionConnectorImpl.findSession] start");
+    Log.debug("start");
 
     switch (recordType) {
       case RecordType.SAML -> {
@@ -161,11 +161,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
 
         if (samlSession == null) {
-          Log.debug("[SessionConnectorImpl.findSession] saml session not found");
+          Log.debug("saml session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(samlSession)) {
-          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          Log.debug("session successfully found");
           return (Optional<T>) Optional.ofNullable(samlSession);
         }
         return Optional.empty();
@@ -188,11 +188,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         try {
           oidcSession = collectedItems.getFirst();
         } catch (NoSuchElementException e) {
-          Log.debug("[SessionConnectorImpl.findSession] oidc session not found");
+          Log.debug("oidc session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(oidcSession)) {
-          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          Log.debug("session successfully found");
           return (Optional<T>) Optional.ofNullable(oidcSession);
         }
         return Optional.empty();
@@ -215,17 +215,17 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         try {
           accessTokenSession = collectedItems.getFirst();
         } catch (NoSuchElementException e) {
-          Log.debug("[SessionConnectorImpl.findSession] access token session not found");
+          Log.debug("access token session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(accessTokenSession)) {
-          Log.debug("[SessionConnectorImpl.findSession] session successfully found");
+          Log.debug("session successfully found");
           return (Optional<T>) Optional.ofNullable(accessTokenSession);
         }
         return Optional.empty();
       }
       default -> {
-        Log.debug("[SessionConnectorImpl.findSession] not valid RecordType");
+        Log.debug("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -233,7 +233,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException {
-    Log.debug("[SessionConnectorImpl.updateSAMLSession] invoked");
+    Log.debug("invoked");
 
     SAMLSession samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).orElseThrow(
         SessionException::new);
@@ -247,11 +247,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                   .expression("attribute_not_exists(SAMLResponse)")
                   .build())
               .build());
-      Log.debug("[SessionConnectorImpl.updateSAMLSession] session successfully updated");
+      Log.debug("session successfully updated");
 
     } catch (ConditionalCheckFailedException e) {
       Log.error(
-          "[SessionConnectorImpl.updateSAMLSession] the record contains already the samlResponse");
+          "the record contains already the samlResponse");
       throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
     }
   }

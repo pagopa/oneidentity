@@ -67,7 +67,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public JWKSSetDTO getJWSKPublicKey() {
-    Log.debug("[OIDCServiceImpl.getJWSKPublicKey] start");
+    Log.debug("start");
     GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
     RSAPublicKey rsaPublicKey;
     try {
@@ -75,12 +75,12 @@ public class OIDCServiceImpl implements OIDCService {
           .generatePublic(
               new X509EncodedKeySpec(getPublicKeyResponse.publicKey().asByteArray()));
     } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-      Log.error("[OIDCServiceImpl.getJWSKPublicKey] error during public key instantiation: "
+      Log.error("error during public key instantiation: "
           + e.getMessage());
       throw new RuntimeException(e);
     }
 
-    Log.debug("[OIDCServiceImpl.getJWSKPublicKey] end");
+    Log.debug("end");
     return JWKSSetDTO.builder()
         .keyList(List.of(
             new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
@@ -89,7 +89,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public OIDCProviderMetadata buildOIDCProviderMetadata() {
-    Log.debug("[OIDCServiceImpl.buildOIDCProviderMetadata] start");
+    Log.debug("start");
     Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
     URI jwksURI;
     URI authEndpointURI;
@@ -99,7 +99,7 @@ public class OIDCServiceImpl implements OIDCService {
       authEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/authorize");
       tokenEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/token");
     } catch (URISyntaxException e) {
-      Log.error("[OIDCServiceImpl.buildOIDCProviderMetadata] error during endpoints URI creation: "
+      Log.error("error during endpoints URI creation: "
           + e.getMessage());
       throw new RuntimeException(e);
     }
@@ -119,7 +119,7 @@ public class OIDCServiceImpl implements OIDCService {
     oidcProviderMetadata.setTokenEndpointAuthMethods(
         List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 
-    Log.debug("[OIDCServiceImpl.buildOIDCProviderMetadata] end");
+    Log.debug("end");
 
     return oidcProviderMetadata;
 
@@ -129,7 +129,7 @@ public class OIDCServiceImpl implements OIDCService {
   public AuthorizationRequest buildAuthorizationRequest(
       AuthorizationRequestDTO authorizationRequestDTO) {
 
-    Log.debug("[OIDCServiceImpl.buildAuthorizationRequest] start");
+    Log.debug("start");
     // The client identifier provisioned by the server
     ClientID clientID = new ClientID(authorizationRequestDTO.getClientId());
 
@@ -141,7 +141,7 @@ public class OIDCServiceImpl implements OIDCService {
     try {
       callback = new URI(authorizationRequestDTO.getRedirectUri());
     } catch (URISyntaxException e) {
-      Log.error("[OIDCServiceImpl.buildAuthorizationRequest] error during setting of Callback URI: "
+      Log.error("error during setting of Callback URI: "
           + authorizationRequestDTO.getRedirectUri() + "error: " + e.getMessage());
       throw new RuntimeException(e);
     }
@@ -161,7 +161,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest) {
-    Log.info("[OIDCServiceImpl.getAuthorizationResponse] start");
+    Log.info("start");
     // TODO lookup the client
     ClientID clientID = authorizationRequest.getClientID();
 
@@ -185,7 +185,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce) {
-    Log.debug(("[OIDCServiceImpl.getOIDCTokens] start"));
+    Log.debug(("start"));
 
     // Create access token
     AccessToken accessToken = new BearerAccessToken();
@@ -196,7 +196,7 @@ public class OIDCServiceImpl implements OIDCService {
     try {
       signedJWTIDToken = SignedJWT.parse(signedJWTString);
     } catch (ParseException e) {
-      Log.error("[OIDCServiceImpl.getOIDCTokens] error during parsing JWT");
+      Log.error("error during parsing JWT");
       throw new OIDCSignJWTException(e);
     }
 
@@ -213,9 +213,9 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public void authorizeClient(String clientId, String clientSecret) {
-    Log.debug("[OIDCServiceImpl.authorizeClient] start");
+    Log.debug("start");
     if (clientsMap.get(clientId) == null) {
-      Log.debug("[OIDCServiceImpl.authorizeClient] client not found");
+      Log.debug("client not found");
       throw new OIDCAuthorizationException();
     }
 
@@ -223,7 +223,7 @@ public class OIDCServiceImpl implements OIDCService {
         .orElseThrow(OIDCAuthorizationException::new);
 
     if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
-      Log.debug("[OIDCServiceImpl.authorizeClient] client secret not valid");
+      Log.debug("client secret not valid");
       throw new OIDCAuthorizationException();
     }
   }

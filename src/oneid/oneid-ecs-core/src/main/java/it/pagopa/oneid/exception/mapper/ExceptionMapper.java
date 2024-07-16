@@ -55,7 +55,7 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapException(Exception exception) {
-    Log.error("[ExceptionMapper.mapException]: " + ExceptionUtils.getStackTrace(
+    Log.error(ExceptionUtils.getStackTrace(
         exception));
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
@@ -66,9 +66,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapJakartaResourceNotFoundException(
       jakarta.ws.rs.NotFoundException jakartaResourceNotFoundException) {
-    Log.error(
-        "[ExceptionMapper.mapJakartaResourceNotFoundException]: "
-            + jakartaResourceNotFoundException.getMessage());
+    Log.error(jakartaResourceNotFoundException.getMessage());
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
     return RestResponse.status(status, buildErrorResponse(status, message));
@@ -107,7 +105,7 @@ public class ExceptionMapper {
               new URI(uri))
           .build();
     } catch (URISyntaxException e) {
-      Log.error("[ExceptionMapper.authenticationErrorResponse] invalid URI for redirecting: "
+      Log.error("invalid URI for redirecting: "
           + e.getMessage());
       return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
     }

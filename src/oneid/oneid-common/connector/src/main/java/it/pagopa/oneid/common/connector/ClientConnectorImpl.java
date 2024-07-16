@@ -33,7 +33,7 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<ArrayList<Client>> findAll() {
-    Log.debug("[ClientConnectorImpl.findAll] start");
+    Log.debug("start");
     ArrayList<Client> clients = new ArrayList<>();
     ScanEnhancedRequest request = ScanEnhancedRequest.builder()
         .build();
@@ -46,13 +46,13 @@ public class ClientConnectorImpl implements ClientConnector {
     if (!clients.isEmpty()) {
       return Optional.of(clients);
     }
-    Log.debug("[ClientConnectorImpl.findAll] table Client is empty");
+    Log.debug("table Client is empty");
     return Optional.empty();
   }
 
   @Override
   public Optional<SecretDTO> getClientSecret(String clientId) {
-    Log.debug("[ClientConnectorImpl.getClientSecret] start");
+    Log.debug("start");
     return Optional.of(
         clientExtendedMapper.getItem(Key.builder().partitionValue(clientId).build())).map(
         ClientExtended::clientSecretDTO

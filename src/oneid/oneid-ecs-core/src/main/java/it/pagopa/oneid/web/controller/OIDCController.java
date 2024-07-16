@@ -97,7 +97,7 @@ public class OIDCController {
   @Path("/keys")
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
-    Log.info("[OIDCController.keys] start");
+    Log.info("start");
     return Response.ok(oidcServiceImpl.getJWSKPublicKey()).build();
   }
 
@@ -106,7 +106,7 @@ public class OIDCController {
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizePost(
       @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
-    Log.info("[OIDCController.authorizePost] start");
+    Log.info("start");
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
     } catch (OneIdentityException e) {
@@ -119,7 +119,7 @@ public class OIDCController {
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizeGet(
       @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
-    Log.info("[OIDCController.authorizeGet] start");
+    Log.info("start");
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
     } catch (OneIdentityException e) {
@@ -129,19 +129,19 @@ public class OIDCController {
 
   private Response handleAuthorize(
       AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
-    Log.info("[OIDCController.handleAuthorize] start");
+    Log.info("start");
     Optional<EntityDescriptor> idp;
 
     // 1. Check if clientId exists
     if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
-      Log.debug("[OIDCController.handleAuthorize] selected Client not found");
+      Log.debug("selected Client not found");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
     // 1. Check if callbackUri exists among clientId parameters
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
-      Log.debug("[OIDCController.handleAuthorize] redirect URI not found");
+      Log.debug("redirect URI not found");
       throw new CallbackURINotFoundException();
     }
 
@@ -150,13 +150,13 @@ public class OIDCController {
       idp = samlServiceImpl.getEntityDescriptorFromEntityID(
           authorizationRequestDTOExtended.getIdp());
       if (idp.isEmpty()) {
-        Log.debug("[OIDCController.handleAuthorize] selected IDP not found");
+        Log.debug("selected IDP not found");
         throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
             authorizationRequestDTOExtended.getState());
       }
     } catch (OneIdentityException e) {
       Log.error(
-          "[OIDCController.handleAuthorize] error getting EntityDescriptor from provided EntityID");
+          "error getting EntityDescriptor from provided EntityID");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
@@ -164,7 +164,7 @@ public class OIDCController {
     if (authorizationRequestDTOExtended.getScope() != null
         && !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error(
-          "[OIDCController.handleAuthorize] scope not supported");
+          "scope not supported");
       throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
     }
@@ -172,7 +172,7 @@ public class OIDCController {
     // 5. Check if response type is "code"
     if (!authorizationRequestDTOExtended.getResponseType().equals(ResponseType.CODE)) {
       Log.error(
-          "[OIDCController.handleAuthorize] response type not supported");
+          "response type not supported");
       throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
     }
@@ -193,7 +193,7 @@ public class OIDCController {
           client.getAuthLevel().getValue());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
              OneIdentityException e) {
-      Log.error("[OIDCController.handleAuthorize] error building authorization request: "
+      Log.error("error building authorization request: "
           + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
@@ -217,7 +217,7 @@ public class OIDCController {
     try {
       samlSessionServiceImpl.saveSession(samlSession);
     } catch (SessionException e) {
-      Log.error("[OIDCController.handleAuthorize] error during session management "
+      Log.error("error during session management "
           + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
@@ -243,7 +243,7 @@ public class OIDCController {
   @Produces(MediaType.APPLICATION_JSON)
   public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
-    Log.info("[OIDCController.token] start");
+    Log.info("start");
 
     String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
 
@@ -281,7 +281,7 @@ public class OIDCController {
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
-    Log.debug("[OIDCController.token] end");
+    Log.debug("end");
 
     return tokenDataDTO;
   }

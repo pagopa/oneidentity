@@ -17,12 +17,12 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
 
   @Override
   public void saveSession(T session) throws SessionException {
-    Log.debug("[SessionServiceImpl.saveSession] start");
+    Log.debug("start");
     if (session != null) {
-      Log.debug("[SessionServiceImpl.saveSession] session successfully saved");
+      Log.debug("session successfully saved");
       sessionConnectorImpl.saveSessionIfNotExists(session);
     } else {
-      Log.error("[SessionServiceImpl.saveSession] session object is null");
+      Log.error("session object is null");
       throw new SessionException();
     }
   }
@@ -30,34 +30,34 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
   @Override
   public T getSession(String id, RecordType recordType)
       throws SessionException {
-    Log.debug("[SessionServiceImpl.getSession] start");
+    Log.debug("start");
     return sessionConnectorImpl.findSession(id, recordType).orElseThrow(SessionException::new);
   }
 
   @Override
   public void setSAMLResponse(String samlRequestID, String response) throws SessionException {
-    Log.debug("[SessionServiceImpl.setSAMLResponse] start");
+    Log.debug("start");
     sessionConnectorImpl.updateSAMLSession(samlRequestID, response);
   }
 
   @Override
   public SAMLSession getSAMLSessionByCode(String code) throws SessionException {
-    Log.debug("[SessionServiceImpl.getSAMLSessionByCode] start");
+    Log.debug("start");
     return getSAMLSessionByCodeAndRecord(code, RecordType.OIDC);
   }
 
   @Override
   public String getSAMLResponseByCode(String code) throws SessionException {
-    Log.debug("[SessionServiceImpl.getSAMLResponseByCode] start");
+    Log.debug("start");
     return getSAMLSessionByCodeAndRecord(code, RecordType.ACCESS_TOKEN).getSAMLResponse();
   }
 
   private SAMLSession getSAMLSessionByCodeAndRecord(String code, RecordType recordType)
       throws SessionException {
-    Log.debug("[SessionServiceImpl.getSAMLSessionByCodeAndRecord] start");
+    Log.debug("start");
     T oidcSession = sessionConnectorImpl.findSession(code, recordType)
         .orElseThrow(SessionException::new);
-    Log.debug("[SessionServiceImpl.getSAMLSessionByCodeAndRecord] end");
+    Log.debug("end");
     return (SAMLSession) sessionConnectorImpl.findSession(
         oidcSession.getSamlRequestID(),
         RecordType.SAML).orElseThrow(SessionException::new);

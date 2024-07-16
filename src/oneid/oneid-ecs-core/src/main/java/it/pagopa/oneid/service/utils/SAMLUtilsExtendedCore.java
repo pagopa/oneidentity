@@ -90,7 +90,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private String getAttributeValue(XMLObject attributeValue) {
-    Log.debug("[SAMLUtilsExtendedCore.getAttributeValue] start");
+    Log.debug("start");
 
     return attributeValue == null ?
         null :
@@ -110,7 +110,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
-    Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] start");
+    Log.debug("start");
     List<AttributeDTO> attributes = new ArrayList<>();
     for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
       for (Attribute attribute : attributeStatement.getAttributes()) {
@@ -121,13 +121,13 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         }
       }
     }
-    Log.debug("[SAMLUtilsExtendedCore.getAttributeDTOListFromAssertion] end");
+    Log.debug("end");
     return Optional.of(attributes);
   }
 
   public Response getSAMLResponseFromString(String SAMLResponse)
       throws OneIdentityException {
-    Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] start");
+    Log.debug("start");
 
     byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
 
@@ -136,7 +136,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
       Log.error(
-          "[it.pagopa.oneid.common.utils.SAMLUtils.getSAMLResponseFromString] Error unmarshalling "
+          "error unmarshalling "
               + e.getMessage());
       throw new OneIdentityException(e);
     }
@@ -144,7 +144,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public void validateSignature(Response response, String entityID)
       throws SAMLUtilsException, SAMLValidationException {
-    Log.debug("[it.pagopa.oneid.common.utils.SAMLUtils.validateSignature] start");
+    Log.debug("start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
@@ -158,12 +158,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
           SignatureValidator.validate(response.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[SAMLUtils.validateSignature] Error during Response signature validation "
+              "error during Response signature validation "
                   + e.getMessage());
           throw new SAMLValidationException(e);
         }
       } else {
-        Log.error("[SAMLUtils.validateSignature] Response signature not present");
+        Log.error("Response signature not present");
         throw new SAMLValidationException();
       }
       // Validate 'Assertion' signature
@@ -173,17 +173,17 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
           SignatureValidator.validate(assertion.getSignature(), credential.get());
         } catch (SignatureException e) {
           Log.error(
-              "[SAMLUtils.validateSignature] Error during Assertion signature validation "
+              "error during Assertion signature validation "
                   + e.getMessage());
           throw new SAMLValidationException(e);
         }
       } else {
-        Log.error("[SAMLUtils.validateSignature] Assertion signature not present");
+        Log.error("Assertion signature not present");
         throw new SAMLValidationException();
       }
     } else {
       Log.error(
-          "[SAMLUtils.validateSignature] credential not found for selected IDP "
+          "credential not found for selected IDP "
               + assertion.getIssuer().getValue());
       throw new SAMLValidationException("Credential not found for selected IDP");
     }
