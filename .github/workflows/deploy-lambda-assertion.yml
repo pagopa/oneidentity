@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       
       - name: Zip Lambda  
-        run: zip -r9 ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip ./src/oneid/oneid-lambda-assertion/index.py
+        run: mkdir -p ./src/oneid/oneid-lambda-assertion/target && zip -r9 ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip ./src/oneid/oneid-lambda-assertion/*
     
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
