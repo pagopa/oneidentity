@@ -46,8 +46,8 @@ jobs:
           path: ./src/oneid/oneid-lambda-assertion/
 
       - name: List build artifacts
-        run: |
-        ls -l ./src/oneid/oneid-lambda-assertion/   
+        run: | 
+          ls -l ./src/oneid/oneid-lambda-assertion/   
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
