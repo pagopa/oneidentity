@@ -288,7 +288,7 @@
         }
       }
     },
-    "/connect/register" : {
+    "/oidc/register" : {
       "post" : {
         "x-amazon-apigateway-integration" : {
           "httpMethod" : "POST",
