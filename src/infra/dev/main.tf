@@ -44,11 +44,12 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
-  metadata_lamba_name       = module.backend.metadata_lambda_name
-  metadata_lamba_arn        = module.backend.metadata_lambda_arn
-  aws_region                = var.aws_region
-  api_cache_cluster_enabled = var.api_cache_cluster_enabled
-  api_method_settings       = var.api_method_settings
+  metadata_lamba_name            = module.backend.metadata_lambda_name
+  metadata_lamba_arn             = module.backend.metadata_lambda_arn
+  client_registration_lambda_arn = module.backend.client_registration_lambda_arn
+  aws_region                     = var.aws_region
+  api_cache_cluster_enabled      = var.api_cache_cluster_enabled
+  api_method_settings            = var.api_method_settings
 
   create_alb_spid_validator = true
   alb_spid_validator_name   = format("%s-spid-validator-alb", local.project)
@@ -66,7 +67,6 @@ module "storage" {
   }
 
 }
-
 
 module "backend" {
   source = "../modules/backend"
