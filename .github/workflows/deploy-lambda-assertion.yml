@@ -23,16 +23,6 @@ jobs:
       steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'  # Specify the Python version
-      
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-        with:
-           path: ./src/oneid/oneid-lambda-assertion/requirements.txt
         
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
@@ -52,7 +42,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
-          name: metadata-lambda
+          name: assertion-lambda
           path: ./src/oneid/oneid-lambda-assertion/target
 
       - name: Configure AWS Credentials
