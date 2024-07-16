@@ -151,7 +151,7 @@ module "assertion_lambda" {
   create_package = true
   source_path    = var.assertion_lambda.source_path
 
-  //ignore_source_code_hash = true
+  ignore_source_code_hash = true
 
   publish = true
 
