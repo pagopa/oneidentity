@@ -28,7 +28,11 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: assertion-lambda
-          path: ./src/oneid/oneid-lambda-assertion/index.py
+          path: ./src/oneid/oneid-lambda-assertion/
+
+      - name: List build artifacts
+        run: | 
+          ls -l ./src/oneid/oneid-lambda-assertion/     
 
     deploy:
       runs-on: ubuntu-22.04
@@ -55,8 +59,8 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
    
-      - name: Deploy Lambda function
-        run: |
-            aws lambda update-function-code \
-            --function-name oneid-es-1-d-assertion \
-            --zip-file fileb://src/oneid/oneid-lambda-assertion/assertion-lambda.zip
+     # - name: Deploy Lambda function
+      #  run: |
+       #     aws lambda update-function-code \
+       #     --function-name oneid-es-1-d-assertion \
+        #    --zip-file fileb://src/oneid/oneid-lambda-assertion/assertion-lambda.zip
