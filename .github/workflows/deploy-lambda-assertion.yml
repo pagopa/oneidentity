@@ -23,16 +23,19 @@ jobs:
       steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
-        
+      
+      - name: Zip Lambda  
+        run: zip -r9 ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip ./src/oneid/oneid-lambda-assertion/index.py
+    
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: assertion-lambda
-          path: ./src/oneid/oneid-lambda-assertion/assertion-lambda.zip
+          path: ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip
 
       - name: List build artifacts
         run: | 
-          ls -l ./src/oneid/oneid-lambda-assertion/     
+          ls -l ./src/oneid/oneid-lambda-assertion/target     
 
     deploy:
       runs-on: ubuntu-22.04
@@ -47,11 +50,11 @@ jobs:
         uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
           name: assertion-lambda
-          path: ./src/oneid/oneid-lambda-assertion/
+          path: ./src/oneid/oneid-lambda-assertion/target
 
       - name: List build artifacts
         run: | 
-          ls -l ./src/oneid/oneid-lambda-assertion/   
+          ls -l ./src/oneid/oneid-lambda-assertion/target   
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
