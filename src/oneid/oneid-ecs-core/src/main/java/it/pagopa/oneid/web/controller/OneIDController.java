@@ -12,22 +12,22 @@ import jakarta.ws.rs.core.Response;
 @Path("/")
 public class OneIDController {
 
-  @Inject
-  OIDCServiceImpl oidcServiceImpl;
+    @Inject
+    OIDCServiceImpl oidcServiceImpl;
 
-  // TODO replace with quarkus default health check
-  @GET
-  @Path("/ping")
-  public Response ping() {
-    return Response.ok("Ping").build();
-  }
+    // TODO replace with quarkus default health check
+    @GET
+    @Path("/ping")
+    public Response ping() {
+        return Response.ok("Ping").build();
+    }
 
-  @GET
-  @Path("/.well-known/openid-configuration")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response openIDConfig() {
-    Log.info("[OneIDController.openIDConfig] start");
-    return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
-  }
+    @GET
+    @Path("/.well-known/openid-configuration")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response openIDConfig() {
+        Log.info("start");
+        return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
+    }
 
 }
