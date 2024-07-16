@@ -33,8 +33,25 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+import org.jetbrains.annotations.NotNull;
 
 public class ExceptionMapper {
+
+  private static @NotNull String getUri(String callbackUri, String errorCode,
+      String errorMessage, String state) {
+    String uri;
+    if (state != null) {
+      uri = callbackUri +
+          "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
+          StandardCharsets.UTF_8)
+          + "&state=" + state;
+    } else {
+      uri = callbackUri +
+          "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
+          StandardCharsets.UTF_8);
+    }
+    return uri;
+  }
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapException(Exception exception) {
@@ -83,13 +100,11 @@ public class ExceptionMapper {
       String errorMessage,
       String state) {
     try {
+      String uri = getUri(callbackUri, errorCode, errorMessage, state);
       return ResponseBuilder
           .create(FOUND)
           .location(
-              new URI(callbackUri +
-                  "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
-                  StandardCharsets.UTF_8)
-                  + "&state=" + state))
+              new URI(uri))
           .build();
     } catch (URISyntaxException e) {
       Log.error("[ExceptionMapper.authenticationErrorResponse] invalid URI for redirecting: "
