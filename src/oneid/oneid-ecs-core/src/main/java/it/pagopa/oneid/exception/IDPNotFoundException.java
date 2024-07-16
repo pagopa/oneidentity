@@ -1,19 +1,13 @@
 package it.pagopa.oneid.exception;
 
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import lombok.Getter;
 
-public class IDPNotFoundException extends OneIdentityException {
+@Getter
+public class IDPNotFoundException extends AuthorizationErrorException {
 
-  public IDPNotFoundException() {
-    super(ErrorCode.IDPNOT_FOUND);
-  }
 
-  public IDPNotFoundException(String customErrorMessage) {
-    super(customErrorMessage);
-  }
-
-  public IDPNotFoundException(Throwable cause) {
-    super(cause);
+  public IDPNotFoundException(String callbackUri, String state) {
+    super(String.valueOf(ErrorCode.IDP_NOT_FOUND), callbackUri, state);
   }
 }

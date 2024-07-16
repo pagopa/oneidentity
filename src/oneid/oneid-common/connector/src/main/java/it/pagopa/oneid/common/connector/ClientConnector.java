@@ -10,4 +10,7 @@ public interface ClientConnector {
   Optional<ArrayList<Client>> findAll();
 
   Optional<SecretDTO> getClientSecret(String clientId);
+
+  //TODO add Exception
+  void saveClientIfNotExists(Client client);
 }

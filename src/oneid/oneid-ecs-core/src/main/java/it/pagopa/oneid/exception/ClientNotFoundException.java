@@ -1,19 +1,14 @@
 package it.pagopa.oneid.exception;
 
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import lombok.Getter;
 
-public class ClientNotFoundException extends OneIdentityException {
+@Getter
+public class ClientNotFoundException extends AuthorizationErrorException {
 
-  public ClientNotFoundException() {
-    super(ErrorCode.CLIENT_NOT_FOUND);
+
+  public ClientNotFoundException(String callbackUri, String state) {
+    super(String.valueOf(ErrorCode.CLIENT_NOT_FOUND), callbackUri, state);
   }
 
-  public ClientNotFoundException(String customErrorMessage) {
-    super(customErrorMessage);
-  }
-
-  public ClientNotFoundException(Throwable cause) {
-    super(cause);
-  }
 }

@@ -3,7 +3,6 @@
 resource "aws_iam_role_policy_attachment" "deploy_lambda" {
   role       = aws_iam_role.github_lambda_deploy.name
   policy_arn = aws_iam_policy.deploy_lambda.id
-
 }
 
 ## Deploy with github action
@@ -123,5 +122,52 @@ module "metadata_lambda" {
   memory_size = 512
   timeout     = 30
   snap_start  = true
+
+}
+
+## Assertion Lambda ##
+data "aws_iam_policy_document" "assertion_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.assertion_lambda.s3_assertion_bucket_arn}/*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:GenerateDataKey"]
+    resources = [var.assertion_lambda.kms_assertion_key_arn]
+  }
+}
+
+module "assertion_lambda" {
+  source         = "terraform-aws-modules/lambda/aws"
+  version        = "7.4.0"
+  count          = local.dynamodb_stream_enabled ? 1 : 0
+  function_name  = var.assertion_lambda.name
+  description    = "Lambda function assertion."
+  runtime        = "python3.8"
+  handler        = "index.lambda_handler"
+  create_package = true
+  source_path    = var.assertion_lambda.source_path
+
+  //ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.assertion_lambda.json
+
+  environment_variables = var.assertion_lambda.environment_variables
+
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_pipes_pipe.sessions[0].arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
 
 }

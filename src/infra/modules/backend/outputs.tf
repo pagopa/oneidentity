@@ -56,3 +56,8 @@ output "metadata_lambda_arn" {
 output "client_registration_lambda_arn" {
   value = module.client_registration_lambda.lambda_function_arn
 }
+
+## Metadata lambda ##
+output "assertion_lambda_arn" {
+  value = module.assertion_lambda[0].lambda_function_arn
+}

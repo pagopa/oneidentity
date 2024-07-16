@@ -178,6 +178,24 @@ module "backend" {
     }
   }
 
+
+  dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
+  eventbridge_pipe_sessions = {
+    pipe_name                = format("%s-sessions-pipe", local.project)
+    kms_sessions_table_alias = module.database.kms_sessions_table_alias_arn
+  }
+
+  assertion_lambda = {
+    name                    = format("%s-assertion", local.project)
+    source_path             = "${path.module}/../../oneid/oneid-lambda-assertion"
+    s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
+    kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
+
+    environment_variables = {
+      S3_BUCKET = module.storage.assertions_bucket_name
+    }
+  }
+
   spid_validator = {
     service_name = format("%s-spid-validator", local.project)
     container = {
@@ -200,9 +218,6 @@ module "database" {
 
   account_id = data.aws_caller_identity.current.account_id
 
-  eventbridge_pipe_sessions = {
-    pipe_name = format("%s-sessions-pipe", local.project)
-  }
 }
 
 

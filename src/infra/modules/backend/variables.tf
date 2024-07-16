@@ -151,3 +151,27 @@ variable "spid_validator" {
 
   default = null
 }
+
+variable "assertion_lambda" {
+  type = object({
+    name                    = string
+    source_path             = string
+    s3_assertion_bucket_arn = string
+    kms_assertion_key_arn   = string
+    environment_variables   = map(string)
+  })
+}
+
+
+variable "eventbridge_pipe_sessions" {
+  type = object({
+    pipe_name                = string
+    kms_sessions_table_alias = string
+  })
+  default = null
+}
+
+variable "dynamodb_table_stream_arn" {
+  type    = string
+  default = null
+}

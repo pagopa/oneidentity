@@ -12,8 +12,4 @@ public class SessionException extends OneIdentityException {
   public SessionException(String customErrorMessage) {
     super(customErrorMessage);
   }
-
-  public SessionException(Throwable cause) {
-    super(cause);
-  }
 }

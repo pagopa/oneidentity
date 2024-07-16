@@ -235,7 +235,6 @@ variable "rest_api_throttle_settings" {
   }
 }
 
-
 variable "tags" {
   type = map(any)
   default = {
