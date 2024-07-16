@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: assertion-lambda
-          path: ./src/oneid/oneid-lambda-assertion/
+          path: ./src/oneid/oneid-lambda-assertion/assertion-lambda.zip
 
       - name: List build artifacts
         run: | 
