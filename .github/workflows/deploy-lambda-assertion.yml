@@ -32,11 +32,7 @@ jobs:
         with:
           name: assertion-lambda
           path: ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip
-
-      - name: List build artifacts
-        run: | 
-          ls -l ./src/oneid/oneid-lambda-assertion/target     
-
+ 
     deploy:
       runs-on: ubuntu-22.04
       needs: build
@@ -51,10 +47,6 @@ jobs:
         with:
           name: assertion-lambda
           path: ./src/oneid/oneid-lambda-assertion/target
-
-      - name: List build artifacts
-        run: | 
-          ls -l ./src/oneid/oneid-lambda-assertion/target   
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
