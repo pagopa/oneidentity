@@ -20,7 +20,6 @@ public class AuthorizationRequestDTOExtendedGet {
   @Size(max = 255)
   @RestQuery("client_id")
   private String clientId;
-  
   @NotNull
   @RestQuery("response_type")
   private ResponseType responseType;
