@@ -63,6 +63,8 @@ module "ecs_spid_validator" {
         }
       ]
 
+      environment = var.spid_validator.container.environment
+
       log_configuration = {
         logDriver = "awslogs"
         options = {
