@@ -11,9 +11,11 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
+import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 @ApplicationScoped
@@ -33,7 +35,7 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<ArrayList<Client>> findAll() {
-    Log.debug("[ClientConnectorImpl.findAll] start");
+    Log.debug("start");
     ArrayList<Client> clients = new ArrayList<>();
     ScanEnhancedRequest request = ScanEnhancedRequest.builder()
         .build();
@@ -46,16 +48,29 @@ public class ClientConnectorImpl implements ClientConnector {
     if (!clients.isEmpty()) {
       return Optional.of(clients);
     }
-    Log.debug("[ClientConnectorImpl.findAll] table Client is empty");
+    Log.debug("table Client is empty");
     return Optional.empty();
   }
 
   @Override
   public Optional<SecretDTO> getClientSecret(String clientId) {
-    Log.debug("[ClientConnectorImpl.getClientSecret] start");
+    Log.debug("start");
     return Optional.of(
         clientExtendedMapper.getItem(Key.builder().partitionValue(clientId).build())).map(
         ClientExtended::clientSecretDTO
     );
+  }
+
+  @Override
+  public void saveClientIfNotExists(ClientExtended client) {
+    Log.debug("start");
+    clientExtendedMapper.putItem(
+        PutItemEnhancedRequest.builder(ClientExtended.class)
+            .item(client)
+            .conditionExpression(
+                Expression.builder().expression(
+                        "attribute_not_exists(clientId)")
+                    .build())
+            .build());
   }
 }

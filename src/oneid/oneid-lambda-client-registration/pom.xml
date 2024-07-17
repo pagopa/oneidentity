@@ -13,36 +13,57 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-amazon-lambda-rest</artifactId>
+            <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy</artifactId>
+            <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-config-yaml</artifactId>
+            <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <groupId>com.nimbusds</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>lombok</artifactId>
+            <groupId>org.projectlombok</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>quarkus-amazon-dynamodb-enhanced</artifactId>
+            <groupId>io.quarkiverse.amazonservices</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>connector</artifactId>
+            <groupId>it.pagopa.oneid.common</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>utils</artifactId>
+            <groupId>it.pagopa.oneid.common</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>model</artifactId>
+            <groupId>it.pagopa.oneid.common</groupId>
+        </dependency>
+        <dependency>
             <artifactId>quarkus-junit5</artifactId>
+            <groupId>io.quarkus</groupId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
+            <groupId>io.rest-assured</groupId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>
             <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
@@ -52,19 +73,21 @@
                         </goals>
                     </execution>
                 </executions>
+                <extensions>true</extensions>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <version>${quarkus.platform.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
+                <version>${compiler-plugin.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager
@@ -72,10 +95,20 @@
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
                 </configuration>
+                <version>${surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager
+                        </java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                        <native.image.path>
+                            ${project.build.directory}/${project.build.finalName}-runner
+                        </native.image.path>
+                    </systemPropertyVariables>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -84,31 +117,22 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <systemPropertyVariables>
-                        <native.image.path>
-                            ${project.build.directory}/${project.build.finalName}-runner
-                        </native.image.path>
-                        <java.util.logging.manager>org.jboss.logmanager.LogManager
-                        </java.util.logging.manager>
-                        <maven.home>${maven.home}</maven.home>
-                    </systemPropertyVariables>
-                </configuration>
+                <version>${surefire-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>native</id>
             <activation>
                 <property>
                     <name>native</name>
                 </property>
             </activation>
+            <id>native</id>
             <properties>
-                <skipITs>false</skipITs>
                 <quarkus.native.enabled>true</quarkus.native.enabled>
+                <skipITs>false</skipITs>
             </properties>
         </profile>
     </profiles>

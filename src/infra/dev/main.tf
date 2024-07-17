@@ -22,9 +22,7 @@ module "network" {
 }
 
 module "frontend" {
-  source            = "../modules/frontend"
-  vpc_id            = module.network.vpc_id
-  public_subnet_ids = module.network.public_subnet_ids
+  source = "../modules/frontend"
 
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
@@ -44,15 +42,13 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
-  metadata_lamba_name       = module.backend.metadata_lambda_name
-  metadata_lamba_arn        = module.backend.metadata_lambda_arn
-  aws_region                = var.aws_region
-  api_cache_cluster_enabled = var.api_cache_cluster_enabled
-  api_method_settings       = var.api_method_settings
+  metadata_lamba_name            = module.backend.metadata_lambda_name
+  metadata_lamba_arn             = module.backend.metadata_lambda_arn
+  client_registration_lambda_arn = module.backend.client_registration_lambda_arn
+  aws_region                     = var.aws_region
+  api_cache_cluster_enabled      = var.api_cache_cluster_enabled
+  api_method_settings            = var.api_method_settings
 
-  create_alb_spid_validator = true
-  alb_spid_validator_name   = format("%s-spid-validator-alb", local.project)
-  vpc_cidr_block            = module.network.vpc_cidr_block
 }
 
 module "storage" {
@@ -66,7 +62,6 @@ module "storage" {
   }
 
 }
-
 
 module "backend" {
   source = "../modules/backend"
@@ -180,37 +175,49 @@ module "backend" {
   }
 
   assertion_lambda = {
-    name                       = format("%s-assertion", local.project)
-    filename                   = "${path.module}/../../oneid/oneid-lambda-assertion/assertion.py"
-    kms_sessions_table_alias   = module.database.kms_sessions_table_alias_arn
-    environment_variables      = {BUCKET = module.storage.assertions_bucket_name}
-  }
+    name                    = format("%s-assertion", local.project)
+    source_path             = "${path.module}/../../oneid/oneid-lambda-assertion"
+    s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
+    kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
-  #TODO: this goes to the module spid validator.
-  /* 
+    environment_variables = {
+      S3_BUCKET = module.storage.assertions_bucket_name
+    }
+  }
+}
+
+module "spid_validator" {
+  source = "../modules/spid-validator"
+
+  aws_region = var.aws_region
+
+  ecr_repository_name = format("%s-spid-validator", local.project)
+
   spid_validator = {
+    cluster_arn  = module.backend.ecs_cluster_arn
     service_name = format("%s-spid-validator", local.project)
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
       image_version = "1.2.0"
     }
-    alb_target_group_arn  = module.frontend.spid_validator_alb_target_group_arn
-    alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
-
   }
-  */
+
+  vpc_id              = module.network.vpc_id
+  public_subnet_ids   = module.network.public_subnet_ids
+  private_subnets_ids = module.network.private_subnet_ids
+
+  alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
+  vpc_cidr_block          = module.network.vpc_cidr_block
+
+  zone_id   = module.frontend.route53_zone_id
+  zone_name = module.frontend.zone_name
 
 }
 
 module "database" {
-  source = "../modules/database"
-
-  sessions_table             = var.sessions_table
-  client_registrations_table = var.client_registrations_table
-
-  account_id = data.aws_caller_identity.current.account_id
-
+  source         = "../modules/database"
+  sessions_table = var.sessions_table
 }
 
 

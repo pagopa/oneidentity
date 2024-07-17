@@ -1,3 +1,9 @@
+variable "aws_region" {
+  type        = string
+  description = "AWS region."
+
+}
+
 variable "ecr_repository_name" {
   type        = string
   description = "ECR repository name for spid validator."
@@ -23,9 +29,6 @@ variable "spid_validator" {
       memory              = optional(number, 1024)
       logs_retention_days = optional(number, 14)
     })
-    alb_target_group_arn  = string
-    alb_security_group_id = string
-
   })
 
   description = "Spid validator configurations. When null the resources won't be created."
@@ -33,14 +36,14 @@ variable "spid_validator" {
   default = null
 }
 
-variable "domain_name" {
-  type        = string
-  description = "Spid validator domain name."
-}
-
 variable "zone_id" {
   type        = string
   description = "Zone id where to create the validation record for the ACM certificates."
+}
+
+variable "zone_name" {
+  type        = string
+  description = "R53 zone name."
 }
 
 variable "alb_spid_validator_name" {
@@ -61,4 +64,9 @@ variable "public_subnet_ids" {
 variable "vpc_cidr_block" {
   type        = string
   description = "VPC cids block."
+}
+
+variable "private_subnets_ids" {
+  type        = list(string)
+  description = "Private subnets id"
 }

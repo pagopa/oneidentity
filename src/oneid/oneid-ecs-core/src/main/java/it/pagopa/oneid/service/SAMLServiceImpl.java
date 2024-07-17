@@ -39,14 +39,14 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
-    Log.debug("[SAMLServiceImpl.checkSAMLStatus] start");
+    Log.debug("start");
     String statusCode = "";
     String statusMessage = "";
     if (response.getStatus() != null) {
       if (response.getStatus().getStatusCode() != null) {
         statusCode = response.getStatus().getStatusCode().getValue();
       } else {
-        Log.error("[SAMLServiceImpl.checkSAMLStatus] SAML Status Code cannot be null");
+        Log.error("SAML Status Code cannot be null");
         throw new OneIdentityException("Status Code not set.");
       }
       if (response.getStatus().getStatusMessage() != null) {
@@ -58,13 +58,13 @@ public class SAMLServiceImpl implements SAMLService {
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (!statusMessage.isEmpty()) {
-        Log.debug("[SAMLServiceImpl.checkSAMLStatus] SAML Response status code: " + statusCode
+        Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
         throw new SAMLResponseStatusException(
             ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_")).getErrorCode());
       } else {
         Log.error(
-            "[SAMLServiceImpl.checkSAMLStatus] SAML Status message not found for " + statusCode
+            "SAML Status message not found for " + statusCode
                 + " status code");
         throw new OneIdentityException("Status message not set.");
       }
@@ -131,14 +131,14 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID)
       throws OneIdentityException {
-    Log.debug("[SAMLServiceImpl.validateSAMLResponse] start");
+    Log.debug("start");
 
     Assertion assertion;
     try {
       assertion = samlResponse.getAssertions().getFirst();
     } catch (NoSuchElementException e) {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] Assertion not found");
+          "assertion not found");
       throw new SAMLValidationException();
     }
 
@@ -148,7 +148,7 @@ public class SAMLServiceImpl implements SAMLService {
 
     if (subjectConfirmationData == null) {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData not found");
+          "SubjectConfirmationData not found");
       throw new SAMLValidationException();
     }
 
@@ -156,25 +156,25 @@ public class SAMLServiceImpl implements SAMLService {
     if (subjectConfirmationData.getRecipient() != null) {
       if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
         Log.error(
-            "[SAMLServiceImpl.validateSAMLResponse] Recipient parameter from Subject Confirmation Data does not matches ACS url: "
+            "recipient parameter from Subject Confirmation Data does not matches ACS url: "
                 + subjectConfirmationData.getRecipient());
         throw new SAMLValidationException();
       }
     } else {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData.getRecipient not found");
+          "SubjectConfirmationData.getRecipient not found");
       throw new SAMLValidationException();
     }
     // Check if 'NotOnOrAfter' is expired
     if (subjectConfirmationData.getNotOnOrAfter() != null) {
       if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) >= 0) {
         Log.error(
-            "[SAMLServiceImpl.validateSAMLResponse] NotOnOrAfter parameter from Subject Confirmation Data expired");
+            "NotOnOrAfter parameter from Subject Confirmation Data expired");
         throw new SAMLValidationException();
       }
     } else {
       Log.error(
-          "[SAMLServiceImpl.validateSAMLResponse] SubjectConfirmationData.getConfirmationData not found");
+          "SubjectConfirmationData.getConfirmationData not found");
       throw new SAMLValidationException();
     }
 
@@ -188,14 +188,14 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
-    Log.debug("[SAMLServiceImpl.getSAMLResponseFromString] start");
+    Log.debug("start");
     return samlUtils.getSAMLResponseFromString(SAMLResponse);
   }
 
   @Override
   public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException {
-    Log.debug("[SAMLServiceImpl.getAttributesFromSAMLResponse] start");
+    Log.debug("start");
     return samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(OneIdentityException::new);
   }

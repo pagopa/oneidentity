@@ -105,7 +105,7 @@ public class MetadataResolverExtended {
       }
     } catch (ResolverException e) {
       Log.error(
-          "[MetadataResolverExtended.getCredential] Error during credential resolving "
+          "error during credential resolving "
               + e.getMessage());
       throw new SAMLUtilsException(e);
     }

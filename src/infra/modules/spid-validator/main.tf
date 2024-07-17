@@ -7,7 +7,6 @@ module "ecr" {
 }
 
 
-
 resource "aws_cloudwatch_log_group" "ecs_spid_validator" {
   name              = format("/aws/ecs/%s/%s", var.spid_validator.service_name, var.spid_validator.container.name)
   retention_in_days = var.spid_validator.container.logs_retention_days
@@ -37,7 +36,7 @@ module "ecs_spid_validator" {
       memory = var.spid_validator.container.memory
 
       essential = true
-      image     = "${module.ecr[var.spid_validator.container.image_name].repository_url}:${var.spid_validator.container.image_version}",
+      image     = "${module.ecr.repository_url}:${var.spid_validator.container.image_version}",
 
       port_mappings = [
         {
@@ -51,7 +50,7 @@ module "ecs_spid_validator" {
       log_configuration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_spid_validator[0].name
+          awslogs-group         = aws_cloudwatch_log_group.ecs_spid_validator.name
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
           mode                  = "non-blocking"
@@ -62,12 +61,12 @@ module "ecs_spid_validator" {
     }
   }
 
-  subnet_ids       = var.private_subnets
+  subnet_ids       = var.private_subnets_ids
   assign_public_ip = false
 
   load_balancer = {
     service = {
-      target_group_arn = var.spid_validator.alb_target_group_arn
+      target_group_arn = module.alb.target_groups["spid_validator"].arn
       container_name   = var.spid_validator.container.name
       container_port   = 8080
     }
@@ -81,7 +80,7 @@ module "ecs_spid_validator" {
       protocol    = "tcp"
       description = "Service port"
 
-      source_security_group_id = var.spid_validator.alb_security_group_id
+      source_security_group_id = module.alb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -95,11 +94,15 @@ module "ecs_spid_validator" {
 
 ## ALB spid validator ##
 
+locals {
+  domain_name = format("validator.%s", var.zone_name)
+}
+
 module "acm_validator" {
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
-  domain_name = var.domain_name
+  domain_name = local.domain_name
 
   zone_id = var.zone_id
 
@@ -107,11 +110,11 @@ module "acm_validator" {
   create_route53_records = true
 
   tags = {
-    Name = var.domain_name
+    Name = local.domain_name
   }
 }
 
-module "alb_spid_validator" {
+module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.8.0"
 
@@ -160,7 +163,7 @@ module "alb_spid_validator" {
       port            = 443
       protocol        = "HTTPS"
       ssl_policy      = "ELBSecurityPolicy-TLS13-1-2-Res-2021-06"
-      certificate_arn = module.acm_validator[0].acm_certificate_arn
+      certificate_arn = module.acm_validator.acm_certificate_arn
 
       forward = {
         target_group_key = "spid_validator"
@@ -192,4 +195,24 @@ module "alb_spid_validator" {
       create_attachment = false
     }
   }
+}
+
+module "record" {
+  source  = "terraform-aws-modules/route53/aws//modules/records"
+  version = "~> 3.0"
+
+  zone_name = var.zone_name
+
+  records = [
+    {
+      name = "validator"
+      type = "A"
+      alias = {
+        name                   = module.alb.dns_name
+        zone_id                = var.zone_id
+        evaluate_target_health = true
+      }
+    }
+  ]
+
 }

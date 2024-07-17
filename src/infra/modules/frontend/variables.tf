@@ -75,18 +75,6 @@ variable "nlb_dns_name" {
   description = "NLB dns name."
 }
 
-## Application load balancer spid test
-variable "create_alb_spid_validator" {
-  type        = bool
-  description = "Create the ALB spid to expose the spid validator."
-  default     = false
-}
-
-variable "alb_spid_validator_name" {
-  type        = string
-  description = "Public application load balancer name for spid validator."
-}
-
 ## Lambda medatada ##  
 
 variable "metadata_lamba_name" {
@@ -94,7 +82,14 @@ variable "metadata_lamba_name" {
   description = "Lambda metadata name"
 }
 
+## Lambda metadata
 variable "metadata_lamba_arn" {
   type        = string
   description = "lambda metadata arn"
+}
+
+## Lambda client registration
+variable "client_registration_lambda_arn" {
+  type        = string
+  description = "lambda client registration arn"
 }

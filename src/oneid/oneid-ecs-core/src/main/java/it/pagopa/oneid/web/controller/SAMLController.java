@@ -55,14 +55,14 @@ public class SAMLController {
   @POST
   @Path("/acs")
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
-    Log.info("[SAMLController.samlACS] start");
+    Log.info("start");
 
     org.opensaml.saml.saml2.core.Response response = null;
     try {
       response = samlServiceImpl.getSAMLResponseFromString(
           samlResponseDTO.getSAMLResponse());
     } catch (OneIdentityException e) {
-      Log.error("[SAMLController.samlACS] error getting SAML Response");
+      Log.error("error getting SAML Response");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
@@ -72,7 +72,7 @@ public class SAMLController {
       samlSession = samlSessionSessionService.getSession(response.getInResponseTo(),
           RecordType.SAML);
     } catch (SessionException e) {
-      Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
+      Log.error("error during session management: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -81,7 +81,7 @@ public class SAMLController {
       samlSessionSessionService.setSAMLResponse(response.getInResponseTo(),
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
-      Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
+      Log.error("error during session management: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -90,7 +90,7 @@ public class SAMLController {
       samlServiceImpl.checkSAMLStatus(response);
     } catch (OneIdentityException e) {
       Log.error(
-          "[SAMLController.samlACS] error during SAMLResponse status check: " + e.getMessage());
+          "error during SAMLResponse status check: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
@@ -99,7 +99,7 @@ public class SAMLController {
       samlServiceImpl.validateSAMLResponse(response,
           samlSession.getAuthorizationRequestDTOExtended().getIdp());
     } catch (OneIdentityException e) {
-      Log.error("[SAMLController.samlACS] error during SAMLResponse validation: " + e.getMessage());
+      Log.error("error during SAMLResponse validation: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
@@ -124,7 +124,7 @@ public class SAMLController {
     try {
       oidcSessionSessionService.saveSession(oidcSession);
     } catch (SessionException e) {
-      Log.error("[SAMLController.samlACS] error during session management: " + e.getMessage());
+      Log.error("error during session management: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -136,13 +136,13 @@ public class SAMLController {
           clientCallbackUri + "?code=" + authorizationCode + "&state="
               + authorizationResponse.getState());
     } catch (URISyntaxException e) {
-      Log.error("[SAMLController.samlACS] error during setting of Callback URI: "
+      Log.error("error during setting of Callback URI: "
           + clientCallbackUri + "error: " + e.getMessage());
-      Log.error("[SAMLController.samlACS] error during creation of Callback URI");
+      Log.error("error during creation of Callback URI");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    Log.info("[SAMLController.samlACS] end");
+    Log.info("end");
 
     // 5. Redirect to client callback URI
     return jakarta.ws.rs.core.Response
@@ -155,13 +155,13 @@ public class SAMLController {
   @Path("/assertion")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
-    Log.info("[SAMLController.assertion] start");
+    Log.info("start");
     String samlResponse = null;
     try {
       samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
           accessToken.getAccessToken());
     } catch (SessionException e) {
-      Log.debug("[SAMLController.assertion] error during session management: " + e.getMessage());
+      Log.debug("error during session management: " + e.getMessage());
       throw new AssertionNotFoundException(e);
     }
     return Response.ok(Base64.getDecoder().decode(samlResponse)).build();

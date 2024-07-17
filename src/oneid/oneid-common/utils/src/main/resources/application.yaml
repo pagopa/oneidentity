@@ -10,3 +10,7 @@ acs_url: ${ACS_URL:http://localhost:8080/saml/acs}
 slo_url: ${SLO_URL:http://localhost:8080/saml/slo}
 contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
+quarkus:
+  log:
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) [%C.%M] %s%e%n"

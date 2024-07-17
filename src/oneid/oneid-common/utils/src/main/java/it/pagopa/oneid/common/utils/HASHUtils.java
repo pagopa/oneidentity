@@ -4,6 +4,8 @@ package it.pagopa.oneid.common.utils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 public class HASHUtils {
 
@@ -28,6 +30,13 @@ public class HASHUtils {
   public static boolean validateSecret(String secret, String salt, String hashedSecret) {
     return hashSecret(secret, salt).equals(hashedSecret);
 
+  }
+
+  public static String generateRandomString(int lengthInBytes) {
+    SecureRandom random = new SecureRandom();
+    byte[] saltBytes = new byte[lengthInBytes];
+    random.nextBytes(saltBytes);
+    return Base64.getEncoder().encodeToString(saltBytes);
   }
 
 }

@@ -3,7 +3,6 @@
 resource "aws_iam_role_policy_attachment" "deploy_lambda" {
   role       = aws_iam_role.github_lambda_deploy.name
   policy_arn = aws_iam_policy.deploy_lambda.id
-
 }
 
 ## Deploy with github action
@@ -52,7 +51,8 @@ data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:GetItem"
+      "dynamodb:GetItem",
+      "dynamodb:PutItem"
     ]
     resources = [
       var.client_registration_lambda.table_client_registrations_arn
@@ -75,8 +75,8 @@ module "client_registration_lambda" {
 
   publish = true
 
-  #attach_policy_json = true
-  #policy_json        = data.aws_iam_policy_document.lambda_webhook2.json
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.client_registration_lambda.json
 
   environment_variables = {
   }
@@ -124,145 +124,46 @@ module "metadata_lambda" {
   snap_start  = true
 
 }
-resource "aws_iam_role" "pipe_sessions" {
-  count = locals.dynamodb_stream_enabled != null ? 1 : 0
-  name  = "${var.eventbridge_pipe_sessions.pipe_name}-role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = {
-      Effect = "Allow"
-      Action = "sts:AssumeRole"
-      Principal = {
-        Service = "pipes.amazonaws.com"
-      }
-      Condition = {
-        StringEquals = {
-          "aws:SourceAccount" = var.account_id
-        }
-      }
-    }
-  })
-}
-
-resource "aws_iam_role_policy" "pipe_source" {
-  count = locals.dynamodb_stream_enabled != null ? 1 : 0
-  name  = "AllowPipeConsumeStream"
-
-  role = aws_iam_role.pipe_sessions[0].id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "dynamodb:GetRecords",
-          "dynamodb:GetShardIterator",
-          "dynamodb:DescribeStream",
-          "dynamodb:ListStreams"
-        ],
-        Resource = [
-          var.dynamodb_table_stream_arn
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt",
-          "kms:Encrypt",
-        ],
-        Resource = [
-          var.assertion_lambda.kms_sessions_table_alias
-        ]
-      }
-    ]
-  })
-}
-
-
-#TODO rename this resource and replace the targe.
-resource "aws_pipes_pipe" "dynamodb_to_lambda" {
-  count    = locals.dynamodb_stream_enabled ? 1 : 0
-  name     = "dynamodb-to-lambda-pipe"
-  role_arn = aws_iam_role.pipe_sessions[0].arn
-  source   = var.dynamodb_table_stream_arn
-
-  target = module.assertion_lambda[0].lambda_function_arn
-  //target = aws_cloudwatch_log_group.pipe_logs[0].arn
-
-  source_parameters {
-    dynamodb_stream_parameters {
-      starting_position = "LATEST"
-    }
-    filter_criteria {
-      filter {
-        pattern = jsonencode(
-          {
-            "$or" : [{
-              "dynamodb" : {
-                "NewImage" : {
-                  "recordType" : {
-                    "S" : ["SAML"]
-                  }
-                }
-              },
-              "eventName" : ["MODIFY"]
-              }, {
-              "dynamodb" : {
-                "NewImage" : {
-                  "recordType" : {
-                    "S" : ["ACCESS_TOKEN"]
-                  }
-                }
-              },
-              "eventName" : ["INSERT"]
-            }]
-          }
-        )
-      }
-    }
+## Assertion Lambda ##
+data "aws_iam_policy_document" "assertion_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.assertion_lambda.s3_assertion_bucket_arn}/*"]
   }
 
-  /*
-  target_parameters {
-    input_template = <<EOF
-{
-  "timestamp": <$.dynamodb.ApproximateCreationDateTime>,
-  "eventName": <$.eventName>,
-  "recordType": <$.dynamodb.NewImage.recordType.S>,
-  "id": <$.dynamodb.NewImage.id.S>
-}
-EOF
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:GenerateDataKey"]
+    resources = [var.assertion_lambda.kms_assertion_key_arn]
   }
-*/
 }
-
-
 
 module "assertion_lambda" {
-  source                 = "terraform-aws-modules/lambda/aws"
-  version                = "7.4.0"
-  count                  = locals.dynamodb_stream_enabled ? 1 : 0
-  function_name          = var.assertion_lambda.name
-  description            = "Lambda function assertion."
-  runtime                = "python3.8"
-  handler                = "assertion.lambda_handler"
-  create_package         = false
-  local_existing_package = var.assertion_lambda.filename
-  //ignore_source_code_hash = true
+  source         = "terraform-aws-modules/lambda/aws"
+  version        = "7.4.0"
+  count          = local.dynamodb_stream_enabled ? 1 : 0
+  function_name  = var.assertion_lambda.name
+  description    = "Lambda function assertion."
+  runtime        = "python3.8"
+  handler        = "index.lambda_handler"
+  create_package = true
+  source_path    = var.assertion_lambda.source_path
+
+  ignore_source_code_hash = true
 
   publish = true
 
-  //attach_policy_json = true
-  //policy_json        = data.aws_iam_policy_document.metadata_lambda.json
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.assertion_lambda.json
 
   environment_variables = var.assertion_lambda.environment_variables
 
   allowed_triggers = {
-    OneRule = {
+    events = {
       principal  = "events.amazonaws.com"
-      source_arn = aws_pipes_pipe.dynamodb_to_lambda[0].arn
-      //source_arn = "arn:aws:events:eu-west-1:${data.aws_caller_identity.current.account_id}:rule/RunDaily"
+      source_arn = aws_pipes_pipe.sessions[0].arn
     }
   }
 

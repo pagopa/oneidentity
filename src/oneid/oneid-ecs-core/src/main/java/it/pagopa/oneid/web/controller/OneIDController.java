@@ -26,7 +26,7 @@ public class OneIDController {
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
   public Response openIDConfig() {
-    Log.info("[OneIDController.openIDConfig] start");
+    Log.info("start");
     return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
   }
 

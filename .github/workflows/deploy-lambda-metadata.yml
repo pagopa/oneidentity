@@ -5,7 +5,7 @@ on:
       branches:
         - "main"
       paths:
-        - "**/src/oneid/oneid-lambda-vervice-metadata/**"
+        - "**/src/oneid/oneid-lambda-metadata/**"
         - "**/src/oneid/oneid-common/**"
     workflow_dispatch:
       inputs:
