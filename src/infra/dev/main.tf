@@ -199,7 +199,7 @@ module "spid_validator" {
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
-      image_version = "1.2.0"
+      image_version = "2.0.0"
       environment = [{
         name  = "NODE_USE_HTTPS"
         value = "false"
