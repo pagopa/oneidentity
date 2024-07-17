@@ -7,6 +7,9 @@ import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
+import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport;
+import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport.Violation;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
@@ -24,18 +27,32 @@ import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ElementKind;
+import jakarta.validation.Path;
+import jakarta.validation.Path.Node;
+import jakarta.validation.ValidationException;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
-import org.jetbrains.annotations.NotNull;
 
 public class ExceptionMapper {
+
+  private static final String VALIDATION_HEADER = "validation-exception";
 
   private static @NotNull String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
@@ -78,6 +95,40 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
+  public RestResponse<Object> mapValidationException(ValidationException validationException) {
+    if (validationException.getCause() instanceof AuthorizationErrorException authorizationErrorException) {
+      Log.error("AuthorizationErrorException encountered");
+      return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
+          OAuth2Error.INVALID_REQUEST_CODE, authorizationErrorException.getMessage(),
+          authorizationErrorException.getState());
+    } else if (validationException.getCause() instanceof GenericHTMLException genericHTMLException) {
+      Log.error("GenericHTMLException encountered");
+      return genericHTMLError(genericHTMLException.getMessage());
+    }
+    if (validationException.getMessage().contains("authorizeGet.arg0.clientId")
+        || validationException.getMessage().contains("authorizePost.arg0.clientId")) {
+      Log.error("Client ID not specified");
+      return genericHTMLError(ErrorCode.GENERIC_HTML_ERROR.getErrorMessage());
+    }
+    // TODO add before this 'if' other cases that must be mapped explicitly
+    if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
+      // Not a violation in a REST endpoint call, but rather in an internal component.
+      // This is an internal error: handle through the QuarkusErrorHandler,
+      // which will return HTTP status 500 and log the exception.
+      Log.error(validationException.getMessage());
+      throw validationException;
+    }
+    if (hasReturnValueViolation(resteasyViolationException.getConstraintViolations())) {
+      // This is an internal error: handle through the QuarkusErrorHandler,
+      // which will return HTTP status 500 and log the exception.
+      Log.error(validationException.getMessage());
+      throw resteasyViolationException;
+    }
+    return buildViolationReportResponse(resteasyViolationException);
+
+  }
+
+  @ServerExceptionMapper
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
     return genericHTMLError(samlResponseStatusException.getMessage());
@@ -87,7 +138,9 @@ public class ExceptionMapper {
     try {
       return ResponseBuilder
           .create(FOUND)
-          .location(new URI(SERVICE_PROVIDER_URI + "/login/error?errorCode=" + errorCode)).build();
+          .location(new URI(
+              SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
+                  StandardCharsets.UTF_8))).build();
     } catch (URISyntaxException e) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
@@ -208,7 +261,8 @@ public class ExceptionMapper {
       AssertionNotFoundException assertionNotFoundException) {
     Response.Status status = NOT_FOUND;
     String message = "Assertion not found.";
-    return ResponseBuilder.create(status, buildErrorResponse(status, message)).build();
+    return ResponseBuilder.create(status, buildErrorResponse(status, message))
+        .type(MediaType.APPLICATION_JSON_TYPE).build();
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
@@ -219,4 +273,44 @@ public class ExceptionMapper {
         .build();
   }
 
+  private RestResponse<Object> buildViolationReportResponse(ConstraintViolationException cve) {
+    Status status = Status.BAD_REQUEST;
+
+    List<Violation> violationsInReport = new ArrayList<>(cve.getConstraintViolations().size());
+    for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
+      violationsInReport.add(
+          new ViolationReport.Violation(cv.getPropertyPath().toString(), cv.getMessage()));
+    }
+
+    return ResponseBuilder
+        .create(status)
+        .header(VALIDATION_HEADER, "true")
+        .entity(new ViolationReport("Constraint Violation", status, violationsInReport))
+        .type(MediaType.APPLICATION_JSON_TYPE)
+        .build();
+
+  }
+
+  private boolean hasReturnValueViolation(Set<ConstraintViolation<?>> violations) {
+    if (violations != null) {
+      for (ConstraintViolation<?> violation : violations) {
+        if (isReturnValueViolation(violation)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean isReturnValueViolation(ConstraintViolation<?> violation) {
+    Iterator<Node> nodes = violation.getPropertyPath().iterator();
+    Path.Node firstNode = nodes.next();
+
+    if (firstNode.getKind() != ElementKind.METHOD) {
+      return false;
+    }
+
+    Path.Node secondNode = nodes.next();
+    return secondNode.getKind() == ElementKind.RETURN_VALUE;
+  }
 }
