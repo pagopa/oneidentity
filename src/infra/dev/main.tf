@@ -22,9 +22,7 @@ module "network" {
 }
 
 module "frontend" {
-  source            = "../modules/frontend"
-  vpc_id            = module.network.vpc_id
-  public_subnet_ids = module.network.public_subnet_ids
+  source = "../modules/frontend"
 
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
@@ -51,9 +49,6 @@ module "frontend" {
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
 
-  create_alb_spid_validator = true
-  alb_spid_validator_name   = format("%s-spid-validator-alb", local.project)
-  vpc_cidr_block            = module.network.vpc_cidr_block
 }
 
 module "storage" {
@@ -78,12 +73,6 @@ module "backend" {
       name                            = local.ecr_oneid_core
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
-
-      }, {
-      name                            = local.ecr_spid_validator
-      number_of_images_to_keep        = 1
-      repository_image_tag_mutability = var.repository_image_tag_mutability
-
     }
   ]
 
@@ -195,29 +184,40 @@ module "backend" {
       S3_BUCKET = module.storage.assertions_bucket_name
     }
   }
+}
+
+module "spid_validator" {
+  source = "../modules/spid-validator"
+
+  aws_region = var.aws_region
+
+  ecr_repository_name = format("%s-spid-validator", local.project)
 
   spid_validator = {
+    cluster_arn  = module.backend.ecs_cluster_arn
     service_name = format("%s-spid-validator", local.project)
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
       image_version = "1.2.0"
     }
-    alb_target_group_arn  = module.frontend.spid_validator_alb_target_group_arn
-    alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
-
   }
+
+  vpc_id              = module.network.vpc_id
+  public_subnet_ids   = module.network.public_subnet_ids
+  private_subnets_ids = module.network.private_subnet_ids
+
+  alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
+  vpc_cidr_block          = module.network.vpc_cidr_block
+
+  zone_id   = module.frontend.route53_zone_id
+  zone_name = module.frontend.zone_name
 
 }
 
 module "database" {
-  source = "../modules/database"
-
-  sessions_table             = var.sessions_table
-  client_registrations_table = var.client_registrations_table
-
-  account_id = data.aws_caller_identity.current.account_id
-
+  source         = "../modules/database"
+  sessions_table = var.sessions_table
 }
 
 

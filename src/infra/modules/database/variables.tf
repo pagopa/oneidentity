@@ -1,16 +1,3 @@
-variable "account_id" {
-  type        = string
-  description = "AWS account id"
-  default     = null
-}
-
-
-variable "client_registrations_table" {
-  type = object({
-    point_in_time_recovery_enabled = optional(bool, false)
-  })
-  description = "Client configurations."
-}
 
 variable "sessions_table" {
   type = object({

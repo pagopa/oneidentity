@@ -113,8 +113,7 @@ resource "aws_iam_policy" "ecs_core_task" {
 
 }
 
-#TODO: rename this resource.
-module "ecs" {
+module "ecs_cluster" {
 
   source  = "terraform-aws-modules/ecs/aws"
   version = "5.9.1"
@@ -144,7 +143,7 @@ module "ecs_core_service" {
 
   name = var.service_core.service_name
 
-  cluster_arn = module.ecs.cluster_arn
+  cluster_arn = module.ecs_cluster.cluster_arn
 
   cpu    = var.service_core.cpu
   memory = var.service_core.memory
@@ -217,12 +216,11 @@ module "ecs_core_service" {
 
   security_group_rules = {
     alb_ingress_3000 = {
-      type        = "ingress"
-      from_port   = var.service_core.container.containerPort
-      to_port     = var.service_core.container.containerPort
-      protocol    = "tcp"
-      description = "Service port"
-      #source_security_group_id = var.service_core.load_balancer.security_group_id
+      type                     = "ingress"
+      from_port                = var.service_core.container.containerPort
+      to_port                  = var.service_core.container.containerPort
+      protocol                 = "tcp"
+      description              = "Service port"
       source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
@@ -235,18 +233,6 @@ module "ecs_core_service" {
   }
 
 }
-
-
-/*
-data "aws_iam_policy" "ec2_ecr_full_access" {
-  name = "AmazonEC2ContainerRegistryFullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "deploy_ec2_ecr_full_access" {
-  role       = aws_iam_role.githubecsdeploy.name
-  policy_arn = data.aws_iam_policy.ec2_ecr_full_access.arn
-}
-*/
 
 resource "aws_iam_policy" "deploy_ecs" {
   name        = format("%s-policy", var.service_core.service_name)
@@ -371,94 +357,4 @@ module "elb" {
 
 
   tags = { Name : var.nlb_name }
-}
-
-resource "aws_cloudwatch_log_group" "ecs_spid_validator" {
-  count = var.spid_validator != null ? 1 : 0
-  name  = format("/aws/ecs/%s/%s", var.spid_validator.service_name, var.spid_validator.container.name)
-
-  retention_in_days = var.spid_validator.container.logs_retention_days
-}
-
-
-## Spid Validator ##
-module "ecs_spid_validator" {
-  count   = var.spid_validator != null ? 1 : 0
-  source  = "terraform-aws-modules/ecs/aws//modules/service"
-  version = "5.9.1"
-
-  name = var.spid_validator.service_name
-
-  cluster_arn = module.ecs.cluster_arn
-
-  cpu                    = var.spid_validator.cpu
-  memory                 = var.spid_validator.memory
-  enable_execute_command = false
-
-  /*
-  tasks_iam_role_policies = {
-    ecs_core_task = aws_iam_policy.ecs_core_task.arn
-  }
-  */
-
-  container_definitions = {
-    "${var.spid_validator.container.name}" = {
-      cpu    = var.spid_validator.container.cpu
-      memory = var.spid_validator.container.memory
-
-      essential = true
-      image     = "${module.ecr[var.spid_validator.container.image_name].repository_url}:${var.spid_validator.container.image_version}",
-
-      port_mappings = [
-        {
-          name          = var.spid_validator.container.name
-          containerPort = 8080
-          hostPort      = 8080
-          protocol      = "tcp"
-        }
-      ]
-
-      log_configuration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_spid_validator[0].name
-          awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "ecs"
-          mode                  = "non-blocking"
-        }
-      }
-
-      readonly_root_filesystem = false
-    }
-  }
-
-  subnet_ids       = var.private_subnets
-  assign_public_ip = false
-
-  load_balancer = {
-    service = {
-      target_group_arn = var.spid_validator.alb_target_group_arn
-      container_name   = var.spid_validator.container.name
-      container_port   = 8080
-    }
-  }
-
-  security_group_rules = {
-    alb_ingress_8080 = {
-      type        = "ingress"
-      from_port   = 8080
-      to_port     = 8080
-      protocol    = "tcp"
-      description = "Service port"
-
-      source_security_group_id = var.spid_validator.alb_security_group_id
-    }
-    egress_all = {
-      type        = "egress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
 }
