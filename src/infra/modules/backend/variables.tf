@@ -129,35 +129,12 @@ variable "vpc_cidr_block" {
   description = "VPC cidr block."
 }
 
-variable "spid_validator" {
-  type = object({
-    service_name = string
-    cpu          = optional(number, 512)
-    memory       = optional(number, 1024)
-    container = object({
-      name                = string
-      image_name          = string
-      image_version       = string
-      cpu                 = optional(number, 512)
-      memory              = optional(number, 1024)
-      logs_retention_days = optional(number, 14)
-    })
-    alb_target_group_arn  = string
-    alb_security_group_id = string
-
-  })
-
-  description = "Spid validator configurations. When null the resources won't be created."
-
-  default = null
-}
-
 variable "assertion_lambda" {
   type = object({
-    name                       = string,
-    filename                   = string,
-    kms_sessions_table_alias   = string,
-    environment_variables      = map(string)
+    name                     = string,
+    filename                 = string,
+    kms_sessions_table_alias = string,
+    environment_variables    = map(string)
   })
 }
 

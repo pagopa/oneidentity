@@ -29,7 +29,7 @@ resource "aws_iam_role_policy" "pipe_source" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "ReadFromStream"
+        Sid    = "ReadFromStream"
         Effect = "Allow"
         Action = [
           "dynamodb:GetRecords",
@@ -42,7 +42,7 @@ resource "aws_iam_role_policy" "pipe_source" {
         ]
       },
       {
-        Sid = "DecryptWithCustomerKey"
+        Sid    = "DecryptWithCustomerKey"
         Effect = "Allow"
         Action = [
           "kms:Decrypt",
@@ -53,7 +53,7 @@ resource "aws_iam_role_policy" "pipe_source" {
         ]
       },
       {
-        Sid = "InvokeLambdaAssertion"
+        Sid    = "InvokeLambdaAssertion"
         Effect = "Allow"
         Action = [
           "lambda:InvokeFunction"

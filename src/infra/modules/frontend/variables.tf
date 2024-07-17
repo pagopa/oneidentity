@@ -3,22 +3,6 @@ variable "aws_region" {
   description = "AWS Region."
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "VPC id."
-}
-
-variable "vpc_cidr_block" {
-  type        = string
-  description = "VPC Cidr block. Is required when you create the application load balancer."
-  default     = null
-}
-
-
-variable "public_subnet_ids" {
-  type        = list(string)
-  description = "Public subnet ids."
-}
 
 ## DNS ##
 variable "r53_dns_zones" {

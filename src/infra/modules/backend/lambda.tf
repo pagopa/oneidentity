@@ -147,7 +147,7 @@ resource "aws_iam_role" "pipe_sessions" {
 
 resource "aws_iam_role_policy" "pipe_source" {
   count = locals.dynamodb_stream_enabled != null ? 1 : 0
-  name = "AllowPipeConsumeStream"
+  name  = "AllowPipeConsumeStream"
 
   role = aws_iam_role.pipe_sessions[0].id
   policy = jsonencode({
@@ -182,7 +182,7 @@ resource "aws_iam_role_policy" "pipe_source" {
 
 #TODO rename this resource and replace the targe.
 resource "aws_pipes_pipe" "dynamodb_to_lambda" {
-  count = locals.dynamodb_stream_enabled ? 1: 0
+  count    = locals.dynamodb_stream_enabled ? 1 : 0
   name     = "dynamodb-to-lambda-pipe"
   role_arn = aws_iam_role.pipe_sessions[0].arn
   source   = var.dynamodb_table_stream_arn
@@ -240,15 +240,15 @@ EOF
 
 
 module "assertion_lambda" {
-  source  = "terraform-aws-modules/lambda/aws"
-  version = "7.4.0"
-  count                   = locals.dynamodb_stream_enabled ? 1: 0
-  function_name           = var.assertion_lambda.name
-  description             = "Lambda function assertion."
-  runtime                 = "python3.8"
-  handler                 = "assertion.lambda_handler"
-  create_package          = false
-  local_existing_package  = var.assertion_lambda.filename
+  source                 = "terraform-aws-modules/lambda/aws"
+  version                = "7.4.0"
+  count                  = locals.dynamodb_stream_enabled ? 1 : 0
+  function_name          = var.assertion_lambda.name
+  description            = "Lambda function assertion."
+  runtime                = "python3.8"
+  handler                = "assertion.lambda_handler"
+  create_package         = false
+  local_existing_package = var.assertion_lambda.filename
   //ignore_source_code_hash = true
 
   publish = true
@@ -268,5 +268,5 @@ module "assertion_lambda" {
 
   memory_size = 512
   timeout     = 30
-  
+
 }

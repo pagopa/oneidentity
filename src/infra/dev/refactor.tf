@@ -84,3 +84,8 @@ moved {
   from = module.alb.aws_vpc_security_group_ingress_rule.this["all_http"]
   to   = module.frontend.module.alb.aws_vpc_security_group_ingress_rule.this["all_http"]
 }
+
+moved {
+  from = module.backend.module.ecs
+  to = module.backend.module.ecs_cluster
+}

@@ -78,12 +78,6 @@ module "backend" {
       name                            = local.ecr_oneid_core
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
-
-      }, {
-      name                            = local.ecr_spid_validator
-      number_of_images_to_keep        = 1
-      repository_image_tag_mutability = var.repository_image_tag_mutability
-
     }
   ]
 
@@ -192,6 +186,8 @@ module "backend" {
     environment_variables      = {BUCKET = module.storage.assertions_bucket_name}
   }
 
+  #TODO: this goes to the module spid validator.
+  /* 
   spid_validator = {
     service_name = format("%s-spid-validator", local.project)
     container = {
@@ -203,6 +199,7 @@ module "backend" {
     alb_security_group_id = module.frontend.spid_validator_alb_security_group_id
 
   }
+  */
 
 }
 

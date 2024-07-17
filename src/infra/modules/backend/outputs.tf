@@ -3,7 +3,7 @@ output "ecr_endpoints" {
 }
 
 output "ecs_cluster_name" {
-  value = module.ecs.cluster_name
+  value = module.ecs_cluster.cluster_name
 }
 
 output "ecs_service_name" {
