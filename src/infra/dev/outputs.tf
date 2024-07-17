@@ -1,5 +1,3 @@
-
-
 ## ECS ##
 output "ecs_cluster_name" {
   value = module.backend.ecs_cluster_name
@@ -12,14 +10,6 @@ output "ecr_endpoints" {
 output "ecs_deploy_iam_role_arn" {
   value = module.backend.ecs_deploy_iam_role_arn
 }
-
-## ALB ##
-
-/*
-output "alb_dns_name" {
-  value = module.alb.dns_name
-}
-*/
 
 ## ACM
 output "acm_certificate_validation_domains" {
@@ -58,3 +48,11 @@ output "table_client_registrations_name" {
   value = module.database.table_client_registrations_name
 }
 
+## Spid validator ##
+output "spid_validator_fqdn" {
+  value = module.spid_validator.route53_record_fqdn
+}
+
+output "spid_validator_ecr_endpoint" {
+  value = module.spid_validator.ecr_endpoint
+}
