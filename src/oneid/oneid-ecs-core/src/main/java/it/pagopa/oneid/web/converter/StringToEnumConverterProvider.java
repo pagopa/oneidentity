@@ -1,4 +1,4 @@
-package it.pagopa.oneid.web.converters;
+package it.pagopa.oneid.web.converter;
 
 import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
