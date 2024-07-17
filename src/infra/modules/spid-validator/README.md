@@ -45,4 +45,7 @@
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_ecr_endpoint"></a> [ecr\_endpoint](#output\_ecr\_endpoint) | n/a |
+| <a name="output_route53_record_fqdn"></a> [route53\_record\_fqdn](#output\_route53\_record\_fqdn) | n/a |

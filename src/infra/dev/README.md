@@ -21,6 +21,7 @@
 | <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam |  |
 | <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../modules/monitoring |  |
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network |  |
+| <a name="module_spid_validator"></a> [spid\_validator](#module\_spid\_validator) | ../modules/spid-validator |  |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage |  |
 
 ## Resources
@@ -44,7 +45,7 @@
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | Dns record ttl (in sec) | `number` | `3600` | no |
 | <a name="input_ecr_keep_images"></a> [ecr\_keep\_images](#input\_ecr\_keep\_images) | Number of images to keep. | `number` | `3` | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
-| <a name="input_ecs_oneid_core"></a> [ecs\_oneid\_core](#input\_ecs\_oneid\_core) | Oneidentity core backend configurations. | <pre>object({<br>    image_version    = string<br>    cpu              = number<br>    memory           = number<br>    container_cpu    = number<br>    container_memory = number<br>    autoscaling = object({<br>      enable       = bool<br>      min_capacity = number<br>      max_capacity = number<br>    })<br>    app_spid_test_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "app_spid_test_enabled": true,<br>  "autoscaling": {<br>    "enable": true,<br>    "max_capacity": 2,<br>    "min_capacity": 1<br>  },<br>  "container_cpu": 512,<br>  "container_memory": 1024,<br>  "cpu": 512,<br>  "image_version": "0bfd81912534495aad0bb8cac3bf1f5aeb763625",<br>  "memory": 1024<br>}</pre> | no |
+| <a name="input_ecs_oneid_core"></a> [ecs\_oneid\_core](#input\_ecs\_oneid\_core) | Oneidentity core backend configurations. | <pre>object({<br>    image_version    = string<br>    cpu              = number<br>    memory           = number<br>    container_cpu    = number<br>    container_memory = number<br>    autoscaling = object({<br>      enable       = bool<br>      min_capacity = number<br>      max_capacity = number<br>    })<br>    logs_retention_days   = number<br>    app_spid_test_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "app_spid_test_enabled": true,<br>  "autoscaling": {<br>    "enable": true,<br>    "max_capacity": 2,<br>    "min_capacity": 1<br>  },<br>  "container_cpu": 512,<br>  "container_memory": 1024,<br>  "cpu": 512,<br>  "image_version": "6e10eeb26779491a0840ab34f8f9c561da17b1fd",<br>  "logs_retention_days": 30,<br>  "memory": 1024<br>}</pre> | no |
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Create nat gateway(s) | `bool` | `true` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Evnironment short. | `string` | `"d"` | no |
 | <a name="input_number_of_images_to_keep"></a> [number\_of\_images\_to\_keep](#input\_number\_of\_images\_to\_keep) | Number of images to keeps in ECR. | `number` | `3` | no |
@@ -71,5 +72,7 @@
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | # ECS ## |
 | <a name="output_ecs_deploy_iam_role_arn"></a> [ecs\_deploy\_iam\_role\_arn](#output\_ecs\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | n/a |
+| <a name="output_spid_validator_ecr_endpoint"></a> [spid\_validator\_ecr\_endpoint](#output\_spid\_validator\_ecr\_endpoint) | n/a |
+| <a name="output_spid_validator_fqdn"></a> [spid\_validator\_fqdn](#output\_spid\_validator\_fqdn) | # Spid validator ## |
 | <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
 | <a name="output_table_saml_responses_name"></a> [table\_saml\_responses\_name](#output\_table\_saml\_responses\_name) | Database |

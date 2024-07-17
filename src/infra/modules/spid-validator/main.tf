@@ -4,8 +4,24 @@ module "ecr" {
   repository_name                   = var.ecr_repository_name
   repository_read_write_access_arns = []
   repository_image_tag_mutability   = var.repository_image_tag_mutability
-}
 
+  repository_lifecycle_policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1,
+        description  = "Keep last 3 images",
+        selection = {
+          tagStatus   = "untagged",
+          countType   = "imageCountMoreThan",
+          countNumber = 3
+        },
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
 
 resource "aws_cloudwatch_log_group" "ecs_spid_validator" {
   name              = format("/aws/ecs/%s/%s", var.spid_validator.service_name, var.spid_validator.container.name)
@@ -209,7 +225,7 @@ module "record" {
       type = "A"
       alias = {
         name                   = module.alb.dns_name
-        zone_id                = var.zone_id
+        zone_id                = module.alb.zone_id
         evaluate_target_health = true
       }
     }
