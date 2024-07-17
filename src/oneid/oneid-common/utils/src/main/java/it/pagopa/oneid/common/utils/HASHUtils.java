@@ -27,6 +27,22 @@ public class HASHUtils {
 
   }
 
+  public static String hashSalt(String salt) {
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    byte[] bytes = md.digest(salt.getBytes(StandardCharsets.UTF_8));
+    StringBuilder sb = new StringBuilder();
+    for (byte aByte : bytes) {
+      sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+    }
+
+    return sb.toString();
+  }
+
   public static boolean validateSecret(String secret, String salt, String hashedSecret) {
     return hashSecret(secret, salt).equals(hashedSecret);
 
