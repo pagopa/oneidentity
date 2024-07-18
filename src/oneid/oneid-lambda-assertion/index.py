@@ -27,31 +27,28 @@ def convert_to_cet(creation_time):
     # Convert epoch time to UTC
     timezone = dateutil.tz.gettz('Europe/Rome')
     # Convert UTC to Central European Time (CET/CEST)
-    cet_time = datetime.fromtimestamp(creation_time, tz=timezone)
-    return cet_time
+    return datetime.fromtimestamp(creation_time, tz=timezone)
+    
 
 def lambda_handler(event, context):
 
     try:
     
-     for record in event:
+        for record in event:
         
-        saml_request_id = record['dynamodb']['NewImage']['samlRequestID']['S']
-        record_type = record['dynamodb']['NewImage']['recordType']['S']
-        creation_time = record['dynamodb']['NewImage']['creationTime']['N']
-        contentBody = record['dynamodb']['NewImage']
-        cet_time = convert_to_cet(int(creation_time))
-       
-        if record_type == "SAML" :
-           contentBody = decode_base64_content(contentBody)
-         
-        # Convert data to JSON string
-        file_content = json.dumps(contentBody)
-    
-        # Write the file to S3
-        file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
+            saml_request_id = record['dynamodb']['NewImage']['samlRequestID']['S']
+            record_type = record['dynamodb']['NewImage']['recordType']['S']
+            creation_time = record['dynamodb']['NewImage']['creationTime']['N']
+            contentBody = record['dynamodb']['NewImage']
+            cet_time = convert_to_cet(int(creation_time))
+        
+            if record_type == "SAML" :
+                contentBody = decode_base64_content(contentBody)
             
-        s3.Bucket(bucket_name).put_object(Key=file_key, Body=file_content)
+            # Write the file to S3
+            file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
+                
+            s3.Bucket(bucket_name).put_object(Key=file_key, Body=json.dumps(contentBody))
         
     except Exception as e:
         logger.error(e)
