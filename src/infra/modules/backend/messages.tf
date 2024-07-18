@@ -113,8 +113,20 @@ resource "aws_pipes_pipe" "sessions" {
   "samlRequestID": <$.dynamodb.NewImage.samlRequestID.S>,
   "recordType": <$.dynamodb.NewImage.recordType.S>,
   "creationTime": <$.dynamodb.NewImage.creationTime.N>,
+  "SAMLResponse": <$.dynamodb.NewImage.SAMLResponse.S>,
+  "clientId": "<$.dynamodb.NewImage.clientId.S>",
+  "idp": "<$.dynamodb.NewImage.idp.S>",
+  "nonce": "<$.dynamodb.NewImage.nonce.S>",
+  "redirectUri": "<$.dynamodb.NewImage.redirectUri.S>",
+  "responseType": "<$.dynamodb.NewImage.responseType.S>",
   "SAMLRequest": <$.dynamodb.NewImage.SAMLRequest.S>,
-  "SAMLResponse": <$.dynamodb.NewImage.SAMLResponse.S>
+  "SAMLResponse": <$.dynamodb.NewImage.SAMLResponse.S>,
+  "scope": <$.dynamodb.NewImage.scope.S>,
+  "state": <$.dynamodb.NewImage.state.S>,
+  "ttl": <$.dynamodb.NewImage.ttl.S>,
+  "code": <$.dynamodb.NewImage.code.S>,
+  "idToken": <$.dynamodb.NewImage.idToken.S>,
+  "eventName": <$.eventName>
 }
 EOF
   }
