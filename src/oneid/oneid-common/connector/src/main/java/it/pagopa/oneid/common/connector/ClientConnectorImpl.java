@@ -73,4 +73,12 @@ public class ClientConnectorImpl implements ClientConnector {
                     .build())
             .build());
   }
+
+  @Override
+  public Optional<Client> getClientById(String clientId) {
+    Log.debug("start");
+    return Optional.of(
+        clientMapper.getItem(Key.builder().partitionValue(clientId).build()));
+  }
+
 }
