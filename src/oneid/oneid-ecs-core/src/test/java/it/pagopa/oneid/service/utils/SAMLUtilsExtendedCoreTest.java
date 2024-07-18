@@ -1,9 +1,9 @@
 package it.pagopa.oneid.service.utils;
 
-import static it.pagopa.oneid.model.Base64SAMLResponses.correctSamlResponse;
-import static it.pagopa.oneid.model.Base64SAMLResponses.invalidSignatureSamlResponse;
-import static it.pagopa.oneid.model.Base64SAMLResponses.unsignedAssertionSamlResponse;
-import static it.pagopa.oneid.model.Base64SAMLResponses.unsignedSamlResponse;
+import static it.pagopa.oneid.model.Base64SAMLResponses.CORRECT_SAML_RESPONSE_01;
+import static it.pagopa.oneid.model.Base64SAMLResponses.INVALID_SIGNATURE_SAML_RESPONSE_04;
+import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_ASSERTION_SAML_RESPONSE_03;
+import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_SAML_RESPONSE_02;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 import net.shibboleth.utilities.java.support.logic.ConstraintViolationException;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import org.codehaus.plexus.util.StringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,6 +38,8 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 
 @QuarkusTest
 public class SAMLUtilsExtendedCoreTest {
+
+  private static final String IDP_URL = "https://localhost:8443";
 
   @Inject
   SAMLUtilsExtendedCore samlUtilsExtendedCore;
@@ -68,7 +71,7 @@ public class SAMLUtilsExtendedCoreTest {
     assertNotNull(requestedAuthnContext);
     assertEquals(AuthnContextComparisonTypeEnumeration.MINIMUM,
         requestedAuthnContext.getComparison());
-    if (spidLevel == null || spidLevel.isEmpty()) {
+    if (StringUtils.isBlank(spidLevel)) {
       assertNull(requestedAuthnContext.getAuthnContextClassRefs().getFirst().getURI());
     } else {
       assertEquals(spidLevel, requestedAuthnContext.getAuthnContextClassRefs().getFirst().getURI());
@@ -119,7 +122,8 @@ public class SAMLUtilsExtendedCoreTest {
   @Test
   @SneakyThrows
   void getAttributeDTOListFromAssertion_withAttributeValues() {
-    Response samlResponse = samlUtilsExtendedCore.getSAMLResponseFromString(correctSamlResponse);
+    Response samlResponse = samlUtilsExtendedCore.getSAMLResponseFromString(
+        CORRECT_SAML_RESPONSE_01);
     Assertion assertion = samlResponse.getAssertions().getFirst();
 
     assertNotNull(samlUtilsExtendedCore.getAttributeDTOListFromAssertion(assertion));
@@ -145,7 +149,7 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void getSAMLResponseFromString_success() {
 
-    String samlResponseString = correctSamlResponse;
+    String samlResponseString = CORRECT_SAML_RESPONSE_01;
 
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
         samlResponseString);
@@ -164,9 +168,8 @@ public class SAMLUtilsExtendedCoreTest {
     //TODO: find correct input that triggers UnmarshallingException
 
     String response = "Invaldid SAML response";
-    OneIdentityException exception = assertThrows(OneIdentityException.class, () -> {
-      samlUtilsExtendedCore.getSAMLResponseFromString(response);
-    });
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
     assertEquals(UnmarshallingException.class, exception.getCause().getClass());
 
   }
@@ -177,9 +180,8 @@ public class SAMLUtilsExtendedCoreTest {
     String response =
         "Invaldid SAML response";
 
-    OneIdentityException exception = assertThrows(OneIdentityException.class, () -> {
-      samlUtilsExtendedCore.getSAMLResponseFromString(response);
-    });
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
     assertEquals(XMLParserException.class, exception.getCause().getClass());
   }
 
@@ -187,12 +189,10 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void validateSignature_success() {
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        correctSamlResponse);
+        CORRECT_SAML_RESPONSE_01);
 
-    assertDoesNotThrow(() -> {
-      samlUtilsExtendedCore.validateSignature(response,
-          "https://localhost:8443");
-    });
+    assertDoesNotThrow(() -> samlUtilsExtendedCore.validateSignature(response,
+        IDP_URL));
 
   }
 
@@ -201,11 +201,10 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void validateSignature_UsignedSamlResponseException() {
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        unsignedSamlResponse);
+        UNSIGNED_SAML_RESPONSE_02);
 
-    SAMLValidationException exception = assertThrows(SAMLValidationException.class, () -> {
-      samlUtilsExtendedCore.validateSignature(response, "https://localhost:8443");
-    });
+    SAMLValidationException exception = assertThrows(SAMLValidationException.class,
+        () -> samlUtilsExtendedCore.validateSignature(response, IDP_URL));
     assertEquals(SAMLValidationException.class, exception.getClass());
 
   }
@@ -215,11 +214,10 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void validateSignature_UnsignedAssertionException() {
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        unsignedAssertionSamlResponse);
+        UNSIGNED_ASSERTION_SAML_RESPONSE_03);
 
-    SAMLValidationException exception = assertThrows(SAMLValidationException.class, () -> {
-      samlUtilsExtendedCore.validateSignature(response, "https://localhost:8443");
-    });
+    SAMLValidationException exception = assertThrows(SAMLValidationException.class,
+        () -> samlUtilsExtendedCore.validateSignature(response, IDP_URL));
     assertEquals(SAMLValidationException.class, exception.getClass());
     assertEquals("Assertion signature not present", exception.getMessage());
 
@@ -230,11 +228,10 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void validateSignature_AssertionSignatureValidationException() {
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        invalidSignatureSamlResponse);
+        INVALID_SIGNATURE_SAML_RESPONSE_04);
 
-    SAMLValidationException exception = assertThrows(SAMLValidationException.class, () -> {
-      samlUtilsExtendedCore.validateSignature(response, "https://localhost:8443");
-    });
+    SAMLValidationException exception = assertThrows(SAMLValidationException.class,
+        () -> samlUtilsExtendedCore.validateSignature(response, IDP_URL));
     assertEquals(SignatureException.class, exception.getCause().getClass());
     assertEquals("Signature cryptographic validation not successful",
         exception.getCause().getMessage());
@@ -248,11 +245,10 @@ public class SAMLUtilsExtendedCoreTest {
     String notExistingEntityID = "notExistingEntityID";
 
     Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        correctSamlResponse);
+        CORRECT_SAML_RESPONSE_01);
 
-    SAMLValidationException exception = assertThrows(SAMLValidationException.class, () -> {
-      samlUtilsExtendedCore.validateSignature(response, notExistingEntityID);
-    });
+    SAMLValidationException exception = assertThrows(SAMLValidationException.class,
+        () -> samlUtilsExtendedCore.validateSignature(response, notExistingEntityID));
     assertEquals(SAMLValidationException.class, exception.getClass());
     assertEquals("Credential not found for selected IDP", exception.getMessage());
 
