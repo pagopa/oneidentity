@@ -15,13 +15,13 @@ bucket_name = os.environ['S3_BUCKET']
 
 def decode_base64_content(content_body):
     
- samlreq_base64 = content_body['SAMLRequest']['S']
- content_body['SAMLRequest'] = base64.b64decode(samlreq_base64).decode('utf-8')
-       
- samlresp_base64 = content_body['SAMLResponse']['S']
- content_body['SAMLResponse'] = base64.b64decode(samlresp_base64).decode('utf-8')
-    
- return content_body
+    samlreq_base64 = content_body['SAMLRequest']['S']
+    content_body['SAMLRequest'] = base64.b64decode(samlreq_base64).decode('utf-8')
+        
+    samlresp_base64 = content_body['SAMLResponse']['S']
+    content_body['SAMLResponse'] = base64.b64decode(samlresp_base64).decode('utf-8')
+
+    return content_body
 
 def convert_to_cet(creation_time):
     # Convert epoch time to UTC
