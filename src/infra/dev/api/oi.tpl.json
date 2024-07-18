@@ -1345,20 +1345,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          "Pragma": {
-            "description": "Pragma directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache control directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
           }
         },
         "content-type": {
