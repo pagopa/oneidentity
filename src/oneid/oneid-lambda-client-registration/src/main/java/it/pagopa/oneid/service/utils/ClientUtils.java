@@ -66,7 +66,7 @@ public class ClientUtils {
     // Initialize the cipher
     Cipher cipher;
     try {
-      cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+      cipher = Cipher.getInstance(ClientConstants.ENCRYPTION_ALGORITHM);
     } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
       throw new ClientUtilsException();
     }
@@ -89,5 +89,5 @@ public class ClientUtils {
     // Encode the result as Base64
     return new String(encryptedBytes);
   }
-  
+
 }
