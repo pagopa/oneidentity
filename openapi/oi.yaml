@@ -223,6 +223,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/responseOkHtml"
+        "302":
+          $ref: "#/components/responses/auth302"
         "400":
           $ref: "#/components/responses/invalidParameters"
         "401":
@@ -321,6 +323,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/responseOkHtml"
+        "302":
+          $ref: "#/components/responses/auth302"
         "400":
           $ref: "#/components/responses/invalidParameters"
         "401":
@@ -1205,16 +1209,6 @@ components:
             data)
           schema:
             type: string
-        Pragma:
-          description: Pragma directive
-          schema:
-            type: string
-            default: no-cache
-        Cache-Control:
-          description: Cache control directive
-          schema:
-            type: string
-            default: no-store
     responseOkHtml:
       description: OK
       headers:
