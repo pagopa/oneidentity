@@ -43,11 +43,10 @@ def lambda_handler(event, context):
         cet_time = convert_to_cet(int(creation_time))
        
         if record_type == "SAML" :
-           decoded_contentBody = decode_base64_content(contentBody)
-        else : 
-           decoded_contentBody = contentBody   
+           contentBody = decode_base64_content(contentBody)
+         
         # Convert data to JSON string
-        file_content = json.dumps(decoded_contentBody)
+        file_content = json.dumps(contentBody)
     
         # Write the file to S3
         file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
