@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +26,6 @@ public class ClientExtended extends Client {
   @NotNull
   private String salt;
 
-  @Builder
   public ClientExtended(@NotNull String clientId, @NotNull String friendlyName,
       @NotNull List<String> callbackURI,
       @NotNull List<String> requestedParameters, @NotNull AuthLevel authLevel,
