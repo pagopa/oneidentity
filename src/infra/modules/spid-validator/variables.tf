@@ -28,6 +28,10 @@ variable "spid_validator" {
       cpu                 = optional(number, 512)
       memory              = optional(number, 1024)
       logs_retention_days = optional(number, 14)
+      environment = list(object({
+        name  = string
+        value = string
+      }))
     })
   })
 

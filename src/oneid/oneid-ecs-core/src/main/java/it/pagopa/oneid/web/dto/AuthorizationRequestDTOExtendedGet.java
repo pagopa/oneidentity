@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.dto;
 
 import it.pagopa.oneid.model.session.enums.ResponseType;
+import it.pagopa.oneid.web.validator.annotations.AuthenticationRequestCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,7 @@ import lombok.Data;
 import org.jboss.resteasy.reactive.RestQuery;
 
 @Data
+@AuthenticationRequestCheck
 public class AuthorizationRequestDTOExtendedGet {
 
   @NotBlank
@@ -18,7 +20,6 @@ public class AuthorizationRequestDTOExtendedGet {
   @Size(max = 255)
   @RestQuery("client_id")
   private String clientId;
-
   @NotNull
   @RestQuery("response_type")
   private ResponseType responseType;

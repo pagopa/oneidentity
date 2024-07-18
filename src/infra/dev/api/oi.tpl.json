@@ -786,6 +786,12 @@
                 "method.response.header.content-type": "'application/xml'"
               }
             },
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.location": "integration.response.header.Location"
+              }
+            },
             "400": {
               "statusCode": "400",
               "responseParameters": {}
@@ -807,6 +813,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
+          },
+          "302": {
+            "$ref": "#/components/responses/auth302"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -1335,20 +1344,6 @@
             "description": "Location (URL) includes these required parameters: action=(display or login depending on 'prompt' and 'id_token_hint') and sessionID and sessionData (a JWT containing a JSON message holding session data)",
             "schema": {
               "type": "string"
-            }
-          },
-          "Pragma": {
-            "description": "Pragma directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache control directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
             }
           }
         },

@@ -105,6 +105,12 @@ if (ENV.SPID_TEST_ENV_ENABLED) {
     entityId: 'https://demo.spid.gov.it',
     name: 'demo',
     imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/D.E.M.O._Logo_2006.svg',
+  },
+  {
+    identifier: 'demo_pagopa',
+    entityId: 'https://validator.dev.oneid.pagopa.it/demo',
+    name: 'demo_pagopa',
+    imageUrl: 'https://pagopa.portaleamministrazionetrasparente.it/moduli/output_media.php?file=enti_trasparenza/2197912210O__Ologo-pagopa-spa.png',
   });
 }
 export { IDPS };

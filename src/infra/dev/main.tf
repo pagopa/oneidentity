@@ -199,7 +199,18 @@ module "spid_validator" {
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
-      image_version = "1.2.0"
+      image_version = "2.0.0"
+      environment = [{
+        name  = "NODE_USE_HTTPS"
+        value = "false"
+        }, {
+        name  = "NODE_HTTPS_PORT"
+        value = "8080"
+        },
+        {
+          name  = "SPID_USERS_URL"
+          value = "https://raw.githubusercontent.com/pagopa/oneidentity/main/src/config/validator/users.json"
+      }]
     }
   }
 
