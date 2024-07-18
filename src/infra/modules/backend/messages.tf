@@ -107,17 +107,16 @@ resource "aws_pipes_pipe" "sessions" {
     }
   }
 
-  /*
   target_parameters {
     input_template = <<EOF
 {
-  "timestamp": <$.dynamodb.ApproximateCreationDateTime>,
-  "eventName": <$.eventName>,
+  "samlRequestID": <$.dynamodb.NewImage.samlRequestID.S>,
   "recordType": <$.dynamodb.NewImage.recordType.S>,
-  "id": <$.dynamodb.NewImage.id.S>
+  "creationTime": <$.dynamodb.NewImage.creationTime.N>,
+  "SAMLRequest": <$.dynamodb.NewImage.SAMLRequest.S>,
+  "SAMLResponse": <$.dynamodb.NewImage.SAMLResponse.S>
 }
 EOF
   }
-*/
 }
 
