@@ -15,5 +15,16 @@ public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
   private ClientID clientID;
   private String clientSecret;
   private long clientIdIssuedAt;
-  private int clientSecretExpiresAt; //TODO set to 0, never expires
+  private int clientSecretExpiresAt;
+
+
+  public ClientRegistrationResponseDTO(ClientMetadataDTO clientMetadataDTO, ClientID clientID,
+      String clientSecret,
+      long clientIdIssuedAt) {
+    super(clientMetadataDTO);
+    this.clientID = clientID;
+    this.clientSecret = clientSecret;
+    this.clientIdIssuedAt = clientIdIssuedAt;
+    clientSecretExpiresAt = 0;
+  }
 }

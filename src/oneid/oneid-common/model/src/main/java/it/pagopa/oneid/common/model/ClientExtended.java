@@ -3,9 +3,9 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.validation.constraints.NotNull;
+import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,14 +26,22 @@ public class ClientExtended extends Client {
   @NotNull
   private String salt;
 
-  @Builder
   public ClientExtended(@NotNull String clientId, @NotNull String friendlyName,
       @NotNull List<String> callbackURI,
       @NotNull List<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
-      String secret, String salt, long clientIdIssuedAt) {
+      String secret, String salt, long clientIdIssuedAt, URI logoUri) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri);
+    this.secret = secret;
+    this.salt = salt;
+  }
+
+  public ClientExtended(Client client, String secret, String salt) {
+    super(client.getClientId(), client.getFriendlyName(), client.getCallbackURI(),
+        client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
+        client.getAttributeIndex(), client.isActive(),
+        client.getClientIdIssuedAt(), client.getLogoUri());
     this.secret = secret;
     this.salt = salt;
   }
