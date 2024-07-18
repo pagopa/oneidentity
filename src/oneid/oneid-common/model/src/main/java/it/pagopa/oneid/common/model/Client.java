@@ -3,8 +3,10 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
 import jakarta.validation.constraints.NotNull;
+import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Client {
 
   @Getter(onMethod_ = @DynamoDbPartitionKey)
@@ -49,6 +52,7 @@ public class Client {
 
   @NotNull
   private long clientIdIssuedAt;
-
+  
+  private URI logoUri;
 
 }
