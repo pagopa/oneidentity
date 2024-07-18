@@ -71,16 +71,17 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         client.getClientIdIssuedAt());
   }
 
-  
+
   private int findMaxAttributeIndex() {
-    //TODO fix .get()
     Log.debug("start");
-    return clientConnector.findAll()
-        .get()
-        .stream()
-        .max(Comparator.comparing(Client::getAttributeIndex))
-        .map(Client::getAttributeIndex)
-        .orElse(0)
-        ;
+    return clientConnector
+        .findAll()
+        .map(clients -> clients
+            .stream()
+            .max(Comparator.comparing(Client::getAttributeIndex))
+            .map(Client::getAttributeIndex)
+            .orElse(-1)
+        ).orElse(-1);
+
   }
 }
