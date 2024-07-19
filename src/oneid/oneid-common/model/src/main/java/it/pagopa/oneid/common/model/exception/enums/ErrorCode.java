@@ -33,7 +33,10 @@ public enum ErrorCode {
   ERRORCODE_NR21("21", ""),
   ERRORCODE_NR22("22", ""),
   ERRORCODE_NR23("23", ""),
-  ERRORCODE_NR25("25", "");
+  ERRORCODE_NR25("25", ""),
+  CLIENT_UTILS_ERROR("CLIENT_UTILS_ERROR", "Error during Client credentials initialization"),
+  CLIENT_REGISTRATION_SERVICE_ERROR("CLIENT_REGISTRATION_SERVICE_ERROR",
+      "Error during ClientRegistrationService method");
 
 
   private final String errorCode;

@@ -17,7 +17,7 @@
             <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
-            <artifactId>quarkus-resteasy</artifactId>
+            <artifactId>quarkus-rest</artifactId>
             <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
@@ -59,7 +59,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

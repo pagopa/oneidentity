@@ -107,17 +107,27 @@ resource "aws_pipes_pipe" "sessions" {
     }
   }
 
-  /*
   target_parameters {
     input_template = <<EOF
 {
-  "timestamp": <$.dynamodb.ApproximateCreationDateTime>,
-  "eventName": <$.eventName>,
+  "samlRequestID": <$.dynamodb.NewImage.samlRequestID.S>,
   "recordType": <$.dynamodb.NewImage.recordType.S>,
-  "id": <$.dynamodb.NewImage.id.S>
+  "creationTime": <$.dynamodb.NewImage.creationTime.N>,
+  "clientId": "<$.dynamodb.NewImage.clientId.S>",
+  "idp": "<$.dynamodb.NewImage.idp.S>",
+  "nonce": "<$.dynamodb.NewImage.nonce.S>",
+  "redirectUri": "<$.dynamodb.NewImage.redirectUri.S>",
+  "responseType": "<$.dynamodb.NewImage.responseType.S>",
+  "SAMLRequest": <$.dynamodb.NewImage.SAMLRequest.S>,
+  "SAMLResponse": <$.dynamodb.NewImage.SAMLResponse.S>,
+  "scope": <$.dynamodb.NewImage.scope.S>,
+  "state": <$.dynamodb.NewImage.state.S>,
+  "ttl": <$.dynamodb.NewImage.ttl.N>,
+  "code": <$.dynamodb.NewImage.code.S>,
+  "idToken": <$.dynamodb.NewImage.idToken.S>,
+  "eventName": <$.eventName>
 }
 EOF
   }
-*/
 }
 

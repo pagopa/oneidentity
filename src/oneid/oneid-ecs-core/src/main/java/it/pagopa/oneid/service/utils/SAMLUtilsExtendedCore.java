@@ -179,7 +179,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         }
       } else {
         Log.error("Assertion signature not present");
-        throw new SAMLValidationException();
+        throw new SAMLValidationException("Assertion signature not present");
       }
     } else {
       Log.error(

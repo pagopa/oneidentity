@@ -4,6 +4,7 @@ import logging
 import json
 from datetime import datetime, timedelta, timezone
 import dateutil.tz
+import base64
 
 
 logger = logging.getLogger()
@@ -12,37 +13,37 @@ logger.setLevel(logging.INFO)
 s3 = boto3.resource("s3")
 bucket_name = os.environ['S3_BUCKET']
 
+def decode_base64_content(content):
+    
+    return base64.b64decode(content).decode('utf-8')
+    
 def convert_to_cet(creation_time):
     # Convert epoch time to UTC
     timezone = dateutil.tz.gettz('Europe/Rome')
     # Convert UTC to Central European Time (CET/CEST)
-    cet_time = datetime.fromtimestamp(creation_time, tz=timezone)
-    return cet_time
+    return datetime.fromtimestamp(creation_time, tz=timezone)
+    
 
 def lambda_handler(event, context):
 
-    for record in event:
-        
-        saml_request_id = record['dynamodb']['NewImage']['samlRequestID']['S']
-        record_type = record['dynamodb']['NewImage']['recordType']['S']
-        creation_time = record['dynamodb']['NewImage']['creationTime']['N']
-        contentBody = record['dynamodb']['NewImage']
-        cet_time = convert_to_cet(int(creation_time))
-       
-       
-    # Convert data to JSON string
-    file_content = json.dumps(contentBody)
-    
-    # Write the file to S3
-    file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
     try:
+    
+        for record in event:
         
-      s3.Bucket(bucket_name).put_object(Key=file_key, Body=file_content)
+            saml_request_id = record['samlRequestID']
+            record_type = record['recordType']
+            creation_time = record['creationTime']
+            cet_time = convert_to_cet(int(creation_time))
         
-      return {
-          'statusCode': 200,
-          'body': json.dumps(f'Successfully wrote file {file_key} to bucket {bucket_name}')
-      }
+            if record_type == "SAML" :
+                record['SAMLRequest'] = decode_base64_content(record['SAMLRequest'])
+                record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
+            
+            # Write the file to S3
+            file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
+                
+            s3.Bucket(bucket_name).put_object(Key=file_key, Body=json.dumps(record))
+        
     except Exception as e:
         logger.error(e)
         return {
