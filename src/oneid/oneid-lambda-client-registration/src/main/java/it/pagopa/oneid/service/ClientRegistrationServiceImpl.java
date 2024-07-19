@@ -18,6 +18,7 @@ import jakarta.inject.Inject;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
+import java.util.List;
 
 @ApplicationScoped
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
@@ -78,7 +79,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 5. Save on Dynamo
     clientConnector.saveClientIfNotExists(clientExtended);
 
-    // 6. create and return ClientRegistrationResponseDTO
+    // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
+    clientRegistrationRequestDTO.setDefaultAcrValues(List.of(
+        clientRegistrationRequestDTO.getDefaultAcrValues().getFirst()));
+
+    // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
         new ClientID(client.getClientId()), clientSecret,
