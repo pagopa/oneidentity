@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jboss.resteasy.reactive.RestForm;
 
 @Data
 @NoArgsConstructor
@@ -20,17 +21,26 @@ public class ClientMetadataDTO {
 
   @NotEmpty
   @JsonProperty("redirect_uris")
+  @RestForm("redirect_uris")
   private List<String> redirectUris; //Client.callbackURI
+
   @NotBlank
   @JsonProperty("client_name")
+  @RestForm("client_name")
   private String clientName; //Client.friendlyName
+
   @JsonProperty("logo_uri")
+  @RestForm("logo_uri")
   private URI logoUri;
+
   @NotEmpty
   @JsonProperty("default_acr_values")
+  @RestForm("default_acr_values")
   private List<AuthLevel> defaultAcrValues;
+
   @NotEmpty
   @JsonProperty("saml_requested_attributes")
+  @RestForm("saml_requested_attributes")
   private List<Identifier> samlRequestedAttributes;
 
 

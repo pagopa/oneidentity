@@ -5,12 +5,16 @@ import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 @Path("/oidc")
 public class ClientRegistrationController {
@@ -21,7 +25,8 @@ public class ClientRegistrationController {
   @POST
   @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response register(ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
+  public Response register(
+      @BeanParam @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.info("start");
 
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
@@ -33,7 +38,7 @@ public class ClientRegistrationController {
 
     Log.info("end");
 
-    return Response.ok(clientRegistrationResponseDTO).build();
+    return Response.ok(clientRegistrationResponseDTO).status(Status.CREATED).build();
 
   }
 
