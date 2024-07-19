@@ -481,13 +481,31 @@
                     "type": "boolean",
                     "example": false
                   },
-                  "spid_requested_attributes": {
+                  "saml_requested_attributes": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     },
                     "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
                     "example": ["spidCode", "name", "familyName", "fiscalNumber"]
+                  },
+                  "logo_uri": {
+                    "type": "string",
+                    "description": "The RP logo URI",
+                    "example": "https://example.org/logo.png",
+                    "format": "uri"
+                  },
+                  "default_acr_values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "list of the Authentication Context Class References that this RP supports",
+                    "example": [
+                      "https://www.spid.gov.it/SpidL1",
+                      "https://www.spid.gov.it/SpidL2",
+                      "https://www.spid.gov.it/SpidL3"
+                    ]
                   }
                 }
               }
@@ -526,7 +544,7 @@
                     },
                     "registration_client_uri": {
                       "type": "string",
-                      "example": "https://server.example.org/connect/register?client_id=s6BhdRkqt3",
+                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
                       "description": "The URI to retrieved the registered values"
                     },
                     "client_id_issued_at": {

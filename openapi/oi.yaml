@@ -678,7 +678,7 @@ paths:
                 master:
                   type: boolean
                   example: false
-                spid_requested_attributes:
+                saml_requested_attributes:
                   type: array
                   items:
                     type: string
@@ -690,6 +690,20 @@ paths:
                     - name
                     - familyName
                     - fiscalNumber
+                logo_uri:
+                  type: string
+                  description: "The RP logo URI"
+                  example: "https://example.org/logo.png"
+                  format: uri
+                default_acr_values:
+                  type: array
+                  items:
+                    type: string
+                  description: list of the Authentication Context Class References that this RP supports
+                  example:
+                    - https://www.spid.gov.it/SpidL1
+                    - https://www.spid.gov.it/SpidL2
+                    - https://www.spid.gov.it/SpidL3
         description: Request body
         required: true
   /oidc/register/{client_id}:
