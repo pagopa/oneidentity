@@ -1,6 +1,8 @@
 package it.pagopa.oneid.web.controller;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
@@ -19,8 +21,19 @@ public class ClientRegistrationController {
   @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
   public Response register(ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-    //TODO implement
-    return Response.ok("Register path").build();
+    Log.info("start");
+
+    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
+
+    Log.info("client info validated successfully");
+
+    ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
+        clientRegistrationRequestDTO);
+
+    Log.info("end");
+
+    return Response.ok(clientRegistrationResponseDTO).build();
+
   }
 
 }
