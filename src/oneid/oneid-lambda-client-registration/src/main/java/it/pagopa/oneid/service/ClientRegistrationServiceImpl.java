@@ -1,13 +1,16 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -103,4 +106,16 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         ).orElse(-1);
 
   }
+
+
+  @Override
+  public ClientMetadataDTO getClientMetadataDTO(String clientId) {
+    Client client = clientConnector.getClientById(clientId)
+        .orElseThrow(ClientNotFoundException::new);
+
+    return convertClientToClientMetadataDTO(client);
+
+  }
+
+
 }

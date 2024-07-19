@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 
@@ -9,5 +10,7 @@ public interface ClientRegistrationService {
 
   ClientRegistrationResponseDTO saveClient(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO);
+
+  ClientMetadataDTO getClientMetadataDTO(String clientId);
 
 }

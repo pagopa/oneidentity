@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.ClientUtilsException;
+import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -88,6 +89,24 @@ public class ClientUtils {
 
     // Encode the result as Base64
     return new String(encryptedBytes);
+  }
+
+
+  public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
+    List<Identifier> samlRequestedAttributes = client
+        .getRequestedParameters()
+        .stream()
+        .map(Identifier::valueOf)
+        .collect(Collectors.toList());
+
+    return ClientMetadataDTO.builder()
+        .redirectUris(client.getCallbackURI())
+        .clientName(client.getFriendlyName())
+        .logoUri(client.getLogoUri())
+        .defaultAcrValues(List.of(client.getAuthLevel())) //TODO: how many levels do we support?
+        .samlRequestedAttributes(samlRequestedAttributes)
+        .build();
+
   }
 
 }
