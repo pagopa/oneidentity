@@ -123,23 +123,44 @@ resource "aws_athena_named_query" "create_assertions_table" {
   database = aws_athena_database.assertions.name
   workgroup = aws_athena_workgroup.assertions_workgroup.id
   query    = <<EOF
-CREATE EXTERNAL TABLE `auth_data`(
-  `samlRequestID` string, 
-  `creationTime` bigint', 
-  `recordType` string', 
-  `ttl` bigint)
+CREATE EXTERNAL TABLE `assertions_6284`(
+  `samlrequestid` string, 
+  `recordtype` string, 
+  `creationtime` bigint, 
+  `clientid` string, 
+  `idp` string, 
+  `nonce` string, 
+  `redirecturi` string, 
+  `responsetype` string, 
+  `samlrequest` string, 
+  `samlresponse` string, 
+  `scope` string, 
+  `state` string, 
+  `ttl` bigint, 
+  `code` string, 
+  `idtoken` string, 
+  `eventname` string)
+PARTITIONED BY ( 
+  `year` string, 
+  `month` string, 
+  `day` string, 
+  `hour` string, 
+  `minute` string, 
+  `record_type` string)
 ROW FORMAT SERDE 
   'org.openx.data.jsonserde.JsonSerDe' 
 WITH SERDEPROPERTIES ( 
-  'ignore.malformed.json'='true') 
+  'paths'='SAMLRequest,SAMLResponse,clientId,code,creationTime,eventName,idToken,idp,nonce,recordType,redirectUri,responseType,samlRequestID,scope,state,ttl') 
 STORED AS INPUTFORMAT 
   'org.apache.hadoop.mapred.TextInputFormat' 
 OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
 LOCATION
   's3://assertions-6284/'
 TBLPROPERTIES (
-  'has_encrypted_data'='true', 
-  'transient_lastDdlTime'='1721301313')
+  'classification'='json', 
+  'compressionType'='none',  
+  'partition_filtering.enabled'='true',  
+  'typeOfData'='file')
 EOF
 }
