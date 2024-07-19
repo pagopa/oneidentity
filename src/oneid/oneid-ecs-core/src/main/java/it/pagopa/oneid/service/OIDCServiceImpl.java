@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN_MIN;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -184,14 +185,16 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce) {
+  public TokenDataDTO getOIDCTokens(String client_id, List<AttributeDTO> attributeDTOList,
+      String nonce) {
     Log.debug(("start"));
 
     // Create access token
-    AccessToken accessToken = new BearerAccessToken();
+    // TODO is it ok for the 'scope' to be null?
+    AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
 
     //Create signed JWT ID token
-    String signedJWTString = oidcUtils.createSignedJWT(attributeDTOList, nonce);
+    String signedJWTString = oidcUtils.createSignedJWT(client_id, attributeDTOList, nonce);
     SignedJWT signedJWTIDToken;
     try {
       signedJWTIDToken = SignedJWT.parse(signedJWTString);
@@ -206,7 +209,7 @@ public class OIDCServiceImpl implements OIDCService {
         .idTokenType("openid")
         .accessToken(accessToken.toString())
         .tokenType(accessToken.getType().getValue())
-        .expiresIn(String.valueOf(accessToken.getLifetime()))
+        .expiresIn(accessToken.getLifetime())
         .scope("openid")
         .build();
   }

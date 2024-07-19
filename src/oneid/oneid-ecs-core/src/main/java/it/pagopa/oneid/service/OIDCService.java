@@ -19,7 +19,7 @@ public interface OIDCService {
 
   AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);
 
-  TokenDataDTO getOIDCTokens(List<AttributeDTO> attributeDTOList, String nonce);
+  TokenDataDTO getOIDCTokens(String client_id, List<AttributeDTO> attributeDTOList, String nonce);
 
   void authorizeClient(String clientId, String secret);
 
