@@ -3,8 +3,11 @@ package it.pagopa.oneid.exception.mapper;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
@@ -41,6 +44,22 @@ public class ExceptionMapper {
   public RestResponse<ErrorResponse> mapClientRegistrationServiceException(
       ClientRegistrationServiceException clientRegistrationServiceException) {
     Log.error(ExceptionUtils.getStackTrace(clientRegistrationServiceException));
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during Service execution";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapClientNotFoundException(
+      ClientNotFoundException clientNotFoundException) {
+    Response.Status status = UNAUTHORIZED;
+    String message = "Client not found";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapAuthorizationErrorException(
+      AuthorizationErrorException authorizationErrorException) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during Service execution";
     return RestResponse.status(status, buildErrorResponse(status, message));

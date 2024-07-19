@@ -1,4 +1,4 @@
-package it.pagopa.oneid.exception;
+package it.pagopa.oneid.common.model.exception;
 
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import lombok.Getter;
@@ -19,6 +19,10 @@ public class AuthorizationErrorException extends RuntimeException {
     super(errorCode);
     this.callbackUri = callbackUri;
     this.state = state;
+  }
+
+  public AuthorizationErrorException() {
+   
   }
 
 }
