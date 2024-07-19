@@ -123,30 +123,30 @@ resource "aws_athena_named_query" "create_assertions_table" {
   database = aws_athena_database.assertions.name
   workgroup = aws_athena_workgroup.assertions_workgroup.id
   query    = <<EOF
-CREATE EXTERNAL TABLE `assertions_6284`(
-  `samlrequestid` string, 
-  `recordtype` string, 
-  `creationtime` bigint, 
-  `clientid` string, 
-  `idp` string, 
-  `nonce` string, 
-  `redirecturi` string, 
-  `responsetype` string, 
-  `samlrequest` string, 
-  `samlresponse` string, 
-  `scope` string, 
-  `state` string, 
-  `ttl` bigint, 
-  `code` string, 
-  `idtoken` string, 
-  `eventname` string)
+CREATE EXTERNAL TABLE `${module.s3_assertions_bucket.s3_bucket_id}`(
+  `samlrequestid` string COMMENT 'from deserializer', 
+  `recordtype` string COMMENT 'from deserializer', 
+  `creationtime` string COMMENT 'from deserializer', 
+  `clientid` string COMMENT 'from deserializer', 
+  `idp` string COMMENT 'from deserializer', 
+  `nonce` string COMMENT 'from deserializer', 
+  `redirecturi` string COMMENT 'from deserializer', 
+  `responsetype` string COMMENT 'from deserializer', 
+  `samlrequest` string COMMENT 'from deserializer', 
+  `samlresponse` string COMMENT 'from deserializer', 
+  `scope` string COMMENT 'from deserializer', 
+  `state` string COMMENT 'from deserializer', 
+  `ttl` string COMMENT 'from deserializer', 
+  `code` string COMMENT 'from deserializer', 
+  `idtoken` string COMMENT 'from deserializer', 
+  `eventname` string COMMENT 'from deserializer')
 PARTITIONED BY ( 
-  `year` string, 
-  `month` string, 
-  `day` string, 
-  `hour` string, 
-  `minute` string, 
-  `record_type` string)
+  `partition_0` string, 
+  `partition_1` string, 
+  `partition_2` string, 
+  `partition_3` string, 
+  `partition_4` string, 
+  `partition_5` string)
 ROW FORMAT SERDE 
   'org.openx.data.jsonserde.JsonSerDe' 
 WITH SERDEPROPERTIES ( 
@@ -156,11 +156,11 @@ STORED AS INPUTFORMAT
 OUTPUTFORMAT 
   'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
 LOCATION
-  's3://assertions-6284/'
+  's3://${module.s3_assertions_bucket.s3_bucket_id}/'
 TBLPROPERTIES (
   'classification'='json', 
-  'compressionType'='none',  
-  'partition_filtering.enabled'='true',  
+  'compressionType'='none', 
+  'partition_filtering.enabled'='true',
   'typeOfData'='file')
 EOF
 }
