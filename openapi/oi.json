@@ -835,7 +835,7 @@
                     },
                     "registration_client_uri": {
                       "type": "string",
-                      "example": "https://server.example.org/connect/register?client_id=s6BhdRkqt3",
+                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
                       "description": "The URI to retrieved the registered values"
                     },
                     "client_id_issued_at": {
