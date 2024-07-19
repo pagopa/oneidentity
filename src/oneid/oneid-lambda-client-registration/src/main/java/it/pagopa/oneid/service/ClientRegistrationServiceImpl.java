@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -7,11 +8,14 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidRedirectURIException;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
+import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 
@@ -24,7 +28,17 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void validateClientRegistrationInfo(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-    //TODO implement
+
+    // Validate redirectUris
+    for (String uri : clientRegistrationRequestDTO.getRedirectUris()) {
+      try {
+        RedirectURIValidator.ensureLegal(URI.create(uri));
+      } catch (IllegalArgumentException ex) {
+        throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
+      } catch (NullPointerException ex) {
+        throw new InvalidRedirectURIException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
+      }
+    }
   }
 
   @Override
