@@ -185,7 +185,8 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public TokenDataDTO getOIDCTokens(String client_id, List<AttributeDTO> attributeDTOList,
+  public TokenDataDTO getOIDCTokens(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
       String nonce) {
     Log.debug(("start"));
 
@@ -194,7 +195,8 @@ public class OIDCServiceImpl implements OIDCService {
     AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
 
     //Create signed JWT ID token
-    String signedJWTString = oidcUtils.createSignedJWT(client_id, attributeDTOList, nonce);
+    String signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+        nonce);
     SignedJWT signedJWTIDToken;
     try {
       signedJWTIDToken = SignedJWT.parse(signedJWTString);

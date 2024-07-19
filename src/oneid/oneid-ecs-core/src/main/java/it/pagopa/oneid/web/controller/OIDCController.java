@@ -267,7 +267,7 @@ public class OIDCController {
         .getAssertions()
         .getFirst();
 
-    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(clientId,
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(session.getSamlRequestID(), clientId,
         samlServiceImpl.getAttributesFromSAMLAssertion(assertion),
         session.getAuthorizationRequestDTOExtended().getNonce());
 

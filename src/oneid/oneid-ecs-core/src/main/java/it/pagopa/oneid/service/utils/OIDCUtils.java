@@ -24,12 +24,12 @@ public class OIDCUtils {
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
 
-  private static JWTClaimsSet buildJWTClaimsSet(String client_id,
+  private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
       List<AttributeDTO> attributeDTOList, String nonce) {
     JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
-        .subject(SERVICE_PROVIDER_URI)
+        .subject(requestId)
         .issuer(SERVICE_PROVIDER_URI)
-        .audience(client_id)
+        .audience(clientId)
         .issueTime(new Date())
         .claim("nonce", nonce)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
@@ -40,7 +40,8 @@ public class OIDCUtils {
     return jwtClaimsSet.build();
   }
 
-  public String createSignedJWT(String client_id, List<AttributeDTO> attributeDTOList,
+  public String createSignedJWT(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
       String nonce) {
     // Prepare header for JWT
     JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
@@ -51,7 +52,8 @@ public class OIDCUtils {
 
     // Prepare claims set for JWT
 
-    byte[] payloadBytes = buildJWTClaimsSet(client_id, attributeDTOList, nonce).toPayload()
+    byte[] payloadBytes = buildJWTClaimsSet(requestId, clientId, attributeDTOList,
+        nonce).toPayload()
         .toBytes();
     byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
 
