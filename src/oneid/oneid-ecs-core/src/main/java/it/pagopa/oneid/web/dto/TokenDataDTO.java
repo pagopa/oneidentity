@@ -21,7 +21,7 @@ public class TokenDataDTO {
 
   @JsonProperty("expires_in")
   @NotNull
-  String expiresIn;
+  long expiresIn;
 
   @JsonProperty("refresh_token")
   String refreshToken;

@@ -24,10 +24,13 @@ public class OIDCUtils {
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
 
-  private static JWTClaimsSet buildJWTClaimsSet(List<AttributeDTO> attributeDTOList, String nonce) {
+  private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList, String nonce) {
     JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
-        .subject(SERVICE_PROVIDER_URI)
+        .subject(requestId)
         .issuer(SERVICE_PROVIDER_URI)
+        .audience(clientId)
+        .issueTime(new Date())
         .claim("nonce", nonce)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
@@ -37,7 +40,9 @@ public class OIDCUtils {
     return jwtClaimsSet.build();
   }
 
-  public String createSignedJWT(List<AttributeDTO> attributeDTOList, String nonce) {
+  public String createSignedJWT(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
+      String nonce) {
     // Prepare header for JWT
     JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
         .type(JOSEObjectType.JWT)
@@ -47,7 +52,9 @@ public class OIDCUtils {
 
     // Prepare claims set for JWT
 
-    byte[] payloadBytes = buildJWTClaimsSet(attributeDTOList, nonce).toPayload().toBytes();
+    byte[] payloadBytes = buildJWTClaimsSet(requestId, clientId, attributeDTOList,
+        nonce).toPayload()
+        .toBytes();
     byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
 
     // Create a signature with base64 encoded header and payload
