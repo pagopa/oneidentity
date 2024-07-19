@@ -37,7 +37,7 @@ public class ClientRegistrationController {
 
   }
 
-  @POST
+  @GET
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response register(@PathParam("client_id") String clientId) {

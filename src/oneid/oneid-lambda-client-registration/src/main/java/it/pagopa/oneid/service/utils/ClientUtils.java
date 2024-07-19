@@ -103,7 +103,7 @@ public class ClientUtils {
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
         .logoUri(client.getLogoUri())
-        .defaultAcrValues(List.of(client.getAuthLevel())) //TODO: how many levels do we support?
+        .defaultAcrValues(List.of(client.getAuthLevel()))
         .samlRequestedAttributes(samlRequestedAttributes)
         .build();
 
