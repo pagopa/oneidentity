@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public class AuthorizationErrorException extends RuntimeException {
 
-  protected final String callbackUri;
-  protected final String state;
+  private String callbackUri;
+  private String state;
 
   public AuthorizationErrorException(String callbackUri, String state) {
     super(String.valueOf(ErrorCode.AUTHORIZATION_ERROR));
@@ -22,7 +22,5 @@ public class AuthorizationErrorException extends RuntimeException {
   }
 
   public AuthorizationErrorException() {
-   
   }
-
 }
