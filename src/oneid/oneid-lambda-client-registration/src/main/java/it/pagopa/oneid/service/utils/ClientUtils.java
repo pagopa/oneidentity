@@ -10,6 +10,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.crypto.BadPaddingException;
@@ -53,15 +54,17 @@ public class ClientUtils {
     KeyGenerator keyGen = KeyGenerator.getInstance(ClientConstants.ENCRYPTION_ALGORITHM);
     keyGen.init(ClientConstants.CLIENT_SECRET_BIT_LENGTH); // Use 256-bit key
     SecretKey secretKey = keyGen.generateKey();
-    return new String(secretKey.getEncoded());
+    byte[] rawData = secretKey.getEncoded();
+    return Base64.getEncoder().encodeToString(rawData);
   }
 
-  public static String encryptSalt(String salt, String secret)
+  public static String encryptSalt(String salt, String encodedSecret)
       throws ClientUtilsException {
 
     // Rebuild the key using SecretKeySpec
-    SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), 0,
-        secret.length(),
+    byte[] decodedSecret = Base64.getDecoder()
+        .decode(encodedSecret.getBytes(StandardCharsets.UTF_8));
+    SecretKey secretKey = new SecretKeySpec(decodedSecret, 0, decodedSecret.length,
         ClientConstants.ENCRYPTION_ALGORITHM);
 
     // Initialize the cipher
@@ -77,8 +80,6 @@ public class ClientUtils {
       throw new ClientUtilsException();
     }
 
-    // Your plaintext data
-
     // Encrypt the data
     byte[] encryptedBytes;
     try {
@@ -88,7 +89,7 @@ public class ClientUtils {
     }
 
     // Encode the result as Base64
-    return new String(encryptedBytes);
+    return Base64.getEncoder().encodeToString(encryptedBytes);
   }
 
 

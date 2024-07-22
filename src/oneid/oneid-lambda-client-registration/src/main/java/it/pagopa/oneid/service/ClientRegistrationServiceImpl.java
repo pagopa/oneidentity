@@ -10,8 +10,8 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
+import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -65,15 +65,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     String salt = HASHUtils.hashSalt(randomString);
 
     // c. generate client_secret
-    String clientSecret;
+    String encodedClientSecret;
     try {
-      clientSecret = ClientUtils.generateClientSecret();
+      encodedClientSecret = ClientUtils.generateClientSecret();
     } catch (NoSuchAlgorithmException ex) {
       throw new ClientRegistrationServiceException();
     }
 
     // d. encrypt of salt with client_secret as key
-    String encryptedSalt = ClientUtils.encryptSalt(salt, clientSecret);
+    String encryptedSalt = ClientUtils.encryptSalt(salt, encodedClientSecret);
 
     // 4. Create ClientExtended
     ClientExtended clientExtended = new ClientExtended(client, encryptedSalt,
@@ -89,7 +89,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        new ClientID(client.getClientId()), clientSecret,
+        new ClientID(client.getClientId()), encodedClientSecret,
         client.getClientIdIssuedAt());
   }
 
