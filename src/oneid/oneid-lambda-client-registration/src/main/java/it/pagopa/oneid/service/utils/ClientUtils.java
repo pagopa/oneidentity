@@ -7,6 +7,8 @@ import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.ClientUtilsException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -35,10 +37,15 @@ public class ClientUtils {
         .map(Identifier::name)
         .collect(Collectors.toList());
 
+    List<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris()
+        .stream()
+        .map(URI::toString)
+        .toList();
+
     return Client.builder()
         .clientId(clientID.getValue())
         .friendlyName(clientRegistrationRequestDTO.getClientName())
-        .callbackURI(clientRegistrationRequestDTO.getRedirectUris())
+        .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
         .authLevel(clientRegistrationRequestDTO.getDefaultAcrValues().getFirst())
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
@@ -100,8 +107,21 @@ public class ClientUtils {
         .map(Identifier::valueOf)
         .collect(Collectors.toList());
 
+    List<URI> callbackUris = client
+        .getCallbackURI()
+        .stream()
+        .map(clientUri -> {
+          try {
+            return new URI(clientUri);
+          } catch (URISyntaxException e) {
+            //TODO add exception handling
+            throw new RuntimeException(e);
+          }
+        })
+        .toList();
+
     return ClientMetadataDTO.builder()
-        .redirectUris(client.getCallbackURI())
+        .redirectUris(callbackUris)
         .clientName(client.getFriendlyName())
         .logoUri(client.getLogoUri())
         .defaultAcrValues(List.of(client.getAuthLevel()))

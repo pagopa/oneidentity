@@ -22,7 +22,7 @@ public class ClientMetadataDTO {
   @NotEmpty
   @JsonProperty("redirect_uris")
   @RestForm("redirect_uris")
-  private List<String> redirectUris; //Client.callbackURI
+  private List<URI> redirectUris; //Client.callbackURI
 
   @NotBlank
   @JsonProperty("client_name")

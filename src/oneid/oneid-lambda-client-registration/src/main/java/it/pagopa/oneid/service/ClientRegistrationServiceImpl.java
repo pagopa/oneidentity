@@ -32,11 +32,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void validateClientRegistrationInfo(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-
+    Log.debug("start");
     // Validate redirectUris
-    for (String uri : clientRegistrationRequestDTO.getRedirectUris()) {
+    for (URI redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
       try {
-        RedirectURIValidator.ensureLegal(URI.create(uri));
+        RedirectURIValidator.ensureLegal(redirectUri);
       } catch (IllegalArgumentException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
       } catch (NullPointerException ex) {
