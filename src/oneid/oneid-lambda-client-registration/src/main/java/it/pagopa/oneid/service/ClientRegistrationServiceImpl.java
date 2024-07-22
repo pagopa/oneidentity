@@ -10,12 +10,14 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
+import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
@@ -37,12 +39,25 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     for (URI redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
       try {
         RedirectURIValidator.ensureLegal(redirectUri);
+        CustomURIUtils.validateURI(redirectUri.toString());
       } catch (IllegalArgumentException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
       } catch (NullPointerException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
       }
     }
+
+    //Validate logoUri
+    URI logoUri = clientRegistrationRequestDTO.getLogoUri();
+    try {
+      CustomURIUtils.validateURI(logoUri.toString());
+
+    } catch (InvalidRedirectURIException e) {
+      throw new InvalidLogoURIException();
+    }
+
+    Log.debug("end");
+
   }
 
   @Override

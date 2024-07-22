@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class InvalidRedirectURIException extends RuntimeException {
 
-  private ClientRegistrationErrorCode clientRegistrationErrorCode;
+  private final ClientRegistrationErrorCode clientRegistrationErrorCode;
 
   public InvalidRedirectURIException(ClientRegistrationErrorCode clientRegistrationErrorCode) {
     super();
