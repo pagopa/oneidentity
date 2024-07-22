@@ -11,11 +11,11 @@ import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationExc
 import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport.Violation;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
-import it.pagopa.oneid.exception.AuthorizationErrorException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
-import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;

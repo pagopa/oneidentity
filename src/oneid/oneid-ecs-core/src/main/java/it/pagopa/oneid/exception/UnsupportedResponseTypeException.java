@@ -1,5 +1,6 @@
 package it.pagopa.oneid.exception;
 
+import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
 public class UnsupportedResponseTypeException extends AuthorizationErrorException {
