@@ -1,18 +1,23 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
+import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
+import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
@@ -29,17 +34,30 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void validateClientRegistrationInfo(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-
+    Log.debug("start");
     // Validate redirectUris
-    for (String uri : clientRegistrationRequestDTO.getRedirectUris()) {
+    for (URI redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
       try {
-        RedirectURIValidator.ensureLegal(URI.create(uri));
+        RedirectURIValidator.ensureLegal(redirectUri);
+        CustomURIUtils.validateURI(redirectUri.toString());
       } catch (IllegalArgumentException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
       } catch (NullPointerException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
       }
     }
+
+    //Validate logoUri
+    URI logoUri = clientRegistrationRequestDTO.getLogoUri();
+    try {
+      CustomURIUtils.validateURI(logoUri.toString());
+
+    } catch (InvalidRedirectURIException e) {
+      throw new InvalidLogoURIException();
+    }
+
+    Log.debug("end");
+
   }
 
   @Override
@@ -62,15 +80,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     String salt = HASHUtils.hashSalt(randomString);
 
     // c. generate client_secret
-    String clientSecret;
+    String encodedClientSecret;
     try {
-      clientSecret = ClientUtils.generateClientSecret();
+      encodedClientSecret = ClientUtils.generateClientSecret();
     } catch (NoSuchAlgorithmException ex) {
       throw new ClientRegistrationServiceException();
     }
 
     // d. encrypt of salt with client_secret as key
-    String encryptedSalt = ClientUtils.encryptSalt(salt, clientSecret);
+    String encryptedSalt = ClientUtils.encryptSalt(salt, encodedClientSecret);
 
     // 4. Create ClientExtended
     ClientExtended clientExtended = new ClientExtended(client, encryptedSalt,
@@ -86,7 +104,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        new ClientID(client.getClientId()), clientSecret,
+        new ClientID(client.getClientId()), encodedClientSecret,
         client.getClientIdIssuedAt());
   }
 
@@ -103,4 +121,18 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         ).orElse(-1);
 
   }
+
+
+  @Override
+  public ClientMetadataDTO getClientMetadataDTO(String clientId) {
+    Log.debug("start");
+
+    Client client = clientConnector.getClientById(clientId)
+        .orElseThrow(ClientNotFoundException::new);
+
+    return convertClientToClientMetadataDTO(client);
+
+  }
+
+
 }

@@ -3,10 +3,14 @@ package it.pagopa.oneid.exception.mapper;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.ClientUtilsException;
+import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -47,6 +51,22 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
+  public RestResponse<Object> mapClientNotFoundException(
+      ClientNotFoundException clientNotFoundException) {
+    Response.Status status = UNAUTHORIZED;
+    String message = "Client not found";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapAuthorizationErrorException(
+      AuthorizationErrorException authorizationErrorException) {
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during Service execution";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
   public RestResponse<ClientRegistrationErrorDTO> mapValidationException(
       ValidationException validationException) {
     if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
@@ -70,6 +90,16 @@ public class ExceptionMapper {
     return RestResponse.status(BAD_REQUEST,
         buildClientRegistrationErrorDTO(
             invalidRedirectURIException.getClientRegistrationErrorCode(), message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ClientRegistrationErrorDTO> mapInvalidLogoURIException(
+      InvalidLogoURIException invalidLogoURIException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidLogoURIException));
+    String message = "Invalid logo URI";
+    return RestResponse.status(BAD_REQUEST,
+        buildClientRegistrationErrorDTO(
+            invalidLogoURIException.getClientRegistrationErrorCode(), message));
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {

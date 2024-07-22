@@ -17,6 +17,14 @@
             <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>quarkus-rest</artifactId>
             <groupId>io.quarkus</groupId>
         </dependency>

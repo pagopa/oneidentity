@@ -1,4 +1,4 @@
-package it.pagopa.oneid.exception;
+package it.pagopa.oneid.common.model.exception;
 
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import lombok.Getter;
@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public class AuthorizationErrorException extends RuntimeException {
 
-  protected final String callbackUri;
-  protected final String state;
+  private String callbackUri;
+  private String state;
 
   public AuthorizationErrorException(String callbackUri, String state) {
     super(String.valueOf(ErrorCode.AUTHORIZATION_ERROR));
@@ -21,4 +21,6 @@ public class AuthorizationErrorException extends RuntimeException {
     this.state = state;
   }
 
+  public AuthorizationErrorException() {
+  }
 }

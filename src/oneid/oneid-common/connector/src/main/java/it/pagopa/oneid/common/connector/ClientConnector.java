@@ -11,6 +11,8 @@ public interface ClientConnector {
   Optional<ArrayList<Client>> findAll();
 
   Optional<SecretDTO> getClientSecret(String clientId);
-  
+
   void saveClientIfNotExists(ClientExtended client);
+
+  Optional<Client> getClientById(String clientId);
 }
