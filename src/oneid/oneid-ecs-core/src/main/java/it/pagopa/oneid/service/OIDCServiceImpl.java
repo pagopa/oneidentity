@@ -26,7 +26,7 @@ import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
-import it.pagopa.oneid.exception.OIDCAuthorizationException;
+import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
@@ -221,15 +221,15 @@ public class OIDCServiceImpl implements OIDCService {
     Log.debug("start");
     if (clientsMap.get(clientId) == null) {
       Log.debug("client not found");
-      throw new OIDCAuthorizationException();
+      throw new InvalidClientException("Client ID not valid");
     }
 
     SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
-        .orElseThrow(OIDCAuthorizationException::new);
+        .orElseThrow(() -> new InvalidClientException("Client secret not found"));
 
     if (!HASHUtils.validateSecret(clientSecret, secretDTO.getSalt(), secretDTO.getSecret())) {
       Log.debug("client secret not valid");
-      throw new OIDCAuthorizationException();
+      throw new InvalidClientException("Client secret not valid");
     }
   }
 }

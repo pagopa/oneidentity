@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AuthorizationErrorException;
@@ -10,9 +11,11 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.InvalidGrantException;
+import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
 import it.pagopa.oneid.exception.InvalidScopeException;
-import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.SessionException;
+import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -245,13 +248,25 @@ public class OIDCController {
       throws OneIdentityException {
     Log.info("start");
 
+    // TODO check if possible 5xx are returned as json or html which is an error
+    if (!tokenRequestDTOExtended.getGrantType().equals(GrantType.AUTHORIZATION_CODE)) {
+      Log.error("unsupported grant type: " + tokenRequestDTOExtended.getGrantType());
+      throw new UnsupportedGrantTypeException();
+    }
+
     String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
-
-    byte[] decodedBytes = Base64.getDecoder().decode(authorization);
-    String decodedString = new String(decodedBytes);
-
-    String clientId = decodedString.split(":")[0];
-    String secret = decodedString.split(":")[1];
+    byte[] decodedBytes;
+    String decodedString;
+    String clientId;
+    String secret;
+    try {
+      decodedBytes = Base64.getDecoder().decode(authorization);
+      decodedString = new String(decodedBytes);
+      clientId = decodedString.split(":")[0];
+      secret = decodedString.split(":")[1];
+    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+      throw new InvalidRequestMalformedHeaderAuthorizationException();
+    }
 
     oidcServiceImpl.authorizeClient(clientId, secret);
 
@@ -260,7 +275,14 @@ public class OIDCController {
       session = samlSessionServiceImpl.getSAMLSessionByCode(
           tokenRequestDTOExtended.getCode());
     } catch (SessionException e) {
-      throw new OIDCAuthorizationException(e);
+      throw new InvalidGrantException();
+    }
+
+    // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
+    if (!tokenRequestDTOExtended.getRedirectUri()
+        .equals(session.getAuthorizationRequestDTOExtended().getRedirectUri())) {
+      Log.error("provided redirect URI does not correspond to session redirect URI");
+      throw new InvalidGrantException();
     }
 
     Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())

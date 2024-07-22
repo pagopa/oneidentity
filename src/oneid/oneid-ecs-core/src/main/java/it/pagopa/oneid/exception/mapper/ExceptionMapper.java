@@ -20,20 +20,24 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.InvalidClientException;
+import it.pagopa.oneid.exception.InvalidGrantException;
+import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
 import it.pagopa.oneid.exception.InvalidScopeException;
 import it.pagopa.oneid.exception.OIDCAuthorizationException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
+import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
+import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import jakarta.validation.Path.Node;
 import jakarta.validation.ValidationException;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -54,7 +58,7 @@ public class ExceptionMapper {
 
   private static final String VALIDATION_HEADER = "validation-exception";
 
-  private static @NotNull String getUri(String callbackUri, String errorCode,
+  private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
     String uri;
     if (state != null) {
@@ -110,6 +114,12 @@ public class ExceptionMapper {
       Log.error("Client ID not specified");
       return genericHTMLError(ErrorCode.GENERIC_HTML_ERROR.getErrorMessage());
     }
+    if (validationException.getMessage().contains("token.arg0.")) {
+      Log.error("Token request not correct");
+      String message = "The request is missing a required parameter.";
+      return RestResponse.status(BAD_REQUEST,
+          buildTokenRequestErrorDTO(OAuth2Error.INVALID_REQUEST_CODE, message));
+    }
     // TODO add before this 'if' other cases that must be mapped explicitly
     if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
       // Not a violation in a REST endpoint call, but rather in an internal component.
@@ -132,36 +142,6 @@ public class ExceptionMapper {
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
     return genericHTMLError(samlResponseStatusException.getMessage());
-  }
-
-  private RestResponse<Object> genericHTMLError(String errorCode) {
-    try {
-      return ResponseBuilder
-          .create(FOUND)
-          .location(new URI(
-              SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
-                  StandardCharsets.UTF_8))).build();
-    } catch (URISyntaxException e) {
-      return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
-    }
-  }
-
-  private RestResponse<Object> authenticationErrorResponse(String callbackUri,
-      String errorCode,
-      String errorMessage,
-      String state) {
-    try {
-      String uri = getUri(callbackUri, errorCode, errorMessage, state);
-      return ResponseBuilder
-          .create(FOUND)
-          .location(
-              new URI(uri))
-          .build();
-    } catch (URISyntaxException e) {
-      Log.error("invalid URI for redirecting: "
-          + e.getMessage());
-      return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
-    }
   }
 
   @ServerExceptionMapper
@@ -263,6 +243,83 @@ public class ExceptionMapper {
     String message = "Assertion not found.";
     return ResponseBuilder.create(status, buildErrorResponse(status, message))
         .type(MediaType.APPLICATION_JSON_TYPE).build();
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<TokenRequestErrorDTO> mapUnsupportedGrantTypeException(
+      UnsupportedGrantTypeException unsupportedGrantTypeException) {
+    String message = "The given authorization grant type is not supported.";
+    return RestResponse.status(BAD_REQUEST,
+        buildTokenRequestErrorDTO(
+            unsupportedGrantTypeException.getMessage(), message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapInvalidClientException(
+      InvalidClientException invalidClientException) {
+    return
+        ResponseBuilder
+            .create(RestResponse.Status.UNAUTHORIZED)
+            .header("WWW-Authenticate", "Basic")
+            .entity(buildTokenRequestErrorDTO(
+                invalidClientException.getMessage(), invalidClientException.getErrorMessage()))
+            .type(MediaType.APPLICATION_JSON_TYPE).build();
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<TokenRequestErrorDTO> mapInvalidRequestMalformedHeaderException(
+      InvalidRequestMalformedHeaderAuthorizationException invalidRequestMalformedHeaderException) {
+    String message = "The authorization header is malformed.";
+    return RestResponse.status(BAD_REQUEST,
+        buildTokenRequestErrorDTO(
+            invalidRequestMalformedHeaderException.getMessage(), message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<TokenRequestErrorDTO> mapInvalidGrantException(
+      InvalidGrantException invalidGrantException) {
+    String message = "The provided authorization grant is invalid.";
+    return RestResponse.status(BAD_REQUEST,
+        buildTokenRequestErrorDTO(
+            invalidGrantException.getMessage(), message));
+  }
+
+  private TokenRequestErrorDTO buildTokenRequestErrorDTO(
+      String error, String errorDescription) {
+    return TokenRequestErrorDTO.builder()
+        .error(error)
+        .errorDescription(errorDescription)
+        .build();
+  }
+
+  private RestResponse<Object> genericHTMLError(String errorCode) {
+    try {
+      return ResponseBuilder
+          .create(FOUND)
+          .location(new URI(
+              SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
+                  StandardCharsets.UTF_8))).build();
+    } catch (URISyntaxException e) {
+      return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  private RestResponse<Object> authenticationErrorResponse(String callbackUri,
+      String errorCode,
+      String errorMessage,
+      String state) {
+    try {
+      String uri = getUri(callbackUri, errorCode, errorMessage, state);
+      return ResponseBuilder
+          .create(FOUND)
+          .location(
+              new URI(uri))
+          .build();
+    } catch (URISyntaxException e) {
+      Log.error("invalid URI for redirecting: "
+          + e.getMessage());
+      return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
+    }
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
