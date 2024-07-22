@@ -30,7 +30,7 @@ def lambda_handler(event, context):
     
         for record in event:
         
-            saml_request_id = record['samlRequestID']
+            saml_request_id = "".join([record['samlRequestID'][0].replace("_", "", 1), record['samlRequestID'][1:]])
             record_type = record['recordType']
             creation_time = record['creationTime']
             cet_time = convert_to_cet(int(creation_time))
