@@ -2,6 +2,7 @@ package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.service.utils.ClientConstants.ACS_INDEX_DEFAULT_VALUE;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.ClientUtilsException;
@@ -28,6 +29,7 @@ public class ClientUtils {
 
   public static Client convertClientRegistrationDTOToClient(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO, int maxAttributeIndex) {
+    Log.debug("start");
 
     ClientID clientID = new ClientID(32); //todo length?
     long clientIdIssuedAt = System.currentTimeMillis();
@@ -57,6 +59,7 @@ public class ClientUtils {
   }
 
   public static String generateClientSecret() throws NoSuchAlgorithmException {
+    Log.debug("start");
 
     KeyGenerator keyGen = KeyGenerator.getInstance(ClientConstants.ENCRYPTION_ALGORITHM);
     keyGen.init(ClientConstants.CLIENT_SECRET_BIT_LENGTH); // Use 256-bit key
@@ -67,14 +70,18 @@ public class ClientUtils {
 
   public static String encryptSalt(String salt, String encodedSecret)
       throws ClientUtilsException {
+    Log.debug("start");
 
     // Rebuild the key using SecretKeySpec
+    Log.debug("rebuild the key using SecretKeySpec");
+
     byte[] decodedSecret = Base64.getDecoder()
         .decode(encodedSecret.getBytes(StandardCharsets.UTF_8));
     SecretKey secretKey = new SecretKeySpec(decodedSecret, 0, decodedSecret.length,
         ClientConstants.ENCRYPTION_ALGORITHM);
 
     // Initialize the cipher
+    Log.debug("initialize the cipher");
     Cipher cipher;
     try {
       cipher = Cipher.getInstance(ClientConstants.ENCRYPTION_ALGORITHM);
@@ -88,6 +95,7 @@ public class ClientUtils {
     }
 
     // Encrypt the data
+    Log.debug("encrypt the data");
     byte[] encryptedBytes;
     try {
       encryptedBytes = cipher.doFinal(salt.getBytes(StandardCharsets.UTF_8));
@@ -96,11 +104,13 @@ public class ClientUtils {
     }
 
     // Encode the result as Base64
+    Log.debug("end");
     return Base64.getEncoder().encodeToString(encryptedBytes);
   }
 
 
   public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
+    Log.debug("start");
     List<Identifier> samlRequestedAttributes = client
         .getRequestedParameters()
         .stream()
@@ -114,8 +124,7 @@ public class ClientUtils {
           try {
             return new URI(clientUri);
           } catch (URISyntaxException e) {
-            //TODO add exception handling
-            throw new RuntimeException(e);
+            throw new ClientUtilsException();
           }
         })
         .toList();

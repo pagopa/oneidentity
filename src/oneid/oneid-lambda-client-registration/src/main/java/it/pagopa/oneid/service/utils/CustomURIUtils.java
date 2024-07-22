@@ -20,12 +20,12 @@ public class CustomURIUtils {
       // Scheme check
       if (!isValidScheme(uri.getScheme())) {
         Log.error("Scheme not valid: " + uri.getScheme());
-        throw new URISyntaxException(uriString, uri.getScheme());
+        throw new URISyntaxException(uriString, "Schema not valid");
       }
       // Domain check
       if (!isValidDomain(uri.getHost())) {
         Log.error("Domain not valid: " + uri.getHost());
-        throw new URISyntaxException(uriString, uri.getHost());
+        throw new URISyntaxException(uriString, "Domain not valid");
       }
     } catch (URISyntaxException e) {
       throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);

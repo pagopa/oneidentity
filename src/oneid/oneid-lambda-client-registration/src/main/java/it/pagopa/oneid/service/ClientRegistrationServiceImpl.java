@@ -125,6 +125,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public ClientMetadataDTO getClientMetadataDTO(String clientId) {
+    Log.debug("start");
+
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
 
