@@ -1,8 +1,8 @@
 package it.pagopa.oneid.web.validator;
 
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
-import it.pagopa.oneid.exception.AuthorizationErrorException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
