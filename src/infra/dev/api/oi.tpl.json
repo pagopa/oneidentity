@@ -420,66 +420,9 @@
                       "https://client.example.org/callback2"
                     ]
                   },
-                  "response_types": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": ["code", "token_id_token"]
-                  },
-                  "grant_types": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": ["authorization_code", "implicit"]
-                  },
-                  "application_type": {
-                    "type": "string",
-                    "example": "web"
-                  },
-                  "contacts": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": ["user1@example.org", "user2@example.org"]
-                  },
                   "client_name": {
                     "type": "string",
                     "example": "https://example.org"
-                  },
-                  "subject_type": {
-                    "type": "string",
-                    "example": "pairwise"
-                  },
-                  "id_token_signed_response_alg": {
-                    "type": "string",
-                    "example": "RS256"
-                  },
-                  "token_endpoint_auth_method": {
-                    "type": "string",
-                    "example": "client_secret_basic"
-                  },
-                  "scope": {
-                    "type": "string",
-                    "example": "openid email profile openid_client_registration"
-                  },
-                  "organization": {
-                    "type": "string",
-                    "example": "https://organization.com"
-                  },
-                  "description": {
-                    "type": "string",
-                    "example": "Registered via OpenID Connect Dynamic Registration"
-                  },
-                  "environment": {
-                    "type": "string",
-                    "example": "ALL"
-                  },
-                  "master": {
-                    "type": "boolean",
-                    "example": false
                   },
                   "saml_requested_attributes": {
                     "type": "array",
