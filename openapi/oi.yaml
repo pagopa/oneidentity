@@ -627,58 +627,10 @@ paths:
                   example:
                     - https://client.example.org/callback
                     - https://client.example.org/callback2
-                response_types:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                    - code
-                    - token_id_token
-                grant_types:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                    - authorization_code
-                    - implicit
-                application_type:
-                  type: string
-                  example: web
-                contacts:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                    - user1@example.org
-                    - user2@example.org
                 client_name:
                   type: string
                   example: https://example.org
-                subject_type:
-                  type: string
-                  example: pairwise
-                id_token_signed_response_alg:
-                  type: string
-                  example: RS256
-                token_endpoint_auth_method:
-                  type: string
-                  example: client_secret_basic
-                scope:
-                  type: string
-                  example: openid email profile openid_client_registration
-                organization:
-                  type: string
-                  example: https://organization.com
-                description:
-                  type: string
-                  example: Registered via OpenID Connect Dynamic Registration
-                environment:
-                  type: string
-                  example: ALL
-                master:
-                  type: boolean
-                  example: false
-                spid_requested_attributes:
+                saml_requested_attributes:
                   type: array
                   items:
                     type: string
@@ -690,6 +642,20 @@ paths:
                     - name
                     - familyName
                     - fiscalNumber
+                logo_uri:
+                  type: string
+                  description: "The RP logo URI"
+                  example: "https://example.org/logo.png"
+                  format: uri
+                default_acr_values:
+                  type: array
+                  items:
+                    type: string
+                  description: list of the Authentication Context Class References that this RP supports
+                  example:
+                    - https://www.spid.gov.it/SpidL1
+                    - https://www.spid.gov.it/SpidL2
+                    - https://www.spid.gov.it/SpidL3
         description: Request body
         required: true
   /oidc/register/{client_id}:
@@ -794,7 +760,7 @@ paths:
                   registration_client_uri:
                     type: string
                     example: >-
-                      https://server.example.org/connect/register?client_id=s6BhdRkqt3
+                      https://server.example.org/oidc/register/s6BhdRkqt3
                     description: The URI to retrieved the registered values
                   client_id_issued_at:
                     type: integer

@@ -289,21 +289,313 @@
       }
     },
     "/oidc/register" : {
+      "options": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Options_oidc_register",
+        "description": "CORS preflight request",
+        "parameters": [
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "The Origin request header indicates where a fetch originates from.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, POST",
+                "schema": {
+                  "type": "string",
+                  "default": "POST"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "headers": {
+              "Pragma": {
+                "description": "Pragma browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          }
+        },
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+      },
       "post" : {
+        "tags": ["Authorization Server APIs"],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
+        "operationId": "Post_oidc_register",
         "x-amazon-apigateway-integration" : {
-          "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
-          "responses" : {},
           "passthroughBehavior" : "when_no_match",
           "contentHandling" : "CONVERT_TO_TEXT",
-          "type" : "aws_proxy"
+          "type" : "aws_proxy",
+          "httpMethod" : "POST",
+          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses" : {
+            "201": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
         },
-        "responses" : {
-          "201" : {
-            "$ref": "#/components/responses/createdOkJson"
+        "summary": "OpenID Connect Dynamic Registration endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "redirect_uris": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "https://client.example.org/callback",
+                      "https://client.example.org/callback2"
+                    ]
+                  },
+                  "client_name": {
+                    "type": "string",
+                    "example": "https://example.org"
+                  },
+                  "saml_requested_attributes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
+                    "example": ["spidCode", "name", "familyName", "fiscalNumber"]
+                  },
+                  "logo_uri": {
+                    "type": "string",
+                    "description": "The RP logo URI",
+                    "example": "https://example.org/logo.png",
+                    "format": "uri"
+                  },
+                  "default_acr_values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "list of the Authentication Context Class References that this RP supports",
+                    "example": [
+                      "https://www.spid.gov.it/SpidL1",
+                      "https://www.spid.gov.it/SpidL2",
+                      "https://www.spid.gov.it/SpidL3"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful registration including details about the registered values.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "client_id": {
+                      "type": "string",
+                      "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+                      "description": "The registered client_id"
+                    },
+                    "client_secret_expires_at": {
+                      "type": "integer",
+                      "example": 0,
+                      "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+                    },
+                    "client_secret": {
+                      "type": "string",
+                      "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
+                      "description": "The registered client_secret"
+                    },
+                    "registration_access_token": {
+                      "type": "string",
+                      "example": "db4b7554-e359-43ed-bbf6-1a50909ceeef",
+                      "description": "An access_token to be used at {registration_client_uri} to retrieve the registered information"
+                    },
+                    "registration_client_uri": {
+                      "type": "string",
+                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
+                      "description": "The URI to retrieved the registered values"
+                    },
+                    "client_id_issued_at": {
+                      "type": "integer",
+                      "example": 1497455914,
+                      "description": "The timestamp in seconds indicating the time of registration"
+                    },
+                    "token_endpoint_auth_method": {
+                      "type": "string",
+                      "example": "client_secret_basic",
+                      "description": "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
+                    },
+                    "application_type": {
+                      "type": "string",
+                      "example": "web",
+                      "description": "The kind of application"
+                    },
+                    "redirect_uris": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "https://client.example.org/callback",
+                        "https://client.example.org/callback2"
+                      ],
+                      "description": "The array of redirection URI values used by this client"
+                    },
+                    "client_name": {
+                      "type": "string",
+                      "example": "https://example.org",
+                      "description": "The name of the client to be presented to the end-user"
+                    },
+                    "subject_type": {
+                      "type": "string",
+                      "example": "pairwise",
+                      "description": "The subject type requested for responses to this client"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["user1@example.org", "user2@example.org"],
+                      "description": "The array of e-mail addresses of people responsible for this client"
+                    },
+                    "response_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["code", "token_id_token"],
+                      "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
+                    },
+                    "grant_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["authorization_code", "implicit"],
+                      "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
+                    },
+                    "id_token_signed_response_alg": {
+                      "type": "string",
+                      "example": "RS256",
+                      "description": "The algorithm requried for signing the ID token issued to this client"
+                    },
+                    "environment": {
+                      "type": "string",
+                      "example": "ALL",
+                      "description": "The development environment of the client e.g., IOS"
+                    },
+                    "organization": {
+                      "type": "string",
+                      "example": "https://organization.com",
+                      "description": "The organization of the requestor"
+                    },
+                    "master": {
+                      "type": "boolean",
+                      "example": false,
+                      "description": "The value identifies the client as being used as a master-key"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Registered via OpenID Connect Dynamic Registration",
+                      "description": "A description for this client"
+                    },
+                    "scope": {
+                      "type": "string",
+                      "example": "openid email profile openid_client_registration",
+                      "description": "A custom scope"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
           },
           "429": {
             "$ref": "#/components/responses/rateLimit"
@@ -312,6 +604,280 @@
             "$ref": "#/components/responses/serverError"
           }
         }
+      }
+    },
+    "/oidc/register/{client_id}": {
+      "options": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Options_oidc_register_config",
+        "description": "CORS preflight request",
+        "parameters": [
+          {
+            "name": "Access-Control-Request-Headers",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Headers request header is used when issuing a preflight request to let the server know which HTTP headers will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Access-Control-Request-Method",
+            "in": "header",
+            "required": true,
+            "description": "The Access-Control-Request-Method request header is used when issuing a preflight request to let the server know which HTTP method will be used when the actual request is made.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "description": "The Origin request header indicates where a fetch originates from.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content, applicable to OPTIONS request with preflight configuration",
+            "headers": {
+              "Access-Control-Allow-Methods": {
+                "description": "Allowable Methods, GET",
+                "schema": {
+                  "type": "string",
+                  "default": "GET"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          }
+        },
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+      },
+      "get": {
+        "tags": ["Authorization Server APIs"],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
+        "operationId": "Get_oidc_register_config",
+        "x-amazon-apigateway-integration" : {
+          "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT",
+          "type" : "aws_proxy",
+          "httpMethod" : "GET",
+          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.authorization": "method.request.header.authorization"
+          },
+          "responses" : {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "description": "MUST be 'Bearer the-access_token'. The access_token was issued as part of the client registration and is SCOPE'd to 'openid_client_registration'",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response including details about the client registration. Additional details may also be included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "client_id": {
+                      "type": "string",
+                      "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+                      "description": "The registered client_id"
+                    },
+                    "client_secret_expires_at": {
+                      "type": "integer",
+                      "example": 0,
+                      "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+                    },
+                    "client_secret": {
+                      "type": "string",
+                      "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
+                      "description": "The registered client_secret"
+                    },
+                    "registration_client_uri": {
+                      "type": "string",
+                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
+                      "description": "The URI to retrieved the registered values"
+                    },
+                    "client_id_issued_at": {
+                      "type": "integer",
+                      "example": 1497455914,
+                      "description": "The timestamp in seconds indicating the time of registration"
+                    },
+                    "token_endpoint_auth_method": {
+                      "type": "string",
+                      "example": "client_secret_basic",
+                      "description": "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
+                    },
+                    "application_type": {
+                      "type": "string",
+                      "example": "web",
+                      "description": "The kind of application"
+                    },
+                    "redirect_uris": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "https://client.example.org/callback",
+                        "https://client.example.org/callback2"
+                      ],
+                      "description": "The array of redirection URI values used by this client"
+                    },
+                    "client_name": {
+                      "type": "string",
+                      "example": "https://example.org",
+                      "description": "The name of the client to be presented to the end-user"
+                    },
+                    "subject_type": {
+                      "type": "string",
+                      "example": "pairwise",
+                      "description": "The subject type requested for responses to this client"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["user1@example.org", "user2@example.org"],
+                      "description": "The array of e-mail addresses of people responsible for this client"
+                    },
+                    "response_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["code", "token_id_token"],
+                      "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
+                    },
+                    "grant_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": ["authorization_code", "implicit"],
+                      "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
+                    },
+                    "id_token_signed_response_alg": {
+                      "type": "string",
+                      "example": "RS256",
+                      "description": "The algorithm requried for signing the ID token issued to this client"
+                    },
+                    "environment": {
+                      "type": "string",
+                      "example": "ALL",
+                      "description": "The development environment of the client e.g., IOS"
+                    },
+                    "organization": {
+                      "type": "string",
+                      "example": "https://organization.com",
+                      "description": "The organization of the requestor"
+                    },
+                    "master": {
+                      "type": "boolean",
+                      "example": false,
+                      "description": "The value identifies the client as being used as a master-key"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "Registered via OpenID Connect Dynamic Registration",
+                      "description": "A description for this client"
+                    },
+                    "scope": {
+                      "type": "string",
+                      "example": "openid email profile openid_client_registration",
+                      "description": "A custom scope"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
     "/saml/acs": {
