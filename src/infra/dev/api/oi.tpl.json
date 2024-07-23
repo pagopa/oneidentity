@@ -301,9 +301,6 @@
           "type": "aws_proxy",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
-          "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
-          },
           "responses": {
             "201": {
               "statusCode": "201",
