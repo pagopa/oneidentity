@@ -1,26 +1,26 @@
 name: Deploy Lambda client registration
 
 on:
-    push:
-      branches:
-        - "main"
-      paths:
-        - "**/src/oneid/oneid-client-registration/**"
-        - "**/src/oneid/oneid-common/**"
-    workflow_dispatch:
-      inputs:
-        environment:
-          description: 'Choose environment'
-          type: choice
-          required: true
-          default: dev
-          options:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "**/src/oneid/oneid-client-registration/**"
+      - "**/src/oneid/oneid-common/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose environment'
+        type: choice
+        required: true
+        default: dev
+        options:
           - dev
 jobs:
-    build:
-      runs-on: ubuntu-22.04
+  build:
+    runs-on: ubuntu-22.04
 
-      steps:
+    steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
@@ -29,26 +29,26 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-     
+
       - name: Build with Maven
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -P oneid-lambda-client-registration-aggregate 
-        
+        run: ./mvnw -f pom.xml -B package -P oneid-lambda-client-registration-aggregate
+
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: client-registration-lambda
           path: ./src/oneid/oneid-lambda-client-registration/target/function.zip
 
-    deploy:
-      runs-on: ubuntu-22.04
-      needs: build
-      environment: dev
-      permissions:
-        id-token: write
-        contents: read
-  
-      steps:
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: build
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
       - name: Download build artifacts
         uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
@@ -60,9 +60,9 @@ jobs:
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
-   
+
       - name: Deploy Lambda function
         run: |
-            aws lambda update-function-code \
-            --function-name oneid-es-1-d-metadata \
-            --zip-file fileb://src/oneid/oneid-lambda-client-registration/target/function.zip
+          aws lambda update-function-code \
+          --function-name oneid-es-1-d-client-registration \
+          --zip-file fileb://src/oneid/oneid-lambda-client-registration/target/function.zip
