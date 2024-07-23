@@ -288,9 +288,11 @@
         }
       }
     },
-    "/oidc/register" : {
+    "/oidc/register": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_oidc_register",
         "description": "CORS preflight request",
         "parameters": [
@@ -322,6 +324,29 @@
             }
           }
         ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "OPTIONS",
+          "uri": "${uri}/.well-known/oidc/register",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
+            "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
+            "integration.request.header.Origin": "method.request.header.Origin"
+          },
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "requestParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "requestParameters": {}
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
@@ -357,20 +382,22 @@
         },
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
-      "post" : {
-        "tags": ["Authorization Server APIs"],
+      "post": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
         "operationId": "Post_oidc_register",
-        "x-amazon-apigateway-integration" : {
-          "passthroughBehavior" : "when_no_match",
-          "contentHandling" : "CONVERT_TO_TEXT",
-          "type" : "aws_proxy",
-          "httpMethod" : "POST",
-          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+        "x-amazon-apigateway-integration": {
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
-          "responses" : {
+          "responses": {
             "201": {
               "statusCode": "201",
               "responseParameters": {
@@ -430,7 +457,12 @@
                       "type": "string"
                     },
                     "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-                    "example": ["spidCode", "name", "familyName", "fiscalNumber"]
+                    "example": [
+                      "spidCode",
+                      "name",
+                      "familyName",
+                      "fiscalNumber"
+                    ]
                   },
                   "logo_uri": {
                     "type": "string",
@@ -531,7 +563,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["user1@example.org", "user2@example.org"],
+                      "example": [
+                        "user1@example.org",
+                        "user2@example.org"
+                      ],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -539,7 +574,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["code", "token_id_token"],
+                      "example": [
+                        "code",
+                        "token_id_token"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -547,7 +585,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["authorization_code", "implicit"],
+                      "example": [
+                        "authorization_code",
+                        "implicit"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -608,7 +649,9 @@
     },
     "/oidc/register/{client_id}": {
       "options": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "operationId": "Options_oidc_register_config",
         "description": "CORS preflight request",
         "parameters": [
@@ -649,6 +692,29 @@
             }
           }
         ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "OPTIONS",
+          "uri": "${uri}/.well-known/oidc/register/{client_id}",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
+            "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
+            "integration.request.header.Origin": "method.request.header.Origin"
+          },
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "requestParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "requestParameters": {}
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content, applicable to OPTIONS request with preflight configuration",
@@ -669,20 +735,22 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
       "get": {
-        "tags": ["Authorization Server APIs"],
+        "tags": [
+          "Authorization Server APIs"
+        ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
         "operationId": "Get_oidc_register_config",
-        "x-amazon-apigateway-integration" : {
-          "passthroughBehavior" : "when_no_match",
-          "contentHandling" : "CONVERT_TO_TEXT",
-          "type" : "aws_proxy",
-          "httpMethod" : "GET",
-          "uri" : "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+        "x-amazon-apigateway-integration": {
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "GET",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
             "integration.request.header.authorization": "method.request.header.authorization"
           },
-          "responses" : {
+          "responses": {
             "200": {
               "statusCode": "200",
               "responseParameters": {
@@ -804,7 +872,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["user1@example.org", "user2@example.org"],
+                      "example": [
+                        "user1@example.org",
+                        "user2@example.org"
+                      ],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -812,7 +883,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["code", "token_id_token"],
+                      "example": [
+                        "code",
+                        "token_id_token"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -820,7 +894,10 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": ["authorization_code", "implicit"],
+                      "example": [
+                        "authorization_code",
+                        "implicit"
+                      ],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -1998,7 +2075,7 @@
       },
       "createdOkJson": {
         "description": "Created",
-        "headers": { 
+        "headers": {
           "content-type": {
             "application/json": {
               "schema": {

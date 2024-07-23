@@ -42,6 +42,7 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
 
+  # TODO fix
   metadata_lamba_name            = module.backend.metadata_lambda_name
   metadata_lamba_arn             = module.backend.metadata_lambda_arn
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
@@ -113,9 +114,10 @@ module "backend" {
 
     subnet_ids = module.network.private_subnet_ids
 
-    environment_variables = [{
-      name  = "METADATA_URL",
-      value = "https://${var.r53_dns_zone.name}/saml/metadata"
+    environment_variables = [
+      {
+        name  = "METADATA_URL",
+        value = "https://${var.r53_dns_zone.name}/saml/metadata"
       },
       {
         name  = "SERVICE_PROVIDER_URI"
@@ -124,7 +126,8 @@ module "backend" {
       {
         name  = "ACS_URL"
         value = "https://${var.r53_dns_zone.name}/saml/acs"
-    }]
+      }
+    ]
   }
 
   ## NLB ##
@@ -200,17 +203,19 @@ module "spid_validator" {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
       image_version = "2.0.0"
-      environment = [{
-        name  = "NODE_USE_HTTPS"
-        value = "false"
+      environment   = [
+        {
+          name  = "NODE_USE_HTTPS"
+          value = "false"
         }, {
-        name  = "NODE_HTTPS_PORT"
-        value = "8080"
+          name  = "NODE_HTTPS_PORT"
+          value = "8080"
         },
         {
           name  = "SPID_USERS_URL"
           value = "https://raw.githubusercontent.com/pagopa/oneidentity/main/src/config/validator/users.json"
-      }]
+        }
+      ]
     }
   }
 
