@@ -4,12 +4,11 @@ import static it.pagopa.oneid.service.utils.ClientConstants.ACS_INDEX_DEFAULT_VA
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.ClientUtilsException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -39,17 +38,15 @@ public class ClientUtils {
         .map(Identifier::name)
         .collect(Collectors.toList());
 
-    List<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris()
-        .stream()
-        .map(URI::toString)
-        .toList();
+    List<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris();
 
     return Client.builder()
         .clientId(clientID.getValue())
         .friendlyName(clientRegistrationRequestDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
-        .authLevel(clientRegistrationRequestDTO.getDefaultAcrValues().getFirst())
+        .authLevel(AuthLevel.authLevelFromValue(
+            clientRegistrationRequestDTO.getDefaultAcrValues().getFirst()))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .attributeIndex(maxAttributeIndex + 1)
         .isActive(true)
@@ -117,23 +114,12 @@ public class ClientUtils {
         .map(Identifier::valueOf)
         .collect(Collectors.toList());
 
-    List<URI> callbackUris = client
-        .getCallbackURI()
-        .stream()
-        .map(clientUri -> {
-          try {
-            return new URI(clientUri);
-          } catch (URISyntaxException e) {
-            throw new ClientUtilsException();
-          }
-        })
-        .toList();
-
     return ClientMetadataDTO.builder()
-        .redirectUris(callbackUris)
+        .redirectUris(client
+            .getCallbackURI())
         .clientName(client.getFriendlyName())
         .logoUri(client.getLogoUri())
-        .defaultAcrValues(List.of(client.getAuthLevel()))
+        .defaultAcrValues(List.of(client.getAuthLevel().getValue()))
         .samlRequestedAttributes(samlRequestedAttributes)
         .build();
 
