@@ -1,16 +1,18 @@
 package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.eclipse.microprofile.openapi.annotations.enums.Explode;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.jboss.resteasy.reactive.RestForm;
 
 @Data
@@ -22,7 +24,8 @@ public class ClientMetadataDTO {
   @NotEmpty
   @JsonProperty("redirect_uris")
   @RestForm("redirect_uris")
-  private List<URI> redirectUris; //Client.callbackURI
+  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  private List<String> redirectUris; //Client.callbackURI
 
   @NotBlank
   @JsonProperty("client_name")
@@ -31,16 +34,18 @@ public class ClientMetadataDTO {
 
   @JsonProperty("logo_uri")
   @RestForm("logo_uri")
-  private URI logoUri;
+  private String logoUri;
 
-  @NotEmpty
   @JsonProperty("default_acr_values")
   @RestForm("default_acr_values")
-  private List<AuthLevel> defaultAcrValues;
+  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  @AuthLevelCheck
+  private List<String> defaultAcrValues;
 
   @NotEmpty
   @JsonProperty("saml_requested_attributes")
   @RestForm("saml_requested_attributes")
+  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private List<Identifier> samlRequestedAttributes;
 
 

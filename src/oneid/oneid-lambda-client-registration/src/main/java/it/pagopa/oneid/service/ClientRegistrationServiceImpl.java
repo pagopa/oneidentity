@@ -36,10 +36,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.debug("start");
     // Validate redirectUris
-    for (URI redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
+    for (String redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
       try {
-        RedirectURIValidator.ensureLegal(redirectUri);
-        CustomURIUtils.validateURI(redirectUri.toString());
+        CustomURIUtils.validateURI(redirectUri);
+        RedirectURIValidator.ensureLegal(URI.create(redirectUri));
       } catch (IllegalArgumentException ex) {
         throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
       } catch (NullPointerException ex) {
@@ -48,9 +48,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     //Validate logoUri
-    URI logoUri = clientRegistrationRequestDTO.getLogoUri();
+    String logoUri = clientRegistrationRequestDTO.getLogoUri();
     try {
-      CustomURIUtils.validateURI(logoUri.toString());
+      CustomURIUtils.validateURI(logoUri);
 
     } catch (InvalidRedirectURIException e) {
       throw new InvalidLogoURIException();

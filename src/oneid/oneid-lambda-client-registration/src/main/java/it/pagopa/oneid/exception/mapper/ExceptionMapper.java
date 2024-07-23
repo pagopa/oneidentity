@@ -16,6 +16,7 @@ import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
 import jakarta.validation.ValidationException;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -80,6 +81,16 @@ public class ExceptionMapper {
     return RestResponse.status(BAD_REQUEST,
         buildClientRegistrationErrorDTO(ClientRegistrationErrorCode.INVALID_CLIENT_METADATA,
             message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ClientRegistrationErrorDTO> mapBadRequestException(
+      BadRequestException badRequestException) {
+    Log.error(ExceptionUtils.getStackTrace(badRequestException));
+    return RestResponse.status(BAD_REQUEST,
+        buildClientRegistrationErrorDTO(
+            ClientRegistrationErrorCode.INVALID_CLIENT_METADATA,
+            ClientRegistrationErrorCode.INVALID_CLIENT_METADATA.getErrorMessage()));
   }
 
   @ServerExceptionMapper
