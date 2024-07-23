@@ -28,7 +28,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
   policy = jsonencode({
 
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
@@ -49,10 +49,11 @@ resource "aws_iam_policy" "deploy_lambda" {
 
 data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = [
       "dynamodb:GetItem",
-      "dynamodb:PutItem"
+      "dynamodb:PutItem",
+      "dynamodb:Scan"
     ]
     resources = [
       var.client_registration_lambda.table_client_registrations_arn
@@ -66,12 +67,12 @@ module "client_registration_lambda" {
   version = "7.4.0"
 
   function_name           = var.client_registration_lambda.name
-  description             = "Lambda function to download client configuration files."
-  runtime                 = "java17"
-  handler                 = "example.HelloWorld::handleRequest"
+  description             = "Lambda function OIDC Dynamic Client Registration."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   create_package          = false
   local_existing_package  = var.client_registration_lambda.filename
-  ignore_source_code_hash = false
+  ignore_source_code_hash = true
 
   publish = true
 
@@ -81,10 +82,13 @@ module "client_registration_lambda" {
   environment_variables = {
   }
 
-  memory_size = 128
+  memory_size = 512
   timeout     = 30
+  snap_start  = true
 
 }
+
+## Lambda metadata
 
 data "aws_iam_policy_document" "metadata_lambda" {
   //name = format("%s-task-policy", var.metadata_lambda.name)
@@ -97,8 +101,6 @@ data "aws_iam_policy_document" "metadata_lambda" {
   }
 
 }
-
-## Lambda metadata
 
 module "metadata_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
