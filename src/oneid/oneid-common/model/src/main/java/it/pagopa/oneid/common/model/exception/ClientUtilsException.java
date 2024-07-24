@@ -1,4 +1,4 @@
-package it.pagopa.oneid.exception;
+package it.pagopa.oneid.common.model.exception;
 
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 

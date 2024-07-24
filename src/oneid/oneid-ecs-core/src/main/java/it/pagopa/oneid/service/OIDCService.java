@@ -22,6 +22,6 @@ public interface OIDCService {
   TokenDataDTO getOIDCTokens(String requestId, String clientId, List<AttributeDTO> attributeDTOList,
       String nonce);
 
-  void authorizeClient(String clientId, String secret);
+  void authorizeClient(String clientId, String encodedSecret);
 
 }

@@ -8,8 +8,8 @@ import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationExc
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
 import it.pagopa.oneid.model.ErrorResponse;
