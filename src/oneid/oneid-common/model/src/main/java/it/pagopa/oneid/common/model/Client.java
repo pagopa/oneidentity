@@ -3,7 +3,7 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,10 +30,10 @@ public class Client {
   private String friendlyName;
 
   @NotNull
-  private List<String> callbackURI;
+  private Set<String> callbackURI;
 
   @NotNull
-  private List<String> requestedParameters;
+  private Set<String> requestedParameters;
 
 
   @Getter(onMethod_ = @DynamoDbConvertedBy(AuthLevelConverter.class))

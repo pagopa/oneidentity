@@ -23,7 +23,7 @@ import jakarta.inject.Inject;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
@@ -98,8 +98,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     clientConnector.saveClientIfNotExists(clientExtended);
 
     // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
-    clientRegistrationRequestDTO.setDefaultAcrValues(List.of(
-        clientRegistrationRequestDTO.getDefaultAcrValues().getFirst()));
+    clientRegistrationRequestDTO.setDefaultAcrValues(Set.of(
+        clientRegistrationRequestDTO.getDefaultAcrValues().stream().findFirst()
+            .orElseThrow(ClientRegistrationServiceException::new)));
 
     // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");

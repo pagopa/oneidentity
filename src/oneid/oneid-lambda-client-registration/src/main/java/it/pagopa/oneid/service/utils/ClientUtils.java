@@ -7,11 +7,12 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.ClientConstants;
+import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -26,12 +27,12 @@ public class ClientUtils {
     ClientID clientID = new ClientID(32); //todo length?
     long clientIdIssuedAt = System.currentTimeMillis();
 
-    List<String> requestedParameters = clientRegistrationRequestDTO.getSamlRequestedAttributes()
+    Set<String> requestedParameters = clientRegistrationRequestDTO.getSamlRequestedAttributes()
         .stream()
         .map(Identifier::name)
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
 
-    List<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris();
+    Set<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris();
 
     return Client.builder()
         .clientId(clientID.getValue())
@@ -39,7 +40,8 @@ public class ClientUtils {
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
         .authLevel(AuthLevel.authLevelFromValue(
-            clientRegistrationRequestDTO.getDefaultAcrValues().getFirst()))
+            clientRegistrationRequestDTO.getDefaultAcrValues().stream().findFirst()
+                .orElseThrow(ClientRegistrationServiceException::new)))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .attributeIndex(maxAttributeIndex + 1)
         .isActive(true)
@@ -61,18 +63,18 @@ public class ClientUtils {
 
   public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
     Log.debug("start");
-    List<Identifier> samlRequestedAttributes = client
+    Set<Identifier> samlRequestedAttributes = client
         .getRequestedParameters()
         .stream()
         .map(Identifier::valueOf)
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
 
     return ClientMetadataDTO.builder()
         .redirectUris(client
             .getCallbackURI())
         .clientName(client.getFriendlyName())
         .logoUri(client.getLogoUri())
-        .defaultAcrValues(List.of(client.getAuthLevel().getValue()))
+        .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
         .samlRequestedAttributes(samlRequestedAttributes)
         .build();
 
