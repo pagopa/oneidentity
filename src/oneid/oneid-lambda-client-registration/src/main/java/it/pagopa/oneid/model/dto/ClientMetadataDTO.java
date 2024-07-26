@@ -5,7 +5,7 @@ import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class ClientMetadataDTO {
   @JsonProperty("redirect_uris")
   @RestForm("redirect_uris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private List<String> redirectUris; //Client.callbackURI
+  private Set<String> redirectUris; //Client.callbackURI
 
   @NotBlank
   @JsonProperty("client_name")
@@ -40,13 +40,13 @@ public class ClientMetadataDTO {
   @RestForm("default_acr_values")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   @AuthLevelCheck
-  private List<String> defaultAcrValues;
+  private Set<String> defaultAcrValues;
 
   @NotEmpty
   @JsonProperty("saml_requested_attributes")
   @RestForm("saml_requested_attributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private List<Identifier> samlRequestedAttributes;
+  private Set<Identifier> samlRequestedAttributes;
 
 
   public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {

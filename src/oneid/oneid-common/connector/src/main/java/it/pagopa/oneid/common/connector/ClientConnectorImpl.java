@@ -77,7 +77,7 @@ public class ClientConnectorImpl implements ClientConnector {
   @Override
   public Optional<Client> getClientById(String clientId) {
     Log.debug("start");
-    return Optional.of(
+    return Optional.ofNullable(
         clientMapper.getItem(Key.builder().partitionValue(clientId).build()));
   }
 
