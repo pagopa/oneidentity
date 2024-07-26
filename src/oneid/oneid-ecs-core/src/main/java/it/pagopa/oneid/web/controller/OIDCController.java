@@ -258,17 +258,17 @@ public class OIDCController {
     byte[] decodedBytes;
     String decodedString;
     String clientId;
-    String secret;
+    String encodedSecret;
     try {
       decodedBytes = Base64.getDecoder().decode(authorization);
       decodedString = new String(decodedBytes);
       clientId = decodedString.split(":")[0];
-      secret = decodedString.split(":")[1];
+      encodedSecret = decodedString.split(":")[1];
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       throw new InvalidRequestMalformedHeaderAuthorizationException();
     }
 
-    oidcServiceImpl.authorizeClient(clientId, secret);
+    oidcServiceImpl.authorizeClient(clientId, encodedSecret);
 
     SAMLSession session;
     try {

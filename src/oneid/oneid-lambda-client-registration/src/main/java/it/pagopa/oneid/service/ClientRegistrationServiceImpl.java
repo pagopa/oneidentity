@@ -8,7 +8,7 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
-import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.common.utils.AESUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
@@ -74,10 +74,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 3. Client.Secret & Salt
 
     // a. Generate random string
-    String randomString = HASHUtils.generateRandomString(32); //todo length?
+    String randomString = AESUtils.generateRandomString(32); //todo length?
 
     // b. sha256 of random string -> salt
-    String salt = HASHUtils.hashSalt(randomString);
+    String salt = AESUtils.hashSalt(randomString);
 
     // c. generate client_secret
     String encodedClientSecret;
@@ -88,7 +88,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // d. encrypt of salt with client_secret as key
-    String encryptedSalt = ClientUtils.encryptSalt(salt, encodedClientSecret);
+    String encryptedSalt = AESUtils.encryptSalt(salt, encodedClientSecret);
 
     // 4. Create ClientExtended
     ClientExtended clientExtended = new ClientExtended(client, encryptedSalt,

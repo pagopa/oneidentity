@@ -13,6 +13,7 @@ import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport.Violation;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
@@ -209,6 +210,7 @@ public class ExceptionMapper {
 
   }
 
+
   @ServerExceptionMapper
   public RestResponse<Object> mapAuthorizationErrorException(
       AuthorizationErrorException authorizationErrorException) {
@@ -252,6 +254,15 @@ public class ExceptionMapper {
     return RestResponse.status(BAD_REQUEST,
         buildTokenRequestErrorDTO(
             unsupportedGrantTypeException.getMessage(), message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapClientUtilsException(
+      ClientUtilsException clientUtilsException) {
+    Log.error(ExceptionUtils.getStackTrace(clientUtilsException));
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    String message = "Error during ClientUtils execution";
+    return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
   @ServerExceptionMapper
