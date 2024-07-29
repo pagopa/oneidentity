@@ -77,6 +77,7 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedGet.getNonce())
             .scope(authorizationRequestDTOExtendedGet.getScope())
             .state(authorizationRequestDTOExtendedGet.getState())
+            .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress())
             .build();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
@@ -88,6 +89,7 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedPost.getNonce())
             .scope(authorizationRequestDTOExtendedPost.getScope())
             .state(authorizationRequestDTOExtendedPost.getState())
+            .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress())
             .build();
       }
       default -> {
