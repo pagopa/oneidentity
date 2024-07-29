@@ -163,8 +163,9 @@ module "ecs_core_service" {
 
   container_definitions = {
     "${var.service_core.container.name}" = {
-      cpu    = var.service_core.container.cpu
-      memory = var.service_core.memory
+      cpu                         = var.service_core.container.cpu
+      memory                      = var.service_core.memory
+      create_cloudwatch_log_group = false
 
       essential = true
       image     = "${module.ecr[var.service_core.container.image_name].repository_url}:${var.service_core.container.image_version}",
