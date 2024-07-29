@@ -91,9 +91,10 @@ variable "kms_sessions_table_alias_arn" {
 
 variable "client_registration_lambda" {
   type = object({
-    name                           = string
-    filename                       = string
-    table_client_registrations_arn = string
+    name                              = string
+    filename                          = string
+    table_client_registrations_arn    = string
+    cloudwatch_logs_retention_in_days = number
   })
 
 }

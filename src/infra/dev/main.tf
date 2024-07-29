@@ -146,9 +146,10 @@ module "backend" {
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
   client_registration_lambda = {
-    name                           = format("%s-client-registration", local.project)
-    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    table_client_registrations_arn = module.database.table_client_registrations_arn
+    name                              = format("%s-client-registration", local.project)
+    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    table_client_registrations_arn    = module.database.table_client_registrations_arn
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
 
   }
 

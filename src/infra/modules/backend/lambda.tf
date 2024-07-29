@@ -82,6 +82,8 @@ module "client_registration_lambda" {
   environment_variables = {
   }
 
+  cloudwatch_logs_retention_in_days = 14
+
   memory_size = 512
   timeout     = 30
   snap_start  = true
