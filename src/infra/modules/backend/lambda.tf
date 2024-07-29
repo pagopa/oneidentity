@@ -134,8 +134,9 @@ module "metadata_lambda" {
 
   publish = true
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.metadata_lambda.json
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.metadata_lambda.json
+  attach_network_policy = true
 
   environment_variables  = var.metadata_lambda.environment_variables
   vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids

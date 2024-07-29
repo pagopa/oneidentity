@@ -169,7 +169,7 @@ module "backend" {
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
     vpc_id                          = module.network.vpc_id
-    vpc_subnet_ids                  = module.network.private_subnet_ids
+    vpc_subnet_ids                  = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
   }
 

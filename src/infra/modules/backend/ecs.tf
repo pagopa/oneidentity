@@ -134,8 +134,7 @@ module "ecs_cluster" {
 resource "aws_cloudwatch_log_group" "ecs_core" {
   name = format("/aws/ecs/%s/%s", var.service_core.service_name, var.service_core.container.name)
 
-  retention_in_days = 90
-  #var.service_core.container.logs_retention_days
+  retention_in_days = var.service_core.container.logs_retention_days
 }
 
 module "ecs_core_service" {
