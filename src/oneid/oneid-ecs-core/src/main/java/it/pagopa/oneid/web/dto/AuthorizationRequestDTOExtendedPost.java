@@ -5,6 +5,7 @@ import it.pagopa.oneid.web.validator.annotations.AuthenticationRequestCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.HeaderParam;
 import lombok.Data;
 import org.jboss.resteasy.reactive.RestForm;
 
@@ -12,6 +13,9 @@ import org.jboss.resteasy.reactive.RestForm;
 @AuthenticationRequestCheck
 public class AuthorizationRequestDTOExtendedPost {
 
+  @HeaderParam("X-Forwarded-For")
+  @NotBlank
+  String ipAddress;
   @NotBlank
   @RestForm
   private String idp;

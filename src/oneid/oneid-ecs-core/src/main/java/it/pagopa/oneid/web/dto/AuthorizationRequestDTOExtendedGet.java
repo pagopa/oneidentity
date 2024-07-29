@@ -5,6 +5,7 @@ import it.pagopa.oneid.web.validator.annotations.AuthenticationRequestCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.HeaderParam;
 import lombok.Data;
 import org.jboss.resteasy.reactive.RestQuery;
 
@@ -12,10 +13,12 @@ import org.jboss.resteasy.reactive.RestQuery;
 @AuthenticationRequestCheck
 public class AuthorizationRequestDTOExtendedGet {
 
+  @HeaderParam("X-Forwarded-For")
+  @NotBlank
+  String ipAddress;
   @NotBlank
   @RestQuery
   private String idp;
-
   @NotBlank
   @Size(max = 255)
   @RestQuery("client_id")
@@ -23,16 +26,12 @@ public class AuthorizationRequestDTOExtendedGet {
   @NotNull
   @RestQuery("response_type")
   private ResponseType responseType;
-
   @RestQuery("redirect_uri")
   private String redirectUri;
-
   @RestQuery
   private String scope;
-
   @RestQuery
   private String nonce;
-
   @RestQuery
   private String state;
 

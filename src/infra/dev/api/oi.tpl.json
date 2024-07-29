@@ -1076,6 +1076,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "X-Forwarded-For",
+            "in": "header",
+            "required": true,
+            "description": "The X-Forwarded-For (XFF) request header is a de-facto standard header for identifying the originating IP address of a client connecting to a web server through a proxy server.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -1087,6 +1096,7 @@
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
+            "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For",
             "integration.request.querystring.idp": "method.request.querystring.idp",
             "integration.request.querystring.client_id": "method.request.querystring.client_id",
             "integration.request.querystring.response_type": "method.request.querystring.response_type",
@@ -1217,6 +1227,17 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "X-Forwarded-For",
+            "in": "header",
+            "required": true,
+            "description": "The X-Forwarded-For (XFF) request header is a de-facto standard header for identifying the originating IP address of a client connecting to a web server through a proxy server.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
@@ -1225,7 +1246,8 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For"
           },
           "responses": {
             "200": {
