@@ -106,7 +106,7 @@ module "security_group_lambda_metadata" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.17.2"
 
-  name        = var.metadata_lambda.name
+  name        = "${var.metadata_lambda.name}-sg"
   description = "Security Group for Lambda Egress"
 
   vpc_id = var.metadata_lambda.vpc_id
