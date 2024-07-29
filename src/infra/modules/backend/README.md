@@ -23,6 +23,7 @@
 | <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
 | <a name="module_jwt_sign"></a> [jwt\_sign](#module\_jwt\_sign) | terraform-aws-modules/kms/aws | 2.2.1 |
 | <a name="module_metadata_lambda"></a> [metadata\_lambda](#module\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 
 ## Resources
 
@@ -57,7 +58,7 @@
 | <a name="input_fargate_capacity_providers"></a> [fargate\_capacity\_providers](#input\_fargate\_capacity\_providers) | n/a | <pre>map(object({<br>    default_capacity_provider_strategy = object({<br>      weight = number<br>      base   = number<br>    })<br>  }))</pre> | n/a | yes |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | Github repository responsible to deploy ECS tasks in the form <organization\|user/repository>. | `string` | n/a | yes |
 | <a name="input_kms_sessions_table_alias_arn"></a> [kms\_sessions\_table\_alias\_arn](#input\_kms\_sessions\_table\_alias\_arn) | Kms key used to encrypt and dectypt session table. | `string` | n/a | yes |
-| <a name="input_metadata_lambda"></a> [metadata\_lambda](#input\_metadata\_lambda) | n/a | <pre>object({<br>    name                           = string<br>    filename                       = string<br>    table_client_registrations_arn = string<br>    environment_variables          = map(string)<br>  })</pre> | n/a | yes |
+| <a name="input_metadata_lambda"></a> [metadata\_lambda](#input\_metadata\_lambda) | n/a | <pre>object({<br>    name                            = string<br>    filename                        = string<br>    table_client_registrations_arn  = string<br>    environment_variables           = map(string)<br>    vpc_id                          = string<br>    vpc_subnet_ids                  = list(string)<br>    vpc_endpoint_dynamodb_prefix_id = string<br>  })</pre> | n/a | yes |
 | <a name="input_nlb_name"></a> [nlb\_name](#input\_nlb\_name) | Network load balancer name | `string` | n/a | yes |
 | <a name="input_private_subnets"></a> [private\_subnets](#input\_private\_subnets) | Private subnets ids. | `list(string)` | n/a | yes |
 | <a name="input_service_core"></a> [service\_core](#input\_service\_core) | n/a | <pre>object({<br>    service_name           = string<br>    cpu                    = number<br>    memory                 = number<br>    enable_execute_command = optional(bool, true)<br>    container = object({<br>      name                = string<br>      cpu                 = number<br>      memory              = number<br>      image_name          = string<br>      image_version       = string<br>      containerPort       = number<br>      hostPort            = number<br>      logs_retention_days = number<br>    })<br>    autoscaling = object({<br>      enable       = bool<br>      min_capacity = number<br>      max_capacity = number<br>    })<br>    environment_variables = list(object({<br>      name  = string<br>      value = string<br>    }))<br>  })</pre> | n/a | yes |
