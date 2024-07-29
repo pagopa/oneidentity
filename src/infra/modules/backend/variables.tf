@@ -100,10 +100,13 @@ variable "client_registration_lambda" {
 
 variable "metadata_lambda" {
   type = object({
-    name                           = string
-    filename                       = string
-    table_client_registrations_arn = string
-    environment_variables          = map(string)
+    name                            = string
+    filename                        = string
+    table_client_registrations_arn  = string
+    environment_variables           = map(string)
+    vpc_id                          = string
+    vpc_subnet_ids                  = list(string)
+    vpc_endpoint_dynamodb_prefix_id = string
   })
 
 }

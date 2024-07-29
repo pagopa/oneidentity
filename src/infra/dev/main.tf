@@ -168,6 +168,9 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
     }
+    vpc_id                          = module.network.vpc_id
+    vpc_subnet_ids                  = module.network.private_subnet_ids
+    vpc_endpoint_dynamodb_prefix_id = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
   }
 
 
@@ -203,11 +206,11 @@ module "spid_validator" {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
       image_version = "2.0.0"
-      environment   = [
+      environment = [
         {
           name  = "NODE_USE_HTTPS"
           value = "false"
-        }, {
+          }, {
           name  = "NODE_HTTPS_PORT"
           value = "8080"
         },

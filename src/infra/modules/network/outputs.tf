@@ -14,3 +14,7 @@ output "public_subnet_ids" {
 output "private_subnet_ids" {
   value = module.vpc.private_subnets
 }
+
+output "vpc_endpoints" {
+  value = module.vpc_endpoints.endpoints
+}

@@ -119,10 +119,10 @@ resource "aws_athena_database" "assertions" {
 
 # Create Athena table
 resource "aws_athena_named_query" "create_assertions_table" {
-  name     = "create_assertions_table"
-  database = aws_athena_database.assertions.name
+  name      = "create_assertions_table"
+  database  = aws_athena_database.assertions.name
   workgroup = aws_athena_workgroup.assertions_workgroup.id
-  query    = <<EOF
+  query     = <<EOF
 CREATE EXTERNAL TABLE `${module.s3_assertions_bucket.s3_bucket_id}`(
   `samlrequestid` string COMMENT 'from deserializer', 
   `recordtype` string COMMENT 'from deserializer', 

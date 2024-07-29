@@ -28,7 +28,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
   policy = jsonencode({
 
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
@@ -49,7 +49,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
 data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
@@ -102,6 +102,24 @@ data "aws_iam_policy_document" "metadata_lambda" {
 
 }
 
+module "security_group_lambda_metadata" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = var.metadata_lambda.name
+  description = "Security Group for Lambda Egress"
+
+  vpc_id = var.metadata_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id]
+
+  egress_rules = ["https-443-tcp"]
+}
+
 module "metadata_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
@@ -119,7 +137,10 @@ module "metadata_lambda" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.metadata_lambda.json
 
-  environment_variables = var.metadata_lambda.environment_variables
+  environment_variables  = var.metadata_lambda.environment_variables
+  vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_metadata.security_group_id]
+
 
   memory_size = 512
   timeout     = 30
