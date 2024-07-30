@@ -210,7 +210,7 @@ module "spid_validator" {
     container = {
       name          = "validator"
       image_name    = format("%s-spid-validator", local.project)
-      image_version = "2.1.0"
+      image_version = "2.1.1"
       environment = [
         {
           name  = "NODE_USE_HTTPS"
@@ -222,10 +222,14 @@ module "spid_validator" {
         {
           name  = "SPID_USERS_URL"
           value = "https://raw.githubusercontent.com/pagopa/oneidentity/main/src/config/validator/users.json"
-        }, 
+        },
         {
-          name = "NODE_SERVER_HOST"
+          name  = "NODE_SERVER_HOST"
           value = "https://validator.dev.oneid.pagopa.it"
+        },
+        {
+          name  = "NODE_USE_PROXY"
+          value = "true"
         }
       ]
     }
