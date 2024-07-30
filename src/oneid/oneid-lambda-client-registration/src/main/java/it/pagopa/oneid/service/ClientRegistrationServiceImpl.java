@@ -8,7 +8,7 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
-import it.pagopa.oneid.common.utils.AESUtils;
+import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidLogoURIException;
 import it.pagopa.oneid.exception.InvalidRedirectURIException;
@@ -21,7 +21,6 @@ import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
-import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.Set;
 
@@ -73,26 +72,19 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 3. Client.Secret & Salt
 
-    // a. Generate random string
-    String randomString = AESUtils.generateRandomString(32); //todo length?
+    // a. Generate Salt
+    // TODO is 16 bytes good enough?
+    byte[] salt = HASHUtils.generateSecureRandom(16);
 
-    // b. sha256 of random string -> salt
-    String salt = AESUtils.hashSalt(randomString);
+    // b. Generate client_secret
+    byte[] secret = HASHUtils.generateSecureRandom(32);
 
-    // c. generate client_secret
-    String encodedClientSecret;
-    try {
-      encodedClientSecret = ClientUtils.generateClientSecret();
-    } catch (NoSuchAlgorithmException ex) {
-      throw new ClientRegistrationServiceException();
-    }
-
-    // d. encrypt of salt with client_secret as key
-    String encryptedSalt = AESUtils.encryptSalt(salt, encodedClientSecret);
+    // c. Generate Argon2 of secret using salt
+    String hashedClientSecret = HASHUtils.generateArgon2(salt, secret);
 
     // 4. Create ClientExtended
-    ClientExtended clientExtended = new ClientExtended(client, encryptedSalt,
-        salt);
+    ClientExtended clientExtended = new ClientExtended(client, hashedClientSecret,
+        HASHUtils.b64encoder.encodeToString(salt));
 
     // 5. Save on Dynamo
     clientConnector.saveClientIfNotExists(clientExtended);
@@ -105,7 +97,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        new ClientID(client.getClientId()), encodedClientSecret,
+        new ClientID(client.getClientId()), HASHUtils.b64encoder.encodeToString(secret),
         client.getClientIdIssuedAt());
   }
 
