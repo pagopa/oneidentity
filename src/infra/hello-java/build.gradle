@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+group 'example'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0' 
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'example.HelloWorld'
+    }
+}
+
+task copyJar(type: Copy) {
+    copy {
+        from jar // here it automatically reads jar file produced from jar task
+        into '.'
+    }
+}
