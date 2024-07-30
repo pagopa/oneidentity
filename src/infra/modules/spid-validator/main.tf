@@ -51,6 +51,8 @@ module "ecs_spid_validator" {
       cpu    = var.spid_validator.container.cpu
       memory = var.spid_validator.container.memory
 
+      create_cloudwatch_log_group = false
+
       essential = true
       image     = "${module.ecr.repository_url}:${var.spid_validator.container.image_version}",
 
