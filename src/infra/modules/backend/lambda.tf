@@ -82,6 +82,8 @@ module "client_registration_lambda" {
   environment_variables = {
   }
 
+  cloudwatch_logs_retention_in_days = var.client_registration_lambda.cloudwatch_logs_retention_in_days
+
   memory_size = 512
   timeout     = 30
   snap_start  = true
@@ -142,6 +144,7 @@ module "metadata_lambda" {
   vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_metadata.security_group_id]
 
+  cloudwatch_logs_retention_in_days = var.metadata_lambda.cloudwatch_logs_retention_in_days
 
   memory_size = 512
   timeout     = 30
@@ -193,5 +196,7 @@ module "assertion_lambda" {
 
   memory_size = 512
   timeout     = 30
+
+  cloudwatch_logs_retention_in_days = var.assertion_lambda.cloudwatch_logs_retention_in_days
 
 }

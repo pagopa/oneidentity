@@ -91,22 +91,24 @@ variable "kms_sessions_table_alias_arn" {
 
 variable "client_registration_lambda" {
   type = object({
-    name                           = string
-    filename                       = string
-    table_client_registrations_arn = string
+    name                              = string
+    filename                          = string
+    table_client_registrations_arn    = string
+    cloudwatch_logs_retention_in_days = number
   })
 
 }
 
 variable "metadata_lambda" {
   type = object({
-    name                            = string
-    filename                        = string
-    table_client_registrations_arn  = string
-    environment_variables           = map(string)
-    vpc_id                          = string
-    vpc_subnet_ids                  = list(string)
-    vpc_endpoint_dynamodb_prefix_id = string
+    name                              = string
+    filename                          = string
+    table_client_registrations_arn    = string
+    environment_variables             = map(string)
+    vpc_id                            = string
+    vpc_subnet_ids                    = list(string)
+    vpc_endpoint_dynamodb_prefix_id   = string
+    cloudwatch_logs_retention_in_days = number
   })
 
 }
@@ -140,11 +142,12 @@ variable "dynamodb_table_stream_arn" {
 
 variable "assertion_lambda" {
   type = object({
-    name                    = string
-    source_path             = string
-    s3_assertion_bucket_arn = string
-    kms_assertion_key_arn   = string
-    environment_variables   = map(string)
+    name                              = string
+    source_path                       = string
+    s3_assertion_bucket_arn           = string
+    kms_assertion_key_arn             = string
+    environment_variables             = map(string)
+    cloudwatch_logs_retention_in_days = number
   })
 }
 
