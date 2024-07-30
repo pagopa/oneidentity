@@ -40,7 +40,7 @@ def lambda_handler(event, context):
                 record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
             
             # Write the file to S3
-            file_key = cet_time.strftime(f"%Y/%m/%d/%H/%M/{record_type}/{saml_request_id}.json")
+            file_key = cet_time.strftime(f"year=%Y/month=%m/day=%d/hour=%H/type={record_type}/{saml_request_id}.json")
                 
             s3.Bucket(bucket_name).put_object(Key=file_key, Body=json.dumps(record))
         
