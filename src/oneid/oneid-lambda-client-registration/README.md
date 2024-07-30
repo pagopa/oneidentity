@@ -9,14 +9,12 @@ curl --location 'https://{ENV}.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
+--data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
+--data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
+--data-urlencode 'default_acr_values={ACR_VALUE}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_1}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_2}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_N}' \
---data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
---data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
---data-urlencode 'default_acr_values={ACR_VALUE_1}' \
---data-urlencode 'default_acr_values={ACR_VALUE_2}' \
---data-urlencode 'default_acr_values={ACR_VALUE_N}' \
 --data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_1}' \
 --data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_2}' \
 --data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_N}'
@@ -29,10 +27,10 @@ curl --location 'https://dev.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
---data-urlencode 'redirect_uris=https://test.com/client/cb' \
 --data-urlencode 'client_name=TestClient' \
 --data-urlencode 'logo_uri=http://test.com/logo.png' \
 --data-urlencode 'default_acr_values=https://www.spid.gov.it/SpidL2' \
+--data-urlencode 'redirect_uris=https://test.com/client/cb' \
 --data-urlencode 'saml_requested_attributes=spidCode' \
 --data-urlencode 'saml_requested_attributes=fiscalNumber'
 ```
