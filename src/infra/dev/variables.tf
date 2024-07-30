@@ -118,8 +118,9 @@ variable "ecs_oneid_core" {
 }
 
 variable "lambda_cloudwatch_logs_retention_in_days" {
-  type    = number
-  default = 14
+  type        = number
+  description = "Cloudwatch log group retention days."
+  default     = 14
 }
 
 ## Storage S3 ## 
