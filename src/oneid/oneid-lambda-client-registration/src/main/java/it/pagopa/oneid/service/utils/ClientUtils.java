@@ -6,16 +6,11 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
-import it.pagopa.oneid.common.utils.ClientConstants;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 public class ClientUtils {
 
@@ -49,17 +44,6 @@ public class ClientUtils {
         .logoUri(clientRegistrationRequestDTO.getLogoUri())
         .build();
   }
-
-  public static String generateClientSecret() throws NoSuchAlgorithmException {
-    Log.debug("start");
-
-    KeyGenerator keyGen = KeyGenerator.getInstance(ClientConstants.ENCRYPTION_ALGORITHM);
-    keyGen.init(ClientConstants.CLIENT_SECRET_BIT_LENGTH); // Use 256-bit key
-    SecretKey secretKey = keyGen.generateKey();
-    byte[] rawData = secretKey.getEncoded();
-    return Base64.getEncoder().encodeToString(rawData);
-  }
-
 
   public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
     Log.debug("start");

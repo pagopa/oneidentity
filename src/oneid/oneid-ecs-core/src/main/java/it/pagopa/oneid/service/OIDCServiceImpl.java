@@ -23,7 +23,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
-import it.pagopa.oneid.common.utils.AESUtils;
+import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
@@ -217,7 +217,7 @@ public class OIDCServiceImpl implements OIDCService {
   }
 
   @Override
-  public void authorizeClient(String clientId, String clientEncodedSecret) {
+  public void authorizeClient(String clientId, String clientSecret) {
     Log.debug("start");
     if (clientsMap.get(clientId) == null) {
       Log.debug("client not found");
@@ -227,7 +227,8 @@ public class OIDCServiceImpl implements OIDCService {
     SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
         .orElseThrow(() -> new InvalidClientException("Client secret not found"));
 
-    if (!AESUtils.validateSecret(secretDTO.getSalt(), clientEncodedSecret, secretDTO.getSecret())) {
+    if (!HASHUtils.validateSecret(secretDTO.getSalt(), clientSecret,
+        secretDTO.getSecret())) {
       Log.debug("client secret not valid");
       throw new InvalidClientException("Client secret not valid");
     }
