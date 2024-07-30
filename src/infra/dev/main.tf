@@ -250,6 +250,7 @@ module "database" {
 module "monitoring" {
   source              = "../modules/monitoring"
   main_dashboard_name = format("%s-overall-dashboard", local.project)
+  api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
   aws_region          = var.aws_region
   api_name            = module.frontend.api_name
   dynamodb_table_name = module.database.table_sessions_name

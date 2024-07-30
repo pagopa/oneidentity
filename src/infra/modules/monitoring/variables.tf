@@ -3,6 +3,11 @@ variable "main_dashboard_name" {
   description = "Name of the main dashboard."
 }
 
+variable "api_methods_dashboard_name" {
+  type = string
+  description = "Name of the api methods dashboard."
+}
+
 variable "aws_region" {
   type = string
 }
