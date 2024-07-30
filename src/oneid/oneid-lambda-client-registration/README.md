@@ -9,16 +9,14 @@ curl --location 'https://{ENV}.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
+--data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
+--data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
+--data-urlencode 'default_acr_values={ACR_VALUE}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_1}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_2}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_N}' \
---data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
---data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
---data-urlencode 'default_acr_values={ACR_VALUE_1}' \
---data-urlencode 'default_acr_values={ACR_VALUE_2}' \
---data-urlencode 'default_acr_values={ACR_VALUE_N}' \
---data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_1}'
---data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_2}'
+--data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_1}' \
+--data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_2}' \
 --data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_N}'
 ```
 
@@ -29,11 +27,11 @@ curl --location 'https://dev.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
---data-urlencode 'redirect_uris=https://test.com/client/cb' \
 --data-urlencode 'client_name=TestClient' \
 --data-urlencode 'logo_uri=http://test.com/logo.png' \
 --data-urlencode 'default_acr_values=https://www.spid.gov.it/SpidL2' \
---data-urlencode 'saml_requested_attributes=spidCode'
+--data-urlencode 'redirect_uris=https://test.com/client/cb' \
+--data-urlencode 'saml_requested_attributes=spidCode' \
 --data-urlencode 'saml_requested_attributes=fiscalNumber'
 ```
 
@@ -131,3 +129,35 @@ List of possible SAML Requested Attributes
 | street             |
 
 </details>
+
+
+After the registration, you can retrieve the information saved using the client_id obtained with the
+following API:
+
+```bash
+curl --location 'https://dev.oneid.pagopa.it/oidc/register/{CLIENT_ID}'
+```
+
+Example of API call:
+
+```bash
+curl --location 'https://dev.oneid.pagopa.it/oidc/register/PkWUAK99cca6MQ0QtC91Qsff6h5hMFb1bXsz9mpGd94'
+```
+
+Example of response:
+
+```json
+{
+  "redirect_uris": [
+    "https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"
+  ],
+  "client_name": "test_test",
+  "logo_uri": "http://test.com/logo.png",
+  "default_acr_values": [
+    "https://www.spid.gov.it/SpidL2"
+  ],
+  "saml_requested_attributes": [
+    "spidCode"
+  ]
+}
+```
