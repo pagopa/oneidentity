@@ -1,7 +1,6 @@
 package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +13,7 @@ public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
 
   @NotBlank
   @JsonProperty("client_id")
-  private ClientID clientID;
+  private String clientID;
   @JsonProperty("client_secret")
   private String clientSecret;
   @JsonProperty("client_id_issued_at")
@@ -23,7 +22,7 @@ public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
   private int clientSecretExpiresAt;
 
 
-  public ClientRegistrationResponseDTO(ClientMetadataDTO clientMetadataDTO, ClientID clientID,
+  public ClientRegistrationResponseDTO(ClientMetadataDTO clientMetadataDTO, String clientID,
       String clientSecret,
       long clientIdIssuedAt) {
     super(clientMetadataDTO);
