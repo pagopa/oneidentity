@@ -268,7 +268,6 @@ public class OIDCController {
       decodedBytes = Base64.getDecoder().decode(authorization);
       decodedString = new String(decodedBytes);
       clientId = URLDecoder.decode(decodedString.split(":")[0], StandardCharsets.UTF_8.toString());
-      System.out.println("Decoded client id: " + clientId);
       clientSecret = URLDecoder.decode(decodedString.split(":")[1],
           StandardCharsets.UTF_8.toString());
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException |
