@@ -2,7 +2,6 @@ package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -97,7 +96,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 7. create and return ClientRegistrationResponseDTO
     Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        new ClientID(client.getClientId()), HASHUtils.b64encoder.encodeToString(secret),
+        client.getClientId(), HASHUtils.b64encoder.encodeToString(secret),
         client.getClientIdIssuedAt());
   }
 
