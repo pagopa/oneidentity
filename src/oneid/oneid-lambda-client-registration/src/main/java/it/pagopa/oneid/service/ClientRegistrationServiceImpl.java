@@ -4,6 +4,7 @@ import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMet
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
@@ -24,6 +25,7 @@ import java.net.URI;
 import java.util.Comparator;
 import java.util.Set;
 
+@Startup
 @ApplicationScoped
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 

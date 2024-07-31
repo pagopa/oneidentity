@@ -1,6 +1,7 @@
 package it.pagopa.oneid.common.connector;
 
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
+@Startup
 @ApplicationScoped
 public class ClientConnectorImpl implements ClientConnector {
 
