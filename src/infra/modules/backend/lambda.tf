@@ -70,6 +70,7 @@ module "client_registration_lambda" {
   description             = "Lambda function OIDC Dynamic Client Registration."
   runtime                 = "provided.al2023"
   handler                 = "not.used.in.provided.runtime"
+  architectures           = ["x86_64"]
   create_package          = false
   local_existing_package  = var.client_registration_lambda.filename
   ignore_source_code_hash = true
@@ -175,13 +176,13 @@ module "security_group_lambda_assertion" {
 
   vpc_id = var.assertion_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids  = [var.assertion_lambda.vpc_s3_prefix_id]
+  egress_prefix_list_ids = [var.assertion_lambda.vpc_s3_prefix_id]
   #ingress_prefix_list_ids = [var.assertion_lambda.vpc_endpoint_events_prefix_id]
-  egress_rules  = ["https-443-tcp"]
+  egress_rules = ["https-443-tcp"]
   #ingress_rules = ["https-443-tcp"]
 }
 
