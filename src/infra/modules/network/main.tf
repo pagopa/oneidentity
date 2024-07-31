@@ -113,6 +113,14 @@ module "vpc_endpoints" {
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "kms-endpoint" }
     },
+    events = {
+      service             = "events"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.intra_subnets
+      #policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
+      security_group_ids = [aws_security_group.vpc_tls.id]
+      tags               = { Name = "events-endpoint" }
+    }
   }
 
 }

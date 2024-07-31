@@ -148,6 +148,9 @@ variable "assertion_lambda" {
     kms_assertion_key_arn             = string
     environment_variables             = map(string)
     cloudwatch_logs_retention_in_days = number
+    vpc_endpoint_events_prefix_id     = string
+    vpc_subnet_ids                    = list(string)
+    vpc_id                            = string
   })
 }
 

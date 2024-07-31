@@ -167,6 +167,25 @@ data "aws_iam_policy_document" "assertion_lambda" {
   }
 }
 
+module "security_group_lambda_assertion" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.assertion_lambda.name}-sg"
+  description = "Security Group for Lambda Assertion"
+
+  vpc_id = var.assertion_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids  = [var.assertion_lambda.vpc_endpoint_events_prefix_id]
+  ingress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id]
+  egress_rules  = ["https-443-tcp"]
+  ingress_rules = ["https-443-tcp"]
+}
+
 module "assertion_lambda" {
   source         = "terraform-aws-modules/lambda/aws"
   version        = "7.4.0"
@@ -186,6 +205,11 @@ module "assertion_lambda" {
   policy_json        = data.aws_iam_policy_document.assertion_lambda.json
 
   environment_variables = var.assertion_lambda.environment_variables
+
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.assertion_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_assertion.security_group_id]
 
   allowed_triggers = {
     events = {
