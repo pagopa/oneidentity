@@ -46,9 +46,8 @@ public class ClientRegistrationController {
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response register(@PathParam("client_id") String clientId) {
-    /*return Response.ok(clientRegistrationService.getClientMetadataDTO(
-        clientId)).build();*/
-    return Response.ok("test").build();
+    return Response.ok(clientRegistrationService.getClientMetadataDTO(
+        clientId)).build();
   }
 
 }
