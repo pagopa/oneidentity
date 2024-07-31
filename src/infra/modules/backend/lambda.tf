@@ -28,7 +28,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
   policy = jsonencode({
 
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
@@ -49,7 +49,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
 data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
@@ -68,8 +68,8 @@ module "client_registration_lambda" {
 
   function_name           = var.client_registration_lambda.name
   description             = "Lambda function OIDC Dynamic Client Registration."
-  runtime                 = "java21"
-  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  runtime                 = "provided.al2023"
+  handler                 = "not.used.in.provided.runtime"
   create_package          = false
   local_existing_package  = var.client_registration_lambda.filename
   ignore_source_code_hash = true
@@ -84,9 +84,8 @@ module "client_registration_lambda" {
 
   cloudwatch_logs_retention_in_days = var.client_registration_lambda.cloudwatch_logs_retention_in_days
 
-  memory_size = 512
+  memory_size = 1024
   timeout     = 30
-  snap_start  = true
 
 }
 
@@ -113,7 +112,7 @@ module "security_group_lambda_metadata" {
 
   vpc_id = var.metadata_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
