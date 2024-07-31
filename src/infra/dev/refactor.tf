@@ -32,6 +32,11 @@ import {
   id = "/aws/ecs/oneid-es-1-d-core/oneid-core"
 }
 
+import {
+  to = module.storage.aws_glue_crawler.assertions
+  id = "assertions"
+}
+
 
 
 ## Moved ##

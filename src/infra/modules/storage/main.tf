@@ -164,3 +164,64 @@ TBLPROPERTIES (
   'typeOfData'='file')
 EOF
 }
+
+data "aws_iam_policy_document" "glue_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["glue.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "glue_assertions" {
+  name               = "AWSGlueServiceRole-Assertions"
+  assume_role_policy = data.aws_iam_policy_document.glue_assume_role_policy.json
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+  ]
+}
+
+data "aws_iam_policy_document" "glue_assertions_policy" {
+  statement {
+    sid = "S3ReadAndWrite"
+    effect = "Allow"
+    resources = ["arn:aws:s3:::${module.s3_assertions_bucket.s3_bucket_id}/*"]
+    actions = ["s3:GetObject", "s3:PutObject"]
+  }
+
+  statement {
+    sid = "KMSDecryptEncryptAsserions"
+    effect = "Allow"
+    resources = [module.kms_assertions_bucket.aliases["assertions/S3"].arn]
+    actions = ["kms:Decrypt", "kms:Encrypt"]
+  }
+}
+
+resource "aws_iam_policy" "glue_assertions_policy" {
+  name        = "AWSGlueServiceRoleAssertionsS3Policy"
+  description = "S3 bucket assertions policy for glue."
+  policy      = data.aws_iam_policy_document.glue_assertions_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
+  role       = aws_iam_role.glue_assertions.name
+  policy_arn = aws_iam_policy.glue_assertions_policy.arn
+}
+
+resource "aws_glue_catalog_database" "assertions" {
+  name = "assertions"
+}
+
+resource "aws_glue_crawler" "assertions" {
+  database_name = aws_glue_catalog_database.assertions.name
+  name          = "assertions"
+  role          = aws_iam_role.glue_assertions.arn
+
+  s3_target {
+    path = "s3://${module.s3_assertions_bucket.s3_bucket_id}"
+  }
+}
