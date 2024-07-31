@@ -17,13 +17,13 @@ import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Set;
 
-@Singleton
+@ApplicationScoped
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 
   @Inject

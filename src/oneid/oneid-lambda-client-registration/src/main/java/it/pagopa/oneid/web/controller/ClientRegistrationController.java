@@ -1,7 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
-import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
@@ -17,7 +16,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-@Startup
 @Path("/oidc")
 public class ClientRegistrationController {
 
@@ -48,8 +46,9 @@ public class ClientRegistrationController {
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response register(@PathParam("client_id") String clientId) {
-    return Response.ok(clientRegistrationService.getClientMetadataDTO(
-        clientId)).build();
+    /*return Response.ok(clientRegistrationService.getClientMetadataDTO(
+        clientId)).build();*/
+    return Response.ok("test").build();
   }
 
 }

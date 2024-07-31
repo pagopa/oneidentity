@@ -4,8 +4,8 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -18,7 +18,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
-@Singleton
+@ApplicationScoped
 public class ClientConnectorImpl implements ClientConnector {
 
   private final DynamoDbTable<Client> clientMapper;
