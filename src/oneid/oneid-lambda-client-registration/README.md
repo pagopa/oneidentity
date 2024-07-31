@@ -51,9 +51,7 @@ Example of response:
     "spidCode",
     "fiscalNumber"
   ],
-  "client_id": {
-    "value": "mlssaurk6dx_Z4j2n9b8vgkmqjhnrcW2numEb2b5g_o"
-  },
+  "client_id": "mlssaurk6dx_Z4j2n9b8vgkmqjhnrcW2numEb2b5g_o",
   "client_secret": "JZcyDfkN2jp8P/Sdi8UceoI4P3UnRjFGrGm/q4Kak/U",
   "client_id_issued_at": 1722329034581,
   "client_secret_expires_at": 0
