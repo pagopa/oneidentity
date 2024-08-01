@@ -40,6 +40,7 @@ module "frontend" {
     name                 = format("%s-restapi-plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+    api_key_name         = "client-registration"
   }
 
   # TODO fix
@@ -192,9 +193,9 @@ module "backend" {
     environment_variables = {
       S3_BUCKET = module.storage.assertions_bucket_name
     }
-    vpc_id                          = module.network.vpc_id
-    vpc_subnet_ids                  = module.network.intra_subnets_ids
-    vpc_s3_prefix_id                = module.network.vpc_endpoints["s3"]["prefix_list_id"] 
+    vpc_id           = module.network.vpc_id
+    vpc_subnet_ids   = module.network.intra_subnets_ids
+    vpc_s3_prefix_id = module.network.vpc_endpoints["s3"]["prefix_list_id"]
 
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }

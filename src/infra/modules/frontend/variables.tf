@@ -34,6 +34,7 @@ variable "api_gateway_plan" {
     name                 = string
     throttle_burst_limit = number
     throttle_rate_limit  = number
+    api_key_name         = optional(string, null)
   })
   description = "Name of the plan associated to the set of apis."
 }
