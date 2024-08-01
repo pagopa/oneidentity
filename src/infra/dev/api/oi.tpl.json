@@ -548,7 +548,12 @@
           "500": {
             "$ref": "#/components/responses/serverError"
           }
-        }
+        },
+        "security": [
+            {
+              "api_key": []
+            }
+        ]
       }
     },
     "/oidc/register/{client_id}": {
@@ -861,7 +866,12 @@
           "500": {
             "$ref": "#/components/responses/serverError"
           }
-        }
+        },
+        "security": [
+            {
+              "api_key": []
+            }
+        ]
       }
     },
     "/saml/assertion": {
@@ -2157,6 +2167,11 @@
       "openId": {
         "type": "openIdConnect",
         "openIdConnectUrl": "/.well-known/openid-configuration"
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
       }
     },
     "schemas": {
