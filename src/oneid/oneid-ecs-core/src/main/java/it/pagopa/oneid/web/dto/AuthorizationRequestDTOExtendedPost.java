@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.dto;
 
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.web.validator.annotations.AuthenticationRequestCheck;
+import it.pagopa.oneid.web.validator.annotations.ConditionalNotBlank;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,8 +15,9 @@ import org.jboss.resteasy.reactive.RestForm;
 public class AuthorizationRequestDTOExtendedPost {
 
   @HeaderParam("X-Forwarded-For")
-  @NotBlank
+  @ConditionalNotBlank(field = "ipAddress")
   String ipAddress;
+
   @NotBlank
   @RestForm
   private String idp;
