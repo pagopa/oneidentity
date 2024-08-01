@@ -28,7 +28,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
   policy = jsonencode({
 
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
@@ -49,7 +49,7 @@ resource "aws_iam_policy" "deploy_lambda" {
 
 data "aws_iam_policy_document" "client_registration_lambda" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
@@ -113,7 +113,7 @@ module "security_group_lambda_metadata" {
 
   vpc_id = var.metadata_lambda.vpc_id
 
-  egress_cidr_blocks = []
+  egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -176,7 +176,7 @@ module "security_group_lambda_assertion" {
 
   vpc_id = var.assertion_lambda.vpc_id
 
-  egress_cidr_blocks = []
+  egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
