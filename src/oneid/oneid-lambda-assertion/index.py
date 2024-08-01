@@ -25,9 +25,16 @@ def convert_to_cet(creation_time):
     return datetime.fromtimestamp(creation_time, tz=timezone)
 
 def get_fiscal_number(samlresponse):
-    
-    return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',samlresponse, re.DOTALL).group(1)     
 
+   try:
+         
+     return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',samlresponse, re.DOTALL).group(1).split('-')[-1]     
+   
+   except Exception as e:
+     
+     logger.error(f'Error parsing fiscalNumber: {str(e)}')
+     return ""
+       
 def lambda_handler(event, context):
 
     try:
