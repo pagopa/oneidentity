@@ -5,6 +5,7 @@ import json
 from datetime import datetime, timedelta, timezone
 import dateutil.tz
 import base64
+import re
 
 
 logger = logging.getLogger()
@@ -22,7 +23,10 @@ def convert_to_cet(creation_time):
     timezone = dateutil.tz.gettz('Europe/Rome')
     # Convert UTC to Central European Time (CET/CEST)
     return datetime.fromtimestamp(creation_time, tz=timezone)
+
+def get_fiscal_number(samlresponse):
     
+    return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',samlresponse, re.DOTALL).group(1)     
 
 def lambda_handler(event, context):
 
@@ -38,6 +42,7 @@ def lambda_handler(event, context):
             if record_type == "SAML" :
                 record['SAMLRequest'] = decode_base64_content(record['SAMLRequest'])
                 record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
+                record['fiscalNumber'] = get_fiscal_number(record['SAMLResponse'])
             
             # Write the file to S3
             file_key = cet_time.strftime(f"year=%Y/month=%m/day=%d/hour=%H/type={record_type}/{saml_request_id}.json")
