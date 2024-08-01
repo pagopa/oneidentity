@@ -764,6 +764,11 @@
             "$ref": "#/components/responses/serverError"
           }
         },
+        "security": [
+            {
+              "api_key": []
+            }
+        ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
@@ -866,12 +871,7 @@
           "500": {
             "$ref": "#/components/responses/serverError"
           }
-        },
-        "security": [
-            {
-              "api_key": []
-            }
-        ]
+        }
       }
     },
     "/saml/assertion": {
