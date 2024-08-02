@@ -28,10 +28,10 @@ def get_fiscal_number(samlresponse):
 
    try:
          
-     return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',samlresponse, re.DOTALL).group(1).split('-')[-1]     
+     return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',
+                      samlresponse, re.DOTALL).group(1).split('-')[-1]     
    
    except Exception as e:
-     
      logger.error(f'Error parsing fiscalNumber: {str(e)}')
      return ""
        
@@ -55,7 +55,9 @@ def lambda_handler(event, context):
             file_key = cet_time.strftime(f"year=%Y/month=%m/day=%d/hour=%H/type={record_type}/{saml_request_id}.json")
                 
             s3.Bucket(bucket_name).put_object(Key=file_key, Body=json.dumps(record))
-        
+
+            logger.info(f'Saved object {file_key}.')
+
     except Exception as e:
         logger.error(e)
         return {
