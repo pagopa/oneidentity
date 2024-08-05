@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 import dateutil.tz
 import base64
 import jwt 
-#import re
 
 
 logger = logging.getLogger()
@@ -27,17 +26,14 @@ def convert_to_cet(creation_time):
 
 def get_fiscal_number(token):
 
-   try:
+    try:
       
       decoded = jwt.decode(token, options={"verify_signature": False})
-      fiscalNumber = decoded.get('fiscalNumber').split('-')[-1]     
-     #return re.search(r'<saml:Attribute\s+Name="fiscalNumber".*?<saml:AttributeValue.*?>(.*?)</saml:AttributeValue>',samlresponse, re.DOTALL).group(1).split('-')[-1]     
-       
-      return fiscalNumber
-       
-   except Exception as e:
-     logger.error(f'Error parsing fiscalNumber: {str(e)}')
-     return ""
+      return decoded.get('fiscalNumber').split('-')[-1]
+
+    except Exception as e:
+      logger.error(f'Error parsing fiscalNumber: {str(e)}')
+      return ""
        
 def lambda_handler(event, context):
 
@@ -53,7 +49,6 @@ def lambda_handler(event, context):
             if record_type == "SAML" :
                 record['SAMLRequest'] = decode_base64_content(record['SAMLRequest'])
                 record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
-                #record['fiscalNumber'] = get_fiscal_number(record['SAMLResponse'])
             elif record_type == "ACCESS_TOKEN":
                 record['fiscalNumber'] = get_fiscal_number(record['idToken'])
             

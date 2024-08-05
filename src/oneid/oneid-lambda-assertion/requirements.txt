@@ -1,1 +1,1 @@
-pyjwt
+git+https://github.com/jpadilla/pyjwt.git@868cf4ab2ca5a0a39da40e5a14dd740b203662b2#egg=PyJWT
