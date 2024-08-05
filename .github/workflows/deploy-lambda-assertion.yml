@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         working-directory: src/oneid/oneid-lambda-assertion
         run: |
-          pip install -r ./requirements.txt -t
+          pip install -r ./requirements.txt
       
       - name: Zip Lambda
         working-directory: src/oneid/oneid-lambda-assertion 
