@@ -415,8 +415,8 @@
               "region": "${aws_region}",
               "metrics": [
                   [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ],
-                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", "." ]
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST",  { "region": "${aws_region}", "id": "m1" }  ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" }  ]
               ],
               "title": "IntegrationLatency, Latency"
           }
@@ -475,8 +475,8 @@
               "stacked": false,
               "metrics": [
                   [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ],
-                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", "." ]
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET",  { "region": "${aws_region}", "id": "m1" } ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" }  ]
               ],
               "region": "${aws_region}",
               "title": "IntegrationLatency, Latency"
