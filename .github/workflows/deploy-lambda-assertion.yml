@@ -19,15 +19,14 @@ jobs:
     build:
       runs-on: ubuntu-22.04
 
-      steps:
-      - name: Install dependencies
-        working-directory: src/oneid/oneid-lambda-assertion 
-        run: |
-          pip install -r ./requirements.txt -t
-        
-
+      steps:  
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Install dependencies
+        working-directory: src/oneid/oneid-lambda-assertion
+        run: |
+          pip install -r ./requirements.txt -t
       
       - name: Zip Lambda
         working-directory: src/oneid/oneid-lambda-assertion 
