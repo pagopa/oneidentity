@@ -21,7 +21,7 @@ jobs:
 
       steps:
       - name: Install dependencies
-        working-directory: ./src/oneid/oneid-lambda-assertion 
+        working-directory: src/oneid/oneid-lambda-assertion 
         run: |
           pip install -r ./requirements.txt -t
         
@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       
       - name: Zip Lambda
-        working-directory: ./src/oneid/oneid-lambda-assertion 
+        working-directory: src/oneid/oneid-lambda-assertion 
         run: |
          mkdir -p ./target && zip -r target/assertion-lambda.zip . -x "*.dist-info/*" -x "target/*"
         
