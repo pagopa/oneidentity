@@ -1,6 +1,7 @@
 package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ import org.jboss.resteasy.reactive.RestForm;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@RegisterForReflection
 public class ClientMetadataDTO {
 
   @NotEmpty

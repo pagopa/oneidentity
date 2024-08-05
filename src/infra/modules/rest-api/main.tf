@@ -44,9 +44,8 @@ resource "aws_api_gateway_stage" "main" {
 }
 
 resource "aws_api_gateway_usage_plan" "main" {
-  name         = var.plan.name
-  description  = "Usage plan for ${var.name} "
-  product_code = "MYCODE"
+  name        = var.plan.name
+  description = "Usage plan for ${var.name} "
 
   api_stages {
     api_id = aws_api_gateway_rest_api.main.id
@@ -58,6 +57,22 @@ resource "aws_api_gateway_usage_plan" "main" {
     rate_limit  = var.plan.throttle_rate_limit
   }
 }
+
+resource "aws_api_gateway_api_key" "main" {
+  count = var.plan.api_key_name != null ? 1 : 0
+  name  = var.plan.api_key_name
+  tags = {
+    Name = var.plan.api_key_name
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "main" {
+  count         = var.plan.api_key_name != null ? 1 : 0
+  key_id        = aws_api_gateway_api_key.main[0].id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.main.id
+}
+
 
 
 ## API Gateway cloud watch logs

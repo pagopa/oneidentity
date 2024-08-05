@@ -548,7 +548,12 @@
           "500": {
             "$ref": "#/components/responses/serverError"
           }
-        }
+        },
+        "security": [
+            {
+              "api_key": []
+            }
+        ]
       }
     },
     "/oidc/register/{client_id}": {
@@ -759,6 +764,11 @@
             "$ref": "#/components/responses/serverError"
           }
         },
+        "security": [
+            {
+              "api_key": []
+            }
+        ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
@@ -911,6 +921,10 @@
               "statusCode": "403",
               "responseParameters": {}
             },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
             "405": {
               "statusCode": "405",
               "responseParameters": {}
@@ -933,6 +947,9 @@
           },
           "403": {
             "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -2095,6 +2112,31 @@
           }
         }
       },
+      "notFound": {
+        "description": "Not Found.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
       "serverError": {
         "description": "unknown error",
         "headers": {
@@ -2125,6 +2167,11 @@
       "openId": {
         "type": "openIdConnect",
         "openIdConnectUrl": "/.well-known/openid-configuration"
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
       }
     },
     "schemas": {
