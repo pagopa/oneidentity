@@ -1,364 +1,486 @@
 {
-    "widgets": [
-        {
-            "height": 6,
-            "width": 8,
-            "y": 1,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ],
-                    [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 1,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                    [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET", { "region": "${aws_region}", "id": "m1" } ],
-                    [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "region": "${aws_region}", "id": "m2" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "period": 300,
-                "stat": "Average"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 1,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 0,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /saml/assertion\n"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 8,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 8,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ],
-                    [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 8,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1" } ],
-                    [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST", { "id": "m1" } ],
-                    [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "stat": "Average",
-                "period": 300
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 7,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /oidc/token\n"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 15,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 15,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ],
-                    [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 15,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                    [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST", { "id": "m1", "region": "${aws_region}" } ],
-                    [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "stat": "Average",
-                "period": 300
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 14,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /saml/acs\n"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 22,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 22,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ],
-                    [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 22,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1" } ],
-                    [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET", { "id": "m1" } ],
-                    [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "stat": "Average",
-                "period": 300
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 21,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /oidc/keys\n"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 29,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 29,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ],
-                    [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 29,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                    [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET", { "id": "m1", "region": "${aws_region}" } ],
-                    [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "stat": "Average",
-                "period": 300
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 28,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /oidc/authorize"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 36,
-            "x": 0,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 36,
-            "x": 8,
-            "type": "metric",
-            "properties": {
-                "view": "timeSeries",
-                "stacked": false,
-                "metrics": [
-                    [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ],
-                    [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-                ],
-                "region": "${aws_region}"
-            }
-        },
-        {
-            "height": 6,
-            "width": 8,
-            "y": 36,
-            "x": 16,
-            "type": "metric",
-            "properties": {
-                "metrics": [
-                    [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                    [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET", { "id": "m1", "region": "${aws_region}" } ],
-                    [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${aws_region}",
-                "stat": "Average",
-                "period": 300
-            }
-        },
-        {
-            "height": 1,
-            "width": 24,
-            "y": 35,
-            "x": 0,
-            "type": "text",
-            "properties": {
-                "markdown": "## /login"
-            }
-        }
-    ]
+  "widgets": [
+      {
+          "height": 6,
+          "width": 8,
+          "y": 1,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 1,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET", { "region": "${aws_region}", "id": "m1" } ],
+                  [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "region": "${aws_region}", "id": "m2" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 1,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 0,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /saml/assertion (GET)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 15,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 15,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 15,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1" } ],
+                  [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST", { "id": "m1" } ],
+                  [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 14,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/token (POST)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 8,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 8,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ],
+                  [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 8,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST", { "id": "m1", "region": "${aws_region}" } ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 7,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /saml/acs (POST)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 22,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 22,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 22,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1" } ],
+                  [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET", { "id": "m1" } ],
+                  [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 21,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/keys (GET)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 29,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 29,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 29,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "Latency", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET", { "id": "m1", "region": "${aws_region}" } ],
+                  [ ".", "IntegrationLatency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 28,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/authorize (GET)"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET", { "id": "m1", "region": "${aws_region}" } ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 49,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /login"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 42,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/register (POST) \n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 43,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ]
+              ],
+              "region": "${aws_region}",
+              "title": "Count"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 43,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "title": "4XXError, 5XXError"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 43,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "title": "IntegrationLatency, Latency"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 35,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/register/{cliend_id} (GET)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 36,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}",
+              "title": "Count"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 36,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "title": "4XXError, 5XXError"
+          }
+      },
+      {
+          "type": "metric",
+          "x": 16,
+          "y": 36,
+          "width": 8,
+          "height": 6,
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "region": "${aws_region}",
+              "title": "IntegrationLatency, Latency"
+          }
+      }
+  ]
 }
