@@ -19,13 +19,20 @@ jobs:
     build:
       runs-on: ubuntu-22.04
 
-      steps:
+      steps:  
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Install dependencies
+        working-directory: src/oneid/oneid-lambda-assertion
+        run: |
+          pip install -r ./requirements.txt -t ./
       
-      - name: Zip Lambda  
-        run: mkdir -p ./src/oneid/oneid-lambda-assertion/target && zip -jrm ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip ./src/oneid/oneid-lambda-assertion/*
-    
+      - name: Zip Lambda
+        working-directory: src/oneid/oneid-lambda-assertion 
+        run: |
+         mkdir -p ./target && zip -r target/assertion-lambda.zip . -x "*.dist-info/*" -x "target/*"
+        
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
