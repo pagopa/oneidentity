@@ -41,6 +41,7 @@
 | [aws_iam_role_policy_attachment.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/pipes_pipe) | resource |
+| [aws_sqs_queue.dlq_lambda_assertion](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sqs_queue) | resource |
 | [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
@@ -50,7 +51,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | AWS Account id. | `string` | n/a | yes |
-| <a name="input_assertion_lambda"></a> [assertion\_lambda](#input\_assertion\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    source_path                       = string<br>    s3_assertion_bucket_arn           = string<br>    kms_assertion_key_arn             = string<br>    environment_variables             = map(string)<br>    cloudwatch_logs_retention_in_days = number<br>    vpc_s3_prefix_id                  = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
+| <a name="input_assertion_lambda"></a> [assertion\_lambda](#input\_assertion\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    s3_assertion_bucket_arn           = string<br>    kms_assertion_key_arn             = string<br>    environment_variables             = map(string)<br>    cloudwatch_logs_retention_in_days = number<br>    vpc_s3_prefix_id                  = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_registration_lambda"></a> [client\_registration\_lambda](#input\_client\_registration\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    table_client_registrations_arn    = string<br>    cloudwatch_logs_retention_in_days = number<br>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_table_sessions"></a> [dynamodb\_table\_sessions](#input\_dynamodb\_table\_sessions) | Dynamodb table sessions anrs | <pre>object({<br>    table_arn    = string<br>    gsi_code_arn = string<br>  })</pre> | n/a | yes |

@@ -143,7 +143,7 @@ variable "dynamodb_table_stream_arn" {
 variable "assertion_lambda" {
   type = object({
     name                              = string
-    source_path                       = string
+    filename                          = string
     s3_assertion_bucket_arn           = string
     kms_assertion_key_arn             = string
     environment_variables             = map(string)

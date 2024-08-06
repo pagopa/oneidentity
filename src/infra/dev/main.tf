@@ -186,7 +186,7 @@ module "backend" {
 
   assertion_lambda = {
     name                    = format("%s-assertion", local.project)
-    source_path             = "${path.module}/../../oneid/oneid-lambda-assertion"
+    filename             = "${path.module}/../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
@@ -260,12 +260,12 @@ module "database" {
 ## Monitoring 
 
 module "monitoring" {
-  source              = "../modules/monitoring"
-  main_dashboard_name = format("%s-overall-dashboard", local.project)
+  source                     = "../modules/monitoring"
+  main_dashboard_name        = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
-  aws_region          = var.aws_region
-  api_name            = module.frontend.api_name
-  dynamodb_table_name = module.database.table_sessions_name
+  aws_region                 = var.aws_region
+  api_name                   = module.frontend.api_name
+  dynamodb_table_name        = module.database.table_sessions_name
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
     arn_suffix              = module.backend.nlb_arn_suffix
