@@ -4,7 +4,7 @@ variable "main_dashboard_name" {
 }
 
 variable "api_methods_dashboard_name" {
-  type = string
+  type        = string
   description = "Name of the api methods dashboard."
 }
 

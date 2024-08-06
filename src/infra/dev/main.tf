@@ -186,16 +186,17 @@ module "backend" {
 
   assertion_lambda = {
     name                    = format("%s-assertion", local.project)
-    filename             = "${path.module}/../hello-python/lambda.zip"
+    filename                = "${path.module}/../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
     environment_variables = {
       S3_BUCKET = module.storage.assertions_bucket_name
     }
-    vpc_id           = module.network.vpc_id
-    vpc_subnet_ids   = module.network.intra_subnets_ids
-    vpc_s3_prefix_id = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    vpc_id            = module.network.vpc_id
+    vpc_subnet_ids    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    vpc_sqs_prefix_id = module.network.vpc_endpoints["sqs"]["prefix_list_id"]
 
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
