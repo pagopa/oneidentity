@@ -1,0 +1,67 @@
+...@classes
+vars: {
+  d2-config: @config.config
+}
+direction: right
+
+title: {
+  class: title
+  label: Authentication  flow
+}
+
+user: {
+  class: user
+} 
+
+IDP: {
+  class: idpSPID
+}
+productClient: {
+  class: externalCloudService
+}
+
+aws: { 
+  class: aws
+  ApiGW: {
+    class: apigw
+  }
+  
+  vpc: {
+    class: vpc
+    oneid-ecs-core: {
+      class: ECS
+    }
+  }
+
+  dynamoDB :{
+   class: dynamo
+  }
+
+  KMS: {
+    class: KMS
+  }
+}
+
+user -> productClient: 1. Login
+
+productClient -> user: 2. redirect to OneIdentity
+
+user <-> aws.ApiGW <-> aws.vpc.oneid-ecs-core: 3. /login
+
+user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 4. /authorize
+user <- aws.ApiGW <- aws.vpc.oneid-ecs-core: 4. redirect POST
+aws.vpc.oneid-ecs-core -> aws.dynamoDB: 4. Init SAMLSession Record
+
+
+user <-> IDP: 5. perform authentication
+
+user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 6. send and perform verification on SAML response
+
+productClient <- aws.vpc.oneid-ecs-core: 7. init authorization code flow
+
+aws.vpc.oneid-ecs-core <-> aws.dynamoDB: 8. init access session and validate state
+
+aws.vpc.oneid-ecs-core <-> aws.KMS: 9. Sign JWT
+
+aws.vpc.oneid-ecs-core -> productClient: 10. return JWT
+
