@@ -30,6 +30,11 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
           yarn test
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: assets
+          path: ./src/oneid/oneid-ecs-core/target/quinoa/build/  
     
   deploy:
       runs-on: ubuntu-22.04
@@ -40,6 +45,13 @@ jobs:
         contents: read
   
       steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
+        with:
+          name: assets
+          path: ./src/oneid/oneid-ecs-core/target/quinoa/build/
+
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
