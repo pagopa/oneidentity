@@ -192,15 +192,15 @@ resource "aws_sqs_queue" "dlq_lambda_assertion" {
 }
 
 module "assertion_lambda" {
-  source         = "terraform-aws-modules/lambda/aws"
-  version        = "7.4.0"
-  count          = local.dynamodb_stream_enabled ? 1 : 0
-  function_name  = var.assertion_lambda.name
-  description    = "Lambda function assertion."
-  runtime        = "python3.12"
-  handler        = "index.lambda_handler"
-  create_package = true
-  source_path    = var.assertion_lambda.source_path
+  source                 = "terraform-aws-modules/lambda/aws"
+  version                = "7.4.0"
+  count                  = local.dynamodb_stream_enabled ? 1 : 0
+  function_name          = var.assertion_lambda.name
+  description            = "Lambda function assertion."
+  runtime                = "python3.12"
+  handler                = "index.lambda_handler"
+  create_package         = false
+  local_existing_package = var.assertion_lambda.filename
 
   ignore_source_code_hash = true
 
