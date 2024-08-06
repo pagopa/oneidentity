@@ -113,6 +113,7 @@ module "vpc_endpoints" {
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "kms-endpoint" }
     },
+    /*
     sqs = {
       service             = "sqs"
       private_dns_enabled = true
@@ -120,6 +121,7 @@ module "vpc_endpoints" {
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "sqs" }
     },
+    */
     /*
     events = {
       service             = "events"
