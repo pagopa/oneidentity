@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: assets
-          path: src/oneid/oneid-ecs-core/target/quinoa/build/  
+          path: src/oneid/oneid-ecs-core/target/quinoa/build  
     
   deploy:
       runs-on: ubuntu-22.04
@@ -49,7 +49,7 @@ jobs:
         uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
         with:
           name: assets
-          path: ./src/oneid/oneid-ecs-core/target/quinoa/build/
+          path: src/oneid/oneid-ecs-core/target/quinoa/build
 
 
       - name: Configure AWS Credentials
@@ -60,4 +60,4 @@ jobs:
    
       - name: Copy to S3
         run: |
-            aws s3 sync src/oneid/oneid-ecs-core/target/quinoa/build/ s3://assets-6284
+            aws s3 sync src/oneid/oneid-ecs-core/target/quinoa/build s3://assets-6284
