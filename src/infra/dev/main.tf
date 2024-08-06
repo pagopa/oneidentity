@@ -180,8 +180,10 @@ module "backend" {
 
   dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
-    pipe_name                = format("%s-sessions-pipe", local.project)
-    kms_sessions_table_alias = module.database.kms_sessions_table_alias_arn
+    pipe_name                     = format("%s-sessions-pipe", local.project)
+    kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   assertion_lambda = {
@@ -193,9 +195,9 @@ module "backend" {
     environment_variables = {
       S3_BUCKET = module.storage.assertions_bucket_name
     }
-    vpc_id            = module.network.vpc_id
-    vpc_subnet_ids    = module.network.intra_subnets_ids
-    vpc_s3_prefix_id  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 }

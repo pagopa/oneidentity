@@ -156,8 +156,10 @@ variable "assertion_lambda" {
 
 variable "eventbridge_pipe_sessions" {
   type = object({
-    pipe_name                = string
-    kms_sessions_table_alias = string
+    pipe_name                     = string
+    kms_sessions_table_alias      = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
   })
   default = null
 }
