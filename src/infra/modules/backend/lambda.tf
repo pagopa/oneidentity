@@ -180,7 +180,9 @@ module "security_group_lambda_assertion" {
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids = [var.assertion_lambda.vpc_s3_prefix_id]
+  egress_prefix_list_ids = [
+    var.assertion_lambda.vpc_s3_prefix_id,
+  var.assertion_lambda.vpc_sqs_prefix_id, ]
   #ingress_prefix_list_ids = [var.assertion_lambda.vpc_endpoint_events_prefix_id]
   egress_rules = ["https-443-tcp"]
   #ingress_rules = ["https-443-tcp"]
