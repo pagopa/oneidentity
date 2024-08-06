@@ -123,6 +123,18 @@ variable "lambda_cloudwatch_logs_retention_in_days" {
   default     = 14
 }
 
+variable "dlq_assertion_setting" {
+  type = object({
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+
+  default = {
+    maximum_retry_attempts        = 3
+    maximum_record_age_in_seconds = 259200
+  }
+}
+
 ## Storage S3 ## 
 variable "assertion_bucket" {
   type = object({
