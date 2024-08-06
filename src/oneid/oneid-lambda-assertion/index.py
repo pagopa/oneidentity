@@ -61,10 +61,7 @@ def lambda_handler(event, context):
 
     except Exception as e:
         logger.error(e)
-        return {
-            'statusCode': 500,
-            'body': json.dumps(f'Error writing file to S3: {str(e)}')
-        }
+        raise
 
     return {
         'statusCode' : 200
