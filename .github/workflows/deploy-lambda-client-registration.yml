@@ -32,7 +32,7 @@ jobs:
 
       - name: Build with Maven
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -P oneid-lambda-client-registration-aggregate
+        run: ./mvnw -f pom.xml -B package -Dnative -DskipTests -Dquarkus.native.container-build=true -P oneid-lambda-client-registration-aggregate
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808

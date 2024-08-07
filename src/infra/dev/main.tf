@@ -40,6 +40,7 @@ module "frontend" {
     name                 = format("%s-restapi-plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+    api_key_name         = "client-registration"
   }
 
   # TODO fix
@@ -179,20 +180,24 @@ module "backend" {
 
   dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
-    pipe_name                = format("%s-sessions-pipe", local.project)
-    kms_sessions_table_alias = module.database.kms_sessions_table_alias_arn
+    pipe_name                     = format("%s-sessions-pipe", local.project)
+    kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   assertion_lambda = {
     name                    = format("%s-assertion", local.project)
-    source_path             = "${path.module}/../../oneid/oneid-lambda-assertion"
+    filename                = "${path.module}/../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
     environment_variables = {
       S3_BUCKET = module.storage.assertions_bucket_name
     }
-
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 }
@@ -256,11 +261,12 @@ module "database" {
 ## Monitoring 
 
 module "monitoring" {
-  source              = "../modules/monitoring"
-  main_dashboard_name = format("%s-overall-dashboard", local.project)
-  aws_region          = var.aws_region
-  api_name            = module.frontend.api_name
-  dynamodb_table_name = module.database.table_sessions_name
+  source                     = "../modules/monitoring"
+  main_dashboard_name        = format("%s-overall-dashboard", local.project)
+  api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
+  aws_region                 = var.aws_region
+  api_name                   = module.frontend.api_name
+  dynamodb_table_name        = module.database.table_sessions_name
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
     arn_suffix              = module.backend.nlb_arn_suffix

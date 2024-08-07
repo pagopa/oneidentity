@@ -19,12 +19,14 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_dashboard) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_api_methods_dashboard_name"></a> [api\_methods\_dashboard\_name](#input\_api\_methods\_dashboard\_name) | Name of the api methods dashboard. | `string` | n/a | yes |
 | <a name="input_api_name"></a> [api\_name](#input\_api\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | n/a | yes |
 | <a name="input_dynamodb_table_name"></a> [dynamodb\_table\_name](#input\_dynamodb\_table\_name) | n/a | `string` | n/a | yes |

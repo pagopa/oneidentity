@@ -41,10 +41,6 @@
             <groupId>org.projectlombok</groupId>
         </dependency>
         <dependency>
-            <artifactId>quarkus-amazon-dynamodb-enhanced</artifactId>
-            <groupId>io.quarkiverse.amazonservices</groupId>
-        </dependency>
-        <dependency>
             <artifactId>connector</artifactId>
             <groupId>it.pagopa.oneid.common</groupId>
         </dependency>

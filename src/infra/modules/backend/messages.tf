@@ -1,4 +1,10 @@
 ## Event bridge pipe collecting dynamodb stream
+
+resource "aws_sqs_queue" "pipe_dlq" {
+  count = local.dynamodb_stream_enabled != null ? 1 : 0
+  name  = "${var.eventbridge_pipe_sessions.pipe_name}-dlq"
+}
+
 resource "aws_iam_role" "pipe_sessions" {
   count = local.dynamodb_stream_enabled != null ? 1 : 0
   name  = "${var.eventbridge_pipe_sessions.pipe_name}-role"
@@ -61,7 +67,14 @@ resource "aws_iam_role_policy" "pipe_source" {
         Resource = [
           module.assertion_lambda[0].lambda_function_arn
         ]
-      }
+      },
+      {
+        Action = [
+          "sqs:SendMessage",
+        ]
+        Effect   = "Allow"
+        Resource = aws_sqs_queue.pipe_dlq[0].arn
+      },
     ]
   })
 }
@@ -77,6 +90,13 @@ resource "aws_pipes_pipe" "sessions" {
   source_parameters {
     dynamodb_stream_parameters {
       starting_position = "LATEST"
+
+      dead_letter_config {
+        arn = aws_sqs_queue.pipe_dlq[0].arn
+      }
+      maximum_retry_attempts        = var.eventbridge_pipe_sessions.maximum_retry_attempts
+      maximum_record_age_in_seconds = var.eventbridge_pipe_sessions.maximum_record_age_in_seconds
+
     }
     filter_criteria {
       filter {

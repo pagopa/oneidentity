@@ -5,6 +5,7 @@ import json
 from datetime import datetime, timedelta, timezone
 import dateutil.tz
 import base64
+import jwt 
 
 
 logger = logging.getLogger()
@@ -22,8 +23,18 @@ def convert_to_cet(creation_time):
     timezone = dateutil.tz.gettz('Europe/Rome')
     # Convert UTC to Central European Time (CET/CEST)
     return datetime.fromtimestamp(creation_time, tz=timezone)
-    
 
+def get_fiscal_number(token):
+
+    try:
+      
+      decoded = jwt.decode(token, options={"verify_signature": False})
+      return decoded.get('fiscalNumber').split('-')[-1]
+
+    except Exception as e:
+      logger.error(f'Error parsing fiscalNumber: {str(e)}')
+      return ""
+       
 def lambda_handler(event, context):
 
     try:
@@ -38,12 +49,16 @@ def lambda_handler(event, context):
             if record_type == "SAML" :
                 record['SAMLRequest'] = decode_base64_content(record['SAMLRequest'])
                 record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
+            elif record_type == "ACCESS_TOKEN":
+                record['fiscalNumber'] = get_fiscal_number(record['idToken'])
             
             # Write the file to S3
             file_key = cet_time.strftime(f"year=%Y/month=%m/day=%d/hour=%H/type={record_type}/{saml_request_id}.json")
                 
             s3.Bucket(bucket_name).put_object(Key=file_key, Body=json.dumps(record))
-        
+
+            logger.info(f'Saved object {file_key}.')
+
     except Exception as e:
         logger.error(e)
         return {
