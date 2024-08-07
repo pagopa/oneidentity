@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: assets
-          path: src/oneid/oneid-ecs-core/target/quinoa/build  
+          path: src/oneid/oneid-ecs-core/src/main/webui/build
     
   # deploy:
   #     runs-on: ubuntu-22.04
