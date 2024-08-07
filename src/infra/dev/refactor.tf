@@ -37,6 +37,16 @@ import {
   id = "assertions"
 }
 
+import {
+  to = module.storage.aws_glue_catalog_database.assertions
+  id = "471112878885:assertions"
+}
+
+import {
+  to = module.storage.aws_iam_role.glue_assertions
+  id = "AWSGlueServiceRole-Assertions"
+}
+
 
 
 ## Moved ##

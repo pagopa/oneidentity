@@ -117,54 +117,6 @@ resource "aws_athena_database" "assertions" {
   bucket = module.s3_athena_output_bucket.s3_bucket_id
 }
 
-# Create Athena table
-resource "aws_athena_named_query" "create_assertions_table" {
-  name      = "create_assertions_table"
-  database  = aws_athena_database.assertions.name
-  workgroup = aws_athena_workgroup.assertions_workgroup.id
-  query     = <<EOF
-CREATE EXTERNAL TABLE `${module.s3_assertions_bucket.s3_bucket_id}`(
-  `samlrequestid` string COMMENT 'from deserializer', 
-  `recordtype` string COMMENT 'from deserializer', 
-  `creationtime` string COMMENT 'from deserializer', 
-  `clientid` string COMMENT 'from deserializer', 
-  `idp` string COMMENT 'from deserializer', 
-  `nonce` string COMMENT 'from deserializer', 
-  `redirecturi` string COMMENT 'from deserializer', 
-  `responsetype` string COMMENT 'from deserializer', 
-  `samlrequest` string COMMENT 'from deserializer', 
-  `samlresponse` string COMMENT 'from deserializer', 
-  `scope` string COMMENT 'from deserializer', 
-  `state` string COMMENT 'from deserializer', 
-  `ttl` string COMMENT 'from deserializer', 
-  `code` string COMMENT 'from deserializer', 
-  `idtoken` string COMMENT 'from deserializer', 
-  `eventname` string COMMENT 'from deserializer')
-PARTITIONED BY ( 
-  `partition_0` string, 
-  `partition_1` string, 
-  `partition_2` string, 
-  `partition_3` string, 
-  `partition_4` string, 
-  `partition_5` string)
-ROW FORMAT SERDE 
-  'org.openx.data.jsonserde.JsonSerDe' 
-WITH SERDEPROPERTIES ( 
-  'paths'='SAMLRequest,SAMLResponse,clientId,code,creationTime,eventName,idToken,idp,nonce,recordType,redirectUri,responseType,samlRequestID,scope,state,ttl') 
-STORED AS INPUTFORMAT 
-  'org.apache.hadoop.mapred.TextInputFormat' 
-OUTPUTFORMAT 
-  'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
-LOCATION
-  's3://${module.s3_assertions_bucket.s3_bucket_id}/'
-TBLPROPERTIES (
-  'classification'='json', 
-  'compressionType'='none', 
-  'partition_filtering.enabled'='true',
-  'typeOfData'='file')
-EOF
-}
-
 data "aws_iam_policy_document" "glue_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -179,6 +131,7 @@ data "aws_iam_policy_document" "glue_assume_role_policy" {
 resource "aws_iam_role" "glue_assertions" {
   name               = "AWSGlueServiceRole-Assertions"
   assume_role_policy = data.aws_iam_policy_document.glue_assume_role_policy.json
+  path               = "/service-role/"
 
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
@@ -187,17 +140,17 @@ resource "aws_iam_role" "glue_assertions" {
 
 data "aws_iam_policy_document" "glue_assertions_policy" {
   statement {
-    sid = "S3ReadAndWrite"
-    effect = "Allow"
+    sid       = "S3ReadAndWrite"
+    effect    = "Allow"
     resources = ["arn:aws:s3:::${module.s3_assertions_bucket.s3_bucket_id}/*"]
-    actions = ["s3:GetObject", "s3:PutObject"]
+    actions   = ["s3:GetObject", "s3:PutObject"]
   }
 
   statement {
-    sid = "KMSDecryptEncryptAsserions"
-    effect = "Allow"
+    sid       = "KMSDecryptEncryptAsserions"
+    effect    = "Allow"
     resources = [module.kms_assertions_bucket.aliases["assertions/S3"].arn]
-    actions = ["kms:Decrypt", "kms:Encrypt"]
+    actions   = ["kms:Decrypt", "kms:Encrypt"]
   }
 }
 
@@ -221,7 +174,21 @@ resource "aws_glue_crawler" "assertions" {
   name          = "assertions"
   role          = aws_iam_role.glue_assertions.arn
 
+  description = "Crawler for the assertions bucket"
+
+  configuration = jsonencode(
+    {
+      CrawlerOutput = {
+        Tables = {
+          TableThreshold = 1
+        }
+      }
+      CreatePartitionIndex = true
+      Version              = 1.0
+    }
+  )
+
   s3_target {
-    path = "s3://${module.s3_assertions_bucket.s3_bucket_id}"
+    path = "s3://${module.s3_assertions_bucket.s3_bucket_id}/"
   }
 }

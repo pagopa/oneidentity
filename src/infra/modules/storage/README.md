@@ -10,6 +10,7 @@
 
 | Name | Version |
 |------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.6.1 |
 
 ## Modules
@@ -18,12 +19,22 @@
 |------|--------|---------|
 | <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 2.2.1 |
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_athena_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/athena_database) | resource |
+| [aws_athena_workgroup.assertions_workgroup](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/athena_workgroup) | resource |
+| [aws_glue_catalog_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/glue_catalog_database) | resource |
+| [aws_glue_crawler.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/glue_crawler) | resource |
+| [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [random_integer.assertion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
+| [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
