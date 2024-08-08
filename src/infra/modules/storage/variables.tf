@@ -24,3 +24,10 @@ variable "account_id" {
   type        = string
   description = "AWS Account id."
 }
+
+
+variable "assertions_crawler_schedule" {
+  type        = string
+  description = "A cron expression used to specify the schedule"
+  default     = null
+}

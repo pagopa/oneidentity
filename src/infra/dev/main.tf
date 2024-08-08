@@ -62,6 +62,7 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
+  assertions_crawler_schedule = var.assertions_crawler_schedule
 
   assets_bucket_prefix = "assets"
   github_repository    = "pagopa/oneidentity"
