@@ -3,13 +3,18 @@ resource "random_integer" "assertion_bucket_suffix" {
   max = 9999
 }
 
+resource "random_integer" "asset_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 locals {
   bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
   athena_outputs = format("query-%s", local.bucket_name)
-  assets_bucket  = format("%s-%s", var.assets_bucket_prefix,
-    random_integer.assertion_bucket_suffix.result)
+  assets_bucket = format("%s-%s", var.assets_bucket_prefix,
+  random_integer.asset_bucket_suffix.result)
 }
 
 module "kms_assertions_bucket" {
@@ -73,28 +78,28 @@ resource "aws_iam_role" "githubS3deploy" {
 }
 
 resource "aws_iam_policy" "github_s3_policy" {
-     name        = "github-s3-policy"
-     description = "Policy to deploy to S3"
+  name        = "github-s3-policy"
+  description = "Policy to deploy to S3"
 
-     policy = jsonencode({
-       Version = "2012-10-17",
-       Statement = [
-         {
-           Effect = "Allow",
-           Action = [
-             "s3:ListBucket",
-             "s3:GetObject",
-             "s3:PutObject"
-           ],
-           Resource = [
-             module.s3_assets_bucket.s3_bucket_arn,
-             "${module.s3_assets_bucket.s3_bucket_arn}/*"
-           ]
-         }
-       ]
-     })
-   }
-   
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
+        Resource = [
+          module.s3_assets_bucket.s3_bucket_arn,
+          "${module.s3_assets_bucket.s3_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
 
 module "s3_assertions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"

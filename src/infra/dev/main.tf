@@ -62,7 +62,7 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
-  
+
   assets_bucket_prefix = "assets"
   github_repository    = "pagopa/oneidentity"
   account_id           = data.aws_caller_identity.current.account_id

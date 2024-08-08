@@ -1,4 +1,4 @@
-name: OneID FE CI
+name: OneID FE Deploy
 
 on:
   push:
@@ -56,9 +56,10 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
-          role-to-assume: arn:aws:iam::471112878885:role/GitHubActionS3DeployRole
+          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_FE }}
           aws-region: ${{ vars.AWS_REGION }}
    
       - name: Copy to S3
         run: |
-            aws s3 sync src/oneid/oneid-ecs-core/src/main/webui/build s3://assets-6284
+            aws s3 sync build s3://${{ vars.ASSETS_BUCKET_NAME }}
+        working-directory: src/oneid/oneid-ecs-core/src/main/webui
