@@ -19,6 +19,7 @@
 |------|--------|---------|
 | <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 2.2.1 |
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_s3_assets_bucket"></a> [s3\_assets\_bucket](#module\_s3\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
@@ -29,10 +30,14 @@
 | [aws_athena_workgroup.assertions_workgroup](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/athena_workgroup) | resource |
 | [aws_glue_catalog_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/glue_catalog_database) | resource |
 | [aws_glue_crawler.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/glue_crawler) | resource |
+| [aws_iam_policy.github_s3_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_role.githubS3deploy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
 | [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.deploy_s3](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [random_integer.assertion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
+| [random_integer.asset_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 
@@ -40,7 +45,10 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_account_id"></a> [account\_id](#input\_account\_id) | AWS Account id. | `string` | n/a | yes |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | n/a | <pre>object({<br>    name_prefix                     = string<br>    glacier_transaction_days        = number<br>    expiration_days                 = number<br>    mfa_delete                      = optional(bool, false)<br>    kms_key_deletion_window_in_days = optional(number, 10)<br><br>    object_lock_legal_hold_status = optional(bool, false)<br>    object_lock_configuration     = optional(any, null)<br>    enable_key_rotation           = optional(bool, false)<br>  })</pre> | n/a | yes |
+| <a name="input_assets_bucket_prefix"></a> [assets\_bucket\_prefix](#input\_assets\_bucket\_prefix) | n/a | `string` | n/a | yes |
+| <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | n/a | `string` | n/a | yes |
 
 ## Outputs
 
