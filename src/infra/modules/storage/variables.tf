@@ -11,3 +11,16 @@ variable "assertion_bucket" {
     enable_key_rotation           = optional(bool, false)
   })
 }
+
+variable "assets_bucket_prefix" {
+  type = string
+}
+
+variable "github_repository" {
+  type = string
+}
+
+variable "account_id" {
+  type        = string
+  description = "AWS Account id."
+}
