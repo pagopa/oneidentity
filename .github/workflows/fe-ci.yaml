@@ -9,6 +9,13 @@ on:
       - "**/src/oneid/oneid-ecs-core/src/main/webui**"
   pull_request:
     branches: [main]
+  workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Choose environment'
+          type: environment
+          required: true
+          default: dev
 
 jobs:
   build:
@@ -40,7 +47,7 @@ jobs:
   deploy:
       runs-on: ubuntu-22.04
       needs: build
-      environment: dev
+      environment:  ${{ inputs.environment }} 
       permissions:
         id-token: write
         contents: read
