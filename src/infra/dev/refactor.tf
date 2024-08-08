@@ -32,6 +32,21 @@ import {
   id = "/aws/ecs/oneid-es-1-d-core/oneid-core"
 }
 
+import {
+  to = module.storage.aws_glue_crawler.assertions
+  id = "assertions"
+}
+
+import {
+  to = module.storage.aws_glue_catalog_database.assertions
+  id = "471112878885:assertions"
+}
+
+import {
+  to = module.storage.aws_iam_role.glue_assertions
+  id = "AWSGlueServiceRole-Assertions"
+}
+
 
 
 ## Moved ##

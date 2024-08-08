@@ -152,6 +152,12 @@ variable "assertion_bucket" {
 
 }
 
+variable "assertions_crawler_schedule" {
+  type        = string
+  description = "A cron expression used to specify the schedule"
+  default     = "cron(00 08 ? * MON *)"
+}
+
 ## Backend ##
 variable "number_of_images_to_keep" {
   type        = number
