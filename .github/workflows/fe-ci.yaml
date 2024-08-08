@@ -10,27 +10,47 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-      inputs:
-        environment:
-          description: 'Choose environment'
-          type: environment
-          required: true
-          default: dev
+    inputs:
+      environment:
+        description: 'Choose environment'
+        type: choice
+        required: true
+        default: dev
+        options:
+        - dev
 
 jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+        matrix: ${{ steps.setmatrix.outputs.matrix }}
+
+    steps:     
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+
+          : '
+          if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"
+          fi
+          '
+          
+          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 20.x
         uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20.x
       - name: Run yarn install, lint and test
         working-directory: src/oneid/oneid-ecs-core/src/main/webui
         run: |
@@ -46,11 +66,16 @@ jobs:
     
   deploy:
       runs-on: ubuntu-22.04
-      needs: build
-      environment:  ${{ inputs.environment }} 
+      if: ${{ needs.setup.outputs.matrix != '' }}
+      needs: [setup, build]
       permissions:
         id-token: write
         contents: read
+      strategy:
+        matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+         
+      continue-on-error: false
+      environment: ${{ matrix.environment }}
   
       steps:
       - name: Download build artifacts
