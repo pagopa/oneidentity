@@ -31,6 +31,10 @@
         <opensaml.version>4.3.0</opensaml.version>
         <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
         <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
+        <quarkus-jacoco.version>3.13.1</quarkus-jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <quarkus.jacoco.title>One Identity</quarkus.jacoco.title>
+
 
     </properties>
     <repositories>
@@ -106,6 +110,13 @@
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-jacoco</artifactId>
+                <version>${quarkus-jacoco.version}</version>
+                <type>pom</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>io.quarkiverse.amazonservices</groupId>
@@ -209,6 +220,54 @@
     </profiles>
     <build>
         <plugins>
+            <!--  <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>${surefire-plugin.version}</version>
+              <configuration>
+                  <systemPropertyVariables>
+                      <java.util.logging.manager>org.jboss.logmanager.LogManager
+                      </java.util.logging.manager>
+                      <maven.home>${maven.home}</maven.home>
+                      <quarkus.jacoco.title>${quarkus.jacoco.title}</quarkus.jacoco.title>
+                      <quarkus.jacoco.data-file>
+                          ${maven.multiModuleProjectDirectory}/target/jacoco.exec
+                      </quarkus.jacoco.data-file>
+                      <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
+                      <quarkus.jacoco.report-location>
+                          ${maven.multiModuleProjectDirectory}/target/coverage
+                      </quarkus.jacoco.report-location>
+
+                  </systemPropertyVariables>
+              </configuration>
+          </plugin>
+
+                      <plugin>
+                          <groupId>org.jacoco</groupId>
+                          <artifactId>jacoco-maven-plugin</artifactId>
+                          <version>0.8.12</version>
+                          <executions>
+                              <execution>
+                                  <id>merge-results</id>
+                                  <goals>
+                                      <goal>merge</goal>
+                                  </goals>
+                                  <configuration>
+                                      <destFile>${user.dir}/target/jacoco.exec</destFile>
+                                      <fileSets>
+                                          <fileSet>
+                                              <directory>${user.dir}/target/jacoco</directory>
+                                              <includes>
+                                                  <include>*.exec</include>
+                                              </includes>
+                                          </fileSet>
+                                      </fileSets>
+                                  </configuration>
+                                  <phase>test</phase>
+                              </execution>
+                          </executions>
+                      </plugin>
+              -->
+
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

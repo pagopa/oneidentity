@@ -133,6 +133,11 @@
             <artifactId>quarkus-quinoa</artifactId>
             <version>2.3.10</version>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jacoco</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -159,6 +164,15 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
+                        <quarkus.jacoco.title>${quarkus.jacoco.title}</quarkus.jacoco.title>
+                        <quarkus.jacoco.data-file>
+                            ${maven.multiModuleProjectDirectory}/target/jacoco.exec
+                        </quarkus.jacoco.data-file>
+                        <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
+                        <quarkus.jacoco.report-location>
+                            ${maven.multiModuleProjectDirectory}/target/coverage
+                        </quarkus.jacoco.report-location>
+
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
