@@ -209,10 +209,6 @@ resource "aws_iam_role" "glue_assertions" {
   name               = "AWSGlueServiceRole-Assertions"
   assume_role_policy = data.aws_iam_policy_document.glue_assume_role_policy.json
   path               = "/service-role/"
-
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-  ]
 }
 
 data "aws_iam_policy_document" "glue_assertions_policy" {
@@ -238,8 +234,12 @@ resource "aws_iam_policy" "glue_assertions_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole",
+    aws_iam_policy.glue_assertions_policy.arn,
+  ])
   role       = aws_iam_role.glue_assertions.name
-  policy_arn = aws_iam_policy.glue_assertions_policy.arn
+  policy_arn = each.value
 }
 
 resource "aws_glue_catalog_database" "assertions" {
@@ -250,6 +250,8 @@ resource "aws_glue_crawler" "assertions" {
   database_name = aws_glue_catalog_database.assertions.name
   name          = "assertions"
   role          = aws_iam_role.glue_assertions.arn
+
+  schedule = var.assertions_crawler_schedule
 
   description = "Crawler for the assertions bucket"
 
