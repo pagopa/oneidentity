@@ -220,54 +220,25 @@
     </profiles>
     <build>
         <plugins>
-            <!--  <plugin>
-              <artifactId>maven-surefire-plugin</artifactId>
-              <version>${surefire-plugin.version}</version>
-              <configuration>
-                  <systemPropertyVariables>
-                      <java.util.logging.manager>org.jboss.logmanager.LogManager
-                      </java.util.logging.manager>
-                      <maven.home>${maven.home}</maven.home>
-                      <quarkus.jacoco.title>${quarkus.jacoco.title}</quarkus.jacoco.title>
-                      <quarkus.jacoco.data-file>
-                          ${maven.multiModuleProjectDirectory}/target/jacoco.exec
-                      </quarkus.jacoco.data-file>
-                      <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
-                      <quarkus.jacoco.report-location>
-                          ${maven.multiModuleProjectDirectory}/target/coverage
-                      </quarkus.jacoco.report-location>
-
-                  </systemPropertyVariables>
-              </configuration>
-          </plugin>
-
-                      <plugin>
-                          <groupId>org.jacoco</groupId>
-                          <artifactId>jacoco-maven-plugin</artifactId>
-                          <version>0.8.12</version>
-                          <executions>
-                              <execution>
-                                  <id>merge-results</id>
-                                  <goals>
-                                      <goal>merge</goal>
-                                  </goals>
-                                  <configuration>
-                                      <destFile>${user.dir}/target/jacoco.exec</destFile>
-                                      <fileSets>
-                                          <fileSet>
-                                              <directory>${user.dir}/target/jacoco</directory>
-                                              <includes>
-                                                  <include>*.exec</include>
-                                              </includes>
-                                          </fileSet>
-                                      </fileSets>
-                                  </configuration>
-                                  <phase>test</phase>
-                              </execution>
-                          </executions>
-                      </plugin>
-              -->
-
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager
+                        </java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                        <quarkus.jacoco.title>${quarkus.jacoco.title}</quarkus.jacoco.title>
+                        <quarkus.jacoco.data-file>
+                            ${maven.multiModuleProjectDirectory}/target/jacoco.exec
+                        </quarkus.jacoco.data-file>
+                        <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
+                        <quarkus.jacoco.report-location>
+                            ${maven.multiModuleProjectDirectory}/target/coverage
+                        </quarkus.jacoco.report-location>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
