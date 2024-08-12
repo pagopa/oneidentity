@@ -47,6 +47,16 @@ import {
   id = "AWSGlueServiceRole-Assertions"
 }
 
+import {
+  to = module.storage.aws_iam_role_policy_attachment.glue_s3_assertions_policy[0]
+  id = "AWSGlueServiceRole-Assertions/arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+import {
+  to = module.storage.aws_iam_role_policy_attachment.glue_s3_assertions_policy[1]
+  id = "AWSGlueServiceRole-Assertions/arn:aws:iam::471112878885:policy/AWSGlueServiceRoleAssertionsS3Policy"
+}
+
 
 
 ## Moved ##
@@ -134,4 +144,34 @@ moved {
 moved {
   from = module.frontend.module.records.aws_route53_record.this["validator A"]
   to   = module.spid_validator.module.record.aws_route53_record.this["validator A"]
+}
+
+moved {
+  from = module.backend.aws_iam_role.pipe_sessions[0]
+  to   = module.backend.aws_iam_role.pipe_sessions
+}
+
+moved {
+  from = module.backend.aws_iam_role_policy.pipe_source[0]
+  to   = module.backend.aws_iam_role_policy.pipe_source
+}
+
+moved {
+  from = module.backend.aws_pipes_pipe.sessions[0]
+  to   = module.backend.aws_pipes_pipe.sessions
+}
+
+moved {
+  from = module.backend.aws_sqs_queue.dlq_lambda_assertion[0]
+  to   = module.backend.aws_sqs_queue.dlq_lambda_assertion
+}
+
+moved {
+  from = module.backend.aws_sqs_queue.pipe_dlq[0]
+  to   = module.backend.aws_sqs_queue.pipe_dlq
+}
+
+moved {
+  from = module.backend.module.assertion_lambda[0]
+  to   = module.backend.module.assertion_lambda
 }

@@ -63,5 +63,5 @@ output "client_registration_lambda_arn" {
 
 ## Metadata lambda ##
 output "assertion_lambda_arn" {
-  value = module.assertion_lambda[0].lambda_function_arn
+  value = module.assertion_lambda.lambda_function_arn
 }

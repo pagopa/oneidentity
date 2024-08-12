@@ -33,6 +33,17 @@ module "dev_ns_record" {
         "ns-936.awsdns-53.net",
       ]
     },
+    {
+      name = "uat"
+      type = "NS"
+      ttl  = var.dns_record_ttl
+      records = [
+        "ns-2033.awsdns-62.co.uk.",
+        "ns-1177.awsdns-19.org.",
+        "ns-233.awsdns-29.com.",
+        "ns-668.awsdns-19.net.",
+      ]
+    },
   ]
 
   depends_on = [module.r53_zones]

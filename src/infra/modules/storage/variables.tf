@@ -25,7 +25,6 @@ variable "account_id" {
   description = "AWS Account id."
 }
 
-
 variable "assertions_crawler_schedule" {
   type        = string
   description = "A cron expression used to specify the schedule"

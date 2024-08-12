@@ -56,7 +56,7 @@ module "rest_api" {
     types = ["REGIONAL"]
   }
 
-  body = templatefile("./api/oi.tpl.json",
+  body = templatefile("../api/oi.tpl.json",
     {
       server_url                     = keys(var.r53_dns_zones)[0]
       uri                            = format("http://%s:%s", var.nlb_dns_name, "8080"),

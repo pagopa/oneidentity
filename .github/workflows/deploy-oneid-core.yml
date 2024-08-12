@@ -17,6 +17,7 @@ on:
         default: dev
         options:
         - dev
+        - uat
 jobs:
   setup:
     runs-on: ubuntu-22.04
