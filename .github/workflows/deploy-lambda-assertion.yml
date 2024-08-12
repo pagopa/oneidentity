@@ -15,6 +15,7 @@ on:
           default: dev
           options:
           - dev
+          - uat
 jobs:
     build:
       runs-on: ubuntu-22.04
@@ -42,7 +43,9 @@ jobs:
     deploy:
       runs-on: ubuntu-22.04
       needs: build
-      environment: dev
+      environment: ${{ github.event.inputs.environment }}
+      env:
+        ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[github.event.inputs.environment] }}
       permissions:
         id-token: write
         contents: read
@@ -60,8 +63,8 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ vars.AWS_REGION }}
    
-      - name: Deploy Lambda function
+      - name: Deploy Lambda function (${{ github.event.inputs.environment }})
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-d-assertion \
+            --function-name oneid-es-1-${{ env.ENV_SHORT }}-assertion \
             --zip-file fileb://src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip
