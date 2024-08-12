@@ -16,7 +16,10 @@ on:
           default: dev
           options:
           - dev
+          - uat
 jobs:
+    
+
     build:
       runs-on: ubuntu-22.04
 
@@ -43,7 +46,9 @@ jobs:
     deploy:
       runs-on: ubuntu-22.04
       needs: build
-      environment: dev
+      environment: ${{ github.event.inputs.environment }}
+      env:
+        ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[github.event.inputs.environment] }}
       permissions:
         id-token: write
         contents: read
@@ -64,5 +69,5 @@ jobs:
       - name: Deploy Lambda function
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-d-metadata \
+            --function-name oneid-es-1-${{ env.ENV_SHORT }}-metadata \
             --zip-file fileb://src/oneid/oneid-lambda-service-metadata/target/function.zip
