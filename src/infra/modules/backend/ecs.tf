@@ -197,7 +197,7 @@ module "ecs_core_service" {
   enable_autoscaling       = var.service_core.autoscaling.enable
   autoscaling_min_capacity = var.service_core.autoscaling.min_capacity
   autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
-  desired_count            = var.service_core.desired_count
+  desired_count            = var.service_core.autoscaling.desired_count
 
   subnet_ids       = var.private_subnets
   assign_public_ip = false
