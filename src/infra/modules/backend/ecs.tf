@@ -150,12 +150,6 @@ module "ecs_core_service" {
 
   enable_execute_command = var.service_core.enable_execute_command
 
-  /*
-  task_exec_iam_role_policies = {
-    ecs_core_task = aws_iam_policy.ecs_core_task.arn
-  }
-  */
-
   tasks_iam_role_policies = {
     ecs_core_task = aws_iam_policy.ecs_core_task.arn
   }
@@ -203,6 +197,7 @@ module "ecs_core_service" {
   enable_autoscaling       = var.service_core.autoscaling.enable
   autoscaling_min_capacity = var.service_core.autoscaling.min_capacity
   autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
+  desired_count            = var.service_core.desired_count
 
   subnet_ids       = var.private_subnets
   assign_public_ip = false

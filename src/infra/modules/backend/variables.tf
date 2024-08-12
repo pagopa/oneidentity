@@ -54,9 +54,10 @@ variable "service_core" {
       logs_retention_days = number
     })
     autoscaling = object({
-      enable       = bool
-      min_capacity = number
-      max_capacity = number
+      enable        = bool
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
     })
     environment_variables = list(object({
       name  = string
