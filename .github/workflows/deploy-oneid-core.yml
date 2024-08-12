@@ -33,12 +33,12 @@ jobs:
 
           if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
             matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
-          elif [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event.inputs.environment == 'uat' }}  ]; then
+          elif [ ${{ github.event.inputs.environment == 'uat' }}  ]; then
             matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"}]}"
           else
             matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"        
           fi
-          
+
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
   
   deploy:
