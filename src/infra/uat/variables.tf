@@ -18,7 +18,7 @@ variable "app_name" {
 
 variable "env_short" {
   type        = string
-  default     = "d"
+  default     = "u"
   description = "Evnironment short."
 }
 
@@ -66,16 +66,15 @@ variable "r53_dns_zone" {
   })
 
   default = {
-    name    = "dev.oneid.pagopa.it"
-    comment = "Oneidentity dev zone."
+    name    = "uat.oneid.pagopa.it"
+    comment = "Oneidentity uat hosted zone."
   }
 }
 
-## ECS Cluster ##
 variable "ecs_enable_container_insights" {
   type        = bool
   description = "Enable ecs cluster container inight."
-  default     = false
+  default     = true
 }
 
 variable "ecs_oneid_core" {
@@ -103,11 +102,11 @@ variable "ecs_oneid_core" {
     container_memory = 1024
     autoscaling = {
       enable       = true
-      min_capacity = 1
-      max_capacity = 2
+      min_capacity = 3
+      max_capacity = 6
     }
     logs_retention_days   = 30
-    app_spid_test_enabled = true
+    app_spid_test_enabled = false
   }
 }
 
@@ -248,8 +247,8 @@ variable "rest_api_throttle_settings" {
   })
   description = "Rest api throttle settings."
   default = {
-    rate_limit  = 50
-    burst_limit = 100
+    rate_limit  = 200
+    burst_limit = 400
   }
 }
 
@@ -257,7 +256,7 @@ variable "tags" {
   type = map(any)
   default = {
     CreatedBy   = "Terraform"
-    Environment = "Dev"
+    Environment = "Uat"
     Owner       = "Oneidentity"
     Source      = "https://github.com/pagopa/oneidentity"
     CostCenter  = "tier0"

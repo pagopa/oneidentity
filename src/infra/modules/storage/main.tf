@@ -233,13 +233,18 @@ resource "aws_iam_policy" "glue_assertions_policy" {
   policy      = data.aws_iam_policy_document.glue_assertions_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
-  for_each = toset([
+locals {
+  glue_assertions_policy = [
     "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole",
     aws_iam_policy.glue_assertions_policy.arn,
-  ])
+  ]
+}
+
+resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
+  count      = length(local.glue_assertions_policy)
   role       = aws_iam_role.glue_assertions.name
-  policy_arn = each.value
+  policy_arn = local.glue_assertions_policy[count.index]
+
 }
 
 resource "aws_glue_catalog_database" "assertions" {

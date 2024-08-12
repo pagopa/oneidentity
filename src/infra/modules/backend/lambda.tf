@@ -188,14 +188,12 @@ module "security_group_lambda_assertion" {
 }
 
 resource "aws_sqs_queue" "dlq_lambda_assertion" {
-  count = local.dynamodb_stream_enabled ? 1 : 0
-  name  = format("%s-dlq", var.assertion_lambda.name)
+  name = format("%s-dlq", var.assertion_lambda.name)
 }
 
 module "assertion_lambda" {
   source                 = "terraform-aws-modules/lambda/aws"
   version                = "7.4.0"
-  count                  = local.dynamodb_stream_enabled ? 1 : 0
   function_name          = var.assertion_lambda.name
   description            = "Lambda function assertion."
   runtime                = "python3.12"
@@ -219,12 +217,12 @@ module "assertion_lambda" {
 
   ### DLQ ###
   attach_dead_letter_policy = true
-  dead_letter_target_arn    = aws_sqs_queue.dlq_lambda_assertion[0].arn
+  dead_letter_target_arn    = aws_sqs_queue.dlq_lambda_assertion.arn
 
   allowed_triggers = {
     events = {
       principal  = "events.amazonaws.com"
-      source_arn = aws_pipes_pipe.sessions[0].arn
+      source_arn = aws_pipes_pipe.sessions.arn
     }
   }
 
