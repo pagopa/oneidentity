@@ -64,7 +64,7 @@ jobs:
         role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
         aws-region: ${{ vars.AWS_REGION }}
 
-    - name: Deploy Lambda function
+    - name: Deploy Lambda function (${{ github.event.inputs.environment }})
       run: |
         aws lambda update-function-code \
         --function-name oneid-es-1-${{ env.ENV_SHORT }}-client-registration \
