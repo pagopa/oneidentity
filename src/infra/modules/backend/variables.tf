@@ -96,6 +96,10 @@ variable "client_registration_lambda" {
     filename                          = string
     table_client_registrations_arn    = string
     cloudwatch_logs_retention_in_days = number
+    vpc_id                            = string
+    vpc_endpoint_dynamodb_prefix_id   = string
+    vpc_subnet_ids                    = list(string)
+
   })
 
 }
