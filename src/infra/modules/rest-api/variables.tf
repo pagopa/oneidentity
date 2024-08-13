@@ -21,6 +21,12 @@ variable "stage_name" {
   description = "Stage name."
 }
 
+variable "xray_tracing_enabled" {
+  type        = bool
+  description = "Whether active tracing with X-ray is enabled."
+  default     = false
+}
+
 variable "api_cache_cluster_enabled" {
   type        = bool
   description = "Enablr cache cluster is enabled for the stage."

@@ -213,6 +213,12 @@ variable "api_cache_cluster_size" {
   default     = 0.5
 }
 
+variable "xray_tracing_enabled" {
+  type        = bool
+  description = "Whether active tracing with X-ray is enabled."
+  default     = true
+}
+
 variable "api_method_settings" {
   description = "List of Api Gateway method settings."
   type = list(object({

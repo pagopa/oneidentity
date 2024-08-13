@@ -45,13 +45,14 @@ module "frontend" {
     api_key_name         = "client-registration"
   }
 
-  # TODO fix
   metadata_lamba_name            = module.backend.metadata_lambda_name
   metadata_lamba_arn             = module.backend.metadata_lambda_arn
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   aws_region                     = var.aws_region
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
+
+  xray_tracing_enabled = var.xray_tracing_enabled
 
 }
 

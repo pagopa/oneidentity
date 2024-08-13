@@ -38,6 +38,8 @@ resource "aws_api_gateway_stage" "main" {
   cache_cluster_enabled = var.api_cache_cluster_enabled
   cache_cluster_size    = var.api_cache_cluster_size
 
+  xray_tracing_enabled = var.xray_tracing_enabled
+
   tags = {
     Name = format("%s-%s", var.name, var.stage_name)
   }
