@@ -83,7 +83,7 @@ module "backend" {
   ]
 
   ecs_cluster_name          = format("%s-ecs", local.project)
-  enable_container_insights = true
+  enable_container_insights = var.ecs_enable_container_insights
 
   fargate_capacity_providers = {
     FARGATE = {
