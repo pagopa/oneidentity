@@ -42,7 +42,7 @@
 | <a name="input_assertions_crawler_schedule"></a> [assertions\_crawler\_schedule](#input\_assertions\_crawler\_schedule) | A cron expression used to specify the schedule | `string` | `"cron(00 08 ? * MON *)"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to create resources. Default Milan | `string` | `"eu-south-1"` | no |
 | <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | `"es-1"` | no |
-| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
+| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations table. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
 | <a name="input_dlq_assertion_setting"></a> [dlq\_assertion\_setting](#input\_dlq\_assertion\_setting) | n/a | <pre>object({<br>    maximum_retry_attempts        = number<br>    maximum_record_age_in_seconds = number<br>  })</pre> | <pre>{<br>  "maximum_record_age_in_seconds": 259200,<br>  "maximum_retry_attempts": 3<br>}</pre> | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | Dns record ttl (in sec) | `number` | `3600` | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
@@ -61,6 +61,7 @@
 | <a name="input_vpc_internal_subnets_cidr"></a> [vpc\_internal\_subnets\_cidr](#input\_vpc\_internal\_subnets\_cidr) | Internal subnets address spaces. | `list(string)` | <pre>[<br>  "10.0.32.0/20",<br>  "10.0.16.0/20",<br>  "10.0.0.0/20"<br>]</pre> | no |
 | <a name="input_vpc_private_subnets_cidr"></a> [vpc\_private\_subnets\_cidr](#input\_vpc\_private\_subnets\_cidr) | Private subnets address spaces. | `list(string)` | <pre>[<br>  "10.0.80.0/20",<br>  "10.0.64.0/20",<br>  "10.0.48.0/20"<br>]</pre> | no |
 | <a name="input_vpc_public_subnets_cidr"></a> [vpc\_public\_subnets\_cidr](#input\_vpc\_public\_subnets\_cidr) | Public subnets address spaces. | `list(string)` | <pre>[<br>  "10.0.120.0/21",<br>  "10.0.112.0/21",<br>  "10.0.104.0/21"<br>]</pre> | no |
+| <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `false` | no |
 
 ## Outputs
 
