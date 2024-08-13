@@ -61,6 +61,23 @@ data "aws_iam_policy_document" "client_registration_lambda" {
   }
 }
 
+module "security_group_lambda_client_registration" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.client_registration_lambda.name}-sg"
+  description = "Security Group for Lambda Egress"
+
+  vpc_id = var.client_registration_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id]
+
+  egress_rules = ["https-443-tcp"]
+}
 
 module "client_registration_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
@@ -77,8 +94,12 @@ module "client_registration_lambda" {
 
   publish = true
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.client_registration_lambda.json
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.client_registration_lambda.json
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.client_registration_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_client_registration.security_group_id]
 
   environment_variables = {
   }
