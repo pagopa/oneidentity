@@ -3,7 +3,7 @@ name: "Terraform Docs"
 on:
   pull_request:
     paths:
-      - 'src/infra/**/*.tf'
+      - 'src/infra/modules/**/*.tf'
 
 jobs:
   terraform-docs:
@@ -21,9 +21,8 @@ jobs:
         uses: terraform-docs/gh-actions@e47bfa196e79fa50987ef391be236d9d97b0c786
         id: tfdocs
         with:
-          find-dir: ./modules
           output-file: README.md
           output-method: inject
           git-push: "true"
-          working-dir: src/infra/
+          working-dir: src/infra/modules
         
