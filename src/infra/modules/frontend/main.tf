@@ -19,7 +19,7 @@ module "records" {
         name                   = module.rest_api.regional_domain_name
         zone_id                = module.rest_api.regional_zone_id
         evaluate_target_health = true
-        ttl                    = var.dns_record_ttl 
+        ttl                    = var.dns_record_ttl
       }
     }]
   )

@@ -11,7 +11,7 @@ variable "r53_dns_zones" {
 }
 
 variable "dns_record_ttl" {
-  type = number
+  type        = number
   description = "DNS records ttl"
 }
 

@@ -263,8 +263,8 @@ module "spid_validator" {
 */
 
 module "database" {
-  source         = "../modules/database"
-  sessions_table = var.sessions_table
+  source                     = "../modules/database"
+  sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
 }
 
