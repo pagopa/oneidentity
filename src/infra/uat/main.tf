@@ -33,6 +33,8 @@ module "frontend" {
     }
   }
 
+  dns_record_ttl = var.dns_record_ttl
+
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
 
@@ -83,7 +85,7 @@ module "backend" {
   ]
 
   ecs_cluster_name          = format("%s-ecs", local.project)
-  enable_container_insights = true
+  enable_container_insights = var.ecs_enable_container_insights
 
   fargate_capacity_providers = {
     FARGATE = {
@@ -263,6 +265,7 @@ module "spid_validator" {
 module "database" {
   source         = "../modules/database"
   sessions_table = var.sessions_table
+  client_registrations_table = var.client_registrations_table
 }
 
 

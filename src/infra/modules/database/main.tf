@@ -83,7 +83,7 @@ module "dynamodb_table_client_registrations" {
 
   billing_mode = "PAY_PER_REQUEST"
 
-  point_in_time_recovery_enabled = var.sessions_table.point_in_time_recovery_enabled
+  point_in_time_recovery_enabled = var.client_registrations_table.point_in_time_recovery_enabled
 
   tags = {
     Name = "ClientRegistrations"

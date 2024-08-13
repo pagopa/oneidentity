@@ -187,9 +187,9 @@ variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
   })
-  description = "Client configurations."
+  description = "Client configurations table."
   default = {
-    point_in_time_recovery_enabled = false
+    point_in_time_recovery_enabled = true
   }
 }
 
@@ -197,7 +197,7 @@ variable "client_registrations_table" {
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
-  default     = 3600 # one minutes
+  default     = 3600 # one hour.
 }
 
 ## Api Gateway
