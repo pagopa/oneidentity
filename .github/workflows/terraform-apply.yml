@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - '**'        # matches every branch
-      - '!main'     # excludes main
+      - 'main'
     paths:
       - 'src/infra/**'
 
