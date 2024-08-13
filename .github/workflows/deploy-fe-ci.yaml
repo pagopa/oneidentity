@@ -1,4 +1,4 @@
-name: OneID FE Deploy
+name: Deploy FE
 
 on:
   push:
@@ -7,8 +7,6 @@ on:
       - "dev"
     paths:
       - "**/src/oneid/oneid-ecs-core/src/main/webui**"
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -18,12 +16,12 @@ on:
         default: dev
         options:
         - dev
+        - uat
 
 jobs:
   setup:
     runs-on: ubuntu-22.04
-    outputs:
-        matrix: ${{ steps.setmatrix.outputs.matrix }}
+    
 
     steps:     
       - name: Set Dynamic Env Matrix
@@ -32,15 +30,15 @@ jobs:
           echo "github.ref ${{ github.ref }}"
           echo "event name ${{ github.event_name }}"
 
-          : '
           if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\"},{\"environment\":\"prod\"}]}"
+          elif [ ${{ github.event_name == 'workflow_dispatch' }} == true ] ; then
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment}}\" }]}"
           else
             matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"
           fi
-          '
+
           
-          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-22.04
