@@ -29,6 +29,12 @@ variable "rest_api_stage" {
   default     = "v1"
 }
 
+variable "xray_tracing_enabled" {
+  type        = bool
+  description = "Whether active tracing with X-ray is enabled."
+  default     = false
+}
+
 variable "api_gateway_target_arns" {
   type        = list(string)
   description = "List of target arn for the api gateway."
