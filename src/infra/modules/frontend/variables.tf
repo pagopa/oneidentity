@@ -10,6 +10,11 @@ variable "r53_dns_zones" {
   description = "R53 DNS Zones."
 }
 
+variable "dns_record_ttl" {
+  type = number
+  description = "DNS records ttl"
+}
+
 ## API Gateway ## 
 
 variable "rest_api_name" {

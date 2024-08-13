@@ -188,7 +188,7 @@ variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
   })
-  description = "Client configurations."
+  description = "Client configurations table."
   default = {
     point_in_time_recovery_enabled = false
   }

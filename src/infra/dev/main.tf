@@ -33,6 +33,8 @@ module "frontend" {
     }
   }
 
+  dns_record_ttl = var.dns_record_ttl
+
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
 
@@ -259,8 +261,9 @@ module "spid_validator" {
 }
 
 module "database" {
-  source         = "../modules/database"
-  sessions_table = var.sessions_table
+  source                     = "../modules/database"
+  sessions_table             = var.sessions_table
+  client_registrations_table = var.client_registrations_table
 }
 
 

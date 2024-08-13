@@ -8,3 +8,10 @@ variable "sessions_table" {
   })
   description = "Saml responses table configurations."
 }
+
+variable "client_registrations_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Client registrations table configurations."
+}
