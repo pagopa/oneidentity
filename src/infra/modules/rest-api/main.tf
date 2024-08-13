@@ -164,9 +164,8 @@ resource "aws_api_gateway_domain_name" "main" {
 }
 
 resource "aws_apigatewayv2_api_mapping" "main" {
-  count           = var.api_mapping_key != null ? 1 : 0
+  count           = var.custom_domain_name != null ? 1 : 0
   api_id          = aws_api_gateway_rest_api.main.id
   stage           = var.stage_name
   domain_name     = var.custom_domain_name
-  api_mapping_key = var.api_mapping_key
 }
