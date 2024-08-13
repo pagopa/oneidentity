@@ -235,7 +235,13 @@ variable "api_method_settings" {
       logging_level   = "INFO"
     },
     {
-      method_path          = "static/*/GET"
+      method_path          = "saml/{id_type}/metadata/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+      metrics_enabled      = true
+    },
+    {
+      method_path          = "static/{proxy+}/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     }
