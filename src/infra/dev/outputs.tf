@@ -39,7 +39,7 @@ output "assertions_bucket_arn" {
 }
 
 output "assets_bucket_name" {
-  value = module.storage.s3_assets_bucket_name
+  value = module.storage.assets_bucket_name
 }
 
 # Database
