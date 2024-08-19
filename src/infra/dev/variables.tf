@@ -158,7 +158,7 @@ variable "assertions_crawler_schedule" {
 variable "number_of_images_to_keep" {
   type        = number
   description = "Number of images to keeps in ECR."
-  default     = 3
+  default     = 5
 }
 
 variable "repository_image_tag_mutability" {

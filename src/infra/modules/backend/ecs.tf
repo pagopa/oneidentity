@@ -16,7 +16,7 @@ module "ecr" {
         rulePriority = 1,
         description  = "Keep last ${each.value.number_of_images_to_keep} images",
         selection = {
-          "tagStatus" : "untagged",
+          "tagStatus" : "any",
           "countType" : "imageCountMoreThan",
           "countNumber" : each.value.number_of_images_to_keep
         },
