@@ -29,14 +29,17 @@ output "dns_zone_name_servers" {
   value = module.frontend.route53_zone_name_servers
 }
 
-
 # Storage
 output "assertions_bucket_name" {
-  value = module.frontend
+  value = module.storage.assertions_bucket_name
 }
 
 output "assertions_bucket_arn" {
   value = module.storage.assertions_bucket_arn
+}
+
+output "assets_bucket_name" {
+  value = module.storage.s3_assets_bucket_name
 }
 
 # Database
