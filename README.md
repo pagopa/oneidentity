@@ -1,9 +1,23 @@
----
-runme:
-  id: 01HQMZGMD1BJGGFK5RH0XXM58T
-  version: v3
----
+## Requirements
 
-# Oneidentity by PagoPa
+No requirements.
 
-Coming soon!
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Inputs
+
+No inputs.
+
+## Outputs
+
+No outputs.
