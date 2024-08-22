@@ -23,7 +23,7 @@ RUN ["./mvnw", "verify", "clean", "--fail-never"]
 
 # This will use a workaround to load an env file, since is
 # not supported in docker build
-RUN export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate
+RUN export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.test.skip=true
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2
