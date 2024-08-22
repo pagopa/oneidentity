@@ -15,7 +15,7 @@ module "kms_sessions_table" {
   aliases = [local.kms_sessions_table_alias]
 }
 
-module "sessions_table" {
+module "dynamodb_sessions_table" {
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "4.0.1"
 
