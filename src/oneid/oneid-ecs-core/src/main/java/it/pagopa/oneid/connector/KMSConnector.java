@@ -13,7 +13,7 @@ public interface KMSConnector {
     return result;
   }
 
-  SignResponse sign(byte[] headerBytes, byte[] payloadBytes);
+  SignResponse sign(String kmsKeyID, byte[] headerBytes, byte[] payloadBytes);
 
-  GetPublicKeyResponse getPublicKey();
+  GetPublicKeyResponse getPublicKey(String kmsKeyID);
 }

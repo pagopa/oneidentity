@@ -46,30 +46,31 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
 public class OIDCServiceImpl implements OIDCService {
 
   @Inject
-  OIDCUtils oidcUtils;
+  @ConfigProperty(name = "kms_key_id")
+  String KMS_KEY_ID;
 
+  @Inject
+  OIDCUtils oidcUtils;
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
-
   @Inject
   ClientConnectorImpl clientConnectorImpl;
-
   @Inject
   Map<String, Client> clientsMap;
-
   @Inject
   SAMLUtilsConstants samlConstants;
 
   @Override
   public JWKSSetDTO getJWSKPublicKey() {
     Log.debug("start");
-    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey();
+    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey(KMS_KEY_ID);
     RSAPublicKey rsaPublicKey;
     try {
       rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
