@@ -14,12 +14,17 @@ import jakarta.inject.Inject;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.kms.model.SignResponse;
 
 @ApplicationScoped
 public class OIDCUtils {
 
   private static final Base64.Encoder base64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
+
+  @Inject
+  @ConfigProperty(name = "kms_key_id")
+  String KMS_KEY_ID;
 
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
@@ -58,7 +63,7 @@ public class OIDCUtils {
     byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
 
     // Create a signature with base64 encoded header and payload
-    SignResponse signResponse = kmsConnectorImpl.sign(encodedHeader, encodedPayload);
+    SignResponse signResponse = kmsConnectorImpl.sign(KMS_KEY_ID, encodedHeader, encodedPayload);
     String base64Sign = base64UrlEncoder.encodeToString(signResponse.signature().asByteArray());
 
     // Concatenation of JWT parts to obtain the pattern header.payload.signature

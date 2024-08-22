@@ -16,7 +16,6 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.inject.Inject;
 import java.time.Instant;
-import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -62,11 +61,9 @@ class SessionConnectorImplTest {
   @ConfigProperty(name = "sessions_g_idx")
   String IDX_NAME;
 
-  @SneakyThrows
   @Inject
   public SessionConnectorImplTest() {
     System.setProperty("sqlite4java.library.path", "target/test/native-libs");
-
   }
 
   @BeforeAll
