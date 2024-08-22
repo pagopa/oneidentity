@@ -43,6 +43,11 @@
             <name>Shibboleth Build Releases Repository</name>
             <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
         </repository>
+        <repository>
+            <id>dynamodb-local-frankfurt</id>
+            <name>DynamoDB Local Release Repository</name>
+            <url>https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release</url>
+        </repository>
     </repositories>
     <dependencyManagement>
         <dependencies>
@@ -168,6 +173,26 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
                 <version>1.78.1</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>DynamoDBLocal</artifactId>
+                <version>2.5.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ganadist.sqlite4java</groupId>
+                <artifactId>libsqlite4java-osx-aarch64</artifactId>
+                <version>1.0.392</version>
+                <scope>test</scope>
+                <type>dylib</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.23.1</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
