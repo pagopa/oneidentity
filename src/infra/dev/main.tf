@@ -276,7 +276,9 @@ module "monitoring" {
   api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
   aws_region                 = var.aws_region
   api_name                   = module.frontend.api_name
-  dynamodb_table_name        = module.database.table_sessions_name
+  sessions_table             = module.database.table_sessions_name
+  client_registrations_table = module.database.table_client_registrations_name
+
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
     arn_suffix              = module.backend.nlb_arn_suffix
