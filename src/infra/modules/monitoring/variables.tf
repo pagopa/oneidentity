@@ -16,8 +16,14 @@ variable "api_name" {
   type = string
 }
 
-variable "dynamodb_table_name" {
-  type = string
+variable "sessions_table" {
+  type        = string
+  description = "Dynamodb Sessions table"
+}
+
+variable "client_registrations_table" {
+  type        = string
+  description = "Dynamodb ClientRegistrations table"
 }
 
 variable "ecs" {
