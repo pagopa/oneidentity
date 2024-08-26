@@ -36,12 +36,15 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @Dependent
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
-  private final DynamoDbTable<SAMLSession> samlSessionMapper;
-  private final DynamoDbTable<OIDCSession> oidcSessionMapper;
-  private final DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
-  private final DynamoDbIndex<OIDCSession> oidcSessionDynamoDbIndex;
-  private final DynamoDbIndex<AccessTokenSession> accessTokenSessionDynamoDbIndex;
+  private DynamoDbTable<SAMLSession> samlSessionMapper;
+  private DynamoDbTable<OIDCSession> oidcSessionMapper;
+  private DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
+  private DynamoDbIndex<OIDCSession> oidcSessionDynamoDbIndex;
+  private DynamoDbIndex<AccessTokenSession> accessTokenSessionDynamoDbIndex;
 
+  public SessionConnectorImpl() {
+    
+  }
 
   @Inject
   SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
