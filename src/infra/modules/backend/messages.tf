@@ -142,7 +142,7 @@ resource "aws_pipes_pipe" "sessions" {
   "code": <$.dynamodb.NewImage.code.S>,
   "idToken": <$.dynamodb.NewImage.idToken.S>,
   "eventName": <$.eventName>,
-  "ipAddress": <$.ipAddress>
+  "ipAddress": <$.dynamodb.NewImage.ipAddress.S>
 }
 EOF
   }
