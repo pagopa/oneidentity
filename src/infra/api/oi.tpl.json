@@ -1786,40 +1786,6 @@
         "summary": "OpenID Connect Discovery endpoint",
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
       }
-    },
-    "/static/{proxy+}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "proxy",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "type": "http_proxy",
-          "connectionId": "${connection_id}",
-          "httpMethod": "GET",
-          "uri": "${uri}/static/{proxy}",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "requestParameters": {
-            "integration.request.path.proxy": "method.request.path.proxy"
-          },
-          "passthroughBehavior": "when_no_match",
-          "connectionType": "VPC_LINK",
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ],
-          "cacheNamespace": "static-contents"
-        }
-      }
     }
   },
   "components": {
