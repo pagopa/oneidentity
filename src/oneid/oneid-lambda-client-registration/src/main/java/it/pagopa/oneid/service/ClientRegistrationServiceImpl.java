@@ -54,6 +54,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new InvalidUriException("Invalid Logo URI");
     }
 
+    // Validate policyUri
+    String policyUri = clientRegistrationRequestDTO.getPolicyUri();
+    try {
+      CustomURIUtils.validateURI(policyUri);
+
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid Policy URI");
+    }
+
     // Validate tosUri
     String tosUri = clientRegistrationRequestDTO.getTosUri();
     try {
@@ -61,15 +70,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid TOS URI");
-    }
-
-    // Validate PolicyUri
-    String policyUri = clientRegistrationRequestDTO.getPolicyUri();
-    try {
-      CustomURIUtils.validateURI(policyUri);
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid Policy URI");
     }
 
     Log.debug("end");

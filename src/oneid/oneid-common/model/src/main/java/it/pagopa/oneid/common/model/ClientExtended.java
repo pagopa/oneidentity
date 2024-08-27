@@ -31,9 +31,10 @@ public class ClientExtended extends Client {
       @NotNull Set<String> callbackURI,
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
-      String secret, String salt, long clientIdIssuedAt, String logoUri) {
+      String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
+      String tosURi) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi);
     this.secret = secret;
     this.salt = salt;
   }
@@ -42,7 +43,8 @@ public class ClientExtended extends Client {
     super(client.getClientId(), client.getFriendlyName(), client.getCallbackURI(),
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
-        client.getClientIdIssuedAt(), client.getLogoUri());
+        client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
+        client.getTosUri());
     this.secret = secret;
     this.salt = salt;
   }
