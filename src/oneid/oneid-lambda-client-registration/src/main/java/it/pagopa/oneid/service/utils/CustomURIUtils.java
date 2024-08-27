@@ -1,7 +1,7 @@
 package it.pagopa.oneid.service.utils;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.exception.InvalidRedirectURIException;
+import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +13,7 @@ public class CustomURIUtils {
   public static void validateURI(String uriString) {
     Log.debug("start");
     if (StringUtils.isBlank(uriString)) {
-      throw new InvalidRedirectURIException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
+      throw new InvalidUriException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
     }
     try {
       URI uri = new URI(uriString);
@@ -28,7 +28,7 @@ public class CustomURIUtils {
         throw new URISyntaxException(uriString, "Domain not valid");
       }
     } catch (URISyntaxException e) {
-      throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
+      throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
     }
     Log.debug("end");
   }
