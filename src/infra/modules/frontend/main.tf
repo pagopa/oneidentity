@@ -93,3 +93,42 @@ resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/*/metadata"
 }
+
+/*
+## REST API Gateway ##
+module "static_content" {
+  source = "../rest-api"
+
+  name = var.rest_api_name
+
+  stage_name           = "v1"
+  xray_tracing_enabled = false
+
+  endpoint_configuration = {
+    #TODO: is this the best endpoint type we need?
+    types = ["REGIONAL"]
+  }
+
+  body = templatefile("../api/static-content-oi-tpl.json",
+    {
+      #bucket_name = "todo"
+  })
+
+
+  custom_domain_name        = keys(var.r53_dns_zones)[0]
+  create_custom_domain_name = false
+  #certificate_arn           = module.acm.acm_certificate_arn
+
+  plan                      = {
+    name = "static"
+    api_key_name = null
+    throttle_rate_limit = 100
+    throttle_burst_limit = 200
+  }
+  api_cache_cluster_enabled = true
+  api_cache_cluster_size    = var.api_cache_cluster_size
+  method_settings           = []
+
+}
+
+*/
