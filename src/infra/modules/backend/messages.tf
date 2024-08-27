@@ -141,9 +141,9 @@ resource "aws_pipes_pipe" "sessions" {
   "ttl": <$.dynamodb.NewImage.ttl.N>,
   "code": <$.dynamodb.NewImage.code.S>,
   "idToken": <$.dynamodb.NewImage.idToken.S>,
-  "eventName": <$.eventName>
+  "eventName": <$.eventName>,
+  "ipAddress": <$.dynamodb.NewImage.ipAddress.S>
 }
 EOF
   }
 }
-
