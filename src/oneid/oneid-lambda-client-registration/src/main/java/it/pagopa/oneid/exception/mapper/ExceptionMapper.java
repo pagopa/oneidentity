@@ -10,8 +10,7 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.exception.InvalidLogoURIException;
-import it.pagopa.oneid.exception.InvalidRedirectURIException;
+import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
@@ -94,23 +93,13 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ClientRegistrationErrorDTO> mapInvalidRedirectURIException(
-      InvalidRedirectURIException invalidRedirectURIException) {
-    Log.error(ExceptionUtils.getStackTrace(invalidRedirectURIException));
-    String message = invalidRedirectURIException.getClientRegistrationErrorCode().getErrorMessage();
+  public RestResponse<ClientRegistrationErrorDTO> mapInvalidURIException(
+      InvalidUriException invalidUriException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidUriException));
     return RestResponse.status(BAD_REQUEST,
         buildClientRegistrationErrorDTO(
-            invalidRedirectURIException.getClientRegistrationErrorCode(), message));
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ClientRegistrationErrorDTO> mapInvalidLogoURIException(
-      InvalidLogoURIException invalidLogoURIException) {
-    Log.error(ExceptionUtils.getStackTrace(invalidLogoURIException));
-    String message = "Invalid logo URI";
-    return RestResponse.status(BAD_REQUEST,
-        buildClientRegistrationErrorDTO(
-            invalidLogoURIException.getClientRegistrationErrorCode(), message));
+            invalidUriException.getClientRegistrationErrorCode(),
+            invalidUriException.getMessage()));
   }
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
