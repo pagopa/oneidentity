@@ -44,6 +44,46 @@ module "acm" {
   }
 }
 
+
+data "aws_iam_policy_document" "apigw_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["apigateway.amazonaws.com"]
+    }
+  }
+}
+
+resource "random_id" "suffix" {
+  byte_length = 8
+}
+
+resource "aws_iam_role" "s3_apigw_proxy" {
+  name               = "S3ApiGatewayProxy-${random_id.suffix.hex}"
+  assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
+}
+
+data "aws_iam_policy_document" "s3_apigw_proxy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObjec"]
+    resources = ["${var.assets_bucket_arn}/*"]
+  }
+}
+
+resource "aws_iam_policy" "s3_apigw_proxy" {
+  name        = "S3AssetsGetObject"
+  description = "A test policy"
+  policy      = data.aws_iam_policy_document.s3_apigw_proxy.json
+}
+
+resource "aws_iam_role_policy_attachment" "s3_apigw_proxy" {
+  role       = aws_iam_role.s3_apigw_proxy.name
+  policy_arn = aws_iam_policy.s3_apigw_proxy.arn
+}
+
 ## REST API Gateway ##
 module "rest_api" {
   source = "../rest-api"
@@ -66,6 +106,8 @@ module "rest_api" {
       aws_region                     = var.aws_region
       metadata_lambda_arn            = var.metadata_lamba_arn
       client_registration_lambda_arn = var.client_registration_lambda_arn
+      s3_apigateway_proxy_role = aws_iam_role.s3_apigw_proxy.arn
+      assets_bucket_arn        = var.assets_bucket_arn
   })
 
 

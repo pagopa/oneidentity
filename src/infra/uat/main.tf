@@ -49,6 +49,7 @@ module "frontend" {
   metadata_lamba_arn             = module.backend.metadata_lambda_arn
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   aws_region                     = var.aws_region
+  assets_bucket_arn              = module.storage.assets_bucket_arn
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
 

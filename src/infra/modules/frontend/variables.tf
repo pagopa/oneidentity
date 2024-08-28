@@ -105,3 +105,9 @@ variable "client_registration_lambda_arn" {
   type        = string
   description = "lambda client registration arn"
 }
+
+
+variable "assets_bucket_arn" {
+  type = string
+  description = "Assets bucket arn."
+}
