@@ -104,6 +104,7 @@
 | <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
 | <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../modules/monitoring | n/a |
 | <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
+| <a name="module_sns"></a> [sns](#module\_sns) | ../modules/sns | n/a |
 | <a name="module_spid_validator"></a> [spid\_validator](#module\_spid\_validator) | ../modules/spid-validator | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
 
@@ -128,6 +129,7 @@
 | <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations table. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
 | <a name="input_dlq_assertion_setting"></a> [dlq\_assertion\_setting](#input\_dlq\_assertion\_setting) | n/a | <pre>object({<br>    maximum_retry_attempts        = number<br>    maximum_record_age_in_seconds = number<br>  })</pre> | <pre>{<br>  "maximum_record_age_in_seconds": 259200,<br>  "maximum_retry_attempts": 3<br>}</pre> | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | Dns record ttl (in sec) | `number` | `3600` | no |
+| <a name="input_ecs_as_threshold"></a> [ecs\_as\_threshold](#input\_ecs\_as\_threshold) | n/a | `number` | `80` | no |
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `false` | no |
 | <a name="input_ecs_oneid_core"></a> [ecs\_oneid\_core](#input\_ecs\_oneid\_core) | Oneidentity core backend configurations. | <pre>object({<br>    image_version    = string<br>    cpu              = number<br>    memory           = number<br>    container_cpu    = number<br>    container_memory = number<br>    autoscaling = object({<br>      enable        = bool<br>      desired_count = number<br>      min_capacity  = number<br>      max_capacity  = number<br>    })<br>    logs_retention_days   = number<br>    app_spid_test_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "app_spid_test_enabled": true,<br>  "autoscaling": {<br>    "desired_count": 1,<br>    "enable": true,<br>    "max_capacity": 2,<br>    "min_capacity": 1<br>  },<br>  "container_cpu": 512,<br>  "container_memory": 1024,<br>  "cpu": 512,<br>  "image_version": "628d3c20b740a873dc1368404665a5365f8d9e54",<br>  "logs_retention_days": 30,<br>  "memory": 1024<br>}</pre> | no |
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Create nat gateway(s) | `bool` | `false` | no |
