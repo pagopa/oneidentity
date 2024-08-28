@@ -71,6 +71,10 @@ module "storage" {
   github_repository    = "pagopa/oneidentity"
   account_id           = data.aws_caller_identity.current.account_id
 }
+module "sns" {
+  source = "../modules/sns"
+  aws_region = var.aws_region
+}
 
 module "backend" {
   source = "../modules/backend"
@@ -87,7 +91,8 @@ module "backend" {
 
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = var.ecs_enable_container_insights
-
+  sns_topic_arn             = module.sns.sns_topic_arn
+  ecs_as_threshold          = var.ecs_as_threshold
   fargate_capacity_providers = {
     FARGATE = {
       default_capacity_provider_strategy = {

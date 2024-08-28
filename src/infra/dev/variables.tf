@@ -272,3 +272,8 @@ variable "tags" {
     CostCenter  = "tier0"
   }
 }
+
+variable "ecs_as_threshold" {
+  type = number
+  default = 80
+}

@@ -168,3 +168,11 @@ variable "eventbridge_pipe_sessions" {
   })
   default = null
 }
+
+variable "sns_topic_arn" {
+  type = string
+}
+
+variable "ecs_as_threshold" {
+  type = number
+}

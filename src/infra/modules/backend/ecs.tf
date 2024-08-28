@@ -354,3 +354,24 @@ module "elb" {
 
   tags = { Name : var.nlb_name }
 }
+
+resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
+  alarm_name          = format("%s-CPU-Utilization-High-%s", module.ecs_core_service.id,
+  var.ecs_as_threshold)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = var.ecs_as_threshold
+
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    var.sns_topic_arn
+  ]
+}
