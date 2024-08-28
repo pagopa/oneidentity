@@ -1,5 +1,5 @@
 data "aws_ssm_parameter" "subscribers" {
-  name = "subscribers"
+  name = var.ssm_parameter_name
 }
 
 locals {
@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_sns_topic" "alarms" {
-  name         = format("%s-alarms", var.aws_region)
+  name         =  var.sns_topic_name
   display_name = "Alarms"
 }
 

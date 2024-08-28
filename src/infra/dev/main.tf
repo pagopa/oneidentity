@@ -73,7 +73,9 @@ module "storage" {
 }
 module "sns" {
   source = "../modules/sns"
-  aws_region = var.aws_region
+  sns_topic_name = format("%s-sns", local.project)
+  ssm_parameter_name = var.ssm_parameter_name
+
 }
 
 module "backend" {
