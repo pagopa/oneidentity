@@ -40,6 +40,9 @@ override.tf.json
 # Ignore any IDE configuration files
 **/.idea/*
 
+# Intellij stuff
+*.iml
+
 # Ignore maven-wrapper.jar
 maven-wrapper.jar
 
@@ -81,8 +84,6 @@ src/oneid/oneid-ecs-core/src/main/webui/node_modules
 src/oneid/oneid-ecs-core/src/main/webui/build
 src/oneid/oneid-ecs-core/.quinoa
 
+# Test stuff
 # ignore local dynamodb metadata files
-/src/oneid/oneid-ecs-core/dynamodb-local-metadata.json
-
-# Intellij stuff
-*.iml
+**/dynamodb-local-metadata.json
