@@ -62,35 +62,145 @@
         }
       }
     },
-    "/login" : {
-      "get" : {
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Content-Type" : {
-                "schema" : {
-                  "type" : "string"
-                }
-              }
-            },
-            "content" : { }
+    "/login": {
+      "get": {
+        "tags": [
+          "Login landing page"
+        ],
+        "description": "This route will serve the login landing page, where users can choose which IDP use",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "description": "This is the 'client_id' of the requesting client. Maximum 255 characters.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": true,
+            "description": "MUST be one of the listed available values. Any response_type other than 'code' or 'token' is only supported in conjunction with scope=openid. As per the OAuth specification: 'code' is used for authorization code grant type flow, 'token' is used for implicit grant type flow, 'token id_token' is an extension provided by OpenID Connect, and 'code id_token', 'id_token', and 'none' are extensions provided by OpenID Connect Multiple Response Types",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code",
+                "token",
+                "token id_token",
+                "code id_token",
+                "id_token",
+                "code token",
+                "code id_token token",
+                "none"
+              ]
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "description": "The 'redirect_uri' that was registered for this client. It is required if multiple redirect_uri's have been registered for this client. If the scope contains openid, this field becomes MANDATORY.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": true,
+            "description": "Only SCOPE values that were registered for this client will be granted. If only non-matching SCOPE values are requested, the request will fail.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "required": true,
+            "description": "This is required for response_type 'token id_token'.  Typically, in an OpenID authorization scheme, the nonce represents a cryptographically strong random  string that is used to prevent intercepted responses from being reused.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": true,
+            "description": "Value opaque to the server, used by the client to track its session. It will be returned as received.",
+            "schema": {
+              "type": "string"
+            }
           }
-        },
+        ],
         "x-amazon-apigateway-integration" : {
           "credentials" : "${s3_apigateway_proxy_role}",
           "httpMethod" : "GET",
-          "uri" : "${assets_bucket_arn}/index.html",
-          "responses" : {
-            "default" : {
-              "statusCode" : "200",
-              "responseParameters" : {
-                "method.response.header.Content-Type" : "integration.response.header.Content-Type"
-              }
-            }
+          "uri" : "${assets_bucket_uri}/index.html",
+          "requestParameters" : {
+            "integration.request.querystring.client_id": "method.request.querystring.client_id",
+            "integration.request.querystring.response_type": "method.request.querystring.response_type",
+            "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+            "integration.request.querystring.scope": "method.request.querystring.scope",
+            "integration.request.querystring.nonce": "method.request.querystring.nonce",
+            "integration.request.querystring.state": "method.request.querystring.state"
           },
           "passthroughBehavior" : "when_no_match",
-          "type" : "aws"
+          "responseParameters": {},
+          "type" : "aws",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type" : "integration.response.header.Content-Type",
+                "method.response.header.location" :     "integration.response.header.location"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
         }
       }
     },
@@ -1674,6 +1784,40 @@
         },
         "summary": "OpenID Connect Discovery endpoint",
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
+      }
+    },
+    "/static/{proxy+}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "proxy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "http_proxy",
+          "connectionId": "${connection_id}",
+          "httpMethod": "GET",
+          "uri": "${uri}/static/{proxy}",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestParameters": {
+            "integration.request.path.proxy": "method.request.path.proxy"
+          },
+          "passthroughBehavior": "when_no_match",
+          "connectionType": "VPC_LINK",
+          "cacheKeyParameters": [
+            "method.request.path.proxy"
+          ],
+          "cacheNamespace": "static-contents"
+        }
       }
     }
   },

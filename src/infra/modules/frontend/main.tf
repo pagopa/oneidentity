@@ -68,7 +68,7 @@ resource "aws_iam_role" "s3_apigw_proxy" {
 data "aws_iam_policy_document" "s3_apigw_proxy" {
   statement {
     effect    = "Allow"
-    actions   = ["s3:GetObjec"]
+    actions   = ["s3:GetObject"]
     resources = ["${var.assets_bucket_arn}/*"]
   }
 }
@@ -106,8 +106,9 @@ module "rest_api" {
       aws_region                     = var.aws_region
       metadata_lambda_arn            = var.metadata_lamba_arn
       client_registration_lambda_arn = var.client_registration_lambda_arn
-      s3_apigateway_proxy_role = aws_iam_role.s3_apigw_proxy.arn
-      assets_bucket_arn        = var.assets_bucket_arn
+      s3_apigateway_proxy_role       = aws_iam_role.s3_apigw_proxy.arn
+      assets_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
+      var.assets_bucket_name)
   })
 
 
