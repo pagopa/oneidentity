@@ -180,43 +180,7 @@ public class SAMLServiceImplTest {
     assertThrows(OneIdentityException.class,
         () -> samlServiceImpl.checkSAMLStatus(response));
   }
-
-  // TODO implement
-    /* @Test
-  void buildAuthnRequest() throws SAMLUtilsException {
-    // given
-    String idpID = "foobar";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "dummy";
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.when(samlUtils.generateSecureRandomId()).thenReturn("id");
-    AuthnRequest authnRequest = Mockito.mock(AuthnRequest.class);
-    Issuer issuer = Mockito.mock(Issuer.class);
-    NameIDPolicy nameIDPolicy = Mockito.mock(NameIDPolicy.class);
-    RequestedAuthnContext requestedAuthnContext = Mockito.mock(RequestedAuthnContext.class);
-    Signature signature = Mockito.mock(Signature.class);
-
-    Mockito.when(samlUtils.buildSAMLObject(Mockito.any())).thenReturn(authnRequest);
-    Mockito.when(samlUtils.buildIssuer()).thenReturn(issuer);
-    Mockito.when(samlUtils.buildNameIdPolicy()).thenReturn(nameIDPolicy);
-    Mockito.when(samlUtils.buildRequestedAuthnContext(Mockito.any()))
-        .thenReturn(requestedAuthnContext);
-    Mockito.when(samlUtils.buildDestination(Mockito.any())).thenReturn(Optional.of("dummy"));
-    Mockito.when(samlUtils.buildSignature(Mockito.any())).thenReturn(signature);
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-   EntityDescriptor entityDescriptor = Mockito.mock(EntityDescriptor.class);
-    entityDescriptor.getIDPSSODescriptor()
-
-    Mockito.when(metadataResolverExtended.getEntityDescriptor(Mockito.any())).thenReturn("dummy");
-
-    // then
-    assertDoesNotThrow(() -> samlServiceImpl.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, authLevel));
-  }*/
-
+  
   @Test
   void validateSAMLResponse() throws SAMLUtilsException {
     // given
