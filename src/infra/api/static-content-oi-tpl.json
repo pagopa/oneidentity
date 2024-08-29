@@ -1,0 +1,84 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "S3 Static Content API",
+    "description": "API Gateway to serve static content from an S3 bucket.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/static/{object}": {
+      "get": {
+        "summary": "Get static content from S3",
+        "description": "Fetches files from the S3 bucket's static folder.",
+        "parameters": [
+          {
+            "name": "object",
+            "in": "path",
+            "required": true,
+            "description": "The name of the object (file) in the static folder.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Object not found"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "uri": "arn:aws:apigateway:your-region:s3:path/{bucket}/{object}",
+          "credentials": {
+            "arn": "arn:aws:iam::your-account-id:role/api-gateway-s3-role"
+          },
+          "httpMethod": "GET",
+          "requestParameters": {
+            "integration.request.path.bucket": "'assets-5266'",
+            "integration.request.path.object": "method.request.path.object"
+          },
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
+              },
+              "responseTemplates": {
+                "application/json": ""
+              }
+            }
+          },
+          "passthroughBehavior": "WHEN_NO_TEMPLATES"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sigv4": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "sigv4": []
+    }
+  ]
+}
