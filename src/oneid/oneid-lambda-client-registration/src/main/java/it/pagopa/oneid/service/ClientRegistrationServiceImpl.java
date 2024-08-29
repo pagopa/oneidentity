@@ -9,8 +9,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.exception.InvalidLogoURIException;
-import it.pagopa.oneid.exception.InvalidRedirectURIException;
+import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -33,25 +32,44 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   public void validateClientRegistrationInfo(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.debug("start");
+
     // Validate redirectUris
     for (String redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
       try {
         CustomURIUtils.validateURI(redirectUri);
         RedirectURIValidator.ensureLegal(URI.create(redirectUri));
       } catch (IllegalArgumentException ex) {
-        throw new InvalidRedirectURIException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
+        throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
       } catch (NullPointerException ex) {
-        throw new InvalidRedirectURIException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
+        throw new InvalidUriException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
       }
     }
 
-    //Validate logoUri
+    // Validate logoUri
     String logoUri = clientRegistrationRequestDTO.getLogoUri();
     try {
       CustomURIUtils.validateURI(logoUri);
 
-    } catch (InvalidRedirectURIException e) {
-      throw new InvalidLogoURIException();
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid Logo URI");
+    }
+
+    // Validate policyUri
+    String policyUri = clientRegistrationRequestDTO.getPolicyUri();
+    try {
+      CustomURIUtils.validateURI(policyUri);
+
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid Policy URI");
+    }
+
+    // Validate tosUri
+    String tosUri = clientRegistrationRequestDTO.getTosUri();
+    try {
+      CustomURIUtils.validateURI(tosUri);
+
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid TOS URI");
     }
 
     Log.debug("end");

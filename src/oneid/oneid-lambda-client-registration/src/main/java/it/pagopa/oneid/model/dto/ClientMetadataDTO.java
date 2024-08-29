@@ -38,6 +38,14 @@ public class ClientMetadataDTO {
   @RestForm("logo_uri")
   private String logoUri;
 
+  @JsonProperty("policy_uri")
+  @RestForm("policy_uri")
+  private String policyUri;
+  
+  @JsonProperty("tos_uri")
+  @RestForm("tos_uri")
+  private String tosUri;
+
   @JsonProperty("default_acr_values")
   @RestForm("default_acr_values")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
@@ -55,6 +63,8 @@ public class ClientMetadataDTO {
     this.redirectUris = clientMetadataDTO.getRedirectUris();
     this.clientName = clientMetadataDTO.getClientName();
     this.logoUri = clientMetadataDTO.getLogoUri();
+    this.policyUri = clientMetadataDTO.getPolicyUri();
+    this.tosUri = clientMetadataDTO.getTosUri();
     this.defaultAcrValues = clientMetadataDTO.getDefaultAcrValues();
     this.samlRequestedAttributes = clientMetadataDTO.getSamlRequestedAttributes();
   }

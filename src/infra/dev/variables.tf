@@ -272,3 +272,13 @@ variable "tags" {
     CostCenter  = "tier0"
   }
 }
+
+variable "ecs_as_threshold" {
+  type    = number
+  default = 80
+}
+
+variable "alarm_subscribers" {
+  type    = string
+  default = "alarm-subscribers"
+}

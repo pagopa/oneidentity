@@ -8,7 +8,8 @@ on:
       - '!main'     # excludes main
     paths:
       - 'src/infra/**'
-
+      - '!src/infra/**/*.md'
+    
 defaults:
   run:
     shell: bash

@@ -52,6 +52,10 @@ public class Client {
   @NotNull
   private long clientIdIssuedAt;
 
+  // Fields related to ClientMetadataDTO
   private String logoUri;
 
+  private String policyUri;
+
+  private String tosUri;
 }
