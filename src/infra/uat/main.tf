@@ -72,6 +72,12 @@ module "storage" {
   account_id           = data.aws_caller_identity.current.account_id
 }
 
+module "sns" {
+  source            = "../modules/sns"
+  sns_topic_name    = format("%s-sns", local.project)
+  alarm_subscribers = var.alarm_subscribers
+}
+
 module "backend" {
   source = "../modules/backend"
 
@@ -96,6 +102,9 @@ module "backend" {
       }
     }
   }
+
+  sns_topic_arn    = module.sns.sns_topic_arn
+  ecs_as_threshold = var.ecs_as_threshold
 
   vpc_id          = module.network.vpc_id
   private_subnets = module.network.private_subnet_ids
