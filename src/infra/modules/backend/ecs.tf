@@ -356,7 +356,7 @@ module "elb" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
-  alarm_name          = format("%s-CPU-Utilization-High-%s", module.ecs_core_service.id,
+  alarm_name = format("%s-CPU-Utilization-High-%s", module.ecs_core_service.id,
   var.ecs_as_threshold)
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"

@@ -56,6 +56,7 @@ module "frontend" {
 
 }
 
+
 module "storage" {
   source = "../modules/storage"
 
@@ -72,10 +73,9 @@ module "storage" {
   account_id           = data.aws_caller_identity.current.account_id
 }
 module "sns" {
-  source = "../modules/sns"
-  sns_topic_name = format("%s-sns", local.project)
-  ssm_parameter_name = var.ssm_parameter_name
-
+  source            = "../modules/sns"
+  sns_topic_name    = format("%s-sns", local.project)
+  alarm_subscribers = var.alarm_subscribers
 }
 
 module "backend" {

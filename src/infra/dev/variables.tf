@@ -274,11 +274,11 @@ variable "tags" {
 }
 
 variable "ecs_as_threshold" {
-  type = number
+  type    = number
   default = 80
 }
 
-variable "ssm_parameter_name" {
-  type = string
-  default = "subscribers"
+variable "alarm_subscribers" {
+  type    = string
+  default = "alarm-subscribers"
 }
