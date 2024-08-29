@@ -22,14 +22,14 @@ No modules.
 |------|------|
 | [aws_sns_topic.alarms](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_subscription.alarms_email](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sns_topic_subscription) | resource |
-| [aws_ssm_parameter.subscribers](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
+| [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_sns_topic_name"></a> [sns\_topic\_name](#input\_sns\_topic\_name) | n/a | `string` | n/a | yes |
-| <a name="input_ssm_parameter_name"></a> [ssm\_parameter\_name](#input\_ssm\_parameter\_name) | n/a | `string` | n/a | yes |
+| <a name="input_alarm_subscribers"></a> [alarm\_subscribers](#input\_alarm\_subscribers) | SSM parameter store with the list alarm subscribers. | `string` | n/a | yes |
+| <a name="input_sns_topic_name"></a> [sns\_topic\_name](#input\_sns\_topic\_name) | SNS topic name. | `string` | n/a | yes |
 
 ## Outputs
 
