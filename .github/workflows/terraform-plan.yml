@@ -8,6 +8,8 @@ on:
       - '!main'     # excludes main
     paths:
       - 'src/infra/**'
+    paths-ignore:
+      - 'src/infra/**/*.md'
 
 defaults:
   run:
