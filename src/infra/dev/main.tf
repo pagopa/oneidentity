@@ -94,8 +94,8 @@ module "backend" {
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = var.ecs_enable_container_insights
   sns_topic_arn             = module.sns.sns_topic_arn
-  ecs_as_threshold          = var.ecs_as_threshold
-  cloudwatch_alarms         = var.cloudwatch_alarms
+  ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
+ 
   fargate_capacity_providers = {
     FARGATE = {
       default_capacity_provider_strategy = {

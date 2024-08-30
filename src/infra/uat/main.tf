@@ -104,8 +104,7 @@ module "backend" {
   }
 
   sns_topic_arn    = module.sns.sns_topic_arn
-  ecs_as_threshold = var.ecs_as_threshold
-
+  ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
   vpc_id          = module.network.vpc_id
   private_subnets = module.network.private_subnet_ids
   vpc_cidr_block  = module.network.vpc_cidr_block

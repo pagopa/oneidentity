@@ -273,7 +273,7 @@ variable "tags" {
   }
 }
 
-variable "cloudwatch_alarms" {
+variable "ecs_alarms" {
   type = map(object({
     metric_name = string
     namespace = string
@@ -282,8 +282,7 @@ variable "cloudwatch_alarms" {
     period = optional(number)
     statistic = optional(string)
     comparison_operator = optional(string)
-    dimensions = map(string)
-    alarm_actions = list(string)
+    
     ok_actions = optional(list(string))
   }))
 
@@ -295,18 +294,16 @@ variable "cloudwatch_alarms" {
       comparison_operator = "GreaterThanOrEqualToThreshold"
       period              = 60
       statistic           = "Average"
-      dimensions = {
-        ClusterName = format("%s-ecs", local.project)
-        ServiceName = format("%s-core", local.project)
-      }
-      #alarm_actions = [ module.sns.sns_topic_arn ]
+    },
+    "ecs-memory-utilization" = {
+      metric_name = "MemoryUtilization"
+      namespace   = "AWS/ECS"
+      evaluation_periods = 1
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 60
+      statistic           = "Average"
     }
   }
-}
-
-variable "ecs_as_threshold" {
-  type    = number
-  default = 80
 }
 
 variable "alarm_subscribers" {

@@ -286,3 +286,37 @@ variable "tags" {
     CostCenter  = "tier0"
   }
 }
+
+variable "ecs_alarms" {
+  type = map(object({
+    metric_name = string
+    namespace = string
+    threshold = optional(number)
+    evaluation_periods = optional(number)
+    period = optional(number)
+    statistic = optional(string)
+    comparison_operator = optional(string)
+    
+    ok_actions = optional(list(string))
+  }))
+
+  default = {
+    "ecs-cpu-utilization" = {
+      metric_name = "CPUUtilization"
+      namespace   = "AWS/ECS"
+      evaluation_periods = 1
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 60
+      statistic           = "Average"
+    },
+    "ecs-memory-utilization" = {
+      metric_name = "MemoryUtilization"
+      namespace   = "AWS/ECS"
+      evaluation_periods = 1
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 60
+      statistic           = "Average"
+    }
+  }
+}
+
