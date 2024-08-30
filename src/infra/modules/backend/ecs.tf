@@ -356,22 +356,19 @@ module "elb" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
+  for_each = {for key, alarm in var.cloudwatch_alarms : key => alarm if alarm.namespace== "AWS/ECS"}
   alarm_name = format("%s-CPU-Utilization-High-%s", module.ecs_core_service.id,
-  var.ecs_as_threshold)
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/ECS"
-  period              = "60"
-  statistic           = "Average"
-  threshold           = var.ecs_as_threshold
+  module.ecs_core_service.ecs_oneid_core_scaling_policy.cpu.target_tracking_scaling_policy_configuration[0].target_value)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = module.ecs_core_service.ecs_oneid_core_scaling_policy.cpu.target_tracking_scaling_policy_configuration[0].target_value
 
-  dimensions = {
-    ClusterName = module.ecs_cluster.cluster_name
-    ServiceName = module.ecs_core_service.name
-  }
+  dimensions = each.value.dimensions
 
-  alarm_actions = [
-    var.sns_topic_arn
-  ]
-}
+  alarm_actions = each.value.alarm_actions
+  ok_actions    = each.value.ok_actions
+} 

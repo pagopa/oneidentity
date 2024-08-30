@@ -273,6 +273,37 @@ variable "tags" {
   }
 }
 
+variable "cloudwatch_alarms" {
+  type = map(object({
+    metric_name = string
+    namespace = string
+    threshold = optional(number)
+    evaluation_periods = optional(number)
+    period = optional(number)
+    statistic = optional(string)
+    comparison_operator = optional(string)
+    dimensions = map(string)
+    alarm_actions = list(string)
+    ok_actions = optional(list(string))
+  }))
+
+  default = {
+    "ecs-cpu-utilization" = {
+      metric_name = "CPUUtilization"
+      namespace   = "AWS/ECS"
+      evaluation_periods = 1
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 60
+      statistic           = "Average"
+      dimensions = {
+        ClusterName = format("%s-ecs", local.project)
+        ServiceName = format("%s-core", local.project)
+      }
+      #alarm_actions = [ module.sns.sns_topic_arn ]
+    }
+  }
+}
+
 variable "ecs_as_threshold" {
   type    = number
   default = 80

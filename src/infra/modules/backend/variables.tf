@@ -176,3 +176,18 @@ variable "sns_topic_arn" {
 variable "ecs_as_threshold" {
   type = number
 }
+
+variable "cloudwatch_alarms" {
+  type = map(object({
+    metric_name = string
+    namespace = string
+    threshold = number
+    evaluation_periods = number
+    period = number
+    statistic = string
+    comparison_operator = string
+    dimensions = map(string)
+    alarm_actions = list(string)
+    ok_actions = list(string)
+  }))
+}
