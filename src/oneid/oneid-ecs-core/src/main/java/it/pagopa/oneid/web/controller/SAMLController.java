@@ -43,13 +43,13 @@ public class SAMLController {
   OIDCServiceImpl oidcServiceImpl;
 
   @Inject
-  SessionServiceImpl<SAMLSession> samlSessionSessionService;
+  SessionServiceImpl<SAMLSession> samlSessionService;
 
   @Inject
-  SessionServiceImpl<OIDCSession> oidcSessionSessionService;
+  SessionServiceImpl<OIDCSession> oidcSessionService;
 
   @Inject
-  SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
+  SessionServiceImpl<AccessTokenSession> accessTokenSessionService;
 
 
   @POST
@@ -69,7 +69,7 @@ public class SAMLController {
     // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
     SAMLSession samlSession = null;
     try {
-      samlSession = samlSessionSessionService.getSession(response.getInResponseTo(),
+      samlSession = samlSessionService.getSession(response.getInResponseTo(),
           RecordType.SAML);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
@@ -78,7 +78,7 @@ public class SAMLController {
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
-      samlSessionSessionService.setSAMLResponse(response.getInResponseTo(),
+      samlSessionService.setSAMLResponse(response.getInResponseTo(),
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
@@ -122,7 +122,7 @@ public class SAMLController {
 
     // 4. Save OIDC session
     try {
-      oidcSessionSessionService.saveSession(oidcSession);
+      oidcSessionService.saveSession(oidcSession);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
@@ -158,7 +158,7 @@ public class SAMLController {
     Log.info("start");
     String samlResponse = null;
     try {
-      samlResponse = accessTokenSessionSessionService.getSAMLResponseByCode(
+      samlResponse = accessTokenSessionService.getSAMLResponseByCode(
           accessToken.getAccessToken());
     } catch (SessionException e) {
       Log.debug("error during session management: " + e.getMessage());
