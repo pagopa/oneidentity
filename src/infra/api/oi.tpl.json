@@ -1799,24 +1799,23 @@
           }
         ],
         "x-amazon-apigateway-integration": {
-          "type": "http_proxy",
-          "connectionId": "${connection_id}",
-          "httpMethod": "GET",
-          "uri": "${uri}/static/{proxy}",
-          "responses": {
-            "default": {
-              "statusCode": "200"
+          "type" : "aws",
+          "credentials" : "${}",
+          "httpMethod" : "GET",
+          "uri" : "${}/static/{proxy}",
+          "responses" : {
+            "default" : {
+              "statusCode" : "200",
+              "responseParameters" : {
+                "method.response.header.Content-Type" : "integration.response.header.Content-Type"
+              }
             }
           },
-          "requestParameters": {
-            "integration.request.path.proxy": "method.request.path.proxy"
+          "requestParameters" : {
+            "integration.request.path.proxy" : "method.request.path.proxy"
           },
-          "passthroughBehavior": "when_no_match",
-          "connectionType": "VPC_LINK",
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ],
-          "cacheNamespace": "static-contents"
+          "passthroughBehavior" : "when_no_match",
+          "cacheKeyParameters" : [ "method.request.path.proxy" ]
         }
       }
     }
