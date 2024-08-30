@@ -39,7 +39,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -106,7 +105,7 @@ public class OIDCController {
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
     Log.info("start");
-    return Response.ok(oidcServiceImpl.getJWSKPublicKey()).build();
+    return Response.ok(oidcServiceImpl.getJWKSPublicKey()).build();
   }
 
   @POST
@@ -267,11 +266,10 @@ public class OIDCController {
     try {
       decodedBytes = Base64.getDecoder().decode(authorization);
       decodedString = new String(decodedBytes);
-      clientId = URLDecoder.decode(decodedString.split(":")[0], StandardCharsets.UTF_8.toString());
+      clientId = URLDecoder.decode(decodedString.split(":")[0], StandardCharsets.UTF_8);
       clientSecret = URLDecoder.decode(decodedString.split(":")[1],
-          StandardCharsets.UTF_8.toString());
-    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException |
-             UnsupportedEncodingException e) {
+          StandardCharsets.UTF_8);
+    } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       throw new InvalidRequestMalformedHeaderAuthorizationException();
     }
 
