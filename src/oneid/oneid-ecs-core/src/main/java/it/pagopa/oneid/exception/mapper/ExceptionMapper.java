@@ -6,6 +6,7 @@ import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport;
@@ -184,50 +185,33 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
-    return authenticationErrorResponse(clientNotFoundException.getCallbackUri(),
-        OAuth2Error.UNAUTHORIZED_CLIENT_CODE,
-        ErrorCode.CLIENT_NOT_FOUND.getErrorMessage(),
-        clientNotFoundException.getState());
+    return authenticationErrorResponse(clientNotFoundException);
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapInvalidScopeException(
       InvalidScopeException invalidScopeException) {
-    return authenticationErrorResponse(invalidScopeException.getCallbackUri(),
-        OAuth2Error.INVALID_SCOPE_CODE,
-        ErrorCode.INVALID_SCOPE_ERROR.getErrorMessage(),
-        invalidScopeException.getState());
-
+    return authenticationErrorResponse(invalidScopeException);
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapUnsupportedResponseTypeException(
       UnsupportedResponseTypeException unsupportedResponseTypeException) {
-    return authenticationErrorResponse(unsupportedResponseTypeException.getCallbackUri(),
-        OAuth2Error.UNSUPPORTED_RESPONSE_TYPE_CODE,
-        ErrorCode.UNSUPPORTED_RESPONSE_TYPE_ERROR.getErrorMessage(),
-        unsupportedResponseTypeException.getState());
-
+    return authenticationErrorResponse(unsupportedResponseTypeException);
   }
 
 
   @ServerExceptionMapper
   public RestResponse<Object> mapAuthorizationErrorException(
       AuthorizationErrorException authorizationErrorException) {
-    return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
-        OAuth2Error.SERVER_ERROR_CODE,
-        ErrorCode.AUTHORIZATION_ERROR.getErrorMessage()
-        , authorizationErrorException.getState());
+    return authenticationErrorResponse(authorizationErrorException);
 
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapIDPNotFoundException(
       IDPNotFoundException idpNotFoundException) {
-    return authenticationErrorResponse(idpNotFoundException.getCallbackUri(),
-        OAuth2Error.INVALID_REQUEST_CODE,
-        ErrorCode.IDP_NOT_FOUND.getErrorMessage(),
-        idpNotFoundException.getState());
+    return authenticationErrorResponse(idpNotFoundException);
   }
 
   @ServerExceptionMapper
@@ -270,7 +254,7 @@ public class ExceptionMapper {
       InvalidClientException invalidClientException) {
     return
         ResponseBuilder
-            .create(RestResponse.Status.UNAUTHORIZED)
+            .create(UNAUTHORIZED)
             .header("WWW-Authenticate", "Basic")
             .entity(buildTokenRequestErrorDTO(
                 invalidClientException.getMessage(), invalidClientException.getErrorMessage()))
@@ -310,11 +294,28 @@ public class ExceptionMapper {
           .location(new URI(
               SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
                   StandardCharsets.UTF_8))).build();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
   }
 
+  private RestResponse<Object> authenticationErrorResponse(AuthorizationErrorException ex) {
+    try {
+      String uri = getUri(ex.getCallbackUri(), ex.getOAuth2errorCode(), ex.getErrorMessage(),
+          ex.getState());
+      return ResponseBuilder
+          .create(FOUND)
+          .location(
+              new URI(uri))
+          .build();
+    } catch (URISyntaxException e) {
+      Log.error("invalid URI for redirecting: "
+          + e.getMessage());
+      return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
+    }
+  }
+
+  //TODO TRY TO REMOVE THIS
   private RestResponse<Object> authenticationErrorResponse(String callbackUri,
       String errorCode,
       String errorMessage,
