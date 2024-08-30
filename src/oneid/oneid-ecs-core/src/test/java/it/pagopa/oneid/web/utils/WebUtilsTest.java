@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.oneid.service.SAMLService;
+import it.pagopa.oneid.service.SAMLServiceImpl;
 import jakarta.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
 class WebUtilsTest {
 
   @Inject
-  private SAMLService samlService;
+  private SAMLServiceImpl samlServiceImpl;
   private Document document;
 
   @BeforeEach
@@ -68,7 +68,9 @@ class WebUtilsTest {
   @SneakyThrows
   void getElementValueFromAuthnRequest_success() {
     // given
-    AuthnRequest authnRequest = samlService.buildAuthnRequest("https://id.lepida.it/idp/shibboleth",
+    //TODO remove authnRequest creation based on samlServiceImpl method
+    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(
+        "https://id.lepida.it/idp/shibboleth",
         0, 0, "testLevel");
 
     // then
