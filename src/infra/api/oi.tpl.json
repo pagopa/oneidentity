@@ -1798,11 +1798,24 @@
             }
           }
         ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Content-Type" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : { }
+          }
+        },
         "x-amazon-apigateway-integration": {
           "type" : "aws",
-          "credentials" : "${}",
+          "credentials" : "${s3_apigateway_proxy_role}",
           "httpMethod" : "GET",
-          "uri" : "${}/static/{proxy}",
+          "uri" : "${assets_bucket_uri}/static/{proxy}",
           "responses" : {
             "default" : {
               "statusCode" : "200",
