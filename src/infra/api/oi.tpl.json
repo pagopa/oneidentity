@@ -295,6 +295,7 @@
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
         "operationId": "Post_oidc_register",
         "x-amazon-apigateway-integration": {
+          "credentials" : "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
@@ -563,11 +564,12 @@
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
         "operationId": "Get_oidc_register_config",
         "x-amazon-apigateway-integration": {
+          "credentials" : "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "httpMethod": "POST",      
+            "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "responses": {
             "200": {
               "statusCode": "200",

@@ -60,6 +60,8 @@ resource "random_id" "suffix" {
   byte_length = 8
 }
 
+## Role that allow api gateway to read object in S3
+
 resource "aws_iam_role" "s3_apigw_proxy" {
   name               = "S3ApiGatewayProxy-${random_id.suffix.hex}"
   assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
@@ -75,13 +77,38 @@ data "aws_iam_policy_document" "s3_apigw_proxy" {
 
 resource "aws_iam_policy" "s3_apigw_proxy" {
   name        = "S3AssetsGetObject"
-  description = "A test policy"
+  description = "Get Object in S3 object."
   policy      = data.aws_iam_policy_document.s3_apigw_proxy.json
 }
 
 resource "aws_iam_role_policy_attachment" "s3_apigw_proxy" {
   role       = aws_iam_role.s3_apigw_proxy.name
   policy_arn = aws_iam_policy.s3_apigw_proxy.arn
+}
+
+## Role that allows api gateway to invoke lambda functions.
+resource "aws_iam_role" "lambda_apigw_proxy" {
+  name               = "LambdaApiGatewayProxy-${random_id.suffix.hex}"
+  assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
+}
+
+data "aws_iam_policy_document" "lambda_apigw_proxy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["lambda:InvokeFunction"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "lambda_apigw_proxy" {
+  name        = "LambdaInvoke"
+  description = "Lambda invoke policy"
+  policy      = data.aws_iam_policy_document.lambda_apigw_proxy.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_apigw_proxy" {
+  role       = aws_iam_role.lambda_apigw_proxy.name
+  policy_arn = aws_iam_policy.lambda_apigw_proxy.arn
 }
 
 ## REST API Gateway ##
@@ -107,6 +134,7 @@ module "rest_api" {
       metadata_lambda_arn            = var.metadata_lamba_arn
       client_registration_lambda_arn = var.client_registration_lambda_arn
       s3_apigateway_proxy_role       = aws_iam_role.s3_apigw_proxy.arn
+      lambda_apigateway_proxy_role   = aws_iam_role.lambda_apigw_proxy.arn
       assets_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
       var.assets_bucket_name)
   })
