@@ -1,4 +1,4 @@
-package it.pagopa.oneid.web.controller;
+package it.pagopa.oneid.web.controller.mock;
 
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -7,12 +7,10 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
-import jakarta.annotation.Priority;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
 
 @Alternative
-@Priority(1)
 @Dependent
 public class MockOIDCControllerSessionServiceImpl<T extends Session> extends SessionServiceImpl<T> {
 

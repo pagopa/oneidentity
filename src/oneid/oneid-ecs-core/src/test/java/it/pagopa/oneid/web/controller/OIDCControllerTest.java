@@ -16,6 +16,7 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.mock.OIDCControllerTestProfile;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import jakarta.inject.Inject;

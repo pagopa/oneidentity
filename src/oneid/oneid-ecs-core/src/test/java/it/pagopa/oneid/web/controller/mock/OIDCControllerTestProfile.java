@@ -1,4 +1,4 @@
-package it.pagopa.oneid.web.controller;
+package it.pagopa.oneid.web.controller.mock;
 
 import io.quarkus.test.junit.QuarkusTestProfile;
 import it.pagopa.oneid.service.MockClientProducer;

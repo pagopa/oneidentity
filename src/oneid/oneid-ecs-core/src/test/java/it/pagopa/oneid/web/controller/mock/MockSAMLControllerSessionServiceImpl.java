@@ -10,10 +10,9 @@ import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
-import javax.annotation.Priority;
+
 
 @Alternative
-@Priority(1)
 @Dependent
 public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     SessionServiceImpl<T> {
