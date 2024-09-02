@@ -252,23 +252,44 @@ module "assertion_lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  for_each =  var.lambda_alarms 
-  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,each.value.metric_name,
-  each.value.threshold)
-  comparison_operator = each.value.comparison_operator
-  evaluation_periods  = each.value.evaluation_periods
-  metric_name         = each.value.metric_name
-  namespace           = each.value.namespace
-  period              = each.value.period
-  statistic           = each.value.statistic
-  threshold           = each.value.threshold
+  #for_each =  var.lambda_alarms 
+  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,var.lambda_alarms.metric_name,
+  var.lambda_alarms.threshold)
+  comparison_operator = var.lambda_alarms.comparison_operator
+  evaluation_periods  = var.lambda_alarms.evaluation_periods
+  metric_name         = var.lambda_alarms.metric_name
+  namespace           = var.lambda_alarms.namespace
+  period              = var.lambda_alarms.period
+  statistic           = var.lambda_alarms.statistic
+  threshold           = var.lambda_alarms.threshold
 
 
   dimensions = {
     FunctionName = module.assertion_lambda.lambda_function_name
   }
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
-  ok_actions    = each.value.ok_actions
+  alarm_actions = [var.lambda_alarms.sns_topic_alarm_arn]
+  ok_actions    = var.lambda_alarms.ok_actions
+} 
+
+resource "aws_cloudwatch_metric_alarm" "dlq" {
+  #for_each =  var.lambda_alarms 
+  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,var.dlq_alarms.metric_name,
+  var.dlq_alarms.threshold)
+  comparison_operator = var.dlq_alarms.comparison_operator
+  evaluation_periods  = var.dlq_alarms.evaluation_periods
+  metric_name         = var.dlq_alarms.metric_name
+  namespace           = var.dlq_alarms.namespace
+  period              = var.dlq_alarms.period
+  statistic           = var.dlq_alarms.statistic
+  threshold           = var.dlq_alarms.threshold
+
+
+  dimensions = {
+    FunctionName = module.assertion_lambda.lambda_function_name
+  }
+
+  alarm_actions = [ var.dlq_alarms.sns_topic_alarm_arn]
+  ok_actions    = var.dlq_alarms.ok_actions
 } 
 

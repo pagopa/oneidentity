@@ -189,7 +189,7 @@ variable "ecs_alarms" {
 }
 
 variable "lambda_alarms" {
-  type = map(object({
+  type = object({
     metric_name = string
     namespace = string
     threshold = number
@@ -199,6 +199,20 @@ variable "lambda_alarms" {
     comparison_operator = string
     sns_topic_alarm_arn = string
     ok_actions = list(string)
-  }))
+  })
+}
+
+variable "dlq_alarms" {
+  type = object({
+    metric_name = string
+    namespace = string
+    threshold = number
+    evaluation_periods = number
+    period = number
+    statistic = string
+    comparison_operator = string
+    sns_topic_alarm_arn = string
+    ok_actions = list(string)
+  })
 }
 

@@ -12,12 +12,15 @@ locals {
     )
   }
 
-  cloudwatch__lambda_alarms_with_sns = {
-    for key, alarm in var.lambda_alarms : key => merge(
-      alarm,
-      {
-        sns_topic_alarm_arn = module.sns.sns_topic_arn
-      }
-    )
-  }
+  cloudwatch__lambda_alarms_with_sns = merge(var.lambda_alarms,{
+  
+    sns_topic_alarm_arn = module.sns.sns_topic_arn
+        
+    })
+
+    cloudwatch__dlq_alarms_with_sns = merge(var.dlq_alarms,{
+    
+       sns_topic_alarm_arn = module.sns.sns_topic_arn
+        
+    })
 }
