@@ -63,7 +63,7 @@ resource "random_id" "suffix" {
 ## Role that allow api gateway to read object in S3
 
 resource "aws_iam_role" "s3_apigw_proxy" {
-  name               = "S3ApiGatewayProxy-${random_id.suffix.hex}"
+  name               = "${var.rest_api_name}-s3-proxy-role"
   assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
 }
 
@@ -88,7 +88,7 @@ resource "aws_iam_role_policy_attachment" "s3_apigw_proxy" {
 
 ## Role that allows api gateway to invoke lambda functions.
 resource "aws_iam_role" "lambda_apigw_proxy" {
-  name               = "LambdaApiGatewayProxy-${random_id.suffix.hex}"
+  name               = "${var.rest_api_name}-lambda-proxy"
   assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
 }
 
