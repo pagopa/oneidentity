@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -13,13 +14,14 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
-import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
+import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
@@ -28,13 +30,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Optional;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @QuarkusTest
 @TestProfile(MyMockyTestProfile.class)
@@ -53,7 +56,83 @@ public class OIDCServiceImplTest {
   ClientConnectorImpl clientConnectorImpl;
 
   @Inject
-  Map<String, Client> clientsMap;
+  KMSConnectorImpl kmsConnectorImpl;
+
+  private static String getPublicKeyPEM() {
+    String key = """
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtaRBmc1/lka2E+ShEm/p
+        drX2SSsjddhFGF16rFcOHY/F8jdG7ZMVzYqQASzykUee8tPRj6of+djRiiwWsCHT
+        DqIQZtBbj5TQE96ZGZsErcUdsgvuCfaTXPUGoO+H9PnDVslfRX+Obb+V5zgUtUss
+        yauDJaCECjiwrpWvqO2nQn0iJvFOvwd9CpZvUKRcG4Ie20OY605ZwiSi4QO9+XgM
+        ROXSLlputAus1iYo9gPnx14KwDMNEnQmjHVytJUnzWBgOQYWN/rP6BkOgfa4qgjy
+        CWeIuCM/lpIG5LPXc/DXkmQP0k/8Hvc8EhzJr5w28l1zI8gF94hUPRfviUFHMWEN
+        ewIDAQAB
+        -----END PUBLIC KEY-----
+        """;
+    return key
+        .replace("-----BEGIN PUBLIC KEY-----", "")
+        .replaceAll(System.lineSeparator(), "")
+        .replace("-----END PUBLIC KEY-----", "");
+  }
+
+  private static String getInvalidPublicKeyPEM() {
+    String key = """
+        -----BEGIN PUBLIC KEY-----
+        MIIBIdANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtaRBmc1/lka2E+ShEm/p
+        -----END PUBLIC KEY-----
+        """;
+    return key
+        .replace("-----BEGIN PUBLIC KEY-----", "")
+        .replaceAll(System.lineSeparator(), "")
+        .replace("-----END PUBLIC KEY-----", "");
+  }
+
+  @Test
+  void getJWSKPublicKey() {
+    // given
+    String keyId = "aws/idkey";
+    String publicKeyPEM = getPublicKeyPEM();
+
+    byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+
+    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+
+    GetPublicKeyResponse getPublicKeyResponse = GetPublicKeyResponse.builder()
+        .publicKey(SdkBytes.fromByteArray(encoded))
+        .keyId(keyId)
+        .build();
+
+    Mockito.when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
+    QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
+
+    // then
+    JWKSSetDTO jwksSetDTO = oidcServiceImpl.getJWSKPublicKey();
+
+    assertFalse(jwksSetDTO.getKeyList().isEmpty());
+  }
+
+  @Test
+  void getJWSKPublicKey_invalidKey() {
+    // given
+    String keyId = "aws/idkey";
+    String publicKeyPEM = getInvalidPublicKeyPEM();
+
+    byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+
+    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+
+    GetPublicKeyResponse getPublicKeyResponse = GetPublicKeyResponse.builder()
+        .publicKey(SdkBytes.fromByteArray(encoded))
+        .keyId(keyId)
+        .build();
+
+    Mockito.when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
+    QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
+
+    // then
+    assertThrows(RuntimeException.class, () -> oidcServiceImpl.getJWSKPublicKey());
+  }
 
   @Test
   void buildOIDCProviderMetadata() {
@@ -168,6 +247,27 @@ public class OIDCServiceImplTest {
     // then
     assertDoesNotThrow(
         () -> oidcServiceImpl.authorizeClient(clientID, clientSecret));
+
+  }
+
+  @Test
+  void authorizeClient_invalidSecret() {
+    // given
+    String clientID = "test";
+    String invalidSecret = "aW52YWxpZFNlY3JldA=="; // base 64 encoded of 'invalid_secret'
+    String salt = "c2FsdGZvb2Jhcg=="; //base64 encoded of 'saltfoobar'
+    String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg"; // argon2 of salt = 'saltfoobar' and secret = 'dummy'
+    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
+
+    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+        .thenReturn(Optional.of(secretDTO));
+
+    QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
+
+    // then
+    assertThrows(InvalidClientException.class,
+        () -> oidcServiceImpl.authorizeClient(clientID, invalidSecret));
 
   }
 

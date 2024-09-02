@@ -72,6 +72,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
 ## Modules
 
@@ -87,7 +88,17 @@
 | Name | Type |
 |------|------|
 | [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_vpc_link) | resource |
+| [aws_iam_policy.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_role.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_permission.allow_api_gw_invoke_metadata](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/lambda_permission) | resource |
+| [random_id.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
+| [aws_iam_policy_document.apigw_assume_role](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
@@ -98,6 +109,8 @@
 | <a name="input_api_gateway_plan"></a> [api\_gateway\_plan](#input\_api\_gateway\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit  = number<br>    api_key_name         = optional(string, null)<br>  })</pre> | n/a | yes |
 | <a name="input_api_gateway_target_arns"></a> [api\_gateway\_target\_arns](#input\_api\_gateway\_target\_arns) | List of target arn for the api gateway. | `list(string)` | n/a | yes |
 | <a name="input_api_method_settings"></a> [api\_method\_settings](#input\_api\_method\_settings) | List of Api Gateway method settings. | <pre>list(object({<br>    method_path                             = string<br>    metrics_enabled                         = optional(bool, false)<br>    logging_level                           = optional(string, "OFF")<br>    data_trace_enabled                      = optional(bool, false)<br>    throttling_rate_limit                   = optional(number, -1)<br>    throttling_burst_limit                  = optional(number, -1)<br>    caching_enabled                         = optional(bool, false)<br>    cache_ttl_in_seconds                    = optional(number, 0)<br>    cache_data_encrypted                    = optional(bool, false)<br>    require_authorization_for_cache_control = optional(bool, false)<br>    cache_key_parameters                    = optional(list(string), [])<br>  }))</pre> | `[]` | no |
+| <a name="input_assets_bucket_arn"></a> [assets\_bucket\_arn](#input\_assets\_bucket\_arn) | Assets bucket arn. | `string` | n/a | yes |
+| <a name="input_assets_bucket_name"></a> [assets\_bucket\_name](#input\_assets\_bucket\_name) | Assets bucket name. | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | DNS records ttl | `number` | n/a | yes |
