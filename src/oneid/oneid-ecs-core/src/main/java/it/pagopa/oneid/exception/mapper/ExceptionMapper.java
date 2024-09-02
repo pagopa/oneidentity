@@ -104,9 +104,8 @@ public class ExceptionMapper {
   public RestResponse<Object> mapValidationException(ValidationException validationException) {
     if (validationException.getCause() instanceof AuthorizationErrorException authorizationErrorException) {
       Log.error("AuthorizationErrorException encountered");
-      return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
-          OAuth2Error.INVALID_REQUEST_CODE, authorizationErrorException.getMessage(),
-          authorizationErrorException.getState());
+      authorizationErrorException.setOAuth2errorCode(OAuth2Error.INVALID_REQUEST_CODE);
+      return authenticationErrorResponse(authorizationErrorException);
     } else if (validationException.getCause() instanceof GenericHTMLException genericHTMLException) {
       Log.error("GenericHTMLException encountered");
       return genericHTMLError(genericHTMLException.getMessage());
@@ -122,7 +121,7 @@ public class ExceptionMapper {
       return RestResponse.status(BAD_REQUEST,
           buildTokenRequestErrorDTO(OAuth2Error.INVALID_REQUEST_CODE, message));
     }
-    // TODO add before this 'if' other cases that must be mapped explicitly
+    // Add before this 'if' other cases that must be mapped explicitly
     if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
       // Not a violation in a REST endpoint call, but rather in an internal component.
       // This is an internal error: handle through the QuarkusErrorHandler,
@@ -308,26 +307,7 @@ public class ExceptionMapper {
           .location(
               new URI(uri))
           .build();
-    } catch (URISyntaxException e) {
-      Log.error("invalid URI for redirecting: "
-          + e.getMessage());
-      return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
-    }
-  }
-
-  //TODO TRY TO REMOVE THIS
-  private RestResponse<Object> authenticationErrorResponse(String callbackUri,
-      String errorCode,
-      String errorMessage,
-      String state) {
-    try {
-      String uri = getUri(callbackUri, errorCode, errorMessage, state);
-      return ResponseBuilder
-          .create(FOUND)
-          .location(
-              new URI(uri))
-          .build();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | NullPointerException e) {
       Log.error("invalid URI for redirecting: "
           + e.getMessage());
       return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
@@ -345,6 +325,11 @@ public class ExceptionMapper {
   private RestResponse<Object> buildViolationReportResponse(ConstraintViolationException cve) {
     Status status = Status.BAD_REQUEST;
 
+    if (cve.getConstraintViolations() == null) {
+      Log.error("ConstraintViolationException.getConstraintViolations is null");
+      String message = "Error during execution.";
+      return RestResponse.status(status, buildErrorResponse(INTERNAL_SERVER_ERROR, message));
+    }
     List<Violation> violationsInReport = new ArrayList<>(cve.getConstraintViolations().size());
     for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
       violationsInReport.add(
