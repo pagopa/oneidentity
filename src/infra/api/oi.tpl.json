@@ -222,14 +222,12 @@
           }
         ],
         "x-amazon-apigateway-integration": {
-          "type": "HTTP",
-          "httpMethod": "GET",
-          "uri": "${uri}/login/error",
-          "connectionType": "VPC_LINK",
-          "connectionId": "${connection_id}",
+          "credentials" : "${s3_apigateway_proxy_role}",
+          "httpMethod" : "GET",
+          "uri" : "${assets_bucket_uri}/index.html",
+          "type" : "aws",          
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'",
             "integration.request.querystring.errorCode": "method.request.querystring.errorCode"
           },
           "responseParameters": {},
@@ -237,7 +235,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'text/html'"
+                "method.response.header.content-type" : "integration.response.header.Content-Type"
               }
             },
             "400": {
