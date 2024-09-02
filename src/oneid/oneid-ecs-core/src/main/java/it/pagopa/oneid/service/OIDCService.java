@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface OIDCService {
 
-  JWKSSetDTO getJWSKPublicKey();
+  JWKSSetDTO getJWKSPublicKey();
 
   OIDCProviderMetadata buildOIDCProviderMetadata();
 

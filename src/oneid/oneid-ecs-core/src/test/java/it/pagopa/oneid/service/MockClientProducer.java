@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Priority;
 
 @Alternative
-@Priority(1)
 @Dependent
 public class MockClientProducer extends ClientProducer {
 

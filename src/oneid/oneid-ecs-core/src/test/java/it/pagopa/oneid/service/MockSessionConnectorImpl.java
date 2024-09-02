@@ -7,10 +7,8 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
 import java.util.Optional;
-import javax.annotation.Priority;
 
 @Alternative
-@Priority(1)
 @Dependent
 public class MockSessionConnectorImpl<T extends Session> extends SessionConnectorImpl<T> {
 
