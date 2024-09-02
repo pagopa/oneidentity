@@ -184,7 +184,6 @@ variable "ecs_alarms" {
     statistic = string
     comparison_operator = string
     sns_topic_alarm_arn = string
-    ok_actions = list(string)
   }))
 }
 
@@ -198,7 +197,6 @@ variable "lambda_alarms" {
     statistic = string
     comparison_operator = string
     sns_topic_alarm_arn = string
-    ok_actions = list(string)
   })
 }
 
@@ -212,7 +210,6 @@ variable "dlq_alarms" {
     statistic = string
     comparison_operator = string
     sns_topic_alarm_arn = string
-    ok_actions = list(string)
   })
 }
 

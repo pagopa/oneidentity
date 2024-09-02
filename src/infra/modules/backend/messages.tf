@@ -4,6 +4,25 @@ resource "aws_sqs_queue" "pipe_dlq" {
   name = "${var.eventbridge_pipe_sessions.pipe_name}-dlq"
 }
 
+resource "aws_cloudwatch_metric_alarm" "dlq_sessions" {
+  alarm_name = format("%s-%s-Dlq-%s", var.eventbridge_pipe_sessions.pipe_name,var.dlq_alarms.metric_name,
+  var.dlq_alarms.threshold)
+  comparison_operator = var.dlq_alarms.comparison_operator
+  evaluation_periods  = var.dlq_alarms.evaluation_periods
+  metric_name         = var.dlq_alarms.metric_name
+  namespace           = var.dlq_alarms.namespace
+  period              = var.dlq_alarms.period
+  statistic           = var.dlq_alarms.statistic
+  threshold           = var.dlq_alarms.threshold
+
+
+  dimensions = {
+    QueueName = aws_sqs_queue.pipe_dlq.name
+  }
+
+  alarm_actions = [ var.dlq_alarms.sns_topic_alarm_arn]
+} 
+
 resource "aws_iam_role" "pipe_sessions" {
   name = "${var.eventbridge_pipe_sessions.pipe_name}-role"
 

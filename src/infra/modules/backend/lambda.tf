@@ -252,7 +252,6 @@ module "assertion_lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  #for_each =  var.lambda_alarms 
   alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,var.lambda_alarms.metric_name,
   var.lambda_alarms.threshold)
   comparison_operator = var.lambda_alarms.comparison_operator
@@ -269,12 +268,10 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   }
 
   alarm_actions = [var.lambda_alarms.sns_topic_alarm_arn]
-  ok_actions    = var.lambda_alarms.ok_actions
 } 
 
-resource "aws_cloudwatch_metric_alarm" "dlq" {
-  #for_each =  var.lambda_alarms 
-  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,var.dlq_alarms.metric_name,
+resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
+  alarm_name = format("%s-%s-Dlq-%s", module.assertion_lambda.lambda_function_name,var.dlq_alarms.metric_name,
   var.dlq_alarms.threshold)
   comparison_operator = var.dlq_alarms.comparison_operator
   evaluation_periods  = var.dlq_alarms.evaluation_periods
@@ -286,10 +283,9 @@ resource "aws_cloudwatch_metric_alarm" "dlq" {
 
 
   dimensions = {
-    FunctionName = module.assertion_lambda.lambda_function_name
+    QueueName = aws_sqs_queue.dlq_lambda_assertion.name
   }
 
   alarm_actions = [ var.dlq_alarms.sns_topic_alarm_arn]
-  ok_actions    = var.dlq_alarms.ok_actions
 } 
 

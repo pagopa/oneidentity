@@ -355,7 +355,7 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
-resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
+resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   for_each =  var.ecs_alarms 
   alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id,each.value.metric_name,
   module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value)
@@ -374,5 +374,4 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
   }
 
   alarm_actions = [each.value.sns_topic_alarm_arn]
-  ok_actions    = each.value.ok_actions
 } 

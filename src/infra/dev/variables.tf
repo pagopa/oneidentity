@@ -282,8 +282,6 @@ variable "ecs_alarms" {
     period = optional(number)
     statistic = optional(string)
     comparison_operator = optional(string)
-    
-    ok_actions = optional(list(string))
   }))
 
   default = {
@@ -316,7 +314,6 @@ variable "lambda_alarms" {
     statistic = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
-    ok_actions = optional(list(string))
   })
 
   default = {
@@ -342,7 +339,6 @@ variable "lambda_alarms" {
     statistic = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
-    ok_actions = optional(list(string))
   })
 
   default = {
