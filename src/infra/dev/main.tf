@@ -52,6 +52,9 @@ module "frontend" {
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
 
+  assets_bucket_arn  = module.storage.assets_bucket_arn
+  assets_bucket_name = module.storage.assets_bucket_name
+
   xray_tracing_enabled = var.xray_tracing_enabled
 
 }

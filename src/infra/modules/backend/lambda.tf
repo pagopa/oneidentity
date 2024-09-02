@@ -114,9 +114,6 @@ module "client_registration_lambda" {
 ## Lambda metadata
 
 data "aws_iam_policy_document" "metadata_lambda" {
-  //name = format("%s-task-policy", var.metadata_lambda.name)
-  //policy = jsonencode({
-  //Version = "2012-10-17"
   statement {
     effect    = "Allow"
     actions   = ["dynamodb:Scan"]
