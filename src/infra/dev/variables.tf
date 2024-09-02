@@ -306,6 +306,32 @@ variable "ecs_alarms" {
   }
 }
 
+variable "lambda_alarms" {
+  type = map(object({
+    metric_name = string
+    namespace = string
+    threshold = optional(number)
+    evaluation_periods = optional(number)
+    period = optional(number)
+    statistic = optional(string)
+    comparison_operator = optional(string)
+ 
+    ok_actions = optional(list(string))
+  }))
+
+  default = {
+    "lambda-errors" = {
+      metric_name = "Errors"
+      namespace   = "AWS/Lambda"
+      threshold = 1
+      evaluation_periods = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 60
+      statistic           = "Sum"
+    },
+  }
+}
+
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"

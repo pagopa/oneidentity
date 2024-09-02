@@ -98,6 +98,7 @@ module "backend" {
   enable_container_insights = var.ecs_enable_container_insights
   sns_topic_arn             = module.sns.sns_topic_arn
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
+  lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
  
   fargate_capacity_providers = {
     FARGATE = {

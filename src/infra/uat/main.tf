@@ -107,6 +107,7 @@ module "backend" {
 
   sns_topic_arn    = module.sns.sns_topic_arn
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
+  lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
   vpc_id          = module.network.vpc_id
   private_subnets = module.network.private_subnet_ids
   vpc_cidr_block  = module.network.vpc_cidr_block

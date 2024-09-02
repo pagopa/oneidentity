@@ -187,3 +187,18 @@ variable "ecs_alarms" {
     ok_actions = list(string)
   }))
 }
+
+variable "lambda_alarms" {
+  type = map(object({
+    metric_name = string
+    namespace = string
+    threshold = number
+    evaluation_periods = number
+    period = number
+    statistic = string
+    comparison_operator = string
+    sns_topic_alarm_arn = string
+    ok_actions = list(string)
+  }))
+}
+

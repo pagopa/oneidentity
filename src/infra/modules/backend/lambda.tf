@@ -250,3 +250,25 @@ module "assertion_lambda" {
   cloudwatch_logs_retention_in_days = var.assertion_lambda.cloudwatch_logs_retention_in_days
 
 }
+
+resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  for_each =  var.lambda_alarms 
+  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name,each.value.metric_name,
+  each.value.threshold)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
+
+
+  dimensions = {
+    FunctionName = module.assertion_lambda.lambda_function_name
+  }
+
+  alarm_actions = [each.value.sns_topic_alarm_arn]
+  ok_actions    = each.value.ok_actions
+} 
+
