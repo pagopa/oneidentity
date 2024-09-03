@@ -175,3 +175,8 @@ moved {
   from = module.backend.module.assertion_lambda[0]
   to   = module.backend.module.assertion_lambda
 }
+
+moved {
+  from = module.frontend.module.zones.aws_route53_zone.this["dev.oneid.pagopa.it"]
+  to   = module.r53_zones.module.r53_zones.aws_route53_zone.this["dev.oneid.pagopa.it"]
+}
