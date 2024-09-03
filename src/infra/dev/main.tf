@@ -99,8 +99,8 @@ module "backend" {
   sns_topic_arn             = module.sns.sns_topic_arn
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
   lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
-  dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns 
- 
+  dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
+
   fargate_capacity_providers = {
     FARGATE = {
       default_capacity_provider_strategy = {

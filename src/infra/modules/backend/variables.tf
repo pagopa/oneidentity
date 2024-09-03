@@ -176,12 +176,12 @@ variable "sns_topic_arn" {
 
 variable "ecs_alarms" {
   type = map(object({
-    metric_name = string
-    namespace = string
-    threshold = number
-    evaluation_periods = number
-    period = number
-    statistic = string
+    metric_name         = string
+    namespace           = string
+    threshold           = number
+    evaluation_periods  = number
+    period              = number
+    statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
   }))
@@ -189,12 +189,12 @@ variable "ecs_alarms" {
 
 variable "lambda_alarms" {
   type = object({
-    metric_name = string
-    namespace = string
-    threshold = number
-    evaluation_periods = number
-    period = number
-    statistic = string
+    metric_name         = string
+    namespace           = string
+    threshold           = number
+    evaluation_periods  = number
+    period              = number
+    statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
   })
@@ -202,12 +202,12 @@ variable "lambda_alarms" {
 
 variable "dlq_alarms" {
   type = object({
-    metric_name = string
-    namespace = string
-    threshold = number
-    evaluation_periods = number
-    period = number
-    statistic = string
+    metric_name         = string
+    namespace           = string
+    threshold           = number
+    evaluation_periods  = number
+    period              = number
+    statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
   })

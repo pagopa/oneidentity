@@ -356,8 +356,8 @@ module "elb" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
-  for_each =  var.ecs_alarms 
-  alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id,each.value.metric_name,
+  for_each = var.ecs_alarms
+  alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
   module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value)
   comparison_operator = each.value.comparison_operator
   evaluation_periods  = each.value.evaluation_periods
@@ -374,4 +374,4 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   }
 
   alarm_actions = [each.value.sns_topic_alarm_arn]
-} 
+}

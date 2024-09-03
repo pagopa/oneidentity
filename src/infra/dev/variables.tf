@@ -275,30 +275,30 @@ variable "tags" {
 
 variable "ecs_alarms" {
   type = map(object({
-    metric_name = string
-    namespace = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
   }))
 
   default = {
     "ecs-cpu-utilization" = {
-      metric_name = "CPUUtilization"
-      namespace   = "AWS/ECS"
-      evaluation_periods = 1
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 60
+      period              = 300
       statistic           = "Average"
     },
     "ecs-memory-utilization" = {
-      metric_name = "MemoryUtilization"
-      namespace   = "AWS/ECS"
-      evaluation_periods = 1
+      metric_name         = "MemoryUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 60
+      period              = 300
       statistic           = "Average"
     }
   }
@@ -306,53 +306,53 @@ variable "ecs_alarms" {
 
 variable "lambda_alarms" {
   type = object({
-    metric_name = string
-    namespace = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
   })
 
   default = {
-    
-      metric_name = "Errors"
-      namespace   = "AWS/Lambda"
-      threshold = 1
-      evaluation_periods = 2
-      comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 60
-      statistic           = "Sum"
-      
-    }
-  }
 
-  variable "dlq_alarms" {
+    metric_name         = "Errors"
+    namespace           = "AWS/Lambda"
+    threshold           = 1
+    evaluation_periods  = 2
+    comparison_operator = "GreaterThanOrEqualToThreshold"
+    period              = 300
+    statistic           = "Sum"
+
+  }
+}
+
+variable "dlq_alarms" {
   type = object({
-    metric_name = string
-    namespace = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
   })
 
   default = {
-    
-      metric_name = "ApproximateNumberOfMessagesVisible"
-      namespace   = "AWS/SQS"
-      threshold = 0
-      evaluation_periods = 2
-      comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 60
-      statistic           = "Sum"
-      
-    }
+
+    metric_name         = "ApproximateNumberOfMessagesVisible"
+    namespace           = "AWS/SQS"
+    threshold           = 0
+    evaluation_periods  = 2
+    comparison_operator = "GreaterThanOrEqualToThreshold"
+    period              = 300
+    statistic           = "Sum"
+
   }
+}
 
 
 variable "alarm_subscribers" {
