@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -56,7 +57,8 @@ public class SAMLControllerTest {
   SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
 
   @Test
-  void samlACS_ok() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_ok() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -109,7 +111,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInGetSAMLResponseFromString() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInGetSAMLResponseFromString() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -137,7 +140,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInGetSessionSAML() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInGetSessionSAML() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -166,7 +170,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInSetSAMLResponse() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInSetSAMLResponse() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -195,7 +200,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInCheckSAMLStatus() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInCheckSAMLStatus() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -225,7 +231,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInValidateSAMLResponse() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInValidateSAMLResponse() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -256,7 +263,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInSaveSessionOIDC() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInSaveSessionOIDC() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
@@ -312,7 +320,8 @@ public class SAMLControllerTest {
   }
 
   @Test
-  void samlACS_exceptionInCreatingCallbackURI() throws OneIdentityException {
+  @SneakyThrows
+  void samlACS_exceptionInCreatingCallbackURI() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
