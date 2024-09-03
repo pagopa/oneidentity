@@ -355,23 +355,23 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
-resource "aws_cloudwatch_metric_alarm" "cpu_utilization_high" {
-  alarm_name = format("%s-CPU-Utilization-High-%s", module.ecs_core_service.id,
-  var.ecs_as_threshold)
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/ECS"
-  period              = "60"
-  statistic           = "Average"
-  threshold           = var.ecs_as_threshold
+resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
+  for_each = var.ecs_alarms
+  alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
+  module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value
+
 
   dimensions = {
     ClusterName = module.ecs_cluster.cluster_name
     ServiceName = module.ecs_core_service.name
   }
 
-  alarm_actions = [
-    var.sns_topic_arn
-  ]
+  alarm_actions = [each.value.sns_topic_alarm_arn]
 }
