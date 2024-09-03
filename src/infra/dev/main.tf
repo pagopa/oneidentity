@@ -309,3 +309,4 @@ module "monitoring" {
     cluster_name = module.backend.ecs_cluster_name
   }
 }
+

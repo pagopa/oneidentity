@@ -212,4 +212,3 @@ variable "dlq_alarms" {
     sns_topic_alarm_arn = string
   })
 }
-
