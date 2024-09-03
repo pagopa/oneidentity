@@ -22,11 +22,9 @@ output "rest_api_invoke_url" {
   value = module.frontend.rest_api_invoke_url
 }
 
-
-
 ## DNS ##
 output "dns_zone_name_servers" {
-  value = module.frontend.route53_zone_name_servers
+  value = module.r53_zones.dns_zone_name_servers
 }
 
 # Storage

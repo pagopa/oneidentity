@@ -4,10 +4,14 @@ variable "aws_region" {
 }
 
 
-## DNS ##
-variable "r53_dns_zones" {
-  type        = any
-  description = "R53 DNS Zones."
+variable "domain_name" {
+  type        = string
+  description = "DNS domain name."
+}
+
+variable "r53_dns_zone_id" {
+  type        = string
+  description = "R53 dns zone id."
 }
 
 variable "dns_record_ttl" {
