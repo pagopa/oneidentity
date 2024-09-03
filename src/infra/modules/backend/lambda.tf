@@ -250,3 +250,42 @@ module "assertion_lambda" {
   cloudwatch_logs_retention_in_days = var.assertion_lambda.cloudwatch_logs_retention_in_days
 
 }
+
+resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name, var.lambda_alarms.metric_name,
+  var.lambda_alarms.threshold)
+  comparison_operator = var.lambda_alarms.comparison_operator
+  evaluation_periods  = var.lambda_alarms.evaluation_periods
+  metric_name         = var.lambda_alarms.metric_name
+  namespace           = var.lambda_alarms.namespace
+  period              = var.lambda_alarms.period
+  statistic           = var.lambda_alarms.statistic
+  threshold           = var.lambda_alarms.threshold
+
+
+  dimensions = {
+    FunctionName = module.assertion_lambda.lambda_function_name
+  }
+
+  alarm_actions = [var.lambda_alarms.sns_topic_alarm_arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
+  alarm_name = format("%s-%s-Dlq-%s", module.assertion_lambda.lambda_function_name, var.dlq_alarms.metric_name,
+  var.dlq_alarms.threshold)
+  comparison_operator = var.dlq_alarms.comparison_operator
+  evaluation_periods  = var.dlq_alarms.evaluation_periods
+  metric_name         = var.dlq_alarms.metric_name
+  namespace           = var.dlq_alarms.namespace
+  period              = var.dlq_alarms.period
+  statistic           = var.dlq_alarms.statistic
+  threshold           = var.dlq_alarms.threshold
+
+
+  dimensions = {
+    QueueName = aws_sqs_queue.dlq_lambda_assertion.name
+  }
+
+  alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
+}
+
