@@ -40,7 +40,10 @@ public class MockOIDCControllerSessionServiceImpl<T extends Session> extends Ses
   }
 
   @Override
-  public SAMLSession getSAMLSessionByCode(String code) {
+  public SAMLSession getSAMLSessionByCode(String code) throws SessionException {
+    if (code.equals("InvalidGrantException")) {
+      throw new SessionException("test");
+    }
 
     String SAMLRequestID = "exampleRequestId";
     RecordType recordType = RecordType.SAML;
