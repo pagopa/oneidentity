@@ -89,7 +89,7 @@ public class OIDCServiceImplTest {
   }
 
   @Test
-  void getJWSKPublicKey() {
+  void getJWKSPublicKey() {
     // given
     String keyId = "aws/idkey";
     String publicKeyPEM = getPublicKeyPEM();
@@ -107,13 +107,13 @@ public class OIDCServiceImplTest {
     QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
 
     // then
-    JWKSSetDTO jwksSetDTO = oidcServiceImpl.getJWSKPublicKey();
+    JWKSSetDTO jwksSetDTO = oidcServiceImpl.getJWKSPublicKey();
 
     assertFalse(jwksSetDTO.getKeyList().isEmpty());
   }
 
   @Test
-  void getJWSKPublicKey_invalidKey() {
+  void getJWKSPublicKey_invalidKey() {
     // given
     String keyId = "aws/idkey";
     String publicKeyPEM = getInvalidPublicKeyPEM();
@@ -131,7 +131,7 @@ public class OIDCServiceImplTest {
     QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
 
     // then
-    assertThrows(RuntimeException.class, () -> oidcServiceImpl.getJWSKPublicKey());
+    assertThrows(RuntimeException.class, () -> oidcServiceImpl.getJWKSPublicKey());
   }
 
   @Test

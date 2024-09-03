@@ -6,6 +6,7 @@ import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ViolationReport;
@@ -103,9 +104,8 @@ public class ExceptionMapper {
   public RestResponse<Object> mapValidationException(ValidationException validationException) {
     if (validationException.getCause() instanceof AuthorizationErrorException authorizationErrorException) {
       Log.error("AuthorizationErrorException encountered");
-      return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
-          OAuth2Error.INVALID_REQUEST_CODE, authorizationErrorException.getMessage(),
-          authorizationErrorException.getState());
+      authorizationErrorException.setOAuth2errorCode(OAuth2Error.INVALID_REQUEST_CODE);
+      return authenticationErrorResponse(authorizationErrorException);
     } else if (validationException.getCause() instanceof GenericHTMLException genericHTMLException) {
       Log.error("GenericHTMLException encountered");
       return genericHTMLError(genericHTMLException.getMessage());
@@ -121,7 +121,7 @@ public class ExceptionMapper {
       return RestResponse.status(BAD_REQUEST,
           buildTokenRequestErrorDTO(OAuth2Error.INVALID_REQUEST_CODE, message));
     }
-    // TODO add before this 'if' other cases that must be mapped explicitly
+    // Add before this 'if' other cases that must be mapped explicitly
     if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
       // Not a violation in a REST endpoint call, but rather in an internal component.
       // This is an internal error: handle through the QuarkusErrorHandler,
@@ -184,50 +184,33 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
-    return authenticationErrorResponse(clientNotFoundException.getCallbackUri(),
-        OAuth2Error.UNAUTHORIZED_CLIENT_CODE,
-        ErrorCode.CLIENT_NOT_FOUND.getErrorMessage(),
-        clientNotFoundException.getState());
+    return authenticationErrorResponse(clientNotFoundException);
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapInvalidScopeException(
       InvalidScopeException invalidScopeException) {
-    return authenticationErrorResponse(invalidScopeException.getCallbackUri(),
-        OAuth2Error.INVALID_SCOPE_CODE,
-        ErrorCode.INVALID_SCOPE_ERROR.getErrorMessage(),
-        invalidScopeException.getState());
-
+    return authenticationErrorResponse(invalidScopeException);
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapUnsupportedResponseTypeException(
       UnsupportedResponseTypeException unsupportedResponseTypeException) {
-    return authenticationErrorResponse(unsupportedResponseTypeException.getCallbackUri(),
-        OAuth2Error.UNSUPPORTED_RESPONSE_TYPE_CODE,
-        ErrorCode.UNSUPPORTED_RESPONSE_TYPE_ERROR.getErrorMessage(),
-        unsupportedResponseTypeException.getState());
-
+    return authenticationErrorResponse(unsupportedResponseTypeException);
   }
 
 
   @ServerExceptionMapper
   public RestResponse<Object> mapAuthorizationErrorException(
       AuthorizationErrorException authorizationErrorException) {
-    return authenticationErrorResponse(authorizationErrorException.getCallbackUri(),
-        OAuth2Error.SERVER_ERROR_CODE,
-        ErrorCode.AUTHORIZATION_ERROR.getErrorMessage()
-        , authorizationErrorException.getState());
+    return authenticationErrorResponse(authorizationErrorException);
 
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapIDPNotFoundException(
       IDPNotFoundException idpNotFoundException) {
-    return authenticationErrorResponse(idpNotFoundException.getCallbackUri(),
-        OAuth2Error.INVALID_REQUEST_CODE,
-        ErrorCode.IDP_NOT_FOUND.getErrorMessage(),
-        idpNotFoundException.getState());
+    return authenticationErrorResponse(idpNotFoundException);
   }
 
   @ServerExceptionMapper
@@ -270,7 +253,7 @@ public class ExceptionMapper {
       InvalidClientException invalidClientException) {
     return
         ResponseBuilder
-            .create(RestResponse.Status.UNAUTHORIZED)
+            .create(UNAUTHORIZED)
             .header("WWW-Authenticate", "Basic")
             .entity(buildTokenRequestErrorDTO(
                 invalidClientException.getMessage(), invalidClientException.getErrorMessage()))
@@ -310,23 +293,21 @@ public class ExceptionMapper {
           .location(new URI(
               SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
                   StandardCharsets.UTF_8))).build();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
   }
 
-  private RestResponse<Object> authenticationErrorResponse(String callbackUri,
-      String errorCode,
-      String errorMessage,
-      String state) {
+  private RestResponse<Object> authenticationErrorResponse(AuthorizationErrorException ex) {
     try {
-      String uri = getUri(callbackUri, errorCode, errorMessage, state);
+      String uri = getUri(ex.getCallbackUri(), ex.getOAuth2errorCode(), ex.getErrorMessage(),
+          ex.getState());
       return ResponseBuilder
           .create(FOUND)
           .location(
               new URI(uri))
           .build();
-    } catch (URISyntaxException e) {
+    } catch (URISyntaxException | NullPointerException e) {
       Log.error("invalid URI for redirecting: "
           + e.getMessage());
       return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());
@@ -344,6 +325,11 @@ public class ExceptionMapper {
   private RestResponse<Object> buildViolationReportResponse(ConstraintViolationException cve) {
     Status status = Status.BAD_REQUEST;
 
+    if (cve.getConstraintViolations() == null) {
+      Log.error("ConstraintViolationException.getConstraintViolations is null");
+      String message = "Error during execution.";
+      return RestResponse.status(status, buildErrorResponse(INTERNAL_SERVER_ERROR, message));
+    }
     List<Violation> violationsInReport = new ArrayList<>(cve.getConstraintViolations().size());
     for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
       violationsInReport.add(

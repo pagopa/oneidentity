@@ -68,7 +68,7 @@ public class OIDCServiceImpl implements OIDCService {
   SAMLUtilsConstants samlConstants;
 
   @Override
-  public JWKSSetDTO getJWSKPublicKey() {
+  public JWKSSetDTO getJWKSPublicKey() {
     Log.debug("start");
     GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey(KMS_KEY_ID);
     RSAPublicKey rsaPublicKey;
