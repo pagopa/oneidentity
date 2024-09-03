@@ -6,6 +6,17 @@ module "iam" {
   github_repository = "pagopa/oneidentity"
 }
 
+module "r53_zones" {
+  source = "../modules/dns"
+
+  r53_dns_zones = {
+    "${var.r53_dns_zone.name}" = {
+      comment = var.r53_dns_zone.comment
+    }
+  }
+
+}
+
 module "network" {
   source   = "../modules/network"
   vpc_name = format("%s-vpc", local.project)
@@ -24,14 +35,12 @@ module "network" {
 module "frontend" {
   source = "../modules/frontend"
 
+  # DNS 
+  domain_name     = module.r53_zones.dns_zone_name
+  r53_dns_zone_id = module.r53_zones.dns_zone_id
+
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
-
-  r53_dns_zones = {
-    "${var.r53_dns_zone.name}" = {
-      comment = var.r53_dns_zone.comment
-    }
-  }
 
   dns_record_ttl = var.dns_record_ttl
 
@@ -266,9 +275,8 @@ module "spid_validator" {
   alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
   vpc_cidr_block          = module.network.vpc_cidr_block
 
-  zone_id   = module.frontend.route53_zone_id
-  zone_name = module.frontend.zone_name
-
+  zone_id   = module.r53_zones.dns_zone_id
+  zone_name = module.r53_zones.dns_zone_name
 }
 
 module "database" {
