@@ -61,7 +61,6 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_dev_ns_record"></a> [dev\_ns\_record](#module\_dev\_ns\_record) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
-| <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | terraform-aws-modules/route53/aws//modules/zones | 2.11.0 |
 
 ## Resources
 
