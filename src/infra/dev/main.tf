@@ -14,7 +14,6 @@ module "r53_zones" {
       comment = var.r53_dns_zone.comment
     }
   }
-
 }
 
 module "network" {

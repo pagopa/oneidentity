@@ -1,10 +1,20 @@
 data "aws_caller_identity" "current" {}
 
+module "r53_zones" {
+  source = "../../modules/dns"
+
+  r53_dns_zones = {
+    "${var.r53_dns_zone.name}" = {
+      comment = var.r53_dns_zone.comment
+    }
+  }
+}
+
 module "dev_ns_record" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
-  zone_name = var.r53_dns_zone.name
+  zone_name = module.r53_zones.dns_zone_name
 
   records = [
     {
@@ -31,15 +41,4 @@ module "dev_ns_record" {
     },
   ]
 
-  depends_on = [module.r53_zones]
-
 }
-
-/*
-module "iam" {
-  source = "../modules/iam"
-
-  github_repository = "pagopa/oneidentity"
-}
-
-*/
