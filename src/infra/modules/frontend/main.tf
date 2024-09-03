@@ -1,15 +1,8 @@
-## DNS Zones
-module "zones" {
-  source  = "terraform-aws-modules/route53/aws//modules/zones"
-  version = "2.11.0"
-  zones   = var.r53_dns_zones
-}
-
 module "records" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
-  zone_name = keys(module.zones.route53_zone_zone_id)[0]
+  zone_name = var.domain_name
 
   records = concat([
     {
@@ -23,8 +16,6 @@ module "records" {
       }
     }]
   )
-
-  depends_on = [module.zones]
 }
 
 ## ACM ##
@@ -32,15 +23,15 @@ module "acm" {
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
-  domain_name = keys(var.r53_dns_zones)[0]
+  domain_name = var.domain_name
 
-  zone_id = module.zones.route53_zone_zone_id[keys(var.r53_dns_zones)[0]]
+  zone_id = var.r53_dns_zone_id
 
   validation_method      = "DNS"
   create_route53_records = true
 
   tags = {
-    Name = keys(var.r53_dns_zones)[0]
+    Name = var.domain_name
   }
 }
 
@@ -127,7 +118,7 @@ module "rest_api" {
 
   body = templatefile("../api/oi.tpl.json",
     {
-      server_url                     = keys(var.r53_dns_zones)[0]
+      server_url                     = var.domain_name
       uri                            = format("http://%s:%s", var.nlb_dns_name, "8080"),
       connection_id                  = aws_api_gateway_vpc_link.apigw.id
       aws_region                     = var.aws_region
@@ -140,7 +131,7 @@ module "rest_api" {
   })
 
 
-  custom_domain_name        = keys(var.r53_dns_zones)[0]
+  custom_domain_name        = var.domain_name
   create_custom_domain_name = true
   certificate_arn           = module.acm.acm_certificate_arn
 

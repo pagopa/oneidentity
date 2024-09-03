@@ -28,6 +28,10 @@ variable "r53_dns_zone" {
     name    = string
     comment = string
   })
+  default = {
+    name    = "oneid.pagopa.it"
+    comment = "Oneidentity prod zone."
+  }
 }
 
 # DNS
@@ -40,6 +44,12 @@ variable "dns_record_ttl" {
 variable "tags" {
   type = map(any)
   default = {
-    CreatedBy = "Terraform"
+    CreatedBy   = "Terraform"
+    Environment = "Prod"
+    Owner       = "Oneidentity"
+    Source      = "https://github.com/pagopa/oneidentity"
+    CostCenter  = "tier0"
+
   }
+
 }

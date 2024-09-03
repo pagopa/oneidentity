@@ -6,6 +6,16 @@ module "iam" {
   github_repository = "pagopa/oneidentity"
 }
 
+module "r53_zones" {
+  source = "../modules/dns"
+
+  r53_dns_zones = {
+    "${var.r53_dns_zone.name}" = {
+      comment = var.r53_dns_zone.comment
+    }
+  }
+}
+
 module "network" {
   source   = "../modules/network"
   vpc_name = format("%s-vpc", local.project)
@@ -24,14 +34,12 @@ module "network" {
 module "frontend" {
   source = "../modules/frontend"
 
+  ## DNS
+  domain_name     = module.r53_zones.dns_zone_name
+  r53_dns_zone_id = module.r53_zones.dns_zone_id
+
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
-
-  r53_dns_zones = {
-    "${var.r53_dns_zone.name}" = {
-      comment = var.r53_dns_zone.comment
-    }
-  }
 
   dns_record_ttl = var.dns_record_ttl
 
@@ -222,58 +230,6 @@ module "backend" {
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 }
-
-/*
-module "spid_validator" {
-  source = "../modules/spid-validator"
-
-  aws_region = var.aws_region
-
-  ecr_repository_name = format("%s-spid-validator", local.project)
-
-  spid_validator = {
-    cluster_arn  = module.backend.ecs_cluster_arn
-    service_name = format("%s-spid-validator", local.project)
-    container = {
-      name          = "validator"
-      image_name    = format("%s-spid-validator", local.project)
-      image_version = "2.1.1"
-      environment = [
-        {
-          name  = "NODE_USE_HTTPS"
-          value = "false"
-          }, {
-          name  = "NODE_HTTPS_PORT"
-          value = "8080"
-        },
-        {
-          name  = "SPID_USERS_URL"
-          value = "https://raw.githubusercontent.com/pagopa/oneidentity/main/src/config/validator/users.json"
-        },
-        {
-          name  = "NODE_SERVER_HOST"
-          value = "https://validator.dev.oneid.pagopa.it"
-        },
-        {
-          name  = "NODE_USE_PROXY"
-          value = "true"
-        }
-      ]
-    }
-  }
-
-  vpc_id              = module.network.vpc_id
-  public_subnet_ids   = module.network.public_subnet_ids
-  private_subnets_ids = module.network.private_subnet_ids
-
-  alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
-  vpc_cidr_block          = module.network.vpc_cidr_block
-
-  zone_id   = module.frontend.route53_zone_id
-  zone_name = module.frontend.zone_name
-
-}
-*/
 
 module "database" {
   source                     = "../modules/database"
