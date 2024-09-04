@@ -196,7 +196,7 @@ variable "client_registrations_table" {
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
-  default     = 3600 # one hour.
+  default     = 86400 # 24 hour.
 }
 
 ## Api Gateway
