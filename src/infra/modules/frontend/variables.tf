@@ -118,3 +118,19 @@ variable "assets_bucket_name" {
   type        = string
   description = "Assets bucket name."
 }
+
+variable "api_alarms" {
+  type = map(object({
+    metric_name         = string
+    namespace           = string
+    threshold           = number
+    evaluation_periods  = number
+    period              = number
+    statistic           = string
+    comparison_operator = string
+    resource_name       = string
+    sns_topic_alarm_arn = string
+    method              = string
+  }))
+}
+

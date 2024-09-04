@@ -110,6 +110,7 @@ module "rest_api" {
 
   stage_name           = var.rest_api_stage
   xray_tracing_enabled = var.xray_tracing_enabled
+  api_alarms           = var.api_alarms
 
   endpoint_configuration = {
     #TODO: is this the best endpoint type we need?

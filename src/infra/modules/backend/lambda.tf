@@ -261,7 +261,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   period              = var.lambda_alarms.period
   statistic           = var.lambda_alarms.statistic
   threshold           = var.lambda_alarms.threshold
-
+  treat_missing_data  = var.lambda_alarms.treat_missing_data
 
   dimensions = {
     FunctionName = module.assertion_lambda.lambda_function_name
