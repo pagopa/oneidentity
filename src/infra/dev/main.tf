@@ -1,8 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 module "iam" {
-  source = "../modules/iam"
-
+  source            = "../modules/iam"
+  prefix            = local.project
   github_repository = "pagopa/oneidentity"
 }
 
