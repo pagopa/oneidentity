@@ -190,7 +190,7 @@ public class OIDCController {
     String idpSSOEndpoint = idp.get().getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
         .getSingleSignOnServices().getFirst().getLocation();
 
-    // 5. Create SAML Authn Request using SAMLServiceImpl
+    // 6. Create SAML Authn Request using SAMLServiceImpl
 
     AuthnRequest authnRequest = null;
     try {
@@ -210,7 +210,7 @@ public class OIDCController {
         WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
 
-    // 6. Persist SAMLSession
+    // 7. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = Instant.now().getEpochSecond();
