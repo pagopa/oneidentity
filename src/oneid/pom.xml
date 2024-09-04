@@ -231,12 +231,20 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-lambda-update-idp-metadata-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-update-idp-metadata</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-all</id>
             <modules>
                 <module>oneid-common</module>
                 <module>oneid-ecs-core</module>
                 <module>oneid-lambda-client-registration</module>
                 <module>oneid-lambda-service-metadata</module>
+                <module>oneid-lambda-update-idp-metadata</module>
             </modules>
             <activation>
                 <activeByDefault>true</activeByDefault>
