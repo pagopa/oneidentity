@@ -171,24 +171,3 @@ resource "aws_apigatewayv2_api_mapping" "main" {
   stage       = var.stage_name
   domain_name = var.custom_domain_name
 }
-
-resource "aws_cloudwatch_metric_alarm" "api_alarms" {
-  for_each = var.api_alarms
-  alarm_name = format("%s-%s-%s", each.value.resource_name, each.value.metric_name, each.value.threshold)
-  comparison_operator = each.value.comparison_operator
-  evaluation_periods  = each.value.evaluation_periods
-  metric_name         = each.value.metric_name
-  namespace           = each.value.namespace
-  period              = each.value.period
-  statistic           = each.value.statistic
-  threshold           = each.value.threshold
-  
-  dimensions = {
-    ApiName  = aws_api_gateway_rest_api.main.name
-    Stage    = aws_api_gateway_stage.main.stage_name
-    Resource = each.value.resource_name
-    Method   = each.value.method
-  }
-
-  alarm_actions = [each.value.sns_topic_alarm_arn]
-}

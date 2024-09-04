@@ -110,7 +110,6 @@ module "rest_api" {
 
   stage_name           = var.rest_api_stage
   xray_tracing_enabled = var.xray_tracing_enabled
-  api_alarms           = var.api_alarms
 
   endpoint_configuration = {
     #TODO: is this the best endpoint type we need?
@@ -155,6 +154,27 @@ resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
   function_name = var.metadata_lamba_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${module.rest_api.rest_api_execution_arn}/*/GET/saml/*/metadata"
+}
+
+resource "aws_cloudwatch_metric_alarm" "api_alarms" {
+  for_each = var.api_alarms
+  alarm_name = format("%s-%s-%s", each.value.resource_name, each.value.metric_name, each.value.threshold)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
+  
+  dimensions = {
+    ApiName  = module.rest_api.rest_api_name
+    Stage    = var.rest_api_stage
+    Resource = each.value.resource_name
+    Method   = each.value.method
+  }
+
+  alarm_actions = [each.value.sns_topic_alarm_arn]
 }
 
 /*
