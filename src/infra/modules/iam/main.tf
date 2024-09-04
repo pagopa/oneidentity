@@ -19,7 +19,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "githubiac" {
-  name        = "GitHubActionIACRole"
+  name        = "${var.prefix}-github-iac-role"
   description = "Role to assume to create the infrastructure."
 
 
