@@ -31,6 +31,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | Github federation repository | `string` | n/a | yes |
+| <a name="input_prefix"></a> [prefix](#input\_prefix) | n/a | `string` | `"Prefix to assign to the resources."` | no |
 
 ## Outputs
 
