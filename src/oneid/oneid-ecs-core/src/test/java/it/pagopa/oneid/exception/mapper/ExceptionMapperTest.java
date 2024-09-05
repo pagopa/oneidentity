@@ -102,7 +102,7 @@ class ExceptionMapperTest {
 
   // Only this method, between the ones that use genericHTMLError, will trigger the URISyntaxException
   @Test
-  void mapGenericHTMLExceptionInternalServerError() {
+  void mapGenericHTMLException_InternalServerError() {
     // given
     GenericHTMLException exceptionMock = Mockito.mock(GenericHTMLException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn(null);
@@ -116,7 +116,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionAuthorizationErrorException() {
+  void mapValidationException_AuthorizationErrorException() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     AuthorizationErrorException authorizationErrorExceptionMock = Mockito.mock(
@@ -135,7 +135,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionGenericHTMLException() {
+  void mapValidationException_GenericHTMLException() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
@@ -151,7 +151,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionMessageAuthorizeGet() {
+  void mapValidationException_MessageAuthorizeGet() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn("authorizeGet.arg0.clientId");
@@ -164,7 +164,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionMessageAuthorizePost() {
+  void mapValidationException_MessageAuthorizePost() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn("authorizePost.arg0.clientId");
@@ -177,7 +177,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionMessageToken() {
+  void mapValidationException_MessageToken() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn("token.arg0.test");
@@ -191,7 +191,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionNotResteasyReactiveViolationException() {
+  void mapValidationException_NotResteasyReactiveViolationException() {
     // given
     ValidationException exceptionMock = Mockito.mock(ValidationException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
@@ -202,7 +202,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionHasReturnValueViolationTrue() {
+  void mapValidationException_HasReturnValueViolationTrue() {
     // given
     ResteasyReactiveViolationException exceptionMock = Mockito.mock(
         ResteasyReactiveViolationException.class);
@@ -237,7 +237,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionHasReturnValueViolationNull() {
+  void mapValidationException_HasReturnValueViolationNull() {
     // given
     ResteasyReactiveViolationException exceptionMock = Mockito.mock(
         ResteasyReactiveViolationException.class);
@@ -257,7 +257,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionIsReturnValueViolationFirstIf() {
+  void mapValidationException_IsReturnValueViolationFirstIf() {
     // given
     ResteasyReactiveViolationException exceptionMock = Mockito.mock(
         ResteasyReactiveViolationException.class);
@@ -295,7 +295,7 @@ class ExceptionMapperTest {
   }
 
   @Test
-  void mapValidationExceptionHasReturnValueViolationFalse() {
+  void mapValidationException_HasReturnValueViolationFalse() {
     // given
     ResteasyReactiveViolationException exceptionMock = Mockito.mock(
         ResteasyReactiveViolationException.class);
@@ -410,7 +410,7 @@ class ExceptionMapperTest {
 
   // This method test also the getUri with the state parameter
   @Test
-  void mapClientNotFoundExceptionWithState() {
+  void mapClientNotFoundException_WithState() {
     // given
     ClientNotFoundException exceptionMock = Mockito.mock(ClientNotFoundException.class);
     Mockito.when(exceptionMock.getState()).thenReturn("test");
@@ -428,7 +428,7 @@ class ExceptionMapperTest {
 
   // This method test also the getUri without the state parameter
   @Test
-  void mapClientNotFoundExceptionNoState() {
+  void mapClientNotFoundException_NoState() {
     // given
     ClientNotFoundException exceptionMock = Mockito.mock(ClientNotFoundException.class);
     Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");

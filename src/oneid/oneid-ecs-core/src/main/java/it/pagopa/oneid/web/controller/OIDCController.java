@@ -46,6 +46,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -168,7 +169,7 @@ public class OIDCController {
     }
 
     // 4. Check if scope is "openid"
-    if (authorizationRequestDTOExtended.getScope() != null
+    if (StringUtils.isNotBlank(authorizationRequestDTOExtended.getScope())
         && !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error(
           "scope not supported");
@@ -190,7 +191,7 @@ public class OIDCController {
     String idpSSOEndpoint = idp.get().getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
         .getSingleSignOnServices().getFirst().getLocation();
 
-    // 5. Create SAML Authn Request using SAMLServiceImpl
+    // 6. Create SAML Authn Request using SAMLServiceImpl
 
     AuthnRequest authnRequest = null;
     try {
@@ -210,7 +211,7 @@ public class OIDCController {
         WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
 
-    // 6. Persist SAMLSession
+    // 7. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = Instant.now().getEpochSecond();
