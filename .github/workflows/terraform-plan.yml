@@ -28,7 +28,7 @@ jobs:
     environment: ${{ matrix.environment }}
     
     env:
-      WORKING_DIR: src/infra/eu-south-1/${{ matrix.environment }}
+      WORKING_DIR: src/infra/${{ matrix.environment }}/eu-south-1
       AWS_REGION: eu-south-1
      
     steps:
