@@ -24,7 +24,11 @@ variable "dns_record_ttl" {
 variable "rest_api_name" {
   type        = string
   description = "Rest api name"
+}
 
+variable "openapi_template_file" {
+  type        = string
+  description = "Openapi template file path."
 }
 
 variable "rest_api_stage" {
