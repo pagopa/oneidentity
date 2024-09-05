@@ -157,8 +157,8 @@ resource "aws_lambda_permission" "allow_api_gw_invoke_metadata" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_alarms" {
-  for_each = var.api_alarms
-  alarm_name = format("%s-%s-%s", each.value.resource_name, each.value.metric_name, each.value.threshold)
+  for_each            = var.api_alarms
+  alarm_name          = format("%s-%s-%s", each.value.resource_name, each.value.metric_name, each.value.threshold)
   comparison_operator = each.value.comparison_operator
   evaluation_periods  = each.value.evaluation_periods
   metric_name         = each.value.metric_name
@@ -166,7 +166,7 @@ resource "aws_cloudwatch_metric_alarm" "api_alarms" {
   period              = each.value.period
   statistic           = each.value.statistic
   threshold           = each.value.threshold
-  
+
   dimensions = {
     ApiName  = module.rest_api.rest_api_name
     Stage    = var.rest_api_stage
