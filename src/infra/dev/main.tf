@@ -65,7 +65,7 @@ module "frontend" {
   assets_bucket_name = module.storage.assets_bucket_name
 
   xray_tracing_enabled = var.xray_tracing_enabled
-  api_alarms = local.cloudwatch__api_alarms_with_sns
+  api_alarms           = local.cloudwatch__api_alarms_with_sns
 }
 
 

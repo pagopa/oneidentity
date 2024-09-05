@@ -380,7 +380,7 @@ variable "api_alarms" {
     comparison_operator = optional(string)
     resource_name       = string
     method              = string
-   
+
   }))
 
   default = {
