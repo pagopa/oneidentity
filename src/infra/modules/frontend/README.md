@@ -119,6 +119,7 @@
 | <a name="input_metadata_lamba_arn"></a> [metadata\_lamba\_arn](#input\_metadata\_lamba\_arn) | lambda metadata arn | `string` | n/a | yes |
 | <a name="input_metadata_lamba_name"></a> [metadata\_lamba\_name](#input\_metadata\_lamba\_name) | Lambda metadata name | `string` | n/a | yes |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
+| <a name="input_openapi_template_file"></a> [openapi\_template\_file](#input\_openapi\_template\_file) | Openapi template file path. | `string` | n/a | yes |
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
