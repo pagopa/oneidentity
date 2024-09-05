@@ -314,6 +314,7 @@ variable "lambda_alarms" {
     statistic           = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
+    treat_missing_data  = optional(string)
   })
 
   default = {
@@ -321,11 +322,11 @@ variable "lambda_alarms" {
     metric_name         = "Errors"
     namespace           = "AWS/Lambda"
     threshold           = 1
-    evaluation_periods  = 2
+    evaluation_periods  = 1
     comparison_operator = "GreaterThanOrEqualToThreshold"
     period              = 300
     statistic           = "Sum"
-
+    treat_missing_data = "notBreaching"
   }
 }
 
@@ -347,7 +348,7 @@ variable "dlq_alarms" {
     namespace           = "AWS/SQS"
     threshold           = 0
     evaluation_periods  = 2
-    comparison_operator = "GreaterThanOrEqualToThreshold"
+    comparison_operator = "GreaterThanThreshold"
     period              = 300
     statistic           = "Sum"
 
@@ -358,4 +359,176 @@ variable "dlq_alarms" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "api_alarms" {
+  type = map(object({
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
+    comparison_operator = optional(string)
+    resource_name       = string
+    method              = string
+   
+  }))
+
+  default = {
+    "assertion-5xx-error" = {
+      resource_name       = "/saml/assertion"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "GET"
+    },
+    "assertion-latency-alarm" = {
+      resource_name       = "/saml/assertion"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "GET"
+      threshold           = 1000
+    },
+    "acs-5xx-error" = {
+      resource_name       = "/saml/acs"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "POST"
+    },
+    "acs-latency-alarm" = {
+      resource_name       = "/saml/acs"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "POST"
+      threshold           = 1000
+    },
+    "oidc-token-5xx-error" = {
+      resource_name       = "/oidc/token"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "POST"
+    },
+    "oidc-token-latency-alarm" = {
+      resource_name       = "/oidc/token"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "POST"
+      threshold           = 1000
+    },
+    "oidc-keys-5xx-error" = {
+      resource_name       = "/oidc/keys"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "GET"
+    },
+    "oidc-keys-latency-alarm" = {
+      resource_name       = "/oidc/keys"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "GET"
+      threshold           = 1000
+    },
+    "oidc-authorize-5xx-error" = {
+      resource_name       = "/oidc/authorize"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "GET"
+    },
+    "oidc-authorize-latency-alarm" = {
+      resource_name       = "/oidc/authorize"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "GET"
+      threshold           = 1000
+    },
+    "oidc-register-5xx-error" = {
+      resource_name       = "/oidc/register"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "POST"
+    },
+    "oidc-register-latency-alarm" = {
+      resource_name       = "/oidc/register"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "POST"
+      threshold           = 1000
+    },
+    "login-5xx-error" = {
+      resource_name       = "/login"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "GET"
+    },
+    "login-latency-alarm" = {
+      resource_name       = "/login"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "GET"
+      threshold           = 1000
+    },
+  }
 }

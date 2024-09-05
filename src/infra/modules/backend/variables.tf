@@ -197,6 +197,7 @@ variable "lambda_alarms" {
     statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
+    treat_missing_data  = string
   })
 }
 
