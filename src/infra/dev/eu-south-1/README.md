@@ -98,16 +98,16 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backend"></a> [backend](#module\_backend) | ../modules/backend | n/a |
-| <a name="module_database"></a> [database](#module\_database) | ../modules/database | n/a |
-| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../modules/frontend | n/a |
-| <a name="module_iam"></a> [iam](#module\_iam) | ../modules/iam | n/a |
-| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../modules/monitoring | n/a |
-| <a name="module_network"></a> [network](#module\_network) | ../modules/network | n/a |
-| <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../modules/dns | n/a |
-| <a name="module_sns"></a> [sns](#module\_sns) | ../modules/sns | n/a |
-| <a name="module_spid_validator"></a> [spid\_validator](#module\_spid\_validator) | ../modules/spid-validator | n/a |
-| <a name="module_storage"></a> [storage](#module\_storage) | ../modules/storage | n/a |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
+| <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
+| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
+| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../modules/monitoring | n/a |
+| <a name="module_network"></a> [network](#module\_network) | ../../modules/network | n/a |
+| <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../../modules/dns | n/a |
+| <a name="module_sns"></a> [sns](#module\_sns) | ../../modules/sns | n/a |
+| <a name="module_spid_validator"></a> [spid\_validator](#module\_spid\_validator) | ../../modules/spid-validator | n/a |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../../modules/storage | n/a |
 
 ## Resources
 
