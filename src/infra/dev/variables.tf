@@ -48,7 +48,7 @@ variable "vpc_internal_subnets_cidr" {
 
 variable "enable_nat_gateway" {
   type        = bool
-  default     = false
+  default     = true
   description = "Create nat gateway(s)"
 }
 
@@ -326,7 +326,7 @@ variable "lambda_alarms" {
     comparison_operator = "GreaterThanOrEqualToThreshold"
     period              = 300
     statistic           = "Sum"
-    treat_missing_data = "notBreaching"
+    treat_missing_data  = "notBreaching"
   }
 }
 
@@ -372,7 +372,7 @@ variable "api_alarms" {
     comparison_operator = optional(string)
     resource_name       = string
     method              = string
-   
+
   }))
 
   default = {
