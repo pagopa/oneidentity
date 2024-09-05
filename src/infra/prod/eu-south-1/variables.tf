@@ -140,7 +140,7 @@ variable "assertion_bucket" {
     object_lock_configuration = any
   })
 
-  description = "Assertion storage configurations."
+  description = "Assertion storage."
   default = {
     mfa_delete               = false
     glacier_transaction_days = 90
