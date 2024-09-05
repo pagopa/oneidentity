@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = var.main_dashboard_name
 
-  dashboard_body = templatefile("../dashboards/main.tpl.json",
+  dashboard_body = templatefile("../../dashboards/main.tpl.json",
     {
       aws_region                 = var.aws_region
       api_name                   = var.api_name
