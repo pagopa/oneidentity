@@ -1,13 +1,13 @@
 data "aws_caller_identity" "current" {}
 
 module "iam" {
-  source            = "../modules/iam"
+  source            = "../../modules/iam"
   prefix            = local.project
   github_repository = "pagopa/oneidentity"
 }
 
 module "r53_zones" {
-  source = "../modules/dns"
+  source = "../../modules/dns"
 
   r53_dns_zones = {
     "${var.r53_dns_zone.name}" = {
@@ -17,7 +17,7 @@ module "r53_zones" {
 }
 
 module "network" {
-  source   = "../modules/network"
+  source   = "../../modules/network"
   vpc_name = format("%s-vpc", local.project)
 
   azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
@@ -32,14 +32,15 @@ module "network" {
 }
 
 module "frontend" {
-  source = "../modules/frontend"
+  source = "../../modules/frontend"
 
   # DNS 
   domain_name     = module.r53_zones.dns_zone_name
   r53_dns_zone_id = module.r53_zones.dns_zone_id
 
   ## API Gateway ##
-  rest_api_name = format("%s-restapi", local.project)
+  rest_api_name         = format("%s-restapi", local.project)
+  openapi_template_file = "../../api/oi.tpl.json"
 
   dns_record_ttl = var.dns_record_ttl
 
@@ -70,7 +71,7 @@ module "frontend" {
 
 
 module "storage" {
-  source = "../modules/storage"
+  source = "../../modules/storage"
 
   assertion_bucket = {
     name_prefix              = "assertions"
@@ -85,13 +86,13 @@ module "storage" {
   account_id           = data.aws_caller_identity.current.account_id
 }
 module "sns" {
-  source            = "../modules/sns"
+  source            = "../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
   alarm_subscribers = var.alarm_subscribers
 }
 
 module "backend" {
-  source = "../modules/backend"
+  source = "../../modules/backend"
 
   aws_region = var.aws_region
 
@@ -177,7 +178,7 @@ module "backend" {
 
   client_registration_lambda = {
     name                              = format("%s-client-registration", local.project)
-    filename                          = "${path.module}/../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                            = module.network.vpc_id
@@ -187,7 +188,7 @@ module "backend" {
 
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
-    filename                       = "${path.module}/../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
@@ -219,7 +220,7 @@ module "backend" {
 
   assertion_lambda = {
     name                    = format("%s-assertion", local.project)
-    filename                = "${path.module}/../hello-python/lambda.zip"
+    filename                = "${path.module}/../../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
@@ -234,7 +235,7 @@ module "backend" {
 }
 
 module "spid_validator" {
-  source = "../modules/spid-validator"
+  source = "../../modules/spid-validator"
 
   aws_region = var.aws_region
 
@@ -283,7 +284,7 @@ module "spid_validator" {
 }
 
 module "database" {
-  source                     = "../modules/database"
+  source                     = "../../modules/database"
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
 }
@@ -292,7 +293,7 @@ module "database" {
 ## Monitoring 
 
 module "monitoring" {
-  source                     = "../modules/monitoring"
+  source                     = "../../modules/monitoring"
   main_dashboard_name        = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
   aws_region                 = var.aws_region
