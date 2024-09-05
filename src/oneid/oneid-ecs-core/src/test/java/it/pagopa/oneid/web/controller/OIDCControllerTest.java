@@ -27,13 +27,17 @@ import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -63,6 +67,29 @@ class OIDCControllerTest {
   @Inject
   private SAMLUtilsExtendedCore samlUtilsExtendedCore;
 
+
+  @Test
+  @SneakyThrows
+  void getObject_Exception() {
+    //given
+
+    //Class
+    OIDCController oidcController = new OIDCController();
+    //Method
+    Method getObject = OIDCController.class.getDeclaredMethod("getObject", Object.class);
+    getObject.setAccessible(true);
+
+    //when
+    Executable executable = () -> getObject.invoke(oidcController, "test");
+
+    //then
+    InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
+        executable);
+    Assertions.assertTrue(
+        exception.getCause().getMessage().contains("Invalid object for /oidc/authorize route"));
+
+  }
+
   @Test
   void keys() {
     JWKSSetDTO jwksPublicKey = mock(JWKSSetDTO.class);
@@ -83,15 +110,7 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
     //when
 
@@ -143,15 +162,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setClientId("no_client");
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("https://client.example.com/callback");
-    authorizationRequestDTOExtendedPost.setScope("test");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -178,15 +190,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setRedirectUri("test");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     //then
     given()
@@ -213,15 +218,7 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
     //when
 
@@ -253,18 +250,9 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
     //when
-
     Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
         .thenThrow(OneIdentityException.class);
 
@@ -293,15 +281,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setScope("");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     //when
 
@@ -354,15 +335,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setScope("test");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     //when
 
@@ -407,15 +381,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setResponseType(ResponseType.NONE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     //when
 
@@ -460,15 +427,7 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
     //when
 
@@ -519,15 +478,8 @@ class OIDCControllerTest {
     //given
 
     // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setIdp("testSessionException");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
 
     //when
 
@@ -819,6 +771,21 @@ class OIDCControllerTest {
   //endregion
 
   //region private methods
+
+
+  private AuthorizationRequestDTOExtendedPost getAuthorizationRequestDTOExtendedPost() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setIpAddress("test");
+    authorizationRequestDTOExtendedPost.setIdp("test");
+    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
+    authorizationRequestDTOExtendedPost.setResponseType(CODE);
+    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
+    authorizationRequestDTOExtendedPost.setScope("openid");
+    authorizationRequestDTOExtendedPost.setNonce("test");
+    authorizationRequestDTOExtendedPost.setState("test");
+    return authorizationRequestDTOExtendedPost;
+  }
+
   @SneakyThrows
   private AuthnRequest buildAuthnRequest(String idpID) {
     AuthnRequest authnRequest = samlUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
