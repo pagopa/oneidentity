@@ -46,6 +46,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -168,7 +169,7 @@ public class OIDCController {
     }
 
     // 4. Check if scope is "openid"
-    if (authorizationRequestDTOExtended.getScope() != null
+    if (StringUtils.isNotBlank(authorizationRequestDTOExtended.getScope())
         && !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error(
           "scope not supported");
