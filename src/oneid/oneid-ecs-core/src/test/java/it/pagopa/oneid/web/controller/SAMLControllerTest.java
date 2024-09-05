@@ -121,7 +121,7 @@ public class SAMLControllerTest {
     // setup samlServiceImplMock
 
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
-        .thenThrow(OneIdentityException.class);
+        .thenThrow(new OneIdentityException());
 
     String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
@@ -212,7 +212,7 @@ public class SAMLControllerTest {
     Response response = Mockito.mock(Response.class);
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
-    doThrow(OneIdentityException.class).when(samlServiceImpl).checkSAMLStatus(Mockito.any());
+    doThrow(new OneIdentityException()).when(samlServiceImpl).checkSAMLStatus(Mockito.any());
 
     // location header to verify
     String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
@@ -244,7 +244,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
-    doThrow(OneIdentityException.class).when(samlServiceImpl)
+    doThrow(new OneIdentityException()).when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any());
     // location header to verify
     String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
