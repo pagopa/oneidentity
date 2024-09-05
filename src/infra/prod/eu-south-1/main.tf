@@ -82,9 +82,17 @@ module "storage" {
   account_id           = data.aws_caller_identity.current.account_id
 }
 
+## SNS for alarms ##
 module "sns" {
   source            = "../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
   alarm_subscribers = var.alarm_subscribers
 }
 
+
+## Database ##  
+module "database" {
+  source                     = "../../modules/database"
+  sessions_table             = var.sessions_table
+  client_registrations_table = var.client_registrations_table
+}
