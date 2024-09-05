@@ -132,9 +132,12 @@ variable "dlq_assertion_setting" {
 ## Storage S3 ## 
 variable "assertion_bucket" {
   type = object({
-    mfa_delete               = bool
-    glacier_transaction_days = number
-    expiration_days          = number
+    mfa_delete                = bool
+    glacier_transaction_days  = number
+    expiration_days           = number
+    kms_multi_region          = bool
+    enable_key_rotation       = bool
+    object_lock_configuration = any
   })
 
   description = "Assertion storage configurations."
@@ -142,6 +145,16 @@ variable "assertion_bucket" {
     mfa_delete               = false
     glacier_transaction_days = 90
     expiration_days          = 1080
+    enable_key_rotation      = true
+    kms_multi_region         = true
+    object_lock_configuration = {
+      rule = {
+        default_retention = {
+          mode = "GOVERNANCE"
+          days = 20
+        }
+      }
+    }
   }
 
 }
@@ -196,7 +209,7 @@ variable "client_registrations_table" {
 variable "dns_record_ttl" {
   type        = number
   description = "Dns record ttl (in sec)"
-  default     = 3600 # one hour.
+  default     = 86400 # 24 hour.
 }
 
 ## Api Gateway
@@ -284,6 +297,11 @@ variable "tags" {
     Source      = "https://github.com/pagopa/oneidentity"
     CostCenter  = "tier0"
   }
+}
+
+variable "alarm_subscribers" {
+  type    = string
+  default = "alarm-subscribers"
 }
 
 variable "ecs_alarms" {

@@ -5,6 +5,7 @@ variable "assertion_bucket" {
     expiration_days                 = number
     mfa_delete                      = optional(bool, false)
     kms_key_deletion_window_in_days = optional(number, 10)
+    kms_multi_region                = optional(bool, false)
 
     object_lock_legal_hold_status = optional(bool, false)
     object_lock_configuration     = optional(any, null)

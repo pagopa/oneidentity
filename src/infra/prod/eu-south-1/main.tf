@@ -47,5 +47,44 @@ module "dev_ns_record" {
       ]
     },
   ]
+}
+
+
+module "network" {
+  source   = "../../modules/network"
+  vpc_name = format("%s-vpc", local.project)
+
+  azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
+
+  vpc_cidr                  = var.vpc_cidr
+  vpc_private_subnets_cidr  = var.vpc_private_subnets_cidr
+  vpc_public_subnets_cidr   = var.vpc_public_subnets_cidr
+  vpc_internal_subnets_cidr = var.vpc_internal_subnets_cidr
+  enable_nat_gateway        = var.enable_nat_gateway
+  single_nat_gateway        = var.single_nat_gateway
 
 }
+module "storage" {
+  source = "../../modules/storage"
+
+  assertion_bucket = {
+    name_prefix               = "assertions"
+    glacier_transaction_days  = var.assertion_bucket.glacier_transaction_days
+    expiration_days           = var.assertion_bucket.expiration_days
+    enable_key_rotation       = var.assertion_bucket.enable_key_rotation
+    kms_multi_region          = var.assertion_bucket.kms_multi_region
+    object_lock_configuration = var.assertion_bucket.object_lock_configuration
+  }
+  assertions_crawler_schedule = var.assertions_crawler_schedule
+
+  assets_bucket_prefix = "assets"
+  github_repository    = "pagopa/oneidentity"
+  account_id           = data.aws_caller_identity.current.account_id
+}
+
+module "sns" {
+  source            = "../../modules/sns"
+  sns_topic_name    = format("%s-sns", local.project)
+  alarm_subscribers = var.alarm_subscribers
+}
+
