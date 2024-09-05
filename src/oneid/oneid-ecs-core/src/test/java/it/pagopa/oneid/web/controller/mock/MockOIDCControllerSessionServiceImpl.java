@@ -9,6 +9,8 @@ import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
+import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 @Alternative
 @Dependent
@@ -19,8 +21,16 @@ public class MockOIDCControllerSessionServiceImpl<T extends Session> extends Ses
   }
 
   @Override
-  public void saveSession(T session) {
-    // do nothing
+  public void saveSession(T session) throws SessionException {
+    if (Objects.requireNonNull(session) instanceof SAMLSession samlSession) {
+      if (samlSession.getAuthorizationRequestDTOExtended() != null && StringUtils.equals(
+          "testSessionException",
+          samlSession.getAuthorizationRequestDTOExtended().getIdp())) {
+        throw new SessionException("test");
+      }
+    }
+
+    // else do nothing
   }
 
   @Override
