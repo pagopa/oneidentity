@@ -276,3 +276,25 @@ module "frontend" {
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns
 }
+
+## Monitoring / Dashboard ##
+/*
+module "monitoring" {
+  source                     = "../../modules/monitoring"
+  main_dashboard_name        = format("%s-overall-dashboard", local.project)
+  api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
+  aws_region                 = var.aws_region
+  api_name                   = module.frontend.api_name
+  sessions_table             = module.database.table_sessions_name
+  client_registrations_table = module.database.table_client_registrations_name
+  nlb = {
+    target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
+    arn_suffix              = module.backend.nlb_arn_suffix
+  }
+  ecs = {
+    service_name = module.backend.ecs_service_name,
+    cluster_name = module.backend.ecs_cluster_name
+  }
+}
+
+*/

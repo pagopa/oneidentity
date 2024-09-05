@@ -26,8 +26,9 @@ jobs:
     environment: ${{ matrix.environment }}
     
     env:
-      WORKING_DIR: src/infra/${{ matrix.environment }}
-     
+      WORKING_DIR: src/infra/eu-south-1/${{ matrix.environment }}
+      AWS_REGION: eu-south-1
+
     steps:
       - name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
@@ -36,5 +37,5 @@ jobs:
         uses: ./.github/workflows/apply
         with:
           working-directory: ${{ env.WORKING_DIR }}
-          region: ${{ vars.AWS_REGION }}
+          region: ${{ env.AWS_REGION }}
           iam_role: ${{ vars.IAM_ROLE_IAC }}
