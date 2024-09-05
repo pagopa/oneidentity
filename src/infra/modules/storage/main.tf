@@ -24,6 +24,7 @@ module "kms_assertions_bucket" {
   description         = "KMS key for S3 encryption"
   key_usage           = "ENCRYPT_DECRYPT"
   enable_key_rotation = var.assertion_bucket.enable_key_rotation
+  multi_region        = var.assertion_bucket.kms_multi_region
 
   # Aliases
   aliases = ["assertions/S3"]
@@ -100,7 +101,6 @@ resource "aws_iam_policy" "github_s3_policy" {
   })
 }
 
-
 module "s3_assertions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
@@ -125,6 +125,9 @@ module "s3_assertions_bucket" {
     enabled    = true
     mfa_delete = var.assertion_bucket.mfa_delete
   }
+
+  object_lock_enabled       = var.assertion_bucket.object_lock_configuration != null ? true : false
+  object_lock_configuration = var.assertion_bucket.object_lock_configuration
 
   lifecycle_rule = [
     {
