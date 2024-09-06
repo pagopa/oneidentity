@@ -157,24 +157,8 @@
                 "method.response.header.location" :     "integration.response.header.location"
               }
             },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
+            "404": {
+              "statusCode": "404",
               "responseParameters": {}
             }
           }
@@ -183,23 +167,8 @@
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
           },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
+          "404": {
+            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -238,24 +207,8 @@
                 "method.response.header.content-type" : "integration.response.header.Content-Type"
               }
             },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
+            "404": {
+              "statusCode": "404",
               "responseParameters": {}
             }
           }
@@ -264,23 +217,8 @@
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
           },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
+          "404": {
+            "$ref": "#/components/responses/notFound"
           }
         }
       }
@@ -1810,7 +1748,10 @@
               }
             },
             "content" : { }
-          }
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }  
         },
         "x-amazon-apigateway-integration": {
           "type" : "aws",
@@ -1823,6 +1764,10 @@
               "responseParameters" : {
                 "method.response.header.Content-Type" : "integration.response.header.Content-Type"
               }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
             }
           },
           "requestParameters" : {
