@@ -618,5 +618,33 @@
     "domicileMunicipality": "Roma",
     "domicileProvince": "RM",
     "domicileNation": "IT"
+  },
+  {
+    "username": "robertopasetti",
+    "password": "password123",
+    "spidLevel": 3,
+    "spidCode": "SPID-020",
+    "familyName": "Pasetti",
+    "name": "Roberto",
+    "gender": "M",
+    "dateOfBirth": "1980-08-20",
+    "countyOfBirth": "VE",
+    "placeOfBirth": "B157",
+    "idCard": "cartaIdentita AZ765432 comuneVenezia 2015-03-12 2025-09-30",
+    "expirationDate": "2019-10-01",
+    "fiscalNumber": "PSTRRT80M20B157M",
+    "mobilePhone": "33111111111",
+    "email": "roberto.pasetti@pagopa.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyName": "",
+    "registeredOffice": "",
+    "companyFiscalNumber": "",
+    "address": "Via Listz 21 00144 Roma",
+    "domicileStreetAddress": "Via Listz 21",
+    "domicilePostalCode": "00144",
+    "domicileMunicipality": "Roma",
+    "domicileProvince": "RM",
+    "domicileNation": "IT"
   }
 ]
