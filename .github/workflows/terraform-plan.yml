@@ -24,13 +24,20 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        environment: [dev, uat, prod]
-        region:      ${{ matrix.environment == 'prod' && ['eu-south-1', 'eu-central-1'] || ['eu-south-1'] }}
+        include:
+          - environment: dev
+            region: eu-south-1          
+          - environment: uat
+            region: eu-south-1
+          - environment: prod
+            region: eu-south-1
+          - environment: prod
+            region: eu-central-1
 
     environment: ${{ matrix.environment }}
     
     env:
-      WORKING_DIR: src/infra/${{ matrix.environment }}/eu-south-1
+      WORKING_DIR: src/infra/${{ matrix.environment }}/${{ matrix.region }}
       AWS_REGION: eu-south-1
      
     steps:
