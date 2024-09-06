@@ -34,11 +34,11 @@ jobs:
           #- environment: prod
           #  region: eu-central-1
 
-    environment: ${{ matrix.environment }}
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     
     env:
       WORKING_DIR: src/infra/${{ matrix.environment }}/${{ matrix.region }}
-      AWS_REGION: eu-south-1
+      AWS_REGION: ${{ matrix.region }}
      
     steps:
       - name: Checkout
