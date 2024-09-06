@@ -20,13 +20,11 @@ permissions:
 
 jobs:
   terraform:
-    name: "terraform-plan-${{ matrix.environment }}-${{ matrix.region }}"
+    name: "terraform-plan-${{ matrix.environment }}"
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        environment: [dev, uat, prod]
-        region:      ${{ matrix.environment == 'prod' && ['eu-south-1', 'eu-central-1'] || ['eu-south-1'] }}
-
+        environment: [dev, uat]
     environment: ${{ matrix.environment }}
     
     env:
@@ -41,5 +39,5 @@ jobs:
         uses: ./.github/workflows/plan
         with:
           working-directory: ${{ env.WORKING_DIR }}
-          region: ${{ matrix.region }}
+          region: ${{ env.AWS_REGION }}
           iam_role: ${{ vars.IAM_ROLE_IAC }}
