@@ -278,7 +278,7 @@ module "frontend" {
 }
 
 ## Monitoring / Dashboard ##
-/*
+
 module "monitoring" {
   source                     = "../../modules/monitoring"
   main_dashboard_name        = format("%s-overall-dashboard", local.project)
@@ -296,5 +296,3 @@ module "monitoring" {
     cluster_name = module.backend.ecs_cluster_name
   }
 }
-
-*/
