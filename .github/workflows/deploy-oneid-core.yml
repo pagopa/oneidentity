@@ -18,6 +18,7 @@ on:
         options:
         - dev
         - uat
+        - prod
 jobs:
   setup:
     runs-on: ubuntu-22.04
