@@ -43,9 +43,21 @@ jobs:
     deploy:
       runs-on: ubuntu-22.04
       needs: build
-      environment: ${{ github.event.inputs.environment }}
+      strategy:
+        matrix:
+          include:
+            - environment: dev
+              region: eu-south-1          
+            - environment: uat
+              region: eu-south-1
+            - environment: prod
+              region: eu-south-1          
+            #- environment: prod
+            #  region: eu-central-1
+      environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
       env:
         ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[github.event.inputs.environment] }}
+        REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
       permissions:
         id-token: write
         contents: read
@@ -61,10 +73,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
    
       - name: Deploy Lambda function (${{ github.event.inputs.environment }})
         run: |
             aws lambda update-function-code \
-            --function-name oneid-es-1-${{ env.ENV_SHORT }}-assertion \
+            --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-assertion \
             --zip-file fileb://src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip
