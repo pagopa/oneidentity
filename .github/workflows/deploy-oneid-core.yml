@@ -46,7 +46,7 @@ jobs:
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
           
   deploy:
-    name: "Deploy on ECS"
+    name: Deploy on ECS ${{ matrix.environment }}-${{ matrix.region }}
     if: ${{ needs.setup.outputs.matrix != '' }}
     needs: setup
     runs-on: ubuntu-22.04
