@@ -18,6 +18,7 @@ on:
         options:
         - dev
         - uat
+        - prod
 jobs:
   setup:
     runs-on: ubuntu-22.04
@@ -32,20 +33,20 @@ jobs:
           echo "event name ${{ github.event_name }}"
           
 
-          if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"},{\"environment\":\"prod\", \"env_short\": \"p\"}]}"
-          elif [ ${{ github.event.inputs.environment == 'uat' }} == true  ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\", \"env_short\": \"u\"}]}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"env_short\": \"d\"}]}"        
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
-          echo "matrixStringifiedObject $matrixStringifiedObject"
-          echo "matrix ${matrix}"
-  
+          
   deploy:
-    name: "Deploy on ECS"
+    name: Deploy on ECS ${{ matrix.environment }}-${{ matrix.region }}
     if: ${{ needs.setup.outputs.matrix != '' }}
     needs: setup
     runs-on: ubuntu-22.04
@@ -56,9 +57,11 @@ jobs:
         matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
          
     continue-on-error: false
-    environment: ${{ matrix.environment }}
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_REGION: ${{ matrix.region }}
+      ENV_SHORT:  ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[matrix.environment] }}
+      REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
 
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -67,7 +70,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_ECS }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
       
       - name: Login to Amazon ECR
         id: login-ecr
@@ -89,7 +92,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-          --task-definition oneid-es-1-${{ matrix.env_short }}-core  \
+          --task-definition oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core  \
           --query taskDefinition > ./task-definition.json
           echo $(cat ./task-definition.json | jq 'del(
                   .taskDefinitionArn,
@@ -113,8 +116,8 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.11
         with:
          task-definition: ${{ steps.task-def.outputs.task-definition }}
-         service: oneid-es-1-${{ matrix.env_short }}-core
-         cluster: oneid-es-1-${{ matrix.env_short }}-ecs
+         service: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core
+         cluster: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-ecs
          wait-for-service-stability: true
 
   # release:
