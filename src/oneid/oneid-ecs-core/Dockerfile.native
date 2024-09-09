@@ -1,5 +1,5 @@
 ## Stage 1 : build with maven builder image with native capabilities
-FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21 AS build
+FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:5f2a1c5004b1fd7996d8a04c8e8798db57827fbd92629690ec6a7ffe319993ac AS build
 # Copy all needed files and directories
 # Parent pom
 COPY  --chown=quarkus:quarkus ../pom.xml /code/
@@ -18,7 +18,7 @@ WORKDIR /code
 RUN ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate,native
 
 ## Stage 2 : create the docker final image
-FROM quay.io/quarkus/quarkus-micro-image:2.0
+FROM quay.io/quarkus/quarkus-micro-image:2.0@sha256:bcf061654314f88907f07fd91232925cf7c11360c142de36f4c7db05512934f1
 WORKDIR /work/
 COPY --from=build /code/oneid-ecs-core/target/*-runner /work/application
 

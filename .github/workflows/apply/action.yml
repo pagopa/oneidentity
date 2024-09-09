@@ -16,7 +16,7 @@ runs:
   using: "composite"
   steps:
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v3
+      uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # v3
       with:
         role-to-assume: ${{ inputs.iam_role }}
         aws-region: ${{ inputs.region }}
@@ -29,7 +29,7 @@ runs:
         echo "TERRAFORM_VERSION=`cat ../../.terraform-version`" >> $GITHUB_ENV
   
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
