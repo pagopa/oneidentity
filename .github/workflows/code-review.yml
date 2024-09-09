@@ -34,6 +34,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Prepare SonarCloud analysis configuration
+        working-directory: src/oneid
         run: >
           mvn -Bclean verify
           -P oneid-all
@@ -49,6 +50,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
+        working-directory: src/oneid
         run: >
           mvn -B sonar:sonar
           -P oneid-all
