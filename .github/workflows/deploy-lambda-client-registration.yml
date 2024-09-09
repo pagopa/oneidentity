@@ -17,7 +17,31 @@ on:
         options:
           - dev
           - uat
+          - prod
 jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
+      
+    steps:
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+  
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
+          fi
+
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
   build:
     runs-on: ubuntu-22.04
 
@@ -42,11 +66,19 @@ jobs:
           path: ./src/oneid/oneid-lambda-client-registration/target/function.zip
 
   deploy:
+    name: Deploy lambda client registration ${{ matrix.environment }}-${{ matrix.region }}
+    if: ${{ needs.setup.outputs.matrix != '' }}
     runs-on: ubuntu-22.04
-    needs: build
-    environment: ${{ github.event.inputs.environment }}
+    needs: [setup, build]
+    
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+       
+    continue-on-error: false
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
       ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[github.event.inputs.environment] }}
+      REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
     permissions:
       id-token: write
       contents: read
@@ -62,10 +94,10 @@ jobs:
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
       with:
         role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: ${{ matrix.region }}
 
-    - name: Deploy Lambda function (${{ github.event.inputs.environment }})
+    - name: Deploy Lambda function (${{ github.event.inputs.environment }} ${{ matrix.region }})
       run: |
         aws lambda update-function-code \
-        --function-name oneid-es-1-${{ env.ENV_SHORT }}-client-registration \
+        --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-client-registration \
         --zip-file fileb://src/oneid/oneid-lambda-client-registration/target/function.zip
