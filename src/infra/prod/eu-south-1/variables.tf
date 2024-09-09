@@ -104,7 +104,7 @@ variable "ecs_oneid_core" {
     autoscaling = {
       enable        = true
       desired_count = 3
-      min_capacity  = 1
+      min_capacity  = 3
       max_capacity  = 12
     }
     logs_retention_days = 30
