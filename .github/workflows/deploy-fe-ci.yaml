@@ -17,6 +17,7 @@ on:
         options:
         - dev
         - uat
+        - prod
 
 jobs:
   setup:
@@ -31,10 +32,14 @@ jobs:
           echo "github.ref ${{ github.ref }}"
           echo "event name ${{ github.event_name }}"
 
-          if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\"},{\"environment\":\"prod\"}]}"
-          elif [ ${{ github.event_name == 'workflow_dispatch' }} == true ] ; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment}}\" }]}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
