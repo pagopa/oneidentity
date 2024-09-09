@@ -76,7 +76,7 @@ jobs:
         matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
          
       continue-on-error: false
-      environment: ${{ matrix.environment, matrix.region }}
+      environment: ${{ matrix.environment }}
   
       steps:
       - name: Download build artifacts
