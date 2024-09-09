@@ -65,7 +65,7 @@ jobs:
           path: ./src/oneid/oneid-lambda-assertion/target/assertion-lambda.zip
  
   deploy:
-    name: Deploy lambda assetions ${{ matrix.environment }}-${{ matrix.region }}
+    name: Deploy lambda assertions ${{ matrix.environment }}-${{ matrix.region }}
     if: ${{ needs.setup.outputs.matrix != '' }}
     runs-on: ubuntu-22.04
     needs: [setup, build]
