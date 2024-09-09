@@ -50,6 +50,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
+
         working-directory: src/oneid
         run: >
           mvn -B sonar:sonar
