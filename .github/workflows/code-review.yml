@@ -35,9 +35,9 @@ jobs:
           java-version: '21'
       - name: Prepare SonarCloud analysis configuration
         run: >
-          mvn -Bclean org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report org.jacoco:jacoco-maven-plugin:report-aggregate
+          mvn -Bclean verify
+          -P oneid-all
           -DpublishJUnitResults=true
-          -DtestResultsFiles='**/surefire-reports/TEST-*.xml'
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
           -DmavenAuthenticateFeed=false
@@ -48,15 +48,16 @@ jobs:
           xmlReportPaths=$(find "$(pwd)" -path '*jacoco.xml' | sed 's/.*/&/' | tr '\n' ','); echo "##vso[task.setvariable variable=xmlReportPaths]$xmlReportPaths"
 
       - name: Analyze with SonarCloud
+        #todo add ignored files
         run: >
           mvn -B sonar:sonar
+          -P oneid-all
           -Dsonar.coverage.jacoco.xmlReportPaths=$xmlReportPaths
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
           -Dsonar.host.url=https://sonarcloud.io 
           -Dsonar.login=$SONAR_TOKEN
-          -Dsonar.exclusions='**/enums/**, **/model/**, **/*Constant*, **/*Config.java, **/*Scheduler.java, **/*Application.java, **/src/test/**, **/Dummy*.java'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
