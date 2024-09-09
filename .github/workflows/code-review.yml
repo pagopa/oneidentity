@@ -41,6 +41,7 @@ jobs:
           -DpublishJUnitResults=true
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
+          -DtestResultsFiles='**/surefire-reports/TEST-*.xml'
           -DmavenAuthenticateFeed=false
           -DeffectivePomSkip=false
           -DsonarQubeRunAnalysis=false
@@ -50,7 +51,6 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
-
         working-directory: src/oneid
         run: >
           mvn -B sonar:sonar
