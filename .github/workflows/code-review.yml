@@ -55,7 +55,7 @@ jobs:
         run: >
           mvn -B sonar:sonar
           -P oneid-all
-          -Dsonar.coverage.jacoco.xmlReportPaths=$xmlReportPaths
+          -Dsonar.coverage.jacoco.xmlReportPaths="/home/runner/work/oneidentity/oneidentity/src/oneid/target/coverage/jacoco.xml"
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
