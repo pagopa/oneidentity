@@ -49,15 +49,6 @@ jobs:
         run: |
           xmlReportPaths=$(find "$(pwd)" -path '*jacoco.xml' | sed 's/.*/&/' | tr '\n' ','); echo "##vso[task.setvariable variable=xmlReportPaths]$xmlReportPaths"
 
-      - name: echo variable 1
-        run: |
-          echo $xmlReportPaths
-
-      - name: echo variable 2
-        working-directory: src/oneid
-        run: |
-          echo $xmlReportPaths
-
       - name: Analyze with SonarCloud
         #todo add ignored files
         working-directory: src/oneid
