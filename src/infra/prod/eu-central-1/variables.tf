@@ -1,13 +1,13 @@
 variable "aws_region" {
   type        = string
   description = "AWS region to create resources. Default Milan"
-  default     = "eu-south-1"
+  default     = "eu-central-1"
 }
 
 variable "aws_region_short" {
   type        = string
   description = "AWS region short format."
-  default     = "es-1"
+  default     = "ec-1"
 }
 
 variable "app_name" {
