@@ -17,23 +17,39 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
+      
+    steps:
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+  
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
+          fi
+
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+
   terraform:
     name: "terraform-apply-${{ matrix.environment }}"
+    if: ${{ needs.setup.outputs.matrix != '' }}
     runs-on: ubuntu-22.04
+    needs: setup
     strategy:
-      matrix:
-        include:
-          - environment: dev
-            region: eu-south-1          
-          - environment: uat
-            region: eu-south-1
-          - environment: prod
-            region: eu-south-1          
-          #- environment: prod
-          #  region: eu-central-1
-
-    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
   
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
       WORKING_DIR: src/infra/${{ matrix.environment }}/eu-south-1
       AWS_REGION: ${{ matrix.region }}
@@ -46,5 +62,5 @@ jobs:
         uses: ./.github/workflows/apply
         with:
           working-directory: ${{ env.WORKING_DIR }}
-          region: ${{ env.AWS_REGION }}
+          region: ${{ matrix.region }}
           iam_role: ${{ vars.IAM_ROLE_IAC }}
