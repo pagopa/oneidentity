@@ -17,6 +17,7 @@ on:
         options:
         - dev
         - uat
+        - prod
 
 jobs:
   setup:
@@ -31,10 +32,14 @@ jobs:
           echo "github.ref ${{ github.ref }}"
           echo "event name ${{ github.event_name }}"
 
-          if [ ${{ github.ref == 'refs/heads/main' }} == true ] && [ ${{ github.event_name != 'workflow_dispatch' }} == true ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"uat\"},{\"environment\":\"prod\"}]}"
-          elif [ ${{ github.event_name == 'workflow_dispatch' }} == true ] ; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment}}\" }]}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
@@ -71,7 +76,7 @@ jobs:
         matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
          
       continue-on-error: false
-      environment: ${{ matrix.environment }}
+      environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
   
       steps:
       - name: Download build artifacts
@@ -85,7 +90,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_FE }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
    
       - name: Copy to S3
         run: |
