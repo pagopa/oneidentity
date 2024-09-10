@@ -65,6 +65,7 @@
 | <a name="module_dev_ns_record"></a> [dev\_ns\_record](#module\_dev\_ns\_record) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
 | <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
+| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../modules/monitoring | n/a |
 | <a name="module_network"></a> [network](#module\_network) | ../../modules/network | n/a |
 | <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../../modules/dns | n/a |
 | <a name="module_sns"></a> [sns](#module\_sns) | ../../modules/sns | n/a |

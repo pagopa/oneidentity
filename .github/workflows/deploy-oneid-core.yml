@@ -74,7 +74,7 @@ jobs:
       
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -106,14 +106,14 @@ jobs:
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1.2.0
+        uses: aws-actions/amazon-ecs-render-task-definition@4225e0b507142a2e432b018bc3ccb728559b437a # v1.2.0
         with:
           task-definition: ./task-definition.json
           container-name: oneid-core
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.4.11
+        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a # v1.4.11
         with:
          task-definition: ${{ steps.task-def.outputs.task-definition }}
          service: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core

@@ -2,7 +2,7 @@ version: "3.9"
 services:
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
+    image: "amazon/dynamodb-local:latest@sha256:d7ebddeb60fa418bcda218a6c6a402a58441b2a20d54c9cb1d85fd5194341753"
     container_name: dynamodb-local
     ports:
       - "8000:8000"
@@ -27,6 +27,6 @@ services:
       AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
       REGION: "eu-south-1"
   spid-saml-check:
-    image: "italia/spid-saml-check:1.10.6"
+    image: "italia/spid-saml-check:1.10.6@sha256:3c659836344b743f8e1f66d01b0fd336a8893386959a87173fc92d9966a9a289"
     ports:
       - "8443:8443"
