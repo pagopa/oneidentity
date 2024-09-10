@@ -301,66 +301,6 @@
           }
       },
       {
-          "height": 6,
-          "width": 8,
-          "y": 50,
-          "x": 0,
-          "type": "metric",
-          "properties": {
-              "view": "timeSeries",
-              "stacked": false,
-              "metrics": [
-                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ]
-              ],
-              "region": "${aws_region}"
-          }
-      },
-      {
-          "height": 6,
-          "width": 8,
-          "y": 50,
-          "x": 8,
-          "type": "metric",
-          "properties": {
-              "view": "timeSeries",
-              "stacked": false,
-              "metrics": [
-                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET" ],
-                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
-              ],
-              "region": "${aws_region}"
-          }
-      },
-      {
-          "height": 6,
-          "width": 8,
-          "y": 50,
-          "x": 16,
-          "type": "metric",
-          "properties": {
-              "metrics": [
-                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
-                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/login", "Stage", "v1", "Method", "GET", { "id": "m1", "region": "${aws_region}" } ],
-                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".", { "id": "m2", "region": "${aws_region}" } ]
-              ],
-              "view": "timeSeries",
-              "stacked": false,
-              "region": "${aws_region}",
-              "stat": "Average",
-              "period": 300
-          }
-      },
-      {
-          "height": 1,
-          "width": 24,
-          "y": 49,
-          "x": 0,
-          "type": "text",
-          "properties": {
-              "markdown": "## /login"
-          }
-      },
-      {
           "height": 1,
           "width": 24,
           "y": 42,
@@ -465,11 +405,11 @@
           }
       },
       {
-          "type": "metric",
-          "x": 16,
-          "y": 36,
-          "width": 8,
           "height": 6,
+          "width": 8,
+          "y": 36,
+          "x": 16,
+          "type": "metric",
           "properties": {
               "view": "timeSeries",
               "stacked": false,
