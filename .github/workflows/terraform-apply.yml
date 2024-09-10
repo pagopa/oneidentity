@@ -2,6 +2,16 @@ name: Terraform Apply
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose environment'
+        type: choice
+        required: true
+        default: dev
+        options:
+        - dev
+        - uat
+        - prod
   push:
     branches:
       - 'main'
