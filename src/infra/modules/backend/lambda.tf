@@ -252,22 +252,23 @@ module "assertion_lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  alarm_name = format("%s-%s-Lambda-%s", module.assertion_lambda.lambda_function_name, var.lambda_alarms.metric_name,
-  var.lambda_alarms.threshold)
-  comparison_operator = var.lambda_alarms.comparison_operator
-  evaluation_periods  = var.lambda_alarms.evaluation_periods
-  metric_name         = var.lambda_alarms.metric_name
-  namespace           = var.lambda_alarms.namespace
-  period              = var.lambda_alarms.period
-  statistic           = var.lambda_alarms.statistic
-  threshold           = var.lambda_alarms.threshold
-  treat_missing_data  = var.lambda_alarms.treat_missing_data
+  for_each = var.lambda_alarms
+  alarm_name = format("%s-%s-Lambda-%s", each.value.lambda_function_name, each.value.metric_name,
+  each.value.threshold)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
+  treat_missing_data  = each.value.treat_missing_data
 
   dimensions = {
-    FunctionName = module.assertion_lambda.lambda_function_name
+    FunctionName = each.value.lambda_function_name
   }
 
-  alarm_actions = [var.lambda_alarms.sns_topic_alarm_arn]
+  alarm_actions = [each.value.sns_topic_alarm_arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {

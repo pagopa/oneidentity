@@ -305,7 +305,8 @@ variable "ecs_alarms" {
 }
 
 variable "lambda_alarms" {
-  type = object({
+  type = map(object({
+    lambda_function_name = optional(string)
     metric_name         = string
     namespace           = string
     threshold           = optional(number)
@@ -315,18 +316,42 @@ variable "lambda_alarms" {
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
     treat_missing_data  = optional(string)
-  })
+  }))
 
   default = {
-
-    metric_name         = "Errors"
-    namespace           = "AWS/Lambda"
-    threshold           = 1
-    evaluation_periods  = 1
-    comparison_operator = "GreaterThanOrEqualToThreshold"
-    period              = 300
-    statistic           = "Sum"
-    treat_missing_data  = "notBreaching"
+   "lambda-assertion-error" = {
+     lambda_function_name = "oneid-es-1-d-assertion"
+     metric_name          = "Errors"
+     namespace            = "AWS/Lambda"
+     threshold            = 1
+     evaluation_periods   = 1
+     comparison_operator  = "GreaterThanOrEqualToThreshold"
+     period               = 300
+     statistic            = "Sum"
+     treat_missing_data   = "notBreaching"
+    },
+    "lambda-metadata-error" = {
+     lambda_function_name = "oneid-es-1-d-metadata"
+     metric_name          = "Errors"
+     namespace            = "AWS/Lambda"
+     threshold            = 1
+     evaluation_periods   = 1
+     comparison_operator  = "GreaterThanOrEqualToThreshold"
+     period               = 300
+     statistic            = "Sum"
+     treat_missing_data   = "notBreaching"
+    },
+    "lambda-client-error" = {
+     lambda_function_name = "oneid-es-1-d-client-registration"
+     metric_name          = "Errors"
+     namespace            = "AWS/Lambda"
+     threshold            = 1
+     evaluation_periods   = 1
+     comparison_operator  = "GreaterThanOrEqualToThreshold"
+     period               = 300
+     statistic            = "Sum"
+     treat_missing_data   = "notBreaching"
+    },
   }
 }
 
