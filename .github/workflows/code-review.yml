@@ -34,9 +34,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Prepare SonarCloud analysis configuration
-        working-directory: src/oneid
         run: >
           mvn -Bclean verify
+          -f src/oneid/pom.xml
           -P oneid-all
           -DpublishJUnitResults=true
           -DjavaHomeOption='JDKVersion'
@@ -51,11 +51,11 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
-        working-directory: src/oneid
         run: >
           mvn -B sonar:sonar
+          -f src/oneid/pom.xml
           -P oneid-all
-          -Dsonar.coverage.jacoco.xmlReportPaths="/home/runner/work/oneidentity/oneidentity/src/oneid/target/coverage/jacoco.xml"
+          -Dsonar.coverage.jacoco.xmlReportPaths=$xmlReportPaths
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
