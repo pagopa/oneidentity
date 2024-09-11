@@ -27,8 +27,11 @@ public class IDP {
 
   @Getter(onMethod_ = @DynamoDbSortKey)
   @NotNull
+  private String pointer;
+
+  @NotNull
   private long timestamp;
-  
+
   @NotNull
   private boolean isActive;
 
