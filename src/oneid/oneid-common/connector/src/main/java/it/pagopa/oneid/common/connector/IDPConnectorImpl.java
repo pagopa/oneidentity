@@ -35,6 +35,7 @@ public class IDPConnectorImpl implements IDPConnector {
   public Optional<ArrayList<IDP>> findIDPsByTimestamp(String timestamp) {
     ArrayList<IDP> idps = new ArrayList<>();
 
+    // TODO: if we want to avoid a Scan on this table we should add an index on the pointer field
     ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest
         .builder()
         .filterExpression(Expression.builder()
