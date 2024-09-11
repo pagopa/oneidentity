@@ -71,7 +71,7 @@ public class DummyController {
   @GET
   @Path("/testInvoke")
   public Response testInvoke() throws CertificateException {
-    String key = "spid-23456.xml";
+    String key = "spid-123456.xml";
     String metadataContent = idpMetadataServiceImpl.getMetadataFile(key);
     MetadataType metadataType;
     LatestTAG latestTAG;
@@ -98,7 +98,7 @@ public class DummyController {
 
     entityIDs.stream().forEach(entity -> {
       IDP test = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entity,
-          LATEST_TAG_CIE).get();
+          LATEST_TAG_SPID).get();
 
       String certb64 = test.getCertificates().iterator().next();
 

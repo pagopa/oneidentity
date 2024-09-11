@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 @Getter
@@ -25,7 +26,10 @@ public class IDP {
   @NotNull
   private String entityID;
 
-  @Getter(onMethod_ = @DynamoDbSortKey)
+  @Getter(onMethod_ = {
+      @DynamoDbSortKey,
+      @DynamoDbSecondaryPartitionKey(indexNames = "gsi_pointer_idx"),
+  })
   @NotNull
   private String pointer;
 

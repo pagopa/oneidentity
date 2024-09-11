@@ -1,33 +1,36 @@
 package it.pagopa.oneid.common.connector;
 
-import static software.amazon.awssdk.enhanced.dynamodb.internal.AttributeValues.stringValue;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
-import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 
 @ApplicationScoped
 public class IDPConnectorImpl implements IDPConnector {
 
   private final DynamoDbTable<IDP> idpMapper;
+  private final DynamoDbIndex<IDP> idpIndexMapper;
 
 
   @Inject
   IDPConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
-      @ConfigProperty(name = "idp_table_name") String TABLE_NAME) {
+      @ConfigProperty(name = "idp_table_name") String TABLE_NAME,
+      @ConfigProperty(name = "idp_g_idx") String IDX_NAME) {
     idpMapper = dynamoDbEnhancedClient.table(TABLE_NAME, TableSchema.fromBean(IDP.class));
+    idpIndexMapper = idpMapper.index(IDX_NAME);
   }
 
   // TODO: check how we can improve this method usability
@@ -35,21 +38,15 @@ public class IDPConnectorImpl implements IDPConnector {
   public Optional<ArrayList<IDP>> findIDPsByTimestamp(String timestamp) {
     ArrayList<IDP> idps = new ArrayList<>();
 
-    // TODO: if we want to avoid a Scan on this table we should add an index on the pointer field
-    ScanEnhancedRequest scanEnhancedRequest = ScanEnhancedRequest
+    QueryEnhancedRequest queryEnhancedRequest = QueryEnhancedRequest
         .builder()
-        .filterExpression(Expression.builder()
-            .expression("pointer = :pointer")
-            .expressionValues(Map.of(":pointer", stringValue(timestamp)))
-            .build())
+        .queryConditional(
+            QueryConditional.keyEqualTo(Key.builder().partitionValue(timestamp).build()))
         .build();
 
-    PageIterable<IDP> pagedResults = idpMapper.scan(scanEnhancedRequest);
+    SdkIterable<Page<IDP>> pagedResults = idpIndexMapper.query(queryEnhancedRequest);
 
-    pagedResults.items().stream()
-        .forEach(
-            idps::add
-        );
+    pagedResults.stream().forEach(page -> idps.addAll(page.items()));
 
     if (!idps.isEmpty()) {
       return Optional.of(idps);

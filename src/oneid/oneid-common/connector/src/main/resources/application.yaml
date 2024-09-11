@@ -26,3 +26,4 @@ quarkus:
 
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
 idp_table_name: ${IDP_TABLE_NAME:IDPMetadata}
+idp_g_idx: ${IDP_G_IDX:gsi_pointer_idx}

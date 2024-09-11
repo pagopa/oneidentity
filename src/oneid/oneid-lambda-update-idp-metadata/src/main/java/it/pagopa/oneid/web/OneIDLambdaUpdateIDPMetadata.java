@@ -32,15 +32,4 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<S3Event, Str
   }
 }
 
-metadata
-spid
-cie
-test
-timestamp_data {
-  "spid" -> timestamp
-  "cie" -> timestamp
-  "
-}
-
-load
- */
+*/
