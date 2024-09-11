@@ -33,25 +33,6 @@ import {
 }
 
 import {
-  to = module.storage.aws_glue_crawler.assertions
-  id = "assertions"
-}
-
-/*
-import {
-  to = module.storage.aws_glue_catalog_database.assertions
-  id = "471112878885:assertions"
-}
-*/
-
-/*
-import {
-  to = module.storage.aws_iam_role.glue_assertions
-  id = "AWSGlueServiceRole-Assertions"
-}
-*/
-
-import {
   to = module.storage.aws_iam_role_policy_attachment.glue_s3_assertions_policy[0]
   id = "AWSGlueServiceRole-Assertions/arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
@@ -185,28 +166,8 @@ moved {
   to   = module.r53_zones.module.r53_zones.aws_route53_zone.this["dev.oneid.pagopa.it"]
 }
 
-moved {
-  from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket.this
-  to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket.this[0]
-}
 
 moved {
-  from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_acl.this
-  to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_acl.this[0]
+  from = module.storage.module.s3_athena_output_bucket
+  to   = module.storage.module.s3_athena_output_bucket[0]
 }
-
-moved {
-  from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_ownership_controls.this
-  to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_ownership_controls.this[0]
-}
-
-moved {
-  from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_public_access_block.this
-  to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_public_access_block.this[0]
-}
-
-moved {
-  from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_server_side_encryption_configuration.this
-  to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_server_side_encryption_configuration.this[0]
-}
-

@@ -37,3 +37,8 @@ moved {
   from = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_server_side_encryption_configuration.this
   to   = module.storage.module.s3_athena_output_bucket.aws_s3_bucket_server_side_encryption_configuration.this[0]
 }
+
+moved {
+  from = module.storage.module.s3_athena_output_bucket
+  to   = module.storage.module.s3_athena_output_bucket[0]
+}
