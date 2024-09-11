@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - "**/src/oneid/**"
+      - '!**/src/oneid/oneid-lambda-assertion'
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
   pull_request_target:
@@ -14,6 +15,7 @@ on:
       - synchronize
     paths:
       - "**/src/oneid/**"
+      - '!**/src/oneid/oneid-lambda-assertion'
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
 jobs:
@@ -48,7 +50,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
-        # todo use the variable $xmlReportPaths for the assignment of line 56
+        # todo use the variable $xmlReportPaths for the assignment of line 58
         run: >
           mvn -B sonar:sonar
           -f src/oneid/pom.xml
