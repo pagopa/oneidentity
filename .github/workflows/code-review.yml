@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "**/src/**"
+      - "**/src/oneid/**"
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
   pull_request_target:
@@ -13,7 +13,7 @@ on:
       - edited
       - synchronize
     paths:
-      - "**/src/**"
+      - "**/src/oneid/**"
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
 jobs:
@@ -48,7 +48,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         #todo add ignored files
-        # todo use the variable $xmlReportPaths for the assignment of line 59
+        # todo use the variable $xmlReportPaths for the assignment of line 56
         run: >
           mvn -B sonar:sonar
           -f src/oneid/pom.xml
