@@ -26,6 +26,12 @@ variable "account_id" {
   description = "AWS Account id."
 }
 
+variable "create_athena_table" {
+  type = bool
+  description = "Create athena table, query, glue crawler and all related resources."
+  default = true
+}
+
 variable "assertions_crawler_schedule" {
   type        = string
   description = "A cron expression used to specify the schedule"

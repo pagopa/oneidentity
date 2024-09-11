@@ -21,7 +21,7 @@ module "sns" {
   alarm_subscribers = var.alarm_subscribers
 }
 
-/*
+
 module "storage" {
   source = "../../modules/storage"
 
@@ -33,6 +33,7 @@ module "storage" {
     kms_multi_region          = var.assertion_bucket.kms_multi_region
     object_lock_configuration = var.assertion_bucket.object_lock_configuration
   }
+  create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
   assets_bucket_prefix = "assets"
@@ -40,6 +41,7 @@ module "storage" {
   account_id           = data.aws_caller_identity.current.account_id
 }
 
+/*
 ## Database ##  
 module "database" {
   source                     = "../../modules/database"

@@ -103,8 +103,8 @@ variable "ecs_oneid_core" {
     container_memory = 1024
     autoscaling = {
       enable        = true
-      desired_count = 3
-      min_capacity  = 3
+      desired_count = 1
+      min_capacity  = 1
       max_capacity  = 12
     }
     logs_retention_days = 30
@@ -156,7 +156,6 @@ variable "assertion_bucket" {
       }
     }
   }
-
 }
 
 variable "assertions_crawler_schedule" {
