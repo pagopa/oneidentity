@@ -25,3 +25,4 @@ quarkus:
         region: eu-south-1
 
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
+idp_table_name: ${IDP_TABLE_NAME:IDPMetadata}
