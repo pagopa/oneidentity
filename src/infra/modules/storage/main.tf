@@ -157,7 +157,7 @@ module "s3_assertions_bucket" {
 ## Athena ##
 
 module "s3_athena_output_bucket" {
-  count = var.create_athena_table ? 1 : 0 
+  count   = var.create_athena_table ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
@@ -183,8 +183,8 @@ module "s3_athena_output_bucket" {
 }
 
 resource "aws_athena_workgroup" "assertions_workgroup" {
-  count = var.create_athena_table ? 1 : 0 
-  name = "assertions_workgroup"
+  count = var.create_athena_table ? 1 : 0
+  name  = "assertions_workgroup"
 
   configuration {
     result_configuration {
@@ -195,7 +195,7 @@ resource "aws_athena_workgroup" "assertions_workgroup" {
 
 # Create Athena database
 resource "aws_athena_database" "assertions" {
-  count = var.create_athena_table ? 1 : 0 
+  count  = var.create_athena_table ? 1 : 0
   name   = "assertions"
   bucket = module.s3_athena_output_bucket[0].s3_bucket_id
 }
@@ -212,7 +212,7 @@ data "aws_iam_policy_document" "glue_assume_role_policy" {
 }
 
 resource "aws_iam_role" "glue_assertions" {
-  count = var.create_athena_table ? 1 : 0 
+  count              = var.create_athena_table ? 1 : 0
   name               = "AWSGlueServiceRole-Assertions"
   assume_role_policy = data.aws_iam_policy_document.glue_assume_role_policy.json
   path               = "/service-role/"
@@ -235,7 +235,7 @@ data "aws_iam_policy_document" "glue_assertions_policy" {
 }
 
 resource "aws_iam_policy" "glue_assertions_policy" {
-  count = var.create_athena_table ? 1 : 0 
+  count       = var.create_athena_table ? 1 : 0
   name        = "AWSGlueServiceRoleAssertionsS3Policy"
   description = "S3 bucket assertions policy for glue."
   policy      = data.aws_iam_policy_document.glue_assertions_policy.json
@@ -256,12 +256,12 @@ resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
 }
 
 resource "aws_glue_catalog_database" "assertions" {
-  count = var.create_athena_table == true ? 1 : 0 
-  name = "assertions"
+  count = var.create_athena_table == true ? 1 : 0
+  name  = "assertions"
 }
 
 resource "aws_glue_crawler" "assertions" {
-  count = var.create_athena_table == true ? 1 : 0 
+  count         = var.create_athena_table == true ? 1 : 0
   database_name = aws_glue_catalog_database.assertions[0].name
   name          = "assertions"
   role          = aws_iam_role.glue_assertions[0].arn

@@ -27,9 +27,9 @@ variable "account_id" {
 }
 
 variable "create_athena_table" {
-  type = bool
+  type        = bool
   description = "Create athena table, query, glue crawler and all related resources."
-  default = true
+  default     = true
 }
 
 variable "assertions_crawler_schedule" {
