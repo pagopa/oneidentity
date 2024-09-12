@@ -349,7 +349,7 @@ variable "lambda_alarms" {
   }))
 
   default = {
-    "oneid-es-1-p-assertion-error" = {
+    "oneid-es-1-p-assertion" = {
     },
     "oneid-es-1-p-metadata" = {},
     "oneid-es-1-p-client-registration" = {
