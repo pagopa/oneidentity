@@ -1,6 +1,4 @@
 package it.pagopa.oneid.web;
-// TODO : uncomment
-/*
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -12,7 +10,7 @@ import jakarta.inject.Inject;
 public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<S3Event, String> {
 
   @Inject
-  IDPMetadataServiceImpl idpMetadataService;
+  IDPMetadataServiceImpl idpMetadataServiceImpl;
 
   @Override
   public String handleRequest(S3Event s3Event, Context context) {
@@ -23,13 +21,13 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<S3Event, Str
     String srcKey = record.getS3().getObject().getUrlDecodedKey();
 
     // Retrieve file content by file name
-    String metadataContent = idpMetadataService.getMetadataFile(srcKey);
+    String metadataContent = idpMetadataServiceImpl.getMetadataFile(srcKey);
+
+    /* DummyController code*/
 
     // Update IDP Metadata table with parsed IDPMetadata information
-    idpMetadataService.updateIDPMetadata(idpMetadataService.parseIDPMetadata(metadataContent));
+    //idpMetadataServiceImpl.updateIDPMetadata(idpMetadataServiceImpl.parseIDPMetadata(metadataContent));
 
     return "Ok";
   }
 }
-
-*/

@@ -57,14 +57,14 @@ public class DummyController {
   @Path("/testSPIDLatest")
   @Produces({MediaType.APPLICATION_XML})
   public Response getDummyResponseSPID() {
-    return Response.ok(s3BucketIDPMetadataConnectorImpl.getMetadataFile("spid.xml").get()).build();
+    return Response.ok(s3BucketIDPMetadataConnectorImpl.getMetadataFile("spid.xml")).build();
   }
 
   @GET
   @Path("/testCIELatest")
   @Produces({MediaType.APPLICATION_XML})
   public Response getDummyResponseCIE() {
-    return Response.ok(s3BucketIDPMetadataConnectorImpl.getMetadataFile("cie.xml").get()).build();
+    return Response.ok(s3BucketIDPMetadataConnectorImpl.getMetadataFile("cie.xml")).build();
   }
 
 
@@ -75,6 +75,7 @@ public class DummyController {
     String metadataContent = idpMetadataServiceImpl.getMetadataFile(key);
     MetadataType metadataType;
     LatestTAG latestTAG;
+    // TODO: common
     String keyType = key.split("-")[0];
     long keyTimestamp = Long.parseLong(key.split("-")[1].split("\\.")[0]);
 
@@ -92,11 +93,17 @@ public class DummyController {
         keyTimestamp,
         metadataType);
 
+    final StringBuilder builder = getStringBuilder();
+
+    return Response.ok(builder.toString()).build();
+  }
+
+  private StringBuilder getStringBuilder() {
     ArrayList<String> entityIDs = getEntityIDs();
 
     final StringBuilder builder = new StringBuilder();
 
-    entityIDs.stream().forEach(entity -> {
+    entityIDs.forEach(entity -> {
       IDP test = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entity,
           LATEST_TAG_SPID).get();
 
@@ -120,7 +127,6 @@ public class DummyController {
       builder.append(cert.getSubjectX500Principal().getName()).append("\n");
 
     });
-
-    return Response.ok(builder.toString()).build();
+    return builder;
   }
 }
