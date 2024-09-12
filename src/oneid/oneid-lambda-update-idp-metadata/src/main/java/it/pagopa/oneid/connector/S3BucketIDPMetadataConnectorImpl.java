@@ -32,7 +32,6 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
   public String getMetadataFile(String fileName) {
     Log.debug("start");
     String result;
-    // TODO handle the S3Exceptions here?
     ResponseInputStream<GetObjectResponse> response = s3.getObject(buildGetRequest(fileName));
     try {
       result = IoUtils.toUtf8String(response);
