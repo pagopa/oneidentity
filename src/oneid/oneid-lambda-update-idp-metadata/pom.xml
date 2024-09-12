@@ -18,13 +18,10 @@
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>connector</artifactId>
         </dependency>
-        <!-- TODO: remove comment -->
-        <!--
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-amazon-lambda</artifactId>
         </dependency>
-        -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client-jackson</artifactId>
@@ -56,6 +53,10 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>url-connection-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
