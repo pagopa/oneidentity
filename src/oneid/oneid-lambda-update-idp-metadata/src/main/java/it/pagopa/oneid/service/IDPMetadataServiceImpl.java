@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.enums.MetadataType;
@@ -33,7 +34,7 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   IDPConnectorImpl idpConnectorImpl;
 
   @Override
-  public ArrayList<IDP> parseIDPMetadata(String idpMetadata, long timestamp, LatestTAG latestTAG) {
+  public ArrayList<IDP> parseIDPMetadata(String idpMetadata, IdpS3FileDTO idpS3FileDTO) {
     ArrayList<IDP> idpList = new ArrayList<>();
 
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -51,8 +52,8 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
         if (nodeEntityDescriptor.getNodeType() == Node.ELEMENT_NODE) {
           Element eElementEntityDescriptor = (Element) nodeEntityDescriptor;
           IDP idp = new IDP();
-          idp.setTimestamp(timestamp);
-          idp.setPointer(String.valueOf(latestTAG));
+          idp.setTimestamp(idpS3FileDTO.getTimestamp());
+          idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
           idp.setStatus(IDPStatus.OK);
           idp.setActive(true);
           // Save entityID
@@ -127,10 +128,9 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
-  public void updateIDPMetadata(ArrayList<IDP> idpMetadata, long updatedTimestamp,
-      MetadataType type) {
+  public void updateIDPMetadata(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
 
-    if (type.equals(MetadataType.SPID)) {
+    if (idpS3FileDTO.getMetadataType().equals(MetadataType.SPID)) {
       idpConnectorImpl.saveIDPs(idpMetadata, LatestTAG.LATEST_SPID);
     } else {
       idpConnectorImpl.saveIDPs(idpMetadata, LatestTAG.LATEST_CIE);
@@ -140,7 +140,6 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public String getMetadataFile(String fileName) {
-    // TODO: add custom exception
     return s3BucketIDPMetadataConnector.getMetadataFile(fileName);
   }
 }
