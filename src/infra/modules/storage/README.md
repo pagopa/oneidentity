@@ -94,8 +94,11 @@
 | [aws_glue_crawler.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/glue_crawler) | resource |
 | [aws_iam_policy.github_s3_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
+| [aws_iam_policy_attachment.replication](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_role.githubS3deploy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
 | [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role.replication](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.deploy_s3](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [random_integer.assertion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
@@ -108,11 +111,12 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | AWS Account id. | `string` | n/a | yes |
-| <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | n/a | <pre>object({<br>    name_prefix                     = string<br>    glacier_transaction_days        = number<br>    expiration_days                 = number<br>    mfa_delete                      = optional(bool, false)<br>    kms_key_deletion_window_in_days = optional(number, 10)<br>    kms_multi_region                = optional(bool, false)<br><br>    object_lock_legal_hold_status = optional(bool, false)<br>    object_lock_configuration     = optional(any, null)<br>    enable_key_rotation           = optional(bool, false)<br>  })</pre> | n/a | yes |
+| <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | n/a | <pre>object({<br>    name_prefix                     = string<br>    expiration_days                 = number<br>    mfa_delete                      = optional(bool, false)<br>    kms_key_deletion_window_in_days = optional(number, 10)<br>    kms_multi_region                = optional(bool, false)<br><br>    object_lock_legal_hold_status = optional(bool, false)<br>    object_lock_configuration     = optional(any, null)<br>    enable_key_rotation           = optional(bool, false)<br>    replication_configuration = optional(<br>      object({<br>        id                     = string<br>        destination_bucket_arn = string<br>        kms_key_replica_arn    = string<br>    }), null)<br>  })</pre> | n/a | yes |
 | <a name="input_assertions_crawler_schedule"></a> [assertions\_crawler\_schedule](#input\_assertions\_crawler\_schedule) | A cron expression used to specify the schedule | `string` | `null` | no |
 | <a name="input_assets_bucket_prefix"></a> [assets\_bucket\_prefix](#input\_assets\_bucket\_prefix) | n/a | `string` | n/a | yes |
 | <a name="input_create_athena_table"></a> [create\_athena\_table](#input\_create\_athena\_table) | Create athena table, query, glue crawler and all related resources. | `bool` | `true` | no |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | n/a | `string` | n/a | yes |
+| <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
 
 ## Outputs
 
