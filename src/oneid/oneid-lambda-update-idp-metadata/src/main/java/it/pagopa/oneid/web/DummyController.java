@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web;
 
+/*
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
@@ -130,3 +131,5 @@ public class DummyController {
     return builder;
   }
 }
+
+ */
