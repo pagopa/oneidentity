@@ -15,7 +15,7 @@ public class IdpS3FileDTO {
 
   LatestTAG latestTAG;
 
-  IdpS3FileDTO(String fileName) {
+  public IdpS3FileDTO(String fileName) {
 
     //todo can we do this better?
     String[] split = fileName.split("-");
