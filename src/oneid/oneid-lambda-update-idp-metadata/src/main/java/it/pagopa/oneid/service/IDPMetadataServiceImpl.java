@@ -141,6 +141,6 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   @Override
   public String getMetadataFile(String fileName) {
     // TODO: add custom exception
-    return s3BucketIDPMetadataConnector.getMetadataFile(fileName).orElseThrow();
+    return s3BucketIDPMetadataConnector.getMetadataFile(fileName);
   }
 }

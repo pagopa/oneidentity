@@ -4,7 +4,6 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -30,7 +29,7 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
   }
 
   @Override
-  public Optional<String> getMetadataFile(String fileName) {
+  public String getMetadataFile(String fileName) {
     Log.debug("start");
     String result;
     // TODO handle the S3Exceptions here?
@@ -43,7 +42,7 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
       throw new RuntimeException(e);
     }
 
-    return Optional.of(result);
+    return result;
   }
 
 
