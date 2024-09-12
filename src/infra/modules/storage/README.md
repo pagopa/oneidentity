@@ -121,5 +121,6 @@
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | n/a |
 | <a name="output_assets_bucket_arn"></a> [assets\_bucket\_arn](#output\_assets\_bucket\_arn) | n/a |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
+| <a name="output_deploy_assets_role"></a> [deploy\_assets\_role](#output\_deploy\_assets\_role) | n/a |
 | <a name="output_kms_assertion_key_arn"></a> [kms\_assertion\_key\_arn](#output\_kms\_assertion\_key\_arn) | n/a |
 <!-- END_TF_DOCS -->

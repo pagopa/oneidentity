@@ -36,6 +36,14 @@ output "assertions_bucket_arn" {
   value = module.storage.assertions_bucket_arn
 }
 
+output "kms_assertion_key_arn" {
+  value = module.storage.kms_assertion_key_arn
+}
+
+output "deploy_assets_role" {
+  value = module.storage.deploy_assets_role
+}
+
 output "assets_bucket_name" {
   value = module.storage.assets_bucket_name
 }

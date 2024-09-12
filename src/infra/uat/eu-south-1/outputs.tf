@@ -22,8 +22,6 @@ output "rest_api_invoke_url" {
   value = module.frontend.rest_api_invoke_url
 }
 
-
-
 ## DNS ##
 output "dns_zone_name_servers" {
   value = module.r53_zones.dns_zone_name_servers
@@ -41,6 +39,10 @@ output "assertions_bucket_arn" {
 
 output "assets_bucket_name" {
   value = module.storage.assets_bucket_name
+}
+
+output "deploy_assets_role" {
+  value = module.storage.deploy_assets_role
 }
 
 # Database

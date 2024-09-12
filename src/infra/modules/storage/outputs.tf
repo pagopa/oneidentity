@@ -16,3 +16,7 @@ output "assets_bucket_arn" {
 output "assets_bucket_name" {
   value = module.s3_assets_bucket.s3_bucket_id
 }
+
+output "deploy_assets_role" {
+  value = aws_iam_role.githubS3deploy.arn
+}
