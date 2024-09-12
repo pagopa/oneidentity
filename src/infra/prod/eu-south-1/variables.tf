@@ -338,51 +338,21 @@ variable "ecs_alarms" {
 
 variable "lambda_alarms" {
   type = map(object({
-    lambda_function_name = string
-    metric_name          = string
-    namespace            = string
-    threshold            = optional(number)
-    evaluation_periods   = optional(number)
-    period               = optional(number)
-    statistic            = optional(string)
-    comparison_operator  = optional(string)
-    sns_topic_alarm_arn  = optional(list(string))
-    treat_missing_data   = optional(string)
+    metric_name         = optional(string, "Errors")
+    namespace           = optional(string, "AWS/Lambda")
+    threshold           = optional(number, 1)
+    evaluation_periods  = optional(number, 1)
+    period              = optional(number, 300)
+    statistic           = optional(string, "Sum")
+    comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")
+    treat_missing_data  = optional(string, "notBreaching")
   }))
 
   default = {
-   "lambda-assertion-error" = {
-     lambda_function_name = "oneid-es-1-p-assertion"
-     metric_name          = "Errors"
-     namespace            = "AWS/Lambda"
-     threshold            = 1
-     evaluation_periods   = 1
-     comparison_operator  = "GreaterThanOrEqualToThreshold"
-     period               = 300
-     statistic            = "Sum"
-     treat_missing_data   = "notBreaching"
+    "lambda-oneid-es-1-p-assertion-error" = {
     },
-    "lambda-metadata-error" = {
-     lambda_function_name = "oneid-es-1-p-metadata"
-     metric_name          = "Errors"
-     namespace            = "AWS/Lambda"
-     threshold            = 1
-     evaluation_periods   = 1
-     comparison_operator  = "GreaterThanOrEqualToThreshold"
-     period               = 300
-     statistic            = "Sum"
-     treat_missing_data   = "notBreaching"
-    },
-    "lambda-client-error" = {
-     lambda_function_name = "oneid-es-1-p-client-registration"
-     metric_name          = "Errors"
-     namespace            = "AWS/Lambda"
-     threshold            = 1
-     evaluation_periods   = 1
-     comparison_operator  = "GreaterThanOrEqualToThreshold"
-     period               = 300
-     statistic            = "Sum"
-     treat_missing_data   = "notBreaching"
+    "oneid-es-1-p-metadata" = {},
+    "oneid-es-1-p-client-registration" = {
     },
   }
 }

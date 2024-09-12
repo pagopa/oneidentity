@@ -253,8 +253,8 @@ module "assertion_lambda" {
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   for_each = var.lambda_alarms
-  alarm_name = format("%s-%s-Lambda-%s", each.value.lambda_function_name, each.value.metric_name,
-  each.value.threshold)
+  alarm_name = lower(format("%s-%s-lambda-%s", each.key, each.value.metric_name,
+  each.value.threshold))
   comparison_operator = each.value.comparison_operator
   evaluation_periods  = each.value.evaluation_periods
   metric_name         = each.value.metric_name
@@ -265,7 +265,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   treat_missing_data  = each.value.treat_missing_data
 
   dimensions = {
-    FunctionName = each.value.lambda_function_name
+    FunctionName = each.key
   }
 
   alarm_actions = [each.value.sns_topic_alarm_arn]
