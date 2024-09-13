@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -151,21 +152,20 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
               Element eElementOrganization = (Element) nodeOrganization;
 
               // Get OrganizationDisplayName node list
-              NodeList nodeListOrganizationDisplayName = eElementOrganization.getElementsByTagNameNS(
-                  "*",
-                  "OrganizationDisplayName");
+              NodeList nodeListOrganizationName = eElementOrganization.getElementsByTagNameNS(
+                  "*", "OrganizationName");
 
-              for (int ww = 0; ww < nodeListOrganizationDisplayName.getLength(); w++) {
+              for (int x = 0; x < nodeListOrganizationName.getLength(); x++) {
 
-                Node nodeOrganizationDisplayName = nodeListOrganizationDisplayName.item(w);
-                if (nodeOrganizationDisplayName.getNodeType() == Node.ELEMENT_NODE) {
-                  Element eElementOrganizationDisplayName = (Element) nodeOrganizationDisplayName;
+                Node nodeOrganizationName = nodeListOrganizationName.item(x);
+                if (nodeOrganizationName.getNodeType() == Node.ELEMENT_NODE) {
+                  Element eElementOrganizationName = (Element) nodeOrganizationName;
 
-                  // We only need italian OrganizationDisplayName
-                  String xmlLang = eElementOrganizationDisplayName.getAttribute("xml:lang");
-                  if (xmlLang.equals("it")) {
-                    String organizationDisplayName = eElementOrganizationDisplayName.getTextContent();
-                    idp.setFriendlyName(organizationDisplayName);
+                  // Italian organization name or, if missing, English name is fine
+                  String xmlLang = eElementOrganizationName.getAttribute("xml:lang");
+                  if (xmlLang.equals("it") || xmlLang.equals("en")) {
+                    String organizationName = eElementOrganizationName.getTextContent();
+                    idp.setFriendlyName(organizationName);
                   }
                 }
               }
@@ -181,7 +181,7 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
       //endregion
 
     } catch (Exception e) {
-      Log.error("error parsing IDP metadata");
+      Log.error("error parsing IDP metadata " + ExceptionUtils.getStackTrace(e));
     }
 
     return idpList;
