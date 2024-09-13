@@ -138,6 +138,7 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
             }
           }
+          //endregion
 
           //region Organization - FriendlyName
 
@@ -145,34 +146,39 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
           NodeList nodeListOrganization = eElementEntityDescriptor.getElementsByTagNameNS("*",
               "Organization");
 
-          for (int w = 0; w < nodeListOrganization.getLength(); w++) {
+          // SPID - IdP
+          if (nodeListOrganization.getLength() != 0) {
+            // For each node of Organization
+            for (int w = 0; w < nodeListOrganization.getLength(); w++) {
 
-            Node nodeOrganization = nodeListOrganization.item(w);
-            if (nodeOrganization.getNodeType() == Node.ELEMENT_NODE) {
-              Element eElementOrganization = (Element) nodeOrganization;
+              Node nodeOrganization = nodeListOrganization.item(w);
+              if (nodeOrganization.getNodeType() == Node.ELEMENT_NODE) {
+                Element eElementOrganization = (Element) nodeOrganization;
 
-              // Get OrganizationDisplayName node list
-              NodeList nodeListOrganizationName = eElementOrganization.getElementsByTagNameNS(
-                  "*", "OrganizationName");
+                // Get OrganizationDisplayName node list
+                NodeList nodeListOrganizationName = eElementOrganization.getElementsByTagNameNS(
+                    "*", "OrganizationName");
 
-              for (int x = 0; x < nodeListOrganizationName.getLength(); x++) {
+                for (int x = 0; x < nodeListOrganizationName.getLength(); x++) {
 
-                Node nodeOrganizationName = nodeListOrganizationName.item(x);
-                if (nodeOrganizationName.getNodeType() == Node.ELEMENT_NODE) {
-                  Element eElementOrganizationName = (Element) nodeOrganizationName;
+                  Node nodeOrganizationName = nodeListOrganizationName.item(x);
+                  if (nodeOrganizationName.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElementOrganizationName = (Element) nodeOrganizationName;
 
-                  // Italian organization name or, if missing, English name is fine
-                  String xmlLang = eElementOrganizationName.getAttribute("xml:lang");
-                  if (xmlLang.equals("it") || xmlLang.equals("en")) {
-                    String organizationName = eElementOrganizationName.getTextContent();
-                    idp.setFriendlyName(organizationName);
+                    // Italian organization name or, if missing, English name is fine
+                    String xmlLang = eElementOrganizationName.getAttribute("xml:lang");
+                    if (xmlLang.equals("it") || xmlLang.equals("en")) {
+                      String organizationName = eElementOrganizationName.getTextContent();
+                      idp.setFriendlyName(organizationName);
+                    }
                   }
                 }
               }
             }
+          }// CiE - IdP
+          else {
+            idp.setFriendlyName("CIE");
           }
-          //endregion
-
           //endregion
 
           idpList.add(idp);
