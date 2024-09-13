@@ -45,24 +45,34 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
       Document doc = builder.parse(is);
       doc.getDocumentElement().normalize();
 
+      //region EntityDescriptor
       NodeList nodeList = doc.getElementsByTagNameNS("*", "EntityDescriptor");
 
+      // For each EntityDescriptor
       for (int parameter = 0; parameter < nodeList.getLength(); parameter++) {
+
         Node nodeEntityDescriptor = nodeList.item(parameter);
         if (nodeEntityDescriptor.getNodeType() == Node.ELEMENT_NODE) {
           Element eElementEntityDescriptor = (Element) nodeEntityDescriptor;
+
+          // Initialize IDP fields
           IDP idp = new IDP();
           idp.setTimestamp(idpS3FileDTO.getTimestamp());
           idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
           idp.setStatus(IDPStatus.OK);
           idp.setActive(true);
-          // Save entityID
+
+          // Get entityID from file
           String entityID = eElementEntityDescriptor.getAttribute("entityID");
           idp.setEntityID(entityID);
+
+          //region IDPSSODescriptor
           NodeList nodeListIDPSSODescriptor = eElementEntityDescriptor.getElementsByTagNameNS("*",
               "IDPSSODescriptor");
 
+          // For each node of IDPSSODescriptor
           for (int i = 0; i < nodeListIDPSSODescriptor.getLength(); i++) {
+
             Node nodeIDPSSODescriptor = nodeList.item(parameter);
             if (nodeIDPSSODescriptor.getNodeType() == Node.ELEMENT_NODE) {
               Element eElementIDPSSODescriptor = (Element) nodeIDPSSODescriptor;
@@ -70,26 +80,27 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
               // Get KeyDescriptor node list
               NodeList nodeListKeyDescriptor = eElementIDPSSODescriptor.getElementsByTagNameNS("*",
                   "KeyDescriptor");
-              // Get SingleSignOnService node list
-              NodeList nodeListSingleSignOnService = eElementIDPSSODescriptor.getElementsByTagNameNS(
-                  "*",
-                  "SingleSignOnService");
 
+              //region Certificates
               Set<String> certificates = new HashSet<>();
-              Map<String, String> idpSSOEndpoints = new HashMap<>();
 
+              // For each node of KeyDescriptor
               for (int j = 0; j < nodeListKeyDescriptor.getLength(); j++) {
+
                 Node nodeKeyDescriptor = nodeListKeyDescriptor.item(j);
                 if (nodeKeyDescriptor.getNodeType() == Node.ELEMENT_NODE) {
                   Element eElementKeyDescriptor = (Element) nodeKeyDescriptor;
+
                   String use = eElementKeyDescriptor.getAttribute("use");
                   // We only need certificates used for signing
                   if (use.equals("signing")) {
                     NodeList nodeListX509Certificate = eElementKeyDescriptor.getElementsByTagNameNS(
                         "*", "X509Certificate");
+
                     Node nodeX509Certificate = nodeListX509Certificate.item(0);
                     if (nodeX509Certificate.getNodeType() == Node.ELEMENT_NODE) {
                       Element eElementX509Certificate = (Element) nodeX509Certificate;
+
                       String certificate = eElementX509Certificate.getTextContent();
                       certificates.add(certificate);
                     }
@@ -97,13 +108,23 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
                   }
                 }
               }
-
               idp.setCertificates(certificates);
+              //endregion
 
+              //region IdpSSOEndpoints
+
+              // Get SingleSignOnService node list
+              NodeList nodeListSingleSignOnService = eElementIDPSSODescriptor.getElementsByTagNameNS(
+                  "*", "SingleSignOnService");
+              Map<String, String> idpSSOEndpoints = new HashMap<>();
+
+              // For each node of SingleSignOnService
               for (int z = 0; z < nodeListSingleSignOnService.getLength(); z++) {
+
                 Node nodeSingleSignOnService = nodeListSingleSignOnService.item(z);
                 if (nodeSingleSignOnService.getNodeType() == Node.ELEMENT_NODE) {
                   Element eElementSingleSignOnService = (Element) nodeSingleSignOnService;
+
                   String binding = eElementSingleSignOnService.getAttribute("Binding");
                   String location = eElementSingleSignOnService.getAttribute("Location");
                   idpSSOEndpoints.put(binding, location);
@@ -112,14 +133,53 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
               }
 
               idp.setIdpSSOEndpoints(idpSSOEndpoints);
-
+              //endregion
 
             }
-
           }
+
+          //region Organization - FriendlyName
+
+          // Get Organization node list
+          NodeList nodeListOrganization = eElementEntityDescriptor.getElementsByTagNameNS("*",
+              "Organization");
+
+          for (int w = 0; w < nodeListOrganization.getLength(); w++) {
+
+            Node nodeOrganization = nodeListOrganization.item(w);
+            if (nodeOrganization.getNodeType() == Node.ELEMENT_NODE) {
+              Element eElementOrganization = (Element) nodeOrganization;
+
+              // Get OrganizationDisplayName node list
+              NodeList nodeListOrganizationDisplayName = eElementOrganization.getElementsByTagNameNS(
+                  "*",
+                  "OrganizationDisplayName");
+
+              for (int ww = 0; ww < nodeListOrganizationDisplayName.getLength(); w++) {
+
+                Node nodeOrganizationDisplayName = nodeListOrganizationDisplayName.item(w);
+                if (nodeOrganizationDisplayName.getNodeType() == Node.ELEMENT_NODE) {
+                  Element eElementOrganizationDisplayName = (Element) nodeOrganizationDisplayName;
+
+                  // We only need italian OrganizationDisplayName
+                  String xmlLang = eElementOrganizationDisplayName.getAttribute("xml:lang");
+                  if (xmlLang.equals("it")) {
+                    String organizationDisplayName = eElementOrganizationDisplayName.getTextContent();
+                    idp.setFriendlyName(organizationDisplayName);
+                  }
+                }
+              }
+            }
+          }
+          //endregion
+
+          //endregion
+
           idpList.add(idp);
         }
       }
+      //endregion
+
     } catch (Exception e) {
       Log.error("error parsing IDP metadata");
     }

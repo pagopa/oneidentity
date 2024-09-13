@@ -48,4 +48,7 @@ public class IDP {
   @NotNull
   private Set<String> certificates;
 
+  @NotNull
+  private String friendlyName;
+
 }
