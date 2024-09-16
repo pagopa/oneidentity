@@ -230,7 +230,7 @@ module "idp_metadata_lambda" {
   policy_json           = data.aws_iam_policy_document.idp_metadata_lambda.json
   attach_network_policy = true
 
-  //environment_variables  = var.idp_metadata_lambda.environment_variables
+  environment_variables  = var.idp_metadata_lambda.environment_variables
   vpc_subnet_ids         = var.idp_metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_idp_metadata.security_group_id]
 

@@ -26,6 +26,14 @@ output "dynamodb_table_stream_arn" {
   value = module.dynamodb_sessions_table.dynamodb_table_stream_arn
 }
 
+output "table_idp_metadata_name" {
+  value = module.dynamodb_table_idpMetadata.dynamodb_table_id
+}
+
+output "table_idp_metadata_idx_name" {
+  value = local.gsi_pointer
+}
+
 output "table_idp_metadata_arn" {
   value = module.dynamodb_table_idpMetadata.dynamodb_table_arn
 }

@@ -171,7 +171,7 @@ variable "idp_metadata_lambda" {
   type = object({
     name                              = string
     filename                          = string
-   // environment_variables             = map(string)
+    environment_variables             = map(string)
     s3_idp_metadata_bucket_arn        = string
     s3_idp_metadata_bucket_id         = string
     vpc_id                            = string
