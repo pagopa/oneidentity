@@ -83,6 +83,7 @@
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assets_bucket"></a> [s3\_assets\_bucket](#module\_s3\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_s3_idp_metadata_bucket"></a> [s3\_idp\_metadata\_bucket](#module\_s3\_idp\_metadata\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
 
@@ -100,6 +101,7 @@
 | [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [random_integer.assertion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [random_integer.asset_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
+| [random_integer.idp_metadata_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
 
@@ -112,6 +114,7 @@
 | <a name="input_assertions_crawler_schedule"></a> [assertions\_crawler\_schedule](#input\_assertions\_crawler\_schedule) | A cron expression used to specify the schedule | `string` | `null` | no |
 | <a name="input_assets_bucket_prefix"></a> [assets\_bucket\_prefix](#input\_assets\_bucket\_prefix) | n/a | `string` | n/a | yes |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | n/a | `string` | n/a | yes |
+| <a name="input_idp_metadata_bucket_prefix"></a> [idp\_metadata\_bucket\_prefix](#input\_idp\_metadata\_bucket\_prefix) | n/a | `string` | n/a | yes |
 
 ## Outputs
 
@@ -122,5 +125,7 @@
 | <a name="output_assets_bucket_arn"></a> [assets\_bucket\_arn](#output\_assets\_bucket\_arn) | n/a |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
 | <a name="output_deploy_assets_role"></a> [deploy\_assets\_role](#output\_deploy\_assets\_role) | n/a |
+| <a name="output_idp_metadata_bucket_arn"></a> [idp\_metadata\_bucket\_arn](#output\_idp\_metadata\_bucket\_arn) | n/a |
 | <a name="output_kms_assertion_key_arn"></a> [kms\_assertion\_key\_arn](#output\_kms\_assertion\_key\_arn) | n/a |
+| <a name="output_s3_idp_metadata_bucket_name"></a> [s3\_idp\_metadata\_bucket\_name](#output\_s3\_idp\_metadata\_bucket\_name) | n/a |
 <!-- END_TF_DOCS -->
