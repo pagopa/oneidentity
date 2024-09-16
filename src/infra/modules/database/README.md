@@ -83,6 +83,8 @@ No resources.
 | <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
 | <a name="output_table_idpMetadata_gsi_pointer_arn"></a> [table\_idpMetadata\_gsi\_pointer\_arn](#output\_table\_idpMetadata\_gsi\_pointer\_arn) | n/a |
 | <a name="output_table_idp_metadata_arn"></a> [table\_idp\_metadata\_arn](#output\_table\_idp\_metadata\_arn) | n/a |
+| <a name="output_table_idp_metadata_idx_name"></a> [table\_idp\_metadata\_idx\_name](#output\_table\_idp\_metadata\_idx\_name) | n/a |
+| <a name="output_table_idp_metadata_name"></a> [table\_idp\_metadata\_name](#output\_table\_idp\_metadata\_name) | n/a |
 | <a name="output_table_sessions_arn"></a> [table\_sessions\_arn](#output\_table\_sessions\_arn) | n/a |
 | <a name="output_table_sessions_gsi_code_arn"></a> [table\_sessions\_gsi\_code\_arn](#output\_table\_sessions\_gsi\_code\_arn) | n/a |
 | <a name="output_table_sessions_name"></a> [table\_sessions\_name](#output\_table\_sessions\_name) | n/a |
