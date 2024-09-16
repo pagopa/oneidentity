@@ -217,6 +217,16 @@ variable "client_registrations_table" {
   }
 }
 
+variable "idp_metadata_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "IDP Metadata configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 # DNS
 variable "dns_record_ttl" {
   type        = number

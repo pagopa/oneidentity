@@ -79,6 +79,14 @@ variable "dynamodb_table_sessions" {
   description = "Dynamodb table sessions anrs"
 }
 
+variable "dynamodb_table_idpMetadata" {
+  type = object({
+    table_arn    = string
+    gsi_pointer_arn = string
+  })
+  description = "Dynamodb table idpMetadata anrs"
+}
+
 
 variable "table_client_registrations_arn" {
   type        = string
@@ -157,6 +165,20 @@ variable "assertion_lambda" {
     vpc_subnet_ids                    = list(string)
     vpc_id                            = string
   })
+}
+
+variable "idp_metadata_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    environment_variables             = map(string)
+    s3_idp_metadata_bucket_arn        = string
+    s3_idp_metadata_bucket_id         = string
+    vpc_id                            = string
+    vpc_subnet_ids                    = list(string)
+    cloudwatch_logs_retention_in_days = number
+  })
+
 }
 
 variable "eventbridge_pipe_sessions" {
