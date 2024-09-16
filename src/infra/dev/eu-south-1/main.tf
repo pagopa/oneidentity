@@ -80,10 +80,10 @@ module "storage" {
     enable_key_rotation      = true
   }
   assertions_crawler_schedule = var.assertions_crawler_schedule
-
-  assets_bucket_prefix = "assets"
-  github_repository    = "pagopa/oneidentity"
-  account_id           = data.aws_caller_identity.current.account_id
+  idp_metadata_bucket_prefix  = "idp-metadata"
+  assets_bucket_prefix        = "assets"
+  github_repository           = "pagopa/oneidentity"
+  account_id                  = data.aws_caller_identity.current.account_id
 }
 module "sns" {
   source            = "../../modules/sns"
@@ -232,6 +232,21 @@ module "backend" {
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
+
+  idp_metadata_lambda = {
+    name                              = format("%s-update-idp-metadata", local.project)
+    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
+    s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+  }
+
+  dynamodb_table_idpMetadata = {
+    gsi_pointer_arn = module.database.table_idp_metadata_arn
+    table_arn = module.database.table_idpMetadata_gsi_pointer_arn
+  }
 }
 
 module "spid_validator" {
@@ -287,6 +302,7 @@ module "database" {
   source                     = "../../modules/database"
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
+  idp_metadata_table         = var.idp_metadata_table
 }
 
 

@@ -25,3 +25,12 @@ output "kms_sessions_table_alias_arn" {
 output "dynamodb_table_stream_arn" {
   value = module.dynamodb_sessions_table.dynamodb_table_stream_arn
 }
+
+output "table_idp_metadata_arn" {
+  value = module.dynamodb_table_idpMetadata.dynamodb_table_arn
+}
+
+output "table_idpMetadata_gsi_pointer_arn" {
+  value = "${module.dynamodb_table_idpMetadata.dynamodb_table_arn}/index/${local.gsi_pointer}"
+}
+

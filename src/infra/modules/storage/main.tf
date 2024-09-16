@@ -8,6 +8,11 @@ resource "random_integer" "asset_bucket_suffix" {
   max = 9999
 }
 
+resource "random_integer" "idp_metadata_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 locals {
   bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
@@ -15,6 +20,8 @@ locals {
   athena_outputs = format("query-%s", local.bucket_name)
   assets_bucket = format("%s-%s", var.assets_bucket_prefix,
   random_integer.asset_bucket_suffix.result)
+  idp_metadata_bucket = format("%s-%s", var.idp_metadata_bucket_prefix,
+  random_integer.idp_metadata_bucket_suffix.result)
 }
 
 module "kms_assertions_bucket" {
@@ -42,6 +49,21 @@ module "s3_assets_bucket" {
 
   tags = {
     Name = local.assets_bucket
+  }
+}
+
+module "s3_idp_metadata_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.idp_metadata_bucket
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  tags = {
+    Name = local.idp_metadata_bucket
   }
 }
 
