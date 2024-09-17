@@ -1,5 +1,8 @@
 package it.pagopa.oneid.common.connector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import io.quarkus.test.junit.QuarkusTest;
@@ -130,7 +133,56 @@ class IDPConnectorImplTest {
     //then
     idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
 
-    //todo maybe add some check on db?
+    IDP savedIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
+        String.valueOf(LatestTAG.LATEST_SPID)).get();
+
+    assertEquals(savedIdp.getPointer(), String.valueOf(LatestTAG.LATEST_SPID));
+
+  }
+
+  @Test
+  void saveIDPs_alreadyExistingEntry() {
+
+    //given
+    String entityId = "test";
+    String pointer = LatestTAG.LATEST_SPID.toString();
+    long timestamp = 12345;
+    boolean isActive = true;
+    IDPStatus idpStatus = IDPStatus.OK;
+    Map<String, String> idpSSOEndpoint = Collections.singletonMap("test", "test");
+    Set<String> certificates = Collections.singleton("test");
+    String friendlyName = "test";
+
+    IDP idp = new IDP(entityId, pointer, timestamp, isActive, idpStatus, idpSSOEndpoint,
+        certificates, friendlyName);
+
+    ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(idp));
+
+    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
+
+    IDP savedIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
+        String.valueOf(LatestTAG.LATEST_SPID)).get();
+
+    assertEquals(savedIdp.getPointer(), String.valueOf(LatestTAG.LATEST_SPID));
+    assertFalse(idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId, String.valueOf(timestamp))
+        .isPresent());
+
+    // then
+
+    IDP updatedIdp = new IDP(entityId, pointer, timestamp + 10, isActive, idpStatus, idpSSOEndpoint,
+        certificates, friendlyName);
+
+    ArrayList<IDP> updatedIdps = new ArrayList<>(Collections.singleton(updatedIdp));
+
+    idpConnectorImpl.saveIDPs(updatedIdps, LatestTAG.LATEST_SPID);
+
+    IDP newIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
+        String.valueOf(LatestTAG.LATEST_SPID)).get();
+
+    assertEquals(newIdp.getPointer(), String.valueOf(LatestTAG.LATEST_SPID));
+    assertTrue(idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId, String.valueOf(timestamp))
+        .isPresent());
+
 
   }
 }
