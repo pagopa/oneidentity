@@ -44,12 +44,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 
 @Path(("/oidc"))
 public class OIDCController {
@@ -187,9 +189,15 @@ public class OIDCController {
 
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
 
-    // TODO is it correct to retrieve the 0 indexed?
-    String idpSSOEndpoint = idp.get().getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
-        .getSingleSignOnServices().getFirst().getLocation();
+    // TODO rewrite it with new IDP Load metadata implementation
+    List<SingleSignOnService> singleSignOnServices = idp.get()
+        .getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
+        .getSingleSignOnServices();
+
+    String idpSSOEndpoint = singleSignOnServices.stream().filter(
+            singleSignOnService -> singleSignOnService.getBinding()
+                .equals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")).toList().getFirst()
+        .getLocation();
 
     // 6. Create SAML Authn Request using SAMLServiceImpl
 
