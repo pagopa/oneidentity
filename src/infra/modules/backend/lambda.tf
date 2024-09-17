@@ -184,7 +184,8 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
     actions   = [
       "dynamodb:GetItem",
       "dynamodb:Query",
-      "dynamodb:PutItem"
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
     ]
     resources = [
       "${var.dynamodb_table_idpMetadata.table_arn}",

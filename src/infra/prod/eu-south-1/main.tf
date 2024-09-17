@@ -239,7 +239,6 @@ module "backend" {
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
   }
 
   idp_metadata_lambda = {
@@ -255,6 +254,7 @@ module "backend" {
     s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
   }
 
   dynamodb_table_idpMetadata = {
