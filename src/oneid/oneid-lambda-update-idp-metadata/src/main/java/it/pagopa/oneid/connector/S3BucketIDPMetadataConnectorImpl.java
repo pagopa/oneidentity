@@ -9,6 +9,7 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.utils.IoUtils;
 
 @ApplicationScoped
@@ -32,11 +33,16 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
   public String getMetadataFile(String fileName) {
     Log.debug("start");
     String result;
-    ResponseInputStream<GetObjectResponse> response = s3.getObject(buildGetRequest(fileName));
+    ResponseInputStream<GetObjectResponse> response;
+    try {
+      response = s3.getObject(buildGetRequest(fileName));
+    } catch (S3Exception e) {
+      Log.error("error retrieving data from S3: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
     try {
       result = IoUtils.toUtf8String(response);
     } catch (IOException e) {
-      // TODO remove log.error when ExceptionMapper is ready
       Log.error("error during file reading: " + e.getMessage());
       throw new RuntimeException(e);
     }
