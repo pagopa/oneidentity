@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterAll;
@@ -109,7 +110,40 @@ class IDPConnectorImplTest {
   }
 
   @Test
-  void getIDPByEntityIDAndTimestamp() {
+  void getIDPByEntityIDAndTimestamp_notEmpty() {
+
+    //given
+    String entityId = "test";
+    String pointer = LatestTAG.LATEST_SPID.toString();
+    long timestamp = 12345;
+    boolean isActive = true;
+    IDPStatus idpStatus = IDPStatus.OK;
+    Map<String, String> idpSSOEndpoint = Collections.singletonMap("test", "test");
+    Set<String> certificates = Collections.singleton("test");
+    String friendlyName = "test";
+
+    IDP idp = new IDP(entityId, pointer, timestamp, isActive, idpStatus, idpSSOEndpoint,
+        certificates, friendlyName);
+
+    ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(idp));
+
+    //then
+    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
+
+    Optional<ArrayList<IDP>> idpList = idpConnectorImpl.findIDPsByTimestamp(
+        String.valueOf(LatestTAG.LATEST_SPID));
+
+    assertTrue(idpList.isPresent());
+    assertEquals(1, idpList.get().size());
+  }
+
+  @Test
+  void getIDPByEntityIDAndTimestamp_Empty() {
+    
+    Optional<ArrayList<IDP>> idpList = idpConnectorImpl.findIDPsByTimestamp(
+        String.valueOf(LatestTAG.LATEST_SPID));
+
+    assertFalse(idpList.isPresent());
   }
 
   @Test
