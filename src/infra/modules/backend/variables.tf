@@ -176,6 +176,7 @@ variable "idp_metadata_lambda" {
     s3_idp_metadata_bucket_id         = string
     vpc_id                            = string
     vpc_subnet_ids                    = list(string)
+    vpc_s3_prefix_id                  = string
     cloudwatch_logs_retention_in_days = number
   })
 

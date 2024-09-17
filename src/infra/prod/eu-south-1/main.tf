@@ -239,6 +239,7 @@ module "backend" {
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
   }
 
   idp_metadata_lambda = {
