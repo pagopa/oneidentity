@@ -60,6 +60,10 @@ jobs:
     - name: Build with Maven
       working-directory: src/oneid
       run: ./mvnw -f pom.xml -B package -P oneid-lambda-update-idp-metadata-aggregate
+
+    - name: List
+      working-directory: src/oneid/oneid-lambda-update-idp-metadata/target
+      run: ls -l 
       
     - name: Archive build artifacts
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
