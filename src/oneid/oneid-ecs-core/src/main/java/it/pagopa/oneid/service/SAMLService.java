@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import java.util.List;
@@ -25,6 +26,8 @@ public interface SAMLService {
 
   Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
       throws OneIdentityException;
+
+  Optional<IDP> getIDPFromEntityID(String entityID);
 
   void checkSAMLStatus(Response response) throws OneIdentityException;
 

@@ -1,6 +1,8 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.IDPConnectorImpl;
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -36,6 +39,18 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Inject
   SAMLUtilsExtendedCore samlUtils;
+
+  @Inject
+  IDPConnectorImpl idpConnectorImpl;
+
+  @ConfigProperty(name = "timestamp_spid")
+  String TIMESTAMP_SPID;
+
+  @ConfigProperty(name = "timestamp_cie")
+  String TIMESTAMP_CIE;
+
+  @ConfigProperty(name = "cie_entity_id")
+  String CIE_ENTITY_ID;
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
@@ -180,8 +195,13 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     // Validate SAMLResponse signature (Response and Assertion)
+    Optional<IDP> idp = getIDPFromEntityID(entityID);
+    if (idp.isEmpty()) {
+      Log.error("IDP not found: " + entityID);
+      throw new SAMLValidationException();
+    }
     try {
-      samlUtils.validateSignature(samlResponse, entityID);
+      samlUtils.validateSignature(samlResponse, idp.get());
     } catch (SAMLUtilsException e) {
       throw new OneIdentityException(e);
     }
@@ -210,6 +230,14 @@ public class SAMLServiceImpl implements SAMLService {
       throw new OneIdentityException(e);
     }
 
+  }
+
+  @Override
+  public Optional<IDP> getIDPFromEntityID(String entityID) {
+    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+      return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_CIE);
+    }
+    return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_SPID);
   }
 }
 

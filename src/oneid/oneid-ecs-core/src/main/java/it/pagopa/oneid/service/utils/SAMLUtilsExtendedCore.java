@@ -3,6 +3,7 @@ package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
@@ -12,12 +13,16 @@ import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.apache.commons.codec.binary.Base64;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSString;
@@ -36,6 +41,8 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
@@ -47,6 +54,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
   MetadataResolverExtended metadataResolverExtended;
+
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool) throws SAMLUtilsException {
@@ -142,20 +150,20 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  public void validateSignature(Response response, String entityID)
+  public void validateSignature(Response response, IDP idp)
       throws SAMLUtilsException, SAMLValidationException {
     Log.debug("start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
-    Optional<Credential> credential = metadataResolverExtended.getCredential(entityID);
+    ArrayList<Credential> credentials = getCredentials(idp.getCertificates());
 
-    if (credential.isPresent()) {
+    if (!credentials.isEmpty()) {
       // Validate 'Response' signature
       if (response.getSignature() != null) {
         try {
           profileValidator.validate(response.getSignature());
-          SignatureValidator.validate(response.getSignature(), credential.get());
+          validateSignatureMultipleCredentials(response.getSignature(), credentials);
         } catch (SignatureException e) {
           Log.error(
               "error during Response signature validation "
@@ -170,7 +178,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       if (assertion.getSignature() != null) {
         try {
           profileValidator.validate(assertion.getSignature());
-          SignatureValidator.validate(assertion.getSignature(), credential.get());
+          validateSignatureMultipleCredentials(assertion.getSignature(), credentials);
         } catch (SignatureException e) {
           Log.error(
               "error during Assertion signature validation "
@@ -204,5 +212,43 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public Optional<EntityDescriptor> getEntityDescriptor(String id) throws SAMLUtilsException {
     return metadataResolverExtended.getEntityDescriptor(id);
+  }
+
+  private ArrayList<Credential> getCredentials(Set<String> certificates) {
+    ArrayList<Credential> credentials = new ArrayList<>();
+
+    for (String certificate : certificates) {
+
+      byte encodedCert[] = Base64.getMimeDecoder().decode(certificate);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(encodedCert);
+
+      CertificateFactory certFactory = null;
+      try {
+        certFactory = CertificateFactory.getInstance("X.509");
+      } catch (CertificateException e) {
+        throw new RuntimeException(e);
+      }
+      X509Certificate cert = null;
+      try {
+        cert = (X509Certificate) certFactory.generateCertificate(inputStream);
+      } catch (CertificateException e) {
+        throw new RuntimeException(e);
+      }
+      credentials.add(new BasicX509Credential(cert));
+    }
+    return credentials;
+  }
+
+  // TODO to be implemented
+  private void validateSignatureMultipleCredentials(Signature signature,
+      ArrayList<Credential> credentials) {
+
+    for (Credential credential : credentials) {
+      try {
+        SignatureValidator.validate(signature, credential);
+      } catch (SignatureException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 }
