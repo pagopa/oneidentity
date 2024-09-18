@@ -5,8 +5,6 @@ import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
-import it.pagopa.oneid.common.model.enums.LatestTAG;
-import it.pagopa.oneid.common.model.enums.MetadataType;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -195,13 +193,7 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public void updateIDPMetadata(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
-
-    if (idpS3FileDTO.getMetadataType().equals(MetadataType.SPID)) {
-      idpConnectorImpl.saveIDPs(idpMetadata, LatestTAG.LATEST_SPID);
-    } else {
-      idpConnectorImpl.saveIDPs(idpMetadata, LatestTAG.LATEST_CIE);
-    }
-
+    idpConnectorImpl.saveIDPs(idpMetadata, idpS3FileDTO.getLatestTAG());
   }
 
   @Override
