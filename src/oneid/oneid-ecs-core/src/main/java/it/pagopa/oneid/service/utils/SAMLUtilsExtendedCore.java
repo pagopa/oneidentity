@@ -137,7 +137,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throws OneIdentityException {
     Log.debug("start");
 
-    byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
+    byte[] decodedSamlResponse = Base64.getDecoder().decode(SAMLResponse);
 
     try {
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
