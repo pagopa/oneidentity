@@ -64,10 +64,8 @@ jobs:
     - name: Archive build artifacts
       uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
       with:
-        name: idp-update-metadata-lambda
+        name: oneid-lambda-update-idp-metadata
         path: ./src/oneid/oneid-lambda-update-idp-metadata/target/function.zip
-        run : |
-         ls -l ./src/oneid/oneid-lambda-update-idp-metadata/target
 
   # deploy:
   #   name: Deploy lambda update-idp-metadata  ${{ matrix.environment }}-${{ matrix.region }}
