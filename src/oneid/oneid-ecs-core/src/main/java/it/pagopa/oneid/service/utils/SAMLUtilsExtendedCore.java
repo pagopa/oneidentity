@@ -246,9 +246,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     for (Credential credential : credentials) {
       try {
         SignatureValidator.validate(signature, credential);
+        return;
       } catch (SignatureException e) {
-        throw new RuntimeException(e);
+        continue;
       }
     }
+    throw new RuntimeException();
+
   }
 }
