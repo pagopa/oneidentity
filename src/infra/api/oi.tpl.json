@@ -223,6 +223,76 @@
         }
       }
     },
+    "/login-alert-message.json": {
+      "get": {
+        "tags": [
+          "Login alert message information"
+        ],
+        "description": "This route will serve the login alert messages",
+        "parameters": [],
+        "x-amazon-apigateway-integration": {
+          "credentials" : "${s3_apigateway_proxy_role}",
+          "httpMethod" : "GET",
+          "uri" : "${assets_bucket_uri}/login-alert-message.json",
+          "type" : "aws",          
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {},
+          "responseParameters": {},
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type" : "integration.response.header.Content-Type"
+              }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "severity": {
+                          "type": "string"
+                        },
+                        "enable": {
+                          "type": "boolean"
+                        },
+                        "description": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "severity",
+                        "enable",
+                        "description"
+                      ]
+                    }
+                  ],
+                  "example": [
+                    { "severity": "info", "enable": true, "description": "info" },
+                    { "severity": "warning", "enable": true, "description": "warning" }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        }
+      }
+    },
     "/oidc/register": {
       "post": {
         "tags": [
