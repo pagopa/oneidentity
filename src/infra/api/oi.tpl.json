@@ -236,9 +236,7 @@
           "uri" : "${assets_bucket_uri}/login-alert-message.json",
           "type" : "aws",          
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {
-            "integration.request.querystring.errorCode": "method.request.querystring.errorCode"
-          },
+          "requestParameters": {},
           "responseParameters": {},
           "responses": {
             "200": {
@@ -255,7 +253,39 @@
         },
         "responses": {
           "200": {
-            "$ref": "#/components/responses/responseOkHtml"
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "severity": {
+                          "type": "string"
+                        },
+                        "enable": {
+                          "type": "boolean"
+                        },
+                        "description": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "severity",
+                        "enable",
+                        "description"
+                      ]
+                    }
+                  ],
+                  "example": [
+                    { "severity": "info", "enable": true, "description": "info" },
+                    { "severity": "warning", "enable": true, "description": "warning" }
+                  ]
+                }
+              }
+            }
           },
           "404": {
             "$ref": "#/components/responses/notFound"
