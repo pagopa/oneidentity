@@ -76,6 +76,16 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid = "DynamoDBGSIIdpMetadata"
+        Action = [
+          "dynamodb:Query",
+        ]
+        Effect = "Allow"
+        Resource = [
+          "${var.dynamodb_table_idpMetadata.gsi_pointer_arn}",
+        ]
+      },
+      {
         Sid    = "DynamoDBClientRegistrationsReadOnly"
         Effect = "Allow"
         Action = [
