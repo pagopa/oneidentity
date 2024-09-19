@@ -242,7 +242,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type" : "integration.response.header.Content-Type"
+                "method.response.header.content-type" : "integration.response.header.content-type"
               }
             },
             "404": {
@@ -254,6 +254,15 @@
         "responses": {
           "200": {
             "description": "",
+            "headers": {
+              "content-type": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
