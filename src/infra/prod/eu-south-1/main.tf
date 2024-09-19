@@ -258,8 +258,8 @@ module "backend" {
   }
 
   dynamodb_table_idpMetadata = {
-    gsi_pointer_arn = module.database.table_idp_metadata_arn
-    table_arn = module.database.table_idpMetadata_gsi_pointer_arn
+    gsi_pointer_arn = module.database.table_idpMetadata_gsi_pointer_arn
+    table_arn = module.database.table_idp_metadata_arn
   }
 }
 
