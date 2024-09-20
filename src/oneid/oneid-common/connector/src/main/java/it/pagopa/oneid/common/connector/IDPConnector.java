@@ -11,6 +11,6 @@ public interface IDPConnector {
 
   Optional<IDP> getIDPByEntityIDAndTimestamp(String entityID, String timestamp);
 
-  void saveIDPs(ArrayList<IDP> idpList, LatestTAG latestTag);
+  void saveIDPs(ArrayList<IDP> idpList, LatestTAG latestTag, String timestamp);
 
 }

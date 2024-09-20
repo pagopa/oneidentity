@@ -56,7 +56,6 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
           // Initialize IDP fields
           IDP idp = new IDP();
-          idp.setTimestamp(idpS3FileDTO.getTimestamp());
           idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
           idp.setStatus(IDPStatus.OK);
           idp.setActive(true);
@@ -193,7 +192,8 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public void updateIDPMetadata(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
-    idpConnectorImpl.saveIDPs(idpMetadata, idpS3FileDTO.getLatestTAG());
+    idpConnectorImpl.saveIDPs(idpMetadata, idpS3FileDTO.getLatestTAG(),
+        String.valueOf(idpS3FileDTO.getTimestamp()));
   }
 
   @Override

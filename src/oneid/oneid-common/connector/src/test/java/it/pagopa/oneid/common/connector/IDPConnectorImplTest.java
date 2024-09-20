@@ -122,13 +122,13 @@ class IDPConnectorImplTest {
     Set<String> certificates = Collections.singleton("test");
     String friendlyName = "test";
 
-    IDP idp = new IDP(entityId, pointer, timestamp, isActive, idpStatus, idpSSOEndpoint,
+    IDP idp = new IDP(entityId, pointer, isActive, idpStatus, idpSSOEndpoint,
         certificates, friendlyName);
 
     ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(idp));
 
     //then
-    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
+    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID, String.valueOf(timestamp));
 
     Optional<ArrayList<IDP>> idpList = idpConnectorImpl.findIDPsByTimestamp(
         String.valueOf(LatestTAG.LATEST_SPID));
@@ -139,7 +139,7 @@ class IDPConnectorImplTest {
 
   @Test
   void getIDPByEntityIDAndTimestamp_Empty() {
-    
+
     Optional<ArrayList<IDP>> idpList = idpConnectorImpl.findIDPsByTimestamp(
         String.valueOf(LatestTAG.LATEST_SPID));
 
@@ -159,13 +159,13 @@ class IDPConnectorImplTest {
     Set<String> certificates = Collections.singleton("test");
     String friendlyName = "test";
 
-    IDP idp = new IDP(entityId, pointer, timestamp, isActive, idpStatus, idpSSOEndpoint,
+    IDP idp = new IDP(entityId, pointer, isActive, idpStatus, idpSSOEndpoint,
         certificates, friendlyName);
 
     ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(idp));
 
     //then
-    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
+    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID, String.valueOf(timestamp));
 
     IDP savedIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
         String.valueOf(LatestTAG.LATEST_SPID)).get();
@@ -187,12 +187,12 @@ class IDPConnectorImplTest {
     Set<String> certificates = Collections.singleton("test");
     String friendlyName = "test";
 
-    IDP idp = new IDP(entityId, pointer, timestamp, isActive, idpStatus, idpSSOEndpoint,
+    IDP idp = new IDP(entityId, pointer, isActive, idpStatus, idpSSOEndpoint,
         certificates, friendlyName);
 
     ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(idp));
 
-    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID);
+    idpConnectorImpl.saveIDPs(idps, LatestTAG.LATEST_SPID, String.valueOf(timestamp));
 
     IDP savedIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
         String.valueOf(LatestTAG.LATEST_SPID)).get();
@@ -203,19 +203,20 @@ class IDPConnectorImplTest {
 
     // then
 
-    IDP updatedIdp = new IDP(entityId, pointer, timestamp + 10, isActive, idpStatus, idpSSOEndpoint,
+    IDP updatedIdp = new IDP(entityId, pointer, isActive, idpStatus, idpSSOEndpoint,
         certificates, friendlyName);
 
     ArrayList<IDP> updatedIdps = new ArrayList<>(Collections.singleton(updatedIdp));
 
-    idpConnectorImpl.saveIDPs(updatedIdps, LatestTAG.LATEST_SPID);
+    idpConnectorImpl.saveIDPs(updatedIdps, LatestTAG.LATEST_SPID, String.valueOf(timestamp + 10));
 
     IDP newIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId,
         String.valueOf(LatestTAG.LATEST_SPID)).get();
 
     assertEquals(newIdp.getPointer(), String.valueOf(LatestTAG.LATEST_SPID));
-    assertTrue(idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId, String.valueOf(timestamp))
-        .isPresent());
+    assertTrue(
+        idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId, String.valueOf(timestamp + 10))
+            .isPresent());
 
 
   }
