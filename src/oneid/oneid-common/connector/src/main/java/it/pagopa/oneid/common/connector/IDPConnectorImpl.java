@@ -62,7 +62,7 @@ public class IDPConnectorImpl implements IDPConnector {
   }
 
   @Override
-  public void saveIDPs(ArrayList<IDP> idpList, LatestTAG latestTAG) {
+  public void saveIDPs(ArrayList<IDP> idpList, LatestTAG latestTAG, String timestamp) {
     Log.debug("start");
 
     Optional<ArrayList<IDP>> idpLatestList = findIDPsByTimestamp(String.valueOf(latestTAG));
@@ -71,7 +71,7 @@ public class IDPConnectorImpl implements IDPConnector {
     idpLatestList.ifPresent(idps -> {
       idps.forEach(idp -> {
         idpMapper.deleteItem(idp);
-        idp.setPointer(String.valueOf(idp.getTimestamp()));
+        idp.setPointer(timestamp);
         idpMapper.putItem(idp);
       });
 

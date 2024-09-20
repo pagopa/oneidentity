@@ -44,7 +44,8 @@ public class IDPMetadataServiceImplTest {
 
   @Test
   void updateIDPMetadata() {
-    Mockito.doNothing().when(idpConnectorImpl).saveIDPs(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(idpConnectorImpl)
+        .saveIDPs(Mockito.any(), Mockito.any(), Mockito.any());
 
     // then
     ArrayList<IDP> idpList = new ArrayList<>();

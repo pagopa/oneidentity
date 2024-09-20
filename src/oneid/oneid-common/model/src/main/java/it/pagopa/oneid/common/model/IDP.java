@@ -32,10 +32,7 @@ public class IDP {
   })
   @NotNull
   private String pointer;
-
-  @NotNull
-  private long timestamp;
-
+  
   @NotNull
   private boolean isActive;
 
