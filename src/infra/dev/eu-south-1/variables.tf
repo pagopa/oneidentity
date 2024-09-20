@@ -366,6 +366,11 @@ variable "alarm_subscribers" {
   default = "alarm-subscribers"
 }
 
+variable "is-gh-sns-arn" {
+  type = string
+  default = "is_sns_topic_arn"
+}
+
 variable "api_alarms" {
   type = map(object({
     metric_name         = string

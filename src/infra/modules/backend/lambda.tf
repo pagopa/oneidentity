@@ -260,6 +260,43 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
+##Github Integration Lambda
+module "is-gh-integration-lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.is-gh-integration-lambda.name
+  description             = "Lambda function is-gh integration."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.is-gh-integration-lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  cloudwatch_logs_retention_in_days = var.is-gh-integration-lambda.cloudwatch_logs_retention_in_days
+
+  allowed_triggers = {
+    sns = {
+      principal  = "sns.amazonaws.com"
+      source_arn = var.is-gh-integration-lambda.sns_topic_arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+}
+
+resource "aws_sns_topic_subscription" "is-gh-integration" {
+  topic_arn = var.is-gh-integration-lambda.sns_topic_arn
+  protocol  = "lambda"
+  endpoint  = module.is-gh-integration-lambda.lambda_function_arn
+  depends_on = [ module.is-gh-integration-lambda.lambda_function_arn ]
+}
+
 ## Assertion Lambda ##
 data "aws_iam_policy_document" "assertion_lambda" {
   statement {

@@ -140,6 +140,11 @@ variable "alarm_subscribers" {
   default = "alarm-subscribers"
 }
 
+variable "is-gh-sns-arn" {
+  type = string
+  default = "is_sns_topic_arn"
+}
+
 ## Storage S3 ## 
 variable "assertion_bucket" {
   type = object({
