@@ -1,6 +1,6 @@
 import { Button, Dialog, Grid, Icon, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { IDPS, IdentityProvider } from '../../utils/IDPS';
+import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import { ENV } from '../../utils/env';
@@ -8,19 +8,20 @@ import { ENV } from '../../utils/env';
 type Props = {
   openSpidModal: boolean;
   setOpenSpidModal: (openDialog: boolean) => void;
+  idpList: IdentityProviders;
 };
 
-const SpidModal = ({ openSpidModal, setOpenSpidModal }: Props) => {
+const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
   const { t } = useTranslation();
 
   const getSPID = (IDP: IdentityProvider) => {
-    const params = forwardSearchParams(IDP.entityId);
+    const params = forwardSearchParams(IDP.entityID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
         SPID_IDP_NAME: IDP.name,
-        SPID_IDP_ID: IDP.entityId,
+        SPID_IDP_ID: IDP.entityID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -44,10 +45,10 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal }: Props) => {
         </Typography>
         <Grid item maxWidth={375}>
           <Grid container direction="row" justifyItems="center">
-            {IDPS.identityProviders.map((IDP, i) => (
+            {idpList.identityProviders.map((IDP, i) => (
               <Grid
                 item
-                key={IDP.entityId}
+                key={IDP.entityID}
                 xs={6}
                 p={1}
                 textAlign={i % 2 === 0 ? 'right' : 'left'}
@@ -57,7 +58,7 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal }: Props) => {
                   onClick={() => getSPID(IDP)}
                   sx={{ backgroundColor: 'background.default', alignItems: 'center' }}
                   aria-label={IDP.name}
-                  id={IDP.entityId}
+                  id={IDP.entityID}
                 >
                   <Icon
                     sx={{ width: '100px', height: '48px', display: 'flex', alignItems: ' center' }}

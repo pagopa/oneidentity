@@ -16,11 +16,14 @@ export const ENV = {
 
   JSON_URL: {
     ALERT: env.get('REACT_APP_LOGIN_ALERT_BANNER').required().asString(),
+    IDP_LIST: env.get('REACT_APP_LOGIN_IDP_LIST').required().asString(),
+    CLIENT_BASE_URL: env.get('REACT_APP_LOGIN_CLIENT_BASE_URL').required().asString(),
   },
 
   URL_FE: {
     LOGIN: PUBLIC_URL + '/login',
     LOGOUT: PUBLIC_URL + '/logout',
+    ASSETS: env.get('REACT_APP_URL_CDN').required().asString(),
   },
 
   HEADER: {
