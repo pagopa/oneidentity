@@ -253,7 +253,7 @@ module "backend" {
     table_arn       = module.database.table_idp_metadata_arn
   }
 
-  is-gh-integration-lambda = {
+  is_gh_integration_lambda = {
     name                              = format("%s-is-gh-integration-lambda", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
