@@ -270,11 +270,6 @@ variable "api_method_settings" {
   }))
   default = [
     {
-      method_path     = "*/*"
-      metrics_enabled = true
-      logging_level   = "INFO"
-    },
-    {
       method_path          = "saml/{id_type}/metadata/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
@@ -286,12 +281,22 @@ variable "api_method_settings" {
       cache_ttl_in_seconds = 3600
     },
     {
+      method_path          = "assets/{proxy}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
       method_path          = "login/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     },
     {
       method_path          = "login/error/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "idps/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     }

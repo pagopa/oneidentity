@@ -81,7 +81,7 @@ variable "dynamodb_table_sessions" {
 
 variable "dynamodb_table_idpMetadata" {
   type = object({
-    table_arn    = string
+    table_arn       = string
     gsi_pointer_arn = string
   })
   description = "Dynamodb table idpMetadata anrs"

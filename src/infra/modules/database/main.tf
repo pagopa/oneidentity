@@ -102,7 +102,7 @@ module "dynamodb_table_idpMetadata" {
 
   name = "IDPMetadata"
 
-  hash_key = "entityID"
+  hash_key  = "entityID"
   range_key = "pointer"
 
   global_secondary_indexes = [
