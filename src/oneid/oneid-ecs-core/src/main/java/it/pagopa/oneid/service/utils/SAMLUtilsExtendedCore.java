@@ -139,7 +139,16 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throws OneIdentityException {
     Log.debug("start");
 
-    byte[] decodedSamlResponse = Base64.getDecoder().decode(SAMLResponse);
+    byte[] decodedSamlResponse = null;
+
+    try {
+      decodedSamlResponse = Base64.getDecoder().decode(SAMLResponse);
+    } catch (IllegalArgumentException e) {
+      Log.error(
+          "error unmarshalling "
+              + e.getMessage());
+      throw new OneIdentityException(e);
+    }
 
     try {
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
@@ -249,7 +258,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   // TODO to be implemented
   private void validateSignatureMultipleCredentials(Signature signature,
-      ArrayList<Credential> credentials) {
+      ArrayList<Credential> credentials) throws SignatureException {
 
     for (Credential credential : credentials) {
       try {
@@ -258,7 +267,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       } catch (SignatureException ignored) {
       }
     }
-    throw new RuntimeException();
+    throw new SignatureException("Invalid signature");
 
   }
 }
