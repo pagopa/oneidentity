@@ -77,9 +77,9 @@ module "storage" {
   }
   assertions_crawler_schedule = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix  = "idp-metadata"
-  assets_bucket_prefix = "assets"
-  github_repository    = "pagopa/oneidentity"
-  account_id           = data.aws_caller_identity.current.account_id
+  assets_bucket_prefix        = "assets"
+  github_repository           = "pagopa/oneidentity"
+  account_id                  = data.aws_caller_identity.current.account_id
 }
 
 ## SNS for alarms ##
@@ -242,13 +242,13 @@ module "backend" {
   }
 
   idp_metadata_lambda = {
-    name                              = format("%s-update-idp-metadata", local.project)
-    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    environment_variables             = {
-      IDP_METADATA_BUCKET_NAME  = module.storage.s3_idp_metadata_bucket_name 
-      IDP_TABLE_NAME            = module.database.table_idp_metadata_name
-      IDP_G_IDX                 = module.database.table_idp_metadata_idx_name
-    }  
+    name     = format("%s-update-idp-metadata", local.project)
+    filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    environment_variables = {
+      IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
+      IDP_TABLE_NAME           = module.database.table_idp_metadata_name
+      IDP_G_IDX                = module.database.table_idp_metadata_idx_name
+    }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
@@ -259,7 +259,7 @@ module "backend" {
 
   dynamodb_table_idpMetadata = {
     gsi_pointer_arn = module.database.table_idpMetadata_gsi_pointer_arn
-    table_arn = module.database.table_idp_metadata_arn
+    table_arn       = module.database.table_idp_metadata_arn
   }
 }
 
