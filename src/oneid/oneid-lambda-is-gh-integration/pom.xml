@@ -22,7 +22,6 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-client</artifactId>
         </dependency>
-        <!-- TODO  remove quarkus-amazon-lambda to test the mockController -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-amazon-lambda</artifactId>

@@ -56,7 +56,7 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
       }
 
       // 2. Download metadata from IS
-      String metadataContent = isServiceImpl.getIdpMetadata(idpType, timestamp);
+      String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType);
 
       // 3. Interact with GitHub Repository
       String branchName = BRANCH_BASE_NAME + idpType + "-" + timestamp;
