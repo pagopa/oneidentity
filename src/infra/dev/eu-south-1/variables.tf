@@ -256,6 +256,26 @@ variable "api_method_settings" {
       method_path          = "static/{proxy+}/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "assets/{proxy}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "login/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "login/error/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "idps/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
     }
   ]
 }

@@ -180,8 +180,8 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
   }
 
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "dynamodb:GetItem",
       "dynamodb:Query",
       "dynamodb:PutItem",
@@ -190,7 +190,7 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
     resources = [
       "${var.dynamodb_table_idpMetadata.table_arn}",
       "${var.dynamodb_table_idpMetadata.gsi_pointer_arn}"
-      ]
+    ]
   }
 
 }
@@ -208,7 +208,7 @@ module "security_group_lambda_idp_metadata" {
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id, var.idp_metadata_lambda.vpc_s3_prefix_id,]
+  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id, var.idp_metadata_lambda.vpc_s3_prefix_id, ]
 
   egress_rules = ["https-443-tcp"]
 }
@@ -251,8 +251,8 @@ module "idp_metadata_lambda" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  depends_on = [ module.idp_metadata_lambda.lambda_function_name ]
-  bucket = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
+  depends_on = [module.idp_metadata_lambda.lambda_function_name]
+  bucket     = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
 
   lambda_function {
     lambda_function_arn = module.idp_metadata_lambda.lambda_function_arn
