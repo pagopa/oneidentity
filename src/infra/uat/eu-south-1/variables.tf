@@ -140,7 +140,7 @@ variable "alarm_subscribers" {
   default = "alarm-subscribers"
 }
 
-variable "is-gh-sns-arn" {
+variable "is_gh_sns_arn" {
   type    = string
   default = "arn:aws:sns:eu-south-1:001102221608:is-eng-pagopa-it-alerts-topic"
 }
