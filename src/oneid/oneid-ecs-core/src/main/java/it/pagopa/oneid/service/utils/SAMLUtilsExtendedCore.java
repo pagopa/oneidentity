@@ -234,7 +234,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       } catch (CertificateException e) {
         throw new RuntimeException(e);
       }
-      credentials.add(new BasicX509Credential(cert));
+      try {
+        cert.checkValidity();
+        credentials.add(new BasicX509Credential(cert));
+      } catch (CertificateException e) {
+        Log.debug("certificate exception: " + e.getMessage());
+      }
     }
     return credentials;
   }
