@@ -14,7 +14,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -197,7 +199,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-
   public Optional<String> buildDestination(String idpID) throws SAMLUtilsException {
 
     return getEntityDescriptor(idpID)
@@ -219,7 +220,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
     for (String certificate : certificates) {
 
-      byte encodedCert[] = Base64.getMimeDecoder().decode(certificate);
+      byte[] encodedCert = Base64.getMimeDecoder().decode(certificate);
       ByteArrayInputStream inputStream = new ByteArrayInputStream(encodedCert);
 
       CertificateFactory certFactory = null;
@@ -237,8 +238,10 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       try {
         cert.checkValidity();
         credentials.add(new BasicX509Credential(cert));
-      } catch (CertificateException e) {
-        Log.debug("certificate exception: " + e.getMessage());
+      } catch (CertificateExpiredException expiredEx) {
+        Log.debug("certificate expired: " + expiredEx.getMessage());
+      } catch (CertificateNotYetValidException notYetValidEx) {
+        Log.debug("certificate not valid yet: " + notYetValidEx.getMessage());
       }
     }
     return credentials;
@@ -252,8 +255,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       try {
         SignatureValidator.validate(signature, credential);
         return;
-      } catch (SignatureException e) {
-        continue;
+      } catch (SignatureException ignored) {
       }
     }
     throw new RuntimeException();
