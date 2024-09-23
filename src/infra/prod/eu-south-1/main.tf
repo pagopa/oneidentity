@@ -1,9 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_ssm_parameter" "is-topic_arn" {
-  name = var.is-gh-sns-arn
-}
-
 
 module "iam" {
   source            = "../../modules/iam"
