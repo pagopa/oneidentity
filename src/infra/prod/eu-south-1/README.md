@@ -76,6 +76,7 @@
 | Name | Type |
 |------|------|
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/caller_identity) | data source |
+| [aws_ssm_parameter.is-topic_arn](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
@@ -101,6 +102,7 @@
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Create nat gateway(s) | `bool` | `false` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Evnironment short. | `string` | `"p"` | no |
 | <a name="input_idp_metadata_table"></a> [idp\_metadata\_table](#input\_idp\_metadata\_table) | IDP Metadata configurations table. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
+| <a name="input_is-gh-sns-arn"></a> [is-gh-sns-arn](#input\_is-gh-sns-arn) | n/a | `string` | `"is_sns_topic_arn"` | no |
 | <a name="input_lambda_alarms"></a> [lambda\_alarms](#input\_lambda\_alarms) | n/a | <pre>map(object({<br>    metric_name         = optional(string, "Errors")<br>    namespace           = optional(string, "AWS/Lambda")<br>    threshold           = optional(number, 1)<br>    evaluation_periods  = optional(number, 1)<br>    period              = optional(number, 300)<br>    statistic           = optional(string, "Sum")<br>    comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")<br>    treat_missing_data  = optional(string, "notBreaching")<br>  }))</pre> | <pre>{<br>  "oneid-es-1-p-assertion": {},<br>  "oneid-es-1-p-client-registration": {},<br>  "oneid-es-1-p-metadata": {}<br>}</pre> | no |
 | <a name="input_lambda_cloudwatch_logs_retention_in_days"></a> [lambda\_cloudwatch\_logs\_retention\_in\_days](#input\_lambda\_cloudwatch\_logs\_retention\_in\_days) | Cloudwatch log group retention days. | `number` | `30` | no |
 | <a name="input_number_of_images_to_keep"></a> [number\_of\_images\_to\_keep](#input\_number\_of\_images\_to\_keep) | Number of images to keeps in ECR. | `number` | `10` | no |
