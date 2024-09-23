@@ -224,6 +224,9 @@ variable "idp_metadata_table" {
   description = "IDP Metadata configurations table."
   default = {
     point_in_time_recovery_enabled = false
+    replication_regions = [{
+      region_name = "eu-central-1"
+    }]
   }
 }
 
