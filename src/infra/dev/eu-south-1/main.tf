@@ -1,8 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_ssm_parameter" "is-topic_arn" {
-  name = var.is-gh-sns-arn
-}
 
 module "iam" {
   source            = "../../modules/iam"
@@ -262,7 +259,7 @@ module "backend" {
     name     = format("%s-is-gh-integration-lambda", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    sns_topic_arn = data.aws_ssm_parameter.is-topic_arn.value
+    sns_topic_arn = var.is-gh-sns-arn
   }
 }
 

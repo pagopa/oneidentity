@@ -142,7 +142,7 @@ variable "alarm_subscribers" {
 
 variable "is-gh-sns-arn" {
   type = string
-  default = "is_sns_topic_arn"
+  default = "arn:aws:sns:eu-south-1:001102221608:is-eng-pagopa-it-alerts-topic"
 }
 
 ## Storage S3 ## 
