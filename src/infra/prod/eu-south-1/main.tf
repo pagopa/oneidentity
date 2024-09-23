@@ -263,10 +263,10 @@ module "backend" {
   }
 
   is-gh-integration-lambda = {
-    name     = format("%s-is-gh-integration-lambda", local.project)
-    filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    name                              = format("%s-is-gh-integration-lambda", local.project)
+    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    sns_topic_arn = var.is-gh-sns-arn
+    sns_topic_arn                     = var.is-gh-sns-arn
   }
 }
 

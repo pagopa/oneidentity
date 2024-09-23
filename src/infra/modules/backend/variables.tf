@@ -182,14 +182,14 @@ variable "idp_metadata_lambda" {
 
 }
 
-variable "is-gh-integration-lambda" {
+variable "is_gh_integration_lambda" {
   type = object({
     name                              = string
     filename                          = string
     sns_topic_arn                     = string
     cloudwatch_logs_retention_in_days = string
   })
-  
+
 }
 
 variable "eventbridge_pipe_sessions" {

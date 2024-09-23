@@ -261,26 +261,26 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 ##Github Integration Lambda
-module "is-gh-integration-lambda" {
+module "is_gh_integration_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
 
-  function_name           = var.is-gh-integration-lambda.name
+  function_name           = var.is_gh_integration_lambda.name
   description             = "Lambda function is-gh integration."
   runtime                 = "java21"
   handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
   create_package          = false
-  local_existing_package  = var.is-gh-integration-lambda.filename
+  local_existing_package  = var.is_gh_integration_lambda.filename
   ignore_source_code_hash = true
 
   publish = true
 
-  cloudwatch_logs_retention_in_days = var.is-gh-integration-lambda.cloudwatch_logs_retention_in_days
+  cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 
   allowed_triggers = {
     sns = {
       principal  = "sns.amazonaws.com"
-      source_arn = var.is-gh-integration-lambda.sns_topic_arn
+      source_arn = var.is_gh_integration_lambda.sns_topic_arn
     }
   }
 
@@ -291,10 +291,10 @@ module "is-gh-integration-lambda" {
 }
 
 resource "aws_sns_topic_subscription" "is-gh-integration" {
-  topic_arn = var.is-gh-integration-lambda.sns_topic_arn
-  protocol  = "lambda"
-  endpoint  = module.is-gh-integration-lambda.lambda_function_arn
-  depends_on = [ module.is-gh-integration-lambda.lambda_function_arn ]
+  topic_arn  = var.is_gh_integration_lambda.sns_topic_arn
+  protocol   = "lambda"
+  endpoint   = module.is_gh_integration_lambda.lambda_function_arn
+  depends_on = [module.is_gh_integration_lambda.lambda_function_arn]
 }
 
 ## Assertion Lambda ##
