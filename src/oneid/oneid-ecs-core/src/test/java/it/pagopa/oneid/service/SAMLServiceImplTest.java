@@ -43,7 +43,6 @@ import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 @QuarkusTest
 public class SAMLServiceImplTest {
@@ -475,40 +474,6 @@ public class SAMLServiceImplTest {
 
     assertThrows(OneIdentityException.class,
         () -> samlServiceImpl.getAttributesFromSAMLAssertion(assertion));
-  }
-
-  @Test
-  void getEntityDescriptorFromEntityID() throws SAMLUtilsException {
-    // given
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    EntityDescriptor entityDescriptor = Mockito.mock(EntityDescriptor.class);
-    Mockito.when(samlUtils.getEntityDescriptor(Mockito.any()))
-        .thenReturn(Optional.of(entityDescriptor));
-
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-
-    assertDoesNotThrow(() -> samlServiceImpl.getEntityDescriptorFromEntityID("dummy"));
-
-    // then
-  }
-
-  @Test
-  void getEntityDescriptorFromEntityID_withException() throws SAMLUtilsException {
-    // given
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.when(samlUtils.getEntityDescriptor(Mockito.any()))
-        .thenThrow(SAMLUtilsException.class);
-
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-
-    assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.getEntityDescriptorFromEntityID("dummy"));
-
-    // then
   }
 
 

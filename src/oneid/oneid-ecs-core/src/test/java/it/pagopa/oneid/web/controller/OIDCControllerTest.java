@@ -46,9 +46,6 @@ import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
-import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 
 @TestProfile(OIDCControllerTestProfile.class)
 @TestHTTPEndpoint(OIDCController.class)
@@ -225,11 +222,6 @@ class OIDCControllerTest {
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
-    //when
-
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenReturn(Optional.empty());
-
     //then
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -256,10 +248,6 @@ class OIDCControllerTest {
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    //when
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenThrow(OneIdentityException.class);
 
     //then
     given()
@@ -343,24 +331,6 @@ class OIDCControllerTest {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setScope("test");
 
-    //when
-
-    // Mock "2. Check if idp exists"
-    Optional<EntityDescriptor> idpMock = Mockito.mock(Optional.class);
-    EntityDescriptor idpEntityDescriptorMock = Mockito.mock(EntityDescriptor.class);
-    IDPSSODescriptor idpssoDescriptorMock = Mockito.mock(IDPSSODescriptor.class);
-    SingleSignOnService singleSignOnServiceMock = Mockito.mock(SingleSignOnService.class);
-
-    Mockito.when(singleSignOnServiceMock.getLocation()).thenReturn("test");
-    Mockito.when(idpssoDescriptorMock.getSingleSignOnServices())
-        .thenReturn(List.of(singleSignOnServiceMock));
-    Mockito.when(idpEntityDescriptorMock.getIDPSSODescriptor(Mockito.anyString()))
-        .thenReturn(idpssoDescriptorMock);
-    Mockito.when(idpMock.get()).thenReturn(idpEntityDescriptorMock);
-
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenReturn(idpMock);
-
     //then
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -389,24 +359,6 @@ class OIDCControllerTest {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setResponseType(ResponseType.NONE);
 
-    //when
-
-    // Mock "2. Check if idp exists"
-    Optional<EntityDescriptor> idpMock = Mockito.mock(Optional.class);
-    EntityDescriptor idpEntityDescriptorMock = Mockito.mock(EntityDescriptor.class);
-    IDPSSODescriptor idpssoDescriptorMock = Mockito.mock(IDPSSODescriptor.class);
-    SingleSignOnService singleSignOnServiceMock = Mockito.mock(SingleSignOnService.class);
-
-    Mockito.when(singleSignOnServiceMock.getLocation()).thenReturn("test");
-    Mockito.when(idpssoDescriptorMock.getSingleSignOnServices())
-        .thenReturn(List.of(singleSignOnServiceMock));
-    Mockito.when(idpEntityDescriptorMock.getIDPSSODescriptor(Mockito.anyString()))
-        .thenReturn(idpssoDescriptorMock);
-    Mockito.when(idpMock.get()).thenReturn(idpEntityDescriptorMock);
-
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenReturn(idpMock);
-
     //then
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -433,24 +385,6 @@ class OIDCControllerTest {
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    //when
-
-    // Mock "2. Check if idp exists"
-    Optional<EntityDescriptor> idpMock = Mockito.mock(Optional.class);
-    EntityDescriptor idpEntityDescriptorMock = Mockito.mock(EntityDescriptor.class);
-    IDPSSODescriptor idpssoDescriptorMock = Mockito.mock(IDPSSODescriptor.class);
-    SingleSignOnService singleSignOnServiceMock = Mockito.mock(SingleSignOnService.class);
-
-    Mockito.when(singleSignOnServiceMock.getLocation()).thenReturn("test");
-    Mockito.when(idpssoDescriptorMock.getSingleSignOnServices())
-        .thenReturn(List.of(singleSignOnServiceMock));
-    Mockito.when(idpEntityDescriptorMock.getIDPSSODescriptor(Mockito.anyString()))
-        .thenReturn(idpssoDescriptorMock);
-    Mockito.when(idpMock.get()).thenReturn(idpEntityDescriptorMock);
-
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenReturn(idpMock);
 
     // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
     Mockito.when(
@@ -485,24 +419,6 @@ class OIDCControllerTest {
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setIdp("testSessionException");
-
-    //when
-
-    // Mock "2. Check if idp exists"
-    Optional<EntityDescriptor> idpMock = Mockito.mock(Optional.class);
-    EntityDescriptor idpEntityDescriptorMock = Mockito.mock(EntityDescriptor.class);
-    IDPSSODescriptor idpssoDescriptorMock = Mockito.mock(IDPSSODescriptor.class);
-    SingleSignOnService singleSignOnServiceMock = Mockito.mock(SingleSignOnService.class);
-
-    Mockito.when(singleSignOnServiceMock.getLocation()).thenReturn("test");
-    Mockito.when(idpssoDescriptorMock.getSingleSignOnServices())
-        .thenReturn(List.of(singleSignOnServiceMock));
-    Mockito.when(idpEntityDescriptorMock.getIDPSSODescriptor(Mockito.anyString()))
-        .thenReturn(idpssoDescriptorMock);
-    Mockito.when(idpMock.get()).thenReturn(idpEntityDescriptorMock);
-
-    Mockito.when(samlServiceImpl.getEntityDescriptorFromEntityID(Mockito.anyString()))
-        .thenReturn(idpMock);
 
     // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
     AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");

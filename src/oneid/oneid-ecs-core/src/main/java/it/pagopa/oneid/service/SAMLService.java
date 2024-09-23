@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public interface SAMLService {
 
@@ -23,10 +22,7 @@ public interface SAMLService {
 
   List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException;
-
-  Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws OneIdentityException;
-
+  
   Optional<IDP> getIDPFromEntityID(String entityID);
 
   void checkSAMLStatus(Response response) throws OneIdentityException;

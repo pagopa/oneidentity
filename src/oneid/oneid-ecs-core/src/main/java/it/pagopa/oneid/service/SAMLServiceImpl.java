@@ -29,7 +29,6 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
@@ -220,18 +219,7 @@ public class SAMLServiceImpl implements SAMLService {
     return samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(OneIdentityException::new);
   }
-
-  @Override
-  public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws OneIdentityException {
-    try {
-      return samlUtils.getEntityDescriptor(entityID);
-    } catch (SAMLUtilsException e) {
-      throw new OneIdentityException(e);
-    }
-
-  }
-
+  
   @Override
   public Optional<IDP> getIDPFromEntityID(String entityID) {
     if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
