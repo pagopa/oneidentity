@@ -1,0 +1,97 @@
+name: Upload Metadata
+on:
+  push:
+    branches:
+      - test/remove-this-branch
+    paths:
+      - "**/src/oneid/oned-id-ecs-core/metadata/**"
+jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
+
+    steps:
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+          
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
+          fi
+
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+
+
+  upload:
+    name: Upload to S3
+    if: ${{ needs.setup.outputs.matrix != '' }}
+    needs: setup
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    continue-on-error: false
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
+    env:
+      AWS_REGION: ${{ matrix.region }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[matrix.environment] }}
+      REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          fetch-depth: 0
+
+      # Configure AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # v3
+        with:
+          role-to-assume: ${{ vars.IAM_ROLE_UPLOAD_S3 }}
+          aws-region: ${{ matrix.region }}
+
+      #Identify changed file
+      - name: Identify changed file
+        id: changed-file
+        run: |
+          echo "changed_files=($(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs))" >> $GITHUB_OUTPUT
+
+      - name: Upload changed files to S3 (${{ matrix.environment }})
+        working-directory: src/oneid/oneid-ecs-core/metadata
+        run: |
+          for file in ${{ steps.changed-file.outputs.changed_files[@] }}; do
+              if [[ file == *.xml ]]; then
+                aws s3 cp "$file" ${{vars.IDP_BUCKET_PATH}}
+              fi
+          done
+
+      #Identify changed file
+      - name: Take all test-idp files
+        id: test-files
+        working-directory: src/oneid/oneid-ecs-core/metadata
+        run: |
+          echo "test_files=($(find "$directory" -type f ! -name "spid*" ! -name "cie*"))" >> $GITHUB_OUTPUT
+
+
+      # Upload Test files to S3
+      - name: Upload test files to S3 (${{ matrix.environment }})
+        if: ${{ matrix.environment != 'prod' }}
+        working-directory: src/oneid/oneid-ecs-core/metadata
+        run: |
+          for file in ${{ steps.test-files.outputs.test_files[@] }}; do
+              if [[ file == *.xml ]]; then
+                aws s3 cp "${file%.xml}-$(date +%s).xml" ${{vars.IDP_BUCKET_PATH}}
+              fi
+          done
