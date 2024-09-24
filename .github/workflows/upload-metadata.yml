@@ -2,7 +2,7 @@ name: Upload Metadata
 on:
   push:
     branches:
-      - "test/remove-this-branch"
+      - "main"
     paths:
       - "**/src/oneid/oneid-ecs-core/metadata/**"
 jobs:
@@ -66,14 +66,14 @@ jobs:
       - name: Identify changed file
         id: changed-file
         run: |
-          echo "changed_files=($(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs))" >> $GITHUB_OUTPUT
+          echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
 
       - name: Upload changed files to S3 (${{ matrix.environment }})
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          for file in ${{ steps.changed-file.outputs.changed_files[@] }}; do
-              if [[ file == *.xml ]]; then
-                aws s3 cp "$file" ${{vars.IDP_BUCKET_PATH}}
+          for file in ${{ steps.changed-file.outputs.changed_files }}; do
+              if [[ $file == *.xml ]]; then
+                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}
               fi
           done
 
@@ -82,7 +82,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          echo "test_files=($(find "$directory" -type f ! -name "spid*" ! -name "cie*"))" >> $GITHUB_OUTPUT
+          echo "test_files=$(find . -type f ! -name "spid*" ! -name "cie*")" >> $GITHUB_OUTPUT
 
 
       # Upload Test files to S3
@@ -90,8 +90,8 @@ jobs:
         if: ${{ matrix.environment != 'prod' }}
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          for file in ${{ steps.test-files.outputs.test_files[@] }}; do
-              if [[ file == *.xml ]]; then
-                aws s3 cp "${file%.xml}-$(date +%s).xml" ${{vars.IDP_BUCKET_PATH}}
+          for file in ${{ steps.test-files.outputs.test_files }}; do
+              if [[ $file == *.xml ]]; then
+                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}"/$(basename "${file%.xml}")-$(date +%s).xml"
               fi
           done
