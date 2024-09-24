@@ -2,7 +2,7 @@ name: Upload Metadata
 on:
   push:
     branches:
-      - test/remove-this-branch
+      - "test/remove-this-branch"
     paths:
       - "**/src/oneid/oned-id-ecs-core/metadata/**"
 jobs:
