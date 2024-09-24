@@ -259,7 +259,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return credentials;
   }
 
-  // TODO to be implemented
   private void validateSignatureMultipleCredentials(Signature signature,
       ArrayList<Credential> credentials) throws SignatureException {
 
