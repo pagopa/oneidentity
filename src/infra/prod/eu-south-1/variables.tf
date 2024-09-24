@@ -212,7 +212,8 @@ variable "client_registrations_table" {
     stream_enabled                 = true
     stream_view_type               = "NEW_AND_OLD_IMAGES"
     replication_regions = [{
-      region_name = "eu-central-1"
+      region_name    = "eu-central-1"
+      propagate_tags = true
     }]
   }
 }
@@ -220,10 +221,24 @@ variable "client_registrations_table" {
 variable "idp_metadata_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
+    replication_regions = optional(list(object({
+      region_name            = string
+      propagate_tags         = optional(bool, true)
+      point_in_time_recovery = optional(bool, true)
+    })), [])
   })
+
   description = "IDP Metadata configurations table."
   default = {
-    point_in_time_recovery_enabled = false
+    point_in_time_recovery_enabled = true
+    stream_enabled                 = true
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
+    replication_regions = [{
+      region_name    = "eu-central-1"
+      propagate_tags = true
+    }]
   }
 }
 
