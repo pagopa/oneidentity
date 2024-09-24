@@ -242,6 +242,13 @@ variable "idp_metadata_table" {
   }
 }
 
+
+variable "cie_entity_id" {
+  type = string
+  default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
+}
+
+
 # DNS
 variable "dns_record_ttl" {
   type        = number
