@@ -2,14 +2,14 @@
 FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:5f2a1c5004b1fd7996d8a04c8e8798db57827fbd92629690ec6a7ffe319993ac AS build
 # Copy all needed files and directories
 # Parent pom
-COPY  --chown=quarkus:quarkus ../pom.xml /code/
+COPY --chown=quarkus:quarkus ../pom.xml /code/
 # Maven wrapper files
-COPY  --chown=quarkus:quarkus ../mvnw /code/mvnw
-COPY  --chown=quarkus:quarkus ../.mvn /code/.mvn
+COPY --chown=quarkus:quarkus ../mvnw /code/mvnw
+COPY --chown=quarkus:quarkus ../.mvn /code/.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common /code/oneid-common
 COPY --chown=quarkus:quarkus ../oneid-ecs-core /code/oneid-ecs-core
-
+COPY --chown=quarkus:quarkus ../login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/login-alert-message.json
 USER quarkus
 
 WORKDIR /code

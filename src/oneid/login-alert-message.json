@@ -1,0 +1,1 @@
+[{"severity":"info","enable":true,"description":"info"},{"severity":"warning","enable":true,"description":"warning"},{"severity":"error","enable":true,"description":"error"},{"severity":"warning","enable":false,"description":"warning disabled"}]

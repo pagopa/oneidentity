@@ -1,0 +1,84 @@
+services:
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest@sha256:d7ebddeb60fa418bcda218a6c6a402a58441b2a20d54c9cb1d85fd5194341753"
+    container_name: dynamodb-local
+    user: root
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./oneid-ecs-core/docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+  dynamo-import:
+    depends_on:
+      - dynamodb-local
+    links:
+      - dynamodb-local
+    image: amazon/aws-cli
+    container_name: dynamo-import
+    environment:
+      AWS_ACCESS_KEY_ID: "DUMMYIDEXAMPLE"
+      AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
+    command: dynamodb list-tables --endpoint-url http://dynamodb-local:8000 --region us-south-1
+  oneid-ecs-core:
+    build:
+      context: ./
+      dockerfile: oneid-ecs-core/Dockerfile
+      args:
+        ENVIRONMENT: local
+    container_name: oneid-ecs-core
+    volumes:
+      - mvncache:/root/.m2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "dynamo-import"
+    links:
+      - "dynamodb-local"
+    environment:
+      AWS_ACCESS_KEY_ID: "DUMMYIDEXAMPLE"
+      AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
+      REGION: "eu-south-1"
+      QUARKUS_DYNAMODB_ENDPOINT_OVERRIDE: "http://dynamodb-local:8000"
+  oneid-lambda-service-metadata:
+    build:
+      context: ./
+      dockerfile: oneid-lambda-service-metadata/Dockerfile
+    container_name: oneid-lambda-service-metadata
+    volumes:
+      - mvncache:/root/.m2
+    ports:
+      - "8082:8080"
+    depends_on:
+      - "dynamo-import"
+    links:
+      - "dynamodb-local"
+    environment:
+      AWS_ACCESS_KEY_ID: "DUMMYIDEXAMPLE"
+      AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
+      REGION: "eu-south-1"
+      QUARKUS_DYNAMODB_ENDPOINT_OVERRIDE: "http://dynamodb-local:8000"
+  oneid-lambda-client-registration:
+    build:
+      context: ./
+      dockerfile: oneid-lambda-client-registration/Dockerfile
+    container_name: oneid-lambda-client-registration
+    volumes:
+      - mvncache:/root/.m2
+    ports:
+      - "8081:8080"
+    depends_on:
+      - "dynamo-import"
+    links:
+      - "dynamodb-local"
+    environment:
+      AWS_ACCESS_KEY_ID: "DUMMYIDEXAMPLE"
+      AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
+      REGION: "eu-south-1"
+      QUARKUS_DYNAMODB_ENDPOINT_OVERRIDE: "http://dynamodb-local:8000"
+  spid-saml-check:
+    image: "italia/spid-saml-check:1.10.6@sha256:3c659836344b743f8e1f66d01b0fd336a8893386959a87173fc92d9966a9a289"
+    ports:
+      - "8443:8443"
+volumes:
+  mvncache:
