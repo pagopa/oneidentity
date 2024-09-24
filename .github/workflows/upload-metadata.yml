@@ -73,7 +73,7 @@ jobs:
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
               if [[ file == *.xml ]]; then
-                aws s3 cp $file ${{vars.IDP_BUCKET_PATH}}
+                aws s3 cp file ${{vars.IDP_BUCKET_PATH}}
               fi
           done
 
