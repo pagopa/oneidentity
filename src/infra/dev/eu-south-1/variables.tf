@@ -97,7 +97,7 @@ variable "ecs_oneid_core" {
   description = "Oneidentity core backend configurations."
 
   default = {
-    image_version    = "628d3c20b740a873dc1368404665a5365f8d9e54"
+    image_version    = "67d0d9140a7aa306c1e5983513cd31b30c9981c3"
     cpu              = 512
     memory           = 1024
     container_cpu    = 512
