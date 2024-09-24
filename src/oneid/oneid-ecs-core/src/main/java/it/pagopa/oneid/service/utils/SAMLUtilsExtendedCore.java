@@ -18,8 +18,10 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -167,7 +169,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
-    ArrayList<Credential> credentials = getCredentials(idp.getCertificates());
+    ArrayList<Credential> credentials = getCredentials(idp.getCertificates(),
+        response.getIssueInstant());
 
     if (!credentials.isEmpty()) {
       // Validate 'Response' signature
@@ -224,7 +227,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return metadataResolverExtended.getEntityDescriptor(id);
   }
 
-  private ArrayList<Credential> getCredentials(Set<String> certificates) {
+  private ArrayList<Credential> getCredentials(Set<String> certificates, Instant issueInstant) {
     ArrayList<Credential> credentials = new ArrayList<>();
 
     for (String certificate : certificates) {
@@ -245,7 +248,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         throw new RuntimeException(e);
       }
       try {
-        cert.checkValidity();
+        cert.checkValidity(Date.from(issueInstant));
         credentials.add(new BasicX509Credential(cert));
       } catch (CertificateExpiredException expiredEx) {
         Log.debug("certificate expired: " + expiredEx.getMessage());
