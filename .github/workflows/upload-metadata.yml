@@ -71,7 +71,7 @@ jobs:
       - name: Upload changed files to S3 (${{ matrix.environment }})
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          for file in ${{ steps.changed-file.outputs.changed_files[@] }}; do
+          for file in ${{ steps.changed-file.outputs.changed_files }}; do
               if [[ file == *.xml ]]; then
                 aws s3 cp "$file" ${{vars.IDP_BUCKET_PATH}}
               fi
@@ -90,7 +90,7 @@ jobs:
         if: ${{ matrix.environment != 'prod' }}
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          for file in ${{ steps.test-files.outputs.test_files[@] }}; do
+          for file in ${{ steps.test-files.outputs.test_files }}; do
               if [[ file == *.xml ]]; then
                 aws s3 cp "${file%.xml}-$(date +%s).xml" ${{vars.IDP_BUCKET_PATH}}
               fi
