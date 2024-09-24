@@ -92,6 +92,6 @@ jobs:
         run: |
           for file in ${{ steps.test-files.outputs.test_files }}; do
               if [[ $file == *.xml ]]; then
-                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}"/$(basename "$file")-$(date +%s).xml"
+                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}"/$(basename "$file")%.xml-$(date +%s).xml"
               fi
           done
