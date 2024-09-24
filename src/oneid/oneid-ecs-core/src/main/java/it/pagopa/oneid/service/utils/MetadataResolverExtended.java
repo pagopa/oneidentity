@@ -96,8 +96,8 @@ public class MetadataResolverExtended {
 
     Credential credential;
     try {
-      if (entityID.equals(
-          "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")) {
+      if (entityID.contains(
+          "idserver.servizicie.interno.gov.it")) {
         credential = cieMetadataCredentialResolver.resolveSingle(criteriaSet);
       } else {
         credential = spidMetadataCredentialResolver.resolveSingle(criteriaSet);
@@ -120,8 +120,8 @@ public class MetadataResolverExtended {
 
     EntityDescriptor entityDescriptor;
     try {
-      if (entityID.equals(
-          "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")) {
+      if (entityID.contains(
+          "idserver.servizicie.interno.gov.it")) {
         entityDescriptor = cieMetadataResolver.resolveSingle(criteriaSet);
       } else {
         entityDescriptor = spidMetadataResolver.resolveSingle(criteriaSet);

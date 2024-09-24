@@ -22,12 +22,11 @@
       "url": "${server_url}"
     }
   ],
+  "x-amazon-apigateway-binary-media-types": ["*/*"],
   "paths": {
     "/status": {
       "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "description": "Endpoint that can be used to verify the actual service health",
         "operationId": "Get_request_health_check",
         "x-amazon-apigateway-integration": {
@@ -64,9 +63,7 @@
     },
     "/login": {
       "get": {
-        "tags": [
-          "Login landing page"
-        ],
+        "tags": ["Login landing page"],
         "description": "This route will serve the login landing page, where users can choose which IDP use",
         "parameters": [
           {
@@ -134,11 +131,11 @@
             }
           }
         ],
-        "x-amazon-apigateway-integration" : {
-          "credentials" : "${s3_apigateway_proxy_role}",
-          "httpMethod" : "GET",
-          "uri" : "${assets_bucket_uri}/index.html",
-          "requestParameters" : {
+        "x-amazon-apigateway-integration": {
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_uri}/index.html",
+          "requestParameters": {
             "integration.request.querystring.client_id": "method.request.querystring.client_id",
             "integration.request.querystring.response_type": "method.request.querystring.response_type",
             "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
@@ -146,15 +143,15 @@
             "integration.request.querystring.nonce": "method.request.querystring.nonce",
             "integration.request.querystring.state": "method.request.querystring.state"
           },
-          "passthroughBehavior" : "when_no_match",
+          "passthroughBehavior": "when_no_match",
           "responseParameters": {},
-          "type" : "aws",
+          "type": "aws",
           "responses": {
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type" : "integration.response.header.Content-Type",
-                "method.response.header.location" :     "integration.response.header.location"
+                "method.response.header.content-type": "integration.response.header.Content-Type",
+                "method.response.header.location": "integration.response.header.location"
               }
             },
             "404": {
@@ -175,9 +172,7 @@
     },
     "/login/error": {
       "get": {
-        "tags": [
-          "Login error page"
-        ],
+        "tags": ["Login error page"],
         "description": "This route will serve the login error page",
         "parameters": [
           {
@@ -191,10 +186,10 @@
           }
         ],
         "x-amazon-apigateway-integration": {
-          "credentials" : "${s3_apigateway_proxy_role}",
-          "httpMethod" : "GET",
-          "uri" : "${assets_bucket_uri}/index.html",
-          "type" : "aws",          
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_uri}/index.html",
+          "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
             "integration.request.querystring.errorCode": "method.request.querystring.errorCode"
@@ -204,7 +199,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type" : "integration.response.header.Content-Type"
+                "method.response.header.content-type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -225,13 +220,11 @@
     },
     "/oidc/register": {
       "post": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
         "operationId": "Post_oidc_register",
         "x-amazon-apigateway-integration": {
-          "credentials" : "${lambda_apigateway_proxy_role}",
+          "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
@@ -297,12 +290,7 @@
                       "type": "string"
                     },
                     "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-                    "example": [
-                      "spidCode",
-                      "name",
-                      "familyName",
-                      "fiscalNumber"
-                    ]
+                    "example": ["spidCode", "name", "familyName", "fiscalNumber"]
                   },
                   "logo_uri": {
                     "type": "string",
@@ -403,10 +391,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "user1@example.org",
-                        "user2@example.org"
-                      ],
+                      "example": ["user1@example.org", "user2@example.org"],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -414,10 +399,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "code",
-                        "token_id_token"
-                      ],
+                      "example": ["code", "token_id_token"],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -425,10 +407,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "authorization_code",
-                        "implicit"
-                      ],
+                      "example": ["authorization_code", "implicit"],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -486,26 +465,24 @@
           }
         },
         "security": [
-            {
-              "api_key": []
-            }
+          {
+            "api_key": []
+          }
         ]
       }
     },
     "/oidc/register/{client_id}": {
       "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
         "operationId": "Get_oidc_register_config",
         "x-amazon-apigateway-integration": {
-          "credentials" : "${lambda_apigateway_proxy_role}",
+          "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
-          "httpMethod": "POST",      
-            "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "responses": {
             "200": {
               "statusCode": "200",
@@ -619,10 +596,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "user1@example.org",
-                        "user2@example.org"
-                      ],
+                      "example": ["user1@example.org", "user2@example.org"],
                       "description": "The array of e-mail addresses of people responsible for this client"
                     },
                     "response_types": {
@@ -630,10 +604,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "code",
-                        "token_id_token"
-                      ],
+                      "example": ["code", "token_id_token"],
                       "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
                     },
                     "grant_types": {
@@ -641,10 +612,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "example": [
-                        "authorization_code",
-                        "implicit"
-                      ],
+                      "example": ["authorization_code", "implicit"],
                       "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
                     },
                     "id_token_signed_response_alg": {
@@ -702,18 +670,16 @@
           }
         },
         "security": [
-            {
-              "api_key": []
-            }
+          {
+            "api_key": []
+          }
         ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
     "/saml/acs": {
       "post": {
-        "tags": [
-          "SAML APIs"
-        ],
+        "tags": ["SAML APIs"],
         "description": "This route will handle all SAML response as a callback from IDP",
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
@@ -761,10 +727,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "SAMLResponse",
-                  "RelayState"
-                ]
+                "required": ["SAMLResponse", "RelayState"]
               }
             }
           }
@@ -813,9 +776,7 @@
     },
     "/saml/assertion": {
       "get": {
-        "tags": [
-          "SAML APIs"
-        ],
+        "tags": ["SAML APIs"],
         "description": "This route will serves SAML assertion, useful for clients who need it for their local scope",
         "parameters": [
           {
@@ -902,9 +863,7 @@
     },
     "/saml/{id_type}/metadata": {
       "get": {
-        "tags": [
-          "SAML APIs"
-        ],
+        "tags": ["SAML APIs"],
         "description": "This route will serves SAML metadata",
         "parameters": [
           {
@@ -915,16 +874,13 @@
             "style": "simple",
             "schema": {
               "type": "string",
-              "enum": [
-                "spid",
-                "cie"
-              ],
+              "enum": ["spid", "cie"],
               "description": "Allowed metadata type."
             }
           }
         ],
         "x-amazon-apigateway-integration": {
-          "credentials" : "${lambda_apigateway_proxy_role}",
+          "credentials": "${lambda_apigateway_proxy_role}",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${metadata_lambda_arn}/invocations",
           "passthroughBehavior": "when_no_match",
           "httpMethod": "POST",
@@ -953,9 +909,7 @@
     },
     "/oidc/authorize": {
       "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2.",
         "operationId": "Get_request_authorization",
         "parameters": [
@@ -1119,9 +1073,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "description": "Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2.",
         "operationId": "Post_request_authorization",
         "requestBody": {
@@ -1265,9 +1217,7 @@
     },
     "/oidc/token": {
       "post": {
-        "tags": [
-          "Token Server APIs"
-        ],
+        "tags": ["Token Server APIs"],
         "description": "Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.",
         "operationId": "Create_request_token",
         "requestBody": {
@@ -1275,11 +1225,7 @@
             "application/x-www-form-urlencoded": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "code",
-                  "redirect_uri",
-                  "grant_type"
-                ],
+                "required": ["code", "redirect_uri", "grant_type"],
                 "properties": {
                   "redirect_uri": {
                     "type": "string",
@@ -1292,9 +1238,7 @@
                   "grant_type": {
                     "type": "string",
                     "description": "For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.",
-                    "enum": [
-                      "authorization_code"
-                    ],
+                    "enum": ["authorization_code"],
                     "default": "authorization_code"
                   }
                 }
@@ -1401,9 +1345,7 @@
     },
     "/oidc/keys": {
       "options": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "operationId": "Options_jwk_set_",
         "description": "CORS preflight request",
         "parameters": [
@@ -1494,9 +1436,7 @@
         "summary": "OpenID Connect jwks endpoint"
       },
       "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "operationId": "Get_jwk_set_",
         "description": "This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata",
         "x-amazon-apigateway-integration": {
@@ -1572,9 +1512,7 @@
     },
     "/.well-known/openid-configuration": {
       "options": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "operationId": "Options_getOpenIDDiscovery",
         "description": "CORS preflight request",
         "parameters": [
@@ -1665,9 +1603,7 @@
         "summary": "OpenID Connect Discovery endpoint"
       },
       "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
+        "tags": ["Authorization Server APIs"],
         "operationId": "Get_OpenIDDiscovery",
         "x-amazon-apigateway-integration": {
           "type": "HTTP_PROXY",
@@ -1725,6 +1661,96 @@
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata. It provides a mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations."
       }
     },
+    "/idps": {
+      "get": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Get_finAllIdps",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP_PROXY",
+          "httpMethod": "GET",
+          "uri": "${uri}/idps",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "requestParameters": {}
+            },
+            "404": {
+              "statusCode": "404",
+              "requestParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Find all Idps",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        },
+        "summary": "Find all idps endpoint",
+        "description": "This endpoint retrieves all ipds"
+      }
+    },
+    "/client/{client_id}": {
+      "get": {
+        "tags": ["Authorization Server APIs"],
+        "operationId": "Get_ClientFromClientId",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP_PROXY",
+          "httpMethod": "GET",
+          "uri": "${uri}/client/{client_id}",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.path.client_id": "method.request.path.client_id"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "requestParameters": {}
+            },
+            "404": {
+              "statusCode": "404",
+              "requestParameters": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Find client information from a client_id",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        },
+        "summary": "Find client information from a client_id",
+        "description": "This endpoint retrieves client information from its client_id"
+      }
+    },
     "/static/{proxy+}": {
       "get": {
         "parameters": [
@@ -1737,32 +1763,32 @@
             }
           }
         ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Content-Type" : {
-                "schema" : {
-                  "type" : "string"
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
                 }
               }
             },
-            "content" : { }
+            "content": {}
           },
           "404": {
             "$ref": "#/components/responses/notFound"
-          }  
+          }
         },
         "x-amazon-apigateway-integration": {
-          "type" : "aws",
-          "credentials" : "${s3_apigateway_proxy_role}",
-          "httpMethod" : "GET",
-          "uri" : "${assets_bucket_uri}/static/{proxy}",
-          "responses" : {
-            "default" : {
-              "statusCode" : "200",
-              "responseParameters" : {
-                "method.response.header.Content-Type" : "integration.response.header.Content-Type"
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_uri}/static/{proxy}",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -1770,11 +1796,69 @@
               "responseParameters": {}
             }
           },
-          "requestParameters" : {
-            "integration.request.path.proxy" : "method.request.path.proxy"
+          "requestParameters": {
+            "integration.request.path.proxy": "method.request.path.proxy"
           },
-          "passthroughBehavior" : "when_no_match",
-          "cacheKeyParameters" : [ "method.request.path.proxy" ]
+          "passthroughBehavior": "when_no_match",
+          "cacheKeyParameters": ["method.request.path.proxy"]
+        }
+      }
+    },
+    "/assets/{proxy+}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "proxy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_uri}/assets/{proxy}",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
+              }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            }
+          },
+          "requestParameters": {
+            "integration.request.path.proxy": "method.request.path.proxy"
+          },
+          "passthroughBehavior": "when_no_match",
+          "cacheKeyParameters": ["method.request.path.proxy"]
         }
       }
     }
@@ -2196,9 +2280,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "openid"
-            ],
+            "example": ["openid"],
             "description": "list of the OAuth 2.0 scope values that this server supports"
           },
           "subject_types_supported": {
@@ -2206,9 +2288,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "pairwise"
-            ],
+            "example": ["pairwise"],
             "description": "list of the Subject Identifier types that this OP supports"
           },
           "token_endpoint": {
@@ -2221,10 +2301,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "RS256",
-              "HS256"
-            ],
+            "example": ["RS256", "HS256"],
             "description": "list of the JWS signing algorithms (alg values) supported by the OP for the ID Token to encode the Claims in a JWT"
           },
           "response_types_supported": {
@@ -2232,10 +2309,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "code",
-              "token_id_token"
-            ],
+            "example": ["code", "token_id_token"],
             "description": "ist of the OAuth 2.0 response_type values that this OP supports"
           },
           "claims_supported": {
@@ -2243,12 +2317,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "sub",
-              "iss",
-              "auth_time",
-              "acr"
-            ],
+            "example": ["sub", "iss", "auth_time", "acr"],
             "description": "list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for"
           },
           "authorization_endpoint": {
@@ -2266,10 +2335,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "authorization_code",
-              "implicit"
-            ],
+            "example": ["authorization_code", "implicit"],
             "description": "list of the OAuth 2.0 Grant Type values that this OP supports"
           },
           "acr_values_supported": {
@@ -2277,9 +2343,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "urn:mace:incommon:iap:silver"
-            ],
+            "example": ["urn:mace:incommon:iap:silver"],
             "description": "list of the Authentication Context Class References that this OP supports"
           },
           "token_endpoint_auth_methods_supported": {
@@ -2287,9 +2351,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "client_secret_basic"
-            ],
+            "example": ["client_secret_basic"],
             "description": "list of Client Authentication methods supported by this Token Endpoint"
           },
           "token_endpoint_auth_signing_alg_values_supported": {
@@ -2297,9 +2359,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "RS256"
-            ],
+            "example": ["RS256"],
             "description": "list of the JWS signing algorithms (alg values) supported by the Token Endpoint for the signature on the JWT used to authenticate the Client at the Token Endpoint for the private_key_jwt and client_secret_jwt authentication methods. Servers SHOULD support RS256. The value none MUST NOT be used."
           },
           "display_values_supported": {
@@ -2307,10 +2367,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "page",
-              "popup"
-            ],
+            "example": ["page", "popup"],
             "description": "list of the display parameter values that the OpenID Provider supports"
           },
           "claim_types_supported": {
@@ -2318,9 +2375,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "normal"
-            ],
+            "example": ["normal"],
             "description": "list of the Claim Types that the OpenID Provider supports"
           },
           "service_documentation": {
@@ -2333,10 +2388,7 @@
               "type": "string"
             },
             "type": "array",
-            "example": [
-              "en-US",
-              "en-GB"
-            ],
+            "example": ["en-US", "en-GB"],
             "description": "Languages and scripts supported for the user interface"
           }
         },

@@ -27,6 +27,10 @@ variable "assets_bucket_prefix" {
   type = string
 }
 
+variable "idp_metadata_bucket_prefix" {
+  type = string
+}
+
 variable "github_repository" {
   type = string
 }

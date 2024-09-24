@@ -170,6 +170,133 @@ module "metadata_lambda" {
 
 }
 
+## Lambda idp_metadata
+
+data "aws_iam_policy_document" "idp_metadata_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${var.idp_metadata_lambda.s3_idp_metadata_bucket_arn}/*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+    ]
+    resources = [
+      "${var.dynamodb_table_idpMetadata.table_arn}",
+      "${var.dynamodb_table_idpMetadata.gsi_pointer_arn}"
+    ]
+  }
+
+}
+
+module "security_group_lambda_idp_metadata" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.idp_metadata_lambda.name}-sg"
+  description = "Security Group for Lambda Egress"
+
+  vpc_id = var.idp_metadata_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id, var.idp_metadata_lambda.vpc_s3_prefix_id, ]
+
+  egress_rules = ["https-443-tcp"]
+}
+
+module "idp_metadata_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.idp_metadata_lambda.name
+  description             = "Lambda function idp metadata."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.idp_metadata_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.idp_metadata_lambda.json
+  attach_network_policy = true
+
+  environment_variables  = var.idp_metadata_lambda.environment_variables
+  vpc_subnet_ids         = var.idp_metadata_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_idp_metadata.security_group_id]
+
+  cloudwatch_logs_retention_in_days = var.idp_metadata_lambda.cloudwatch_logs_retention_in_days
+
+  allowed_triggers = {
+    s3 = {
+      principal  = "s3.amazonaws.com"
+      source_arn = var.idp_metadata_lambda.s3_idp_metadata_bucket_arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  depends_on = [module.idp_metadata_lambda.lambda_function_name]
+  bucket     = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
+
+  lambda_function {
+    lambda_function_arn = module.idp_metadata_lambda.lambda_function_arn
+    events              = ["s3:ObjectCreated:Put"]
+  }
+}
+
+##Github Integration Lambda
+module "is_gh_integration_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.is_gh_integration_lambda.name
+  description             = "Lambda function is-gh integration."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.is_gh_integration_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
+
+  allowed_triggers = {
+    sns = {
+      principal  = "sns.amazonaws.com"
+      source_arn = var.is_gh_integration_lambda.sns_topic_arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+}
+
+resource "aws_sns_topic_subscription" "is-gh-integration" {
+  topic_arn  = var.is_gh_integration_lambda.sns_topic_arn
+  protocol   = "lambda"
+  endpoint   = module.is_gh_integration_lambda.lambda_function_arn
+  depends_on = [module.is_gh_integration_lambda.lambda_function_arn]
+}
+
 ## Assertion Lambda ##
 data "aws_iam_policy_document" "assertion_lambda" {
   statement {

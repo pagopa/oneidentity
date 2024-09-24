@@ -3,6 +3,12 @@ resource "random_integer" "asset_bucket_suffix" {
   max = 9999
 }
 
+
+resource "random_integer" "idp_metadata_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 module "s3_assets_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
@@ -15,6 +21,21 @@ module "s3_assets_bucket" {
 
   tags = {
     Name = local.assets_bucket
+  }
+}
+
+module "s3_idp_metadata_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.idp_metadata_bucket
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  tags = {
+    Name = local.idp_metadata_bucket
   }
 }
 

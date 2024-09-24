@@ -166,7 +166,6 @@ moved {
   to   = module.r53_zones.module.r53_zones.aws_route53_zone.this["dev.oneid.pagopa.it"]
 }
 
-
 moved {
   from = module.storage.module.s3_athena_output_bucket
   to   = module.storage.module.s3_athena_output_bucket[0]

@@ -212,7 +212,32 @@ variable "client_registrations_table" {
     stream_enabled                 = true
     stream_view_type               = "NEW_AND_OLD_IMAGES"
     replication_regions = [{
-      region_name = "eu-central-1"
+      region_name    = "eu-central-1"
+      propagate_tags = true
+    }]
+  }
+}
+
+variable "idp_metadata_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
+    replication_regions = optional(list(object({
+      region_name            = string
+      propagate_tags         = optional(bool, true)
+      point_in_time_recovery = optional(bool, true)
+    })), [])
+  })
+
+  description = "IDP Metadata configurations table."
+  default = {
+    point_in_time_recovery_enabled = true
+    stream_enabled                 = true
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
+    replication_regions = [{
+      region_name    = "eu-central-1"
+      propagate_tags = true
     }]
   }
 }
@@ -260,11 +285,6 @@ variable "api_method_settings" {
   }))
   default = [
     {
-      method_path     = "*/*"
-      metrics_enabled = true
-      logging_level   = "INFO"
-    },
-    {
       method_path          = "saml/{id_type}/metadata/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
@@ -276,12 +296,22 @@ variable "api_method_settings" {
       cache_ttl_in_seconds = 3600
     },
     {
+      method_path          = "assets/{proxy}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
       method_path          = "login/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     },
     {
       method_path          = "login/error/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "idps/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     }
@@ -303,6 +333,11 @@ variable "rest_api_throttle_settings" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "is_gh_sns_arn" {
+  type    = string
+  default = "arn:aws:sns:eu-south-1:116453376486:is-eng-pagopa-it-alerts-topic"
 }
 
 variable "ecs_alarms" {

@@ -195,7 +195,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return getEntityDescriptor(idpID)
         .map(descriptor -> descriptor.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
             .getSingleSignOnServices()
-            .getFirst()
+            .stream().filter(
+                singleSignOnService -> singleSignOnService.getBinding()
+                    .equals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")).toList().getFirst()
             .getLocation()
         );
   }

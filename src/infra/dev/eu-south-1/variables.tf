@@ -194,6 +194,16 @@ variable "client_registrations_table" {
   }
 }
 
+variable "idp_metadata_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "IDP Metadata configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 # DNS
 variable "dns_record_ttl" {
   type        = number
@@ -244,6 +254,26 @@ variable "api_method_settings" {
     },
     {
       method_path          = "static/{proxy+}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "assets/{proxy}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "login/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "login/error/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "idps/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     }
@@ -354,6 +384,11 @@ variable "dlq_alarms" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "is_gh_sns_arn" {
+  type    = string
+  default = "arn:aws:sns:eu-south-1:001102221608:is-eng-pagopa-it-alerts-topic"
 }
 
 variable "api_alarms" {
@@ -527,3 +562,4 @@ variable "api_alarms" {
     },
   }
 }
+

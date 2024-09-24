@@ -176,6 +176,12 @@
                 <artifactId>bcpkix-jdk18on</artifactId>
                 <version>1.78.1</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.17.0</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal -->
             <dependency>
                 <groupId>com.amazonaws</groupId>
@@ -240,6 +246,13 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-lambda-is-gh-integration-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-is-gh-integration</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-all</id>
             <modules>
                 <module>oneid-common</module>
@@ -247,6 +260,7 @@
                 <module>oneid-lambda-client-registration</module>
                 <module>oneid-lambda-service-metadata</module>
                 <module>oneid-lambda-update-idp-metadata</module>
+                <module>oneid-lambda-is-gh-integration</module>
             </modules>
             <activation>
                 <activeByDefault>true</activeByDefault>

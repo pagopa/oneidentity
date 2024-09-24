@@ -36,4 +36,11 @@ moved {
 moved {
   from = module.storage.module.s3_athena_output_bucket
   to   = module.storage.module.s3_athena_output_bucket[0]
+
+}
+
+moved {
+  from = module.backend.module.is-gh-integration-lambda
+  to   = module.backend.module.is_gh_integration_lambda
+
 }
