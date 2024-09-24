@@ -10,7 +10,8 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region  = var.aws_region
+  profile = "ppa-oneidentity-dev"
   default_tags {
     tags = var.tags
   }
