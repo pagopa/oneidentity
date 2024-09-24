@@ -52,7 +52,7 @@ resource "aws_iam_policy" "replication" {
       ],
       "Effect": "Allow",
       "Resource": [
-        ${module.s3_assertions_bucket.s3_bucket_arn}
+        "${module.s3_assertions_bucket.s3_bucket_arn}"
       ]
     },
     {
@@ -62,7 +62,7 @@ resource "aws_iam_policy" "replication" {
       ],
       "Effect": "Allow",
       "Resource": [
-        ${module.s3_assertions_bucket.s3_bucket_arn}
+        "${module.s3_assertions_bucket.s3_bucket_arn}"
       ]
     },
     {
@@ -146,7 +146,7 @@ module "s3_assertions_bucket" {
         }
       }
     ]
-  } : {}
+  } : null
 
   tags = {
     Name = local.bucket_name

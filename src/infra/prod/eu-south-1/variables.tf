@@ -138,6 +138,12 @@ variable "assertion_bucket" {
     kms_multi_region          = bool
     enable_key_rotation       = bool
     object_lock_configuration = any
+    replication_configuration = optional(
+      object({
+        id                     = string
+        destination_bucket_arn = string
+        kms_key_replica_arn    = string
+    }), null)
   })
 
   description = "Assertion storage."
@@ -155,6 +161,7 @@ variable "assertion_bucket" {
         }
       }
     }
+
     replication_configuration = {
       id                     = "eu-south-1-to-eu-central-1"
       destination_bucket_arn = "arn:aws:s3:::assertions-3786"
@@ -249,7 +256,7 @@ variable "idp_metadata_table" {
 
 
 variable "cie_entity_id" {
-  type = string
+  type    = string
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
 }
 
