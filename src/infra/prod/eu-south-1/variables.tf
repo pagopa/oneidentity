@@ -155,6 +155,11 @@ variable "assertion_bucket" {
         }
       }
     }
+    replication_configuration = {
+      id                     = "eu-south-1-to-eu-central-1"
+      destination_bucket_arn = "arn:aws:s3:::assertions-3786"
+      kms_key_replica_arn    = "arn:aws:kms:eu-central-1:851725347804:key/mrk-b92f2476079142188f1664e0b4a5150a"
+    }
   }
 
 }
