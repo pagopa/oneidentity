@@ -86,6 +86,16 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid = "DynamoDBIdpMetadataR"
+        Action = [
+          "dynamodb:GetItem",
+        ]
+        Effect = "Allow"
+        Resource = [
+          "${var.dynamodb_table_idpMetadata.table_arn}",
+        ]
+      },
+      {
         Sid    = "DynamoDBClientRegistrationsReadOnly"
         Effect = "Allow"
         Action = [

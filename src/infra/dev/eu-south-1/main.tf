@@ -243,6 +243,9 @@ module "backend" {
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
+      TIMESTAMP_SPID           = "LATEST_SPID"
+      TIMESTAMP_CIE            = "LATEST_CIE"
+      CIE_ENTITY_ID            = var.cie_entity_id
     }
     s3_idp_metadata_bucket_arn = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id  = module.storage.s3_idp_metadata_bucket_name

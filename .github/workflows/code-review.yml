@@ -8,7 +8,7 @@ on:
       - '!**/src/oneid/oneid-lambda-assertion'
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - edited
