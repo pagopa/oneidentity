@@ -4,7 +4,7 @@ on:
     branches:
       - "test/remove-this-branch"
     paths:
-      - "**/src/oneid/oned-id-ecs-core/metadata/**"
+      - "**/src/oneid/oneid-id-ecs-core/metadata/**"
 jobs:
   setup:
     runs-on: ubuntu-22.04
