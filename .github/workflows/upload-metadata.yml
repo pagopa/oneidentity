@@ -72,8 +72,6 @@ jobs:
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
-              echo $file
-              echo $(basename "$file")
               if [[ $file == *.xml ]]; then
                 aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}
               fi
@@ -84,7 +82,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
-          echo "test_files=$(find "$directory" -type f ! -name "spid*" ! -name "cie*")" >> $GITHUB_OUTPUT
+          echo "test_files=$(find . -type f ! -name "spid*" ! -name "cie*")" >> $GITHUB_OUTPUT
 
 
       # Upload Test files to S3
