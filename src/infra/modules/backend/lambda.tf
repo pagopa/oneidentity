@@ -237,12 +237,14 @@ module "idp_metadata_lambda" {
 
   cloudwatch_logs_retention_in_days = var.idp_metadata_lambda.cloudwatch_logs_retention_in_days
 
+  /*
   allowed_triggers = {
     s3 = {
       principal  = "s3.amazonaws.com"
       source_arn = var.idp_metadata_lambda.s3_idp_metadata_bucket_arn
     }
   }
+  */
 
   memory_size = 512
   timeout     = 30
@@ -259,6 +261,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events              = ["s3:ObjectCreated:Put"]
   }
 }
+
 
 ##Github Integration Lambda
 module "is_gh_integration_lambda" {
