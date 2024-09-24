@@ -118,11 +118,8 @@
 | <a name="input_assets_bucket_prefix"></a> [assets\_bucket\_prefix](#input\_assets\_bucket\_prefix) | n/a | `string` | n/a | yes |
 | <a name="input_create_athena_table"></a> [create\_athena\_table](#input\_create\_athena\_table) | Create athena table, query, glue crawler and all related resources. | `bool` | `true` | no |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | n/a | `string` | n/a | yes |
-<<<<<<< HEAD
-| <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
-=======
 | <a name="input_idp_metadata_bucket_prefix"></a> [idp\_metadata\_bucket\_prefix](#input\_idp\_metadata\_bucket\_prefix) | n/a | `string` | n/a | yes |
->>>>>>> c09ee868e6c64a936a995f15754d14fab7e1822e
+| <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
 
 ## Outputs
 
