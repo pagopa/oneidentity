@@ -33,21 +33,6 @@ import {
 }
 
 import {
-  to = module.storage.aws_glue_crawler.assertions
-  id = "assertions"
-}
-
-import {
-  to = module.storage.aws_glue_catalog_database.assertions
-  id = "471112878885:assertions"
-}
-
-import {
-  to = module.storage.aws_iam_role.glue_assertions
-  id = "AWSGlueServiceRole-Assertions"
-}
-
-import {
   to = module.storage.aws_iam_role_policy_attachment.glue_s3_assertions_policy[0]
   id = "AWSGlueServiceRole-Assertions/arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
@@ -182,6 +167,6 @@ moved {
 }
 
 moved {
-  from = module.backend.module.is-gh-integration-lambda
-  to   = module.backend.module.is_gh_integration_lambda
+  from = module.storage.module.s3_athena_output_bucket
+  to   = module.storage.module.s3_athena_output_bucket[0]
 }

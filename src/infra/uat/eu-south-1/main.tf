@@ -71,6 +71,8 @@ module "frontend" {
 module "storage" {
   source = "../../modules/storage"
 
+  role_prefix = local.project
+
   assertion_bucket = {
     name_prefix              = "assertions"
     glacier_transaction_days = 90
