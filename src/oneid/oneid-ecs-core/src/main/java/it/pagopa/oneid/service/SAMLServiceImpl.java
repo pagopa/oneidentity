@@ -8,7 +8,6 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
@@ -86,16 +85,14 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
+  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String authLevel) throws OneIdentityException {
-    return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
+    return this.buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex, "", authLevel);
   }
 
-  private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel)
-      throws OneIdentityException {
-    //TODO: add support for CIEid
+  private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String purpose, String authLevel) {
 
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
 
@@ -109,12 +106,7 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
     authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
 
-    try {
-      authnRequest.setDestination(
-          samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
-    } catch (SAMLUtilsException e) {
-      throw new OneIdentityException(e);
-    }
+    authnRequest.setDestination(idpSSOEndpoint);
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
 
@@ -219,7 +211,7 @@ public class SAMLServiceImpl implements SAMLService {
     return samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(OneIdentityException::new);
   }
-  
+
   @Override
   public Optional<IDP> getIDPFromEntityID(String entityID) {
     if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {

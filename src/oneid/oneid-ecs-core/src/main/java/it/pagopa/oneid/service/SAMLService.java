@@ -11,7 +11,7 @@ import org.opensaml.saml.saml2.core.Response;
 
 public interface SAMLService {
 
-  AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
+  AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String spidLevel)
       throws OneIdentityException;
 
@@ -22,7 +22,7 @@ public interface SAMLService {
 
   List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException;
-  
+
   Optional<IDP> getIDPFromEntityID(String entityID);
 
   void checkSAMLStatus(Response response) throws OneIdentityException;

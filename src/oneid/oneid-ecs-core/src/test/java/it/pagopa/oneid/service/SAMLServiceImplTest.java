@@ -3,7 +3,6 @@ package it.pagopa.oneid.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusMock;
@@ -18,11 +17,9 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
-import it.pagopa.oneid.service.utils.MetadataResolverExtended;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -56,9 +53,6 @@ public class SAMLServiceImplTest {
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
-  @Inject
-  MetadataResolverExtended metadataResolverExtended;
-
   @InjectMock
   IDPConnectorImpl idpConnectorImpl;
 
@@ -70,45 +64,10 @@ public class SAMLServiceImplTest {
     int attributeConsumingServiceIndex = 0;
     String authLevel = "foobar";
 
-    doReturn(Optional.of("foobar")).when(samlUtils).buildDestination(Mockito.any());
-    // then
-
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
         assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
 
     assertFalse(authnRequest.getID().isEmpty());
-  }
-
-  @Test
-  void buildAuthnRequest_idpSSONotFound() throws OneIdentityException {
-    // given
-    String idpId = "dummy";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "foobar";
-
-    doThrow(IDPSSOEndpointNotFoundException.class).when(samlUtils).buildDestination(Mockito.any());
-    // then
-
-    Executable executable = () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
-    assertThrows(IDPSSOEndpointNotFoundException.class, executable);
-  }
-
-  @Test
-  void buildAuthnRequest_SAMLUtilsExceptionDuringBuildDestination() throws OneIdentityException {
-    // given
-    String idpId = "dummy";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "foobar";
-
-    doThrow(SAMLUtilsException.class).when(samlUtils).buildDestination(Mockito.any());
-    // then
-
-    Executable executable = () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
-    assertThrows(OneIdentityException.class, executable);
   }
 
   @Test
@@ -119,7 +78,6 @@ public class SAMLServiceImplTest {
     int attributeConsumingServiceIndex = 0;
     String authLevel = "foobar";
 
-    doReturn(Optional.of("foobar")).when(samlUtils).buildDestination(Mockito.any());
     doThrow(SAMLUtilsException.class).when(samlUtils).buildSignature(Mockito.any());
     // then
 

@@ -42,7 +42,6 @@ import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.security.x509.BasicX509Credential;
@@ -55,9 +54,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
-
-  @Inject
-  MetadataResolverExtended metadataResolverExtended;
 
 
   @Inject
@@ -210,23 +206,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throw new SAMLValidationException("Credential not found for selected IDP");
     }
   }
-
-  public Optional<String> buildDestination(String idpID) throws SAMLUtilsException {
-
-    return getEntityDescriptor(idpID)
-        .map(descriptor -> descriptor.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
-            .getSingleSignOnServices()
-            .stream().filter(
-                singleSignOnService -> singleSignOnService.getBinding()
-                    .equals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")).toList().getFirst()
-            .getLocation()
-        );
-  }
-
-  public Optional<EntityDescriptor> getEntityDescriptor(String id) throws SAMLUtilsException {
-    return metadataResolverExtended.getEntityDescriptor(id);
-  }
-
+  
   private ArrayList<Credential> getCredentials(Set<String> certificates, Instant issueInstant) {
     ArrayList<Credential> credentials = new ArrayList<>();
 

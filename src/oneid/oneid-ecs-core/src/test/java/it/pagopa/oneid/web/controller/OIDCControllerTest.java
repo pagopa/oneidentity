@@ -711,8 +711,7 @@ class OIDCControllerTest {
   private AuthnRequest buildAuthnRequest(String idpID) {
     AuthnRequest authnRequest = samlUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
     authnRequest.setID("test");
-    authnRequest.setDestination(
-        samlUtilsExtendedCore.buildDestination(idpID).orElse("https://demo.spid.gov.it"));
+    authnRequest.setDestination("https://demo.spid.gov.it");
     return authnRequest;
   }
 

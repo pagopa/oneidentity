@@ -190,7 +190,7 @@ public class OIDCController {
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(
-          authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(),
+          idpSSOEndpoint, client.getAcsIndex(),
           client.getAttributeIndex(),
           client.getAuthLevel().getValue());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
