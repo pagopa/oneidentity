@@ -6,23 +6,28 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
-import { IdentityProvider, IDPS } from '../../utils/IDPS';
+import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import SpidBig from '../../assets/spid_big.svg';
 import { ENV } from '../../utils/env';
 import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 
-const Login = ({ onBack }: { onBack: () => void }) => {
+type Props = {
+  onBack: () => void;
+  idpList: IdentityProviders;
+};
+
+const SpidSelect = ({ onBack, idpList }: Props) => {
   const { t } = useTranslation();
   const getSPID = (IDP: IdentityProvider) => {
-    const params = forwardSearchParams(IDP.entityId);
+    const params = forwardSearchParams(IDP.entityID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
         SPID_IDP_NAME: IDP.name,
-        SPID_IDP_ID: IDP.entityId,
+        SPID_IDP_ID: IDP.entityID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -72,10 +77,10 @@ const Login = ({ onBack }: { onBack: () => void }) => {
           </Grid>
           <Grid item pb={5}>
             <Grid container direction="row" justifyItems="center" spacing={2}>
-              {IDPS.identityProviders.map((IDP, i) => (
+              {idpList.identityProviders.map((IDP, i) => (
                 <Grid
                   item
-                  key={IDP.entityId}
+                  key={IDP.entityID}
                   xs={6}
                   textAlign={i % 2 === 0 ? 'right' : 'left'}
                   sx={{ minWidth: '100px' }}
@@ -84,7 +89,7 @@ const Login = ({ onBack }: { onBack: () => void }) => {
                     onClick={() => getSPID(IDP)}
                     sx={{ width: '100px', padding: '0' }}
                     aria-label={IDP.name}
-                    id={IDP.entityId}
+                    id={IDP.entityID}
                   >
                     <Icon sx={{ width: '100px', height: '48px' }}>
                       <img width="100px" src={IDP.imageUrl} alt={IDP.name} />
@@ -114,4 +119,4 @@ const Login = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-export default Login;
+export default SpidSelect;

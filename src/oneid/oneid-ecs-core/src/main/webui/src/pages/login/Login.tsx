@@ -15,6 +15,7 @@ import { ENV } from '../../utils/env';
 import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
+import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import SpidSelect from './SpidSelect';
 import SpidModal from './SpidModal';
 
@@ -40,6 +41,10 @@ const Login = () => {
   const [showIDPS, setShowIDPS] = useState(false);
   const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
   const [openSpidModal, setOpenSpidModal] = useState(false);
+  const [idpList, setIdpList] = useState<IdentityProviders>({
+    identityProviders: [],
+    richiediSpid: '',
+  });
 
   const mapToArray = (json: { [key: string]: BannerContent }) => {
     const mapped = Object.values(json);
@@ -56,8 +61,27 @@ const Login = () => {
     }
   };
 
+  const getIdpList = async (idpListUrl: string) => {
+    try {
+      const response = await fetch(idpListUrl);
+      const res: Array<IdentityProvider> = await response.json();
+      const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
+      const rawIDPS = res
+        .map((i) => ({ ...i, imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png` }))
+        .sort(() => 0.5 - Math.random());
+      const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string } = {
+        identityProviders: rawIDPS,
+        richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
+      };
+      setIdpList(IDPS);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     void alertMessage(ENV.JSON_URL.ALERT);
+    void getIdpList(ENV.JSON_URL.IDP_LIST);
   }, []);
 
   const { t } = useTranslation();
@@ -89,7 +113,7 @@ const Login = () => {
   };
 
   if (showIDPS) {
-    return <SpidSelect onBack={onBackAction} />;
+    return <SpidSelect onBack={onBackAction} idpList={idpList} />;
   }
 
   const redirectPrivacyLink = () =>
@@ -179,6 +203,7 @@ const Login = () => {
           )}
         <Grid
           container
+          // item - it fixes warning in console but breaks container size
           xs={6}
           lg={3}
           xl={3}
@@ -195,7 +220,11 @@ const Login = () => {
             },
           }}
         >
-          <SpidModal openSpidModal={openSpidModal} setOpenSpidModal={setOpenSpidModal} />
+          <SpidModal
+            openSpidModal={openSpidModal}
+            setOpenSpidModal={setOpenSpidModal}
+            idpList={idpList}
+          />
           <Grid item sx={{ width: '100%' }}>
             <Button
               id="spidButton"
