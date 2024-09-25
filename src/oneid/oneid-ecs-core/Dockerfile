@@ -9,7 +9,7 @@ COPY --chown=quarkus:quarkus ../.mvn /code/.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common /code/oneid-common
 COPY --chown=quarkus:quarkus ../oneid-ecs-core /code/oneid-ecs-core
-COPY --chown=quarkus:quarkus ../login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/login-alert-message.json
+COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/login-alert-message.json
 USER quarkus
 
 WORKDIR /code
@@ -19,11 +19,15 @@ ARG ENVFILE=/code/oneid-ecs-core/src/main/webui/.env.${ENVIRONMENT}
 
 # Build oneid-ecs-core using oneid-ecs-core-aggregate
 # Start downloading dependencies
-RUN ["./mvnw", "verify", "clean", "--fail-never"]
+RUN \
+  --mount=type=cache,target=/quarkus/.m2 \
+  ["./mvnw", "verify", "clean", "--fail-never"]
 
 # This will use a workaround to load an env file, since is
 # not supported in docker build
-RUN export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.test.skip=true
+RUN \
+  --mount=type=cache,target=/quarkus/.m2 \
+  export $(grep -v ^# ${ENVFILE}| xargs); ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.test.skip=true
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526aebd99245eee76feb55c0b9a10325cddfc9530b24c096064a5ed81e
