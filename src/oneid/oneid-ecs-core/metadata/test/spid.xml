@@ -80,6 +80,16 @@
             <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
                                     Location="https://demo.spid.gov.it/samlsso"/>
         </md:IDPSSODescriptor>
+        <md:Organization>
+            <md:OrganizationName xml:lang="it">DEMO SPID</md:OrganizationName>
+            <md:OrganizationName xml:lang="en">DEMO SPID</md:OrganizationName>
+            <md:OrganizationDisplayName xml:lang="it">DEMO SPID</md:OrganizationDisplayName>
+            <md:OrganizationDisplayName xml:lang="en">DEMO SPID</md:OrganizationDisplayName>
+            <md:OrganizationURL xml:lang="it">https://demo.spid.gov.it/samlsso
+            </md:OrganizationURL>
+            <md:OrganizationURL xml:lang="en">https://demo.spid.gov.it/samlsso
+            </md:OrganizationURL>
+        </md:Organization>
     </md:EntityDescriptor>
 
     <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
@@ -134,6 +144,17 @@
             <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
                                     Location="https://validator.dev.oneid.pagopa.it/samlsso"/>
         </md:IDPSSODescriptor>
+
+        <md:Organization>
+            <md:OrganizationName xml:lang="it">VALIDATOR</md:OrganizationName>
+            <md:OrganizationName xml:lang="en">VALIDATOR</md:OrganizationName>
+            <md:OrganizationDisplayName xml:lang="it">VALIDATOR</md:OrganizationDisplayName>
+            <md:OrganizationDisplayName xml:lang="en">VALIDATOR</md:OrganizationDisplayName>
+            <md:OrganizationURL xml:lang="it">https://validator.dev.oneid.pagopa.it/samlsso
+            </md:OrganizationURL>
+            <md:OrganizationURL xml:lang="en">https://validator.dev.oneid.pagopa.it/samlsso
+            </md:OrganizationURL>
+        </md:Organization>
     </md:EntityDescriptor>
 
     <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
@@ -188,5 +209,16 @@
             <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
                                     Location="https://validator.dev.oneid.pagopa.it/demo/samlsso"/>
         </md:IDPSSODescriptor>
+
+        <md:Organization>
+            <md:OrganizationName xml:lang="it">VALIDATOR DEMO</md:OrganizationName>
+            <md:OrganizationName xml:lang="en">VALIDATOR DEMO</md:OrganizationName>
+            <md:OrganizationDisplayName xml:lang="it">VALIDATOR DEMO</md:OrganizationDisplayName>
+            <md:OrganizationDisplayName xml:lang="en">VALIDATOR DEMO</md:OrganizationDisplayName>
+            <md:OrganizationURL xml:lang="it">https://validator.dev.oneid.pagopa.it/demo/samlsso
+            </md:OrganizationURL>
+            <md:OrganizationURL xml:lang="en">https://validator.dev.oneid.pagopa.it/demo/samlsso
+            </md:OrganizationURL>
+        </md:Organization>
     </md:EntityDescriptor>
 </md:EntitiesDescriptor>
