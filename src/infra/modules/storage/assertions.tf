@@ -192,38 +192,7 @@ module "s3_assertions_bucket" {
     }
   ]
 
-  replication_configuration = var.assertion_bucket.replication_configuration != null ? {
-    role = aws_iam_role.replication[0].arn
-
-    rules = [
-      {
-        id     = var.assertion_bucket.replication_configuration.id
-        status = "Enabled"
-
-        delete_marker_replication = false
-
-        source_selection_criteria = {
-          replica_modifications = {
-            status = "Enabled"
-          }
-          sse_kms_encrypted_objects = {
-            enabled = true
-          }
-        }
-
-        destination = {
-          bucket             = var.assertion_bucket.replication_configuration.destination_bucket_arn
-          storage_class      = "STANDARD"
-          replica_kms_key_id = var.assertion_bucket.replication_configuration.kms_key_replica_arn
-          account_id         = var.account_id
-        }
-
-        filter = {
-          prefix = "" # Replicate all objects
-        }
-      }
-    ]
-  } : null
+  replication_configuration = local.replication_configuration
 
   tags = {
     Name = local.bucket_name
