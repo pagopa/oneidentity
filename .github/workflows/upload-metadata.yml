@@ -83,14 +83,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/oneid-ecs-core/metadata/test
         run: |
-          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \))" 
-          {
-            echo "test_files<<EOF"
-            echo "$test_files"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-      
-      
+          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) | xargs)" >> $GITHUB_OUTPUT
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
