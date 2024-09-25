@@ -27,7 +27,7 @@ output "dynamodb_table_stream_arn" {
 }
 
 output "table_idp_metadata_name" {
-  value = module.dynamodb_table_idpMetadata.dynamodb_table_id
+  value = module.dynamodb_table_idpMetadata[*].dynamodb_table_id
 }
 
 output "table_idp_metadata_idx_name" {
@@ -35,10 +35,10 @@ output "table_idp_metadata_idx_name" {
 }
 
 output "table_idp_metadata_arn" {
-  value = module.dynamodb_table_idpMetadata.dynamodb_table_arn
+  value = module.dynamodb_table_idpMetadata[*].dynamodb_table_arn
 }
 
 output "table_idpMetadata_gsi_pointer_arn" {
-  value = "${module.dynamodb_table_idpMetadata.dynamodb_table_arn}/index/${local.gsi_pointer}"
+  value = try("${module.dynamodb_table_idpMetadata.dynamodb_table_arn}/index/${local.gsi_pointer}", null)
 }
 
