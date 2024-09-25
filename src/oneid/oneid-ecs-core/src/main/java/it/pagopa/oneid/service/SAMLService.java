@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import java.util.List;
@@ -7,11 +8,10 @@ import java.util.Optional;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public interface SAMLService {
 
-  AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
+  AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String spidLevel)
       throws OneIdentityException;
 
@@ -23,8 +23,7 @@ public interface SAMLService {
   List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException;
 
-  Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws OneIdentityException;
+  Optional<IDP> getIDPFromEntityID(String entityID);
 
   void checkSAMLStatus(Response response) throws OneIdentityException;
 

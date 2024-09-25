@@ -3,6 +3,7 @@ package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
@@ -12,12 +13,20 @@ import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.apache.commons.codec.binary.Base64;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSString;
@@ -33,9 +42,10 @@ import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
+import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
@@ -45,8 +55,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
-  @Inject
-  MetadataResolverExtended metadataResolverExtended;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool) throws SAMLUtilsException {
@@ -129,7 +137,16 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throws OneIdentityException {
     Log.debug("start");
 
-    byte[] decodedSamlResponse = Base64.decodeBase64(SAMLResponse);
+    byte[] decodedSamlResponse = null;
+
+    try {
+      decodedSamlResponse = Base64.getDecoder().decode(SAMLResponse);
+    } catch (IllegalArgumentException e) {
+      Log.error(
+          "error unmarshalling "
+              + e.getMessage());
+      throw new OneIdentityException(e);
+    }
 
     try {
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
@@ -142,20 +159,21 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  public void validateSignature(Response response, String entityID)
+  public void validateSignature(Response response, IDP idp)
       throws SAMLUtilsException, SAMLValidationException {
     Log.debug("start");
     SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
     Assertion assertion = response.getAssertions().getFirst();
 
-    Optional<Credential> credential = metadataResolverExtended.getCredential(entityID);
+    ArrayList<Credential> credentials = getCredentials(idp.getCertificates(),
+        response.getIssueInstant());
 
-    if (credential.isPresent()) {
+    if (!credentials.isEmpty()) {
       // Validate 'Response' signature
       if (response.getSignature() != null) {
         try {
           profileValidator.validate(response.getSignature());
-          SignatureValidator.validate(response.getSignature(), credential.get());
+          validateSignatureMultipleCredentials(response.getSignature(), credentials);
         } catch (SignatureException e) {
           Log.error(
               "error during Response signature validation "
@@ -170,7 +188,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       if (assertion.getSignature() != null) {
         try {
           profileValidator.validate(assertion.getSignature());
-          SignatureValidator.validate(assertion.getSignature(), credential.get());
+          validateSignatureMultipleCredentials(assertion.getSignature(), credentials);
         } catch (SignatureException e) {
           Log.error(
               "error during Assertion signature validation "
@@ -188,21 +206,50 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throw new SAMLValidationException("Credential not found for selected IDP");
     }
   }
+  
+  private ArrayList<Credential> getCredentials(Set<String> certificates, Instant issueInstant) {
+    ArrayList<Credential> credentials = new ArrayList<>();
 
+    for (String certificate : certificates) {
 
-  public Optional<String> buildDestination(String idpID) throws SAMLUtilsException {
+      byte[] encodedCert = Base64.getMimeDecoder().decode(certificate);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(encodedCert);
 
-    return getEntityDescriptor(idpID)
-        .map(descriptor -> descriptor.getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
-            .getSingleSignOnServices()
-            .stream().filter(
-                singleSignOnService -> singleSignOnService.getBinding()
-                    .equals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")).toList().getFirst()
-            .getLocation()
-        );
+      CertificateFactory certFactory = null;
+      try {
+        certFactory = CertificateFactory.getInstance("X.509");
+      } catch (CertificateException e) {
+        throw new RuntimeException(e);
+      }
+      X509Certificate cert = null;
+      try {
+        cert = (X509Certificate) certFactory.generateCertificate(inputStream);
+      } catch (CertificateException e) {
+        throw new RuntimeException(e);
+      }
+      try {
+        cert.checkValidity(Date.from(issueInstant));
+        credentials.add(new BasicX509Credential(cert));
+      } catch (CertificateExpiredException expiredEx) {
+        Log.debug("certificate expired: " + expiredEx.getMessage());
+      } catch (CertificateNotYetValidException notYetValidEx) {
+        Log.debug("certificate not valid yet: " + notYetValidEx.getMessage());
+      }
+    }
+    return credentials;
   }
 
-  public Optional<EntityDescriptor> getEntityDescriptor(String id) throws SAMLUtilsException {
-    return metadataResolverExtended.getEntityDescriptor(id);
+  private void validateSignatureMultipleCredentials(Signature signature,
+      ArrayList<Credential> credentials) throws SignatureException {
+
+    for (Credential credential : credentials) {
+      try {
+        SignatureValidator.validate(signature, credential);
+        return;
+      } catch (SignatureException ignored) {
+      }
+    }
+    throw new SignatureException("Invalid signature");
+
   }
 }
