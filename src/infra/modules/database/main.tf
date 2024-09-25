@@ -69,7 +69,7 @@ module "dynamodb_sessions_table" {
 }
 
 module "dynamodb_table_client_registrations" {
-  count = var.client_registrations_table != null ? 1 : 0
+  count   = var.client_registrations_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
   version = "4.0.1"
 

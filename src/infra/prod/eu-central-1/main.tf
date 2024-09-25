@@ -44,18 +44,10 @@ module "storage" {
   account_id                 = data.aws_caller_identity.current.account_id
 }
 
-
-## SNS for alarms ##
-module "sns" {
-  source            = "../../modules/sns"
-  sns_topic_name    = format("%s-sns", local.project)
-  alarm_subscribers = var.alarm_subscribers
-}
-
 ## Database ##  
 module "database" {
-  source                     = "../../modules/database"
-  sessions_table             = var.sessions_table
+  source         = "../../modules/database"
+  sessions_table = var.sessions_table
   // the following tables won't be created in the secondary region since 
   // they are replicated from the primary region.
   client_registrations_table = null
