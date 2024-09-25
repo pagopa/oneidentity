@@ -47,31 +47,97 @@ resource "aws_iam_policy" "replication" {
   "Statement": [
     {
       "Action": [
+        "s3:ListBucket",
         "s3:GetReplicationConfiguration",
-        "s3:ListBucket"
+        "s3:GetObjectVersionForReplication",
+        "s3:GetObjectVersionAcl",
+        "s3:GetObjectVersionTagging",
+        "s3:GetObjectRetention",
+        "s3:GetObjectLegalHold"
       ],
       "Effect": "Allow",
       "Resource": [
-        ${module.s3_assertions_bucket.s3_bucket_arn}
-      ]
-    },
-    {
-      "Action": [
-        "s3:GetObjectVersion",
-        "s3:GetObjectVersionAcl"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        ${module.s3_assertions_bucket.s3_bucket_arn}
+        "${module.s3_assertions_bucket.s3_bucket_arn}",
+        "${module.s3_assertions_bucket.s3_bucket_arn}/*"
       ]
     },
     {
       "Action": [
         "s3:ReplicateObject",
-        "s3:ReplicateDelete"
+        "s3:ReplicateDelete",
+        "s3:ReplicateTags",
+        "s3:GetObjectVersionTagging",
+        "s3:ObjectOwnerOverrideToBucketOwner"
       ],
       "Effect": "Allow",
-      "Resource": "${var.assertion_bucket.replication_configuration.destination_bucket_arn}/*"
+      "Condition": {
+        "StringLikeIfExists": {
+          "s3:x-amz-server-side-encryption": [
+            "aws:kms",
+            "aws:kms:dsse",
+            "AES256"
+          ]
+        }
+      },
+      "Resource": [
+        "${var.assertion_bucket.replication_configuration.destination_bucket_arn}/*"
+      ]
+    },
+    {
+      "Action": [
+        "kms:Decrypt"
+      ],
+      "Effect": "Allow",
+      "Condition": {
+        "StringLike": {
+          "kms:ViaService": "s3.eu-south-1.amazonaws.com",
+          "kms:EncryptionContext:aws:s3:arn": [
+            "${module.s3_assertions_bucket.s3_bucket_arn}/*"
+          ]
+        }
+      },
+      "Resource": [
+        "${module.kms_assertions_bucket.aliases["assertions/S3"].target_key_arn}"
+      ]
+    },
+    {
+      "Action": [
+        "kms:Encrypt"
+      ],
+      "Effect": "Allow",
+      "Condition": {
+        "StringLike": {
+          "kms:ViaService": [
+            "s3.eu-central-1.amazonaws.com"
+          ],
+          "kms:EncryptionContext:aws:s3:arn": [
+            "${var.assertion_bucket.replication_configuration.destination_bucket_arn}/*"
+          ]
+        }
+      },
+      "Resource": [
+        "${var.assertion_bucket.replication_configuration.kms_key_replica_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": [
+        "${module.kms_assertions_bucket.aliases["assertions/S3"].target_key_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:GenerateDataKey",
+        "kms:Encrypt"
+      ],
+      "Resource": [
+        "${var.assertion_bucket.replication_configuration.kms_key_replica_arn}"
+      ]
     }
   ]
 }
@@ -126,27 +192,7 @@ module "s3_assertions_bucket" {
     }
   ]
 
-  replication_configuration = var.assertion_bucket.replication_configuration != null ? {
-    role = aws_iam_role.replication[0].arn
-
-    rules = [
-      {
-        id     = var.assertion_bucket.replication_configuration.id
-        status = "Enabled"
-
-        destination = {
-          bucket             = var.assertion_bucket.replication_configuration.destination_bucket_arn
-          storage_class      = "STANDARD"
-          replica_kms_key_id = var.assertion_bucket.replication_configuration.kms_key_replica_arn
-          account_id         = var.account_id
-        }
-
-        filter = {
-          prefix = "" # Replicate all objects
-        }
-      }
-    ]
-  } : {}
+  replication_configuration = local.replication_configuration
 
   tags = {
     Name = local.bucket_name
