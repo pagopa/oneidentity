@@ -83,7 +83,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/oneid-ecs-core/metadata/test
         run: |
-          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \))" >> $GITHUB_OUTPUT
+          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) -execdir echo {} ';')" >> $GITHUB_OUTPUT
 
 
       # Upload Test files to S3
