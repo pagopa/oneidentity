@@ -97,7 +97,7 @@ resource "aws_iam_policy" "replication" {
         }
       },
       "Resource": [
-        "${module.kms_assertions_bucket.aliases["assertions/S3"].arn}"
+        "${module.kms_assertions_bucket.aliases["assertions/S3"].target_key_arn}"
       ]
     },
     {
@@ -115,6 +115,26 @@ resource "aws_iam_policy" "replication" {
           ]
         }
       },
+      "Resource": [
+        "${var.assertion_bucket.replication_configuration.kms_key_replica_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": [
+        "${module.kms_assertions_bucket.aliases["assertions/S3"].target_key_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:GenerateDataKey",
+        "kms:Encrypt"
+      ],
       "Resource": [
         "${var.assertion_bucket.replication_configuration.kms_key_replica_arn}"
       ]
