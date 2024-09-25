@@ -1,12 +1,13 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.IDPConnectorImpl;
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
-import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -26,7 +28,6 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
@@ -36,6 +37,18 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Inject
   SAMLUtilsExtendedCore samlUtils;
+
+  @Inject
+  IDPConnectorImpl idpConnectorImpl;
+
+  @ConfigProperty(name = "timestamp_spid")
+  String TIMESTAMP_SPID;
+
+  @ConfigProperty(name = "timestamp_cie")
+  String TIMESTAMP_CIE;
+
+  @ConfigProperty(name = "cie_entity_id")
+  String CIE_ENTITY_ID;
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
@@ -72,16 +85,14 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
+  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String authLevel) throws OneIdentityException {
-    return this.buildAuthnRequest(idpID, assertionConsumerServiceIndex,
+    return this.buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex, "", authLevel);
   }
 
-  private AuthnRequest buildAuthnRequest(String idpID, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel)
-      throws OneIdentityException {
-    //TODO: add support for CIEid
+  private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String purpose, String authLevel) {
 
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
 
@@ -95,12 +106,7 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
     authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
 
-    try {
-      authnRequest.setDestination(
-          samlUtils.buildDestination(idpID).orElseThrow(IDPSSOEndpointNotFoundException::new));
-    } catch (SAMLUtilsException e) {
-      throw new OneIdentityException(e);
-    }
+    authnRequest.setDestination(idpSSOEndpoint);
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
 
@@ -180,8 +186,13 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     // Validate SAMLResponse signature (Response and Assertion)
+    Optional<IDP> idp = getIDPFromEntityID(entityID);
+    if (idp.isEmpty()) {
+      Log.error("IDP not found: " + entityID);
+      throw new SAMLValidationException();
+    }
     try {
-      samlUtils.validateSignature(samlResponse, entityID);
+      samlUtils.validateSignature(samlResponse, idp.get());
     } catch (SAMLUtilsException e) {
       throw new OneIdentityException(e);
     }
@@ -202,14 +213,11 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public Optional<EntityDescriptor> getEntityDescriptorFromEntityID(String entityID)
-      throws OneIdentityException {
-    try {
-      return samlUtils.getEntityDescriptor(entityID);
-    } catch (SAMLUtilsException e) {
-      throw new OneIdentityException(e);
+  public Optional<IDP> getIDPFromEntityID(String entityID) {
+    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+      return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_CIE);
     }
-
+    return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_SPID);
   }
 }
 

@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -44,14 +45,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 
 @Path(("/oidc"))
 public class OIDCController {
@@ -140,7 +139,7 @@ public class OIDCController {
   private Response handleAuthorize(
       AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
     Log.info("start");
-    Optional<EntityDescriptor> idp;
+    Optional<IDP> idp;
 
     // 1. Check if clientId exists
     if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
@@ -156,18 +155,12 @@ public class OIDCController {
     }
 
     // 2. Check if idp exists
-    try {
-      idp = samlServiceImpl.getEntityDescriptorFromEntityID(
-          authorizationRequestDTOExtended.getIdp());
-      if (idp.isEmpty()) {
-        Log.debug("selected IDP not found");
-        throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
-            authorizationRequestDTOExtended.getState());
-      }
-    } catch (OneIdentityException e) {
-      Log.error(
-          "error getting EntityDescriptor from provided EntityID");
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    idp = samlServiceImpl.getIDPFromEntityID(
+        authorizationRequestDTOExtended.getIdp());
+    if (idp.isEmpty()) {
+      Log.debug("selected IDP not found");
+      throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
     }
 
     // 4. Check if scope is "openid"
@@ -189,22 +182,15 @@ public class OIDCController {
 
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
 
-    // TODO rewrite it with new IDP Load metadata implementation
-    List<SingleSignOnService> singleSignOnServices = idp.get()
-        .getIDPSSODescriptor("urn:oasis:names:tc:SAML:2.0:protocol")
-        .getSingleSignOnServices();
-
-    String idpSSOEndpoint = singleSignOnServices.stream().filter(
-            singleSignOnService -> singleSignOnService.getBinding()
-                .equals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")).toList().getFirst()
-        .getLocation();
+    String idpSSOEndpoint = idp.get().getIdpSSOEndpoints()
+        .get(SAMLConstants.SAML2_POST_BINDING_URI);
 
     // 6. Create SAML Authn Request using SAMLServiceImpl
 
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(
-          authorizationRequestDTOExtended.getIdp(), client.getAcsIndex(),
+          idpSSOEndpoint, client.getAcsIndex(),
           client.getAttributeIndex(),
           client.getAuthLevel().getValue());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |

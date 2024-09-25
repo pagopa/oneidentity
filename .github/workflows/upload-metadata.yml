@@ -5,6 +5,8 @@ on:
       - "main"
     paths:
       - "**/src/oneid/oneid-ecs-core/metadata/**"
+      - ".github/workflows/upload-metadata.yml"
+    
 jobs:
   setup:
     runs-on: ubuntu-22.04
@@ -18,15 +20,7 @@ jobs:
           echo "github.ref ${{ github.ref }}"
           echo "event name ${{ github.event_name }}"
           
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
-            else
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
-            fi
-          else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
-          fi
+          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}]}"
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
 
@@ -83,8 +77,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/oneid-ecs-core/metadata/test
         run: |
-          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \))" >> $GITHUB_OUTPUT
-
+          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) | xargs)" >> $GITHUB_OUTPUT
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
