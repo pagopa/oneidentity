@@ -44,14 +44,18 @@ module "storage" {
   account_id                 = data.aws_caller_identity.current.account_id
 }
 
-/*
 ## Database ##  
 module "database" {
-  source                     = "../../modules/database"
-  sessions_table             = var.sessions_table
-  client_registrations_table = var.client_registrations_table
+  source         = "../../modules/database"
+  sessions_table = var.sessions_table
+  // the following tables won't be created in the secondary region since 
+  // they are replicated from the primary region.
+  client_registrations_table = null
+  idp_metadata_table         = null
 }
 
+
+/*
 ## Backend ##
 
 module "backend" {

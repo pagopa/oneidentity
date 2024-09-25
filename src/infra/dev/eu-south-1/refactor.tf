@@ -170,3 +170,18 @@ moved {
   from = module.storage.module.s3_athena_output_bucket
   to   = module.storage.module.s3_athena_output_bucket[0]
 }
+
+moved {
+  from = module.database.module.dynamodb_table_idpMetadata
+  to   = module.database.module.dynamodb_table_idpMetadata[0]
+}
+
+moved {
+  from = module.database.module.dynamodb_table_client_registrations
+  to   = module.database.module.dynamodb_table_client_registrations[0]
+}
+
+moved {
+  from = module.database.module.dynamodb_table_client_registrations
+  to   = module.database.module.dynamodb_table_client_registrations[0]
+}
