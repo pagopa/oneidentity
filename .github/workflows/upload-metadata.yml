@@ -62,33 +62,34 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_UPLOAD_S3 }}
           aws-region: ${{ matrix.region }}
 
-      #Identify changed file
       - name: Identify changed file
+        if: ${{ matrix.environment == 'prod' }}
         id: changed-file
         run: |
           echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
 
       - name: Upload changed files to S3 (${{ matrix.environment }})
+        if: ${{ matrix.environment == 'prod' }}
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
-              if [[ $file == *.xml ]]; then
+              if [[ ! $file == */test/*  && $file == *.xml ]]; then
                 aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}
               fi
           done
 
-      #Identify changed file
       - name: Take all test-idp files
+        if: ${{ matrix.environment != 'prod' }}
         id: test-files
-        working-directory: src/oneid/oneid-ecs-core/metadata
+        working-directory: src/oneid/oneid-ecs-core/metadata/test
         run: |
-          echo "test_files=$(find . -type f ! -name "spid*" ! -name "cie*")" >> $GITHUB_OUTPUT
+          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \))" >> $GITHUB_OUTPUT
 
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
         if: ${{ matrix.environment != 'prod' }}
-        working-directory: src/oneid/oneid-ecs-core/metadata
+        working-directory: src/oneid/oneid-ecs-core/metadata/test
         run: |
           for file in ${{ steps.test-files.outputs.test_files }}; do
               if [[ $file == *.xml ]]; then
