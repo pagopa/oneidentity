@@ -40,7 +40,7 @@ public class GitHubConnectorImpl implements GitHubConnector {
   public String getParameterValue(SsmClient ssmClient, String parameterName) {
     GetParameterRequest request = GetParameterRequest.builder()
         .name(parameterName)
-        //.withDecryption(true)  // Set to true if the parameter is encrypted
+        .withDecryption(true)  // Set to true if the parameter is encrypted
         .build();
 
     GetParameterResponse response = ssmClient.getParameter(request);
