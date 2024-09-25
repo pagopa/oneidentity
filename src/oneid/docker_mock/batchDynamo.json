@@ -10,14 +10,14 @@
             "BOOL": true
           },
           "hashed_client_secret": {
-            "S": "VWAZd5FV1Gt4yT8nHhpAGpKgKg9uBL6NjDnzxsdqPL0"
+            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
           },
           "salt": {
-            "S": "hcEHzgV/uCYhskbI68/Flg"
+            "S": "YP1cYg+39af5jm2ZKpnLJw"
           },
           "callbackURI": {
             "SS": [
-              "http://localhost:8084"
+              "http://localhost:8084/client/cb"
             ]
           },
           "acsIndex": {

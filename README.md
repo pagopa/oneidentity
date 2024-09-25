@@ -46,7 +46,7 @@ Then
 
 *This will specifically run both backend and frontend*
 
-In the other hand it is available a more ** mode which will starts all needed services to have a full One Identity instance using `docker-compose`. More details in next chapter.
+In the other hand it is available a more handy mode which will starts all needed services to have a full One Identity instance using `docker-compose`. More details in next chapter.
 
 ## Start composing
 ```shell
@@ -91,8 +91,9 @@ aws dynamodb create-table \
 ```shell
 aws dynamodb create-table \
 --table-name Sessions \
---attribute-definitions AttributeName=samlRequestID,AttributeType=S AttributeName=recordType,AttributeType=S \
+--attribute-definitions AttributeName=samlRequestID,AttributeType=S AttributeName=recordType,AttributeType=S AttributeName=code,AttributeType=S  \
 --key-schema AttributeName=samlRequestID,KeyType=HASH AttributeName=recordType,KeyType=RANGE \
+--global-secondary-indexes file:///home/dynamodblocal/gsi_code.json
 --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
 --endpoint-url http://localhost:8000 \
 --region eu-south-1 \
@@ -126,7 +127,7 @@ aws dynamodb create-table \
 --table-name IDPMetadata \
 --attribute-definitions AttributeName=entityID,AttributeType=S AttributeName=pointer,AttributeType=S \
 --key-schema AttributeName=entityID,KeyType=HASH AttributeName=pointer,KeyType=RANGE \
---global-secondary-indexes file://gsi.json \
+--global-secondary-indexes file://gsi_pointer.json \
 --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
 --endpoint-url http://localhost:8000 \
 --region eu-south-1 \

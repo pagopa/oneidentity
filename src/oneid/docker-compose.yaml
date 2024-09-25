@@ -14,7 +14,8 @@ services:
       - dynamodb-local
     image: amazon/aws-cli
     volumes:
-      - ${PWD}/docker_mock/gsi.json:/home/dynamodblocal/gsi.json
+      - ${PWD}/docker_mock/gsi_pointer.json:/home/dynamodblocal/gsi_pointer.json
+      - ${PWD}/docker_mock/gsi_code.json:/home/dynamodblocal/gsi_code.json
       - ${PWD}/docker_mock/batchDynamo.json:/home/dynamodblocal/batchDynamo.json
     container_name: dynamo-import
     entrypoint: ["/bin/sh", "-c"]
@@ -25,8 +26,8 @@ services:
       - |
         sleep 3
         aws dynamodb create-table --table-name ClientRegistrations --attribute-definitions AttributeName=clientId,AttributeType=S --key-schema AttributeName=clientId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
-        aws dynamodb create-table --table-name Sessions --attribute-definitions AttributeName=samlRequestID,AttributeType=S AttributeName=recordType,AttributeType=S --key-schema AttributeName=samlRequestID,KeyType=HASH AttributeName=recordType,KeyType=RANGE --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
-        aws dynamodb create-table --table-name IDPMetadata --attribute-definitions AttributeName=entityID,AttributeType=S AttributeName=pointer,AttributeType=S --key-schema AttributeName=entityID,KeyType=HASH AttributeName=pointer,KeyType=RANGE --global-secondary-indexes file:///home/dynamodblocal/gsi.json --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
+        aws dynamodb create-table --table-name Sessions --attribute-definitions AttributeName=samlRequestID,AttributeType=S AttributeName=recordType,AttributeType=S AttributeName=code,AttributeType=S --key-schema AttributeName=samlRequestID,KeyType=HASH AttributeName=recordType,KeyType=RANGE --global-secondary-indexes file:///home/dynamodblocal/gsi_code.json --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
+        aws dynamodb create-table --table-name IDPMetadata --attribute-definitions AttributeName=entityID,AttributeType=S AttributeName=pointer,AttributeType=S --key-schema AttributeName=entityID,KeyType=HASH AttributeName=pointer,KeyType=RANGE --global-secondary-indexes file:///home/dynamodblocal/gsi_pointer.json --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
         aws dynamodb batch-write-item --request-items file:///home/dynamodblocal/batchDynamo.json --endpoint-url http://dynamodb-local:8000 --region eu-south-1
         aws dynamodb list-tables --endpoint-url http://dynamodb-local:8000 --region us-south-1
   oneid-ecs-core:
@@ -90,5 +91,17 @@ services:
     image: "italia/spid-saml-check:1.10.6@sha256:3c659836344b743f8e1f66d01b0fd336a8893386959a87173fc92d9966a9a289"
     ports:
       - "8443:8443"
+  dummy-client:
+    build:
+      context: ./
+      dockerfile: docker_mock/dummy_client/Dockerfile
+    environment:
+      - client_id=fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-Hnboag1E
+      - client_secret=XPDklxI6J4JpFr/o6w/2HFpoT4e1Lc2m7llzMDLRDtI
+    container_name: dummy-client
+    links:
+      - oneid-ecs-core
+    ports:
+      - "8084:8084"
 volumes:
   mvncache:

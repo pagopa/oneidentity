@@ -1,0 +1,18 @@
+[
+  {
+    "IndexName": "gsi_code_idx",
+    "KeySchema": [
+      {
+        "AttributeName": "code",
+        "KeyType": "HASH"
+      }
+    ],
+    "Projection": {
+      "ProjectionType": "ALL"
+    },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 5
+    }
+  }
+]
