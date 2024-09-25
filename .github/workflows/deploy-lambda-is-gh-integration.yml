@@ -100,5 +100,5 @@ jobs:
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
           aws lambda update-function-code \
-          --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-is-gh-integration \
+          --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-is-gh-integration-lambda \
           --zip-file fileb://src/oneid/oneid-lambda-is-gh-integration/target/function.zip
