@@ -182,8 +182,16 @@
                              req-attr:supportsRequestedAttributes="true"/>
 
     </IDPSSODescriptor>
-
-
+    <Organization>
+        <OrganizationName xml:lang="it">CIE Collaudo</OrganizationName>
+        <OrganizationName xml:lang="en">CIE Collaudo</OrganizationName>
+        <OrganizationDisplayName xml:lang="it">CIE</OrganizationDisplayName>
+        <OrganizationDisplayName xml:lang="en">CIE</OrganizationDisplayName>
+        <OrganizationURL xml:lang="it">https://collaudo.idserver.servizicie.interno.gov.it
+        </OrganizationURL>
+        <OrganizationURL xml:lang="en">https://collaudo.idserver.servizicie.interno.gov.it
+        </OrganizationURL>
+    </Organization>
     <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol">
 
         <Extensions>
