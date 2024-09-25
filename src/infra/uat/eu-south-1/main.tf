@@ -164,11 +164,11 @@ module "backend" {
         value = "LATEST_SPID"
       },
       {
-        name  = "TIMESTAMP_CIE"            
+        name  = "TIMESTAMP_CIE"
         value = "LATEST_CIE"
       },
       {
-        name  = "CIE_ENTITY_ID"            
+        name  = "CIE_ENTITY_ID"
         value = var.cie_entity_id
       }
     ]

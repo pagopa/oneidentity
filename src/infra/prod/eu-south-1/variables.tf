@@ -243,7 +243,7 @@ variable "idp_metadata_table" {
 }
 
 variable "cie_entity_id" {
-  type = string
+  type    = string
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
 }
 
