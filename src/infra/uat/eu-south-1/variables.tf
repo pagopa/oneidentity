@@ -96,7 +96,7 @@ variable "ecs_oneid_core" {
   description = "Oneidentity core backend configurations."
 
   default = {
-    image_version    = "83b0593b0f113eee056786850de51ecfe5079789"
+    image_version    = "704ff88e778fa32a82d2edc4881cdee3b37eb552"
     cpu              = 512
     memory           = 1024
     container_cpu    = 512
@@ -219,7 +219,7 @@ variable "idp_metadata_table" {
 }
 
 variable "cie_entity_id" {
-  type = string
+  type    = string
   default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
 }
 
