@@ -9,7 +9,7 @@ COPY --chown=quarkus:quarkus ../.mvn /code/.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common /code/oneid-common
 COPY --chown=quarkus:quarkus ../oneid-ecs-core /code/oneid-ecs-core
-COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/login-alert-message.json
+COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/assets/login-alert-message.json
 USER quarkus
 
 WORKDIR /code
