@@ -34,7 +34,7 @@ jobs:
 
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
             else
               matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
             fi
