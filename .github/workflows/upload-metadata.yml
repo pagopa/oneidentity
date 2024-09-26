@@ -56,16 +56,14 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_UPLOAD_S3 }}
           aws-region: ${{ matrix.region }}
 
-      #todo change env
       - name: Identify changed file
-        if: ${{ matrix.environment == 'dev' }}
+        if: ${{ matrix.environment == 'prod' }}
         id: changed-file
         run: |
           echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
 
-      #todo change env
       - name: Upload changed files to S3 (${{ matrix.environment }})
-        if: ${{ matrix.environment == 'dev' }}
+        if: ${{ matrix.environment == 'prod' }}
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
