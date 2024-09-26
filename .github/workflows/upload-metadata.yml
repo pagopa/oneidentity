@@ -69,7 +69,7 @@ jobs:
         working-directory: src/oneid/oneid-ecs-core/metadata
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
-              if [[ ! $file == */test/*  && $file == *.xml ]]; then
+              if [[ -f $file && ! $file == */test/*  && $file == *.xml ]]; then
                 aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}
               fi
           done
