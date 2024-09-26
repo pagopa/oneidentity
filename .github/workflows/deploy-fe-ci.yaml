@@ -58,7 +58,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
           yarn test
-          yarn build
+          export $(grep -v ^# .env.${{ github.event.inputs.environment }} | xargs) && yarn build
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
