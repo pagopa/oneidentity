@@ -95,7 +95,8 @@ module "sns" {
 module "backend" {
   source = "../../modules/backend"
 
-  aws_region = var.aws_region
+  aws_region  = var.aws_region
+  role_prefix = local.project
 
   ecr_registers = [
     {

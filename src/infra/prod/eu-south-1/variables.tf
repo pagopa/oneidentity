@@ -190,6 +190,12 @@ variable "repository_image_tag_mutability" {
   default     = "MUTABLE"
 }
 
+variable "cie_entity_id" {
+  type    = string
+  default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
+}
+
+
 ## Database ##
 variable "sessions_table" {
   type = object({
@@ -252,11 +258,6 @@ variable "idp_metadata_table" {
       propagate_tags = true
     }]
   }
-}
-
-variable "cie_entity_id" {
-  type    = string
-  default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
 }
 
 # DNS
