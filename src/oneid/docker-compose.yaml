@@ -95,9 +95,7 @@ services:
     build:
       context: ./
       dockerfile: docker_mock/dummy_client/Dockerfile
-    environment:
-      - client_id=fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-Hnboag1E
-      - client_secret=XPDklxI6J4JpFr/o6w/2HFpoT4e1Lc2m7llzMDLRDtI
+    env_file: docker_mock/.env
     container_name: dummy-client
     links:
       - oneid-ecs-core

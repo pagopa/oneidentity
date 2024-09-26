@@ -46,6 +46,10 @@ Then
 
 *This will specifically run both backend and frontend*
 
+#### Configuration and mock data
+In `src/oneid/docker_mock/` folder are present some useful data to configure and use One Identity correctly. Of course **all certificates and secret are for demo purpose**.
+Firstly copy `.env.example` in `.env` and fill the required information.
+
 In the other hand it is available a more handy mode which will starts all needed services to have a full One Identity instance using `docker-compose`. More details in next chapter.
 
 ## Start composing
@@ -59,8 +63,7 @@ Some are having problems running compose as plugin, we'd recommend, in those cas
 docker-compose up
 ```
 
-#### Data
-In `src/oneid/docker_mock/` folder are present some useful data to configure and use One Identity correctly. Of course **all certificates and secret are for demo purpose**.
+Extra note: `docker-compose` sometimes can be annoyng after a single restart saying it is not capabale to rebuild container, just `docker-compose down` before restart and everything should be fine.
 
 **DynamoDB commands**
 

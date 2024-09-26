@@ -15,7 +15,6 @@ authorizer_url = "http://localhost:8080/login"
 redirect_url = "http://localhost:8084/client/cb"
 token_url = "http://oneid-ecs-core:8080/oidc/token"
 
-
 @app.route("/")
 def index():
     return redirect(url_for("login"))
