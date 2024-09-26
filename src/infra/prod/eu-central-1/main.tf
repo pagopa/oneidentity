@@ -55,13 +55,13 @@ module "database" {
 }
 
 
-/*
 ## Backend ##
-
 module "backend" {
   source = "../../modules/backend"
 
   aws_region = var.aws_region
+
+  role_prefix = local.project
 
   ecr_registers = [
     {
@@ -124,6 +124,18 @@ module "backend" {
       {
         name  = "ACS_URL"
         value = "https://${var.r53_dns_zone.name}/saml/acs"
+      },
+      {
+        name  = "TIMESTAMP_SPID"
+        value = "LATEST_SPID"
+      },
+      {
+        name  = "TIMESTAMP_CIE"
+        value = "LATEST_CIE"
+      },
+      {
+        name  = "CIE_ENTITY_ID"
+        value = var.cie_entity_id
       }
     ]
   }
@@ -139,14 +151,15 @@ module "backend" {
     gsi_code_arn = module.database.table_sessions_gsi_code_arn
   }
 
-  table_client_registrations_arn = module.database.table_client_registrations_arn
+  table_client_registrations_arn = local.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
   client_registration_lambda = {
-    name                              = format("%s-client-registration", local.project)
-    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    table_client_registrations_arn    = module.database.table_client_registrations_arn
+    name     = format("%s-client-registration", local.project)
+    filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    // todo this must be the replica arn
+    table_client_registrations_arn    = local.table_client_registrations_arn
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -156,7 +169,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    table_client_registrations_arn = module.database.table_client_registrations_arn
+    table_client_registrations_arn = local.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
       "CONTACT_PERSON_EMAIL_ADDRESS"    = "pagopa@pec.governo.it"
@@ -199,7 +212,38 @@ module "backend" {
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
+
+  idp_metadata_lambda = {
+    name     = format("%s-update-idp-metadata", local.project)
+    filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    environment_variables = {
+      IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
+      IDP_TABLE_NAME           = module.database.table_idp_metadata_name
+      IDP_G_IDX                = module.database.table_idp_metadata_idx_name
+    }
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
+    s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+  }
+
+  dynamodb_table_idpMetadata = {
+    gsi_pointer_arn = local.table_idpMetadata_gsi_pointer_arn
+    table_arn       = local.table_idp_metadata_arn
+  }
+
+  is_gh_integration_lambda = {
+    name                              = format("%s-is-gh-integration-lambda", local.project)
+    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    sns_topic_arn                     = var.is_gh_sns_arn
+  }
 }
+
+
+/*
 
 module "frontend" {
   source = "../../modules/frontend"

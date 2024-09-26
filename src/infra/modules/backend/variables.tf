@@ -8,6 +8,11 @@ variable "aws_region" {
   description = "AWS Region."
 }
 
+variable "role_prefix" {
+  type        = string
+  description = "IAM Role prefix."
+}
+
 variable "ecr_registers" {
   type = list(object({
     name                            = string

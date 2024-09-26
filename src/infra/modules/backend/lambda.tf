@@ -15,15 +15,13 @@ resource "aws_iam_role" "githubecsdeploy" {
 }
 
 resource "aws_iam_role" "github_lambda_deploy" {
-  name        = "GitHubDeployLambda"
-  description = "Role to deploy lambda functions with github actions."
-
-
+  name               = format("%s-deploy-lambda", var.role_prefix)
+  description        = "Role to deploy lambda functions with github actions."
   assume_role_policy = local.assume_role_policy_github
 }
 
 resource "aws_iam_policy" "deploy_lambda" {
-  name        = "DeployLambda"
+  name        = format("%s-deploy-lambda", var.role_prefix)
   description = "Policy to deploy Lambda functions"
 
   policy = jsonencode({

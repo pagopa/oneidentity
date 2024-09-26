@@ -108,6 +108,8 @@ module "backend" {
 
   aws_region = var.aws_region
 
+  role_prefix = local.project
+
   ecr_registers = [
     {
       name                            = local.ecr_oneid_core

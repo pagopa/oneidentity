@@ -177,6 +177,16 @@ variable "repository_image_tag_mutability" {
   default     = "MUTABLE"
 }
 
+variable "cie_entity_id" {
+  type    = string
+  default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO)"
+}
+
+variable "is_gh_sns_arn" {
+  type    = string
+  default = "arn:aws:sns:eu-south-1:116453376486:is-eng-pagopa-it-alerts-topic"
+}
+
 ## Database ##
 variable "sessions_table" {
   type = object({
@@ -191,28 +201,6 @@ variable "sessions_table" {
     point_in_time_recovery_enabled = false
     stream_enabled                 = true
     stream_view_type               = "NEW_IMAGE"
-  }
-}
-
-variable "client_registrations_table" {
-  type = object({
-    point_in_time_recovery_enabled = optional(bool, false)
-    stream_enabled                 = optional(bool, false)
-    stream_view_type               = optional(string, null)
-    replication_regions = optional(list(object({
-      region_name            = string
-      propagate_tags         = optional(bool, true)
-      point_in_time_recovery = optional(bool, true)
-    })), [])
-  })
-  description = "Client configurations table."
-  default = {
-    point_in_time_recovery_enabled = true
-    stream_enabled                 = true
-    stream_view_type               = "NEW_AND_OLD_IMAGES"
-    replication_regions = [{
-      region_name = "eu-central-1"
-    }]
   }
 }
 
@@ -259,11 +247,6 @@ variable "api_method_settings" {
   }))
   default = [
     {
-      method_path     = "*/*"
-      metrics_enabled = true
-      logging_level   = "INFO"
-    },
-    {
       method_path          = "saml/{id_type}/metadata/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
@@ -275,12 +258,22 @@ variable "api_method_settings" {
       cache_ttl_in_seconds = 3600
     },
     {
+      method_path          = "assets/{proxy}/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
       method_path          = "login/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     },
     {
       method_path          = "login/error/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+    },
+    {
+      method_path          = "idps/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
     }
@@ -336,28 +329,23 @@ variable "ecs_alarms" {
 }
 
 variable "lambda_alarms" {
-  type = object({
-    metric_name         = string
-    namespace           = string
-    threshold           = optional(number)
-    evaluation_periods  = optional(number)
-    period              = optional(number)
-    statistic           = optional(string)
-    comparison_operator = optional(string)
-    sns_topic_alarm_arn = optional(list(string))
-    treat_missing_data  = optional(string)
-  })
+  type = map(object({
+    metric_name         = optional(string, "Errors")
+    namespace           = optional(string, "AWS/Lambda")
+    threshold           = optional(number, 1)
+    evaluation_periods  = optional(number, 1)
+    period              = optional(number, 300)
+    statistic           = optional(string, "Sum")
+    comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")
+    treat_missing_data  = optional(string, "notBreaching")
+  }))
 
   default = {
-
-    metric_name         = "Errors"
-    namespace           = "AWS/Lambda"
-    threshold           = 1
-    evaluation_periods  = 1
-    comparison_operator = "GreaterThanOrEqualToThreshold"
-    period              = 300
-    statistic           = "Sum"
-    treat_missing_data  = "notBreaching"
+    "oneid-es-1-p-assertion" = {
+    },
+    "oneid-es-1-p-metadata" = {},
+    "oneid-es-1-p-client-registration" = {
+    },
   }
 }
 
