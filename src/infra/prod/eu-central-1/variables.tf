@@ -144,14 +144,14 @@ variable "assertion_bucket" {
   default = {
     mfa_delete               = false
     glacier_transaction_days = 90
-    expiration_days          = 1080
+    expiration_days          = 731
     enable_key_rotation      = true
     kms_multi_region         = true
     object_lock_configuration = {
       rule = {
         default_retention = {
           mode = "GOVERNANCE"
-          days = 20
+          days = 730 # 24 months
         }
       }
     }
