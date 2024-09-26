@@ -58,7 +58,11 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
           yarn test
-          export $(grep -v ^# .env.${{ github.event.inputs.environment }} | xargs) && yarn build
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+              export $(grep -v ^# .env.${{ github.event.inputs.environment }} | xargs) && yarn build
+          else
+              export $(grep -v ^# .env.dev | xargs) && yarn build
+          fi
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
