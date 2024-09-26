@@ -278,12 +278,12 @@ module "is_gh_integration_lambda" {
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 
-  allowed_triggers = {
+  allowed_triggers = [{
     sns = {
       principal  = "sns.amazonaws.com"
       source_arn = var.is_gh_integration_lambda.sns_topic_arn
     }
-  }
+  }, {}][var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1]
 
   memory_size = 512
   timeout     = 30
@@ -292,6 +292,7 @@ module "is_gh_integration_lambda" {
 }
 
 resource "aws_sns_topic_subscription" "is-gh-integration" {
+  count      = var.is_gh_integration_lambda.sns_topic_arn != null ? 1 : 0
   topic_arn  = var.is_gh_integration_lambda.sns_topic_arn
   protocol   = "lambda"
   endpoint   = module.is_gh_integration_lambda.lambda_function_arn

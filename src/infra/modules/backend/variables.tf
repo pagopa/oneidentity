@@ -186,7 +186,7 @@ variable "is_gh_integration_lambda" {
   type = object({
     name                              = string
     filename                          = string
-    sns_topic_arn                     = string
+    sns_topic_arn                     = optional(string, null)
     cloudwatch_logs_retention_in_days = string
   })
 
