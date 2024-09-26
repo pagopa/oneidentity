@@ -283,7 +283,7 @@ module "is_gh_integration_lambda" {
       principal  = "sns.amazonaws.com"
       source_arn = var.is_gh_integration_lambda.sns_topic_arn
     }
-  }, null][var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1]
+  }, {}][var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1]
 
   memory_size = 512
   timeout     = 30
