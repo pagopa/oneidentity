@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .token {
+        background-color: #f9f9f9;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        word-wrap: break-word;
+      }
+      label {
+        font-weight: bold;
+      }
+      .code {
+        font-family: "Courier New", Courier, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Token e Codici</h1>
+      <div class="token">
+        <label>Access Token:</label><br />
+        <code class="code"> {{ access_token }} </code>
+      </div>
+      <div class="token">
+        <label>ID Token:</label><br />
+        <code class="code"> {{ id_token }} </code>
+      </div>
+      <div class="token">
+        <label>Codice Fiscale:</label><br />
+        <code class="code"> {{ fiscalNumber }} </code>
+      </div>
+      <div class="token">
+        <label>Nonce:</label><br />
+        <code class="code"> {{ nonce }} </code>
+      </div>
+      <div class="token">
+        <label>Authorization Code:</label><br />
+        <code class="code"> {{ code }} </code>
+      </div>
+    </div>
+  </body>
+</html>
