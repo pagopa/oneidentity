@@ -1,0 +1,18 @@
+[
+  {
+    "IndexName": "gsi_pointer_idx",
+    "KeySchema": [
+      {
+        "AttributeName": "pointer",
+        "KeyType": "HASH"
+      }
+    ],
+    "Projection": {
+      "ProjectionType": "ALL"
+    },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 5
+    }
+  }
+]
