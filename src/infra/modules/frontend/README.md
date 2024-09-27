@@ -126,7 +126,7 @@
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
-| <a name="input_web_acl"></a> [web\_acl](#input\_web\_acl) | WEB acl name | <pre>object({<br>    name                       = string<br>    cloudwatch_metrics_enabled = optional(bool,false)<br>    sampled_requests_enabled   = optional(bool,false)<br>    sns_topic_arn              = optional(string,"")<br>  })</pre> | n/a | yes |
+| <a name="input_web_acl"></a> [web\_acl](#input\_web\_acl) | WEB acl name | <pre>object({<br>    name                       = string<br>    cloudwatch_metrics_enabled = optional(bool, false)<br>    sampled_requests_enabled   = optional(bool, false)<br>    sns_topic_arn              = optional(string, "")<br>  })</pre> | n/a | yes |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `false` | no |
 
 ## Outputs
