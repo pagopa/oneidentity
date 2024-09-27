@@ -183,8 +183,8 @@ variable "cie_entity_id" {
 }
 
 variable "is_gh_sns_arn" {
-  type = string
-  #default = "arn:aws:sns:eu-south-1:116453376486:is-eng-pagopa-it-alerts-topic"
+  type    = string
+  # default = "arn:aws:sns:eu-south-1:116453376486:history"
   default = null
 }
 
