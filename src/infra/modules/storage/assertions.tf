@@ -274,7 +274,7 @@ data "aws_iam_policy_document" "glue_assertions_policy" {
   statement {
     sid       = "KMSDecryptEncryptAsserions"
     effect    = "Allow"
-    resources = [module.kms_assertions_bucket.aliases["assertions/S3"].arn]
+    resources = [module.kms_assertions_bucket.aliases["assertions/S3"].target_key_arn]
     actions   = ["kms:Decrypt", "kms:Encrypt"]
   }
 }
