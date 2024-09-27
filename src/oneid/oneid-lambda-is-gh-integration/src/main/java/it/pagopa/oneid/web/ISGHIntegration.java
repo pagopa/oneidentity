@@ -1,5 +1,7 @@
 package it.pagopa.oneid.web;
 
+import static it.pagopa.oneid.utils.Constants.BRANCH_BASE_NAME;
+import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
@@ -10,7 +12,6 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.service.GitHubServiceImpl;
 import it.pagopa.oneid.service.ISServiceImpl;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
@@ -20,11 +21,6 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
   @Inject
   GitHubServiceImpl gitHubServiceImpl;
 
-
-  @ConfigProperty(name = "metadata_base_path")
-  String METADATA_BASE_PATH;
-  @ConfigProperty(name = "branch_base_name")
-  String BRANCH_BASE_NAME;
 
   @Override
   public String handleRequest(SNSEvent event, Context context) {
