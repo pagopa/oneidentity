@@ -28,7 +28,8 @@
           },
           "requestedParameters": {
             "SS": [
-              "spidCode"
+              "spidCode",
+              "fiscalNumber"
             ]
           },
           "logoUri": {

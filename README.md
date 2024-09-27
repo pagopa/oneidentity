@@ -65,6 +65,19 @@ docker-compose up
 
 Extra note: `docker-compose` sometimes can be annoyng after a single restart saying it is not capabale to rebuild container, just `docker-compose down` before restart and everything should be fine.
 
+## Surfing OI
+Now, you are able to login using an IDP test preconfigured.
+1. just navigate using your browser to http://localhost:8084
+2. click on "Entra con SPID/CIE"
+3. Click on Entra con SPID
+4. Select the IDP
+5. Login with validator/validator
+6. On the left click on Metadata SP -> Download from URL and fill with "http://172.17.0.1:8082/saml/spid/metadata" and then click on Download button.
+7. Click on Response -> Check Response
+8. On the right click on "Invia response al SP"
+9. Et voilà.
+
+### Interact with OI components
 **DynamoDB commands**
 
 Firstly we should take care about DynamoDB and its data
