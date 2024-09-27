@@ -1,10 +1,12 @@
 package it.pagopa.oneid.connector;
 
+import static it.pagopa.oneid.utils.Constants.GH_PERSONAL_ACCESS_TOKEN;
+import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
+import static it.pagopa.oneid.utils.Constants.REPOSITORY_NAME;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHContent;
 import org.kohsuke.github.GHRepository;
@@ -19,18 +21,14 @@ public class GitHubConnectorImpl implements GitHubConnector {
 
 
   private final GHRepository repository;
-  @ConfigProperty(name = "metadata_base_path")
-  String metadataBasePath;
 
   @Inject
-  GitHubConnectorImpl(@ConfigProperty(name = "repository_name") String repositoryName,
-      @ConfigProperty(name = "gh_personal_access_token") String GH_PERSONAL_ACCESS_TOKEN,
-      SsmClient ssmClient) {
+  GitHubConnectorImpl(SsmClient ssmClient) {
 
     try {
       String ghPersonalAccessTokenValue = getParameterValue(ssmClient, GH_PERSONAL_ACCESS_TOKEN);
       GitHub github = new GitHubBuilder().withOAuthToken(ghPersonalAccessTokenValue).build();
-      repository = github.getRepository(repositoryName);
+      repository = github.getRepository(REPOSITORY_NAME);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -62,7 +60,7 @@ public class GitHubConnectorImpl implements GitHubConnector {
       throw new RuntimeException(e);
     }
 
-    GHContent existingFile = findFileInDirectory(metadataBasePath, idpType,
+    GHContent existingFile = findFileInDirectory(METADATA_BASE_PATH, idpType,
         branchName);
 
     if (existingFile != null) {
