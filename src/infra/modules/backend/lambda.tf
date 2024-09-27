@@ -260,6 +260,22 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 
 
 ##Github Integration Lambda
+data "aws_ssm_parameter" "is_gh_integration_lambda" {
+  name = var.is_gh_integration_lambda.ssm_parameter_name
+}
+
+data "aws_iam_policy_document" "is_gh_integration_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "ssm:Describe*",
+      "ssm:Get*",
+      "ssm:List*"
+    ]
+    resources = ["${data.aws_ssm_parameter.is_gh_integration_lambda.arn}"]
+  }
+}
+
 module "is_gh_integration_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
@@ -273,6 +289,9 @@ module "is_gh_integration_lambda" {
   ignore_source_code_hash = true
 
   publish = true
+
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.is_gh_integration_lambda.json
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 

@@ -193,6 +193,7 @@ variable "is_gh_integration_lambda" {
     filename                          = string
     sns_topic_arn                     = optional(string, null)
     cloudwatch_logs_retention_in_days = string
+    ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")
   })
 
 }
