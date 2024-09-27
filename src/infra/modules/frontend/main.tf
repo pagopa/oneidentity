@@ -285,7 +285,7 @@ resource "aws_wafv2_web_acl" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "main" {
-  resource_arn = module.rest_api.rest_api_execution_arn
+  resource_arn = "arn:aws:apigateway:${var.aws_region}::/restapis/${module.rest_api.rest_api_id}/stages/${var.rest_api_stage}"
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
 
