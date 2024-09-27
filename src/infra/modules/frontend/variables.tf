@@ -91,9 +91,9 @@ variable "api_method_settings" {
 variable "web_acl" {
   type = object({
     name                       = string
-    cloudwatch_metrics_enabled = optional(bool,false)
-    sampled_requests_enabled   = optional(bool,false)
-    sns_topic_arn              = optional(string,"")
+    cloudwatch_metrics_enabled = optional(bool, false)
+    sampled_requests_enabled   = optional(bool, false)
+    sns_topic_arn              = optional(string, "")
   })
   description = "WEB acl name"
 }
