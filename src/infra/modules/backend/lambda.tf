@@ -266,8 +266,8 @@ data "aws_ssm_parameter" "is_gh_integration_lambda" {
 
 data "aws_iam_policy_document" "is_gh_integration_lambda" {
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "ssm:Describe*",
       "ssm:Get*",
       "ssm:List*"
@@ -290,8 +290,8 @@ module "is_gh_integration_lambda" {
 
   publish = true
 
-  attach_policy_json    = true
-  policy_json           = data.aws_iam_policy_document.is_gh_integration_lambda.json
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.is_gh_integration_lambda.json
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 
