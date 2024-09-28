@@ -195,7 +195,7 @@ resource "aws_wafv2_web_acl" "main" {
 
 
   dynamic "rule" {
-    for_each = local.web_acl_rules
+    for_each = toset(local.web_acl_rules)
     content {
       name     = rule.value.name
       priority = rule.value.priority
