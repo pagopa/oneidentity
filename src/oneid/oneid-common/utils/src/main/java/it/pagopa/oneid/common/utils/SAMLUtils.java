@@ -15,7 +15,9 @@ import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.security.SecurityException;
+import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
@@ -99,6 +101,18 @@ public class SAMLUtils {
     signature.getContentReferences().add(contentReference);
 
     return signature;
+  }
+
+  public KeyDescriptor buildKeyDescriptor() throws SAMLUtilsException {
+    KeyDescriptor signKeyDescriptor = buildSAMLObject(KeyDescriptor.class);
+
+    signKeyDescriptor.setUse(UsageType.SIGNING);  //Set usage
+    try {
+      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(X509Credential));
+    } catch (SecurityException e) {
+      throw new SAMLUtilsException(e);
+    }
+    return signKeyDescriptor;
   }
 
   public void setnewKeyInfoGenerator() {

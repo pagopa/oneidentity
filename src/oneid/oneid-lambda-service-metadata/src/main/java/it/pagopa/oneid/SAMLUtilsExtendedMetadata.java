@@ -39,7 +39,6 @@ import org.opensaml.saml.saml2.metadata.ContactPerson;
 import org.opensaml.saml.saml2.metadata.ContactPersonTypeEnumeration;
 import org.opensaml.saml.saml2.metadata.EmailAddress;
 import org.opensaml.saml.saml2.metadata.Extensions;
-import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml.saml2.metadata.Organization;
 import org.opensaml.saml.saml2.metadata.OrganizationDisplayName;
@@ -50,18 +49,12 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.ServiceDescription;
 import org.opensaml.saml.saml2.metadata.ServiceName;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
-import org.opensaml.security.SecurityException;
-import org.opensaml.security.credential.UsageType;
-import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
-
-  @Inject
-  BasicX509Credential X509Credential;
 
   @Inject
   public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool) throws SAMLUtilsException {
@@ -154,18 +147,6 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
     return spssoDescriptor;
 
-  }
-
-  public KeyDescriptor buildKeyDescriptor() throws SAMLUtilsException {
-    KeyDescriptor signKeyDescriptor = buildSAMLObject(KeyDescriptor.class);
-
-    signKeyDescriptor.setUse(UsageType.SIGNING);  //Set usage
-    try {
-      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(X509Credential));
-    } catch (SecurityException e) {
-      throw new SAMLUtilsException(e);
-    }
-    return signKeyDescriptor;
   }
 
   public NameIDFormat buildNameIDFormat() {
