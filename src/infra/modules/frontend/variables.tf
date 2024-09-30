@@ -14,6 +14,12 @@ variable "r53_dns_zone_id" {
   description = "R53 dns zone id."
 }
 
+variable "create_dns_record" {
+  type = bool
+  description = "Create DNS record to associate the API Gateway RestApi to the hosted zone."
+  default = true
+}
+
 variable "dns_record_ttl" {
   type        = number
   description = "DNS records ttl"

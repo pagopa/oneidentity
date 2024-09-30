@@ -1,4 +1,5 @@
 module "records" {
+  count = var.create_dns_record ? 1 : 0
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
