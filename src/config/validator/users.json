@@ -646,5 +646,33 @@
     "domicileMunicipality": "Roma",
     "domicileProvince": "RM",
     "domicileNation": "IT"
-  }
+  },
+  {
+  "username": "pippomontari",
+  "password": "idbOL2UXx8ny9k6",
+  "spidLevel": 3,
+  "spidCode": "SPID-021",
+  "familyName": "Montari",
+  "name": "Pippo",
+  "gender": "M",
+  "dateOfBirth": "1978-08-05",
+  "countyOfBirth": "IT",
+  "placeOfBirth": "Campobasso",
+  "idCard": "1234567890",
+  "expirationDate": "2042-10-01",
+  "fiscalNumber": "MNTPPP78M05B519O",
+  "mobilePhone": "3333333333",
+  "email": "pippo.montari@example.com",
+  "digitalAddress": "",
+  "ivaCode": "",
+  "companyName": "",
+  "registeredOffice": "",
+  "companyFiscalNumber": "",
+  "address": "Via G. Garibaldi 21 00001 Campobasso",
+  "domicileStreetAddress": "Via G. Garibaldi 21",
+  "domicilePostalCode": "00001",
+  "domicileMunicipality": "Campobasso",
+  "domicileProvince": "CB",
+  "domicileNation": "IT"
+}
 ]
