@@ -133,7 +133,7 @@ module "rest_api" {
 
 
   custom_domain_name        = var.domain_name
-  create_custom_domain_name = true
+  create_custom_domain_name = var.create_custom_domain_name
   certificate_arn           = module.acm.acm_certificate_arn
 
   plan                      = var.api_gateway_plan
