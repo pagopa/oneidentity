@@ -63,7 +63,6 @@ def callback():
     )
 
     json_response = json.loads(r.data)
-    print(json_response)
     jwt = json_response["id_token"]
     payload = json.loads(base64.b64decode(jwt.split(".")[1] + "==").decode())
     # signature not verified, we're a dummy client

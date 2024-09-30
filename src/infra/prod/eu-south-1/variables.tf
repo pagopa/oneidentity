@@ -355,7 +355,7 @@ variable "alarm_subscribers" {
 
 variable "is_gh_sns_arn" {
   type = string
-  # default = "arn:aws:sns:eu-south-1:116453376486:is-eng-pagopa-it-alerts-topic"
+  # default = "arn:aws:sns:eu-south-1:116453376486:history"
   default = null
 }
 
@@ -408,6 +408,8 @@ variable "lambda_alarms" {
     "oneid-es-1-p-metadata" = {},
     "oneid-es-1-p-client-registration" = {
     },
+    "oneid-es-1-p-update-idp-metadata" = {},
+    "oneid-es-1-p-is-gh-integration-lambda" = {}
   }
 }
 

@@ -193,92 +193,30 @@ resource "aws_wafv2_web_acl" "main" {
     allow {}
   }
 
-  rule {
-    name     = "IpReputationList"
-    priority = 1
 
-    override_action {
-      count {}
-    }
 
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesAmazonIpReputationList"
-        vendor_name = "AWS"
+  dynamic "rule" {
+    for_each = { for r in local.web_acl_rules : r.name => r }
+    content {
+      name     = rule.value.name
+      priority = rule.value.priority
+
+      override_action {
+        count {}
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = var.web_acl.cloudwatch_metrics_enabled
-      metric_name                = "IpReputationList"
-      sampled_requests_enabled   = var.web_acl.sampled_requests_enabled
-    }
-  }
-
-
-  rule {
-    name     = "CommonRuleSet"
-    priority = 2
-
-    override_action {
-      count {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesCommonRuleSet"
-        vendor_name = "AWS"
+      statement {
+        managed_rule_group_statement {
+          name        = rule.value.managed_rule_group_name
+          vendor_name = rule.value.vendor_name
+        }
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = var.web_acl.cloudwatch_metrics_enabled
-      metric_name                = "CommonRuleSet"
-      sampled_requests_enabled   = var.web_acl.sampled_requests_enabled
-    }
-  }
-
-  rule {
-    name     = "KnownBadInputsRuleSet"
-    priority = 3
-
-    override_action {
-      count {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesKnownBadInputsRuleSet"
-        vendor_name = "AWS"
+      visibility_config {
+        cloudwatch_metrics_enabled = var.web_acl.cloudwatch_metrics_enabled
+        metric_name                = rule.value.metric_name
+        sampled_requests_enabled   = var.web_acl.sampled_requests_enabled
       }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = var.web_acl.cloudwatch_metrics_enabled
-      metric_name                = "KnownBadInputsRuleSet"
-      sampled_requests_enabled   = var.web_acl.sampled_requests_enabled
-    }
-  }
-
-  rule {
-    name     = "SQLiRuleSet"
-    priority = 4
-
-    override_action {
-      count {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesSQLiRuleSet"
-        vendor_name = "AWS"
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = var.web_acl.cloudwatch_metrics_enabled
-      metric_name                = "SQLiRuleSet"
-      sampled_requests_enabled   = var.web_acl.sampled_requests_enabled
     }
   }
 
