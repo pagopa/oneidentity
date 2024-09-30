@@ -25,6 +25,14 @@ type BannerContent = {
   description: string;
 };
 
+type Client = {
+  clientID: string;
+  friendlyName: string;
+  logoUri: string;
+  ppUri: string;
+  tosUri: string;
+};
+
 export const spidIcon = () => (
   <Icon sx={{ width: '25px', height: '25px' }}>
     <img src={SpidIcon} width="25" height="25" />
@@ -45,6 +53,7 @@ const Login = () => {
     identityProviders: [],
     richiediSpid: '',
   });
+  const [clientData, setClientData] = useState<Client>();
 
   const mapToArray = (json: { [key: string]: BannerContent }) => {
     const mapped = Object.values(json);
@@ -79,9 +88,28 @@ const Login = () => {
     }
   };
 
+  const getClientData = async (clientBaseListUrl: string) => {
+    try {
+      const query = new URLSearchParams(window.location.search);
+      const clientID = query.get('client_id');
+
+      if (clientID && clientID.match(/^[A-Za-z0-9_-]{43}$/)) {
+        const clientListUrl = `${clientBaseListUrl}/${clientID}`;
+        const response = await fetch(clientListUrl);
+        const res: Client = await response.json();
+        setClientData(res);
+      } else {
+        console.warn('no client_id supplied, or not valid 32bit Base64Url');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     void alertMessage(ENV.JSON_URL.ALERT);
     void getIdpList(ENV.JSON_URL.IDP_LIST);
+    void getClientData(ENV.JSON_URL.CLIENT_BASE_URL);
   }, []);
 
   const { t } = useTranslation();
@@ -118,7 +146,7 @@ const Login = () => {
 
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-      window.location.assign(ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
+      window.location.assign(clientData?.ppUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
     );
 
   const columnsOccupiedByAlert = 5;
@@ -170,6 +198,19 @@ const Login = () => {
             </Typography>
           </Grid>
         </Grid>
+        {clientData?.logoUri && (
+          <Grid container item justifyContent="center" textAlign={"center"}>
+            <Grid item xs={6}>
+              <Icon>
+                <img
+                  style={{ display: 'flex', height: 'inherit', width: 'inherit' }}
+                  src={clientData?.logoUri}
+                  alt={clientData?.friendlyName}
+                />
+              </Icon>
+            </Grid>
+          </Grid>
+        )}
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>
@@ -287,7 +328,9 @@ const Login = () => {
                   }}
                   onClick={() => {
                     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-                      window.location.assign(ENV.URL_FOOTER.TERMS_AND_CONDITIONS)
+                      window.location.assign(
+                        clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+                      )
                     );
                   }}
                 >

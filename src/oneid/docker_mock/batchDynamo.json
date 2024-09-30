@@ -33,7 +33,7 @@
             ]
           },
           "logoUri": {
-            "S": "http://test.com/logo.png"
+            "S": "https://io.italia.it/assets/img/io-it-logo-blue.svg"
           },
           "friendlyName": {
             "S": "test_16_09"
@@ -43,6 +43,12 @@
           },
           "clientId": {
             "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-Hnboag1E"
+          },
+          "ppUri": {
+            "S": "https://io.italia.it/privacy-policy/"
+          },
+          "tosUri": {
+            "S": "https://io.italia.it/note-legali/"
           }
         }
       }
