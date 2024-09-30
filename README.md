@@ -77,6 +77,22 @@ Now, you are able to login using an IDP test preconfigured.
 8. On the right click on "Invia response al SP"
 9. Et voilà.
 
+## Developing oneid-core
+Docker will make things easy for us as we can have a local dynamodb instance with necessary resources needed for developing.
+If we don't want to compose the whole One Identity we can still focus our attention on frontend and backend stuff by doing:
+
+```shell
+cd src/oneid
+docker-compose up dynamodb-local dynamo-import
+```
+This will start our dynamo complete instance.
+
+```shell
+cd src/oneid
+./mvnw quarkus:dev -P oneid-ecs-core-aggregate
+```
+This will start our backend and frontend instance thanks to Quarkus plugin Quinoa, just navigate to http://localhost:8080
+
 ### Interact with OI components
 **DynamoDB commands**
 
