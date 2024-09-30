@@ -251,6 +251,9 @@ module "frontend" {
   domain_name     = "oneid.pagopa.it"
   r53_dns_zone_id = "Z065844519UG4CA4QH19U"
 
+  create_dns_record = false
+  role_prefix       = local.project
+
   ## API Gateway ##
   rest_api_name         = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"

@@ -3,6 +3,11 @@ variable "aws_region" {
   description = "AWS Region."
 }
 
+variable "role_prefix" {
+  type        = string
+  description = "Prefix to assign to the IAM Roles"
+}
+
 
 variable "domain_name" {
   type        = string
@@ -15,9 +20,9 @@ variable "r53_dns_zone_id" {
 }
 
 variable "create_dns_record" {
-  type = bool
+  type        = bool
   description = "Create DNS record to associate the API Gateway RestApi to the hosted zone."
-  default = true
+  default     = true
 }
 
 variable "dns_record_ttl" {
