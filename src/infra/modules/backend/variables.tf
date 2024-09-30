@@ -27,6 +27,14 @@ variable "ecs_cluster_name" {
   description = "ECS Cluster name"
 }
 
+variable "ssm_cert_key" {
+  type = object({
+    cert_pem = optional(string, "cert.pem")
+    key_pem = optional(string, "key.pem")
+  })
+
+}
+
 variable "enable_container_insights" {
   type        = bool
   description = "ECS enable container insight."

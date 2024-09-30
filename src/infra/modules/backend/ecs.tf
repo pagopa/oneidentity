@@ -33,6 +33,16 @@ module "ecr" {
   registry_replication_rules = []
 }
 
+# SSM parameters
+
+data "aws_ssm_parameter" "certificate" {
+  name = var.ssm_cert_key.cert_pem
+}
+
+data "aws_ssm_parameter" "key" {
+  name = var.ssm_cert_key.key_pem
+}
+
 ## KMS key to sign the Jwt tokens.
 module "jwt_sign" {
   source  = "terraform-aws-modules/kms/aws"
@@ -144,13 +154,6 @@ resource "aws_iam_policy" "ecs_core_task" {
 
 }
 
-data "aws_ssm_parameter" "certificate" {
-  name = var.app_cert_name
-}
-
-data "aws_ssm_parameter" "key" {
-  name = var.app_key_name
-}
 
 module "ecs_cluster" {
 
