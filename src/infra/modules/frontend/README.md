@@ -117,6 +117,7 @@
 | <a name="input_assets_bucket_name"></a> [assets\_bucket\_name](#input\_assets\_bucket\_name) | Assets bucket name. | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
+| <a name="input_create_dns_record"></a> [create\_dns\_record](#input\_create\_dns\_record) | Create DNS record to associate the API Gateway RestApi to the hosted zone. | `bool` | `true` | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | DNS records ttl | `number` | n/a | yes |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
 | <a name="input_metadata_lamba_arn"></a> [metadata\_lamba\_arn](#input\_metadata\_lamba\_arn) | lambda metadata arn | `string` | n/a | yes |
@@ -126,6 +127,7 @@
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
+| <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the IAM Roles | `string` | n/a | yes |
 | <a name="input_web_acl"></a> [web\_acl](#input\_web\_acl) | WEB acl name | <pre>object({<br>    name                       = string<br>    cloudwatch_metrics_enabled = optional(bool, false)<br>    sampled_requests_enabled   = optional(bool, false)<br>    sns_topic_arn              = optional(string, "")<br>  })</pre> | n/a | yes |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `false` | no |
 

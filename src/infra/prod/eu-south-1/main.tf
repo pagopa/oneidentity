@@ -305,6 +305,8 @@ module "frontend" {
   domain_name = module.r53_zones.dns_zone_name
   r53_dns_zone_id = module.r53_zones.dns_zone_id
 
+  role_prefix = local.project
+
   ## API Gateway ##
   rest_api_name = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"

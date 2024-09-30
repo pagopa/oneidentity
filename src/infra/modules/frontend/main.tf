@@ -1,4 +1,5 @@
 module "records" {
+  count   = var.create_dns_record ? 1 : 0
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
@@ -67,7 +68,7 @@ data "aws_iam_policy_document" "s3_apigw_proxy" {
 }
 
 resource "aws_iam_policy" "s3_apigw_proxy" {
-  name        = "S3AssetsGetObject"
+  name        = "${var.role_prefix}-s3-read-assets"
   description = "Get Object in S3 object."
   policy      = data.aws_iam_policy_document.s3_apigw_proxy.json
 }
@@ -92,7 +93,7 @@ data "aws_iam_policy_document" "lambda_apigw_proxy" {
 }
 
 resource "aws_iam_policy" "lambda_apigw_proxy" {
-  name        = "LambdaInvoke"
+  name        = "${var.role_prefix}-apigw-invoke-lambda"
   description = "Lambda invoke policy"
   policy      = data.aws_iam_policy_document.lambda_apigw_proxy.json
 }

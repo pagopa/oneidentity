@@ -253,14 +253,16 @@ module "backend" {
 }
 
 
-/*
 
 module "frontend" {
   source = "../../modules/frontend"
 
   ## DNS
-  domain_name     = module.r53_zones.dns_zone_name
-  r53_dns_zone_id = module.r53_zones.dns_zone_id
+  domain_name     = "oneid.pagopa.it"
+  r53_dns_zone_id = "Z065844519UG4CA4QH19U"
+
+  create_dns_record = false
+  role_prefix       = local.project
 
   ## API Gateway ##
   rest_api_name         = format("%s-restapi", local.project)
@@ -289,8 +291,17 @@ module "frontend" {
 
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns
+
+  web_acl = {
+    name                       = format("%s-webacl", local.project)
+    cloudwatch_metrics_enabled = true
+    sampled_requests_enabled   = true
+    sns_topic_arn              = module.sns.sns_topic_arn
+  }
 }
 
+
+/*
 ## Monitoring / Dashboard ##
 
 module "monitoring" {
