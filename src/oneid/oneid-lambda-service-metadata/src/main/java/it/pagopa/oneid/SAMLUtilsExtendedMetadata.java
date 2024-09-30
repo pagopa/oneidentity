@@ -20,7 +20,6 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
-
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -53,6 +52,7 @@ import org.opensaml.saml.saml2.metadata.ServiceName;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.UsageType;
+import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
@@ -60,6 +60,8 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
+  @Inject
+  BasicX509Credential X509Credential;
 
   @Inject
   public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool) throws SAMLUtilsException {
