@@ -357,6 +357,7 @@ variable "lambda_alarms" {
     "oneid-es-1-d-metadata" = {},
     "oneid-es-1-d-client-registration" = {
     },
+    "oneid-es-1-d-update-idp-metadata" = {}
   }
 }
 
