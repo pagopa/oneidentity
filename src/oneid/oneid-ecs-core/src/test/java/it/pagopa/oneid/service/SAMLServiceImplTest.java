@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectSpy;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
@@ -20,6 +21,7 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;
 import java.time.Instant;
@@ -42,6 +44,7 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
 @QuarkusTest
+@TestProfile(X509CredentialTestProfile.class)
 public class SAMLServiceImplTest {
 
   @Inject
@@ -63,7 +66,7 @@ public class SAMLServiceImplTest {
     int assertionConsumerServiceIndex = 0;
     int attributeConsumingServiceIndex = 0;
     String authLevel = "foobar";
-
+    
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
         assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
 

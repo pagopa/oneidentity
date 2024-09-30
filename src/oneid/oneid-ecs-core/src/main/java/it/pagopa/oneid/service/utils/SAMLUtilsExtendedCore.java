@@ -54,8 +54,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
-
-
+  
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool) throws SAMLUtilsException {
     super(basicParserPool);
@@ -206,7 +205,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throw new SAMLValidationException("Credential not found for selected IDP");
     }
   }
-  
+
   private ArrayList<Credential> getCredentials(Set<String> certificates, Instant issueInstant) {
     ArrayList<Credential> credentials = new ArrayList<>();
 
