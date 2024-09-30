@@ -136,6 +136,14 @@ module "backend" {
       {
         name  = "CIE_ENTITY_ID"
         value = var.cie_entity_id
+      },
+      {
+        name  = "CERTIFICATE_NAME"
+        value = var.ssm_cert_key.cert_pem
+      },
+      {
+        name  = "KEY_NAME"
+        value = var.ssm_cert_key.key_pem
       }
     ]
   }
