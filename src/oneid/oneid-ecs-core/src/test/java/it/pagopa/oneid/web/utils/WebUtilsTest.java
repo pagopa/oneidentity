@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import jakarta.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 @QuarkusTest
+@TestProfile(X509CredentialTestProfile.class)
 class WebUtilsTest {
 
   @Inject
