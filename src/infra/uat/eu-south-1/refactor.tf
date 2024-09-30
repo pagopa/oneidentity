@@ -53,3 +53,8 @@ moved {
   from = module.database.module.dynamodb_table_client_registrations.aws_dynamodb_table.this[0]
   to   = module.database.module.dynamodb_table_client_registrations[0].aws_dynamodb_table.this[0]
 }
+
+moved {
+  from = module.frontend.module.records.aws_route53_record.this[" A"]
+  to   = module.frontend.module.records[0].aws_route53_record.this[" A"]
+}
