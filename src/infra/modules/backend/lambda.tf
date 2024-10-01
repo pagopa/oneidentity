@@ -118,8 +118,8 @@ data "aws_iam_policy_document" "metadata_lambda" {
     resources = ["${var.table_client_registrations_arn}"]
   }
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "ssm:Describe*",
       "ssm:Get*",
       "ssm:List*"
