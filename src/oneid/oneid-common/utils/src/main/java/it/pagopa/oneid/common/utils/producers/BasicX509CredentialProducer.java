@@ -1,8 +1,8 @@
 package it.pagopa.oneid.common.utils.producers;
 
 import io.quarkus.logging.Log;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
-@ApplicationScoped
+@Singleton
 public class BasicX509CredentialProducer {
 
   @Inject
@@ -34,7 +34,7 @@ public class BasicX509CredentialProducer {
   @ConfigProperty(name = "key_name")
   String keyName;
 
-  @ApplicationScoped
+  @Singleton
   @Produces
   BasicX509Credential basicX509Credential() {
 
@@ -77,7 +77,7 @@ public class BasicX509CredentialProducer {
       throw new RuntimeException();
     }
     // endregion
-    
+
     basicX509Credential = new BasicX509Credential(x509Cert);
     basicX509Credential.setPrivateKey(rsaPrivateKey);
 
