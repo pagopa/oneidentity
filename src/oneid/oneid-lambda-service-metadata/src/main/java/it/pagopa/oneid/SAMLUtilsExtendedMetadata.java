@@ -63,6 +63,7 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   }
 
   public SAMLUtilsExtendedMetadata() {
+    super();
   }
 
   public AttributeConsumingService buildAttributeConsumingService(Client client) {
