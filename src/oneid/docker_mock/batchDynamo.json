@@ -44,7 +44,7 @@
           "clientId": {
             "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-Hnboag1E"
           },
-          "ppUri": {
+          "policyUri": {
             "S": "https://io.italia.it/privacy-policy/"
           },
           "tosUri": {

@@ -29,7 +29,7 @@ type Client = {
   clientID: string;
   friendlyName: string;
   logoUri: string;
-  ppUri: string;
+  policyUri: string;
   tosUri: string;
 };
 
@@ -146,7 +146,7 @@ const Login = () => {
 
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-      window.location.assign(clientData?.ppUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
+      window.location.assign(clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
     );
 
   const columnsOccupiedByAlert = 5;
@@ -188,8 +188,8 @@ const Login = () => {
           <Grid item xs={6}>
             <Typography
               variant="body1"
-              mb={5}
               color="textPrimary"
+              mb={5}
               sx={{
                 textAlign: 'center',
               }}
@@ -199,7 +199,7 @@ const Login = () => {
           </Grid>
         </Grid>
         {clientData?.logoUri && (
-          <Grid container item justifyContent="center" textAlign={"center"}>
+          <Grid container item justifyContent="center" textAlign={"center"} mb={2}>
             <Grid item xs={6}>
               <Icon>
                 <img
