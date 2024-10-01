@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.10-alpine
+FROM --platform=$BUILDPLATFORM python:3.10-alpine@sha256:b8541313282fa2e680cd19592c52aaa97adb833c7b8fcd73e22ecf0799ae549e
 
 WORKDIR /app
 

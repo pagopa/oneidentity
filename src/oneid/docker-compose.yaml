@@ -12,7 +12,7 @@ services:
       - dynamodb-local
     links:
       - dynamodb-local
-    image: amazon/aws-cli
+    image: amazon/aws-cli@sha256:183d4bb76169d35c12ba99e3384b605fee9a72fcb7ff1eeaa857fc27aa8fc713
     volumes:
       - ${PWD}/docker_mock/gsi_pointer.json:/home/dynamodblocal/gsi_pointer.json
       - ${PWD}/docker_mock/gsi_code.json:/home/dynamodblocal/gsi_code.json
@@ -31,7 +31,7 @@ services:
         aws dynamodb batch-write-item --request-items file:///home/dynamodblocal/batchDynamo.json --endpoint-url http://dynamodb-local:8000 --region eu-south-1
         aws dynamodb list-tables --endpoint-url http://dynamodb-local:8000 --region us-south-1
   local-kms:
-    image: nsmithuk/local-kms
+    image: nsmithuk/local-kms@sha256:c0d7ff506b4aa1c061ae6743cf292a99fb9ec1968a6e5f3a3272110925860501
     ports:
       - "8085:8080"
     volumes:
