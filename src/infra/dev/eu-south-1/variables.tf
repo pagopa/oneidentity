@@ -403,6 +403,11 @@ variable "ssm_cert_key" {
     key_pem = optional(string)
   })
 
+  default = {
+    cert_pem = "cert.pem"
+    key_pem  = "key.pem"
+  }
+
 }
 
 variable "api_alarms" {

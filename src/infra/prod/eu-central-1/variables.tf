@@ -193,6 +193,11 @@ variable "ssm_cert_key" {
     cert_pem = optional(string)
     key_pem = optional(string)
   })
+  # default = {
+  #   cert_pem = "cert.pem"
+  #   key_pem  = "key.pem"
+  # }
+  default = null
 }
 
 ## Database ##
