@@ -193,6 +193,10 @@ variable "ssm_cert_key" {
     cert_pem = optional(string)
     key_pem  = optional(string)
   })
+  default = {
+    cert_pem = "auth_request_sign_cert"
+    key_pem  = "auth_request_sign_key"
+  }
 }
 
 ## Database ##

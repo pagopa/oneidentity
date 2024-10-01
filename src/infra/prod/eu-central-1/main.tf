@@ -148,6 +148,8 @@ module "backend" {
     ]
   }
 
+  ssm_cert_key = var.ssm_cert_key
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
@@ -249,7 +251,6 @@ module "backend" {
     sns_topic_arn                     = var.is_gh_sns_arn
   }
 
-  ssm_cert_key = {}
 }
 
 
