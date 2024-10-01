@@ -142,7 +142,9 @@ resource "aws_iam_policy" "ecs_core_task" {
         "Sid" : "SSMGetCertParameters",
         "Effect" : "Allow",
         "Action" : [
-          "ssm:GetParameter"
+          "ssm:Describe*",
+          "ssm:Get*",
+          "ssm:List*"
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
