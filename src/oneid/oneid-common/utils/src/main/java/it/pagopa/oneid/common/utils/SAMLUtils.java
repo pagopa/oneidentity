@@ -36,16 +36,16 @@ public class SAMLUtils {
 
   protected BasicParserPool basicParserPool;
 
-  @Inject
-  BasicX509Credential X509Credential;
+  protected BasicX509Credential basicX509Credential;
 
   public SAMLUtils() {
   }
 
   @Inject
-  public SAMLUtils(BasicParserPool basicParserPool)
+  public SAMLUtils(BasicParserPool basicParserPool, BasicX509Credential basicX509Credential)
       throws SAMLUtilsException {
     this.basicParserPool = basicParserPool;
+    this.basicX509Credential = basicX509Credential;
     XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
     ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
     registry.setParserPool(basicParserPool);
@@ -86,11 +86,11 @@ public class SAMLUtils {
 
     Signature signature = buildSAMLObject(Signature.class);
 
-    signature.setSigningCredential(X509Credential);
+    signature.setSigningCredential(basicX509Credential);
     signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
     signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
     try {
-      signature.setKeyInfo(keyInfoGenerator.generate(X509Credential));
+      signature.setKeyInfo(keyInfoGenerator.generate(basicX509Credential));
     } catch (SecurityException e) {
       throw new SAMLUtilsException(e);
     }
@@ -108,7 +108,7 @@ public class SAMLUtils {
 
     signKeyDescriptor.setUse(UsageType.SIGNING);  //Set usage
     try {
-      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(X509Credential));
+      signKeyDescriptor.setKeyInfo(keyInfoGenerator.generate(basicX509Credential));
     } catch (SecurityException e) {
       throw new SAMLUtilsException(e);
     }
