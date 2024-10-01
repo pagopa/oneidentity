@@ -49,6 +49,7 @@ import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.ServiceDescription;
 import org.opensaml.saml.saml2.metadata.ServiceName;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
+import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
@@ -57,8 +58,9 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   SAMLUtilsConstants samlUtilsConstants;
 
   @Inject
-  public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool) throws SAMLUtilsException {
-    super(basicParserPool);
+  public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool,
+      BasicX509Credential basicX509Credential) throws SAMLUtilsException {
+    super(basicParserPool, basicX509Credential);
     // TODO: env var fileName (DEV, UAT, PROD)
   }
 
