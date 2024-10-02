@@ -17,7 +17,6 @@ export default defineConfig({
         'src/__tests__/',
         'src/index.tsx',
         'src/reportWebVitals',
-        'src/utils/IDPS.ts',
         'src/utils/constants.ts',
         'src/global.d.ts',
       ],
