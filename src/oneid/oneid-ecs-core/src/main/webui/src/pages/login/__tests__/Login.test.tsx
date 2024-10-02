@@ -1,25 +1,25 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../Login';
 import { ENV } from '../../../utils/env';
 import './../../../locale';
 import { MemoryRouter } from 'react-router-dom';
 import { productId2ProductTitle } from '../../../utils/src/lib/utils/productId2ProductTitle';
+import { vi } from 'vitest';
 
 const oldWindowLocation = global.window.location;
 
 beforeAll(() => {
   // eslint-disable-next-line functional/immutable-data
-  Object.defineProperty(window, 'location', { value: { assign: jest.fn() } });
+  Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
 });
 afterAll(() => {
   // eslint-disable-next-line functional/immutable-data
   Object.defineProperty(window, 'location', { value: oldWindowLocation });
 });
 
-jest.spyOn(URLSearchParams.prototype, 'get');
+vi.spyOn(URLSearchParams.prototype, 'get');
 
-global.window.open = jest.fn();
+global.window.open = vi.fn();
 
 test('Test: Session not found while trying to access at onboarding flow product: "Onboarding" Login is displayed', async () => {
   const productIds = [
@@ -59,7 +59,7 @@ test('Test: Session not found while trying to access at onboarding flow product:
 test('Test: Trying to access the login with SPID', () => {
   render(<Login />);
   const buttonSpid = document.getElementById('spidButton');
-  fireEvent.click(buttonSpid);
+  fireEvent.click(buttonSpid as HTMLElement);
 });
 
 test('Test: Trying to access the login with CIE', () => {
@@ -69,7 +69,7 @@ test('Test: Trying to access the login with CIE', () => {
   });
   fireEvent.click(buttonCIE);
   expect(global.window.location.assign).toHaveBeenCalledWith(
-    `${ENV.URL_API.AUTHORIZE}?idp=xx_servizicie_test`
+    `${ENV.URL_API.AUTHORIZE}?idp=${ENV.SPID_CIE_ENTITY_ID}`
   );
 });
 
