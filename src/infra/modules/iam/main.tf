@@ -110,15 +110,19 @@ resource "aws_iam_policy" "githubiac_plan_policy" {
       },
       {
        Effect = "Allow"
-        Action = [
+       Action = [
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
         ]
-        Resource = "*"
-        Condition = {
-                StringEquals = {"aws:ResourceTag/Scope" : "tfstate"}
-            } 
-      }
+        Resource = "arn:aws:dynamodb:*:*:table/terraform*"
+      },
+      {
+        Resource = "*",
+        Action = [
+                "kms:Decrypt"
+            ],
+        Effect = "Allow"
+        }
     ]
   })
 
