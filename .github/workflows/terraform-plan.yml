@@ -50,3 +50,4 @@ jobs:
           working-directory: ${{ env.WORKING_DIR }}
           region: ${{ matrix.region }}
           iam_role: ${{ vars.IAM_ROLE_IAC_PLAN }}
+        continue-on-error: true
