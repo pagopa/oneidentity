@@ -1,12 +1,12 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SpidSelect from '../SpidSelect';
 import { ENV } from '../../../utils/env';
+import { vi } from 'vitest';
 
 const oldWindowLocation = global.window.location;
 beforeAll(() => {
   // eslint-disable-next-line functional/immutable-data
-  Object.defineProperty(window, 'location', { value: { assign: jest.fn() } });
+  Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
 });
 afterAll(() => {
   // eslint-disable-next-line functional/immutable-data
@@ -19,11 +19,11 @@ const idpList = {
 test('go to the spid url', () => {
   render(<SpidSelect onBack={() => {}} idpList={idpList} />);
 
-  idpList.identityProviders.forEach((element, i) => {
+  idpList.identityProviders.forEach((element) => {
     const spidImg = screen.getByAltText(element.name);
     const spidSpan = spidImg.parentNode;
     const spidButton = spidSpan?.parentNode;
-    fireEvent.click(spidButton);
+    fireEvent.click(spidButton as Element);
     const id = element.entityID;
     expect(global.window.location.assign).toHaveBeenCalledWith(
       ENV.URL_API.AUTHORIZE + '?idp=' + encodeURIComponent(id)
