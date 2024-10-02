@@ -1,8 +1,7 @@
-package it.pagopa.oneid.common.utils.producers;
+package it.pagopa.oneid.common.utils.config;
 
 import io.quarkus.logging.Log;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -22,11 +21,8 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
-@ApplicationScoped
-public class BasicX509CredentialProducer {
-
-  @Inject
-  SsmClient ssmClient;
+@Singleton
+public class ConfigBasicX509Credential {
 
   @ConfigProperty(name = "certificate_name")
   String certName;
@@ -34,14 +30,14 @@ public class BasicX509CredentialProducer {
   @ConfigProperty(name = "key_name")
   String keyName;
 
-  @ApplicationScoped
+  @Singleton
   @Produces
-  BasicX509Credential basicX509Credential() {
+  BasicX509Credential basicX509Credential(SsmClient ssmClient) {
 
     BasicX509Credential basicX509Credential = null;
 
     // region certificate
-    String cert = getParameter(certName);
+    String cert = getParameter(ssmClient, certName);
 
     InputStream targetStream = new ByteArrayInputStream(cert.getBytes());
     X509Certificate x509Cert = null;
@@ -57,7 +53,7 @@ public class BasicX509CredentialProducer {
     // endregion
 
     // region key
-    String key = getParameter(keyName);
+    String key = getParameter(ssmClient, keyName);
 
     String privateKeyPEM = key
         .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -77,14 +73,14 @@ public class BasicX509CredentialProducer {
       throw new RuntimeException();
     }
     // endregion
-    
+
     basicX509Credential = new BasicX509Credential(x509Cert);
     basicX509Credential.setPrivateKey(rsaPrivateKey);
 
     return basicX509Credential;
   }
 
-  private String getParameter(String parameterName) {
+  private String getParameter(SsmClient ssmClient, String parameterName) {
     GetParameterRequest request = GetParameterRequest.builder()
         .name(parameterName)
         .withDecryption(true)  // Set to true if the parameter is encrypted

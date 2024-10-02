@@ -12,12 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.SAMLValidationException;
+import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 
 @QuarkusTest
+@TestProfile(X509CredentialTestProfile.class)
 public class SAMLUtilsExtendedCoreTest {
 
   private static final String IDP_URL = "https://localhost:8443";

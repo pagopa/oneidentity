@@ -29,21 +29,21 @@ variable "vpc_cidr" {
 }
 
 variable "vpc_private_subnets_cidr" {
-  type = list(string)
+  type        = list(string)
   description = "Private subnets address spaces."
-  default = ["10.0.80.0/20", "10.0.64.0/20", "10.0.48.0/20"]
+  default     = ["10.0.80.0/20", "10.0.64.0/20", "10.0.48.0/20"]
 }
 
 variable "vpc_public_subnets_cidr" {
-  type = list(string)
+  type        = list(string)
   description = "Public subnets address spaces."
-  default = ["10.0.120.0/21", "10.0.112.0/21", "10.0.104.0/21"]
+  default     = ["10.0.120.0/21", "10.0.112.0/21", "10.0.104.0/21"]
 }
 
 variable "vpc_internal_subnets_cidr" {
-  type = list(string)
+  type        = list(string)
   description = "Internal subnets address spaces."
-  default = ["10.0.32.0/20", "10.0.16.0/20", "10.0.0.0/20"]
+  default     = ["10.0.32.0/20", "10.0.16.0/20", "10.0.0.0/20"]
 }
 
 variable "enable_nat_gateway" {
@@ -90,7 +90,7 @@ variable "ecs_oneid_core" {
       min_capacity  = number
       max_capacity  = number
     })
-    logs_retention_days = number
+    logs_retention_days   = number
     app_spid_test_enabled = optional(bool, false)
   })
   description = "Oneidentity core backend configurations."
@@ -143,7 +143,7 @@ variable "assertion_bucket" {
         id                     = string
         destination_bucket_arn = string
         kms_key_replica_arn    = string
-      }), null)
+    }), null)
   })
 
   description = "Assertion storage."
@@ -216,11 +216,11 @@ variable "sessions_table" {
 variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
-    stream_enabled = optional(bool, false)
-    stream_view_type = optional(string, null)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
     replication_regions = optional(list(object({
-      region_name = string
-      propagate_tags = optional(bool, true)
+      region_name            = string
+      propagate_tags         = optional(bool, true)
       point_in_time_recovery = optional(bool, true)
     })), [])
   })
@@ -241,11 +241,11 @@ variable "client_registrations_table" {
 variable "idp_metadata_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
-    stream_enabled = optional(bool, false)
-    stream_view_type = optional(string, null)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
     replication_regions = optional(list(object({
-      region_name = string
-      propagate_tags = optional(bool, true)
+      region_name            = string
+      propagate_tags         = optional(bool, true)
       point_in_time_recovery = optional(bool, true)
     })), [])
   })
@@ -293,17 +293,17 @@ variable "xray_tracing_enabled" {
 variable "api_method_settings" {
   description = "List of Api Gateway method settings."
   type = list(object({
-    method_path = string
-    metrics_enabled = optional(bool, false)
-    logging_level = optional(string, "OFF")
-    data_trace_enabled = optional(bool, false)
-    throttling_rate_limit = optional(number, -1)
-    throttling_burst_limit = optional(number, -1)
-    caching_enabled = optional(bool, false)
-    cache_ttl_in_seconds = optional(number, 0)
-    cache_data_encrypted = optional(bool, false)
+    method_path                             = string
+    metrics_enabled                         = optional(bool, false)
+    logging_level                           = optional(string, "OFF")
+    data_trace_enabled                      = optional(bool, false)
+    throttling_rate_limit                   = optional(number, -1)
+    throttling_burst_limit                  = optional(number, -1)
+    caching_enabled                         = optional(bool, false)
+    cache_ttl_in_seconds                    = optional(number, 0)
+    cache_data_encrypted                    = optional(bool, false)
     require_authorization_for_cache_control = optional(bool, false)
-    cache_key_parameters = optional(list(string), [])
+    cache_key_parameters                    = optional(list(string), [])
   }))
   default = [
     {
@@ -365,19 +365,23 @@ variable "is_gh_sns_arn" {
 
 variable "ssm_cert_key" {
   type = object({
-    cert_pem = optional(string)
-    key_pem = optional(string)
+    cert_pem = string
+    key_pem  = string
   })
+  default = {
+    cert_pem = "cert.pem"
+    key_pem  = "key.pem"
+  }
 }
 
 variable "ecs_alarms" {
   type = map(object({
-    metric_name = string
-    namespace   = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
   }))
 
@@ -403,14 +407,14 @@ variable "ecs_alarms" {
 
 variable "lambda_alarms" {
   type = map(object({
-    metric_name = optional(string, "Errors")
-    namespace = optional(string, "AWS/Lambda")
-    threshold = optional(number, 1)
-    evaluation_periods = optional(number, 1)
-    period = optional(number, 300)
-    statistic = optional(string, "Sum")
+    metric_name         = optional(string, "Errors")
+    namespace           = optional(string, "AWS/Lambda")
+    threshold           = optional(number, 1)
+    evaluation_periods  = optional(number, 1)
+    period              = optional(number, 300)
+    statistic           = optional(string, "Sum")
     comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")
-    treat_missing_data = optional(string, "notBreaching")
+    treat_missing_data  = optional(string, "notBreaching")
   }))
 
   default = {
@@ -426,12 +430,12 @@ variable "lambda_alarms" {
 
 variable "dlq_alarms" {
   type = object({
-    metric_name = string
-    namespace   = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
     sns_topic_alarm_arn = optional(list(string))
   })
@@ -451,15 +455,15 @@ variable "dlq_alarms" {
 
 variable "api_alarms" {
   type = map(object({
-    metric_name   = string
-    namespace     = string
-    threshold = optional(number)
-    evaluation_periods = optional(number)
-    period = optional(number)
-    statistic = optional(string)
+    metric_name         = string
+    namespace           = string
+    threshold           = optional(number)
+    evaluation_periods  = optional(number)
+    period              = optional(number)
+    statistic           = optional(string)
     comparison_operator = optional(string)
-    resource_name = string
-    method        = string
+    resource_name       = string
+    method              = string
 
   }))
 
