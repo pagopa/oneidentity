@@ -21,10 +21,15 @@ No modules.
 | Name | Type |
 |------|------|
 | [aws_iam_openid_connect_provider.github](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_openid_connect_provider) | resource |
+| [aws_iam_policy.githubiac_plan_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
 | [aws_iam_role.githubiac](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
+| [aws_iam_role.githubiac_plan](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.githubiac](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.githubiac_plan](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.githubiac_plan_policy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy.admin_access](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy.read_access](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy) | data source |
 
 ## Inputs
 
