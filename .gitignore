@@ -82,6 +82,7 @@ gradle-app.setting
 # Frontend stuff
 src/oneid/oneid-ecs-core/src/main/webui/node_modules
 src/oneid/oneid-ecs-core/src/main/webui/build
+src/oneid/oneid-ecs-core/src/main/webui/coverage
 src/oneid/oneid-ecs-core/.quinoa
 
 # Test stuff

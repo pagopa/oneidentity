@@ -1,10 +1,10 @@
 package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.common.utils.producers.BasicX509CredentialProducer;
-import jakarta.enterprise.context.ApplicationScoped;
+import it.pagopa.oneid.common.utils.config.ConfigBasicX509Credential;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,9 +22,9 @@ import org.opensaml.security.x509.BasicX509Credential;
 
 @Alternative
 @Dependent
-public class MockBasicX509CredentialProducer extends BasicX509CredentialProducer {
+public class MockConfigBasicX509Credential extends ConfigBasicX509Credential {
 
-  @ApplicationScoped
+  @Singleton
   @Produces
   BasicX509Credential basicX509Credential() throws SAMLUtilsException {
 
@@ -59,7 +59,7 @@ public class MockBasicX509CredentialProducer extends BasicX509CredentialProducer
 
     }
 
-    X509Credential = new BasicX509Credential(cert);
+    X509Credential = new org.opensaml.security.x509.BasicX509Credential(cert);
     InputStream inputStreamKey = getClass().getClassLoader()
         .getResourceAsStream("credentials/key.pem");
 

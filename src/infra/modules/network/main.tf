@@ -113,6 +113,13 @@ module "vpc_endpoints" {
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "kms-endpoint" }
     },
+    ssm = {
+      service             = "ssm"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      security_group_ids  = [aws_security_group.vpc_tls.id]
+      tags                = { Name = "ssm-endpoint" }
+    },
     /*
     sqs = {
       service             = "sqs"

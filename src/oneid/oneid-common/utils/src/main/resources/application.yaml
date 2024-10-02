@@ -16,3 +16,10 @@ quarkus:
   log:
     console:
       format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) [%C.%M] %s%e%n"
+'%prod':
+  quarkus:
+    ssm:
+      aws:
+        credentials:
+          type: default
+        region: eu-south-1

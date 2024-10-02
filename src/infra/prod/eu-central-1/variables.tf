@@ -190,12 +190,12 @@ variable "is_gh_sns_arn" {
 
 variable "ssm_cert_key" {
   type = object({
-    cert_pem = optional(string)
-    key_pem  = optional(string)
+    cert_pem = string
+    key_pem  = string
   })
   default = {
-    cert_pem = "auth_request_sign_cert"
-    key_pem  = "auth_request_sign_key"
+    cert_pem = "cert.pem"
+    key_pem  = "key.pem"
   }
 }
 

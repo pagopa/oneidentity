@@ -117,6 +117,15 @@ data "aws_iam_policy_document" "metadata_lambda" {
     actions   = ["dynamodb:Scan"]
     resources = ["${var.table_client_registrations_arn}"]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:Describe*",
+      "ssm:Get*",
+      "ssm:List*"
+    ]
+    resources = ["${data.aws_ssm_parameter.certificate.arn}", "${data.aws_ssm_parameter.key.arn}"]
+  }
 
 }
 
@@ -129,13 +138,21 @@ module "security_group_lambda_metadata" {
 
   vpc_id = var.metadata_lambda.vpc_id
 
-  egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id]
 
-  egress_rules = ["https-443-tcp"]
+  // egress_rules = ["https-443-tcp"]
+}
+
+resource "aws_security_group_rule" "metadata_vpc_tls" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.security_group_lambda_metadata.security_group_id
+  source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
 }
 
 module "metadata_lambda" {

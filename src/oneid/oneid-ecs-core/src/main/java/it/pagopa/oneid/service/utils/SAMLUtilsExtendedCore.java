@@ -54,10 +54,11 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
-  
+
   @Inject
-  public SAMLUtilsExtendedCore(BasicParserPool basicParserPool) throws SAMLUtilsException {
-    super(basicParserPool);
+  public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
+      BasicX509Credential basicX509Credential) throws SAMLUtilsException {
+    super(basicParserPool, basicX509Credential);
     // TODO: env var fileName (DEV, UAT, PROD)
   }
 
