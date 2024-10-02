@@ -12,11 +12,8 @@ const Layout = ({ children }: Props) => (
       minHeight: '100vh',
     }}
   >
-    {/* <LoginHeader /> */}
     {children}
-    <Box mt={16}>
-      {/* <Footer loggedUser={false} productsJsonUrl={ENV.JSON_URL.PRODUCTS} /> */}
-    </Box>
+    <Box mt={16} />
   </Box>
 );
 

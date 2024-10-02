@@ -2,7 +2,7 @@ import Login from './pages/login/Login';
 import { ROUTE_LOGIN, ROUTE_LOGIN_ERROR, ROUTE_LOGOUT } from './utils/constants';
 import { redirectToLogin } from './utils/utils';
 import Logout from './pages/logout/Logout';
-import LoginError from './pages/loginError/LoginError';
+import { LoginError } from './pages/loginError/LoginError';
 import { trackEvent } from './services/analyticsService';
 
 const onLogout = () => <Logout />;

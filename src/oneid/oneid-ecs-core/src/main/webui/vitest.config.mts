@@ -10,15 +10,12 @@ export default defineConfig({
     silent: true,
     coverage: {
       provider: 'v8',
+			skipFull: true,
       reportOnFailure: true,
       exclude: [
         ...configDefaults.exclude,
         '**/*.test.ts?(x)',
-        'src/__tests__/',
         'src/index.tsx',
-        'src/reportWebVitals',
-        'src/utils/constants.ts',
-        'src/global.d.ts',
       ],
       include: ['src/**/*.ts?(x)'],
       thresholds: {
