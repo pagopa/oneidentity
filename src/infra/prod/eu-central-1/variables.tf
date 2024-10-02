@@ -197,7 +197,6 @@ variable "ssm_cert_key" {
     cert_pem = "cert.pem"
     key_pem  = "key.pem"
   }
-
 }
 
 ## Database ##

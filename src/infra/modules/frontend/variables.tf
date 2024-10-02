@@ -14,6 +14,12 @@ variable "domain_name" {
   description = "DNS domain name."
 }
 
+variable "create_custom_domain_name" {
+  type        = bool
+  description = "ApiGw create custom domain name."
+  default     = true
+}
+
 variable "r53_dns_zone_id" {
   type        = string
   description = "R53 dns zone id."
