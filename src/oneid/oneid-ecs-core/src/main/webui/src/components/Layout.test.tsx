@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import Layout from './Layout';
-import '@testing-library/jest-dom';
 
 describe('Layout Component', () => {
   test('should render children elements', () => {

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import { LoadingOverlay } from './LoadingOverlay';
-import '@testing-library/jest-dom';
 
 // Mocking useTheme from Material-UI
 vi.mock('@mui/material', async () => {

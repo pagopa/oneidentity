@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import EndingPage from './EndingPage';
-import '@testing-library/jest-dom';
 
 describe('EndingPage Component', () => {
   it('should render the title, description, and icon', () => {

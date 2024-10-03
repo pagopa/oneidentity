@@ -4,7 +4,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 import { useLoginError } from '../../hooks/useLoginError';
 import { LoginError } from './LoginError';
-import '@testing-library/jest-dom';
 
 // Mocking the LoadingOverlay component
 vi.mock('../../components/LoadingOverlay', () => ({

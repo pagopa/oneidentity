@@ -3,7 +3,6 @@ import { IdentityProviders } from '../../utils/IDPS';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import SpidModal from './SpidModal';
-import '@testing-library/jest-dom';
 
 vi.mock('../../services/analyticsService');
 vi.mock('../../utils/utils', () => ({

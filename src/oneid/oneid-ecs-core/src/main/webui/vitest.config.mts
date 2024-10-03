@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 export default defineConfig({
   test: {
     globals: true,
+    setupFiles: './vitest.setup.mts',
     environment: 'jsdom',
     clearMocks: true,
     watch: false,

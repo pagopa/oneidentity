@@ -30,7 +30,8 @@
 	},
 	"include": [
 		"src/**/*",
-		"vitest.config.mts"
+		"vitest.config.mts",
+		"vitest.setup.mts"
 	],
 	"exclude": [
 		"__mocks__",

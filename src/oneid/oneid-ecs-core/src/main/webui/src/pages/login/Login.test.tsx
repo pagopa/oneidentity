@@ -5,7 +5,6 @@ import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
 import { ENV } from '../../utils/env';
 import { productId2ProductTitle } from '../../utils/src/lib/utils/productId2ProductTitle';
 import Login from './Login';
-import '@testing-library/jest-dom';
 import '../../locale';
 
 // Mock fetch
