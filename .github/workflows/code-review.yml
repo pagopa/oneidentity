@@ -47,17 +47,17 @@ jobs:
           -DeffectivePomSkip=false
           -DsonarQubeRunAnalysis=false
       - name: finding jacoco.xml
+        id: finding-jacoco
         run: |
-          xmlReportPaths=$(find "$(pwd)" -path '*jacoco.xml' | sed 's/.*/&/' | tr '\n' ','); echo "##vso[task.setvariable variable=xmlReportPaths]$xmlReportPaths"
+          echo "xmlReportPaths=$(find "$(pwd)" -path '*jacoco.xml' | sed 's/.*/&/' | tr '\n' ',')" >> $GITHUB_OUTPUT
 
       - name: Analyze with SonarCloud
         #todo add ignored files
-        # todo use the variable $xmlReportPaths for the assignment of line 58
         run: >
           mvn -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
-          -Dsonar.coverage.jacoco.xmlReportPaths="/home/runner/work/oneidentity/oneidentity/src/oneid/target/coverage/jacoco.xml"
+          -Dsonar.coverage.jacoco.xmlReportPaths=${{ steps.finding-jacoco.outputs.xmlReportPaths}}
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
