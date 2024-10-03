@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import SpidSelect from '../SpidSelect';
-import { ENV } from '../../../utils/env';
 import { vi } from 'vitest';
+import { ENV } from '../../utils/env';
+import SpidSelect from './SpidSelect';
 
 const oldWindowLocation = global.window.location;
 beforeAll(() => {

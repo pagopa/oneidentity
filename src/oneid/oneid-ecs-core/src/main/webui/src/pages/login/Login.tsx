@@ -33,13 +33,13 @@ type Client = {
   tosUri: string;
 };
 
-export const spidIcon = () => (
+export const SpidIconWrapper = () => (
   <Icon sx={{ width: '25px', height: '25px' }}>
     <img src={SpidIcon} width="25" height="25" />
   </Icon>
 );
 
-export const cieIcon = () => (
+export const CieIconWrapper = () => (
   <Icon sx={{ width: '25px', height: '25px' }}>
     <img src={CIEIcon} width="25" height="25" />
   </Icon>
@@ -277,7 +277,7 @@ const Login = () => {
               onClick={() => setOpenSpidModal(true)}
               variant="contained"
               disableElevation
-              startIcon={spidIcon()}
+              startIcon={<SpidIconWrapper />}
             >
               <Typography
                 sx={{
@@ -298,7 +298,7 @@ const Login = () => {
                 marginTop: 2,
               }}
               variant="contained"
-              startIcon={cieIcon()}
+              startIcon={<CieIconWrapper />}
               onClick={() => goCIE()}
             >
               {t('loginPage.loginBox.cieLogin')}

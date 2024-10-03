@@ -4,22 +4,16 @@ import { config } from 'dotenv';
 export default defineConfig({
   test: {
     globals: true,
+    setupFiles: './vitest.setup.mts',
     environment: 'jsdom',
     clearMocks: true,
     watch: false,
     silent: true,
     coverage: {
       provider: 'v8',
+      skipFull: true,
       reportOnFailure: true,
-      exclude: [
-        ...configDefaults.exclude,
-        '**/*.test.ts?(x)',
-        'src/__tests__/',
-        'src/index.tsx',
-        'src/reportWebVitals',
-        'src/utils/constants.ts',
-        'src/global.d.ts',
-      ],
+      exclude: [...configDefaults.exclude, '**/*.test.ts?(x)', 'src/index.tsx'],
       include: ['src/**/*.ts?(x)'],
       thresholds: {
         lines: 80,

@@ -1,7 +1,8 @@
+/* eslint-disable functional/immutable-data */
 import { render } from '@testing-library/react';
-import Logout from '../Logout';
-import { ROUTE_LOGIN } from '../../../utils/constants';
 import { vi } from 'vitest';
+import { ROUTE_LOGIN } from '../../utils/constants';
+import Logout from './Logout';
 
 const oldWindowLocation = global.window.location;
 
