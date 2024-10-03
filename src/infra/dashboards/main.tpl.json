@@ -194,8 +194,7 @@
                     }
                 },
                 "metrics": [
-                    [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "${sessions_table}", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                    [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                    [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${sessions_table}", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                     [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}" } ]
                 ]
             }
@@ -219,8 +218,7 @@
                     }
                 },
                 "metrics": [
-                    [ "AWS/DynamoDB", "ProvisionedWriteCapacityUnits", "TableName", "${sessions_table}", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                    [ ".", "ConsumedWriteCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                    [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "${sessions_table}", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                     [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}" } ]
                 ]
             }
@@ -244,8 +242,7 @@
                     }
                 },
                 "metrics": [
-                    [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "${sessions_table}", "GlobalSecondaryIndexName", "gsi_code_idx", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                    [ ".", "ConsumedReadCapacityUnits", ".", ".", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                    [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${sessions_table}", "GlobalSecondaryIndexName", "gsi_code_idx", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                     [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "region": "${aws_region}", "color": "#0073BB" } ]
                 ]
             }
@@ -269,8 +266,7 @@
                     }
                 },
                 "metrics": [
-                  [ "AWS/DynamoDB", "ProvisionedWriteCapacityUnits", "TableName", "${sessions_table}", "GlobalSecondaryIndexName", "gsi_code_idx", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                  [ ".", "ConsumedWriteCapacityUnits", ".", ".", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                  [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "${sessions_table}", "GlobalSecondaryIndexName", "gsi_code_idx", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                   [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "region": "${aws_region}", "color": "#0073BB" } ]
               ]
           }
@@ -278,7 +274,7 @@
       {
           "height": 1,
           "width": 12,
-          "y": 21,
+          "y": 28,
           "x": 0,
           "type": "text",
           "properties": {
@@ -304,8 +300,7 @@
                   }
               },
               "metrics": [
-                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "ClientRegistrations", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                  [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                  [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "ClientRegistrations", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                   [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}" } ]
               ]
           }
@@ -342,8 +337,7 @@
           "type": "metric",
           "properties": {
               "metrics": [
-                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "IDPMetadata", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}", "visible": false } ],
-                  [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
+                  [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "IDPMetadata", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
                   [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}", "visible": false } ]
               ],
               "title": "Read usage (average units/second)",
@@ -412,22 +406,20 @@
                   }
               },
               "metrics": [
-                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "${client_registrations_table}", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
-                  [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                  [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${client_registrations_table}", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
                   [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}" } ]
               ]
           }
       },
       {
-          "type": "metric",
-          "x": 6,
-          "y": 22,
-          "width": 6,
           "height": 6,
+          "width": 6,
+          "y": 22,
+          "x": 18,
+          "type": "metric",
           "properties": {
               "metrics": [
-                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "IDPMetadata", "GlobalSecondaryIndexName", "gsi_pointer_idx", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}", "visible": false } ],
-                  [ ".", "ConsumedReadCapacityUnits", ".", ".", ".", ".", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
+                  [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "IDPMetadata", "GlobalSecondaryIndexName", "gsi_pointer_idx", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
                   [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "region": "${aws_region}", "color": "#0073BB", "visible": false } ]
               ],
               "title": "Read usage (average units/second)",
@@ -444,11 +436,11 @@
           }
       },
       {
-          "type": "text",
-          "x": 18,
-          "y": 21,
-          "width": 5,
           "height": 1,
+          "width": 5,
+          "y": 21,
+          "x": 18,
+          "type": "text",
           "properties": {
               "markdown": "## Index: gsi_pointer_idx\n"
             }
