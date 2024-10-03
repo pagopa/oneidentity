@@ -12,12 +12,6 @@ vi.mock('../../components/LoadingOverlay', () => ({
   ),
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key, // Mock translation function
-  }),
-}));
-
 vi.mock('../../hooks/useLoginError');
 
 const mockHandleErrorCode = vi.fn();

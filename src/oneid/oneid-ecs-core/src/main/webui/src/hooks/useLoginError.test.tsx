@@ -3,13 +3,6 @@ import { Trans } from 'react-i18next';
 import { t } from 'i18next';
 import { useLoginError } from './useLoginError';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key, // Mock translation function
-  }),
-  Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>, // Mock Trans component
-}));
-
 describe('useLoginError', () => {
   const cases = [
     {

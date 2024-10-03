@@ -11,13 +11,9 @@ export default defineConfig({
     silent: true,
     coverage: {
       provider: 'v8',
-			skipFull: true,
+      skipFull: true,
       reportOnFailure: true,
-      exclude: [
-        ...configDefaults.exclude,
-        '**/*.test.ts?(x)',
-        'src/index.tsx',
-      ],
+      exclude: [...configDefaults.exclude, '**/*.test.ts?(x)', 'src/index.tsx'],
       include: ['src/**/*.ts?(x)'],
       thresholds: {
         lines: 80,

@@ -5,7 +5,6 @@ import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
 import { ENV } from '../../utils/env';
 import { productId2ProductTitle } from '../../utils/src/lib/utils/productId2ProductTitle';
 import Login from './Login';
-import '../../locale';
 
 // Mock fetch
 global.fetch = vi.fn();
@@ -25,7 +24,6 @@ afterAll(() => {
 afterEach(() => {
   vi.clearAllMocks();
 });
-
 
 test('Test: Session not found while trying to access at onboarding flow product: "Onboarding" Login is displayed', async () => {
   const productIds = [
@@ -63,7 +61,7 @@ test('Test: Session not found while trying to access at onboarding flow product:
 });
 test('Renders Login component', () => {
   render(<Login />);
-  expect(screen.getByText('Accedi all’Area Riservata')).toBeInTheDocument();
+  expect(screen.getByText('loginPage.title')).toBeInTheDocument();
 });
 
 test('Fetches and displays banner alerts', async () => {
@@ -129,7 +127,7 @@ test('Clicking SPID button opens modal', () => {
 
 test('Clicking CIE button redirects correctly', () => {
   render(<Login />);
-  const buttonCIE = screen.getByRole('button', { name: 'Entra con CIE' });
+  const buttonCIE = screen.getByRole('button', { name: 'loginPage.loginBox.cieLogin' });
   fireEvent.click(buttonCIE);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(
