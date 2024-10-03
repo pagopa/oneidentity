@@ -282,7 +282,56 @@
           "x": 0,
           "type": "text",
           "properties": {
-              "markdown": "## Database ${client_registrations_table} table [more metrics](https://${aws_region}.console.aws.amazon.com/dynamodbv2/home?region=${aws_region}#table?name=${client_registrations_table}&tab=monitoring)"
+              "markdown": "## Database ClientRegistrations table [more metrics](https://${aws_region}.console.aws.amazon.com/dynamodbv2/home?region=${aws_region}#table?name=ClientRegistrations&tab=monitoring)"
+          }
+      },
+      {
+          "height": 6,
+          "width": 6,
+          "y": 29,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "title": "Read usage (average units/second)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 60,
+              "yAxis": {
+                  "left": {
+                      "showUnits": false
+                  }
+              },
+              "metrics": [
+                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "ClientRegistrations", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}" } ],
+                  [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "visible": false, "region": "${aws_region}" } ],
+                  [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}" } ]
+              ]
+          }
+      },
+      {
+          "height": 6,
+          "width": 6,
+          "y": 29,
+          "x": 6,
+          "type": "metric",
+          "properties": {
+              "title": "Get latency (milliseconds)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 60,
+              "yAxis": {
+                  "left": {
+                      "showUnits": false
+                  }
+              },
+              "metrics": [
+                  [ "AWS/DynamoDB", "SuccessfulRequestLatency", "TableName", "ClientRegistrations", "Operation", "GetItem", { "color": "#0073BB", "label": "Get latency", "region": "${aws_region}" } ],
+                  [ "...", "BatchGetItem", { "color": "#9468BD", "label": "Batch get latency", "region": "${aws_region}" } ]
+              ]
           }
       },
       {
@@ -292,7 +341,66 @@
           "x": 0,
           "type": "metric",
           "properties": {
+              "metrics": [
+                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "IDPMetadata", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}", "visible": false } ],
+                  [ ".", "ConsumedReadCapacityUnits", ".", ".", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
+                  [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "color": "#0073BB", "region": "${aws_region}", "visible": false } ]
+              ],
               "title": "Read usage (average units/second)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 60,
+              "yAxis": {
+                  "left": {
+                      "showUnits": false
+                  }
+              }
+          }
+      },
+      {
+          "height": 1,
+          "width": 18,
+          "y": 21,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## Database IDPMetadata table [more metrics](https://${aws_region}.console.aws.amazon.com/dynamodbv2/home?region=${aws_region}#table?name=IDPMetadata&tab=monitoring)"
+          }
+      },
+      {
+          "height": 6,
+          "width": 6,
+          "y": 22,
+          "x": 6,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/DynamoDB", "SuccessfulRequestLatency", "TableName", "IDPMetadata", "Operation", "GetItem", { "color": "#0073BB", "label": "Get latency", "region": "${aws_region}" } ],
+                  [ "...", "BatchGetItem", { "color": "#9468BD", "label": "Batch get latency", "region": "${aws_region}", "visible": false } ]
+              ],
+              "title": "Get latency (milliseconds)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "stat": "Average",
+              "period": 60,
+              "yAxis": {
+                  "left": {
+                      "showUnits": false
+                  }
+              }
+          }
+      },
+      {
+          "height": 6,
+          "width": 6,
+          "y": 22,
+          "x": 12,
+          "type": "metric",
+          "properties": {
+              "title": "Query latency (milliseconds)",
               "view": "timeSeries",
               "stacked": false,
               "region": "${aws_region}",
@@ -317,7 +425,12 @@
           "width": 6,
           "height": 6,
           "properties": {
-              "title": "Get latency (milliseconds)",
+              "metrics": [
+                  [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "IDPMetadata", "GlobalSecondaryIndexName", "gsi_pointer_idx", { "label": "Provisioned", "color": "#E02020", "region": "${aws_region}", "visible": false } ],
+                  [ ".", "ConsumedReadCapacityUnits", ".", ".", ".", ".", { "stat": "Sum", "id": "m1", "region": "${aws_region}" } ],
+                  [ { "expression": "m1/PERIOD(m1)", "label": "Consumed", "id": "e1", "region": "${aws_region}", "color": "#0073BB", "visible": false } ]
+              ],
+              "title": "Read usage (average units/second)",
               "view": "timeSeries",
               "stacked": false,
               "region": "${aws_region}",
@@ -327,11 +440,17 @@
                   "left": {
                       "showUnits": false
                   }
-              },
-              "metrics": [
-                  [ "AWS/DynamoDB", "SuccessfulRequestLatency", "TableName", "${client_registrations_table}", "Operation", "GetItem", { "color": "#0073BB", "label": "Get latency", "region": "${aws_region}" } ],
-                  [ "...", "BatchGetItem", { "color": "#9468BD", "label": "Batch get latency", "region": "${aws_region}" } ]
-                ]
+              }
+          }
+      },
+      {
+          "type": "text",
+          "x": 18,
+          "y": 21,
+          "width": 5,
+          "height": 1,
+          "properties": {
+              "markdown": "## Index: gsi_pointer_idx\n"
             }
         }
     ]
