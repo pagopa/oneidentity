@@ -57,7 +57,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn lint
-          yarn test
+          yarn test:coverage
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
               export $(grep -v ^# .env.${{ github.event.inputs.environment }} | xargs) && yarn build
           else
