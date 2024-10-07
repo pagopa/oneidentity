@@ -1,0 +1,16 @@
+{
+  "name": "oneid-webui-e2e",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.47.2",
+    "@types/node": "^22.7.4",
+    "dotenv": "^16.4.5"
+  },
+  "scripts": {
+    "codegen": "playwright codegen",
+    "test": "playwright test"
+  },
+  "dependencies": {}
+}
