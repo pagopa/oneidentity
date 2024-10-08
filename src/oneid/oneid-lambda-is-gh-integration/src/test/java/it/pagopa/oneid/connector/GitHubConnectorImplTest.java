@@ -32,13 +32,6 @@ public class GitHubConnectorImplTest {
   @SneakyThrows
   @BeforeEach
   public void beforeEach() {
-
-  }
-
-
-  @Test
-  @SneakyThrows
-  void createBranchAndCommit_withNonExistingFile() {
     GHBranch mockBranch = mock(GHBranch.class);
     when(repository.getBranch("main")).thenReturn(mockBranch);
 
@@ -51,6 +44,12 @@ public class GitHubConnectorImplTest {
     when(builder.path(anyString())).thenReturn(builder);
     when(builder.branch(anyString())).thenReturn(builder);
     when(repository.createContent()).thenReturn(builder);
+  }
+
+
+  @Test
+  @SneakyThrows
+  void createBranchAndCommit_withNonExistingFile() {
 
     when(repository.getDirectoryContent(any(), any())).thenThrow(IOException.class);
 
@@ -63,18 +62,6 @@ public class GitHubConnectorImplTest {
   @Test
   @SneakyThrows
   void createBranchAndCommit_withExistingFile() {
-    GHBranch mockBranch = mock(GHBranch.class);
-    when(repository.getBranch("main")).thenReturn(mockBranch);
-
-    GHRef mockRef = mock(GHRef.class);
-    when(repository.createRef(anyString(), anyString())).thenReturn(mockRef);
-
-    GHContentBuilder builder = mock(GHContentBuilder.class);
-    when(builder.content(anyString())).thenReturn(builder);
-    when(builder.message(anyString())).thenReturn(builder);
-    when(builder.path(anyString())).thenReturn(builder);
-    when(builder.branch(anyString())).thenReturn(builder);
-    when(repository.createContent()).thenReturn(builder);
 
     List<GHContent> contentList = new ArrayList<>();
     GHContent content = mock(GHContent.class);
@@ -90,18 +77,6 @@ public class GitHubConnectorImplTest {
   @Test
   @SneakyThrows
   void createBranchAndCommit_errorDeletingExistingFile() {
-    GHBranch mockBranch = mock(GHBranch.class);
-    when(repository.getBranch("main")).thenReturn(mockBranch);
-
-    GHRef mockRef = mock(GHRef.class);
-    when(repository.createRef(anyString(), anyString())).thenReturn(mockRef);
-
-    GHContentBuilder builder = mock(GHContentBuilder.class);
-    when(builder.content(anyString())).thenReturn(builder);
-    when(builder.message(anyString())).thenReturn(builder);
-    when(builder.path(anyString())).thenReturn(builder);
-    when(builder.branch(anyString())).thenReturn(builder);
-    when(repository.createContent()).thenReturn(builder);
 
     GHContent content = mock(GHContent.class);
     when(content.getName()).thenReturn("spid");
@@ -120,18 +95,6 @@ public class GitHubConnectorImplTest {
   @Test
   @SneakyThrows
   void createBranchAndCommit_errorCreatingCommit() {
-    GHBranch mockBranch = mock(GHBranch.class);
-    when(repository.getBranch("main")).thenReturn(mockBranch);
-
-    GHRef mockRef = mock(GHRef.class);
-    when(repository.createRef(anyString(), anyString())).thenReturn(mockRef);
-
-    GHContentBuilder builder = mock(GHContentBuilder.class);
-    when(builder.content(anyString())).thenReturn(builder);
-    when(builder.message(anyString())).thenReturn(builder);
-    when(builder.path(anyString())).thenReturn(builder);
-    when(builder.branch(anyString())).thenReturn(builder);
-    when(repository.createContent()).thenReturn(builder);
 
     when(repository.getDirectoryContent(any(), any())).thenThrow(IOException.class);
     when(repository.createContent().commit()).thenThrow(IOException.class);
@@ -156,11 +119,8 @@ public class GitHubConnectorImplTest {
   @Test
   @SneakyThrows
   void createBranchAndCommit_errorCreatingRef() {
-    GHBranch mockBranch = mock(GHBranch.class);
-    when(repository.getBranch("main")).thenReturn(mockBranch);
 
-    when(repository.createRef(anyString(), anyString())).thenThrow(IOException.class);
-
+    when(repository.getBranch(anyString())).thenThrow(IOException.class);
     Executable executable = () -> gitHubConnectorImpl.createBranchAndCommit("test-branch",
         "spid", "content", "/test");
 
