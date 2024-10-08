@@ -46,15 +46,12 @@ import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @TestProfile(OIDCControllerTestProfile.class)
 @TestHTTPEndpoint(OIDCController.class)
 @QuarkusTest
 class OIDCControllerTest {
 
-  private static final Logger log = LoggerFactory.getLogger(OIDCControllerTest.class);
   private final String CLIENT_ID = "test";
 
 
