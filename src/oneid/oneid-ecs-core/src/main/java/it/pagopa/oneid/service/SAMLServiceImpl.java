@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -40,6 +40,9 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Inject
   IDPConnectorImpl idpConnectorImpl;
+
+  @Inject
+  MarshallerFactory marshallerFactory;
 
   @ConfigProperty(name = "timestamp_spid")
   String TIMESTAMP_SPID;
@@ -92,104 +95,126 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel) {
+      int attributeConsumingServiceIndex, String purpose, String authLevel)
+      throws OneIdentityException {
+    validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
+        attributeConsumingServiceIndex);
 
-    AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
-
-    // Create AuthnRequest
-    authnRequest.setIssueInstant(Instant.now());
-    authnRequest.setForceAuthn(true);
-    authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-    authnRequest.setID(
-        samlUtils.generateSecureRandomId()); // TODO review, is it correct as a RandomID?
-    authnRequest.setIssuer(samlUtils.buildIssuer());
-    authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
-    authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
-
-    authnRequest.setDestination(idpSSOEndpoint);
-    authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
-    authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
-
-    Signature signature = null;
+    AuthnRequest authnRequest = createAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
+        attributeConsumingServiceIndex, authLevel);
     try {
-      signature = samlUtils.buildSignature(authnRequest);
+      Signature signature = samlUtils.buildSignature(authnRequest);
+      authnRequest.setSignature(signature);
+      marshallAndSign(authnRequest, signature);
     } catch (SAMLUtilsException e) {
       throw new GenericAuthnRequestCreationException(e);
-    }
-
-    authnRequest.setSignature(signature);
-    Marshaller out = XMLObjectProviderRegistrySupport.getMarshallerFactory()
-        .getMarshaller(authnRequest);
-    if (out != null) {
-      try {
-        out.marshall(authnRequest);
-        Signer.signObject(signature);
-      } catch (SignatureException | MarshallingException e) {
-        throw new GenericAuthnRequestCreationException(e);
-      }
-    } else {
-      throw new GenericAuthnRequestCreationException();
     }
 
     return authnRequest;
   }
 
+  private AuthnRequest createAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String authLevel) {
+    AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
+    authnRequest.setIssueInstant(Instant.now());
+    authnRequest.setForceAuthn(true);
+    authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+    authnRequest.setID(samlUtils.generateSecureRandomId());
+    authnRequest.setIssuer(samlUtils.buildIssuer());
+    authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
+    authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
+    authnRequest.setDestination(idpSSOEndpoint);
+    authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
+    authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
+    return authnRequest;
+  }
+
+  private void marshallAndSign(AuthnRequest authnRequest, Signature signature) {
+    Marshaller out = marshallerFactory
+        .getMarshaller(authnRequest);
+    if (out == null) {
+      throw new GenericAuthnRequestCreationException();
+    }
+    try {
+      out.marshall(authnRequest);
+      Signer.signObject(signature);
+    } catch (SignatureException | MarshallingException e) {
+      throw new GenericAuthnRequestCreationException(e);
+    }
+  }
+
+  private void validateParameters(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex) throws OneIdentityException {
+    if (idpSSOEndpoint == null || assertionConsumerServiceIndex < 0
+        || attributeConsumingServiceIndex < 0) {
+      throw new OneIdentityException("Invalid parameters for AuthnRequest creation.");
+    }
+  }
+
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID)
       throws OneIdentityException {
-    Log.debug("start");
+    Log.debug("Starting SAML response validation");
 
-    Assertion assertion;
+    Assertion assertion = extractAssertion(samlResponse);
+    SubjectConfirmationData subjectConfirmationData = extractSubjectConfirmationData(assertion);
+
+    validateRecipient(subjectConfirmationData);
+    validateNotOnOrAfter(subjectConfirmationData);
+    validateSignature(samlResponse, entityID);
+  }
+
+  private Assertion extractAssertion(Response samlResponse) {
     try {
-      assertion = samlResponse.getAssertions().getFirst();
+      return samlResponse.getAssertions().getFirst();
     } catch (NoSuchElementException e) {
-      Log.error(
-          "assertion not found");
-      throw new SAMLValidationException();
+      Log.error("Assertion not found in SAML response");
+      throw new SAMLValidationException("Assertion not found");
     }
+  }
 
+  private SubjectConfirmationData extractSubjectConfirmationData(Assertion assertion) {
     SubjectConfirmationData subjectConfirmationData = assertion.getSubject()
         .getSubjectConfirmations().getLast()
         .getSubjectConfirmationData();
 
     if (subjectConfirmationData == null) {
-      Log.error(
-          "SubjectConfirmationData not found");
-      throw new SAMLValidationException();
+      Log.error("SubjectConfirmationData not found");
+      throw new SAMLValidationException("SubjectConfirmationData not found");
     }
+    return subjectConfirmationData;
+  }
 
-    // Check if 'recipient' matches ACS URL
-    if (subjectConfirmationData.getRecipient() != null) {
-      if (!subjectConfirmationData.getRecipient().equals(SAMLUtilsConstants.ACS_URL)) {
-        Log.error(
-            "recipient parameter from Subject Confirmation Data does not matches ACS url: "
-                + subjectConfirmationData.getRecipient());
-        throw new SAMLValidationException();
-      }
-    } else {
-      Log.error(
-          "SubjectConfirmationData.getRecipient not found");
-      throw new SAMLValidationException();
+  private void validateRecipient(SubjectConfirmationData subjectConfirmationData) {
+    String recipient = subjectConfirmationData.getRecipient();
+    if (recipient == null) {
+      Log.error("Recipient parameter from Subject Confirmation Data not found");
+      throw new SAMLValidationException("Recipient not found");
     }
-    // Check if 'NotOnOrAfter' is expired
-    if (subjectConfirmationData.getNotOnOrAfter() != null) {
-      //TODO: consider parameterizing Instant.now()
-      if (Instant.now().compareTo(subjectConfirmationData.getNotOnOrAfter()) >= 0) {
-        Log.error(
-            "NotOnOrAfter parameter from Subject Confirmation Data expired");
-        throw new SAMLValidationException();
-      }
-    } else {
-      Log.error(
-          "SubjectConfirmationData.getConfirmationData not found");
-      throw new SAMLValidationException();
+    if (!recipient.equals(SAMLUtilsConstants.ACS_URL)) {
+      Log.error("Recipient parameter does not match ACS URL: " + recipient);
+      throw new SAMLValidationException("Recipient mismatch");
     }
+  }
 
-    // Validate SAMLResponse signature (Response and Assertion)
+  private void validateNotOnOrAfter(SubjectConfirmationData subjectConfirmationData) {
+    Instant notOnOrAfter = subjectConfirmationData.getNotOnOrAfter();
+    if (notOnOrAfter == null) {
+      Log.error("NotOnOrAfter parameter not found in SubjectConfirmationData");
+      throw new SAMLValidationException("NotOnOrAfter not found");
+    }
+    if (Instant.now().compareTo(notOnOrAfter) >= 0) {
+      Log.error("NotOnOrAfter parameter expired");
+      throw new SAMLValidationException("NotOnOrAfter expired");
+    }
+  }
+
+  private void validateSignature(Response samlResponse, String entityID)
+      throws OneIdentityException {
     Optional<IDP> idp = getIDPFromEntityID(entityID);
     if (idp.isEmpty()) {
-      Log.error("IDP not found: " + entityID);
-      throw new SAMLValidationException();
+      Log.error("IDP not found for entity ID: " + entityID);
+      throw new SAMLValidationException("IDP not found");
     }
     try {
       samlUtils.validateSignature(samlResponse, idp.get());
@@ -197,6 +222,7 @@ public class SAMLServiceImpl implements SAMLService {
       throw new OneIdentityException(e);
     }
   }
+
 
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
