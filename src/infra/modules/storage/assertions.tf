@@ -11,13 +11,24 @@ module "kms_assertions_bucket" {
   key_usage           = "ENCRYPT_DECRYPT"
   enable_key_rotation = var.assertion_bucket.enable_key_rotation
   multi_region        = var.assertion_bucket.kms_multi_region
+  enable_default_policy = true
 
-  grants = var.assertion_bucket.lambda_role_arn != null ? {
-    lambda = {
-      grantee_principal = var.assertion_bucket.lambda_role_arn
-      operations        = ["GenerateDataKey"]
+  key_statements = var.assertion_bucket.lambda_role_arn != null ? [
+    {
+      sid = "CrossAccountLambda"
+      actions = [
+        "kms:GenerateDataKey*"
+      ]
+      resources = ["*"]
+
+      principals = [
+        {
+          type        = "AWS"
+          identifiers = [var.assertion_bucket.lambda_role_arn]
+        }
+      ]
     }
-  } : null
+  ] : []
 
   # Aliases
   aliases = ["assertions/S3"]
