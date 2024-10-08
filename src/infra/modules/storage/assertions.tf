@@ -12,6 +12,13 @@ module "kms_assertions_bucket" {
   enable_key_rotation = var.assertion_bucket.enable_key_rotation
   multi_region        = var.assertion_bucket.kms_multi_region
 
+  grants = var.assertion_bucket.lambda_role_arn != null ? {
+    lambda = {
+      grantee_principal = var.assertion_bucket.lambda_role_arn
+      operations        = ["GenerateDataKey"]
+    }
+  } : null
+
   # Aliases
   aliases = ["assertions/S3"]
 }
@@ -151,6 +158,29 @@ resource "aws_iam_policy_attachment" "replication" {
   policy_arn = aws_iam_policy.replication[0].arn
 }
 
+
+data "aws_iam_policy_document" "lambda_assertions" {
+
+  count = var.assertion_bucket.lambda_role_arn != null ? 1 : 0
+
+  statement {
+    sid = "Cross lambda access"
+    effect = "Allow"
+    resources = [
+      "${module.s3_assertions_bucket.s3_bucket_arn}",
+      "${module.s3_assertions_bucket.s3_bucket_arn}/*"
+    ]
+    actions = ["s3:PutObject"]
+ 
+    principals {
+        type = "AWS"
+        identifiers = [
+          "${var.assertion_bucket.lambda_role_arn}"
+        ]
+      }
+  }
+}
+
 module "s3_assertions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
@@ -160,6 +190,9 @@ module "s3_assertions_bucket" {
 
   control_object_ownership = true
   object_ownership         = "ObjectWriter"
+
+  attach_policy = var.assertion_bucket.lambda_role_arn != null ? true : false
+  policy        = var.assertion_bucket.lambda_role_arn == null ? null: data.aws_iam_policy_document.lambda_assertions[0].json
 
   server_side_encryption_configuration = {
     rule = {
@@ -297,7 +330,7 @@ resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
   count      = var.create_athena_table ? length(local.glue_assertions_policy) : 0
   role       = aws_iam_role.glue_assertions[0].name
   policy_arn = local.glue_assertions_policy[count.index]
-
+  depends_on = [ aws_iam_policy.glue_assertions_policy ]
 }
 
 resource "aws_glue_catalog_database" "assertions" {

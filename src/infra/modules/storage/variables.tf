@@ -20,6 +20,8 @@ variable "assertion_bucket" {
         destination_bucket_arn = string
         kms_key_replica_arn    = string
     }), null)
+
+    lambda_role_arn = optional(string, null)
   })
 }
 

@@ -37,6 +37,8 @@ variable "assertion_bucket" {
         destination_bucket_arn = string
         kms_key_replica_arn    = string
     }), null)
+    lambda_role_arn = optional(string, null)
+
   })
 
   description = "Assertion storage."
@@ -54,6 +56,7 @@ variable "assertion_bucket" {
         }
       }
     }
+    lambda_role_arn = "arn:aws:iam::851725347804:role/oneid-es-1-p-assertion"
 
     /*
     replication_configuration = {

@@ -14,7 +14,10 @@ module "storage" {
     object_lock_configuration = var.assertion_bucket.object_lock_configuration
 
     replication_configuration = var.assertion_bucket.replication_configuration
+
+    lambda_role_arn = var.assertion_bucket.lambda_role_arn
   }
+  create_athena_table         = true
   assertions_crawler_schedule = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix  = "idp-metadata"
   assets_bucket_prefix        = "assets"
