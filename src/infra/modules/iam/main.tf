@@ -105,12 +105,12 @@ resource "aws_iam_policy" "githubiac_plan_policy" {
         ]
         Resource = "*"
         Condition = {
-                StringEquals = {"aws:ResourceTag/Scope" : "tfstate"}
-            }
+          StringEquals = { "aws:ResourceTag/Scope" : "tfstate" }
+        }
       },
       {
-       Effect = "Allow"
-       Action = [
+        Effect = "Allow"
+        Action = [
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
         ]
@@ -119,10 +119,10 @@ resource "aws_iam_policy" "githubiac_plan_policy" {
       {
         Resource = "*",
         Action = [
-                "kms:Decrypt"
-            ],
+          "kms:Decrypt"
+        ],
         Effect = "Allow"
-        }
+      }
     ]
   })
 
