@@ -154,7 +154,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID)
       throws OneIdentityException {
-    Log.debug("Starting SAML response validation");
+    Log.debug("start");
 
     Assertion assertion = extractAssertion(samlResponse);
     SubjectConfirmationData subjectConfirmationData = extractSubjectConfirmationData(assertion);
