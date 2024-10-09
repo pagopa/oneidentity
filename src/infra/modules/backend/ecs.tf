@@ -43,7 +43,7 @@ data "aws_ssm_parameter" "key" {
   name = var.ssm_cert_key.key_pem
 }
 
-resource "aws_ssm_parameter" "key" {
+resource "aws_ssm_parameter" "key_pem" {
   name = var.ssm_cert_key.key_pem
   type = "SecureString"
   value = ""

@@ -42,7 +42,10 @@ import {
   id = "AWSGlueServiceRole-Assertions/arn:aws:iam::471112878885:policy/AWSGlueServiceRoleAssertionsS3Policy"
 }
 
-
+import {
+  to = module.backend.aws_ssm_parameter.key_pem
+  id = "key.pem"
+}
 
 ## Moved ##
 moved {
