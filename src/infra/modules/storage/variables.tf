@@ -25,12 +25,28 @@ variable "assertion_bucket" {
   })
 }
 
+variable "create_assets_bucket" {
+  type = bool
+  description = "Creare assets bucket."
+  default = true
+}
+
 variable "assets_bucket_prefix" {
   type = string
+  description = "Assets bucket prefix"
+  default = ""
+}
+
+variable "create_idp_metadata_bucket" {
+  type = bool
+  description = "Create idp metadata bucket."
+  default = true
 }
 
 variable "idp_metadata_bucket_prefix" {
   type = string
+  description = "Idp metadata bucket prefix."
+  default = ""
 }
 
 variable "github_repository" {

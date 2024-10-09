@@ -19,10 +19,10 @@ output "kms_assertion_key_arn" {
 }
 
 output "assets_bucket_arn" {
-  value = module.s3_assets_bucket.s3_bucket_arn
+  value = try(module.s3_assets_bucket[0].s3_bucket_arn, null)
 }
 output "assets_bucket_name" {
-  value = module.s3_assets_bucket.s3_bucket_id
+  value = try(module.s3_assets_bucket[0].s3_bucket_id, null)
 }
 
 output "deploy_assets_role" {

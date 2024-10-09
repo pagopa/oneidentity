@@ -19,8 +19,8 @@ module "storage" {
   }
   create_athena_table         = true
   assertions_crawler_schedule = var.assertions_crawler_schedule
-  idp_metadata_bucket_prefix  = "idp-metadata"
-  assets_bucket_prefix        = "assets"
+  create_assets_bucket = false
+  create_idp_metadata_bucket = false
   github_repository           = "pagopa/oneidentity"
   account_id                  = data.aws_caller_identity.current.account_id
 }
