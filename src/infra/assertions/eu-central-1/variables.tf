@@ -1,13 +1,13 @@
 variable "aws_region" {
   type        = string
-  description = "AWS region to create resources. Default Milan"
-  default     = "eu-south-1"
+  description = "AWS region to create resources. "
+  default     = "eu-central-1"
 }
 
 variable "aws_region_short" {
   type        = string
   description = "AWS region short format."
-  default     = "es-1"
+  default     = "ec-1"
 }
 
 variable "app_name" {
@@ -56,7 +56,7 @@ variable "assertion_bucket" {
         }
       }
     }
-    lambda_role_arn = "arn:aws:iam::851725347804:role/oneid-es-1-p-assertion"
+    lambda_role_arn = "arn:aws:iam::851725347804:role/oneid-ec-1-p-assertion"
 
     /*
     replication_configuration = {
