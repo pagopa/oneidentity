@@ -7,11 +7,11 @@ output "assertions_bucket_name" {
 }
 
 output "idp_metadata_bucket_arn" {
-  value = module.s3_idp_metadata_bucket.s3_bucket_arn
+  value = try(module.s3_idp_metadata_bucket[0].s3_bucket_arn, null)
 }
 
 output "s3_idp_metadata_bucket_name" {
-  value = module.s3_idp_metadata_bucket.s3_bucket_id
+  value = try(module.s3_idp_metadata_bucket[0].s3_bucket_id, null)
 }
 
 output "kms_assertion_key_arn" {

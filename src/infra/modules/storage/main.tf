@@ -28,6 +28,7 @@ module "s3_assets_bucket" {
 }
 
 module "s3_idp_metadata_bucket" {
+  count   = var.create_idp_metadata_bucket ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
@@ -43,7 +44,7 @@ module "s3_idp_metadata_bucket" {
 }
 
 resource "aws_iam_role_policy_attachment" "deploy_s3" {
-  count = var.create_assets_bucket ? 1 : 0
+  count      = var.create_assets_bucket ? 1 : 0
   role       = aws_iam_role.githubS3deploy.name
   policy_arn = aws_iam_policy.github_s3_policy[0].arn
 }
@@ -77,7 +78,7 @@ resource "aws_iam_role" "githubS3deploy" {
 }
 
 resource "aws_iam_policy" "github_s3_policy" {
-  count = var.create_assets_bucket ? 1 : 0
+  count       = var.create_assets_bucket ? 1 : 0
   name        = "${var.role_prefix}-deploy-assets"
   description = "Policy to deploy to S3"
 
@@ -101,8 +102,9 @@ resource "aws_iam_policy" "github_s3_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "upload_idp" {
+  count      = var.create_idp_metadata_bucket ? 1 : 0
   role       = aws_iam_role.upload_idp_role.name
-  policy_arn = aws_iam_policy.upload_idp_policy.arn
+  policy_arn = aws_iam_policy.upload_idp_policy[0].arn
 }
 
 resource "aws_iam_role" "upload_idp_role" {
@@ -134,6 +136,7 @@ resource "aws_iam_role" "upload_idp_role" {
 }
 
 resource "aws_iam_policy" "upload_idp_policy" {
+  count       = var.create_idp_metadata_bucket ? 1 : 0
   name        = "${var.role_prefix}-upload-idp"
   description = "Policy to deploy to S3"
 
@@ -148,8 +151,8 @@ resource "aws_iam_policy" "upload_idp_policy" {
           "s3:PutObject"
         ],
         Resource = [
-          module.s3_idp_metadata_bucket.s3_bucket_arn,
-          "${module.s3_idp_metadata_bucket.s3_bucket_arn}/*"
+          module.s3_idp_metadata_bucket[0].s3_bucket_arn,
+          "${module.s3_idp_metadata_bucket[0].s3_bucket_arn}/*"
         ]
       }
     ]
