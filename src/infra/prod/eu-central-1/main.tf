@@ -209,13 +209,17 @@ module "backend" {
   }
 
   assertion_lambda = {
-    name                    = format("%s-assertion", local.project)
-    filename                = "${path.module}/../../hello-python/lambda.zip"
-    s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
-    kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
+    name     = format("%s-assertion", local.project)
+    filename = "${path.module}/../../hello-python/lambda.zip"
+    # ⚠️ warning: before swiching this values you need to create the resources in the account which is intended 
+    # to preserve the assertisons
+    s3_assertion_bucket_arn = "arn:aws:s3:::assertions-3444"
+    kms_assertion_key_arn   = "arn:aws:kms:eu-central-1:980921732883:key/3c6f6ba6-90e9-46df-872b-d5aa081940cf"
+    #s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
+    #kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
     environment_variables = {
-      S3_BUCKET = module.storage.assertions_bucket_name
+      S3_BUCKET = "assertions-3444"
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
