@@ -43,6 +43,16 @@ data "aws_ssm_parameter" "key" {
   name = var.ssm_cert_key.key_pem
 }
 
+resource "aws_ssm_parameter" "key_pem" {
+  name   = var.ssm_cert_key.key_pem
+  type   = "SecureString"
+  value  = ""
+  key_id = ""
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
 ## KMS key to sign the Jwt tokens.
 module "jwt_sign" {
   source  = "terraform-aws-modules/kms/aws"

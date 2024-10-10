@@ -1,3 +1,11 @@
+
+## Import ##
+
+import {
+  to = module.backend.aws_ssm_parameter.key_pem
+  id = "key.pem"
+}
+
 moved {
   from = module.storage.module.s3_assets_bucket
   to   = module.storage.module.s3_assets_bucket[0]
