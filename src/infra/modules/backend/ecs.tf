@@ -43,11 +43,25 @@ data "aws_ssm_parameter" "key" {
   name = var.ssm_cert_key.key_pem
 }
 
+module "kms_key_pem" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "2.2.1"
+
+  description           = "KMS key for SSM parameter encryption"
+  key_usage             = "ENCRYPT_DECRYPT"
+  enable_key_rotation   = var.kms_ssm_enable_rotation
+  enable_default_policy = true
+
+  # Aliases
+  aliases = ["keyPem/SSM"]
+}
+
+
 resource "aws_ssm_parameter" "key_pem" {
   name   = var.ssm_cert_key.key_pem
   type   = "SecureString"
   value  = ""
-  key_id = ""
+  key_id = module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn
   lifecycle {
     ignore_changes = [value]
   }
@@ -149,6 +163,17 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid    = "KMSDecryptEncryptParameter"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+        ]
+        Resource = [
+          "${module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn}"
+        ]
+      },
+      {
         "Sid" : "SSMGetCertParameters",
         "Effect" : "Allow",
         "Action" : [
@@ -158,7 +183,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
-          "${data.aws_ssm_parameter.key.arn}"
+          "${aws_ssm_parameter.key_pem.arn}"
         ]
       }
     ]
