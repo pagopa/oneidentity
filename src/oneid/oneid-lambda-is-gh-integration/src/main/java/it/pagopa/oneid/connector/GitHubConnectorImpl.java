@@ -23,7 +23,6 @@ public class GitHubConnectorImpl implements GitHubConnector {
     // create branch
     try {
       GHBranch mainBranch = repository.getBranch("main");
-
       repository.createRef("refs/heads/" + branchName, mainBranch.getSHA1());
     } catch (IOException | NullPointerException e) {
       Log.error("error creating a branch : " + e.getMessage());
