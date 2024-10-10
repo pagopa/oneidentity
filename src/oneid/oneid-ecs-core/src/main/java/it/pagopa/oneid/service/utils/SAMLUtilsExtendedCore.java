@@ -34,7 +34,6 @@ import org.opensaml.core.xml.schema.impl.XSAnyImpl;
 import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -42,7 +41,6 @@ import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.signature.Signature;
@@ -59,152 +57,136 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
       BasicX509Credential basicX509Credential) throws SAMLUtilsException {
     super(basicParserPool, basicX509Credential);
-    // TODO: env var fileName (DEV, UAT, PROD)
-  }
-
-  public SAMLUtilsExtendedCore() {
-    super();
   }
 
   public Issuer buildIssuer() {
-    Issuer issuer = buildSAMLObject(Issuer.class);
-    issuer.setValue(SERVICE_PROVIDER_URI);
-    issuer.setNameQualifier(SERVICE_PROVIDER_URI);
-    issuer.setFormat(NameIDType.ENTITY);
-
-    return issuer;
+    return createIssuer(SERVICE_PROVIDER_URI);
   }
 
   public NameIDPolicy buildNameIdPolicy() {
-    NameIDPolicy nameIDPolicy = buildSAMLObject(NameIDPolicy.class);
-    nameIDPolicy.setFormat(NameIDType.TRANSIENT);
-
-    return nameIDPolicy;
+    return createNameIDPolicy();
   }
 
   public RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
-    RequestedAuthnContext requestedAuthnContext = buildSAMLObject(RequestedAuthnContext.class);
-    requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
-    requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef(spidLevel));
-
-    return requestedAuthnContext;
-  }
-
-  private AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
-    AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
-    authnContextClassRef.setURI(spidLevel);
-
-    return authnContextClassRef;
-  }
-
-  private String getAttributeValue(XMLObject attributeValue) {
-    Log.debug("start");
-
-    return attributeValue == null ?
-        null :
-        attributeValue instanceof XSString ?
-            getStringAttributeValue((XSString) attributeValue) :
-            attributeValue instanceof XSAnyImpl ?
-                getAnyAttributeValue((XSAnyImpl) attributeValue) :
-                attributeValue.toString();
-  }
-
-  private String getStringAttributeValue(XSString attributeValue) {
-    return attributeValue.getValue();
-  }
-
-  private String getAnyAttributeValue(XSAnyImpl attributeValue) {
-    return attributeValue.getTextContent();
+    return createRequestedAuthnContext(spidLevel, AuthnContextComparisonTypeEnumeration.MINIMUM);
   }
 
   public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
-    Log.debug("start");
     List<AttributeDTO> attributes = new ArrayList<>();
-    for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
-      for (Attribute attribute : attributeStatement.getAttributes()) {
-        List<XMLObject> attributeValues = attribute.getAttributeValues();
-        if (!attributeValues.isEmpty()) {
-          attributes.add(new AttributeDTO(attribute.getName(), getAttributeValue(
-              attributeValues.getFirst())));
-        }
-      }
-    }
-    Log.debug("end");
-    return Optional.of(attributes);
+    assertion.getAttributeStatements().forEach(attributeStatement ->
+        attributeStatement.getAttributes().forEach(attribute ->
+            addAttributeDTO(attribute, attributes)
+        )
+    );
+    return attributes.isEmpty() ? Optional.empty() : Optional.of(attributes);
   }
 
-  public Response getSAMLResponseFromString(String SAMLResponse)
-      throws OneIdentityException {
-    Log.debug("start");
-
-    byte[] decodedSamlResponse = null;
-
-    try {
-      decodedSamlResponse = Base64.getDecoder().decode(SAMLResponse);
-    } catch (IllegalArgumentException e) {
-      Log.error(
-          "error unmarshalling "
-              + e.getMessage());
-      throw new OneIdentityException(e);
-    }
-
-    try {
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
-          new ByteArrayInputStream(decodedSamlResponse));
-    } catch (XMLParserException | UnmarshallingException e) {
-      Log.error(
-          "error unmarshalling "
-              + e.getMessage());
-      throw new OneIdentityException(e);
-    }
+  public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
+    byte[] decodedSamlResponse = decodeBase64(SAMLResponse);
+    return unmarshallResponse(decodedSamlResponse);
   }
 
   public void validateSignature(Response response, IDP idp)
       throws SAMLUtilsException, SAMLValidationException {
-    Log.debug("start");
-    SAMLSignatureProfileValidator profileValidator = new SAMLSignatureProfileValidator();
-    Assertion assertion = response.getAssertions().getFirst();
-
-    ArrayList<Credential> credentials = getCredentials(idp.getCertificates(),
+    List<Credential> credentials = getCredentials(idp.getCertificates(),
         response.getIssueInstant());
-
-    if (!credentials.isEmpty()) {
-      // Validate 'Response' signature
-      if (response.getSignature() != null) {
-        try {
-          profileValidator.validate(response.getSignature());
-          validateSignatureMultipleCredentials(response.getSignature(), credentials);
-        } catch (SignatureException e) {
-          Log.error(
-              "error during Response signature validation "
-                  + e.getMessage());
-          throw new SAMLValidationException(e);
-        }
-      } else {
-        Log.error("Response signature not present");
-        throw new SAMLValidationException();
-      }
-      // Validate 'Assertion' signature
-      if (assertion.getSignature() != null) {
-        try {
-          profileValidator.validate(assertion.getSignature());
-          validateSignatureMultipleCredentials(assertion.getSignature(), credentials);
-        } catch (SignatureException e) {
-          Log.error(
-              "error during Assertion signature validation "
-                  + e.getMessage());
-          throw new SAMLValidationException(e);
-        }
-      } else {
-        Log.error("Assertion signature not present");
-        throw new SAMLValidationException("Assertion signature not present");
-      }
-    } else {
+    try {
+      validateResponseSignature(response, credentials);
+    } catch (SignatureException e) {
       Log.error(
-          "credential not found for selected IDP "
-              + assertion.getIssuer().getValue());
-      throw new SAMLValidationException("Credential not found for selected IDP");
+          "error during Response signature validation "
+              + e.getMessage());
+      throw new SAMLValidationException(e);
     }
+    try {
+      validateAssertionSignature(response.getAssertions().getFirst(), credentials);
+    } catch (SignatureException e) {
+      Log.error(
+          "error during Assertion signature validation "
+              + e.getMessage());
+      throw new SAMLValidationException(e);
+    }
+
+  }
+
+  // Helper Methods
+  private Issuer createIssuer(String uri) {
+    Issuer issuer = buildSAMLObject(Issuer.class);
+    issuer.setValue(uri);
+    issuer.setNameQualifier(uri);
+    issuer.setFormat(NameIDType.ENTITY);
+    return issuer;
+  }
+
+  private NameIDPolicy createNameIDPolicy() {
+    NameIDPolicy nameIDPolicy = buildSAMLObject(NameIDPolicy.class);
+    nameIDPolicy.setFormat(NameIDType.TRANSIENT);
+    return nameIDPolicy;
+  }
+
+  private RequestedAuthnContext createRequestedAuthnContext(String spidLevel,
+      AuthnContextComparisonTypeEnumeration comparisonType) {
+    RequestedAuthnContext requestedAuthnContext = buildSAMLObject(RequestedAuthnContext.class);
+    requestedAuthnContext.setComparison(comparisonType);
+    requestedAuthnContext.getAuthnContextClassRefs().add(buildAuthnContextClassRef(spidLevel));
+    return requestedAuthnContext;
+  }
+
+  private void addAttributeDTO(Attribute attribute, List<AttributeDTO> attributes) {
+    List<XMLObject> attributeValues = attribute.getAttributeValues();
+    if (!attributeValues.isEmpty()) {
+      attributes.add(
+          new AttributeDTO(attribute.getName(), getAttributeValue(attributeValues.getFirst())));
+    }
+  }
+
+  private byte[] decodeBase64(String SAMLResponse) throws OneIdentityException {
+    try {
+      return Base64.getDecoder().decode(SAMLResponse);
+    } catch (IllegalArgumentException e) {
+      Log.error("Base64 decoding error: " + e.getMessage());
+      throw new OneIdentityException(e);
+    }
+  }
+
+  private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
+    try {
+      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
+          new ByteArrayInputStream(decodedSamlResponse));
+    } catch (XMLParserException | UnmarshallingException e) {
+      Log.error("Unmarshalling error: " + e.getMessage());
+      throw new OneIdentityException(e);
+    }
+  }
+
+  private void validateResponseSignature(Response response, List<Credential> credentials)
+      throws SAMLValidationException, SignatureException {
+    if (response.getSignature() == null) {
+      Log.error("Response signature not present");
+      throw new SAMLValidationException("Response signature not present");
+    }
+    validateSignatureWithCredentials(response.getSignature(), credentials);
+  }
+
+  private void validateAssertionSignature(Assertion assertion, List<Credential> credentials)
+      throws SAMLValidationException, SignatureException {
+    if (assertion.getSignature() == null) {
+      Log.error("Assertion signature not present");
+      throw new SAMLValidationException("Assertion signature not present");
+    }
+    validateSignatureWithCredentials(assertion.getSignature(), credentials);
+  }
+
+  private void validateSignatureWithCredentials(Signature signature, List<Credential> credentials)
+      throws SignatureException {
+    for (Credential credential : credentials) {
+      try {
+        SignatureValidator.validate(signature, credential);
+        return;
+      } catch (SignatureException ignored) {
+      }
+    }
+    throw new SignatureException("Invalid signature");
   }
 
   private ArrayList<Credential> getCredentials(Set<String> certificates, Instant issueInstant) {
@@ -239,17 +221,31 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return credentials;
   }
 
-  private void validateSignatureMultipleCredentials(Signature signature,
-      ArrayList<Credential> credentials) throws SignatureException {
 
-    for (Credential credential : credentials) {
-      try {
-        SignatureValidator.validate(signature, credential);
-        return;
-      } catch (SignatureException ignored) {
-      }
-    }
-    throw new SignatureException("Invalid signature");
+  private AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
+    AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
+    authnContextClassRef.setURI(spidLevel);
 
+    return authnContextClassRef;
+  }
+
+  private String getAttributeValue(XMLObject attributeValue) {
+    Log.debug("start");
+
+    return attributeValue == null ?
+        null :
+        attributeValue instanceof XSString ?
+            getStringAttributeValue((XSString) attributeValue) :
+            attributeValue instanceof XSAnyImpl ?
+                getAnyAttributeValue((XSAnyImpl) attributeValue) :
+                attributeValue.toString();
+  }
+
+  private String getStringAttributeValue(XSString attributeValue) {
+    return attributeValue.getValue();
+  }
+
+  private String getAnyAttributeValue(XSAnyImpl attributeValue) {
+    return attributeValue.getTextContent();
   }
 }
