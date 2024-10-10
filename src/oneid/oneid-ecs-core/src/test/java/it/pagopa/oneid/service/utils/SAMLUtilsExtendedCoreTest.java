@@ -24,13 +24,11 @@ import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Set;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.commons.util.StringUtils;
-import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.Issuer;
@@ -105,10 +103,9 @@ public class SAMLUtilsExtendedCoreTest {
   void getAttributeDTOListFromAssertion_withEmptyAttributeValues() {
     Assertion assertion = mock(Assertion.class);
     assertTrue(assertion.getAttributeStatements().isEmpty());
-    assertTrue(samlUtilsExtendedCore.getAttributeDTOListFromAssertion(assertion).get().isEmpty());
+    assertTrue(samlUtilsExtendedCore.getAttributeDTOListFromAssertion(assertion).isEmpty());
 
   }
-
 
   @Test
   @SneakyThrows
@@ -126,22 +123,9 @@ public class SAMLUtilsExtendedCoreTest {
     });
   }
 
-  @Disabled
   @Test
   @SneakyThrows
-  void getSAMLResponseFromString_UnmarshallingException() {
-    //TODO: find correct input that triggers UnmarshallingException
-
-    String response = "Invaldid SAML response";
-    OneIdentityException exception = assertThrows(OneIdentityException.class,
-        () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
-    assertEquals(UnmarshallingException.class, exception.getCause().getClass());
-
-  }
-
-  @Test
-  @SneakyThrows
-  void getSAMLResponseFromString_XMLParserException() {
+  void getSAMLResponseFromString_IllegalArgumentException() {
     String response =
         "Invalid SAML response";
 
@@ -173,7 +157,6 @@ public class SAMLUtilsExtendedCoreTest {
 
   }
 
-
   @Test
   @SneakyThrows
   void validateSignature_UsignedSamlResponseException() {
@@ -197,7 +180,6 @@ public class SAMLUtilsExtendedCoreTest {
     assertEquals(SAMLValidationException.class, exception.getClass());
 
   }
-
 
   @Test
   @SneakyThrows
@@ -224,7 +206,6 @@ public class SAMLUtilsExtendedCoreTest {
 
   }
 
-
   @Test
   @SneakyThrows
   void validateSignature_AssertionSignatureValidationException() {
@@ -250,6 +231,5 @@ public class SAMLUtilsExtendedCoreTest {
         exception.getCause().getMessage());
 
   }
-
 
 }
