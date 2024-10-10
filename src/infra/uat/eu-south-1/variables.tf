@@ -277,6 +277,11 @@ variable "api_method_settings" {
   }))
   default = [
     {
+      method_path     = "*/*"
+      caching_enabled = false
+      metrics_enabled = true
+    },
+    {
       method_path          = "saml/{id_type}/metadata/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
