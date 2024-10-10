@@ -1,9 +1,16 @@
 package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,9 +37,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.SneakyThrows;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
+import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -47,11 +60,23 @@ import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 @TestProfile(X509CredentialTestProfile.class)
 public class SAMLServiceImplTest {
 
+  @ConfigProperty(name = "timestamp_spid")
+  String TIMESTAMP_SPID;
+
+  @ConfigProperty(name = "timestamp_cie")
+  String TIMESTAMP_CIE;
+
+  @ConfigProperty(name = "cie_entity_id")
+  String CIE_ENTITY_ID;
+
   @Inject
   SAMLServiceImpl samlServiceImpl;
 
   @InjectSpy
   SAMLUtilsExtendedCore samlUtils;
+
+  @InjectSpy
+  MarshallerFactory marshallerFactory;
 
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
@@ -66,11 +91,47 @@ public class SAMLServiceImplTest {
     int assertionConsumerServiceIndex = 0;
     int attributeConsumingServiceIndex = 0;
     String authLevel = "foobar";
-    
+
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
         assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
 
     assertFalse(authnRequest.getID().isEmpty());
+  }
+
+  @Test
+  void buildAuthnRequest_invalidAssertionConsumerServiceIndex() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+    int assertionConsumerServiceIndex = -1;
+    int attributeConsumingServiceIndex = 0;
+    String authLevel = "foobar";
+
+    assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
+  }
+
+  @Test
+  void buildAuthnRequest_invalidAttributeConsumingServiceIndex() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+    int assertionConsumerServiceIndex = 0;
+    int attributeConsumingServiceIndex = -1;
+    String authLevel = "foobar";
+
+    assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
+  }
+
+  @Test
+  void buildAuthnRequest_invalidIdpSSOEndpoint() throws OneIdentityException {
+    // given
+    String idpId = null;
+    int assertionConsumerServiceIndex = 0;
+    int attributeConsumingServiceIndex = 0;
+    String authLevel = "foobar";
+
+    assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
   }
 
   @Test
@@ -90,15 +151,54 @@ public class SAMLServiceImplTest {
   }
 
   @Test
+  @SneakyThrows
+  void buildAuthnRequest_exceptionSigning() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+    int assertionConsumerServiceIndex = 0;
+    int attributeConsumingServiceIndex = 0;
+    String authLevel = "foobar";
+
+    Marshaller marshaller = Mockito.mock(Marshaller.class);
+    marshallerFactory = Mockito.mock(MarshallerFactory.class);
+    when(marshaller.marshall(Mockito.any())).thenThrow(MarshallingException.class);
+    when(marshallerFactory.getMarshaller(Mockito.any(XMLObject.class))).thenReturn(marshaller);
+    QuarkusMock.installMockForType(marshallerFactory, MarshallerFactory.class);
+
+    assertThrows(GenericAuthnRequestCreationException.class,
+        () -> samlServiceImpl.buildAuthnRequest(idpId,
+            assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
+  }
+
+  @Test
+  @SneakyThrows
+  void buildAuthnRequest_nullMarshaller() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+    int assertionConsumerServiceIndex = 0;
+    int attributeConsumingServiceIndex = 0;
+    String authLevel = "foobar";
+
+    Marshaller marshaller = null;
+    marshallerFactory = Mockito.mock(MarshallerFactory.class);
+    when(marshallerFactory.getMarshaller(Mockito.any(XMLObject.class))).thenReturn(marshaller);
+    QuarkusMock.installMockForType(marshallerFactory, MarshallerFactory.class);
+
+    assertThrows(GenericAuthnRequestCreationException.class,
+        () -> samlServiceImpl.buildAuthnRequest(idpId,
+            assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
+  }
+
+  @Test
   void checkSAMLStatus_StatusCodeSuccess() throws OneIdentityException {
     // given
     Response response = Mockito.mock(Response.class);
     Status status = Mockito.mock(Status.class);
     StatusCode statusCode = Mockito.mock(StatusCode.class);
 
-    Mockito.when(statusCode.getValue()).thenReturn(StatusCode.SUCCESS);
-    Mockito.when(status.getStatusCode()).thenReturn(statusCode);
-    Mockito.when(response.getStatus()).thenReturn(status);
+    when(statusCode.getValue()).thenReturn(StatusCode.SUCCESS);
+    when(status.getStatusCode()).thenReturn(statusCode);
+    when(response.getStatus()).thenReturn(status);
     // then
     assertDoesNotThrow(() -> samlServiceImpl.checkSAMLStatus(response));
   }
@@ -109,8 +209,8 @@ public class SAMLServiceImplTest {
     Response response = Mockito.mock(Response.class);
     Status status = Mockito.mock(Status.class);
 
-    Mockito.when(status.getStatusCode()).thenReturn(null);
-    Mockito.when(response.getStatus()).thenReturn(status);
+    when(status.getStatusCode()).thenReturn(null);
+    when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(OneIdentityException.class, () -> samlServiceImpl.checkSAMLStatus(response));
   }
@@ -123,11 +223,11 @@ public class SAMLServiceImplTest {
     StatusCode statusCode = Mockito.mock(StatusCode.class);
     StatusMessage statusMessage = Mockito.mock(StatusMessage.class);
 
-    Mockito.when(statusMessage.getValue()).thenReturn(String.valueOf(ErrorCode.ERRORCODE_NR20));
-    Mockito.when(statusCode.getValue()).thenReturn(StatusCode.REQUESTER);
-    Mockito.when(status.getStatusCode()).thenReturn(statusCode);
-    Mockito.when(status.getStatusMessage()).thenReturn(statusMessage);
-    Mockito.when(response.getStatus()).thenReturn(status);
+    when(statusMessage.getValue()).thenReturn(String.valueOf(ErrorCode.ERRORCODE_NR20));
+    when(statusCode.getValue()).thenReturn(StatusCode.REQUESTER);
+    when(status.getStatusCode()).thenReturn(statusCode);
+    when(status.getStatusMessage()).thenReturn(statusMessage);
+    when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(SAMLResponseStatusException.class,
         () -> samlServiceImpl.checkSAMLStatus(response));
@@ -141,11 +241,11 @@ public class SAMLServiceImplTest {
     StatusCode statusCode = Mockito.mock(StatusCode.class);
     StatusMessage statusMessage = Mockito.mock(StatusMessage.class);
 
-    Mockito.when(statusMessage.getValue()).thenReturn("");
-    Mockito.when(statusCode.getValue()).thenReturn(StatusCode.REQUESTER);
-    Mockito.when(status.getStatusCode()).thenReturn(statusCode);
-    Mockito.when(status.getStatusMessage()).thenReturn(statusMessage);
-    Mockito.when(response.getStatus()).thenReturn(status);
+    when(statusMessage.getValue()).thenReturn("");
+    when(statusCode.getValue()).thenReturn(StatusCode.REQUESTER);
+    when(status.getStatusCode()).thenReturn(statusCode);
+    when(status.getStatusMessage()).thenReturn(statusMessage);
+    when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(OneIdentityException.class,
         () -> samlServiceImpl.checkSAMLStatus(response));
@@ -157,20 +257,20 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    Mockito.when(
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
         subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -186,7 +286,7 @@ public class SAMLServiceImplTest {
         .pointer(String.valueOf(LatestTAG.LATEST_SPID))
         .status(IDPStatus.OK)
         .build();
-    Mockito.when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
         .thenReturn(Optional.of(testIDP));
 
     // then
@@ -199,20 +299,20 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    Mockito.when(
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
         subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     doThrow(SAMLUtilsException.class)
@@ -229,7 +329,7 @@ public class SAMLServiceImplTest {
         .pointer(String.valueOf(LatestTAG.LATEST_SPID))
         .status(IDPStatus.OK)
         .build();
-    Mockito.when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
         .thenReturn(Optional.of(testIDP));
 
     // then
@@ -243,7 +343,7 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     List<Assertion> assertions = new ArrayList<>();
-    Mockito.when(response.getAssertions()).thenReturn(assertions);
+    when(response.getAssertions()).thenReturn(assertions);
 
     // then
     assertThrows(SAMLValidationException.class,
@@ -256,15 +356,15 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(null);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -281,18 +381,18 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn("dummy");
+    when(subjectConfirmationData.getRecipient()).thenReturn("dummy");
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -309,18 +409,18 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn(null);
+    when(subjectConfirmationData.getRecipient()).thenReturn(null);
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -337,20 +437,20 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    Mockito.when(
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
         subjectConfirmationData.getNotOnOrAfter()).thenReturn(null);
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -367,20 +467,20 @@ public class SAMLServiceImplTest {
     String entityID = "dummy";
     Response response = Mockito.mock(Response.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(response.getAssertions()).thenReturn(List.of(assertion));
+    when(response.getAssertions()).thenReturn(List.of(assertion));
 
     Subject subject = Mockito.mock(Subject.class);
     SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
 
-    Mockito.when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    Mockito.when(
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
         subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().minusSeconds(60));
 
-    Mockito.when(subjectConfirmation.getSubjectConfirmationData())
+    when(subjectConfirmation.getSubjectConfirmationData())
         .thenReturn(subjectConfirmationData);
-    Mockito.when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    Mockito.when(assertion.getSubject()).thenReturn(subject);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
 
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
@@ -392,11 +492,40 @@ public class SAMLServiceImplTest {
   }
 
   @Test
+  void validateSAMLResponse_notFoundIDP() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
+        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
+  }
+
+  @Test
   void getSAMLResponseFromString() throws OneIdentityException {
     // given
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Response response = Mockito.mock(Response.class);
-    Mockito.when(samlUtils.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+    when(samlUtils.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
 
@@ -411,7 +540,7 @@ public class SAMLServiceImplTest {
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     AttributeDTO attributeDTO = Mockito.mock(AttributeDTO.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(samlUtils.getAttributeDTOListFromAssertion(Mockito.any()))
+    when(samlUtils.getAttributeDTOListFromAssertion(Mockito.any()))
         .thenReturn(Optional.of(List.of(attributeDTO)));
 
     QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
@@ -426,7 +555,7 @@ public class SAMLServiceImplTest {
     // given
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     Assertion assertion = Mockito.mock(Assertion.class);
-    Mockito.when(samlUtils.getAttributeDTOListFromAssertion(Mockito.any()))
+    when(samlUtils.getAttributeDTOListFromAssertion(Mockito.any()))
         .thenReturn(Optional.empty());
 
     QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
@@ -435,6 +564,71 @@ public class SAMLServiceImplTest {
 
     assertThrows(OneIdentityException.class,
         () -> samlServiceImpl.getAttributesFromSAMLAssertion(assertion));
+  }
+
+  @Test
+  void testGetIDPFromCieEntityId() {
+    // Arrange
+    IDP expectedIDP = new IDP(); // Create a mock or actual IDP object
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(CIE_ENTITY_ID, TIMESTAMP_CIE))
+        .thenReturn(Optional.of(expectedIDP));
+
+    // Act
+    Optional<IDP> result = samlServiceImpl.getIDPFromEntityID(CIE_ENTITY_ID);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(expectedIDP, result.get());
+    verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(CIE_ENTITY_ID, TIMESTAMP_CIE);
+    verify(idpConnectorImpl, times(0)).getIDPByEntityIDAndTimestamp(anyString(),
+        eq(TIMESTAMP_SPID));
+  }
+
+  @Test
+  void testGetIDPFromOtherEntityId() {
+    // Arrange
+    String otherEntityId = "OTHER_ENTITY_ID";
+    IDP expectedIDP = new IDP(); // Create a mock or actual IDP object
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(otherEntityId, TIMESTAMP_SPID))
+        .thenReturn(Optional.of(expectedIDP));
+
+    // Act
+    Optional<IDP> result = samlServiceImpl.getIDPFromEntityID(otherEntityId);
+
+    // Assert
+    assertTrue(result.isPresent());
+    assertEquals(expectedIDP, result.get());
+    verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(otherEntityId, TIMESTAMP_SPID);
+    verify(idpConnectorImpl, times(0)).getIDPByEntityIDAndTimestamp(anyString(), eq(TIMESTAMP_CIE));
+  }
+
+  @Test
+  void testGetIDPFromCieEntityIdReturnsEmpty() {
+    // Arrange
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(CIE_ENTITY_ID, TIMESTAMP_CIE))
+        .thenReturn(Optional.empty());
+
+    // Act
+    Optional<IDP> result = samlServiceImpl.getIDPFromEntityID(CIE_ENTITY_ID);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(CIE_ENTITY_ID, TIMESTAMP_CIE);
+  }
+
+  @Test
+  void testGetIDPFromOtherEntityIdReturnsEmpty() {
+    // Arrange
+    String otherEntityId = "OTHER_ENTITY_ID";
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(otherEntityId, TIMESTAMP_SPID))
+        .thenReturn(Optional.empty());
+
+    // Act
+    Optional<IDP> result = samlServiceImpl.getIDPFromEntityID(otherEntityId);
+
+    // Assert
+    assertFalse(result.isPresent());
+    verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(otherEntityId, TIMESTAMP_SPID);
   }
 
 

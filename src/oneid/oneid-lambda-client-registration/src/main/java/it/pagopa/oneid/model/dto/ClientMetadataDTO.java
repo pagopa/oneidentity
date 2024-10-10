@@ -8,9 +8,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.eclipse.microprofile.openapi.annotations.enums.Explode;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -19,8 +19,8 @@ import org.jboss.resteasy.reactive.RestForm;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @RegisterForReflection
+@SuperBuilder
 public class ClientMetadataDTO {
 
   @NotEmpty
@@ -41,7 +41,7 @@ public class ClientMetadataDTO {
   @JsonProperty("policy_uri")
   @RestForm("policy_uri")
   private String policyUri;
-  
+
   @JsonProperty("tos_uri")
   @RestForm("tos_uri")
   private String tosUri;
