@@ -111,6 +111,11 @@ variable "kms_sessions_table_alias_arn" {
   description = "Kms key used to encrypt and dectypt session table."
 }
 
+variable "kms_ssm_enable_rotation" {
+  type = bool
+  default = false
+}
+
 variable "client_registration_lambda" {
   type = object({
     name                              = string
