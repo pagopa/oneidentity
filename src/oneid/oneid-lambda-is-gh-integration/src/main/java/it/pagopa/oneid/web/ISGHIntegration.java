@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNSRecord;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
@@ -27,45 +28,44 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
     //TODO add exceptions handling
 
     ObjectMapper objectMapper = new ObjectMapper();
-    String snsMessage = null;
+    String snsMessage;
 
-    for (SNSRecord record : event.getRecords()) {
+    SNSRecord record = event.getRecords().getFirst();
 
-      // 1. Read SNS event
-      snsMessage = record.getSNS().getMessage();
-      String timestamp;
-      String idpType;
-      try {
-        JsonNode dataNode = objectMapper.readTree(snsMessage).get("data");
+    // 1. Read SNS event
+    snsMessage = record.getSNS().getMessage();
+    String timestamp;
+    String idpType;
 
-        if (dataNode != null) {
-          timestamp = dataNode.get("TAG").asText();
-          idpType = dataNode.get("OBJ").asText();
-        } else {
-          Log.error("No 'data' field found in the SNS message.");
-          throw new RuntimeException();
-        }
-
-      } catch (Exception e) {
-        Log.error("Error processing SNS message:   " + snsMessage);
-        throw new RuntimeException();
-      }
-
-      // 2. Download metadata from IS
-      String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType);
-
-      // 3. Interact with GitHub Repository
-      String branchName = BRANCH_BASE_NAME + idpType + "-" + timestamp;
-      String metadataPath = METADATA_BASE_PATH + idpType + "-" + timestamp + ".xml";
-      String prTitle = "feat: Update " + idpType + "-" + timestamp + ".xml";
-
-      gitHubServiceImpl.openPullRequest(prTitle,
-          "main",
-          branchName,
-          metadataContent,
-          metadataPath,
-          idpType);
+    JsonNode dataNode;
+    try {
+      dataNode = objectMapper.readTree(snsMessage).get("data");
+    } catch (JsonProcessingException e) {
+      Log.error("Error processing SNS message: " + snsMessage);
+      throw new RuntimeException(e);
     }
+    if (dataNode == null) {
+      Log.error("No 'data' field found in the SNS message.");
+      throw new RuntimeException();
+    }
+
+    timestamp = dataNode.get("TAG").asText();
+    idpType = dataNode.get("OBJ").asText();
+
+    // 2. Download metadata from IS
+    String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType);
+
+    // 3. Interact with GitHub Repository
+    String branchName = BRANCH_BASE_NAME + idpType + "-" + timestamp;
+    String metadataPath = METADATA_BASE_PATH + idpType + "-" + timestamp + ".xml";
+    String prTitle = "feat: Update " + idpType + "-" + timestamp + ".xml";
+
+    gitHubServiceImpl.openPullRequest(prTitle,
+        "main",
+        branchName,
+        metadataContent,
+        metadataPath,
+        idpType);
 
     return snsMessage;
   }

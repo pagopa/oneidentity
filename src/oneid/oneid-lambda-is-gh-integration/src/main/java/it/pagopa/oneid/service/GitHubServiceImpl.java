@@ -22,7 +22,6 @@ public class GitHubServiceImpl implements GitHubService {
     //2. create PR
     gitHubConnectorImpl.createPullRequest(title, branchName, base);
 
-
   }
 
 }
