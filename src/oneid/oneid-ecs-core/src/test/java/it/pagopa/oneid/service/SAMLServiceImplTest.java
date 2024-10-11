@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.model.Base64SAMLResponses.CORRECT_SAML_RESPONSE_01;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -252,275 +253,6 @@ public class SAMLServiceImplTest {
   }
 
   @Test
-  void validateSAMLResponse() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    when(
-        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    // then
-    assertDoesNotThrow(() -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_invalidSignature() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    when(
-        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    doThrow(SAMLUtilsException.class)
-        .when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    // then
-    assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_noAssertion() {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    List<Assertion> assertions = new ArrayList<>();
-    when(response.getAssertions()).thenReturn(assertions);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_nullSubjectConfirmationData() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(null);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_differentRecipient() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn("dummy");
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_nullRecipient() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(null);
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_nullGetNotOnOrAfter() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    when(
-        subjectConfirmationData.getNotOnOrAfter()).thenReturn(null);
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_notValidGetNotOnOrAfter() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    when(
-        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().minusSeconds(60));
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
-  void validateSAMLResponse_notFoundIDP() throws SAMLUtilsException {
-    // given
-    String entityID = "dummy";
-    Response response = Mockito.mock(Response.class);
-    Assertion assertion = Mockito.mock(Assertion.class);
-    when(response.getAssertions()).thenReturn(List.of(assertion));
-
-    Subject subject = Mockito.mock(Subject.class);
-    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
-
-    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
-    when(
-        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
-
-    when(subjectConfirmation.getSubjectConfirmationData())
-        .thenReturn(subjectConfirmationData);
-    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
-    when(assertion.getSubject()).thenReturn(subject);
-
-    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
-    // then
-    assertThrows(SAMLValidationException.class,
-        () -> samlServiceImpl.validateSAMLResponse(response, entityID));
-  }
-
-  @Test
   void getSAMLResponseFromString() throws OneIdentityException {
     // given
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
@@ -629,6 +361,263 @@ public class SAMLServiceImplTest {
     // Assert
     assertFalse(result.isPresent());
     verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(otherEntityId, TIMESTAMP_SPID);
+  }
+
+  // TODO: we need to mock clock to have a valid Instant.now during tests
+  // TODO: add all validateSAMLResponses_xxx tests down here
+  @Test
+  void validateSAMLResponse_01() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(CORRECT_SAML_RESPONSE_01);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+    IDP testIDP = IDP.builder()
+        .entityID("https://localhost:8443")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+
+    // then
+    assertDoesNotThrow(
+        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+            Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_invalidSignature() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
+        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    doThrow(SAMLUtilsException.class)
+        .when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+    IDP testIDP = IDP.builder()
+        .entityID("https://localhost:8443")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+
+    // then
+    assertThrows(OneIdentityException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_noAssertion() {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    List<Assertion> assertions = new ArrayList<>();
+    when(response.getAssertions()).thenReturn(assertions);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_nullSubjectConfirmationData() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(null);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_differentRecipient() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn("dummy");
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_nullRecipient() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(null);
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_nullGetNotOnOrAfter() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
+        subjectConfirmationData.getNotOnOrAfter()).thenReturn(null);
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_notValidGetNotOnOrAfter() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
+        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().minusSeconds(60));
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
+  }
+
+  @Test
+  void validateSAMLResponse_notFoundIDP() throws SAMLUtilsException {
+    // given
+    String entityID = "dummy";
+    Response response = Mockito.mock(Response.class);
+    Assertion assertion = Mockito.mock(Assertion.class);
+    when(response.getAssertions()).thenReturn(List.of(assertion));
+
+    Subject subject = Mockito.mock(Subject.class);
+    SubjectConfirmation subjectConfirmation = Mockito.mock(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = Mockito.mock(SubjectConfirmationData.class);
+
+    when(subjectConfirmationData.getRecipient()).thenReturn(SAMLUtilsConstants.ACS_URL);
+    when(
+        subjectConfirmationData.getNotOnOrAfter()).thenReturn(Instant.now().plusSeconds(60));
+
+    when(subjectConfirmation.getSubjectConfirmationData())
+        .thenReturn(subjectConfirmationData);
+    when(subject.getSubjectConfirmations()).thenReturn(List.of(subjectConfirmation));
+    when(assertion.getSubject()).thenReturn(subject);
+
+    samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
+    // then
+    assertThrows(SAMLValidationException.class,
+        () -> samlServiceImpl.validateSAMLResponse(response, entityID, Set.of("fiscalNumber")));
   }
 
 
