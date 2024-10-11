@@ -4,6 +4,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
@@ -32,6 +33,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Map;
 
 @Path(("/saml"))
 public class SAMLController {
@@ -51,6 +53,9 @@ public class SAMLController {
   @Inject
   SessionServiceImpl<AccessTokenSession> accessTokenSessionService;
 
+  @Inject
+  Map<String, Client> clientsMap;
+
 
   @POST
   @Path("/acs")
@@ -68,8 +73,14 @@ public class SAMLController {
 
     // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
     SAMLSession samlSession = null;
+    String inResponseTo = response.getInResponseTo();
+
+    if (inResponseTo == null || inResponseTo.isBlank()) {
+      Log.error("inResponseTo parameter must not be null or blank");
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
     try {
-      samlSession = samlSessionService.getSession(response.getInResponseTo(),
+      samlSession = samlSessionService.getSession(inResponseTo,
           RecordType.SAML);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
@@ -78,7 +89,7 @@ public class SAMLController {
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
-      samlSessionService.setSAMLResponse(response.getInResponseTo(),
+      samlSessionService.setSAMLResponse(inResponseTo,
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
@@ -94,14 +105,11 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    // 2. Check if Signatures are valid (Response and Assertion) and SubjectConfirmationData are correct
-    try {
-      samlServiceImpl.validateSAMLResponse(response,
-          samlSession.getAuthorizationRequestDTOExtended().getIdp());
-    } catch (OneIdentityException e) {
-      Log.error("error during SAMLResponse validation: " + e.getMessage());
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    }
+    // 2. Check if Signatures are valid (Response and Assertion) and if SAML Response is formally correct
+    samlServiceImpl.validateSAMLResponse(response,
+        samlSession.getAuthorizationRequestDTOExtended().getIdp(),
+        clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId())
+            .getRequestedParameters());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
@@ -116,7 +124,7 @@ public class SAMLController {
     AuthorizationCode authorizationCode = authorizationResponse.toSuccessResponse()
         .getAuthorizationCode();
 
-    OIDCSession oidcSession = new OIDCSession(response.getInResponseTo(), RecordType.OIDC,
+    OIDCSession oidcSession = new OIDCSession(inResponseTo, RecordType.OIDC,
         creationTime,
         ttl, authorizationCode.getValue());
 
