@@ -16,6 +16,7 @@ user: {
 IDP: {
   class: idpSPID
 }
+
 productClient: {
   class: externalCloudService
 }
@@ -37,9 +38,14 @@ aws: {
    class: dynamo
   }
 
+  parameterStore {
+    class: parameterStore
+  }
+
   KMS: {
     class: KMS
   }
+
 }
 
 user -> productClient: 1. Login
@@ -48,20 +54,25 @@ productClient -> user: 2. redirect to OneIdentity
 
 user <-> aws.ApiGW <-> aws.vpc.oneid-ecs-core: 3. /login
 
-user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 4. /authorize
-user <- aws.ApiGW <- aws.vpc.oneid-ecs-core: 4. redirect POST
-aws.vpc.oneid-ecs-core -> aws.dynamoDB: 4. Init SAMLSession Record
+user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 4: /authorize
+aws.vpc.oneid-ecs-core -> aws.parameterStore: 4.1: retrive key pem file from parameter store
+user <- aws.ApiGW <- aws.vpc.oneid-ecs-core: 4.2: redirect POST
+
+aws.vpc.oneid-ecs-core -> aws.dynamoDB: 5: init SAMLSession record
 
 
-user <-> IDP: 5. perform authentication
+user <-> IDP: 6: perform authentication
 
-user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 6. send and perform verification on SAML response
+user -> aws.ApiGW -> aws.vpc.oneid-ecs-core: 7: send and perform verification on SAML response
+aws.vpc.oneid-ecs-core -> aws.dynamoDB: 7.1: retrieve certificate data
+aws.vpc.oneid-ecs-core -> aws.dynamoDB: 7.2: update SAMLSession and initialize OIDCSession records
 
-productClient <- aws.vpc.oneid-ecs-core: 7. init authorization code flow
+productClient <- aws.vpc.oneid-ecs-core: 8: init authorization code flow
+productClient -> aws.vpc.oneid-ecs-core: 8.1: send /token POST to init access token session
+  
+aws.vpc.oneid-ecs-core <-> aws.dynamoDB: 9. init access session and validate state
 
-aws.vpc.oneid-ecs-core <-> aws.dynamoDB: 8. init access session and validate state
-
-aws.vpc.oneid-ecs-core <-> aws.KMS: 9. Sign JWT
+aws.vpc.oneid-ecs-core <-> aws.KMS: 10. Sign JWT
 
 aws.vpc.oneid-ecs-core -> productClient: 10. return JWT
 
