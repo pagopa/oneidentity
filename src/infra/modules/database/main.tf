@@ -61,6 +61,7 @@ module "dynamodb_sessions_table" {
 
   stream_enabled   = var.sessions_table.stream_enabled
   stream_view_type = var.sessions_table.stream_view_type
+  deletion_protection_enabled = var.sessions_table.deletion_protection_enabled
 
   tags = {
     Name = "Session"
@@ -90,7 +91,7 @@ module "dynamodb_table_client_registrations" {
   stream_enabled                 = var.client_registrations_table.stream_enabled
   stream_view_type               = var.client_registrations_table.stream_view_type
   replica_regions                = var.client_registrations_table.replication_regions
-
+  deletion_protection_enabled    = var.client_registrations_table.deletion_protection_enabled
   tags = {
     Name = "ClientRegistrations"
   }
@@ -132,7 +133,7 @@ module "dynamodb_table_idpMetadata" {
   stream_enabled                 = var.idp_metadata_table.stream_enabled
   stream_view_type               = var.idp_metadata_table.stream_view_type
   replica_regions                = var.idp_metadata_table.replication_regions
-
+  deletion_protection_enabled    = var.idp_metadata_table.deletion_protection_enabled
   tags = {
     Name = "IDPMetadata"
   }
