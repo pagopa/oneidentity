@@ -79,7 +79,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 2.2.1 |
+| <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 3.0.0 |
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assets_bucket"></a> [s3\_assets\_bucket](#module\_s3\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
@@ -125,6 +125,7 @@
 | <a name="input_create_idp_metadata_bucket"></a> [create\_idp\_metadata\_bucket](#input\_create\_idp\_metadata\_bucket) | Create idp metadata bucket. | `bool` | `true` | no |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | n/a | `string` | n/a | yes |
 | <a name="input_idp_metadata_bucket_prefix"></a> [idp\_metadata\_bucket\_prefix](#input\_idp\_metadata\_bucket\_prefix) | Idp metadata bucket prefix. | `string` | `""` | no |
+| <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
 
 ## Outputs

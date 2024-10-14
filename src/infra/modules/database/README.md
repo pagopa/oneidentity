@@ -59,7 +59,7 @@ No providers.
 | <a name="module_dynamodb_sessions_table"></a> [dynamodb\_sessions\_table](#module\_dynamodb\_sessions\_table) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
 | <a name="module_dynamodb_table_client_registrations"></a> [dynamodb\_table\_client\_registrations](#module\_dynamodb\_table\_client\_registrations) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
 | <a name="module_dynamodb_table_idpMetadata"></a> [dynamodb\_table\_idpMetadata](#module\_dynamodb\_table\_idpMetadata) | terraform-aws-modules/dynamodb-table/aws | 4.0.1 |
-| <a name="module_kms_sessions_table"></a> [kms\_sessions\_table](#module\_kms\_sessions\_table) | terraform-aws-modules/kms/aws | 2.2.1 |
+| <a name="module_kms_sessions_table"></a> [kms\_sessions\_table](#module\_kms\_sessions\_table) | terraform-aws-modules/kms/aws | 3.0.0 |
 
 ## Resources
 
@@ -71,6 +71,8 @@ No resources.
 |------|-------------|------|---------|:--------:|
 | <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client registrations table configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, false)<br>    stream_view_type               = optional(string, null)<br>    deletion_protection_enabled    = optional(bool, false)<br>    replication_regions = optional(list(object({<br>      region_name            = string<br>      propagate_tags         = optional(bool, true)<br>      point_in_time_recovery = optional(bool, true)<br>    })), [])<br>  })</pre> | n/a | yes |
 | <a name="input_idp_metadata_table"></a> [idp\_metadata\_table](#input\_idp\_metadata\_table) | IDP Metadata table configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, false)<br>    stream_view_type               = optional(string, null)<br>    deletion_protection_enabled    = optional(bool, false)<br>    replication_regions = optional(list(object({<br>      region_name            = string<br>      propagate_tags         = optional(bool, true)<br>      point_in_time_recovery = optional(bool, true)<br>    })), [])<br>  })</pre> | n/a | yes |
+| <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
+| <a name="input_kms_ssm_enable_rotation"></a> [kms\_ssm\_enable\_rotation](#input\_kms\_ssm\_enable\_rotation) | n/a | `bool` | `true` | no |
 | <a name="input_sessions_table"></a> [sessions\_table](#input\_sessions\_table) | Saml responses table configurations. | <pre>object({<br>    ttl_enabled                    = optional(bool, true)<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, false)<br>    stream_view_type               = optional(string, null)<br>    deletion_protection_enabled    = optional(bool, false)<br>  })</pre> | n/a | yes |
 
 ## Outputs
