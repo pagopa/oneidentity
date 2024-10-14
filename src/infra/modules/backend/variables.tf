@@ -113,7 +113,12 @@ variable "kms_sessions_table_alias_arn" {
 
 variable "kms_ssm_enable_rotation" {
   type = bool
-  default = false
+  default = true
+}
+
+variable "kms_rotation_period_in_days" {
+  type = number
+  default = 365
 }
 
 variable "client_registration_lambda" {

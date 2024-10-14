@@ -10,6 +10,16 @@ variable "sessions_table" {
   description = "Saml responses table configurations."
 }
 
+variable "kms_ssm_enable_rotation" {
+  type = bool
+  default = true
+}
+
+variable "kms_rotation_period_in_days" {
+  type = number
+  default = 365
+}
+
 variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)

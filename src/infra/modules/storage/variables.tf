@@ -3,6 +3,11 @@ variable "role_prefix" {
   description = "Prefix to assign to the roles."
 }
 
+variable "kms_rotation_period_in_days" {
+  type = number
+  default = 365
+}
+
 variable "assertion_bucket" {
   type = object({
     name_prefix                     = string

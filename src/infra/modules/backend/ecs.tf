@@ -45,12 +45,13 @@ data "aws_ssm_parameter" "key" {
 
 module "kms_key_pem" {
   source  = "terraform-aws-modules/kms/aws"
-  version = "2.2.1"
+  version = "3.0.0"
 
-  description           = "KMS key for SSM parameter encryption"
-  key_usage             = "ENCRYPT_DECRYPT"
-  enable_key_rotation   = var.kms_ssm_enable_rotation
-  enable_default_policy = true
+  description             = "KMS key for SSM parameter encryption"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.kms_ssm_enable_rotation
+  enable_default_policy   = true
+  rotation_period_in_days = var.kms_rotation_period_in_days
 
   # Aliases
   aliases = ["keyPem/SSM"]
