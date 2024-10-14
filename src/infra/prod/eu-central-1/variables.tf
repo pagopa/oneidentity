@@ -206,6 +206,7 @@ variable "sessions_table" {
     point_in_time_recovery_enabled = bool
     stream_enabled                 = bool
     stream_view_type               = string
+    deletion_protection_enabled    = optional(bool, false)
   })
   description = "Saml responses table configurations."
   default = {
@@ -213,6 +214,7 @@ variable "sessions_table" {
     point_in_time_recovery_enabled = false
     stream_enabled                 = true
     stream_view_type               = "NEW_IMAGE"
+    deletion_protection_enabled    = true
   }
 }
 
