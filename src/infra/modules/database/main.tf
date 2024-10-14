@@ -6,11 +6,13 @@ locals {
 
 
 module "kms_sessions_table" {
-  source  = "terraform-aws-modules/kms/aws"
-  version = "2.2.1"
+  source                  = "terraform-aws-modules/kms/aws"
+  version                 = "3.0.0"
 
-  description = "KMS key for Dynamodb table encryption."
-  key_usage   = "ENCRYPT_DECRYPT"
+  description             = "KMS key for Dynamodb table encryption."
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.kms_ssm_enable_rotation
+  rotation_period_in_days = var.kms_rotation_period_in_days
 
   # Aliases
   aliases = [local.kms_sessions_table_alias]

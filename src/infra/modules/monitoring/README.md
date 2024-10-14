@@ -44,13 +44,13 @@ No outputs.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
 
 ## Modules
 
@@ -60,8 +60,8 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_dashboard) | resource |
-| [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_dashboard) | resource |
 
 ## Inputs
 

@@ -97,7 +97,7 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.7.4 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49.0 |
 
 ## Providers
 
@@ -123,7 +123,7 @@
 
 | Name | Type |
 |------|------|
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.38.0/docs/data-sources/caller_identity) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.49.0/docs/data-sources/caller_identity) | data source |
 
 ## Inputs
 

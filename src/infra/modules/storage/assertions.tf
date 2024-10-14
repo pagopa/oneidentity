@@ -5,13 +5,14 @@ resource "random_integer" "assertion_bucket_suffix" {
 
 module "kms_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
-  version = "2.2.1"
+  version = "3.0.0"
 
   description           = "KMS key for S3 encryption"
   key_usage             = "ENCRYPT_DECRYPT"
   enable_key_rotation   = var.assertion_bucket.enable_key_rotation
   multi_region          = var.assertion_bucket.kms_multi_region
   enable_default_policy = true
+  rotation_period_in_days = var.kms_rotation_period_in_days
 
   key_statements = var.assertion_bucket.lambda_role_arn != null ? [
     {
