@@ -69,13 +69,13 @@ No modules.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
 
 ## Modules
 
@@ -85,19 +85,19 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_api_gateway_account.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_account) | resource |
-| [aws_api_gateway_api_key.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_api_key) | resource |
-| [aws_api_gateway_deployment.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_deployment) | resource |
-| [aws_api_gateway_domain_name.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_domain_name) | resource |
-| [aws_api_gateway_method_settings.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_method_settings) | resource |
-| [aws_api_gateway_rest_api.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_rest_api) | resource |
-| [aws_api_gateway_stage.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_stage) | resource |
-| [aws_api_gateway_usage_plan.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_usage_plan) | resource |
-| [aws_api_gateway_usage_plan_key.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/api_gateway_usage_plan_key) | resource |
-| [aws_apigatewayv2_api_mapping.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/apigatewayv2_api_mapping) | resource |
-| [aws_cloudwatch_log_group.main](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_log_group) | resource |
-| [aws_iam_role.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy.cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy) | resource |
+| [aws_api_gateway_account.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_account) | resource |
+| [aws_api_gateway_api_key.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_api_key) | resource |
+| [aws_api_gateway_deployment.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_deployment) | resource |
+| [aws_api_gateway_domain_name.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_domain_name) | resource |
+| [aws_api_gateway_method_settings.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_method_settings) | resource |
+| [aws_api_gateway_rest_api.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_rest_api) | resource |
+| [aws_api_gateway_stage.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_stage) | resource |
+| [aws_api_gateway_usage_plan.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_usage_plan) | resource |
+| [aws_api_gateway_usage_plan_key.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/api_gateway_usage_plan_key) | resource |
+| [aws_apigatewayv2_api_mapping.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/apigatewayv2_api_mapping) | resource |
+| [aws_cloudwatch_log_group.main](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_role.apigw](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy) | resource |
 
 ## Inputs
 
