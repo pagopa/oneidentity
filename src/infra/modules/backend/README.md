@@ -124,13 +124,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
 
 ## Modules
 
@@ -156,35 +156,35 @@
 
 | Name | Type |
 |------|------|
-| [aws_cloudwatch_log_group.ecs_core](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_log_group) | resource |
-| [aws_cloudwatch_metric_alarm.dlq_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.dlq_sessions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.ecs_alarms](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_cloudwatch_metric_alarm.lambda_errors](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/cloudwatch_metric_alarm) | resource |
-| [aws_iam_policy.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.ecs_core_task](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_policy) | resource |
-| [aws_iam_role.github_lambda_deploy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
-| [aws_iam_role.githubecsdeploy](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
-| [aws_iam_role.pipe_sessions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy.pipe_source](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy) | resource |
-| [aws_iam_role_policy_attachment.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/pipes_pipe) | resource |
-| [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/s3_bucket_notification) | resource |
-| [aws_security_group_rule.metadata_vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/security_group_rule) | resource |
-| [aws_sns_topic_subscription.is-gh-integration](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sns_topic_subscription) | resource |
-| [aws_sqs_queue.dlq_lambda_assertion](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sqs_queue) | resource |
-| [aws_sqs_queue.pipe_dlq](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sqs_queue) | resource |
-| [aws_ssm_parameter.key_pem](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/ssm_parameter) | resource |
-| [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/iam_policy_document) | data source |
-| [aws_ssm_parameter.certificate](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
-| [aws_ssm_parameter.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
-| [aws_ssm_parameter.key](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
+| [aws_cloudwatch_log_group.ecs_core](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_metric_alarm.dlq_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.dlq_sessions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.ecs_alarms](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.lambda_errors](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_iam_policy.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.ecs_core_task](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
+| [aws_iam_role.github_lambda_deploy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
+| [aws_iam_role.githubecsdeploy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
+| [aws_iam_role.pipe_sessions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.pipe_source](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/pipes_pipe) | resource |
+| [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/s3_bucket_notification) | resource |
+| [aws_security_group_rule.metadata_vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/security_group_rule) | resource |
+| [aws_sns_topic_subscription.is-gh-integration](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/sns_topic_subscription) | resource |
+| [aws_sqs_queue.dlq_lambda_assertion](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/sqs_queue) | resource |
+| [aws_sqs_queue.pipe_dlq](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/sqs_queue) | resource |
+| [aws_ssm_parameter.key_pem](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/ssm_parameter) | resource |
+| [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_ssm_parameter.certificate](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/ssm_parameter) | data source |
+| [aws_ssm_parameter.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/ssm_parameter) | data source |
+| [aws_ssm_parameter.key](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 

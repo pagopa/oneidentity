@@ -4,13 +4,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.38 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.38 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
 
 ## Modules
 
@@ -20,9 +20,9 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_sns_topic.alarms](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sns_topic) | resource |
-| [aws_sns_topic_subscription.alarms_email](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/resources/sns_topic_subscription) | resource |
-| [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/5.38/docs/data-sources/ssm_parameter) | data source |
+| [aws_sns_topic.alarms](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/sns_topic) | resource |
+| [aws_sns_topic_subscription.alarms_email](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/sns_topic_subscription) | resource |
+| [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
