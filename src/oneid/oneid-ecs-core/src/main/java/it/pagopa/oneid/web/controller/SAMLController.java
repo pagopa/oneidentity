@@ -109,7 +109,7 @@ public class SAMLController {
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(),
         clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId())
-            .getRequestedParameters());
+            .getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()));
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(

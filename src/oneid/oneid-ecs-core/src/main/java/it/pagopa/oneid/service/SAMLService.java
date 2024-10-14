@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +17,8 @@ public interface SAMLService {
       int attributeConsumingServiceIndex, String spidLevel)
       throws OneIdentityException;
 
-  void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes)
+  void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes,
+      Instant samlRequestIssueInstant)
       throws OneIdentityException;
 
   Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException;

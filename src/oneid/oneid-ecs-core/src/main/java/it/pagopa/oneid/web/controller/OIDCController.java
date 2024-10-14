@@ -208,7 +208,7 @@ public class OIDCController {
     // 7. Persist SAMLSession
 
     // Get the current time in epoch second format
-    long creationTime = Instant.now().getEpochSecond();
+    long creationTime = authnRequest.getIssueInstant().getEpochSecond();
 
     // Calculate the expiration time (2 days from now) in epoch second format
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();

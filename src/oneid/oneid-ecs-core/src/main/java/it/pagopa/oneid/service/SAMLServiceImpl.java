@@ -15,6 +15,7 @@ import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,9 +48,12 @@ import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Element;
 
 @ApplicationScoped
 public class SAMLServiceImpl implements SAMLService {
+
+  private final Clock clock;
 
   @Inject
   SAMLUtilsExtendedCore samlUtils;
@@ -72,6 +76,11 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
 
+  @Inject
+  SAMLServiceImpl(Clock clock) {
+    this.clock = clock;
+  }
+
   private static void validateDestination(String destination) throws OneIdentityException {
     if (destination == null || destination.isBlank()) {
       Log.error("Destination cannot be null or empty");
@@ -88,14 +97,6 @@ public class SAMLServiceImpl implements SAMLService {
       Log.error("InResponseTo cannot be null or empty");
       throw new OneIdentityException("InResponseTo not set.");
     }
-  }
-
-  private static void validateIssueInstant(Instant issueInstant) throws OneIdentityException {
-    if (issueInstant == null || issueInstant.toString().isBlank()) {
-      Log.error("Issue Instant cannot be null or empty");
-      throw new OneIdentityException("Issue Instant not set.");
-    }
-    // TODO add time parameters check
   }
 
   private static void validateSAMLVersion(SAMLVersion samlVersion) throws OneIdentityException {
@@ -121,36 +122,6 @@ public class SAMLServiceImpl implements SAMLService {
     if (!recipient.equals(SAMLUtilsConstants.ACS_URL)) {
       Log.error("Recipient parameter does not match ACS URL: " + recipient);
       throw new SAMLValidationException("Recipient mismatch");
-    }
-  }
-
-  private static void validateNotOnOrAfter(Instant notOnOrAfter) {
-    if (notOnOrAfter == null) {
-      Log.error("NotOnOrAfter parameter not found");
-      throw new SAMLValidationException("NotOnOrAfter not found");
-    }
-    checkNotOnOrAfter(notOnOrAfter);
-  }
-
-  private static void validateNotBefore(Instant notBefore) {
-    if (notBefore == null) {
-      Log.error("NotBefore parameter not found");
-      throw new SAMLValidationException("NotBefore not found");
-    }
-    checkNotBefore(notBefore);
-  }
-
-  private static void checkNotBefore(Instant notBefore) {
-    if (Instant.now().compareTo(notBefore) <= 0) {
-      Log.error("NotBefore parameter is in the future");
-      throw new SAMLValidationException("NotBefore is in the future");
-    }
-  }
-
-  private static void checkNotOnOrAfter(Instant notOnOrAfter) {
-    if (Instant.now().compareTo(notOnOrAfter) >= 0) {
-      Log.error("NotOnOrAfter parameter expired");
-      throw new SAMLValidationException("NotOnOrAfter expired");
     }
   }
 
@@ -191,30 +162,19 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("AuthnContext element is missing");
     }
     AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
-    if (authnContextClassRef == null
-        || authnContextClassRef.toString()
-        .isBlank()) {
+    Element element = authnContextClassRef.getDOM();
+    if (element == null || element.getTextContent() == null || element.getTextContent().isBlank()) {
       Log.error("AuthnContextClassRef element is missing or empty");
       throw new SAMLValidationException("AuthnContextClassRef element is missing or empty");
     }
     if (AuthLevel.authLevelFromValue(
-        authnContextClassRef.toString())
+        element.getTextContent())
         == null) {
       Log.error(
           "Invalid AuthnContextClassRef value: " + authnStatements.getFirst().getAuthnContext()
               .getAuthnContextClassRef().toString());
       throw new SAMLValidationException("Invalid AuthnContextClassRef value");
     }
-  }
-
-  private static void validateConditions(Conditions conditions) {
-    if (conditions == null) {
-      Log.error("Conditions element is missing");
-      throw new SAMLValidationException("Conditions element is missing");
-    }
-    validateNotBefore(conditions.getNotBefore());
-    validateNotOnOrAfter(conditions.getNotOnOrAfter());
-    validateAudienceRestriction(conditions.getAudienceRestrictions());
   }
 
   private static void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
@@ -230,7 +190,8 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     Audience audience = audienceRestriction.getAudiences().getFirst();
-    if (!audience.toString()
+    Element element = audience.getDOM();
+    if (element == null || element.getTextContent() == null || !element.getTextContent()
         .equals(SAMLUtilsConstants.SERVICE_PROVIDER_URI)) {
       Log.error("Audience parameter not equal to service provider entity ID");
       throw new SAMLValidationException("Audience mismatch");
@@ -287,8 +248,64 @@ public class SAMLServiceImpl implements SAMLService {
 
   }
 
+  private void validateIssueInstant(Instant issueInstant, Instant samlRequestIssueInstant)
+      throws OneIdentityException {
+    if (issueInstant == null || issueInstant.toString().isBlank()) {
+      Log.error("Issue Instant cannot be null or empty");
+      throw new OneIdentityException("Issue Instant not set.");
+    }
+    if (!issueInstant.isAfter(samlRequestIssueInstant)) {
+      Log.error("Issue Instant must be after the request's Issue Instant");
+      throw new OneIdentityException("Issue Instant is not after the request's Issue Instant.");
+    }
+    if (!issueInstant.isBefore(Instant.now(clock))) {
+      Log.error("Issue Instant must be before current time");
+      throw new OneIdentityException("Issue Instant is not before current time.");
+    }
+  }
+
+  private void validateConditions(Conditions conditions) {
+    if (conditions == null) {
+      Log.error("Conditions element is missing");
+      throw new SAMLValidationException("Conditions element is missing");
+    }
+    validateNotBefore(conditions.getNotBefore());
+    validateNotOnOrAfter(conditions.getNotOnOrAfter());
+    validateAudienceRestriction(conditions.getAudienceRestrictions());
+  }
+
+  private void validateNotOnOrAfter(Instant notOnOrAfter) {
+    if (notOnOrAfter == null) {
+      Log.error("NotOnOrAfter parameter not found");
+      throw new SAMLValidationException("NotOnOrAfter not found");
+    }
+    checkNotOnOrAfter(notOnOrAfter);
+  }
+
+  private void validateNotBefore(Instant notBefore) {
+    if (notBefore == null) {
+      Log.error("NotBefore parameter not found");
+      throw new SAMLValidationException("NotBefore not found");
+    }
+    checkNotBefore(notBefore);
+  }
+
+  private void checkNotBefore(Instant notBefore) {
+    if (Instant.now(clock).compareTo(notBefore) <= 0) {
+      Log.error("NotBefore parameter is in the future");
+      throw new SAMLValidationException("NotBefore is in the future");
+    }
+  }
+
+  private void checkNotOnOrAfter(Instant notOnOrAfter) {
+    if (Instant.now(clock).compareTo(notOnOrAfter) >= 0) {
+      Log.error("NotOnOrAfter parameter expired");
+      throw new SAMLValidationException("NotOnOrAfter expired");
+    }
+  }
+
   private void validateAssertion(Assertion assertion, String entityID,
-      Set<String> requestedAttributes) {
+      Set<String> requestedAttributes, Instant samlRequestIssueInstant) {
 
     // Check if assertion id is valid
     if (assertion.getID() == null || assertion.getID().isBlank()) {
@@ -297,14 +314,13 @@ public class SAMLServiceImpl implements SAMLService {
     }
     try {
       validateSAMLVersion(assertion.getVersion());
-      validateIssueInstant(assertion.getIssueInstant());
+      validateIssueInstant(assertion.getIssueInstant(), samlRequestIssueInstant);
       validateSubject(assertion.getSubject());
 
       SubjectConfirmationData subjectConfirmationData = extractSubjectConfirmationData(assertion);
       validateRecipient(subjectConfirmationData);
       validateInResponseTo(subjectConfirmationData.getInResponseTo());
       validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
-      validateNotBefore(subjectConfirmationData.getNotBefore());
       validateIssuer(assertion.getIssuer(), entityID);
       validateConditions(assertion.getConditions());
       validateAuthStatement(assertion.getAuthnStatements());
@@ -445,7 +461,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
-      Set<String> requestedAttributes) {
+      Set<String> requestedAttributes, Instant samlRequestIssueInstant) {
     Log.debug("start");
 
     Assertion assertion = extractAssertion(samlResponse);
@@ -453,11 +469,11 @@ public class SAMLServiceImpl implements SAMLService {
     try {
       validateSAMLResponseId(samlResponse.getID());
       validateSAMLVersion(samlResponse.getVersion());
-      validateIssueInstant(samlResponse.getIssueInstant());
+      validateIssueInstant(samlResponse.getIssueInstant(), samlRequestIssueInstant);
       validateInResponseTo(samlResponse.getInResponseTo());
       validateDestination(samlResponse.getDestination());
       validateIssuer(samlResponse.getIssuer(), entityID);
-      validateAssertion(assertion, entityID, requestedAttributes);
+      validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant);
 
       validateSignature(samlResponse, entityID);
 
