@@ -7,18 +7,18 @@ module "kms_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  description           = "KMS key for S3 encryption"
-  key_usage             = "ENCRYPT_DECRYPT"
-  enable_key_rotation   = var.assertion_bucket.enable_key_rotation
-  multi_region          = var.assertion_bucket.kms_multi_region
-  enable_default_policy = true
+  description             = "KMS key for S3 encryption"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.assertion_bucket.enable_key_rotation
+  multi_region            = var.assertion_bucket.kms_multi_region
+  enable_default_policy   = true
   rotation_period_in_days = var.kms_rotation_period_in_days
 
   key_statements = var.assertion_bucket.lambda_role_arn != null ? [
     {
       sid = "CrossAccountLambda"
       actions = [
-        "kms:GenerateDataKey*"
+        "kms:GenerateDataKey"
       ]
       resources = ["*"]
 
@@ -201,7 +201,7 @@ module "s3_assertions_bucket" {
   acl    = "private"
 
   control_object_ownership = true
-  object_ownership         = "ObjectWriter"
+  object_ownership         = "BucketOwnerEnforced"
 
   attach_policy = var.assertion_bucket.lambda_role_arn != null ? true : false
   policy        = var.assertion_bucket.lambda_role_arn == null ? null : data.aws_iam_policy_document.lambda_assertions[0].json

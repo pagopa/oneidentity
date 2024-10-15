@@ -4,7 +4,7 @@ variable "role_prefix" {
 }
 
 variable "kms_rotation_period_in_days" {
-  type = number
+  type    = number
   default = 365
 }
 

@@ -112,12 +112,12 @@ variable "kms_sessions_table_alias_arn" {
 }
 
 variable "kms_ssm_enable_rotation" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "kms_rotation_period_in_days" {
-  type = number
+  type    = number
   default = 365
 }
 

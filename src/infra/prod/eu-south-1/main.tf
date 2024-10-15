@@ -260,7 +260,7 @@ module "backend" {
     # ⚠️ warning: before swiching this values you need to create the resources in the account which is intended 
     # to preserve the assertisons
     s3_assertion_bucket_arn = "arn:aws:s3:::assertions-2157"
-    kms_assertion_key_arn   = "arn:aws:kms:eu-south-1:980921732883:key/mrk-9102a2187d434246b7c63556e665ce49"
+    kms_assertion_key_arn   = "arn:aws:kms:eu-south-1:980921732883:key/883955e3-5af2-4c45-8cf3-616e9ee96f6b"
 
 
     environment_variables = {
