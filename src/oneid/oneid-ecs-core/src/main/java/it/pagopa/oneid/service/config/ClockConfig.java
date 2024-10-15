@@ -9,6 +9,6 @@ public class ClockConfig {
   @ApplicationScoped
   @Produces
   Clock clock() {
-    return Clock.systemDefaultZone();
+    return Clock.systemUTC();
   }
 }
