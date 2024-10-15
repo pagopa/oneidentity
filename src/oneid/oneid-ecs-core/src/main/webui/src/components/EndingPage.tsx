@@ -1,4 +1,5 @@
 import { Button, Grid, Typography, Box, SvgIconProps } from '@mui/material';
+import { theme } from '@pagopa/mui-italia/dist/theme';
 import { FunctionComponent, ReactElement, SVGProps } from 'react';
 
 type Props = {
@@ -90,14 +91,14 @@ export default ({
         </Grid>
       </Grid>
       <Grid container item justifyContent="center">
-        <Grid item xs={6}>
-          <Typography variant={variantTitle}>{title}</Typography>
-        </Grid>
+        <Typography width={theme.spacing(56)} variant={variantTitle}>
+          {title}
+        </Typography>
       </Grid>
       <Grid container item justifyContent="center" mb={4} mt={1}>
-        <Grid item xs={6}>
-          <Typography variant={variantDescription}>{description}</Typography>
-        </Grid>
+        <Typography width={theme.spacing(62)} variant={variantDescription}>
+          {description}
+        </Typography>
       </Grid>
       {buttonLabel && (
         <Grid container item justifyContent="center">
