@@ -75,7 +75,11 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     List<AttributeDTO> attributes = new ArrayList<>();
     assertion.getAttributeStatements().forEach(attributeStatement ->
         attributeStatement.getAttributes().forEach(attribute ->
-            addAttributeDTO(attribute, attributes)
+            {
+              if (attribute.getNameFormat() != null && !attribute.getNameFormat().isBlank()) {
+                addAttributeDTO(attribute, attributes);
+              }
+            }
         )
     );
     return attributes.isEmpty() ? Optional.empty() : Optional.of(attributes);

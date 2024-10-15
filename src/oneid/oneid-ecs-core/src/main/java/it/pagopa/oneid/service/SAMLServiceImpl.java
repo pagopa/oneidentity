@@ -42,6 +42,7 @@ import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
@@ -162,19 +163,24 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("AuthnContext element is missing");
     }
     AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
+
+    if (authnContextClassRef == null) {
+      Log.error("AuthnContextClassRef element is missing");
+      throw new SAMLValidationException("AuthnContextClassRef element is missing");
+    }
     Element element = authnContextClassRef.getDOM();
     if (element == null || element.getTextContent() == null || element.getTextContent().isBlank()) {
       Log.error("AuthnContextClassRef element is missing or empty");
       throw new SAMLValidationException("AuthnContextClassRef element is missing or empty");
     }
     if (AuthLevel.authLevelFromValue(
-        element.getTextContent())
+        element.getTextContent().strip())
         == null) {
       Log.error(
-          "Invalid AuthnContextClassRef value: " + authnStatements.getFirst().getAuthnContext()
-              .getAuthnContextClassRef().toString());
+          "Invalid AuthnContextClassRef value: " + element.getTextContent().strip());
       throw new SAMLValidationException("Invalid AuthnContextClassRef value");
     }
+    // TODO: evaluate if and how we need to compare the requested AuthnContextClassRef and the obtained one
   }
 
   private static void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
@@ -191,7 +197,7 @@ public class SAMLServiceImpl implements SAMLService {
 
     Audience audience = audienceRestriction.getAudiences().getFirst();
     Element element = audience.getDOM();
-    if (element == null || element.getTextContent() == null || !element.getTextContent()
+    if (element == null || element.getTextContent() == null || !element.getTextContent().strip()
         .equals(SAMLUtilsConstants.SERVICE_PROVIDER_URI)) {
       Log.error("Audience parameter not equal to service provider entity ID");
       throw new SAMLValidationException("Audience mismatch");
@@ -350,6 +356,7 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("Attributes not obtained from SAML assertion");
     }
 
+    // TODO: evaluate if for CIE we should verify it differently (Minimum Dataset eIDAS)
     Set<String> obtainedAttributes = attributes.get().stream().map(AttributeDTO::getAttributeName)
         .collect(
             Collectors.toSet());
@@ -367,14 +374,17 @@ public class SAMLServiceImpl implements SAMLService {
     String statusCode = "";
     String statusMessage = "";
     if (response.getStatus() != null) {
-      if (response.getStatus().getStatusCode() != null) {
+      StatusCode statusCodeObject = response.getStatus().getStatusCode();
+      if (statusCodeObject != null
+          && statusCodeObject.getValue() != null && !statusCodeObject.getValue().isBlank()) {
         statusCode = response.getStatus().getStatusCode().getValue();
       } else {
         Log.error("SAML Status Code cannot be null");
         throw new OneIdentityException("Status Code not set.");
       }
-      if (response.getStatus().getStatusMessage() != null) {
-        if (response.getStatus().getStatusMessage().getValue() != null) {
+      StatusMessage statusMessageObject = response.getStatus().getStatusMessage();
+      if (statusMessageObject != null) {
+        if (statusMessageObject.getValue() != null) {
           statusMessage = response.getStatus().getStatusMessage().getValue();
         }
       }
