@@ -32,6 +32,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -770,6 +771,7 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = samlUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
     authnRequest.setID("test");
     authnRequest.setDestination("https://demo.spid.gov.it");
+    authnRequest.setIssueInstant(Instant.now());
     return authnRequest;
   }
 
