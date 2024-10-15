@@ -332,36 +332,29 @@ const Login = () => {
           </Grid>
         </Grid>
         <Grid container item justifyContent="center">
-          <Grid item xs={6}>
-            <Typography
-              color="textPrimary"
-              mt={5}
-              px={0}
-              sx={{
-                textAlign: 'center',
+          <Typography
+            color="textPrimary"
+            mt={5}
+            px={0}
+            maxWidth={theme.spacing(55)}
+            sx={{
+              textAlign: 'center',
+            }}
+            component="div"
+            variant="body1"
+          >
+            <Trans
+              i18nKey="loginPage.privacyAndCondition.text"
+              values={{
+                termsLink: `<0>${t('loginPage.privacyAndCondition.terms')}</0>`,
+                privacyLink: `<1>${t('loginPage.privacyAndCondition.privacy')}</1>`,
               }}
-              component="div"
-              variant="body1"
-            >
-              <Trans
-                i18nKey="loginPage.privacyAndCondition.text"
-                values={{
-                  termsLink: `<0>${t('loginPage.privacyAndCondition.terms')}</0>`,
-                  privacyLink: `<1>${t('loginPage.privacyAndCondition.privacy')}</1>`,
-                }}
-                components={[
-                  <LinkWrapper
-                    key="termsLink"
-                    onClick={redirectToTOS}
-                  />,
-                  <LinkWrapper
-                    key="privacyLink"
-                    onClick={redirectPrivacyLink}
-                  />,
-                ]}
-              />
-            </Typography>
-          </Grid>
+              components={[
+                <LinkWrapper key="termsLink" onClick={redirectToTOS} />,
+                <LinkWrapper key="privacyLink" onClick={redirectPrivacyLink} />,
+              ]}
+            />
+          </Typography>
         </Grid>
       </Grid>
     </Layout>
