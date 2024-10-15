@@ -45,6 +45,27 @@ export const CieIconWrapper = () => (
   </Icon>
 );
 
+export const LinkWrapper = ({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children?: React.ReactNode;
+}) => (
+  <Link
+    key="termsLink"
+    sx={{
+      cursor: 'pointer',
+      textDecoration: 'none !important',
+      fontWeight: '400',
+      color: 'primary.main',
+    }}
+    onClick={onClick}
+  >
+    {children}
+  </Link>
+);
+
 const Login = () => {
   const [showIDPS, setShowIDPS] = useState(false);
   const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
@@ -140,14 +161,19 @@ const Login = () => {
     setShowIDPS(true);
   };
 
-  if (showIDPS) {
-    return <SpidSelect onBack={onBackAction} idpList={idpList} />;
-  }
-
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
       window.location.assign(clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
     );
+
+  const redirectToTOS = () =>
+    trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
+      window.location.assign(clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS)
+    );
+
+  if (showIDPS) {
+    return <SpidSelect onBack={onBackAction} idpList={idpList} />;
+  }
 
   const columnsOccupiedByAlert = 5;
 
@@ -199,7 +225,7 @@ const Login = () => {
           </Grid>
         </Grid>
         {clientData?.logoUri && (
-          <Grid container item justifyContent="center" textAlign={"center"} mb={2}>
+          <Grid container item justifyContent="center" textAlign={'center'} mb={2}>
             <Grid item xs={6}>
               <Icon>
                 <img
@@ -317,40 +343,23 @@ const Login = () => {
               component="div"
               variant="body1"
             >
-              <Trans i18nKey="loginPage.privacyAndCondition" shouldUnescape>
-                Accedendo accetti i
-                <Link
-                  sx={{
-                    cursor: 'pointer',
-                    textDecoration: 'none !important',
-                    fontWeight: '400',
-                    color: 'primary.main',
-                  }}
-                  onClick={() => {
-                    trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-                      window.location.assign(
-                        clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
-                      )
-                    );
-                  }}
-                >
-                  {'Termini e condizioni d’uso'}
-                </Link>
-                del servizio e
-                <br />
-                confermi di avere letto l&apos;
-                <Link
-                  sx={{
-                    cursor: 'pointer',
-                    textDecoration: 'none !important',
-                    fontWeight: '400',
-                    color: 'primary.main',
-                  }}
-                  onClick={redirectPrivacyLink}
-                >
-                  Informativa Privacy
-                </Link>
-              </Trans>
+              <Trans
+                i18nKey="loginPage.privacyAndCondition.text"
+                values={{
+                  termsLink: `<0>${t('loginPage.privacyAndCondition.terms')}</0>`,
+                  privacyLink: `<1>${t('loginPage.privacyAndCondition.privacy')}</1>`,
+                }}
+                components={[
+                  <LinkWrapper
+                    key="termsLink"
+                    onClick={redirectToTOS}
+                  />,
+                  <LinkWrapper
+                    key="privacyLink"
+                    onClick={redirectPrivacyLink}
+                  />,
+                ]}
+              />
             </Typography>
           </Grid>
         </Grid>

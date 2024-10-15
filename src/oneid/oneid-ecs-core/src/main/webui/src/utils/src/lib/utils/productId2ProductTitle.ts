@@ -9,5 +9,5 @@ export const productId2ProductTitle = (productId: string) => {
     'prod-io-sign': 'Firma con IO',
     'prod-fd': 'Fideiussioni Digitali',
   };
-  return productMap[productId as keyof typeof productMap];
+  return productMap[productId as keyof typeof productMap] || 'Prodotto sconosciuto';
 };

@@ -4,10 +4,19 @@ import { MemoryRouter } from 'react-router';
 import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
 import { ENV } from '../../utils/env';
 import { productId2ProductTitle } from '../../utils/src/lib/utils/productId2ProductTitle';
+import { i18nTestSetup } from '../../__tests__/i18nTestSetup';
 import Login from './Login';
 
 // Mock fetch
 global.fetch = vi.fn();
+
+i18nTestSetup({
+  loginPage: {
+    privacyAndCondition: {
+      text: "terms: {{termsLink}} privacy: {{privacyLink}}",
+    },
+  },
+});
 
 const oldWindowLocation = global.window.location;
 
@@ -138,7 +147,7 @@ test('Clicking CIE button redirects correctly', () => {
 test('Clicking terms and conditions link redirects correctly', () => {
   render(<Login />);
 
-  const termsConditionLink = screen.getByText('Termini e condizioni d’uso');
+  const termsConditionLink = screen.getByText('loginPage.privacyAndCondition.terms');
   fireEvent.click(termsConditionLink);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.TERMS_AND_CONDITIONS);
@@ -147,7 +156,7 @@ test('Clicking terms and conditions link redirects correctly', () => {
 test('Clicking privacy link redirects correctly', () => {
   render(<Login />);
 
-  const privacyLink = screen.getAllByText(/Informativa Privacy/)[0];
+  const privacyLink = screen.getByText('loginPage.privacyAndCondition.privacy');
   fireEvent.click(privacyLink);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.PRIVACY_DISCLAIMER);
