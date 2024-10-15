@@ -10,6 +10,7 @@ acs_url: ${ACS_URL:http://localhost:8080/saml/acs}
 slo_url: ${SLO_URL:http://localhost:8080/saml/slo}
 '%test':
   acs_url: https://dev.oneid.pagopa.it/saml/acs
+  service_provider_uri: https://dev.oneid.pagopa.it
 contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
 certificate_name: ${CERTIFICATE_NAME:cert.pem}
