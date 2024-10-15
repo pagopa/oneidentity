@@ -118,12 +118,12 @@ data "aws_iam_policy_document" "metadata_lambda" {
     resources = ["${var.table_client_registrations_arn}"]
   }
   statement {
-    effect    = "Allow"
-    actions   = [
-          "kms:Decrypt",
-          "kms:Encrypt",
-        ]
-    resources = ["${module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn}"]    
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt",
+    ]
+    resources = ["${module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn}"]
   }
   statement {
     effect = "Allow"

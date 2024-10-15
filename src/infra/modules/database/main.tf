@@ -6,8 +6,8 @@ locals {
 
 
 module "kms_sessions_table" {
-  source                  = "terraform-aws-modules/kms/aws"
-  version                 = "3.0.0"
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
 
   description             = "KMS key for Dynamodb table encryption."
   key_usage               = "ENCRYPT_DECRYPT"
@@ -61,8 +61,8 @@ module "dynamodb_sessions_table" {
   server_side_encryption_kms_key_arn = module.kms_sessions_table.aliases[
   local.kms_sessions_table_alias].target_key_arn
 
-  stream_enabled   = var.sessions_table.stream_enabled
-  stream_view_type = var.sessions_table.stream_view_type
+  stream_enabled              = var.sessions_table.stream_enabled
+  stream_view_type            = var.sessions_table.stream_view_type
   deletion_protection_enabled = var.sessions_table.deletion_protection_enabled
 
   tags = {
