@@ -49,6 +49,13 @@ Then
 
 `docker run -i --rm -p 8080:8080 local/oneid-ecs-core`
 
+### Run locally with Docker compose
+This creates DynamoDB and spid-saml-check instances. Useful for debugging the entire application flow.
+
+```shell
+docker-compose -f oneid-ecs-core/docker-compose.yaml up
+```
+
 ## Develop Locally 💻
 
 ### Prerequisites

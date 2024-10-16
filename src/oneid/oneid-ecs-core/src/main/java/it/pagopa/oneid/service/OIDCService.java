@@ -2,21 +2,26 @@ package it.pagopa.oneid.service;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import com.nimbusds.oauth2.sdk.TokenResponse;
-import it.pagopa.oneid.common.Client;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
-
+import it.pagopa.oneid.model.dto.JWKSSetDTO;
+import it.pagopa.oneid.web.dto.TokenDataDTO;
 import java.util.List;
 
 public interface OIDCService {
 
-    Client getClientRegistration(String clientID);
+  JWKSSetDTO getJWKSPublicKey();
 
-    AuthorizationRequest buildAuthorizationRequest(AuthorizationRequestDTO authorizationRequestDTO);
+  OIDCProviderMetadata buildOIDCProviderMetadata();
 
-    AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);
+  AuthorizationRequest buildAuthorizationRequest(AuthorizationRequestDTO authorizationRequestDTO);
 
-    TokenResponse getTokenResponse(List<AttributeDTO<?>> attributeDTO);
+  AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);
+
+  TokenDataDTO getOIDCTokens(String requestId, String clientId, List<AttributeDTO> attributeDTOList,
+      String nonce);
+
+  void authorizeClient(String clientId, String clientSecret);
 
 }

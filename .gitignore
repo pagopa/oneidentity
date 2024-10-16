@@ -1,3 +1,9 @@
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
 # Local .terraform directories
 **/.terraform/*
 
@@ -34,6 +40,9 @@ override.tf.json
 # Ignore any IDE configuration files
 **/.idea/*
 
+# Intellij stuff
+*.iml
+
 # Ignore maven-wrapper.jar
 maven-wrapper.jar
 
@@ -42,6 +51,9 @@ maven-wrapper.jar
 **/.gradle/*
 **/build/
 !src/**/build/
+
+# python
+**/builds
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -66,3 +78,16 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle
+
+# Frontend stuff
+src/oneid/oneid-ecs-core/src/main/webui/node_modules
+src/oneid/oneid-ecs-core/src/main/webui/build
+src/oneid/oneid-ecs-core/src/main/webui/coverage
+src/oneid/oneid-ecs-core/.quinoa
+
+# Test stuff
+# ignore local dynamodb metadata files
+**/dynamodb-local-metadata.json
+
+# env mock stuff
+src/oneid/docker_mock/.env

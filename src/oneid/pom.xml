@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -11,20 +12,31 @@
     <properties>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
         <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.10.1</quarkus.platform.version>
+        <quarkus.platform.version>3.11.3</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <it.pagopa.oneid.common.group-id>it.pagopa.oneid.common</it.pagopa.oneid.common.group-id>
-        <it.pagopa.oneid.common.client.artifact-id>client</it.pagopa.oneid.common.client.artifact-id>
-        <it.pagopa.oneid.common.client.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.client.version>
+        <it.pagopa.oneid.common.connector.artifact-id>connector
+        </it.pagopa.oneid.common.connector.artifact-id>
+        <it.pagopa.oneid.common.connector.version>1.0.0-SNAPSHOT
+        </it.pagopa.oneid.common.connector.version>
         <it.pagopa.oneid.common.model.artifact-id>model</it.pagopa.oneid.common.model.artifact-id>
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
+        <it.pagopa.oneid.common.utils.artifact-id>utils</it.pagopa.oneid.common.utils.artifact-id>
+        <it.pagopa.oneid.common.utils.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.utils.version>
         <opensaml.version>4.3.0</opensaml.version>
-        <aws.java.sdk.version>2.25.63</aws.java.sdk.version>
+        <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
+        <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
+        <quarkus-jacoco.version>3.13.1</quarkus-jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <quarkus.jacoco.title>One Identity</quarkus.jacoco.title>
+
 
     </properties>
     <repositories>
@@ -33,9 +45,29 @@
             <name>Shibboleth Build Releases Repository</name>
             <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
         </repository>
+        <repository>
+            <id>dynamodb-local-frankfurt</id>
+            <name>DynamoDB Local Release Repository</name>
+            <url>https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release</url>
+        </repository>
     </repositories>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.16.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>5.10.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>5.12.0</version>
+            </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-core</artifactId>
@@ -54,6 +86,32 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-soap-api</artifactId>
+                <version>${opensaml.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-xmlsec-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-security-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-security-impl</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml-profile-api</artifactId>
+                <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
                 <version>${quarkus.platform.version}</version>
@@ -61,11 +119,24 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>bom</artifactId>
-                <version>${aws.java.sdk.version}</version>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-jacoco</artifactId>
+                <version>${quarkus-jacoco.version}</version>
+                <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkiverse.amazonservices</groupId>
+                <artifactId>quarkus-amazon-services-bom</artifactId>
+                <version>${quarkus-amazon-services.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkiverse.web-bundler</groupId>
+                <artifactId>quarkus-web-bundler</artifactId>
+                <version>${quarkus-web-bundler.version}</version>
+                <scope>compile</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
             <dependency>
@@ -76,13 +147,18 @@
             </dependency>
             <dependency>
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
-                <artifactId>${it.pagopa.oneid.common.client.artifact-id}</artifactId>
-                <version>${it.pagopa.oneid.common.client.version}</version>
+                <artifactId>${it.pagopa.oneid.common.connector.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.connector.version}</version>
             </dependency>
             <dependency>
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
                 <artifactId>${it.pagopa.oneid.common.model.artifact-id}</artifactId>
                 <version>${it.pagopa.oneid.common.model.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${it.pagopa.oneid.common.group-id}</groupId>
+                <artifactId>${it.pagopa.oneid.common.utils.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.utils.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.nimbusds/oauth2-oidc-sdk -->
             <dependency>
@@ -94,6 +170,37 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>9.39.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>1.78.1</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.17.0</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>DynamoDBLocal</artifactId>
+                <version>2.5.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.ganadist.sqlite4java</groupId>
+                <artifactId>libsqlite4java-osx-aarch64</artifactId>
+                <version>1.0.392</version>
+                <scope>test</scope>
+                <type>dylib</type>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.23.1</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -132,12 +239,28 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-lambda-update-idp-metadata-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-update-idp-metadata</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>oneid-lambda-is-gh-integration-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-is-gh-integration</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-all</id>
             <modules>
                 <module>oneid-common</module>
                 <module>oneid-ecs-core</module>
                 <module>oneid-lambda-client-registration</module>
                 <module>oneid-lambda-service-metadata</module>
+                <module>oneid-lambda-update-idp-metadata</module>
+                <module>oneid-lambda-is-gh-integration</module>
             </modules>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -146,6 +269,17 @@
     </profiles>
     <build>
         <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager
+                        </java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

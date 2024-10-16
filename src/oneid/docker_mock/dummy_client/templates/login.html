@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>PagoPA example product</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous"
+    />
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>PagoPA example product</h1>
+      <div id="content">
+        <form action="{{ authorizer_url }}" method="GET">
+          <input type="hidden" name="response_type" value="CODE" />
+          <input type="hidden" name="scope" value="openid" />
+          <input type="hidden" name="client_id" value="{{ client_id }}" />
+          <input type="hidden" name="state" value="state1" />
+          <input type="hidden" name="nonce" value="{{ nonce }}" />
+          <input type="hidden" name="redirect_uri" value="{{ redirect_url }}" />
+          <button type="submit" class="btn btn-primary">Entra con SPID/CIE</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

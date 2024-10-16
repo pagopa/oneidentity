@@ -1,0 +1,29 @@
+quarkus:
+  dynamodb:
+    devservices:
+      enabled: 'false'
+  log:
+    console:
+      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) [%C.%M] %s%e%n"
+'%dev':
+  quarkus:
+    dynamodb:
+      aws:
+        credentials:
+          type: static
+          static-provider:
+            secret-access-key: testsecret
+            access-key-id: testkey
+        region: local
+      endpoint-override: http://localhost:8000
+'%prod':
+  quarkus:
+    dynamodb:
+      aws:
+        credentials:
+          type: default
+        region: eu-south-1
+
+client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
+idp_table_name: ${IDP_TABLE_NAME:IDPMetadata}
+idp_g_idx: ${IDP_G_IDX:gsi_pointer_idx}

@@ -1,0 +1,76 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose environment'
+        type: choice
+        required: true
+        default: dev
+        options:
+        - dev
+        - uat
+        - prod
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'src/infra/**'
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
+      
+    steps:
+      - name: Set Dynamic Env Matrix
+        id: setmatrix
+        run: |
+          echo "github.ref ${{ github.ref }}"
+          echo "event name ${{ github.event_name }}"
+  
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
+            else
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+            fi
+          else
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
+          fi
+
+          echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+
+  terraform:
+    name: terraform apply (${{ matrix.environment }} ${{ matrix.region }})
+    if: ${{ needs.setup.outputs.matrix != '' }}
+    runs-on: ubuntu-22.04
+    needs: setup
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+  
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
+    env:
+      WORKING_DIR: src/infra/${{ matrix.environment }}/${{ matrix.region }}
+      AWS_REGION: ${{ matrix.region }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Apply
+        uses: ./.github/workflows/apply
+        with:
+          working-directory: ${{ env.WORKING_DIR }}
+          region: ${{ matrix.region }}
+          iam_role: ${{ vars.IAM_ROLE_IAC }}

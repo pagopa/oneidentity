@@ -1,0 +1,23 @@
+name: Test FE
+
+on:
+  pull_request:
+    paths:
+      - "**/src/oneid/oneid-ecs-core/src/main/webui**"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version: 20.x
+      - name: Run yarn install, lint and test
+        working-directory: src/oneid/oneid-ecs-core/src/main/webui
+        run: |
+          yarn install --frozen-lockfile
+          yarn lint
+          yarn test:coverage
