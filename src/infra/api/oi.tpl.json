@@ -32,7 +32,7 @@
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "GET",
-          "uri": "${uri}/ping",
+          "uri": "${uri}/status",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "requestParameters": {},
