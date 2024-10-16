@@ -10,6 +10,8 @@ curl --location 'https://{ENV}.oneid.pagopa.it/oidc/register' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
 --data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
+--data-urlencode 'policy_uri={POLICY_URI}' \
+--data-urlencode 'tos_uri={TOS_URI}' \
 --data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
 --data-urlencode 'default_acr_values={ACR_VALUE}' \
 --data-urlencode 'redirect_uris={REDIRECT_URI_1}' \
@@ -28,6 +30,8 @@ curl --location 'https://dev.oneid.pagopa.it/oidc/register' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
 --data-urlencode 'client_name=TestClient' \
+--data-urlencode 'policy_uri=http://test.com/policy.html' \
+--data-urlencode 'tos_uri=http://test.com/tos.html' \
 --data-urlencode 'logo_uri=http://test.com/logo.png' \
 --data-urlencode 'default_acr_values=https://www.spid.gov.it/SpidL2' \
 --data-urlencode 'redirect_uris=https://test.com/client/cb' \
@@ -43,6 +47,8 @@ Example of response:
     "https://test.com/client/cb"
   ],
   "client_name": "TestClient",
+  "policy_uri": "http://test.com/policy.html",
+  "tos_uri": "http://test.com/tos.html",
   "logo_uri": "http://test.com/logo.png",
   "default_acr_values": [
     "https://www.spid.gov.it/SpidL2"
@@ -150,6 +156,8 @@ Example of response:
     "https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"
   ],
   "client_name": "test_test",
+  "policy_uri": "http://test.com/policy.html",
+  "tos_uri": "http://test.com/tos.html",
   "logo_uri": "http://test.com/logo.png",
   "default_acr_values": [
     "https://www.spid.gov.it/SpidL2"
