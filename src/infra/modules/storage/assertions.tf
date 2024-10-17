@@ -229,7 +229,7 @@ module "s3_assertions_bucket" {
       enabled = true
       id      = "expire_rule"
       prefix  = ""
-      tags    = {"Backup":"True"}
+      tags    = {}
 
       expiration = {
         days = var.assertion_bucket.expiration_days
@@ -240,7 +240,8 @@ module "s3_assertions_bucket" {
   replication_configuration = local.replication_configuration
 
   tags = {
-    Name = local.bucket_name
+    Name   = local.bucket_name
+    Backup = "True"
   }
 }
 
