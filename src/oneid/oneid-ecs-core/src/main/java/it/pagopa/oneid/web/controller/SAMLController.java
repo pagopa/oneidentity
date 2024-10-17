@@ -106,10 +106,11 @@ public class SAMLController {
     }
 
     // 2. Check if Signatures are valid (Response and Assertion) and if SAML Response is formally correct
+    Client client = clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId());
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(),
-        clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId())
-            .getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()));
+        client.getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()),
+        client.getAuthLevel());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
