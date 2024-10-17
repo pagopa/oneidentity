@@ -43,6 +43,10 @@
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>producer</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

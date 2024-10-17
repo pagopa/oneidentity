@@ -1,4 +1,4 @@
-package it.pagopa.oneid.common.utils.producers;
+package producers;
 
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;

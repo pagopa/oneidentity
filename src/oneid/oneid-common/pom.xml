@@ -14,5 +14,6 @@
         <module>connector</module>
         <module>model</module>
         <module>utils</module>
+        <module>producer</module>
     </modules>
 </project>
