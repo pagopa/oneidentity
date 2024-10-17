@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import java.time.Instant;
@@ -18,7 +19,7 @@ public interface SAMLService {
       throws OneIdentityException;
 
   void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes,
-      Instant samlRequestIssueInstant)
+      Instant samlRequestIssueInstant, AuthLevel authLevelRequest)
       throws OneIdentityException;
 
   Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException;

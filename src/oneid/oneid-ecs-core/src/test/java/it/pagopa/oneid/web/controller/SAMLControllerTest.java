@@ -72,7 +72,8 @@ public class SAMLControllerTest {
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
     doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -247,7 +248,8 @@ public class SAMLControllerTest {
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
     doThrow(new OneIdentityException()).when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any());
     // location header to verify
     String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
@@ -280,7 +282,8 @@ public class SAMLControllerTest {
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
     doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -337,7 +340,8 @@ public class SAMLControllerTest {
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
     doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);

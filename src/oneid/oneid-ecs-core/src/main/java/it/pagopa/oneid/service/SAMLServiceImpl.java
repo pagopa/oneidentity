@@ -151,7 +151,8 @@ public class SAMLServiceImpl implements SAMLService {
     return subjectConfirmationData;
   }
 
-  private static void validateAuthStatement(List<AuthnStatement> authnStatements) {
+  private static void validateAuthStatement(List<AuthnStatement> authnStatements,
+      AuthLevel authLevelRequest) {
     if (authnStatements == null || authnStatements.isEmpty()) {
       Log.error("AuthnStatements element is missing or empty");
       throw new SAMLValidationException("AuthnStatements element is missing or empty");
@@ -173,14 +174,18 @@ public class SAMLServiceImpl implements SAMLService {
       Log.error("AuthnContextClassRef element is missing or empty");
       throw new SAMLValidationException("AuthnContextClassRef element is missing or empty");
     }
-    if (AuthLevel.authLevelFromValue(
-        element.getTextContent().strip())
+    AuthLevel authLevelResponse = AuthLevel.authLevelFromValue(element.getTextContent().strip());
+    if (authLevelResponse
         == null) {
       Log.error(
           "Invalid AuthnContextClassRef value: " + element.getTextContent().strip());
       throw new SAMLValidationException("Invalid AuthnContextClassRef value");
     }
-    // TODO: evaluate if and how we need to compare the requested AuthnContextClassRef and the obtained one
+    if (authLevelResponse.compareTo(authLevelRequest) < 0) {
+      Log.error("AuthnContextClassRef value does not match the requested AuthLevel");
+      throw new SAMLValidationException(
+          "AuthnContextClassRef value does not match the requested AuthLevel");
+    }
   }
 
   private static void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
@@ -311,7 +316,8 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private void validateAssertion(Assertion assertion, String entityID,
-      Set<String> requestedAttributes, Instant samlRequestIssueInstant) {
+      Set<String> requestedAttributes, Instant samlRequestIssueInstant,
+      AuthLevel authLevelRequest) {
 
     // Check if assertion id is valid
     if (assertion.getID() == null || assertion.getID().isBlank()) {
@@ -329,7 +335,7 @@ public class SAMLServiceImpl implements SAMLService {
       validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
       validateIssuer(assertion.getIssuer(), entityID);
       validateConditions(assertion.getConditions());
-      validateAuthStatement(assertion.getAuthnStatements());
+      validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
       validateAttributeStatements(assertion, requestedAttributes);
 
     } catch (OneIdentityException e) {
@@ -471,7 +477,8 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
-      Set<String> requestedAttributes, Instant samlRequestIssueInstant) {
+      Set<String> requestedAttributes, Instant samlRequestIssueInstant,
+      AuthLevel authLevelRequest) {
     Log.debug("start");
 
     Assertion assertion = extractAssertion(samlResponse);
@@ -483,7 +490,8 @@ public class SAMLServiceImpl implements SAMLService {
       validateInResponseTo(samlResponse.getInResponseTo());
       validateDestination(samlResponse.getDestination());
       validateIssuer(samlResponse.getIssuer(), entityID);
-      validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant);
+      validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
+          authLevelRequest);
 
       validateSignature(samlResponse, entityID);
 
