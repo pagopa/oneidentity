@@ -19,6 +19,10 @@
             <artifactId>connector</artifactId>
         </dependency>
         <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-amazon-lambda</artifactId>
         </dependency>
