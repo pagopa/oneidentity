@@ -6,12 +6,14 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@CustomLogging
 public class ClientUtils {
 
 
@@ -46,7 +48,6 @@ public class ClientUtils {
   }
 
   public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
-    Log.debug("start");
     Set<Identifier> samlRequestedAttributes = client
         .getRequestedParameters()
         .stream()

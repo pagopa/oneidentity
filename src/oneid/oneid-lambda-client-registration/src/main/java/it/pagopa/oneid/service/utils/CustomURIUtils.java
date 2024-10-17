@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service.utils;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import java.net.URI;
@@ -8,10 +9,10 @@ import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
+@CustomLogging
 public class CustomURIUtils {
 
   public static void validateURI(String uriString) {
-    Log.debug("start");
     if (StringUtils.isBlank(uriString)) {
       throw new InvalidUriException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
     }
@@ -30,7 +31,6 @@ public class CustomURIUtils {
     } catch (URISyntaxException e) {
       throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
     }
-    Log.debug("end");
   }
 
   private static boolean isValidScheme(String scheme) {
