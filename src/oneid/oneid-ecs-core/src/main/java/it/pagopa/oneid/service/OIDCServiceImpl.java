@@ -25,6 +25,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
@@ -50,6 +51,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
+@CustomLogging
 public class OIDCServiceImpl implements OIDCService {
 
   @Inject
@@ -69,7 +71,6 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public JWKSSetDTO getJWKSPublicKey() {
-    Log.debug("start");
     GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey(KMS_KEY_ID);
     RSAPublicKey rsaPublicKey;
     try {
@@ -82,7 +83,6 @@ public class OIDCServiceImpl implements OIDCService {
       throw new RuntimeException(e);
     }
 
-    Log.debug("end");
     return JWKSSetDTO.builder()
         .keyList(List.of(
             new JWKSUriMetadataDTO(getPublicKeyResponse.keyId().split("/")[1], rsaPublicKey)))
@@ -91,7 +91,6 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public OIDCProviderMetadata buildOIDCProviderMetadata() {
-    Log.debug("start");
     Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
     URI jwksURI;
     URI authEndpointURI;
@@ -121,8 +120,6 @@ public class OIDCServiceImpl implements OIDCService {
     oidcProviderMetadata.setTokenEndpointAuthMethods(
         List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 
-    Log.debug("end");
-
     return oidcProviderMetadata;
 
   }
@@ -131,7 +128,6 @@ public class OIDCServiceImpl implements OIDCService {
   public AuthorizationRequest buildAuthorizationRequest(
       AuthorizationRequestDTO authorizationRequestDTO) {
 
-    Log.debug("start");
     // The client identifier provisioned by the server
     ClientID clientID = new ClientID(authorizationRequestDTO.getClientId());
 
@@ -163,7 +159,6 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest) {
-    Log.info("start");
     // TODO lookup the client
     ClientID clientID = authorizationRequest.getClientID();
 
@@ -189,7 +184,6 @@ public class OIDCServiceImpl implements OIDCService {
   public TokenDataDTO getOIDCTokens(String requestId, String clientId,
       List<AttributeDTO> attributeDTOList,
       String nonce) {
-    Log.debug(("start"));
 
     // Create access token
     // TODO is it ok for the 'scope' to be null?
@@ -219,7 +213,6 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public void authorizeClient(String clientId, String clientSecret) {
-    Log.debug("start");
     if (clientsMap.get(clientId) == null) {
       Log.debug("client not found");
       throw new InvalidClientException("Client ID not valid");

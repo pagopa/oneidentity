@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import software.amazon.awssdk.core.SdkBytes;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.kms.model.SignResponse;
 import software.amazon.awssdk.services.kms.model.SigningAlgorithmSpec;
 
 @ApplicationScoped
+@CustomLogging
 public class KMSConnectorImpl implements KMSConnector {
 
   @Inject

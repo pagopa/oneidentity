@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -52,6 +53,7 @@ import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
 
 @ApplicationScoped
+@CustomLogging
 public class SAMLServiceImpl implements SAMLService {
 
   private final Clock clock;
@@ -376,7 +378,6 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public void checkSAMLStatus(Response response) throws OneIdentityException {
-    Log.debug("start");
     String statusCode = "";
     String statusMessage = "";
     if (response.getStatus() != null) {
@@ -479,7 +480,6 @@ public class SAMLServiceImpl implements SAMLService {
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
       AuthLevel authLevelRequest) {
-    Log.debug("start");
 
     Assertion assertion = extractAssertion(samlResponse);
 
@@ -526,14 +526,12 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
-    Log.debug("start");
     return samlUtils.getSAMLResponseFromString(SAMLResponse);
   }
 
   @Override
   public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException {
-    Log.debug("start");
     return samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(OneIdentityException::new);
   }
