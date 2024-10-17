@@ -4,6 +4,7 @@ import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCE
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_OIDC_MIN;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_SAML_MIN;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
@@ -34,6 +35,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 @Dependent
+@CustomLogging
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
   private DynamoDbTable<SAMLSession> samlSessionMapper;
@@ -43,7 +45,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
   private DynamoDbIndex<AccessTokenSession> accessTokenSessionDynamoDbIndex;
 
   public SessionConnectorImpl() {
-    
+
   }
 
   @Inject
@@ -98,7 +100,6 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public void saveSessionIfNotExists(T session) throws SessionException {
-    Log.debug("start");
     try {
       saveItemIfNotExists(session);
       Log.debug("successfully saved session");
@@ -152,7 +153,6 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public Optional<T> findSession(String identifier, RecordType recordType) throws SessionException {
-    Log.debug("start");
 
     switch (recordType) {
       case RecordType.SAML -> {
@@ -236,7 +236,6 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
   @Override
   public void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException {
-    Log.debug("invoked");
 
     SAMLSession samlSession = (SAMLSession) findSession(samlRequestID, RecordType.SAML).orElseThrow(
         SessionException::new);

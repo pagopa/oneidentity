@@ -1,12 +1,13 @@
 package it.pagopa.oneid.service;
 
-import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.ISRestClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
+@CustomLogging
 public class ISServiceImpl implements ISService {
 
   @Inject
@@ -16,7 +17,6 @@ public class ISServiceImpl implements ISService {
 
   @Override
   public String getLatestIdpMetadata(String type) {
-    Log.debug("start");
     return isRestClient.getLatestMetadata(type);
   }
 

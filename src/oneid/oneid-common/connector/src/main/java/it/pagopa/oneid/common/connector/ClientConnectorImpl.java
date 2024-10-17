@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 @ApplicationScoped
+@CustomLogging
 public class ClientConnectorImpl implements ClientConnector {
 
   private final DynamoDbTable<Client> clientMapper;
@@ -35,7 +37,6 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<ArrayList<Client>> findAll() {
-    Log.debug("start");
     ArrayList<Client> clients = new ArrayList<>();
     ScanEnhancedRequest request = ScanEnhancedRequest.builder()
         .build();
@@ -54,7 +55,6 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<SecretDTO> getClientSecret(String clientId) {
-    Log.debug("start");
     return Optional.of(
         clientExtendedMapper.getItem(Key.builder().partitionValue(clientId).build())).map(
         ClientExtended::clientSecretDTO
@@ -63,7 +63,6 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public void saveClientIfNotExists(ClientExtended client) {
-    Log.debug("start");
     clientExtendedMapper.putItem(
         PutItemEnhancedRequest.builder(ClientExtended.class)
             .item(client)
@@ -76,7 +75,6 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<Client> getClientById(String clientId) {
-    Log.debug("start");
     return Optional.ofNullable(
         clientMapper.getItem(Key.builder().partitionValue(clientId).build()));
   }

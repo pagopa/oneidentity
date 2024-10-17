@@ -3,6 +3,7 @@ package it.pagopa.oneid.connector;
 import static it.pagopa.oneid.utils.Constants.GH_PERSONAL_ACCESS_TOKEN;
 import static it.pagopa.oneid.utils.Constants.REPOSITORY_NAME;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Produces;
 import java.io.IOException;
@@ -15,12 +16,12 @@ import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 @ApplicationScoped
+@CustomLogging
 public class RepositoryConfig {
 
   @ApplicationScoped
   @Produces
   GHRepository ghRepository(SsmClient ssmClient) {
-    Log.debug("start");
     String ghPersonalAccessTokenValue = getParameterValue(ssmClient, GH_PERSONAL_ACCESS_TOKEN);
     GHRepository repository;
     try {
@@ -35,7 +36,6 @@ public class RepositoryConfig {
 
 
   private String getParameterValue(SsmClient ssmClient, String parameterName) {
-    Log.debug("start");
     GetParameterResponse response;
     GetParameterRequest request = GetParameterRequest.builder()
         .name(parameterName)

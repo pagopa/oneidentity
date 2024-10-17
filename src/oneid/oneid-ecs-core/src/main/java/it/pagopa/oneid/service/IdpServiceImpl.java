@@ -1,8 +1,8 @@
 package it.pagopa.oneid.service;
 
-import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
+@CustomLogging
 public class IdpServiceImpl implements IdpService {
 
   @Inject
@@ -20,7 +21,6 @@ public class IdpServiceImpl implements IdpService {
 
   @Override
   public Optional<ArrayList<IDP>> findAllIdpByTimestamp() {
-    Log.debug("start");
     return idpConnectorImpl.findIDPsByTimestamp(TIMESTAMP_SPID);
   }
 

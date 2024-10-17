@@ -2,12 +2,12 @@ package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
-import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.Set;
 
 @ApplicationScoped
+@CustomLogging
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 
   @Inject
@@ -31,7 +32,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void validateClientRegistrationInfo(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-    Log.debug("start");
 
     // Validate redirectUris
     for (String redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
@@ -72,14 +72,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new InvalidUriException("Invalid TOS URI");
     }
 
-    Log.debug("end");
 
   }
 
   @Override
   public ClientRegistrationResponseDTO saveClient(
       ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
-    Log.debug("start");
     // 1. call to dynamo & set in clientRegistrationRequestDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
@@ -90,7 +88,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 3. Client.Secret & Salt
 
     // a. Generate Salt
-    // TODO is 16 bytes good enough?
     byte[] salt = HASHUtils.generateSecureRandom(16);
 
     // b. Generate client_secret
@@ -112,7 +109,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
             .orElseThrow(ClientRegistrationServiceException::new)));
 
     // 7. create and return ClientRegistrationResponseDTO
-    Log.debug("end");
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
         client.getClientId(), HASHUtils.b64encoder.encodeToString(secret),
         client.getClientIdIssuedAt());
@@ -120,7 +116,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
 
   private int findMaxAttributeIndex() {
-    Log.debug("start");
     return clientConnector
         .findAll()
         .map(clients -> clients
@@ -129,19 +124,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
             .map(Client::getAttributeIndex)
             .orElse(-1)
         ).orElse(-1);
-
   }
 
 
   @Override
   public ClientMetadataDTO getClientMetadataDTO(String clientId) {
-    Log.debug("start");
-
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
 
     return convertClientToClientMetadataDTO(client);
-
   }
 
 

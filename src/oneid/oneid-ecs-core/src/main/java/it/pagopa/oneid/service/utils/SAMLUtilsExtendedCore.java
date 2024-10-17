@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -48,6 +49,7 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 
 @ApplicationScoped
+@CustomLogging
 public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
@@ -234,7 +236,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private String getAttributeValue(XMLObject attributeValue) {
-    Log.debug("start");
 
     return attributeValue == null ?
         null :

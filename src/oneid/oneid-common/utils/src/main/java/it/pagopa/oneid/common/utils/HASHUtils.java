@@ -1,13 +1,14 @@
 package it.pagopa.oneid.common.utils;
 
 
-import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.validation.constraints.NotBlank;
 import java.security.SecureRandom;
 import java.util.Base64;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
 
+@CustomLogging
 public class HASHUtils {
 
   public static final int ARGON_2_ITERATIONS_NUMBER = 2;
@@ -24,7 +25,6 @@ public class HASHUtils {
   }
 
   public static byte[] generateSecureRandom(int bytesLength) {
-    Log.debug("start");
     SecureRandom secureRandom = new SecureRandom();
     byte[] result = new byte[bytesLength];
     secureRandom.nextBytes(result);
@@ -32,7 +32,6 @@ public class HASHUtils {
   }
 
   public static String generateArgon2(@NotBlank byte[] salt, @NotBlank byte[] clientSecret) {
-    Log.debug("start");
 
     Argon2Parameters.Builder builder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
         .withVersion(Argon2Parameters.ARGON2_VERSION_13)
@@ -45,7 +44,6 @@ public class HASHUtils {
     generate.init(builder.build());
     byte[] result = new byte[ARGON_2_HASH_LENGTH];
     generate.generateBytes(clientSecret, result, 0, result.length);
-    Log.debug("end");
     return b64encoder.encodeToString(result);
 
   }

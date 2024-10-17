@@ -5,6 +5,7 @@ import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,6 +25,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 @ApplicationScoped
+@CustomLogging
 public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Inject

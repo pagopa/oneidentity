@@ -1,6 +1,7 @@
 package it.pagopa.oneid.connector;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.utils.IoUtils;
 
 @ApplicationScoped
+@CustomLogging
 public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConnector {
 
   @ConfigProperty(name = "idp_metadata.bucket.name")
@@ -22,7 +24,6 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
   S3Client s3;
 
   private GetObjectRequest buildGetRequest(String objectKey) {
-    Log.debug("start");
     return GetObjectRequest.builder()
         .bucket(bucketName)
         .key(objectKey)
@@ -31,7 +32,6 @@ public class S3BucketIDPMetadataConnectorImpl implements S3BucketIDPMetadataConn
 
   @Override
   public String getMetadataFile(String fileName) {
-    Log.debug("start");
     String result;
     ResponseInputStream<GetObjectResponse> response;
     try {
