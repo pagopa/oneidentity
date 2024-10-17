@@ -3,6 +3,7 @@ package it.pagopa.oneid.common.connector;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 
 @ApplicationScoped
+@CustomLogging
 public class IDPConnectorImpl implements IDPConnector {
 
   private final DynamoDbTable<IDP> idpMapper;
@@ -63,7 +65,6 @@ public class IDPConnectorImpl implements IDPConnector {
 
   @Override
   public void saveIDPs(ArrayList<IDP> idpList, LatestTAG latestTAG, String timestamp) {
-    Log.debug("start");
 
     Optional<ArrayList<IDP>> idpLatestList = findIDPsByTimestamp(String.valueOf(latestTAG));
 
