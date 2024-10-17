@@ -70,6 +70,10 @@
             <version>1.324</version>
         </dependency>
         <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.amazonservices</groupId>
             <artifactId>quarkus-amazon-ssm</artifactId>
         </dependency>

@@ -2,6 +2,7 @@ package it.pagopa.oneid.connector;
 
 import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import org.kohsuke.github.GHContent;
 import org.kohsuke.github.GHRepository;
 
 @ApplicationScoped
+@CustomLogging
 public class GitHubConnectorImpl implements GitHubConnector {
 
   @Inject
@@ -18,7 +20,6 @@ public class GitHubConnectorImpl implements GitHubConnector {
   @Override
   public void createBranchAndCommit(String branchName, String idpType, String fileContent,
       String metadataPath) {
-    Log.debug("start");
 
     // create branch
     try {
@@ -50,7 +51,6 @@ public class GitHubConnectorImpl implements GitHubConnector {
 
 
   private GHContent findFileInDirectory(String metadataDirPath, String idpType, String branchName) {
-    Log.debug("start");
     try {
       return repository.getDirectoryContent(metadataDirPath, branchName)
           .stream()
@@ -67,7 +67,6 @@ public class GitHubConnectorImpl implements GitHubConnector {
   private void createFileWithUpdatedContent(String fileContent, String metadataPath,
       String branchName,
       String idpType) {
-    Log.debug("start");
     try {
       repository.createContent()
           .content(fileContent)
@@ -85,7 +84,6 @@ public class GitHubConnectorImpl implements GitHubConnector {
 
   @Override
   public void createPullRequest(String title, String head, String base) {
-    Log.debug("start");
 
     try {
       repository.createPullRequest(title, head, base, "");
