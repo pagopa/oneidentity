@@ -29,6 +29,10 @@
             <artifactId>utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>producer</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>

@@ -2,7 +2,6 @@ package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.utils.producers.ClientProducer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
@@ -11,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import producers.ClientProducer;
+
 
 @Alternative
 @Dependent

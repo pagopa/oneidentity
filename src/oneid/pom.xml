@@ -30,6 +30,10 @@
         <it.pagopa.oneid.common.model.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.model.version>
         <it.pagopa.oneid.common.utils.artifact-id>utils</it.pagopa.oneid.common.utils.artifact-id>
         <it.pagopa.oneid.common.utils.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.utils.version>
+        <it.pagopa.oneid.common.producer.artifact-id>producer
+        </it.pagopa.oneid.common.producer.artifact-id>
+        <it.pagopa.oneid.common.producer.version>1.0.0-SNAPSHOT
+        </it.pagopa.oneid.common.producer.version>
         <opensaml.version>4.3.0</opensaml.version>
         <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
         <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
@@ -159,6 +163,11 @@
                 <groupId>${it.pagopa.oneid.common.group-id}</groupId>
                 <artifactId>${it.pagopa.oneid.common.utils.artifact-id}</artifactId>
                 <version>${it.pagopa.oneid.common.utils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${it.pagopa.oneid.common.group-id}</groupId>
+                <artifactId>${it.pagopa.oneid.common.producer.artifact-id}</artifactId>
+                <version>${it.pagopa.oneid.common.producer.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.nimbusds/oauth2-oidc-sdk -->
             <dependency>

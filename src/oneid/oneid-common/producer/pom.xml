@@ -7,7 +7,7 @@
         <artifactId>oneid-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>utils</artifactId>
+    <artifactId>producer</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.opensaml</groupId>
@@ -38,6 +38,10 @@
             <artifactId>model</artifactId>
         </dependency>
         <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>connector</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.amazonservices</groupId>
             <artifactId>quarkus-amazon-ssm</artifactId>
         </dependency>
@@ -47,4 +51,3 @@
         </dependency>
     </dependencies>
 </project>
-
