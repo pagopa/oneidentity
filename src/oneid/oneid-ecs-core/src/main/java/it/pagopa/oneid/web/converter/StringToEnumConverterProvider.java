@@ -15,46 +15,27 @@ public class StringToEnumConverterProvider implements ParamConverterProvider {
   @Override
   public <T> ParamConverter<T> getConverter(Class<T> rawType, java.lang.reflect.Type genericType,
       java.lang.annotation.Annotation[] annotations) {
-    if (rawType.isEnum() && rawType.equals(GrantType.class)) {
-      return new ParamConverter<T>() {
-        @Override
-        public T fromString(String value) {
-          try {
-            return (T) GrantType.valueOf(value.toUpperCase());
-          } catch (IllegalArgumentException e) {
-            return null;
-          }
-        }
-
-        @Override
-        public String toString(T value) {
-          if (value == null) {
-            return null;
-          }
-          return value.toString();
-        }
-      };
-    }
-    if (rawType.isEnum() && rawType.equals(ResponseType.class)) {
-      return new ParamConverter<T>() {
-        @Override
-        public T fromString(String value) {
-          try {
-            return (T) ResponseType.valueOf(value.toUpperCase());
-          } catch (IllegalArgumentException e) {
-            return null;
-          }
-        }
-
-        @Override
-        public String toString(T value) {
-          if (value == null) {
-            return null;
-          }
-          return value.toString();
-        }
-      };
+    if (rawType.equals(GrantType.class) || rawType.equals(ResponseType.class)) {
+      return createEnumConverter(rawType);
     }
     return null;
+  }
+
+  private <T> ParamConverter<T> createEnumConverter(Class<T> enumType) {
+    return new ParamConverter<T>() {
+      @Override
+      public T fromString(String value) {
+        try {
+          return (T) Enum.valueOf((Class<Enum>) enumType, value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+          return null;
+        }
+      }
+
+      @Override
+      public String toString(T value) {
+        return value == null ? null : value.toString();
+      }
+    };
   }
 }
