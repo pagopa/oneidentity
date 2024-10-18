@@ -32,7 +32,6 @@ export default [
       'locales/locales.ts',
       '**/__tests__/**/*',
       'eslint.config.mjs',
-      'craco.config.js',
       'definitions/*',
       'src/react-app-env.d.ts',
       '**/Dangerfile.ts',

@@ -26,10 +26,14 @@
 		"isolatedModules": true,
 		"noFallthroughCasesInSwitch": true,
 		"resolveJsonModule": true,
-    "types": ["vitest/globals"]
+		"types": [
+			"vitest/globals",
+			"vite/client"
+		]
 	},
 	"include": [
 		"src/**/*",
+		"vite.config.mts",
 		"vitest.config.mts",
 		"vitest.setup.mts"
 	],
