@@ -9,6 +9,11 @@ resource "random_integer" "idp_metadata_bucket_suffix" {
   max = 9999
 }
 
+resource "random_integer" "lambda_code_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 module "s3_assets_bucket" {
 
   count = var.create_assets_bucket ? 1 : 0
@@ -40,6 +45,22 @@ module "s3_idp_metadata_bucket" {
 
   tags = {
     Name = local.idp_metadata_bucket
+  }
+}
+
+module "s3_lambda_code_bucket" {
+  count   = var.create_lambda_code_bucket ? 1 : 0
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.lambda_code_bucket
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  tags = {
+    Name = local.lambda_code_bucket
   }
 }
 

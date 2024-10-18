@@ -10,21 +10,21 @@ variable "kms_rotation_period_in_days" {
 
 variable "assertion_bucket" {
   type = object({
-    name_prefix                     = string
-    expiration_days                 = number
-    mfa_delete                      = optional(bool, false)
+    name_prefix     = string
+    expiration_days = number
+    mfa_delete = optional(bool, false)
     kms_key_deletion_window_in_days = optional(number, 10)
-    kms_multi_region                = optional(bool, false)
+    kms_multi_region = optional(bool, false)
 
     object_lock_legal_hold_status = optional(bool, false)
-    object_lock_configuration     = optional(any, null)
-    enable_key_rotation           = optional(bool, false)
+    object_lock_configuration = optional(any, null)
+    enable_key_rotation = optional(bool, false)
     replication_configuration = optional(
       object({
         id                     = string
         destination_bucket_arn = string
         kms_key_replica_arn    = string
-    }), null)
+      }), null)
 
     lambda_role_arn = optional(string, null)
   })
@@ -48,9 +48,21 @@ variable "create_idp_metadata_bucket" {
   default     = true
 }
 
+variable "create_lambda_code_bucket" {
+  type        = bool
+  description = "Create lambda code bucket."
+  default     = true
+}
+
 variable "idp_metadata_bucket_prefix" {
   type        = string
   description = "Idp metadata bucket prefix."
+  default     = ""
+}
+
+variable "lambda_code_bucket_prefix" {
+  type        = string
+  description = "Lambda code bucket prefix."
   default     = ""
 }
 
