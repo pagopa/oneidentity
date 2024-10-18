@@ -99,7 +99,7 @@ jobs:
 
       - name: Update Lambda function (${{ matrix.environment }})
         run: |
-          aws s3 cp fileb://src/oneid/oneid-lambda-update-idp-metadata/target/function.zip ${{vars.LAMBDA_CODE_BUCKET_PATH}}/${{vars.LAMBDA_UPDATE_IDP_METADATA_KEY}}
+          aws s3 cp src/oneid/oneid-lambda-update-idp-metadata/target/function.zip ${{vars.LAMBDA_CODE_BUCKET_PATH}}/${{vars.LAMBDA_UPDATE_IDP_METADATA_KEY}}
 
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
