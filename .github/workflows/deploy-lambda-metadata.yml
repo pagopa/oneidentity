@@ -97,8 +97,12 @@ jobs:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ matrix.region }}
 
+      - name: Update Lambda function (${{ matrix.environment }})
+        run: |
+          aws s3 cp src/oneid/oneid-lambda-service-metadata/target/function.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_METADATA_KEY}}
+
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
           aws lambda update-function-code \
           --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-metadata \
-          --zip-file fileb://src/oneid/oneid-lambda-service-metadata/target/function.zip
+          --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_METADATA_KEY}}
