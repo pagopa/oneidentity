@@ -240,7 +240,8 @@ module "s3_assertions_bucket" {
   replication_configuration = local.replication_configuration
 
   tags = {
-    Name = local.bucket_name
+    Name   = local.bucket_name
+    Backup = "True"
   }
 }
 

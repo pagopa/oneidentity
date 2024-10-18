@@ -370,3 +370,8 @@ module "monitoring" {
   }
 }
 
+module "backup" {
+  source                     = "../../modules/backup"
+  prefix                     = local.project 
+}
+
