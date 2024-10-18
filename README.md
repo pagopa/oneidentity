@@ -189,4 +189,15 @@ export AWS_PROFILE=local
 aws dynamodb batch-write-item --request-items file://BatchWriteItem.txt --endpoint-url http://localhost:8000 --region eu-south-1 --profile local
 ```
 
+**SSM debug commands**
+Some useful debugging commands for SSM, first let's get into runnung docker instance
+```shell
+docker exec -it aws-local-ssm bash
+```
 
+Then try to retrieve some values
+```shell
+export AWS_ACCESS_KEY_ID=test-key
+export AWS_SECRET_ACCESS_KEY=test-secret
+aws ssm get-parameter --region eu-south-1 --endpoint http://localhost:4566 --name "cert.pem"
+```
