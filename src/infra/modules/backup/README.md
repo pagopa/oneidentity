@@ -30,6 +30,8 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_backup_name"></a> [backup\_name](#input\_backup\_name) | Backup name. This name will be use to assign a name to the vault and the plane | `string` | n/a | yes |
+| <a name="input_backup_rule"></a> [backup\_rule](#input\_backup\_rule) | A rule object that specifies a scheduled task that is used to back up a selection of resources | `any` | n/a | yes |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | n/a | `string` | `"Prefix to assign to the resources."` | no |
 
 ## Outputs
