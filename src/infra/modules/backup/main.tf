@@ -91,7 +91,7 @@ resource "aws_iam_role_policy" "backup" {
 
 module "aws_backup" {
   source       = "git::https://github.com/pagopa/terraform-aws-backup.git?ref=v1.1.0"
-  name         = "s3-backup"
+  name         = var.backup_name
   iam_role_arn = aws_iam_role.backup.arn
 
   selection_tag = {
@@ -101,17 +101,5 @@ module "aws_backup" {
 
   enable_vault_lock_governance = false
 
-  backup_rule = [{
-    rule_name = "backup_daily_rule"
-    //schedule          = "cron(0 14 * * ? *)"
-    start_window      = 60
-    completion_window = 140
-    lifecycle = {
-      delete_after = 14
-    }
-    },
-    {
-      rule_name = "backup_default_rule"
-    }
-  ]
+  backup_rule = var.backup_rule
 }
