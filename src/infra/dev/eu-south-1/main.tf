@@ -91,6 +91,8 @@ module "storage" {
   github_repository           = "pagopa/oneidentity"
   account_id                  = data.aws_caller_identity.current.account_id
 }
+
+
 module "sns" {
   source            = "../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
@@ -370,7 +372,7 @@ module "monitoring" {
 }
 
 module "backup" {
-  source                     = "../../modules/backup"
-  prefix                     = local.project 
+  source = "../../modules/backup"
+  prefix = local.project
 }
 

@@ -22,4 +22,6 @@ locals {
       }
     ]
   })
+
+  bucket_lambda_code = format("lambda-code-%s", random_integer.bucket_lambda_code_suffix.result)
 }
