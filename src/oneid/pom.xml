@@ -262,7 +262,7 @@
             </modules>
         </profile>
         <profile>
-            <id>oneid-lambda-idp-mockaggregate</id>
+            <id>oneid-lambda-idp-mock-aggregate</id>
             <modules>
                 <module>oneid-common</module>
                 <module>oneid-lambda-idp-mock</module>
