@@ -39,7 +39,8 @@ resource "aws_iam_policy" "deploy_lambda" {
       },
       {
         Action = [
-          "s3:PutObject"
+          "s3:PutObject",
+          "s3:GetObject"
         ]
         Effect = "Allow"
         Resource = [
@@ -353,12 +354,16 @@ module "is_gh_integration_lambda" {
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 
-  allowed_triggers = [{
-    sns = {
-      principal  = "sns.amazonaws.com"
-      source_arn = var.is_gh_integration_lambda.sns_topic_arn
-    }
-  }, {}][var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1]
+  allowed_triggers = [
+    {
+      sns = {
+        principal  = "sns.amazonaws.com"
+        source_arn = var.is_gh_integration_lambda.sns_topic_arn
+      }
+    }, {}
+    ][
+    var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1
+  ]
 
   memory_size = 512
   timeout     = 30
@@ -403,7 +408,8 @@ module "security_group_lambda_assertion" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
-  var.assertion_lambda.vpc_s3_prefix_id, ]
+    var.assertion_lambda.vpc_s3_prefix_id,
+  ]
   egress_rules = ["https-443-tcp"]
 }
 
