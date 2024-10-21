@@ -65,3 +65,9 @@ output "client_registration_lambda_arn" {
 output "assertion_lambda_arn" {
   value = module.assertion_lambda.lambda_function_arn
 }
+
+
+## S3 buket for lambda code ##
+output "s3_lambda_code_bucket" {
+  value = module.s3_lambda_code_bucket.s3_bucket_id
+}

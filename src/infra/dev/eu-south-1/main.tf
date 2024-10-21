@@ -87,11 +87,12 @@ module "storage" {
   }
   assertions_crawler_schedule = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix  = "idp-metadata"
-  lambda_code_bucket_prefix   = "lambda-code"
   assets_bucket_prefix        = "assets"
   github_repository           = "pagopa/oneidentity"
   account_id                  = data.aws_caller_identity.current.account_id
 }
+
+
 module "sns" {
   source            = "../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
@@ -371,7 +372,7 @@ module "monitoring" {
 }
 
 module "backup" {
-  source                     = "../../modules/backup"
-  prefix                     = local.project 
+  source = "../../modules/backup"
+  prefix = local.project
 }
 

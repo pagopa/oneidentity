@@ -83,7 +83,7 @@ resource "aws_iam_policy" "backup" {
 }
 
 resource "aws_iam_role_policy" "backup" {
-  name   = "${var.prefix}-aws-backup-role-policy"# Replace with your desired role policy name
+  name   = "${var.prefix}-aws-backup-role-policy" # Replace with your desired role policy name
   role   = aws_iam_role.backup.name
   policy = aws_iam_policy.backup.policy
 }
@@ -102,7 +102,7 @@ module "aws_backup" {
   enable_vault_lock_governance = false
 
   backup_rule = [{
-    rule_name         = "backup_daily_rule"
+    rule_name = "backup_daily_rule"
     //schedule          = "cron(0 14 * * ? *)"
     start_window      = 60
     completion_window = 140

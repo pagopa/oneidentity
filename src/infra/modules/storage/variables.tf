@@ -48,21 +48,9 @@ variable "create_idp_metadata_bucket" {
   default     = true
 }
 
-variable "create_lambda_code_bucket" {
-  type        = bool
-  description = "Create lambda code bucket."
-  default     = true
-}
-
 variable "idp_metadata_bucket_prefix" {
   type        = string
   description = "Idp metadata bucket prefix."
-  default     = ""
-}
-
-variable "lambda_code_bucket_prefix" {
-  type        = string
-  description = "Lambda code bucket prefix."
   default     = ""
 }
 
