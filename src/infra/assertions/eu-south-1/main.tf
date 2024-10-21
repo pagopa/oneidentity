@@ -43,7 +43,7 @@ module "backup" {
     },
     {
       rule_name         = "backup_monthly_rule"
-      schedule          = "cron(0 14 * * ? *)"
+      schedule          = "cron(0 4 1 * *)"
       start_window      = 60
       completion_window = 140
       lifecycle = {
