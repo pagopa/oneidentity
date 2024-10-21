@@ -43,7 +43,7 @@ resource "aws_iam_policy" "deploy_lambda" {
         ]
         Effect = "Allow"
         Resource = [
-          "${module.s3_lambda_code_bucket.s3_bucket_id}/*"
+          "${module.s3_lambda_code_bucket.s3_bucket_arn}/*"
         ]
       }
     ]
