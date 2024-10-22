@@ -10,16 +10,21 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -47,6 +52,7 @@ import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Element;
 
 @ApplicationScoped
 @CustomLogging
@@ -63,15 +69,14 @@ public class IdpMockServiceImpl implements IdpMockService {
   MarshallerFactory marshallerFactory;
 
   @Inject
-  IdpMockServiceImpl(BasicParserPool basicParserPool, Clock clock) throws InitializationException {
+  IdpMockServiceImpl(BasicParserPool basicParserPool, Clock clock) {
     try {
       XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
       ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
       registry.setParserPool(basicParserPool);
       this.basicParserPool = basicParserPool;
-      this.basicParserPool.initialize();
       InitializationService.initialize();
-    } catch (ComponentInitializationException | InitializationException e) {
+    } catch (InitializationException e) {
       throw new RuntimeException(e);
     }
     this.clock = clock;
@@ -193,11 +198,42 @@ public class IdpMockServiceImpl implements IdpMockService {
     return samlResponse;
   }
 
+  @Override
   public AuthnRequest getAuthnRequestFromString(String authnRequest) throws OneIdentityException {
     byte[] decodedAuthnRequest = decodeBase64(authnRequest);
     return unmarshallAuthnRequest(decodedAuthnRequest);
   }
 
+  @Override
+  public String getStringValue(Element element) {
+    StreamResult result = new StreamResult(new StringWriter());
+    try {
+      TransformerFactory
+          .newInstance()
+          .newTransformer()
+          .transform(new DOMSource(element), result);
+    } catch (TransformerException e) {
+      throw new RuntimeException(e);
+    }
+    return result.getWriter().toString();
+  }
+
+  @Override
+  public Element getElementValueFromSamlResponse(Response samlResponse) {
+    Marshaller out = XMLObjectProviderRegistrySupport.getMarshallerFactory()
+        .getMarshaller(samlResponse);
+
+    Element plaintextElement = null;
+    try {
+      plaintextElement = out.marshall(samlResponse);
+    } catch (MarshallingException e) {
+      throw new RuntimeException(e);
+    }
+
+    return plaintextElement;
+  }
+
+  //region private
   private byte[] decodeBase64(String authnRequest) throws OneIdentityException {
     try {
       return Base64.getDecoder().decode(authnRequest);
@@ -245,5 +281,5 @@ public class IdpMockServiceImpl implements IdpMockService {
       throw new RuntimeException();
     }
   }
-
+  //endregion
 }

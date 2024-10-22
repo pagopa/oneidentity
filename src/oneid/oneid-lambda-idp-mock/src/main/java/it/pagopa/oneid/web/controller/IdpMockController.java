@@ -3,13 +3,13 @@ package it.pagopa.oneid.web.controller;
 
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.service.IdpMockServiceImpl;
-import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Base64;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
@@ -22,7 +22,7 @@ public class IdpMockController {
 
   @POST
   @Path("/sso")
-  @Produces(MediaType.APPLICATION_XML)
+  @Produces(MediaType.TEXT_HTML)
   public Response idpMock(@RestForm String authnRequest, @RestForm String relayState)
       throws OneIdentityException {
 
@@ -31,10 +31,26 @@ public class IdpMockController {
     org.opensaml.saml.saml2.core.Response response = idpMockServiceImpl.createSamlResponse(
         inputAuthnRequest);
 
-    String xmlResponse = WebUtils.getStringValue(
-        WebUtils.getElementValueFromSamlResponse(response));
+    String xmlResponse = idpMockServiceImpl.getStringValue(
+        idpMockServiceImpl.getElementValueFromSamlResponse(response));
 
-    return Response.ok(xmlResponse).type(MediaType.APPLICATION_XML).build();
+    String xmlResponseBase64 = Base64.getEncoder().encodeToString(xmlResponse.getBytes());
+
+    String redirectAutoSubmitPOSTForm =
+        "<form method='post' action=" + inputAuthnRequest.getAssertionConsumerServiceURL()
+            + " id='SAMLResponseForm'>" +
+            "<input type='hidden' name='SAMLResponse' value=" + xmlResponseBase64 + " />" +
+            "<input type='hidden' name='RelayState' value=" + relayState + " />" +
+            "<input id='SAMLSubmitButton' type='submit' value='Submit' />" +
+            "</form>" +
+            "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
+            "document.getElementById('SAMLResponseForm').submit();</script>";
+
+    return Response
+        .ok(redirectAutoSubmitPOSTForm)
+        .type(MediaType.TEXT_HTML)
+        .build();
+
   }
 
 }
