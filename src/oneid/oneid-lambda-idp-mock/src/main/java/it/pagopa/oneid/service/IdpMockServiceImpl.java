@@ -41,6 +41,8 @@ import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
@@ -84,6 +86,14 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     issuer.setNameQualifier(authnRequest.getIssuer().getNameQualifier());
     issuer.setFormat(NameIDType.ENTITY);
     samlResponse.setIssuer(issuer);
+    //endregion
+
+    //region Status
+    Status status = buildSAMLObject(Status.class);
+    StatusCode statusCode = buildSAMLObject(StatusCode.class);
+    statusCode.setValue(StatusCode.SUCCESS);
+    status.setStatusCode(statusCode);
+    samlResponse.setStatus(status);
     //endregion
 
     // Start of Assertion
