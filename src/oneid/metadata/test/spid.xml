@@ -221,4 +221,69 @@
             </md:OrganizationURL>
         </md:Organization>
     </md:EntityDescriptor>
+
+    <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                         xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                         ID="_idp_mock"
+                         entityID="https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws">
+        <md:IDPSSODescriptor WantAuthnRequestsSigned="true"
+                             protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <md:KeyDescriptor use="signing">
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIIFRDCCA6ygAwIBAgIUBivSzIQDHa8l6rVT3RAh2EsxU5swDQYJKoZIhvcNAQEN
+                            BQAwgZExHTAbBgNVBAMMFElkcCBNb2NrIE9uZUlkZW50aXR5MQswCQYDVQQGEwJJ
+                            VDENMAsGA1UEBwwEUm9tYTEXMBUGA1UEYQwOUEE6SVQtNU4yVFI1NTcxGzAZBgNV
+                            BAoMEk9uZUlkZW50aXR5SWRwQ29ycDEeMBwGA1UEUwwVaHR0cDovL2xvY2FsaG9z
+                            dDo4MDAwMB4XDTI0MTAyMjA4MzgwN1oXDTM0MTAyMDA4MzgwN1owgZExHTAbBgNV
+                            BAMMFElkcCBNb2NrIE9uZUlkZW50aXR5MQswCQYDVQQGEwJJVDENMAsGA1UEBwwE
+                            Um9tYTEXMBUGA1UEYQwOUEE6SVQtNU4yVFI1NTcxGzAZBgNVBAoMEk9uZUlkZW50
+                            aXR5SWRwQ29ycDEeMBwGA1UEUwwVaHR0cDovL2xvY2FsaG9zdDo4MDAwMIIBojAN
+                            BgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAv+6gu0mc6/76iDqsFvExFUjo35AE
+                            jUAvaxfs6V1qvf31/D4vc+MrhsNu8MLGvoNXTEwKc0Gx6AF9Wr4EqLlWhhKOYLEg
+                            eta6CzHJnpgu8y4PZEAQ2mv3D/5z7uCyWDdYjnJH++y2uOOYfi7HyHCookw287TQ
+                            Nuvf0RjvO0yoyvymtQXJeWMehstorIcr2dw16K62HgV+zdbhBIc6i/kDSOQTHTSG
+                            Y8batgqSxaXrhkx19OFexh9aVDTg3ul60pI9MDHld/gBytj29xHciOUbHfWeTKHn
+                            6heXBMPcwuo65kL+Gc6HYYi4k+NsHq+aEjET13Y5lxCw9vCm1i4BmR6FXmq6oMHO
+                            v/a0weF5DzWt2mWvP7f8hE3QzzVNU983UUPhTLRDuswwO2r7iRRfO/i5pe2fsAaZ
+                            IQ+JcvtFIBVxqFumGo+R9pRq8Hp3tHv5vHhEzT9L+cddKHY3V2IsGzRpkg62fHhH
+                            MJy5ZO2W1BKPvMDdv1tGweZfxDlyjDiiK4yPAgMBAAGjgZEwgY4wCQYDVR0TBAIw
+                            ADAOBgNVHQ8BAf8EBAMCBsAwUgYDVR0gBEswSTAgBgQrTBAGMBgwFgYIKwYBBQUH
+                            AgIwChoIYWdJRGNlcnQwJQYGK0wQBAIBMBswGQYIKwYBBQUHAgIwDRoLY2VydF9T
+                            UF9QdWIwHQYDVR0OBBYEFDdoB64K84XdQ+BajmR1qIie7q1PMA0GCSqGSIb3DQEB
+                            DQUAA4IBgQAY7lrf6NVsI76qSk0GXfaNdXs+Wz45Gn508gj795jCyEdFTvXoplt+
+                            9Djox4NLF4SHzebIrnLHJP+zsAFEPQlnBmmYYCyq2c6KS83yNNsBkeWp9VzrMBsc
+                            x8Yo9SU1F1yP3QfLqIVrPQjfgBuJBvwzCgj+s/WMFT87nMX4GtHOMLIrNM7RRVcK
+                            qya6fdZKMxxpWdet0BeWDBaim6xcrLxTfg7zFqffrf605x6NMSH+WZC+9o/CobLB
+                            NwlyFcmu2LlBqTbpc9zcpriT8eDR1Jzi7wWmfvAFSsgmAwV0IOYVUGiTn6W3ZuUZ
+                            X3vqD44kCZtgwvbD0aYVXQYnuDuurz3CKLhYDRyRQpS80tgrRxtH8S7ohRAYADtM
+                            VWTT0y5mVhtqD3JGI2lyCa+BGxKjilMLRcXOA8OBkXzJsRnRYh5a24TMEePKTAA6
+                            tMvGRGJK6G3vKRE3YU5EydNpIVbc89jJPYkFLabP4cwUw2DXgojPH3MWVSXgyRli
+                            fIuLvr0S2+Y=
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                    Location="https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/slo"
+                                    ResponseLocation="https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/slo"/>
+            <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                    Location="https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/sso"/>
+        </md:IDPSSODescriptor>
+
+        <md:Organization>
+            <md:OrganizationName xml:lang="it">IDP MOCK</md:OrganizationName>
+            <md:OrganizationName xml:lang="en">IDP MOCK</md:OrganizationName>
+            <md:OrganizationDisplayName xml:lang="it">IDP MOCK</md:OrganizationDisplayName>
+            <md:OrganizationDisplayName xml:lang="en">IDP MOCK</md:OrganizationDisplayName>
+            <md:OrganizationURL xml:lang="it">
+                https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/sso
+            </md:OrganizationURL>
+            <md:OrganizationURL xml:lang="en">
+                https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/sso
+            </md:OrganizationURL>
+        </md:Organization>
+    </md:EntityDescriptor>
 </md:EntitiesDescriptor>
