@@ -38,8 +38,9 @@ public class IdpMockController {
 
     String xmlResponseBase64 = Base64.getEncoder().encodeToString(xmlResponse.getBytes());
 
+    // TODO remove hardcoded acs
     String redirectAutoSubmitPOSTForm =
-        "<form method='post' action=" + inputAuthnRequest.getAssertionConsumerServiceURL()
+        "<form method='post' action=https://dev.oneid.pagopa.it/saml/acs"
             + " id='SAMLResponseForm'>" +
             "<input type='hidden' name='SAMLResponse' value=" + xmlResponseBase64 + " />" +
             "<input type='hidden' name='RelayState' value=" + relayState + " />" +
