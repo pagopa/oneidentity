@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service.producers;
+package producers;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
