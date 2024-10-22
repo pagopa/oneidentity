@@ -82,8 +82,10 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
     //region Issuer
     Issuer issuer = buildSAMLObject(Issuer.class);
-    issuer.setValue(authnRequest.getIssuer().getValue());
-    issuer.setNameQualifier(authnRequest.getIssuer().getNameQualifier());
+    // TODO remove hardcoded issuer
+    issuer.setValue("https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+    issuer.setNameQualifier(
+        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
     issuer.setFormat(NameIDType.ENTITY);
     samlResponse.setIssuer(issuer);
     //endregion
@@ -98,8 +100,11 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
     // Start of Assertion
     Issuer issuerAssertion = buildSAMLObject(Issuer.class);
-    issuerAssertion.setValue(authnRequest.getIssuer().getValue());
-    issuerAssertion.setNameQualifier(authnRequest.getIssuer().getNameQualifier());
+    // TODO remove hardcoded issuer
+    issuerAssertion.setValue(
+        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+    issuerAssertion.setNameQualifier(
+        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
     issuerAssertion.setFormat(NameIDType.ENTITY);
 
     Assertion assertion = buildSAMLObject(Assertion.class);
