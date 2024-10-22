@@ -37,6 +37,7 @@ import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyFactory;
@@ -47,7 +48,16 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
+import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.w3c.dom.Element;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
@@ -68,6 +78,8 @@ public class OIDCServiceImpl implements OIDCService {
   Map<String, Client> clientsMap;
   @Inject
   SAMLUtilsConstants samlConstants;
+  @Inject
+  MarshallerFactory marshallerFactory;
 
   @Override
   public JWKSSetDTO getJWKSPublicKey() {
@@ -226,5 +238,33 @@ public class OIDCServiceImpl implements OIDCService {
       Log.debug("client secret not valid");
       throw new InvalidClientException("Client secret not valid");
     }
+  }
+
+  @Override
+  public String getStringValue(Element element) {
+    StreamResult result = new StreamResult(new StringWriter());
+    try {
+      TransformerFactory
+          .newInstance()
+          .newTransformer()
+          .transform(new DOMSource(element), result);
+    } catch (TransformerException e) {
+      throw new RuntimeException(e);
+    }
+    return result.getWriter().toString();
+  }
+
+  @Override
+  public Element getElementValueFromAuthnRequest(AuthnRequest authnRequest) {
+    Marshaller out = marshallerFactory.getMarshaller(authnRequest);
+
+    Element plaintextElement = null;
+    try {
+      plaintextElement = out.marshall(authnRequest);
+    } catch (MarshallingException | NullPointerException e) {
+      throw new RuntimeException(e);
+    }
+
+    return plaintextElement;
   }
 }

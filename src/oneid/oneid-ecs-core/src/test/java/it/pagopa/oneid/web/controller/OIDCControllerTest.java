@@ -47,6 +47,7 @@ import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
+import org.w3c.dom.Element;
 
 @TestProfile(OIDCControllerTestProfile.class)
 @TestHTTPEndpoint(OIDCController.class)
@@ -138,6 +139,11 @@ class OIDCControllerTest {
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString()))
         .thenReturn(authnRequest);
+
+    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = Mockito.mock(Element.class);
+    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
 
     //then
     given()
@@ -301,6 +307,11 @@ class OIDCControllerTest {
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString()))
         .thenReturn(authnRequest);
+
+    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = Mockito.mock(Element.class);
+    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
 
     //then
     given()
@@ -487,6 +498,11 @@ class OIDCControllerTest {
                 Mockito.anyString()))
         .thenReturn(authnRequest);
 
+    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = Mockito.mock(Element.class);
+    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
+
     //then
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -547,6 +563,11 @@ class OIDCControllerTest {
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString()))
         .thenReturn(authnRequest);
+
+    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = Mockito.mock(Element.class);
+    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
 
     //then
     given()
