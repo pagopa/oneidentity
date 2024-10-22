@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.service.IdpMockServiceImpl;
 import jakarta.inject.Inject;
@@ -46,6 +47,8 @@ public class IdpMockController {
             "</form>" +
             "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
             "document.getElementById('SAMLResponseForm').submit();</script>";
+
+    Log.debug("redirect Form: " + redirectAutoSubmitPOSTForm);
 
     return Response
         .ok(redirectAutoSubmitPOSTForm)
