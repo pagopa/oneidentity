@@ -7,12 +7,8 @@ import jakarta.inject.Inject;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-import org.opensaml.core.config.ConfigurationService;
-import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
@@ -40,22 +36,10 @@ public class SAMLUtils {
     this.basicParserPool = basicParserPool;
     this.basicX509Credential = basicX509Credential;
 
-    initialize();
     setNewKeyInfoGenerator();
   }
 
   public SAMLUtils() {
-  }
-
-  private void initialize() throws SAMLUtilsException {
-    try {
-      XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
-      ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
-      registry.setParserPool(basicParserPool);
-      InitializationService.initialize();
-    } catch (InitializationException e) {
-      throw new SAMLUtilsException(e);
-    }
   }
 
   public <T> T buildSAMLObject(Class<? extends XMLObject> clazz) {
