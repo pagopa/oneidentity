@@ -56,7 +56,6 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
   private final Clock clock;
   MarshallerFactory marshallerFactory;
-  BasicParserPool basicParserPool;
 
   @Inject
   public IdpMockServiceImpl(BasicParserPool basicParserPool,
