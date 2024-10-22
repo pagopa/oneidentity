@@ -78,7 +78,8 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     samlResponse.setVersion(SAMLVersion.VERSION_20);
     samlResponse.setIssueInstant(Instant.now(clock));
     samlResponse.setInResponseTo(authnRequest.getID());
-    samlResponse.setDestination(authnRequest.getAssertionConsumerServiceURL());
+    // TODO remove hardcoded Destination
+    samlResponse.setDestination("https://dev.oneid.pagopa.it/saml/acs");
 
     //region Issuer
     Issuer issuer = buildSAMLObject(Issuer.class);
