@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.service.IdpMockServiceImpl;
 import jakarta.inject.Inject;
@@ -37,8 +38,9 @@ public class IdpMockController {
 
     String xmlResponseBase64 = Base64.getEncoder().encodeToString(xmlResponse.getBytes());
 
+    // TODO remove hardcoded acs
     String redirectAutoSubmitPOSTForm =
-        "<form method='post' action=" + inputAuthnRequest.getAssertionConsumerServiceURL()
+        "<form method='post' action=https://dev.oneid.pagopa.it/saml/acs"
             + " id='SAMLResponseForm'>" +
             "<input type='hidden' name='SAMLResponse' value=" + xmlResponseBase64 + " />" +
             "<input type='hidden' name='RelayState' value=" + relayState + " />" +
@@ -46,6 +48,8 @@ public class IdpMockController {
             "</form>" +
             "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
             "document.getElementById('SAMLResponseForm').submit();</script>";
+
+    Log.debug("redirect Form: " + redirectAutoSubmitPOSTForm);
 
     return Response
         .ok(redirectAutoSubmitPOSTForm)
