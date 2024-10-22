@@ -5,6 +5,7 @@ import jakarta.inject.Singleton;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallerFactory;
 
+@Singleton
 public class XMLObjectProviderProducer {
 
   @Singleton
