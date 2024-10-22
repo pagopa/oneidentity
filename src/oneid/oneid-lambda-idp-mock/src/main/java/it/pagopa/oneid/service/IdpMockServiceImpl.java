@@ -20,10 +20,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.opensaml.core.config.ConfigurationService;
-import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -48,6 +44,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
@@ -55,45 +52,33 @@ import org.w3c.dom.Element;
 
 @ApplicationScoped
 @CustomLogging
-public class IdpMockServiceImpl implements IdpMockService {
+public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
   private final Clock clock;
-
-  @Inject
-  SAMLUtils samlUtils;
-
   BasicParserPool basicParserPool;
-
   @Inject
   MarshallerFactory marshallerFactory;
 
   @Inject
-  IdpMockServiceImpl(BasicParserPool basicParserPool, Clock clock) {
-    try {
-      XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
-      ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
-      registry.setParserPool(basicParserPool);
-      this.basicParserPool = basicParserPool;
-      InitializationService.initialize();
-    } catch (InitializationException e) {
-      throw new RuntimeException(e);
-    }
+  public IdpMockServiceImpl(BasicParserPool basicParserPool,
+      BasicX509Credential basicX509Credential, Clock clock) throws SAMLUtilsException {
+    super(basicParserPool, basicX509Credential);
     this.clock = clock;
   }
 
   @Override
   public Response createSamlResponse(AuthnRequest authnRequest) throws SAMLUtilsException {
 
-    Response samlResponse = samlUtils.buildSAMLObject(Response.class);
+    Response samlResponse = buildSAMLObject(Response.class);
 
-    samlResponse.setID(samlUtils.generateSecureRandomId());
+    samlResponse.setID(generateSecureRandomId());
     samlResponse.setVersion(SAMLVersion.VERSION_20);
     samlResponse.setIssueInstant(Instant.now(clock));
     samlResponse.setInResponseTo(authnRequest.getID());
     samlResponse.setDestination(authnRequest.getAssertionConsumerServiceURL());
 
     //region Issuer
-    Issuer issuer = samlUtils.buildSAMLObject(Issuer.class);
+    Issuer issuer = buildSAMLObject(Issuer.class);
     issuer.setValue(authnRequest.getIssuer().getValue());
     issuer.setNameQualifier(authnRequest.getIssuer().getNameQualifier());
     issuer.setFormat(NameIDType.ENTITY);
@@ -101,26 +86,26 @@ public class IdpMockServiceImpl implements IdpMockService {
     //endregion
 
     // Start of Assertion
-    Issuer issuerAssertion = samlUtils.buildSAMLObject(Issuer.class);
+    Issuer issuerAssertion = buildSAMLObject(Issuer.class);
     issuerAssertion.setValue(authnRequest.getIssuer().getValue());
     issuerAssertion.setNameQualifier(authnRequest.getIssuer().getNameQualifier());
     issuerAssertion.setFormat(NameIDType.ENTITY);
 
-    Assertion assertion = samlUtils.buildSAMLObject(Assertion.class);
-    assertion.setID(samlUtils.generateSecureRandomId());
+    Assertion assertion = buildSAMLObject(Assertion.class);
+    assertion.setID(generateSecureRandomId());
     assertion.setVersion(SAMLVersion.VERSION_20);
     assertion.setIssueInstant(Instant.now(clock));
     assertion.setIssuer(issuerAssertion);
 
     //region Subject
-    Subject subject = samlUtils.buildSAMLObject(Subject.class);
-    NameID nameID = samlUtils.buildSAMLObject(NameID.class);
+    Subject subject = buildSAMLObject(Subject.class);
+    NameID nameID = buildSAMLObject(NameID.class);
     nameID.setFormat(NameIDType.TRANSIENT);
-    nameID.setNameQualifier(samlUtils.generateSecureRandomId());
+    nameID.setNameQualifier(generateSecureRandomId());
     subject.setNameID(nameID);
 
-    SubjectConfirmation subjectConfirmation = samlUtils.buildSAMLObject(SubjectConfirmation.class);
-    SubjectConfirmationData subjectConfirmationData = samlUtils.buildSAMLObject(
+    SubjectConfirmation subjectConfirmation = buildSAMLObject(SubjectConfirmation.class);
+    SubjectConfirmationData subjectConfirmationData = buildSAMLObject(
         SubjectConfirmationData.class);
     subjectConfirmationData.setRecipient(SAMLUtilsConstants.ACS_URL);
     subjectConfirmationData.setInResponseTo(authnRequest.getID());
@@ -132,12 +117,12 @@ public class IdpMockServiceImpl implements IdpMockService {
     //endregion
 
     //region Conditions
-    Conditions conditions = samlUtils.buildSAMLObject(Conditions.class);
+    Conditions conditions = buildSAMLObject(Conditions.class);
     conditions.setNotBefore(samlResponse.getIssueInstant());
     conditions.setNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
 
-    AudienceRestriction audienceRestriction = samlUtils.buildSAMLObject(AudienceRestriction.class);
-    Audience audience = samlUtils.buildSAMLObject(Audience.class);
+    AudienceRestriction audienceRestriction = buildSAMLObject(AudienceRestriction.class);
+    Audience audience = buildSAMLObject(Audience.class);
     audience.setURI(SAMLUtilsConstants.SERVICE_PROVIDER_URI);
     audienceRestriction.getAudiences().add(audience);
     conditions.getAudienceRestrictions().add(audienceRestriction);
@@ -146,31 +131,31 @@ public class IdpMockServiceImpl implements IdpMockService {
     //endregion
 
     //region AuthnStatement
-    AuthnStatement authnStatement = samlUtils.buildSAMLObject(AuthnStatement.class);
+    AuthnStatement authnStatement = buildSAMLObject(AuthnStatement.class);
     authnStatement.setAuthnInstant(samlResponse.getIssueInstant());
-    authnStatement.setSessionIndex(samlUtils.generateSecureRandomId());
+    authnStatement.setSessionIndex(generateSecureRandomId());
 
-    AuthnContext authnContext = samlUtils.buildSAMLObject(AuthnContext.class);
-    AuthnContextClassRef authnContextClassRef = samlUtils.buildSAMLObject(
+    AuthnContext authnContext = buildSAMLObject(AuthnContext.class);
+    AuthnContextClassRef authnContextClassRef = buildSAMLObject(
         AuthnContextClassRef.class);
     authnContextClassRef.setURI(AuthLevel.L2.getValue());
     //endregion
 
     //region AttributeStatements
-    AttributeStatement attributeStatement = samlUtils.buildSAMLObject(AttributeStatement.class);
+    AttributeStatement attributeStatement = buildSAMLObject(AttributeStatement.class);
 
-    Attribute attributeSpidCode = samlUtils.buildSAMLObject(Attribute.class);
+    Attribute attributeSpidCode = buildSAMLObject(Attribute.class);
     attributeSpidCode.setName("spidCode");
     attributeSpidCode.setNameFormat(SAMLUtilsConstants.NAME_FORMAT);
-    AttributeValue attributeValueSpidCode = samlUtils.buildSAMLObject(AttributeValue.class);
+    AttributeValue attributeValueSpidCode = buildSAMLObject(AttributeValue.class);
     attributeValueSpidCode.setTextContent("AGID-001");
 
     attributeSpidCode.getAttributeValues().add(attributeValueSpidCode);
 
-    Attribute attributeFiscalNumber = samlUtils.buildSAMLObject(Attribute.class);
+    Attribute attributeFiscalNumber = buildSAMLObject(Attribute.class);
     attributeFiscalNumber.setName("fiscalNumber");
     attributeFiscalNumber.setNameFormat(SAMLUtilsConstants.NAME_FORMAT);
-    AttributeValue attributeValueFiscalNumber = samlUtils.buildSAMLObject(AttributeValue.class);
+    AttributeValue attributeValueFiscalNumber = buildSAMLObject(AttributeValue.class);
     attributeValueFiscalNumber.setTextContent("TINIT-GDASDV00A01H501J");
 
     attributeFiscalNumber.getAttributeValues().add(attributeValueFiscalNumber);
@@ -182,8 +167,8 @@ public class IdpMockServiceImpl implements IdpMockService {
     //endregion
 
     //region Signature
-    Signature signatureSamlResponse = samlUtils.buildSignature(samlResponse);
-    Signature signatureSamlAssertion = samlUtils.buildSignature(assertion);
+    Signature signatureSamlResponse = buildSignature(samlResponse);
+    Signature signatureSamlAssertion = buildSignature(assertion);
     samlResponse.setSignature(signatureSamlResponse);
     assertion.setSignature(signatureSamlAssertion);
     //endregion
