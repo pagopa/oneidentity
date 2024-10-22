@@ -4,6 +4,7 @@ import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
 import java.util.HashMap;
 import java.util.Map;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 
 @Singleton
@@ -11,7 +12,7 @@ public class ConfigBasicParserPool {
 
   @Singleton
   @Produces
-  BasicParserPool basicParserPool() {
+  BasicParserPool basicParserPool() throws ComponentInitializationException {
     BasicParserPool parserPool = new BasicParserPool();
     parserPool.setMaxPoolSize(100);
     parserPool.setCoalescing(true);
@@ -31,6 +32,7 @@ public class ConfigBasicParserPool {
 
     parserPool.setBuilderFeatures(features);
     parserPool.setBuilderAttributes(new HashMap<String, Object>());
+    parserPool.initialize();
     return parserPool;
   }
 

@@ -30,7 +30,6 @@ import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
-import it.pagopa.oneid.web.utils.WebUtils;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
@@ -202,7 +201,8 @@ public class OIDCController {
     }
 
     String encodedAuthnRequest = Base64.getEncoder().encodeToString(
-        WebUtils.getStringValue(WebUtils.getElementValueFromAuthnRequest(authnRequest)).getBytes());
+        oidcServiceImpl.getStringValue(
+            oidcServiceImpl.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
 
     // 7. Persist SAMLSession

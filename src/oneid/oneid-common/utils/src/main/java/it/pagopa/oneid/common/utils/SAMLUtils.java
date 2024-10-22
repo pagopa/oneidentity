@@ -5,7 +5,6 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import javax.xml.namespace.QName;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.opensaml.core.config.ConfigurationService;
@@ -53,9 +52,8 @@ public class SAMLUtils {
       XMLObjectProviderRegistry registry = new XMLObjectProviderRegistry();
       ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
       registry.setParserPool(basicParserPool);
-      basicParserPool.initialize();
       InitializationService.initialize();
-    } catch (ComponentInitializationException | InitializationException e) {
+    } catch (InitializationException e) {
       throw new SAMLUtilsException(e);
     }
   }

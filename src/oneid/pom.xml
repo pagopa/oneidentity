@@ -262,6 +262,13 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-lambda-idp-mock-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-idp-mock</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-all</id>
             <modules>
                 <module>oneid-common</module>
@@ -269,6 +276,7 @@
                 <module>oneid-lambda-client-registration</module>
                 <module>oneid-lambda-service-metadata</module>
                 <module>oneid-lambda-update-idp-metadata</module>
+                <module>oneid-lambda-idp-mock</module>
                 <module>oneid-lambda-is-gh-integration</module>
             </modules>
             <activation>
