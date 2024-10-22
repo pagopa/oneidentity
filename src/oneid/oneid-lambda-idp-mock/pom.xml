@@ -13,7 +13,7 @@
 
     <dependencies>
         <dependency>
-            <artifactId>quarkus-amazon-lambda-rest</artifactId>
+            <artifactId>quarkus-amazon-lambda-http</artifactId>
             <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
@@ -33,10 +33,6 @@
             <groupId>io.quarkus</groupId>
         </dependency>
         <dependency>
-            <artifactId>oauth2-oidc-sdk</artifactId>
-            <groupId>com.nimbusds</groupId>
-        </dependency>
-        <dependency>
             <artifactId>lombok</artifactId>
             <groupId>org.projectlombok</groupId>
         </dependency>
@@ -50,10 +46,6 @@
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-saml-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-impl</artifactId>
         </dependency>
         <dependency>
@@ -62,15 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-security-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
             <artifactId>opensaml-security-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml-profile-api</artifactId>
         </dependency>
         <dependency>
             <artifactId>utils</artifactId>

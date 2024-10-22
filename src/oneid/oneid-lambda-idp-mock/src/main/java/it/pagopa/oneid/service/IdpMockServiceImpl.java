@@ -24,7 +24,6 @@ import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -220,8 +219,7 @@ public class IdpMockServiceImpl implements IdpMockService {
 
   @Override
   public Element getElementValueFromSamlResponse(Response samlResponse) {
-    Marshaller out = XMLObjectProviderRegistrySupport.getMarshallerFactory()
-        .getMarshaller(samlResponse);
+    Marshaller out = marshallerFactory.getMarshaller(samlResponse);
 
     Element plaintextElement = null;
     try {

@@ -23,7 +23,8 @@ public class IdpMockController {
   @POST
   @Path("/sso")
   @Produces(MediaType.TEXT_HTML)
-  public Response idpMock(@RestForm String authnRequest, @RestForm String relayState)
+  public Response idpMock(@RestForm("SAMLRequest") String authnRequest,
+      @RestForm("RelayState") String relayState)
       throws OneIdentityException {
 
     AuthnRequest inputAuthnRequest = idpMockServiceImpl.getAuthnRequestFromString(authnRequest);
