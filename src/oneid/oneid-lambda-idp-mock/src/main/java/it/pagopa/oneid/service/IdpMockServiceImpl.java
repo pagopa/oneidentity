@@ -65,6 +65,7 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     super(basicParserPool, basicX509Credential);
     this.marshallerFactory = marshallerFactory;
     this.clock = clock;
+    this.basicParserPool = basicParserPool;
   }
 
   @Override
