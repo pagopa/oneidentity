@@ -372,7 +372,17 @@ module "monitoring" {
 }
 
 module "backup" {
-  source = "../../modules/backup"
-  prefix = local.project
-}
+  source      = "../../modules/backup"
+  backup_name = "s3-backup"
+  prefix      = local.project
 
+  backup_rule = [{
+    rule_name         = "backup_daily_rule"
+    schedule          = "cron(0 14 * * ? *)"
+    start_window      = 60
+    completion_window = 140
+    lifecycle = {
+      delete_after = 14
+    },
+  }]
+}
