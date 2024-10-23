@@ -116,6 +116,7 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     NameID nameID = buildSAMLObject(NameID.class);
     nameID.setFormat(NameIDType.TRANSIENT);
     nameID.setNameQualifier(generateSecureRandomId());
+    nameID.setValue("test");
     subject.setNameID(nameID);
 
     SubjectConfirmation subjectConfirmation = buildSAMLObject(SubjectConfirmation.class);
@@ -127,6 +128,7 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     subjectConfirmation.setMethod("urn:oasis:names:tc:SAML:2.0:cm:bearer");
     subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
+    subject.getSubjectConfirmations().add(subjectConfirmation);
     assertion.setSubject(subject);
     //endregion
 
@@ -137,7 +139,8 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
     AudienceRestriction audienceRestriction = buildSAMLObject(AudienceRestriction.class);
     Audience audience = buildSAMLObject(Audience.class);
-    audience.setURI(SAMLUtilsConstants.SERVICE_PROVIDER_URI);
+    // TODO remove hardcoded value
+    audience.setURI("https://dev.oneid.pagopa.it");
     audienceRestriction.getAudiences().add(audience);
     conditions.getAudienceRestrictions().add(audienceRestriction);
 
@@ -153,6 +156,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     AuthnContextClassRef authnContextClassRef = buildSAMLObject(
         AuthnContextClassRef.class);
     authnContextClassRef.setURI(AuthLevel.L2.getValue());
+    authnContext.setAuthnContextClassRef(authnContextClassRef);
+    authnStatement.setAuthnContext(authnContext);
+    assertion.getAuthnStatements().add(authnStatement);
     //endregion
 
     //region AttributeStatements
