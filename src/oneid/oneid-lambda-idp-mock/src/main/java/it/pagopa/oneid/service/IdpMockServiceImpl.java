@@ -122,7 +122,8 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     SubjectConfirmation subjectConfirmation = buildSAMLObject(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = buildSAMLObject(
         SubjectConfirmationData.class);
-    subjectConfirmationData.setRecipient(SAMLUtilsConstants.ACS_URL);
+    // TODO remove hardcoded value
+    subjectConfirmationData.setRecipient("https://dev.oneid.pagopa.it/saml/acs");
     subjectConfirmationData.setInResponseTo(authnRequest.getID());
     subjectConfirmationData.setNotOnOrAfter(Instant.now(clock).plusSeconds(120));
     subjectConfirmation.setMethod("urn:oasis:names:tc:SAML:2.0:cm:bearer");
