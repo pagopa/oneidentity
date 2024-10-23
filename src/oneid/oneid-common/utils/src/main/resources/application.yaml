@@ -1,24 +1,26 @@
+# Metadata related values
+
+## Organization related values
+organization_name: ${ORGANIZATION_NAME:testOrgName}
 organization_url: ${ORGANIZATION_URL:http://localhost:8080}
-contact_person_email_address: ${CONTACT_PERSON_EMAIL_ADDRESS:test@mail.it}
 organization_display_name: ${ORGANIZATION_DISPLAY_NAME:testOrgDisplayName}
+## ContactPerson related values
+contact_person_email_address: ${CONTACT_PERSON_EMAIL_ADDRESS:test@mail.it}
+contact_person_telephone_number: ${CONTACT_PERSON_TELEPHONE_NUMBER:+39333}
+contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
+contact_person_given_name: ${CONTACT_PERSON_GIVEN_NAME:test}
+
 metadata_url: ${METADATA_URL:http://localhost:8080/saml/metadata}
 service_provider_uri: ${SERVICE_PROVIDER_URI:http://localhost:8080}
-contact_person_given_name: ${CONTACT_PERSON_GIVEN_NAME:test}
-organization_name: ${ORGANIZATION_NAME:testOrgName}
-contact_person_telephone_number: ${CONTACT_PERSON_TELEPHONE_NUMBER:+39333}
 acs_url: ${ACS_URL:http://localhost:8080/saml/acs}
 slo_url: ${SLO_URL:http://localhost:8080/saml/slo}
+#
+
+# SSM related values
+certificate_name: ${CERTIFICATE_NAME:cert.pem}
+key_name: ${KEY_NAME:key.pem}
+
+# Test related values
 '%test':
   acs_url: https://dev.oneid.pagopa.it/saml/acs
   service_provider_uri: https://dev.oneid.pagopa.it
-contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
-client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
-certificate_name: ${CERTIFICATE_NAME:cert.pem}
-key_name: ${KEY_NAME:key.pem}
-'%prod':
-  quarkus:
-    ssm:
-      aws:
-        credentials:
-          type: default
-        region: eu-south-1
