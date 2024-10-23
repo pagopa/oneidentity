@@ -217,30 +217,6 @@ public class SAMLServiceImpl implements SAMLService {
     }
   }
 
-  private static void validateIssuer(Issuer issuer, String entityID) {
-    // Check if element is missing
-    if (issuer == null) {
-      Log.error("Issuer not found");
-      throw new SAMLValidationException("Issuer not found");
-    }
-    String issuerValue = issuer.getValue();
-    // Check if element value is missing or blank
-    if (issuerValue == null || issuerValue.isBlank()) {
-      Log.error("Issuer value is blank");
-      throw new SAMLValidationException("Issuer value is blank");
-    }
-    // Check if element value is equal to IDP EntityID
-    if (!issuerValue.equals(entityID)) {
-      Log.error("Issuer value does not match IDP EntityID: " + issuer.getValue());
-      throw new SAMLValidationException("Issuer mismatch");
-    }
-    // Check if format attribute is valid
-    if (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY)) {
-      Log.error("Invalid format attribute for Issuer element");
-      throw new SAMLValidationException("Invalid format attribute for Issuer element");
-    }
-  }
-
   private static void validateSubject(Subject subject) {
     if (subject == null || subject.getNameID() == null) {
       Log.error("Subject not correctly initialized");
@@ -265,6 +241,31 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("Invalid NameQualifier for Subject");
     }
 
+  }
+
+  private void validateIssuer(Issuer issuer, String entityID) {
+    // Check if element is missing
+    if (issuer == null) {
+      Log.error("Issuer not found");
+      throw new SAMLValidationException("Issuer not found");
+    }
+    String issuerValue = issuer.getValue();
+    // Check if element value is missing or blank
+    if (issuerValue == null || issuerValue.isBlank()) {
+      Log.error("Issuer value is blank");
+      throw new SAMLValidationException("Issuer value is blank");
+    }
+    // Check if element value is equal to IDP EntityID
+    if (!issuerValue.equals(entityID)) {
+      Log.error("Issuer value does not match IDP EntityID: " + issuer.getValue());
+      throw new SAMLValidationException("Issuer mismatch");
+    }
+    // Check if format attribute is valid
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+        (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY))) {
+      Log.error("Invalid format attribute for Issuer element");
+      throw new SAMLValidationException("Invalid format attribute for Issuer element");
+    }
   }
 
   private void validateIssueInstant(Instant issueInstant, Instant samlRequestIssueInstant)
