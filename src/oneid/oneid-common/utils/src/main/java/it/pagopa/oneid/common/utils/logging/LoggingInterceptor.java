@@ -14,11 +14,15 @@ public class LoggingInterceptor {
   @AroundInvoke
   public Object logMethod(InvocationContext context) throws Exception {
 
-    Log.debug("start");
+    String patternClassMethod =
+        "[" + context.getTarget().getClass().getName() + "." + context.getMethod().getName()
+            + "] ";
+
+    Log.debug(patternClassMethod + "start");
 
     Object result = context.proceed();
 
-    Log.debug("end");
+    Log.debug(patternClassMethod + "end");
 
     return result;
   }

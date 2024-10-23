@@ -2,9 +2,6 @@ quarkus:
   dynamodb:
     devservices:
       enabled: 'false'
-  log:
-    console:
-      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) [%C.%M] %s%e%n"
 '%dev':
   quarkus:
     dynamodb:
