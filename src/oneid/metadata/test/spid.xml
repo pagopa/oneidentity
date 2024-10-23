@@ -257,7 +257,7 @@
     </EntityDescriptor>
     <EntityDescriptor
             ID="_idp_mock"
-            entityID="https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws">
+            entityID="https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws">
         <IDPSSODescriptor WantAuthnRequestsSigned="true"
                           protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
             <KeyDescriptor use="signing">
@@ -298,13 +298,13 @@
                 </KeyInfo>
             </KeyDescriptor>
             <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                 Location="https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws/idp-mock/slo"
-                                 ResponseLocation="https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws/idp-mock/slo"/>
+                                 Location="https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws/idp-mock/slo"
+                                 ResponseLocation="https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws/idp-mock/slo"/>
             <NameIDFormat>
                 urn:oasis:names:tc:SAML:2.0:nameid-format:transient
             </NameIDFormat>
             <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-                                 Location="https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws/idp-mock/sso"/>
+                                 Location="https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws/idp-mock/sso"/>
         </IDPSSODescriptor>
         <Organization>
             <OrganizationName xml:lang="it">
@@ -320,10 +320,10 @@
                 IDP MOCK
             </OrganizationDisplayName>
             <OrganizationURL xml:lang="it">
-                https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/sso
+                https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws/idp-mock/sso
             </OrganizationURL>
             <OrganizationURL xml:lang="en">
-                https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws/idp-mock/sso
+                https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws/idp-mock/sso
             </OrganizationURL>
         </Organization>
     </EntityDescriptor>
