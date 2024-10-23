@@ -161,7 +161,7 @@ module "backend" {
       },
       {
         name  = "SERVICE_PROVIDER_URI"
-        value = "https://${var.r53_dns_zone.name}"
+        value = "https://${var.r53_dns_zone.name}/pub-ag-full"
       },
       {
         name  = "ACS_URL"

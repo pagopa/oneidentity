@@ -26,6 +26,7 @@ public class SAMLUtilsConstants {
   public static String NAMESPACE_PREFIX_SPID = "spid";
   public static String NAMESPACE_PREFIX_CIE = "cie";
   public static String LOCAL_NAME_IPA = "IPACode";
+  public static String LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR = "PublicServicesFullAggregator";
   public static String LOCAL_NAME_VAT_NUMBER = "VATNumber";
   public static String LOCAL_NAME_FISCAL_CODE = "FiscalCode";
   public static String LOCAL_NAME_MUNICIPALITY = "Municipality";

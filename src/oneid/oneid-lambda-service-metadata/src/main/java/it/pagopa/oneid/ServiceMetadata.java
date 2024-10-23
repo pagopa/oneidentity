@@ -78,7 +78,9 @@ public class ServiceMetadata {
 
     entityDescriptor.setOrganization(samlUtils.buildOrganization());
     entityDescriptor.getContactPersons()
-        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri()));
+        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri(), "aggregated"));
+    entityDescriptor.getContactPersons()
+        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri(), "aggregator"));
     entityDescriptor.getRoleDescriptors().add(spssoDescriptor);
     entityDescriptor.getNamespaceManager()
         .registerNamespaceDeclaration(

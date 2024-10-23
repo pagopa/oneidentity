@@ -9,6 +9,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
@@ -20,6 +21,9 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
+
+import javax.xml.namespace.QName;
+
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -28,6 +32,7 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
@@ -115,7 +120,7 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return attribute;
   }
 
-  public Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
+  public Extensions buildExtensions(String namespacePrefix, String namespaceUri, String aggrType) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
     XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
@@ -130,11 +135,19 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
         namespacePrefix);
     fiscalCode.setTextContent(FISCAL_CODE);
     extensions.getUnknownXMLObjects().add(vatNumber);
-    XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
-        LOCAL_NAME_PUBLIC,
-        namespacePrefix);
-    pub.setTextContent("");
-    extensions.getUnknownXMLObjects().add(pub);
+    if (aggrType == "aggregated") {
+      XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
+          LOCAL_NAME_PUBLIC,
+          namespacePrefix);
+      pub.setTextContent("");
+      extensions.getUnknownXMLObjects().add(pub);
+    } else {
+      XSAny publicServicesFullAggregator = new XSAnyBuilder().buildObject(namespaceUri,
+          LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR,
+          namespacePrefix);
+      extensions.getUnknownXMLObjects().add(publicServicesFullAggregator);
+    }
+
     if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
       XSAny municipality = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_MUNICIPALITY,
           namespacePrefix);
@@ -213,15 +226,16 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return organizationURL;
   }
 
-  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
+  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri, String aggrType) {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
     contactPerson.setType(
         (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) ? ContactPersonTypeEnumeration.ADMINISTRATIVE
             : ContactPersonTypeEnumeration.OTHER);
     contactPerson.getEmailAddresses().add(buildEmailAddress());
-    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
-
+    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri, aggrType));
+    contactPerson.getUnknownAttributes().put(new QName("https://spid.gov.it/saml-extensions", "entityType", "spid"),
+        "spid:" + aggrType);
     return contactPerson;
   }
 
@@ -238,6 +252,5 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
     return emailAddress;
   }
-
 
 }

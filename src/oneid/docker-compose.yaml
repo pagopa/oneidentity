@@ -10,7 +10,7 @@ services:
   aws-local-ssm:
     image: "localstack/localstack"
     ports:
-      - "4566:4583"
+      - "4566:4566"
     container_name: aws-local-ssm
     environment:
       - SERVICES=ssm
