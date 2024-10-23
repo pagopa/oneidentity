@@ -15,10 +15,6 @@ contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
 client_registrations_table_name: ${CLIENT_REGISTRATIONS_TABLE_NAME:ClientRegistrations}
 certificate_name: ${CERTIFICATE_NAME:cert.pem}
 key_name: ${KEY_NAME:key.pem}
-quarkus:
-  log:
-    console:
-      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) [%C.%M] %s%e%n"
 '%prod':
   quarkus:
     ssm:
