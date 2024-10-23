@@ -9,6 +9,7 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,6 +30,9 @@ import java.util.Set;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallerFactory;
+import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.impl.XSAnyImpl;
@@ -37,6 +41,7 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
@@ -47,6 +52,7 @@ import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
+import org.opensaml.xmlsec.signature.support.Signer;
 
 @ApplicationScoped
 @CustomLogging
@@ -57,8 +63,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
-      BasicX509Credential basicX509Credential) throws SAMLUtilsException {
-    super(basicParserPool, basicX509Credential);
+      BasicX509Credential basicX509Credential, MarshallerFactory marshallerFactory)
+      throws SAMLUtilsException {
+    super(basicParserPool, basicX509Credential, marshallerFactory);
   }
 
   public Issuer buildIssuer() {
@@ -113,6 +120,20 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throw new SAMLValidationException(e);
     }
 
+  }
+
+  public void marshallAndSign(AuthnRequest authnRequest, Signature signature) {
+    Marshaller out = marshallerFactory
+        .getMarshaller(authnRequest);
+    if (out == null) {
+      throw new GenericAuthnRequestCreationException();
+    }
+    try {
+      out.marshall(authnRequest);
+      Signer.signObject(signature);
+    } catch (SignatureException | MarshallingException e) {
+      throw new GenericAuthnRequestCreationException(e);
+    }
   }
 
   // Helper Methods

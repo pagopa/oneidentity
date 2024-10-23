@@ -28,6 +28,7 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -59,8 +60,9 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
   @Inject
   public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool,
-      BasicX509Credential basicX509Credential) throws SAMLUtilsException {
-    super(basicParserPool, basicX509Credential);
+      BasicX509Credential basicX509Credential, MarshallerFactory marshallerFactory)
+      throws SAMLUtilsException {
+    super(basicParserPool, basicX509Credential, marshallerFactory);
     // TODO: env var fileName (DEV, UAT, PROD)
   }
 

@@ -24,9 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.opensaml.core.xml.io.Marshaller;
-import org.opensaml.core.xml.io.MarshallerFactory;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -48,8 +45,6 @@ import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.xmlsec.signature.Signature;
-import org.opensaml.xmlsec.signature.support.SignatureException;
-import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
 
 @ApplicationScoped
@@ -66,9 +61,6 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Inject
   IDPConnectorImpl idpConnectorImpl;
-
-  @Inject
-  MarshallerFactory marshallerFactory;
 
   @ConfigProperty(name = "timestamp_spid")
   String TIMESTAMP_SPID;
@@ -430,7 +422,7 @@ public class SAMLServiceImpl implements SAMLService {
     try {
       Signature signature = samlUtils.buildSignature(authnRequest);
       authnRequest.setSignature(signature);
-      marshallAndSign(authnRequest, signature);
+      samlUtils.marshallAndSign(authnRequest, signature);
     } catch (SAMLUtilsException e) {
       throw new GenericAuthnRequestCreationException(e);
     }
@@ -452,20 +444,6 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
     return authnRequest;
-  }
-
-  private void marshallAndSign(AuthnRequest authnRequest, Signature signature) {
-    Marshaller out = marshallerFactory
-        .getMarshaller(authnRequest);
-    if (out == null) {
-      throw new GenericAuthnRequestCreationException();
-    }
-    try {
-      out.marshall(authnRequest);
-      Signer.signObject(signature);
-    } catch (SignatureException | MarshallingException e) {
-      throw new GenericAuthnRequestCreationException(e);
-    }
   }
 
   private void validateParameters(String idpSSOEndpoint, int assertionConsumerServiceIndex,

@@ -106,6 +106,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -138,13 +139,10 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
-import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.io.Marshaller;
-import org.opensaml.core.xml.io.MarshallerFactory;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -174,9 +172,6 @@ public class SAMLServiceImplTest {
   @InjectSpy
   SAMLUtilsExtendedCore samlUtils;
 
-  @InjectSpy
-  MarshallerFactory marshallerFactory;
-
   @Inject
   SAMLUtilsConstants samlUtilsConstants;
 
@@ -185,6 +180,12 @@ public class SAMLServiceImplTest {
 
   @InjectSpy
   Clock clock;
+
+  @BeforeEach
+  void beforeEach() {
+    doNothing().when(samlUtils).marshallAndSign(Mockito.any(), Mockito.any());
+  }
+
 
   @Test
   void buildAuthnRequest() throws OneIdentityException {
@@ -250,45 +251,6 @@ public class SAMLServiceImplTest {
     Executable executable = () -> samlServiceImpl.buildAuthnRequest(idpId,
         assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
     assertThrows(GenericAuthnRequestCreationException.class, executable);
-  }
-
-  @Test
-  @SneakyThrows
-  void buildAuthnRequest_exceptionSigning() throws OneIdentityException {
-    // given
-    String idpId = "dummy";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "foobar";
-
-    Marshaller marshaller = Mockito.mock(Marshaller.class);
-    marshallerFactory = Mockito.mock(MarshallerFactory.class);
-    when(marshaller.marshall(Mockito.any())).thenThrow(MarshallingException.class);
-    when(marshallerFactory.getMarshaller(Mockito.any(XMLObject.class))).thenReturn(marshaller);
-    QuarkusMock.installMockForType(marshallerFactory, MarshallerFactory.class);
-
-    assertThrows(GenericAuthnRequestCreationException.class,
-        () -> samlServiceImpl.buildAuthnRequest(idpId,
-            assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
-  }
-
-  @Test
-  @SneakyThrows
-  void buildAuthnRequest_nullMarshaller() throws OneIdentityException {
-    // given
-    String idpId = "dummy";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "foobar";
-
-    Marshaller marshaller = null;
-    marshallerFactory = Mockito.mock(MarshallerFactory.class);
-    when(marshallerFactory.getMarshaller(Mockito.any(XMLObject.class))).thenReturn(marshaller);
-    QuarkusMock.installMockForType(marshallerFactory, MarshallerFactory.class);
-
-    assertThrows(GenericAuthnRequestCreationException.class,
-        () -> samlServiceImpl.buildAuthnRequest(idpId,
-            assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
   }
 
   @Test

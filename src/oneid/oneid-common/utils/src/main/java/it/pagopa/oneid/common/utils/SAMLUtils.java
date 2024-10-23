@@ -10,6 +10,7 @@ import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
@@ -28,13 +29,16 @@ public class SAMLUtils {
   private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator = new RandomIdentifierGenerationStrategy();
   protected BasicX509Credential basicX509Credential;
   protected BasicParserPool basicParserPool;
+  protected MarshallerFactory marshallerFactory;
   private KeyInfoGenerator keyInfoGenerator;
 
   @Inject
-  public SAMLUtils(BasicParserPool basicParserPool, BasicX509Credential basicX509Credential)
+  public SAMLUtils(BasicParserPool basicParserPool, BasicX509Credential basicX509Credential,
+      MarshallerFactory marshallerFactory)
       throws SAMLUtilsException {
     this.basicParserPool = basicParserPool;
     this.basicX509Credential = basicX509Credential;
+    this.marshallerFactory = marshallerFactory;
 
     setNewKeyInfoGenerator();
   }

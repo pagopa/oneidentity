@@ -57,16 +57,13 @@ import org.w3c.dom.Element;
 public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
   private final Clock clock;
-  MarshallerFactory marshallerFactory;
 
   @Inject
   public IdpMockServiceImpl(BasicParserPool basicParserPool,
       BasicX509Credential basicX509Credential, MarshallerFactory marshallerFactory
       , Clock clock) throws SAMLUtilsException {
-    super(basicParserPool, basicX509Credential);
-    this.marshallerFactory = marshallerFactory;
+    super(basicParserPool, basicX509Credential, marshallerFactory);
     this.clock = clock;
-    this.basicParserPool = basicParserPool;
   }
 
   @Override

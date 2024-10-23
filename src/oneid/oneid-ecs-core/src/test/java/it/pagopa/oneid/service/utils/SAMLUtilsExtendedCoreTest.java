@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.commons.util.StringUtils;
+import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
@@ -48,6 +49,9 @@ public class SAMLUtilsExtendedCoreTest {
 
   @Inject
   SAMLUtilsExtendedCore samlUtilsExtendedCore;
+
+  @Inject
+  MarshallerFactory marshallerFactory;
 
 
   @Test
@@ -130,7 +134,7 @@ public class SAMLUtilsExtendedCoreTest {
   void getSAMLResponseFromString_unMarshallingException() {
 
     String samlResponseString = ISSUE_INSTANT_ASSERTION_UNCORRECT_FORMAT_SAML_RESPONSE_38;
-    
+
     OneIdentityException exception = assertThrows(OneIdentityException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(samlResponseString));
     assertEquals(UnmarshallingException.class, exception.getCause().getClass());
