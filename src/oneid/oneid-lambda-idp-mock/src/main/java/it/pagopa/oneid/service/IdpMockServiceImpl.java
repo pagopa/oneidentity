@@ -81,9 +81,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     //region Issuer
     Issuer issuer = buildSAMLObject(Issuer.class);
     // TODO remove hardcoded issuer
-    issuer.setValue("https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+    issuer.setValue("https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuer.setNameQualifier(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuer.setFormat(NameIDType.ENTITY);
     samlResponse.setIssuer(issuer);
     //endregion
@@ -100,9 +100,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     Issuer issuerAssertion = buildSAMLObject(Issuer.class);
     // TODO remove hardcoded issuer
     issuerAssertion.setValue(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuerAssertion.setNameQualifier(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuerAssertion.setFormat(NameIDType.ENTITY);
 
     Assertion assertion = buildSAMLObject(Assertion.class);
@@ -116,17 +116,20 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     NameID nameID = buildSAMLObject(NameID.class);
     nameID.setFormat(NameIDType.TRANSIENT);
     nameID.setNameQualifier(generateSecureRandomId());
+    nameID.setValue("test");
     subject.setNameID(nameID);
 
     SubjectConfirmation subjectConfirmation = buildSAMLObject(SubjectConfirmation.class);
     SubjectConfirmationData subjectConfirmationData = buildSAMLObject(
         SubjectConfirmationData.class);
-    subjectConfirmationData.setRecipient(SAMLUtilsConstants.ACS_URL);
+    // TODO remove hardcoded value
+    subjectConfirmationData.setRecipient("https://dev.oneid.pagopa.it/saml/acs");
     subjectConfirmationData.setInResponseTo(authnRequest.getID());
     subjectConfirmationData.setNotOnOrAfter(Instant.now(clock).plusSeconds(120));
     subjectConfirmation.setMethod("urn:oasis:names:tc:SAML:2.0:cm:bearer");
     subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
+    subject.getSubjectConfirmations().add(subjectConfirmation);
     assertion.setSubject(subject);
     //endregion
 
@@ -137,7 +140,8 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
 
     AudienceRestriction audienceRestriction = buildSAMLObject(AudienceRestriction.class);
     Audience audience = buildSAMLObject(Audience.class);
-    audience.setURI(SAMLUtilsConstants.SERVICE_PROVIDER_URI);
+    // TODO remove hardcoded value
+    audience.setURI("https://dev.oneid.pagopa.it");
     audienceRestriction.getAudiences().add(audience);
     conditions.getAudienceRestrictions().add(audienceRestriction);
 
@@ -153,6 +157,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     AuthnContextClassRef authnContextClassRef = buildSAMLObject(
         AuthnContextClassRef.class);
     authnContextClassRef.setURI(AuthLevel.L2.getValue());
+    authnContext.setAuthnContextClassRef(authnContextClassRef);
+    authnStatement.setAuthnContext(authnContext);
+    assertion.getAuthnStatements().add(authnStatement);
     //endregion
 
     //region AttributeStatements
