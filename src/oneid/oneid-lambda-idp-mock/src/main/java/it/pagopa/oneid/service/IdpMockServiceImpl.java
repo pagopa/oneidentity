@@ -81,9 +81,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     //region Issuer
     Issuer issuer = buildSAMLObject(Issuer.class);
     // TODO remove hardcoded issuer
-    issuer.setValue("https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+    issuer.setValue("https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuer.setNameQualifier(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuer.setFormat(NameIDType.ENTITY);
     samlResponse.setIssuer(issuer);
     //endregion
@@ -100,9 +100,9 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     Issuer issuerAssertion = buildSAMLObject(Issuer.class);
     // TODO remove hardcoded issuer
     issuerAssertion.setValue(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuerAssertion.setNameQualifier(
-        "https://a5uetwo5yhjuaqnsuva4oauskq0wufvb.lambda-url.eu-south-1.on.aws");
+        "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws");
     issuerAssertion.setFormat(NameIDType.ENTITY);
 
     Assertion assertion = buildSAMLObject(Assertion.class);
