@@ -1,7 +1,7 @@
 package it.pagopa.oneid.exception.mapper;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -291,7 +291,7 @@ public class ExceptionMapper {
       return ResponseBuilder
           .create(FOUND)
           .location(new URI(
-              SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
+              BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
                   StandardCharsets.UTF_8))).build();
     } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();

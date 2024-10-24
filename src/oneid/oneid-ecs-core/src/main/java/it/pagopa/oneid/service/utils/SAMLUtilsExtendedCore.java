@@ -1,7 +1,7 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ENTITY_ID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -69,7 +69,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   public Issuer buildIssuer() {
-    return createIssuer(SERVICE_PROVIDER_URI);
+    return createIssuer(ENTITY_ID);
   }
 
   public NameIDPolicy buildNameIdPolicy() {

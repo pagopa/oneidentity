@@ -1,6 +1,6 @@
 package it.pagopa.oneid.service.utils;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static it.pagopa.oneid.connector.KMSConnector.concatenateArrays;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_JWT_MIN;
 import com.nimbusds.jose.JOSEObjectType;
@@ -33,7 +33,7 @@ public class OIDCUtils {
       List<AttributeDTO> attributeDTOList, String nonce) {
     JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
         .subject(requestId)
-        .issuer(SERVICE_PROVIDER_URI)
+        .issuer(BASE_PATH)
         .audience(clientId)
         .issueTime(new Date())
         .claim("nonce", nonce)

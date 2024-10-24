@@ -141,7 +141,7 @@ public class IdpMockServiceImpl extends SAMLUtils implements IdpMockService {
     AudienceRestriction audienceRestriction = buildSAMLObject(AudienceRestriction.class);
     Audience audience = buildSAMLObject(Audience.class);
     // TODO remove hardcoded value
-    audience.setURI("https://dev.oneid.pagopa.it");
+    audience.setURI("https://dev.oneid.pagopa.it/pub-ag-full");
     audienceRestriction.getAudiences().add(audience);
     conditions.getAudienceRestrictions().add(audienceRestriction);
 
