@@ -7,10 +7,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Singleton
 public class SAMLUtilsConstants {
 
-  public static String METADATA_URL;
+  public static String ENTITY_ID;
+  public static String BASE_PATH;
   public static String ACS_URL;
   public static String SLO_URL;
-  public static String SERVICE_PROVIDER_URI;
   public static String ORGANIZATION_NAME;
   public static String ORGANIZATION_NAME_XML_LANG = "it";
   public static String ORGANIZATION_DISPLAY_NAME;
@@ -41,10 +41,10 @@ public class SAMLUtilsConstants {
 
   @Inject
   SAMLUtilsConstants(
-      @ConfigProperty(name = "metadata_url") String metadataUrl,
+      @ConfigProperty(name = "entity_id") String entityId,
+      @ConfigProperty(name = "base_path") String basePath,
       @ConfigProperty(name = "acs_url") String acsUrl,
       @ConfigProperty(name = "slo_url") String sloUrl,
-      @ConfigProperty(name = "service_provider_uri") String serviceProviderUri,
       @ConfigProperty(name = "organization_name") String organizationName,
       @ConfigProperty(name = "organization_display_name") String organizationDisplayName,
       @ConfigProperty(name = "organization_url") String organizationUrl,
@@ -53,10 +53,10 @@ public class SAMLUtilsConstants {
       @ConfigProperty(name = "contact_person_email_address") String contactPersonEmailAddress,
       @ConfigProperty(name = "contact_person_telephone_number") String contactPersonTelephoneNumber
   ) {
-    METADATA_URL = metadataUrl;
+    ENTITY_ID = entityId;
+    BASE_PATH = basePath;
     ACS_URL = acsUrl;
     SLO_URL = sloUrl;
-    SERVICE_PROVIDER_URI = serviceProviderUri;
     ORGANIZATION_NAME = organizationName;
     ORGANIZATION_DISPLAY_NAME = organizationDisplayName;
     ORGANIZATION_URL = organizationUrl;

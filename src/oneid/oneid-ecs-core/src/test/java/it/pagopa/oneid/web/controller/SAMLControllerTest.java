@@ -1,7 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -126,7 +126,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
         .thenThrow(new OneIdentityException());
 
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
 
@@ -157,7 +157,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -187,7 +187,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -218,7 +218,7 @@ public class SAMLControllerTest {
     doThrow(new OneIdentityException()).when(samlServiceImpl).checkSAMLStatus(Mockito.any());
 
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -251,7 +251,7 @@ public class SAMLControllerTest {
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any());
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -309,7 +309,7 @@ public class SAMLControllerTest {
     // due to its @Dependent scope which does not permit to use the @InjectMock annotation
 
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -370,7 +370,7 @@ public class SAMLControllerTest {
     // due to its @Dependent scope which does not permit to use the @InjectMock annotation
 
     // location header to verify
-    String headerLocation = SERVICE_PROVIDER_URI + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()

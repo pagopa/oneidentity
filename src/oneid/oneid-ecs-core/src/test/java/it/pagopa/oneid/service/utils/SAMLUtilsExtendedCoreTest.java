@@ -58,8 +58,8 @@ public class SAMLUtilsExtendedCoreTest {
   void buildIssuer() {
     Issuer issuer = samlUtilsExtendedCore.buildIssuer();
     assertNotNull(issuer);
-    assertEquals(SAMLUtilsConstants.SERVICE_PROVIDER_URI, issuer.getValue());
-    assertEquals(SAMLUtilsConstants.SERVICE_PROVIDER_URI, issuer.getNameQualifier());
+    assertEquals(SAMLUtilsConstants.ENTITY_ID, issuer.getValue());
+    assertEquals(SAMLUtilsConstants.ENTITY_ID, issuer.getNameQualifier());
     assertEquals(NameIDType.ENTITY, issuer.getFormat());
   }
 

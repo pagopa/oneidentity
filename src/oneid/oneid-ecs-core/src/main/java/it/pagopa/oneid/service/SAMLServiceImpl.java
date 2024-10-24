@@ -95,7 +95,7 @@ public class SAMLServiceImpl implements SAMLService {
       Log.error("Destination cannot be null or empty");
       throw new OneIdentityException("Destination not set.");
     }
-    if (!destination.equals(SAMLUtilsConstants.ACS_URL)) {
+    if (!destination.equals(SAMLUtilsConstants.BASE_PATH + SAMLUtilsConstants.ACS_URL)) {
       Log.error("Destination does not match ACS URL: " + destination);
       throw new OneIdentityException("Destination mismatch.");
     }
@@ -128,7 +128,7 @@ public class SAMLServiceImpl implements SAMLService {
       Log.error("Recipient parameter from Subject Confirmation Data not found");
       throw new SAMLValidationException("Recipient not found");
     }
-    if (!recipient.equals(SAMLUtilsConstants.ACS_URL)) {
+    if (!recipient.equals(SAMLUtilsConstants.BASE_PATH + SAMLUtilsConstants.ACS_URL)) {
       Log.error("Recipient parameter does not match ACS URL: " + recipient);
       throw new SAMLValidationException("Recipient mismatch");
     }
@@ -211,7 +211,7 @@ public class SAMLServiceImpl implements SAMLService {
     Audience audience = audienceRestriction.getAudiences().getFirst();
     Element element = audience.getDOM();
     if (element == null || element.getTextContent() == null || !element.getTextContent().strip()
-        .equals(SAMLUtilsConstants.SERVICE_PROVIDER_URI)) {
+        .equals(SAMLUtilsConstants.ENTITY_ID)) {
       Log.error("Audience parameter not equal to service provider entity ID");
       throw new SAMLValidationException("Audience mismatch");
     }

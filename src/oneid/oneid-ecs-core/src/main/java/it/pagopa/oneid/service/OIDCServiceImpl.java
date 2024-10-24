@@ -1,6 +1,6 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN_MIN;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
@@ -103,14 +103,14 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public OIDCProviderMetadata buildOIDCProviderMetadata() {
-    Issuer issuer = new Issuer(SERVICE_PROVIDER_URI);
+    Issuer issuer = new Issuer(BASE_PATH);
     URI jwksURI;
     URI authEndpointURI;
     URI tokenEndpointURI;
     try {
-      jwksURI = new URI(SERVICE_PROVIDER_URI + "/oidc/keys");
-      authEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/authorize");
-      tokenEndpointURI = new URI(SERVICE_PROVIDER_URI + "/oidc/token");
+      jwksURI = new URI(BASE_PATH + "/oidc/keys");
+      authEndpointURI = new URI(BASE_PATH + "/oidc/authorize");
+      tokenEndpointURI = new URI(BASE_PATH + "/oidc/token");
     } catch (URISyntaxException e) {
       Log.error("error during endpoints URI creation: "
           + e.getMessage());

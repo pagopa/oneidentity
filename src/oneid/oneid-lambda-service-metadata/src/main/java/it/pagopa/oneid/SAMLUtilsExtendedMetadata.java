@@ -1,6 +1,7 @@
 package it.pagopa.oneid;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ACS_URL;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_COMPANY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_EMAIL_ADDRESS;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.FISCAL_CODE;
@@ -23,9 +24,6 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_X
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
-
-import javax.xml.namespace.QName;
-
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -34,8 +32,8 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
-
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
@@ -189,14 +187,14 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     assertionConsumerService.setIndex(0);
     assertionConsumerService.setIsDefault(true);
     assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-    assertionConsumerService.setLocation(ACS_URL);
+    assertionConsumerService.setLocation(BASE_PATH + ACS_URL);
 
     return assertionConsumerService;
   }
 
   public SingleLogoutService buildSingleLogoutService() {
     SingleLogoutService singleLogoutService = buildSAMLObject(SingleLogoutService.class);
-    singleLogoutService.setLocation(SLO_URL);
+    singleLogoutService.setLocation(BASE_PATH + SLO_URL);
     singleLogoutService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
 
     return singleLogoutService;
@@ -235,7 +233,8 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return organizationURL;
   }
 
-  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri, String aggrType) {
+  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri,
+      String aggrType) {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
     contactPerson.setType(
