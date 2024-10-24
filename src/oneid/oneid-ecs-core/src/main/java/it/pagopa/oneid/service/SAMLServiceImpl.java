@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -18,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -50,6 +52,18 @@ import org.w3c.dom.Element;
 @ApplicationScoped
 @CustomLogging
 public class SAMLServiceImpl implements SAMLService {
+
+  private final static Set<String> eidasMinimumDataSet = Set.of(
+      //Mandatory attributes
+      Identifier.name.name(),
+      Identifier.familyName.name(),
+      Identifier.dateOfBirth.name(),
+      Identifier.fiscalNumber.name(),
+      //Optional attributes
+      Identifier.placeOfBirth.name(),
+      Identifier.address.name(),
+      Identifier.gender.name()
+  );
 
   private final Clock clock;
 
@@ -203,30 +217,6 @@ public class SAMLServiceImpl implements SAMLService {
     }
   }
 
-  private static void validateIssuer(Issuer issuer, String entityID) {
-    // Check if element is missing
-    if (issuer == null) {
-      Log.error("Issuer not found");
-      throw new SAMLValidationException("Issuer not found");
-    }
-    String issuerValue = issuer.getValue();
-    // Check if element value is missing or blank
-    if (issuerValue == null || issuerValue.isBlank()) {
-      Log.error("Issuer value is blank");
-      throw new SAMLValidationException("Issuer value is blank");
-    }
-    // Check if element value is equal to IDP EntityID
-    if (!issuerValue.equals(entityID)) {
-      Log.error("Issuer value does not match IDP EntityID: " + issuer.getValue());
-      throw new SAMLValidationException("Issuer mismatch");
-    }
-    // Check if format attribute is valid
-    if (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY)) {
-      Log.error("Invalid format attribute for Issuer element");
-      throw new SAMLValidationException("Invalid format attribute for Issuer element");
-    }
-  }
-
   private static void validateSubject(Subject subject) {
     if (subject == null || subject.getNameID() == null) {
       Log.error("Subject not correctly initialized");
@@ -251,6 +241,31 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("Invalid NameQualifier for Subject");
     }
 
+  }
+
+  private void validateIssuer(Issuer issuer, String entityID) {
+    // Check if element is missing
+    if (issuer == null) {
+      Log.error("Issuer not found");
+      throw new SAMLValidationException("Issuer not found");
+    }
+    String issuerValue = issuer.getValue();
+    // Check if element value is missing or blank
+    if (issuerValue == null || issuerValue.isBlank()) {
+      Log.error("Issuer value is blank");
+      throw new SAMLValidationException("Issuer value is blank");
+    }
+    // Check if element value is equal to IDP EntityID
+    if (!issuerValue.equals(entityID)) {
+      Log.error("Issuer value does not match IDP EntityID: " + issuer.getValue());
+      throw new SAMLValidationException("Issuer mismatch");
+    }
+    // Check if format attribute is valid
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+        (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY))) {
+      Log.error("Invalid format attribute for Issuer element");
+      throw new SAMLValidationException("Invalid format attribute for Issuer element");
+    }
   }
 
   private void validateIssueInstant(Instant issueInstant, Instant samlRequestIssueInstant)
@@ -330,14 +345,15 @@ public class SAMLServiceImpl implements SAMLService {
       validateIssuer(assertion.getIssuer(), entityID);
       validateConditions(assertion.getConditions());
       validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
-      validateAttributeStatements(assertion, requestedAttributes);
+      validateAttributeStatements(assertion, requestedAttributes, entityID);
 
     } catch (OneIdentityException e) {
       throw new SAMLValidationException(e);
     }
   }
 
-  private void validateAttributeStatements(Assertion assertion, Set<String> requestedAttributes) {
+  private void validateAttributeStatements(Assertion assertion, Set<String> requestedAttributes,
+      String entityID) {
     List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
     if (attributeStatements == null || attributeStatements.isEmpty()) {
       Log.error("AttributeStatements element is missing or empty");
@@ -356,16 +372,42 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("Attributes not obtained from SAML assertion");
     }
 
-    // TODO: evaluate if for CIE we should verify it differently (Minimum Dataset eIDAS)
     Set<String> obtainedAttributes = attributes.get().stream().map(AttributeDTO::getAttributeName)
         .collect(
             Collectors.toSet());
-    if (!requestedAttributes.equals(obtainedAttributes)) {
-      Log.error("Obtained attributes do not match requested attributes: "
-          + obtainedAttributes + " vs. " + requestedAttributes);
-      throw new SAMLValidationException("Obtained attributes do not match requested attributes");
-    }
 
+    //SPID
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID
+    )) {
+      if (!requestedAttributes.equals(obtainedAttributes)) {
+        Log.error("Obtained attributes do not match requested attributes: "
+            + obtainedAttributes + " vs. " + requestedAttributes);
+        throw new SAMLValidationException("Obtained attributes do not match requested attributes");
+      }
+    }
+    // CIE
+    else {
+      Set<String> validAttributes = new HashSet<>();
+      validAttributes.addAll(requestedAttributes);
+      validAttributes.remove(String.valueOf(Identifier.spidCode));
+
+      if (!obtainedAttributes.containsAll(validAttributes)) {
+        Log.error(
+            "Obtained attributes do not match requested attributes for CIE: " + obtainedAttributes
+                + " vs. " + validAttributes);
+        throw new SAMLValidationException(
+            "Obtained attributes do not match requested attributes for CIE");
+      }
+
+      obtainedAttributes.removeAll(validAttributes);
+      if (!eidasMinimumDataSet.containsAll(obtainedAttributes)) {
+        Log.error(
+            "Obtained attributes do not match requested attributes for CIE: " + obtainedAttributes
+                + " vs. " + eidasMinimumDataSet);
+        throw new SAMLValidationException(
+            "Obtained attributes do not match requested attributes for CIE");
+      }
+    }
   }
 
   @Override
