@@ -29,7 +29,6 @@ import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_EMPTY_ATTRIBUTE_STAT
 import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_EXTRA_EIDAS_ATTRIBUTE_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_EXTRA_INVALID_ATTRIBUTE_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_EXTRA_NOT_EIDAS_ATTRIBUTE_SAMLRESPONSE;
-import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_MISSING_ATTRIBUTES_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_MISSING_ATTRIBUTE_STATEMENT_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CIE_VALID_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CONDITIONS_ELEMENT_MISSING_SAML_RESPONSE_74;
@@ -3671,7 +3670,7 @@ public class SAMLServiceImplTest {
     // then
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-            Set.of("fiscalNumber", "familyName", "dateOfBirth"), // requested
+            Set.of("spidCode", "fiscalNumber"), // requested
             mockInstant.minusSeconds(10), AuthLevel.L2));
   }
 
@@ -3788,45 +3787,6 @@ public class SAMLServiceImplTest {
             .contains("Obtained attributes do not match requested attributes"));
   }
 
-  @Test
-  void validateSAMLResponse_CIE_MISSING_ATTRIBUTES_SAMLRESPONSE()
-      throws OneIdentityException {
-    // given
-    Response response = samlUtils.getSAMLResponseFromString(
-        CIE_MISSING_ATTRIBUTES_SAMLRESPONSE
-    );
-
-    Instant mockInstant = response.getIssueInstant();
-
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    IDP testIDP = IDP.builder()
-        .entityID(
-            "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_CIE))
-        .status(IDPStatus.OK)
-        .build();
-    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
-
-    // then
-    Exception exception =
-        assertThrows(SAMLValidationException.class,
-            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "familyName", "dateOfBirth"),
-                // requested
-                mockInstant.minusSeconds(10), AuthLevel.L2));
-
-    assertTrue(
-        exception.getMessage()
-            .contains("Obtained attributes do not match requested attributes"));
-  }
 
   @Test
   void validateSAMLResponse_CIE_EMPTY_ATTRIBUTE_STATEMENT_SAMLRESPONSE()

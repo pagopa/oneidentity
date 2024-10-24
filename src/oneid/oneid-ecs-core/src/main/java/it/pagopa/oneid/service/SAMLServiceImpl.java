@@ -389,9 +389,10 @@ public class SAMLServiceImpl implements SAMLService {
     else {
       Set<String> validAttributes = new HashSet<>();
       validAttributes.addAll(requestedAttributes);
+      validAttributes.addAll(eidasMinimumDataSet);
       validAttributes.remove(String.valueOf(Identifier.spidCode));
 
-      if (!obtainedAttributes.containsAll(validAttributes)) {
+      if (!validAttributes.containsAll(obtainedAttributes)) {
         Log.error(
             "Obtained attributes do not match requested attributes for CIE: " + obtainedAttributes
                 + " vs. " + validAttributes);
