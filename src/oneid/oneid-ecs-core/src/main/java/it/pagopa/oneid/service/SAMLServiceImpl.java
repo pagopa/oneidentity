@@ -389,7 +389,7 @@ public class SAMLServiceImpl implements SAMLService {
     else {
       Set<String> validAttributes = new HashSet<>();
       validAttributes.addAll(requestedAttributes);
-      validAttributes.remove(String.valueOf(Identifier.spidCode));
+      validAttributes.remove(Identifier.spidCode.name());
 
       if (!obtainedAttributes.containsAll(validAttributes)) {
         Log.error(
