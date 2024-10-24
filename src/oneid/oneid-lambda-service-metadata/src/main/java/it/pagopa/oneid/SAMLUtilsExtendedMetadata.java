@@ -13,6 +13,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_SPID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME;
@@ -20,6 +21,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
 
 import javax.xml.namespace.QName;
@@ -29,6 +31,7 @@ import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
+import it.pagopa.oneid.enums.IdType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
@@ -135,24 +138,30 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
         namespacePrefix);
     fiscalCode.setTextContent(FISCAL_CODE);
     extensions.getUnknownXMLObjects().add(vatNumber);
-    if (aggrType == "aggregated") {
+
+    if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
       XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
           LOCAL_NAME_PUBLIC,
           namespacePrefix);
       pub.setTextContent("");
       extensions.getUnknownXMLObjects().add(pub);
-    } else {
-      XSAny publicServicesFullAggregator = new XSAnyBuilder().buildObject(namespaceUri,
-          LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR,
-          namespacePrefix);
-      extensions.getUnknownXMLObjects().add(publicServicesFullAggregator);
-    }
-
-    if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
       XSAny municipality = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_MUNICIPALITY,
           namespacePrefix);
       municipality.setTextContent(MUNICIPALITY);
       extensions.getUnknownXMLObjects().add(municipality);
+    } else {
+      if (aggrType.equals(SPID_AGGREGATED)) {
+        XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
+            LOCAL_NAME_PUBLIC,
+            namespacePrefix);
+        pub.setTextContent("");
+        extensions.getUnknownXMLObjects().add(pub);
+      } else {
+        XSAny publicServicesFullAggregator = new XSAnyBuilder().buildObject(namespaceUri,
+            LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR,
+            namespacePrefix);
+        extensions.getUnknownXMLObjects().add(publicServicesFullAggregator);
+      }
     }
 
     return extensions;
@@ -234,8 +243,11 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
             : ContactPersonTypeEnumeration.OTHER);
     contactPerson.getEmailAddresses().add(buildEmailAddress());
     contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri, aggrType));
-    contactPerson.getUnknownAttributes().put(new QName("https://spid.gov.it/saml-extensions", "entityType", "spid"),
-        "spid:" + aggrType);
+    if (namespacePrefix.equals(NAMESPACE_PREFIX_SPID)) {
+      contactPerson.getUnknownAttributes().put(
+          new QName(IdType.spid.getNamespaceUri(), "entityType", IdType.spid.getNamespacePrefix()),
+          IdType.spid.getNamespacePrefix() + ":" + aggrType);
+    }
     return contactPerson;
   }
 

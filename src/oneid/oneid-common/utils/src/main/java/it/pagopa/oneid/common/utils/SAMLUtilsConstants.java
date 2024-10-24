@@ -36,6 +36,8 @@ public class SAMLUtilsConstants {
   public static String LOCAL_NAME_PUBLIC = "Public";
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
   public static String MUNICIPALITY = "H501";
+  public static String SPID_AGGREGATED = "aggregated";
+  public static String SPID_AGGREGATOR = "aggregator";
 
   @Inject
   SAMLUtilsConstants(
