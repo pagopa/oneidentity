@@ -1,6 +1,11 @@
 package it.pagopa.oneid;
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_SPID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SERVICE_PROVIDER_URI;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATOR;
+
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -78,7 +83,11 @@ public class ServiceMetadata {
 
     entityDescriptor.setOrganization(samlUtils.buildOrganization());
     entityDescriptor.getContactPersons()
-        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri()));
+        .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri(), SPID_AGGREGATED));
+    if (idType.getNamespacePrefix().equals(NAMESPACE_PREFIX_SPID)) {
+      entityDescriptor.getContactPersons()
+          .add(samlUtils.buildContactPerson(idType.getNamespacePrefix(), idType.getNamespaceUri(), SPID_AGGREGATOR));
+    }
     entityDescriptor.getRoleDescriptors().add(spssoDescriptor);
     entityDescriptor.getNamespaceManager()
         .registerNamespaceDeclaration(
