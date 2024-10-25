@@ -1,13 +1,11 @@
 package it.pagopa.oneid;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ENTITY_ID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_SPID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATOR;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -22,6 +20,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.Namespace;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
@@ -42,9 +41,9 @@ public class ServiceMetadata {
 
   @Inject
   SAMLUtilsExtendedMetadata samlUtils;
-
-  @Inject
-  SAMLUtilsConstants samlUtilsConstants;
+  
+  @ConfigProperty(name = "entity_id")
+  String ENTITY_ID;
 
   public static String getStringValue(Element element) throws SAMLUtilsException {
     StreamResult result = new StreamResult(new StringWriter());

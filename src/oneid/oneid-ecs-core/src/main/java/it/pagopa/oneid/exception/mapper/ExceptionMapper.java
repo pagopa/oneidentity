@@ -1,7 +1,6 @@
 package it.pagopa.oneid.exception.mapper;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -16,7 +15,6 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -35,7 +33,6 @@ import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
-import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
@@ -54,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -62,8 +60,8 @@ public class ExceptionMapper {
 
   private static final String VALIDATION_HEADER = "validation-exception";
 
-  @Inject
-  SAMLUtilsConstants samlUtilsConstants;
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {

@@ -1,7 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -15,6 +14,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.SneakyThrows;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -55,6 +56,9 @@ public class SAMLControllerTest {
   // This will be mocked using @Alternative construct because of @Dependant scope
   @Inject
   SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
+
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
 
   @Test
   @SneakyThrows
@@ -213,6 +217,7 @@ public class SAMLControllerTest {
     // setup samlServiceImplMock
 
     Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doThrow(new OneIdentityException()).when(samlServiceImpl).checkSAMLStatus(Mockito.any());
@@ -233,8 +238,8 @@ public class SAMLControllerTest {
     Assertions.assertTrue(location.contains(headerLocation));
   }
 
-  @Test
   @SneakyThrows
+  @Test
   void samlACS_exceptionInValidateSAMLResponse() {
     // given
     Map<String, String> samlResponseDTO = new HashMap<>();
@@ -244,15 +249,16 @@ public class SAMLControllerTest {
     // setup samlServiceImplMock
 
     Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
-    doThrow(new OneIdentityException()).when(samlServiceImpl)
+    doThrow(new SAMLValidationException()).when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any());
     // location header to verify
     String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
-        ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
+        ErrorCode.SAML_VALIDATION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
         .formParams(samlResponseDTO)
@@ -262,7 +268,7 @@ public class SAMLControllerTest {
         .statusCode(302)
         .extract()
         .header("location");
-
+    
     Assertions.assertTrue(location.contains(headerLocation));
   }
 
@@ -336,6 +342,7 @@ public class SAMLControllerTest {
     // setup samlServiceImplMock
 
     Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());

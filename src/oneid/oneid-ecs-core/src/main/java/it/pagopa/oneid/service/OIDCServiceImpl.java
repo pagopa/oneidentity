@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN_MIN;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
@@ -24,7 +23,6 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
@@ -68,6 +66,9 @@ public class OIDCServiceImpl implements OIDCService {
   @ConfigProperty(name = "kms_key_id")
   String KMS_KEY_ID;
 
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
+
   @Inject
   OIDCUtils oidcUtils;
   @Inject
@@ -76,8 +77,6 @@ public class OIDCServiceImpl implements OIDCService {
   ClientConnectorImpl clientConnectorImpl;
   @Inject
   Map<String, Client> clientsMap;
-  @Inject
-  SAMLUtilsConstants samlConstants;
   @Inject
   MarshallerFactory marshallerFactory;
 

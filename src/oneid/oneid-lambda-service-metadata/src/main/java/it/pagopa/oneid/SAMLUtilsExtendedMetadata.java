@@ -1,9 +1,5 @@
 package it.pagopa.oneid;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ACS_URL;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_COMPANY;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.CONTACT_PERSON_EMAIL_ADDRESS;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.IPA_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_CODE;
@@ -17,23 +13,20 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_C
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_SPID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_XML_LANG;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SLO_URL;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
@@ -61,8 +54,29 @@ import org.opensaml.security.x509.BasicX509Credential;
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
-  @Inject
-  SAMLUtilsConstants samlUtilsConstants;
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
+
+  @ConfigProperty(name = "acs_url")
+  String ACS_URL;
+
+  @ConfigProperty(name = "slo_url")
+  String SLO_URL;
+
+  @ConfigProperty(name = "organization_name")
+  String ORGANIZATION_NAME;
+
+  @ConfigProperty(name = "organization_display_name")
+  String ORGANIZATION_DISPLAY_NAME;
+
+  @ConfigProperty(name = "organization_url")
+  String ORGANIZATION_URL;
+
+  @ConfigProperty(name = "contact_person_company")
+  String CONTACT_PERSON_COMPANY;
+
+  @ConfigProperty(name = "contact_person_email_address")
+  String CONTACT_PERSON_EMAIL_ADDRESS;
 
   @Inject
   public SAMLUtilsExtendedMetadata(BasicParserPool basicParserPool,
@@ -219,7 +233,7 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
 
   public OrganizationDisplayName buildDisplayName() {
     OrganizationDisplayName orgDisplayName = buildSAMLObject(OrganizationDisplayName.class);
-    orgDisplayName.setValue(SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME);
+    orgDisplayName.setValue(ORGANIZATION_DISPLAY_NAME);
     orgDisplayName.setXMLLang(ORGANIZATION_DISPLAY_NAME_XML_LANG);
 
     return orgDisplayName;

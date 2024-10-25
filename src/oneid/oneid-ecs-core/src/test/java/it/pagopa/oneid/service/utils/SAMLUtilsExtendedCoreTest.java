@@ -18,13 +18,13 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Set;
 import lombok.SneakyThrows;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -50,6 +50,9 @@ public class SAMLUtilsExtendedCoreTest {
   @Inject
   SAMLUtilsExtendedCore samlUtilsExtendedCore;
 
+  @ConfigProperty(name = "entity_id")
+  String ENTITY_ID;
+  
   @Inject
   MarshallerFactory marshallerFactory;
 
@@ -58,8 +61,8 @@ public class SAMLUtilsExtendedCoreTest {
   void buildIssuer() {
     Issuer issuer = samlUtilsExtendedCore.buildIssuer();
     assertNotNull(issuer);
-    assertEquals(SAMLUtilsConstants.ENTITY_ID, issuer.getValue());
-    assertEquals(SAMLUtilsConstants.ENTITY_ID, issuer.getNameQualifier());
+    assertEquals(ENTITY_ID, issuer.getValue());
+    assertEquals(ENTITY_ID, issuer.getNameQualifier());
     assertEquals(NameIDType.ENTITY, issuer.getFormat());
   }
 

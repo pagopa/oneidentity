@@ -8,7 +8,6 @@ import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
@@ -71,9 +70,6 @@ public class SAMLServiceImpl implements SAMLService {
   SAMLUtilsExtendedCore samlUtils;
 
   @Inject
-  SAMLUtilsConstants samlUtilsConstants;
-
-  @Inject
   IDPConnectorImpl idpConnectorImpl;
 
   @ConfigProperty(name = "timestamp_spid")
@@ -85,20 +81,19 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
 
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
+
+  @ConfigProperty(name = "entity_id")
+  String ENTITY_ID;
+
+  @ConfigProperty(name = "acs_url")
+  String ACS_URL;
+
+
   @Inject
   SAMLServiceImpl(Clock clock) {
     this.clock = clock;
-  }
-
-  private static void validateDestination(String destination) throws OneIdentityException {
-    if (destination == null || destination.isBlank()) {
-      Log.error("Destination cannot be null or empty");
-      throw new OneIdentityException("Destination not set.");
-    }
-    if (!destination.equals(SAMLUtilsConstants.BASE_PATH + SAMLUtilsConstants.ACS_URL)) {
-      Log.error("Destination does not match ACS URL: " + destination);
-      throw new OneIdentityException("Destination mismatch.");
-    }
   }
 
   private static void validateInResponseTo(String inResponseTo) throws OneIdentityException {
@@ -119,18 +114,6 @@ public class SAMLServiceImpl implements SAMLService {
     if (id == null || id.isBlank()) {
       Log.error("Response ID cannot be null or empty");
       throw new OneIdentityException("Response ID not set.");
-    }
-  }
-
-  private static void validateRecipient(SubjectConfirmationData subjectConfirmationData) {
-    String recipient = subjectConfirmationData.getRecipient();
-    if (recipient == null) {
-      Log.error("Recipient parameter from Subject Confirmation Data not found");
-      throw new SAMLValidationException("Recipient not found");
-    }
-    if (!recipient.equals(SAMLUtilsConstants.BASE_PATH + SAMLUtilsConstants.ACS_URL)) {
-      Log.error("Recipient parameter does not match ACS URL: " + recipient);
-      throw new SAMLValidationException("Recipient mismatch");
     }
   }
 
@@ -196,27 +179,6 @@ public class SAMLServiceImpl implements SAMLService {
     }
   }
 
-  private static void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
-    if (audienceRestrictions == null || audienceRestrictions.isEmpty()) {
-      Log.error("Audience Restrictions element is missing or empty");
-      throw new SAMLValidationException("Audience Restrictions element is missing or empty");
-    }
-    AudienceRestriction audienceRestriction = audienceRestrictions.getFirst();
-    if (audienceRestriction == null
-        || audienceRestriction.getAudiences().isEmpty()) {
-      Log.error("Audience element is missing or empty");
-      throw new SAMLValidationException("Audience element is missing or empty");
-    }
-
-    Audience audience = audienceRestriction.getAudiences().getFirst();
-    Element element = audience.getDOM();
-    if (element == null || element.getTextContent() == null || !element.getTextContent().strip()
-        .equals(SAMLUtilsConstants.ENTITY_ID)) {
-      Log.error("Audience parameter not equal to service provider entity ID");
-      throw new SAMLValidationException("Audience mismatch");
-    }
-  }
-
   private static void validateSubject(Subject subject) {
     if (subject == null || subject.getNameID() == null) {
       Log.error("Subject not correctly initialized");
@@ -241,6 +203,50 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException("Invalid NameQualifier for Subject");
     }
 
+  }
+
+  private void validateRecipient(SubjectConfirmationData subjectConfirmationData) {
+    String recipient = subjectConfirmationData.getRecipient();
+    if (recipient == null) {
+      Log.error("Recipient parameter from Subject Confirmation Data not found");
+      throw new SAMLValidationException("Recipient not found");
+    }
+    if (!recipient.equals(BASE_PATH + ACS_URL)) {
+      Log.error("Recipient parameter does not match ACS URL: " + recipient);
+      throw new SAMLValidationException("Recipient mismatch");
+    }
+  }
+
+  private void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
+    if (audienceRestrictions == null || audienceRestrictions.isEmpty()) {
+      Log.error("Audience Restrictions element is missing or empty");
+      throw new SAMLValidationException("Audience Restrictions element is missing or empty");
+    }
+    AudienceRestriction audienceRestriction = audienceRestrictions.getFirst();
+    if (audienceRestriction == null
+        || audienceRestriction.getAudiences().isEmpty()) {
+      Log.error("Audience element is missing or empty");
+      throw new SAMLValidationException("Audience element is missing or empty");
+    }
+
+    Audience audience = audienceRestriction.getAudiences().getFirst();
+    Element element = audience.getDOM();
+    if (element == null || element.getTextContent() == null || !element.getTextContent().strip()
+        .equals(ENTITY_ID)) {
+      Log.error("Audience parameter not equal to service provider entity ID");
+      throw new SAMLValidationException("Audience mismatch");
+    }
+  }
+
+  private void validateDestination(String destination) throws OneIdentityException {
+    if (destination == null || destination.isBlank()) {
+      Log.error("Destination cannot be null or empty");
+      throw new OneIdentityException("Destination not set.");
+    }
+    if (!destination.equals(BASE_PATH + ACS_URL)) {
+      Log.error("Destination does not match ACS URL: " + destination);
+      throw new OneIdentityException("Destination mismatch.");
+    }
   }
 
   private void validateIssuer(Issuer issuer, String entityID) {
