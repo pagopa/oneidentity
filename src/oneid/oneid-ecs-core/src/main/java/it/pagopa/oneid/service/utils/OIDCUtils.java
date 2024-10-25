@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service.utils;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static it.pagopa.oneid.connector.KMSConnector.concatenateArrays;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_JWT_MIN;
 import com.nimbusds.jose.JOSEObjectType;
@@ -26,14 +25,18 @@ public class OIDCUtils {
   @ConfigProperty(name = "kms_key_id")
   String KMS_KEY_ID;
 
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
+
+
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
 
   private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
-      List<AttributeDTO> attributeDTOList, String nonce) {
+      List<AttributeDTO> attributeDTOList, String nonce, String basePath) {
     JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
         .subject(requestId)
-        .issuer(BASE_PATH)
+        .issuer(basePath)
         .audience(clientId)
         .issueTime(new Date())
         .claim("nonce", nonce)
@@ -58,7 +61,7 @@ public class OIDCUtils {
     // Prepare claims set for JWT
 
     byte[] payloadBytes = buildJWTClaimsSet(requestId, clientId, attributeDTOList,
-        nonce).toPayload()
+        nonce, BASE_PATH).toPayload()
         .toBytes();
     byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
 

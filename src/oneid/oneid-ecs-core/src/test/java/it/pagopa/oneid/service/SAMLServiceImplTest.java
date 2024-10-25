@@ -129,7 +129,6 @@ import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -177,9 +176,6 @@ public class SAMLServiceImplTest {
 
   @InjectSpy
   SAMLUtilsExtendedCore samlUtils;
-
-  @Inject
-  SAMLUtilsConstants samlUtilsConstants;
 
   @InjectMock
   IDPConnectorImpl idpConnectorImpl;

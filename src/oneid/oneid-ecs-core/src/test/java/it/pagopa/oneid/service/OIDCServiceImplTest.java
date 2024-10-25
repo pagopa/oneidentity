@@ -15,7 +15,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
@@ -45,9 +44,6 @@ public class OIDCServiceImplTest {
 
   @Inject
   OIDCServiceImpl oidcServiceImpl;
-
-  @Inject
-  SAMLUtilsConstants samlConstants;
 
   @Inject
   OIDCUtils oidcUtils;

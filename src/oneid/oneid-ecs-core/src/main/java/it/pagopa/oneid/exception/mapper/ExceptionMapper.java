@@ -1,7 +1,6 @@
 package it.pagopa.oneid.exception.mapper;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.BASE_PATH;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -52,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -59,6 +59,9 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 public class ExceptionMapper {
 
   private static final String VALIDATION_HEADER = "validation-exception";
+
+  @ConfigProperty(name = "base_path")
+  String BASE_PATH;
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {

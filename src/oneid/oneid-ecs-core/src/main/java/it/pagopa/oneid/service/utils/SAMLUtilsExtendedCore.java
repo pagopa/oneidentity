@@ -1,13 +1,11 @@
 package it.pagopa.oneid.service.utils;
 
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ENTITY_ID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -29,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
@@ -57,9 +56,10 @@ import org.opensaml.xmlsec.signature.support.Signer;
 @ApplicationScoped
 @CustomLogging
 public class SAMLUtilsExtendedCore extends SAMLUtils {
+  
+  @ConfigProperty(name = "entity_id")
+  String ENTITY_ID;
 
-  @Inject
-  SAMLUtilsConstants samlUtilsConstants;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
