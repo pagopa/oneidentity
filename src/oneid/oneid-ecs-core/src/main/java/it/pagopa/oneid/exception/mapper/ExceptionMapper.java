@@ -16,6 +16,7 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -34,6 +35,7 @@ import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
+import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
@@ -59,6 +61,8 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 public class ExceptionMapper {
 
   private static final String VALIDATION_HEADER = "validation-exception";
+  @Inject
+  SAMLUtilsConstants samlUtilsConstants;
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
