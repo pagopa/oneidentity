@@ -9,13 +9,13 @@ COPY --chown=quarkus:quarkus ../.mvn /code/.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common /code/oneid-common
 COPY --chown=quarkus:quarkus ../oneid-ecs-core /code/oneid-ecs-core
-COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json /code/oneid-ecs-core/src/main/webui/public/assets/login-alert-message.json
+COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json /code/oneid-fe/public/assets/login-alert-message.json
 USER quarkus
 
 WORKDIR /code
 
 ARG ENVIRONMENT
-ARG ENVFILE=/code/oneid-ecs-core/src/main/webui/.env.${ENVIRONMENT}
+ARG ENVFILE=/code/oneid-fe/.env.${ENVIRONMENT}
 
 # Build oneid-ecs-core using oneid-ecs-core-aggregate
 # Start downloading dependencies
