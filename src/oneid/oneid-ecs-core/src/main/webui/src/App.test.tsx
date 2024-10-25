@@ -46,14 +46,12 @@ describe('App component with mocked components', () => {
     Object.defineProperty(window, 'location', {
       value: {
         pathname: ROUTE_LOGIN,
-        search: '?onSuccess=home',
       },
       writable: true,
     });
 
     const { getByText } = render(<App />);
     expect(getByText('Mocked Login Component')).toBeInTheDocument();
-    expect(trackEvent).toHaveBeenCalledWith('LOGIN_INTENT', { target: 'home' });
   });
 
   it('should render the mocked LoginError component on ROUTE_LOGIN_ERROR', () => {

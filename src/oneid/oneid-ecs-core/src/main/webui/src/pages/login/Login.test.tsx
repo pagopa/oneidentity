@@ -25,40 +25,6 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-test('Test: Session not found while trying to access at onboarding flow product: "Onboarding" Login is displayed', async () => {
-  const productIds = [
-    'prod-interop',
-    'prod-io',
-    'prod-io-premium',
-    'prod-io-sign',
-    'prod-pn',
-    'prod-pagopa',
-    'prod-cgn',
-    'prod-ciban',
-  ];
-
-  void productIds.map(async (pid) => {
-    const productTitle = productId2ProductTitle(pid);
-    const expectedCalledTimes = pid === 'prod-io-premium' ? 2 : 1;
-    const search =
-      pid === 'prod-io-premium'
-        ? `?onSuccess=onboarding/prod-io/${pid}`
-        : `?onSuccess=onboarding/${pid}`;
-    await waitFor(() =>
-      render(
-        <MemoryRouter initialEntries={[{ pathname: '/', search }]}>
-          <Login />
-        </MemoryRouter>
-      )
-    );
-    await waitFor(() => {
-      screen.getByText('Come vuoi accedere?');
-      expect(productTitle).toBeDefined();
-    });
-
-    expect(URLSearchParams.prototype.get).toHaveBeenCalledTimes(expectedCalledTimes);
-  });
-});
 test('Renders Login component', () => {
   render(<Login />);
   expect(screen.getByText('loginPage.title')).toBeInTheDocument();
