@@ -288,6 +288,9 @@ public class ExceptionMapper {
 
   private RestResponse<Object> genericHTMLError(String errorCode) {
     try {
+      Log.debug(
+          "Location header: " + BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
+              StandardCharsets.UTF_8));
       return ResponseBuilder
           .create(FOUND)
           .location(new URI(
