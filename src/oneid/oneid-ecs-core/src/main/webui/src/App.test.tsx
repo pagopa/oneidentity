@@ -4,7 +4,6 @@ import { vi } from 'vitest';
 import App from './App';
 import { ROUTE_LOGIN, ROUTE_LOGOUT, ROUTE_LOGIN_ERROR } from './utils/constants';
 import { redirectToLogin } from './utils/utils';
-import { trackEvent } from './services/analyticsService';
 
 // Mock imported functions
 vi.mock('./utils/utils', () => ({

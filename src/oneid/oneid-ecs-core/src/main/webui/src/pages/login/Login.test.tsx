@@ -1,9 +1,7 @@
 /* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
 import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
 import { ENV } from '../../utils/env';
-import { productId2ProductTitle } from '../../utils/src/lib/utils/productId2ProductTitle';
 import Login from './Login';
 
 // Mock fetch
