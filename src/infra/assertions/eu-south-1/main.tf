@@ -34,7 +34,7 @@ module "backup" {
 
   backup_rule = [{
     rule_name         = "backup_weekly_rule"
-    schedule          = "cron(0 14 * * ? *)"
+    schedule          = "cron(0 2 ?  * 1 *)"
     start_window      = 60
     completion_window = 140
     lifecycle = {
