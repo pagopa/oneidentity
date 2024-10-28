@@ -35,6 +35,7 @@ runs:
     
     - name: Terraform Format
       id: fmt
+      shell: bash
       run: terraform fmt -check --recursive
       working-directory: ./src/infra
 
