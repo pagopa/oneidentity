@@ -32,6 +32,12 @@ runs:
       uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check --recursive
+      working-directory: ./src/infra
+
 
     - name: Terraform Init
       id: init
@@ -44,4 +50,4 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        terraform plan -lock-timeout=300s
+        terraform plan -lock-timeout=60s
