@@ -6,7 +6,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
@@ -138,10 +138,6 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
   public Extensions buildExtensions(String namespacePrefix, String namespaceUri, String aggrType) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
-    XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
-        namespacePrefix);
-    ipaCode.setTextContent(IPA_CODE);
-    extensions.getUnknownXMLObjects().add(ipaCode);
     XSAny vatNumber = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_VAT_NUMBER,
         namespacePrefix);
     vatNumber.setTextContent(VAT_NUMBER);
@@ -149,9 +145,14 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     XSAny fiscalCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_FISCAL_CODE,
         namespacePrefix);
     fiscalCode.setTextContent(FISCAL_CODE);
-    extensions.getUnknownXMLObjects().add(vatNumber);
+    extensions.getUnknownXMLObjects().add(fiscalCode);
 
     if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
+      XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
+          namespacePrefix);
+      ipaCode.setTextContent(IPA_CODE);
+      extensions.getUnknownXMLObjects().add(ipaCode);
+
       XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
           LOCAL_NAME_PUBLIC,
           namespacePrefix);
@@ -169,10 +170,10 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
         pub.setTextContent("");
         extensions.getUnknownXMLObjects().add(pub);
       } else {
-        XSAny publicServicesFullAggregator = new XSAnyBuilder().buildObject(namespaceUri,
-            LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR,
+        XSAny publicServicesFullOperator = new XSAnyBuilder().buildObject(namespaceUri,
+            LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR,
             namespacePrefix);
-        extensions.getUnknownXMLObjects().add(publicServicesFullAggregator);
+        extensions.getUnknownXMLObjects().add(publicServicesFullOperator);
       }
     }
 

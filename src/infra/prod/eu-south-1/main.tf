@@ -166,7 +166,7 @@ module "backend" {
       },
       {
         name  = "ENTITY_ID"
-        value = "https://${var.r53_dns_zone.name}/pub-ag-full"
+        value = "https://${var.r53_dns_zone.name}/pub-op-full"
       },
       {
         name  = "ACS_URL"
@@ -229,7 +229,7 @@ module "backend" {
       "CONTACT_PERSON_EMAIL_ADDRESS"    = "pagopa@pec.governo.it"
       "ORGANIZATION_DISPLAY_NAME"       = "PagoPA S.p.A."
       "BASE_PATH"                       = "https://${var.r53_dns_zone.name}"
-      "ENTITY_ID"                       = "https://${var.r53_dns_zone.name}/pub-ag-full"
+      "ENTITY_ID"                       = "https://${var.r53_dns_zone.name}/pub-op-full"
       "ORGANIZATION_NAME"               = "PagoPA S.p.A."
       "ACS_URL"                         = var.metadata_info.acs_url
       "SLO_URL"                         = var.metadata_info.slo_url

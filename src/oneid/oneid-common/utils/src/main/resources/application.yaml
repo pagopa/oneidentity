@@ -10,7 +10,7 @@ contact_person_telephone_number: ${CONTACT_PERSON_TELEPHONE_NUMBER:+39333}
 contact_person_company: ${CONTACT_PERSON_COMPANY:testOrgName}
 contact_person_given_name: ${CONTACT_PERSON_GIVEN_NAME:test}
 ## URLs related values
-entity_id: ${ENTITY_ID:http://localhost:8080/pub-ag-full}
+entity_id: ${ENTITY_ID:http://localhost:8080/pub-op-full}
 base_path: ${BASE_PATH:http://localhost:8080}
 acs_url: ${ACS_URL:/saml/acs}
 slo_url: ${SLO_URL:/saml/slo}
