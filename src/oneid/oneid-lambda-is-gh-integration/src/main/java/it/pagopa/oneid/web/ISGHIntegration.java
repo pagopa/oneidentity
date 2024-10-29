@@ -4,17 +4,15 @@ import static it.pagopa.oneid.utils.Constants.BRANCH_BASE_NAME;
 import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.SNSEvent;
-import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNSRecord;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.amazonaws.services.lambda.runtime.events.S3Event;
+import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.service.GitHubServiceImpl;
 import it.pagopa.oneid.service.ISServiceImpl;
 import jakarta.inject.Inject;
+import java.util.regex.PatternSyntaxException;
 
-public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
+public class ISGHIntegration implements RequestHandler<S3Event, String> {
 
   @Inject
   ISServiceImpl isServiceImpl;
@@ -24,34 +22,28 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
 
   @Override
-  public String handleRequest(SNSEvent event, Context context) {
+  public String handleRequest(S3Event event, Context context) {
     //TODO add exceptions handling
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    String snsMessage;
+    String s3Key;
+    String s3File;
 
-    SNSRecord record = event.getRecords().getFirst();
+    S3EventNotificationRecord record = event.getRecords().getFirst();
 
-    // 1. Read SNS event
-    snsMessage = record.getSNS().getMessage();
+    // 1. Read S3 event
+    s3Key = record.getS3().getObject().getKey();
     String timestamp;
     String idpType;
 
-    JsonNode dataNode;
     try {
-      dataNode = objectMapper.readTree(snsMessage).get("data");
-    } catch (JsonProcessingException e) {
-      Log.error("Error processing SNS message: " + snsMessage);
+      s3File = s3Key.split("history/")[1];
+      idpType = s3File.split("-")[0].replace(".xml", "");
+      timestamp = s3File.split("-")[1];
+
+    } catch (PatternSyntaxException e) {
+      Log.error("Error parsing s3Key: " + s3Key);
       throw new RuntimeException(e);
     }
-    if (dataNode == null) {
-      Log.error("No 'data' field found in the SNS message.");
-      throw new RuntimeException();
-    }
-
-    timestamp = dataNode.get("TAG").asText();
-    idpType = dataNode.get("OBJ").asText();
-
     // 2. Download metadata from IS
     String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType);
 
@@ -67,6 +59,6 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
         metadataPath,
         idpType);
 
-    return snsMessage;
+    return s3File;
   }
 }
