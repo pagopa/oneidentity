@@ -40,7 +40,7 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
     try {
       jsonNode = objectMapper.readTree(snsMessage).get("Records");
-      s3Node = jsonNode.get(0);
+      s3Node = jsonNode.get(0).get("s3");
     } catch (JsonProcessingException e) {
       Log.error("Error processing SNS message: " + snsMessage);
       throw new RuntimeException(e);
