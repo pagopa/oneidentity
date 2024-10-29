@@ -34,6 +34,7 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
     // 1. Read SNS event
     snsMessage = record.getSNS().getMessage();
+    Log.debug("SNS Message: " + snsMessage);
     String timestamp;
     String idpType;
 
