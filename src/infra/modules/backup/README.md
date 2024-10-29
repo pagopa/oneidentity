@@ -16,7 +16,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_backup"></a> [aws\_backup](#module\_aws\_backup) | git::https://github.com/pagopa/terraform-aws-backup.git | v1.1.0 |
+| <a name="module_aws_backup"></a> [aws\_backup](#module\_aws\_backup) | git::https://github.com/pagopa/terraform-aws-backup.git | v1.3.2 |
 
 ## Resources
 
