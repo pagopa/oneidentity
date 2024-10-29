@@ -47,12 +47,19 @@ class ISGHIntegrationTest {
   @Test
   void handleRequest_OK() {
 
-    String snsMessage = "{\n"
-        + "  \"data\": {\n"
-        + "    \"TAG\": \"1111\",\n"
-        + "    \"OBJ\": \"spid\"\n"
-        + "  }\n"
-        + "}";
+    String snsMessage = """
+        {
+                           "Records": [
+                             {
+                               "s3": {
+                                 "object": {
+                                   "key": "history/spid.xml-1730200136"
+                                 }
+                               }
+                             }
+                           ]
+                         }
+        """;
 
     when(sns.getMessage()).thenReturn(snsMessage);
     when(record.getSNS()).thenReturn(sns);
@@ -82,6 +89,5 @@ class ISGHIntegrationTest {
     Assertions.assertThrows(RuntimeException.class, executable);
 
   }
-
 
 }
