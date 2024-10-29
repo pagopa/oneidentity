@@ -228,6 +228,22 @@ resource "aws_wafv2_web_acl_association" "main" {
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
 
+##OpenApi export
+
+data "aws_api_gateway_export" "api_exp" {
+  rest_api_id = module.rest_api.rest_api_id
+  stage_name  = var.rest_api_stage
+  export_type = "oas30"
+}
+
+resource "aws_s3_object" "openapi_exp" {
+  key              = "static/openapi/oas30.json"
+  bucket           = var.assets_bucket_name
+  content          = data.aws_api_gateway_export.api_exp.body
+  content_encoding = "utf-8"
+  content_type     = "application/json"
+}
+
 ## Alarm
 
 module "webacl_count_alarm" {
