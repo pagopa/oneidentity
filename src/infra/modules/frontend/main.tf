@@ -237,7 +237,7 @@ data "aws_api_gateway_export" "api_exp" {
 }
 
 resource "aws_s3_object" "openapi_exp" {
-  key              = "static/openapi/openapi.json"
+  key              = "static/openapi/oas30.json"
   bucket           = var.assets_bucket_name
   content          = data.aws_api_gateway_export.api_exp.body
   content_encoding = "utf-8"
