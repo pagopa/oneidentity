@@ -31,6 +31,7 @@ public class ISGHIntegration implements RequestHandler<S3Event, String> {
     S3EventNotificationRecord record = event.getRecords().getFirst();
 
     // 1. Read S3 event
+    Log.debug(record);
     s3Key = record.getS3().getObject().getKey();
     String timestamp;
     String idpType;
