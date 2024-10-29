@@ -35,22 +35,31 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
     // 1. Read SNS event
     snsMessage = record.getSNS().getMessage();
+    JsonNode jsonNode;
+    JsonNode s3Node;
+
+    try {
+      jsonNode = objectMapper.readTree(snsMessage).get("Records");
+      s3Node = jsonNode.get(0);
+    } catch (JsonProcessingException e) {
+      Log.error("Error processing SNS message: " + snsMessage);
+      throw new RuntimeException(e);
+    }
+
     String timestamp;
     String idpType;
 
-    JsonNode s3Node;
     JsonNode objectNode;
     String s3File;
     String s3Key;
 
     try {
-      s3Node = objectMapper.readTree(snsMessage).get("s3");
-    } catch (JsonProcessingException e) {
+      objectNode = s3Node.get("object");
+      s3Key = objectNode.get("key").asText();
+    } catch (NullPointerException e) {
       Log.error("Error processing SNS message: " + snsMessage);
       throw new RuntimeException(e);
     }
-    objectNode = s3Node.get("object");
-    s3Key = objectNode.get("key").asText();
     if (s3Key == null) {
       Log.error("No 'object' field found in the SNS message.");
       throw new RuntimeException();
