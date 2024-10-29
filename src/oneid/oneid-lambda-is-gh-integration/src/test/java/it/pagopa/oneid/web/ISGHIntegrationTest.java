@@ -1,5 +1,7 @@
 package it.pagopa.oneid.web;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent;
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNS;
@@ -9,6 +11,14 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.service.GitHubServiceImpl;
 import it.pagopa.oneid.service.ISServiceImpl;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 class ISGHIntegrationTest {
@@ -26,9 +36,6 @@ class ISGHIntegrationTest {
   private SNSRecord record;
   private SNS sns;
 
-  // TODO uncomment and fix tests
-  /*
-
   @BeforeEach
   public void beforeEach() {
     context = mock(Context.class);
@@ -40,12 +47,19 @@ class ISGHIntegrationTest {
   @Test
   void handleRequest_OK() {
 
-    String snsMessage = "{\n"
-        + "  \"data\": {\n"
-        + "    \"TAG\": \"1111\",\n"
-        + "    \"OBJ\": \"spid\"\n"
-        + "  }\n"
-        + "}";
+    String snsMessage = """
+        {
+                           "Records": [
+                             {
+                               "s3": {
+                                 "object": {
+                                   "key": "history/spid.xml-1730200136"
+                                 }
+                               }
+                             }
+                           ]
+                         }
+        """;
 
     when(sns.getMessage()).thenReturn(snsMessage);
     when(record.getSNS()).thenReturn(sns);
@@ -76,5 +90,4 @@ class ISGHIntegrationTest {
 
   }
 
-*/
 }
