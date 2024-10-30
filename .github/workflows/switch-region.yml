@@ -2,12 +2,7 @@ name: Switch region to eu-central-1
 
 on:
   workflow_dispatch: # Manual trigger
-    inputs:
-      environment:
-        description: 'Choose environment'
-        required: true
-        default: prod/eu-south-1
-     
+    
 jobs:
   change-record-set:
     runs-on: ubuntu-latest
