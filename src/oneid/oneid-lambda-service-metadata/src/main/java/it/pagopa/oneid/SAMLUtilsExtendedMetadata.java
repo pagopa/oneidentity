@@ -147,12 +147,12 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     fiscalCode.setTextContent(FISCAL_CODE);
     extensions.getUnknownXMLObjects().add(fiscalCode);
 
-    if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
-      XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
-          namespacePrefix);
-      ipaCode.setTextContent(IPA_CODE);
-      extensions.getUnknownXMLObjects().add(ipaCode);
+    XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
+        namespacePrefix);
+    ipaCode.setTextContent(IPA_CODE);
+    extensions.getUnknownXMLObjects().add(ipaCode);
 
+    if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
       XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
           LOCAL_NAME_PUBLIC,
           namespacePrefix);
