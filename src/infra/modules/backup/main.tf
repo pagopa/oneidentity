@@ -90,7 +90,7 @@ resource "aws_iam_role_policy" "backup" {
 
 
 module "aws_backup" {
-  source       = "git::https://github.com/pagopa/terraform-aws-backup.git?ref=v1.3.2"
+  source       = "git::https://github.com/pagopa/terraform-aws-backup.git?ref=v1.3.4"
   name         = var.backup_name
   iam_role_arn = aws_iam_role.backup.arn
 
