@@ -6,7 +6,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUMBER;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
@@ -15,7 +15,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_URL_XML_LANG;
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATED;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.SPID_AGGREGATOR;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.VAT_NUMBER;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.Identifier;
@@ -135,13 +135,9 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return attribute;
   }
 
-  public Extensions buildExtensions(String namespacePrefix, String namespaceUri, String aggrType) {
+  public Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
-    XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
-        namespacePrefix);
-    ipaCode.setTextContent(IPA_CODE);
-    extensions.getUnknownXMLObjects().add(ipaCode);
     XSAny vatNumber = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_VAT_NUMBER,
         namespacePrefix);
     vatNumber.setTextContent(VAT_NUMBER);
@@ -149,9 +145,14 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     XSAny fiscalCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_FISCAL_CODE,
         namespacePrefix);
     fiscalCode.setTextContent(FISCAL_CODE);
-    extensions.getUnknownXMLObjects().add(vatNumber);
+    extensions.getUnknownXMLObjects().add(fiscalCode);
 
     if (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) {
+      XSAny ipaCode = new XSAnyBuilder().buildObject(namespaceUri, LOCAL_NAME_IPA,
+          namespacePrefix);
+      ipaCode.setTextContent(IPA_CODE);
+      extensions.getUnknownXMLObjects().add(ipaCode);
+
       XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
           LOCAL_NAME_PUBLIC,
           namespacePrefix);
@@ -162,18 +163,10 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
       municipality.setTextContent(MUNICIPALITY);
       extensions.getUnknownXMLObjects().add(municipality);
     } else {
-      if (aggrType.equals(SPID_AGGREGATED)) {
-        XSAny pub = new XSAnyBuilder().buildObject(namespaceUri,
-            LOCAL_NAME_PUBLIC,
-            namespacePrefix);
-        pub.setTextContent("");
-        extensions.getUnknownXMLObjects().add(pub);
-      } else {
-        XSAny publicServicesFullAggregator = new XSAnyBuilder().buildObject(namespaceUri,
-            LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR,
-            namespacePrefix);
-        extensions.getUnknownXMLObjects().add(publicServicesFullAggregator);
-      }
+      XSAny publicServicesFullOperator = new XSAnyBuilder().buildObject(namespaceUri,
+          LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR,
+          namespacePrefix);
+      extensions.getUnknownXMLObjects().add(publicServicesFullOperator);
     }
 
     return extensions;
@@ -247,19 +240,18 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return organizationURL;
   }
 
-  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri,
-      String aggrType) {
+  public ContactPerson buildContactPerson(String namespacePrefix, String namespaceUri) {
     ContactPerson contactPerson = buildSAMLObject(ContactPerson.class);
     contactPerson.setCompany(buildCompany());
     contactPerson.setType(
         (namespacePrefix.equals(NAMESPACE_PREFIX_CIE)) ? ContactPersonTypeEnumeration.ADMINISTRATIVE
             : ContactPersonTypeEnumeration.OTHER);
     contactPerson.getEmailAddresses().add(buildEmailAddress());
-    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri, aggrType));
+    contactPerson.setExtensions(buildExtensions(namespacePrefix, namespaceUri));
     if (namespacePrefix.equals(NAMESPACE_PREFIX_SPID)) {
       contactPerson.getUnknownAttributes().put(
           new QName(IdType.spid.getNamespaceUri(), "entityType", IdType.spid.getNamespacePrefix()),
-          IdType.spid.getNamespacePrefix() + ":" + aggrType);
+          IdType.spid.getNamespacePrefix() + ":" + SPID_AGGREGATOR);
     }
     return contactPerson;
   }
