@@ -16,6 +16,12 @@ variable "app_name" {
   default     = "oneid"
 }
 
+variable "app_log_level" {
+  type        = string
+  description = "Log level of application"
+  default     = "DEBUG" //TODO: switch to INFO after stable release
+}
+
 variable "env_short" {
   type        = string
   default     = "p"

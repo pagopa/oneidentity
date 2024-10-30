@@ -144,6 +144,10 @@ module "backend" {
       {
         name  = "KEY_NAME"
         value = var.ssm_cert_key.key_pem
+      },
+      {
+        name  = "LOG_LEVEL"
+        value = var.app_log_level
       }
     ]
   }
@@ -174,6 +178,7 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
   metadata_lambda = {
@@ -191,6 +196,8 @@ module "backend" {
       "SLO_URL"                         = var.metadata_info.slo_url
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
+      "LOG_LEVEL"                       = var.app_log_level
+
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -234,6 +241,7 @@ module "backend" {
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
+      LOG_LEVEL                = var.app_log_level
     }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
@@ -253,6 +261,7 @@ module "backend" {
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     sns_topic_arn                     = var.is_gh_sns_arn
+    environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
 }
