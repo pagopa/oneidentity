@@ -28,13 +28,6 @@ public class OneIDController {
   @Inject
   IdpServiceImpl idpServiceImpl;
 
-  // TODO replace with quarkus default health check
-  @GET
-  @Path("/ping")
-  public Response ping() {
-    return Response.ok("Ping").build();
-  }
-
   @GET
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
