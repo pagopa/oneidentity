@@ -7,8 +7,9 @@ jobs:
   change-record-set:
     runs-on: ubuntu-latest
     env:
-     ECS_CLUSTER_NAME: oneid-ec-1-p-ecs
-     ECS_SERVICE_NAME: oneid-ec-1-p-core 
+      ECS_CLUSTER_NAME: oneid-ec-1-p-ecs
+      ECS_SERVICE_NAME: oneid-ec-1-p-core 
+    environment: "prod/eu-central-1"
 
     steps:
       - name: Configure AWS Credentials
