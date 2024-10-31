@@ -386,8 +386,8 @@ module "backup" {
 
   backup_rule = [
     {
-      rule_name         = "backup_daily_rule"
-      schedule          = "cron(0 14 * * ? *)"
+      rule_name         = "ondemand"
+      schedule          = null
       start_window      = 60
       completion_window = 140
       lifecycle = {
