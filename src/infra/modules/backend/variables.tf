@@ -15,8 +15,8 @@ variable "role_prefix" {
 
 variable "ecr_registers" {
   type = list(object({
-    name                            = string
-    number_of_images_to_keep        = number
+    name                     = string
+    number_of_images_to_keep = number
     repository_image_tag_mutability = optional(string, "IMMUTABLE")
   }))
   description = "ECR image repositories"
@@ -31,7 +31,7 @@ variable "ecs_cluster_name" {
 variable "ssm_cert_key" {
   type = object({
     cert_pem = optional(string, "cert.pem")
-    key_pem  = optional(string, "key.pem")
+    key_pem = optional(string, "key.pem")
   })
 
 }
@@ -53,9 +53,9 @@ variable "fargate_capacity_providers" {
 
 variable "service_core" {
   type = object({
-    service_name           = string
-    cpu                    = number
-    memory                 = number
+    service_name = string
+    cpu          = number
+    memory       = number
     enable_execute_command = optional(bool, true)
     container = object({
       name                = string
@@ -129,8 +129,8 @@ variable "client_registration_lambda" {
     cloudwatch_logs_retention_in_days = number
     vpc_id                            = string
     vpc_endpoint_dynamodb_prefix_id   = string
-    vpc_subnet_ids                    = list(string)
-
+    vpc_subnet_ids = list(string)
+    environment_variables = map(string)
   })
 
 }
@@ -140,11 +140,11 @@ variable "metadata_lambda" {
     name                              = string
     filename                          = string
     table_client_registrations_arn    = string
-    environment_variables             = map(string)
+    environment_variables = map(string)
     vpc_id                            = string
-    vpc_subnet_ids                    = list(string)
+    vpc_subnet_ids = list(string)
     vpc_endpoint_dynamodb_prefix_id   = string
-    vpc_endpoint_ssm_nsg_ids          = list(string)
+    vpc_endpoint_ssm_nsg_ids = list(string)
     cloudwatch_logs_retention_in_days = number
   })
 
@@ -162,7 +162,7 @@ variable "vpc_id" {
 }
 
 variable "private_subnets" {
-  type        = list(string)
+  type = list(string)
   description = "Private subnets ids."
 }
 
@@ -183,10 +183,10 @@ variable "assertion_lambda" {
     filename                          = string
     s3_assertion_bucket_arn           = string
     kms_assertion_key_arn             = string
-    environment_variables             = map(string)
+    environment_variables = map(string)
     cloudwatch_logs_retention_in_days = number
     vpc_s3_prefix_id                  = string
-    vpc_subnet_ids                    = list(string)
+    vpc_subnet_ids = list(string)
     vpc_id                            = string
   })
 }
@@ -195,11 +195,11 @@ variable "idp_metadata_lambda" {
   type = object({
     name                              = string
     filename                          = string
-    environment_variables             = map(string)
+    environment_variables = map(string)
     s3_idp_metadata_bucket_arn        = string
     s3_idp_metadata_bucket_id         = string
     vpc_id                            = string
-    vpc_subnet_ids                    = list(string)
+    vpc_subnet_ids = list(string)
     vpc_s3_prefix_id                  = string
     cloudwatch_logs_retention_in_days = number
   })
@@ -210,9 +210,10 @@ variable "is_gh_integration_lambda" {
   type = object({
     name                              = string
     filename                          = string
-    sns_topic_arn                     = optional(string, null)
+    sns_topic_arn = optional(string, null)
     cloudwatch_logs_retention_in_days = string
-    ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")
+    ssm_parameter_name = optional(string, "GH_PERSONAL_ACCESS_TOKEN")
+    environment_variables = map(string)
   })
 
 }
