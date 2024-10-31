@@ -3300,13 +3300,13 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
+    SAMLValidationException exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L3));
 
     assertTrue(
-        exception.getMessage()
+        exception.getErrorCode().getErrorMessage()
             .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
   }
 
