@@ -130,7 +130,7 @@ variable "client_registration_lambda" {
     vpc_id                            = string
     vpc_endpoint_dynamodb_prefix_id   = string
     vpc_subnet_ids                    = list(string)
-
+    environment_variables             = map(string)
   })
 
 }
@@ -213,6 +213,7 @@ variable "is_gh_integration_lambda" {
     sns_topic_arn                     = optional(string, null)
     cloudwatch_logs_retention_in_days = string
     ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")
+    environment_variables             = map(string)
   })
 
 }
