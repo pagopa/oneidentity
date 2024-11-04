@@ -151,6 +151,8 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapSAMLValidationException(
       SAMLValidationException samlValidationException) {
+    Log.error(" - [" + samlValidationException.getErrorCode().name() + "] "
+        + samlValidationException.getMessage());
     return genericHTMLError(samlValidationException.getErrorCode().getErrorCode());
   }
 

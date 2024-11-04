@@ -13,4 +13,9 @@ public class SAMLValidationException extends RuntimeException {
     this.errorCode = errorCode;
   }
 
+  public SAMLValidationException(ErrorCode errorCode, String message) {
+    super(message);
+    this.errorCode = errorCode;
+  }
+
 }
