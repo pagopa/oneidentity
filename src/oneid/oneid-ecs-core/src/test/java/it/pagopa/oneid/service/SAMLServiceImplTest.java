@@ -6,6 +6,37 @@ import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_N
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR22;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR23;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR25;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ASSERTION_ID_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ASSERTION_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_PRESENT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_STATEMENTS_NOT_PRESENT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_ID_FORMAT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_ID_TYPE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_QUALIFIER;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MISSING_CONDITIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ASSERTION_MISSING_AUDIENCE_RESTRICTION_CONDITION_SAML_RESPONSE_84;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ASSERTION_UNSPECIFIED_AUDIENCE_RESTRICTION_CONDITION_SAML_RESPONSE_83;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ATTRIBUTES_WITHOUT_NAME_FORMAT_SAML_RESPONSE_109;
@@ -129,6 +160,7 @@ import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -600,7 +632,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Response ID not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));
   }
 
   @Test
@@ -633,7 +666,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Response ID not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));
   }
 
   @Test
@@ -666,7 +700,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Version different from 2.0."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
   }
 
   @Test
@@ -699,7 +734,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -732,7 +768,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -767,7 +804,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not after the request's Issue Instant."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST.getErrorMessage()));
   }
 
   @Test
@@ -802,7 +840,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -836,7 +875,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -870,7 +910,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -905,7 +946,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -940,7 +982,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -975,7 +1018,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination mismatch."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -1010,7 +1054,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer value is blank"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
   }
 
   @Test
@@ -1045,7 +1090,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1080,7 +1126,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer mismatch"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -1115,7 +1162,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -1150,7 +1198,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -1185,7 +1233,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Assertion not found"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1220,7 +1268,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Assertion ID is missing"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1255,7 +1303,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Assertion ID is missing"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1290,7 +1338,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Version different from 2.0."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
   }
 
   @Test
@@ -1324,7 +1373,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1359,7 +1409,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not after the request's Issue Instant."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST.getErrorMessage()));
   }
 
   @Test
@@ -1394,7 +1445,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -1429,7 +1481,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -1464,7 +1517,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1499,7 +1553,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1534,7 +1589,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1569,7 +1624,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1604,7 +1660,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid Name ID type for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
 
   @Test
@@ -1639,7 +1695,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid Name ID type for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
 
   @Test
@@ -1674,7 +1730,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameId format for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -1709,7 +1765,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1744,7 +1800,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1779,7 +1835,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmationData not found"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1813,7 +1870,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmation not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1847,7 +1905,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1882,7 +1941,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1917,7 +1977,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1952,7 +2013,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmationData not found"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1987,7 +2049,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2022,7 +2085,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2057,7 +2121,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient mismatch"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2092,7 +2156,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2127,7 +2191,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2162,7 +2226,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter not found"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2197,7 +2262,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter not found"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2232,7 +2298,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter expired"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
   }
 
   @Test
@@ -2267,7 +2334,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer value is blank"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
   }
 
   @Test
@@ -2302,7 +2369,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer not found"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2337,7 +2404,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer mismatch"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2372,7 +2439,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2407,7 +2474,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2442,7 +2509,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2478,7 +2545,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience Restrictions element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2514,7 +2582,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Conditions element is missing"));
+        exception.getMessage().contains(IDP_ERROR_MISSING_CONDITIONS.getErrorMessage()));
   }
 
   @Test
@@ -2549,7 +2617,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2584,7 +2652,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2619,7 +2687,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore is in the future"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2654,7 +2722,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2689,7 +2757,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2724,7 +2792,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter expired"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
   }
 
   @Test
@@ -2759,7 +2827,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2794,7 +2863,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience Restrictions element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2829,7 +2899,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience mismatch"));
+        exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2864,7 +2934,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2899,7 +2970,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience mismatch"));
+        exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2934,7 +3005,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContext element is missing"));
+        exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2969,7 +3040,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnStatements element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -3004,7 +3076,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3039,7 +3112,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContext element is missing"));
+        exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3074,7 +3147,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3109,7 +3183,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3175,7 +3250,8 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3211,7 +3287,8 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3300,14 +3377,15 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
+    SAMLValidationException exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L3));
 
     assertTrue(
-        exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+        exception.getErrorCode().getErrorMessage()
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3462,7 +3540,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Invalid AuthnContextClassRef value"));
+        exception.getMessage()
+            .contains(IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF.getErrorMessage()));
   }
 
   @Test
@@ -3497,7 +3576,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Attributes element is missing or empty"));
+        exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_PRESENT.getErrorMessage()));
   }
 
   @Test
@@ -3532,7 +3611,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Attributes not obtained from SAML assertion"));
+        exception.getMessage()
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION.getErrorMessage()));
   }
 
   @Test
@@ -3567,7 +3647,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Obtained attributes do not match requested attributes"));
+        exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage()));
   }
 
   @Test
@@ -3602,7 +3682,8 @@ public class SAMLServiceImplTest {
                 Set.of("spidCode", "fiscalNumber"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Attributes not obtained from SAML assertion"));
+        exception.getMessage()
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION.getErrorMessage()));
   }
 
   @Test
@@ -3740,7 +3821,7 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Obtained attributes do not match requested attributes"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
   }
 
   @Test
@@ -3780,7 +3861,7 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Obtained attributes do not match requested attributes"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
   }
 
 
@@ -3821,7 +3902,7 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Attributes element is missing or empty"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_PRESENT.getErrorMessage()));
   }
 
   @Test
@@ -3861,6 +3942,6 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AttributeStatements element is missing or empty"));
+            .contains(IDP_ERROR_ATTRIBUTES_STATEMENTS_NOT_PRESENT.getErrorMessage()));
   }
 }

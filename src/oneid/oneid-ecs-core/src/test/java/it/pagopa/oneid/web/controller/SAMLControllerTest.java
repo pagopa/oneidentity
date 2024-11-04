@@ -253,12 +253,13 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any());
-    doThrow(new SAMLValidationException()).when(samlServiceImpl)
+    doThrow(new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION)).when(
+            samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any());
     // location header to verify
     String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
-        ErrorCode.SAML_VALIDATION_ERROR.getErrorCode(),
+        ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
         .formParams(samlResponseDTO)
@@ -268,7 +269,7 @@ public class SAMLControllerTest {
         .statusCode(302)
         .extract()
         .header("location");
-    
+
     Assertions.assertTrue(location.contains(headerLocation));
   }
 

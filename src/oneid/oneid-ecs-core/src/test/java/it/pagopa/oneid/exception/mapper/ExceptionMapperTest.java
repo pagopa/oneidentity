@@ -350,12 +350,16 @@ class ExceptionMapperTest {
   void mapSAMLValidationException() {
     // given
     SAMLValidationException exceptionMock = Mockito.mock(SAMLValidationException.class);
-    Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
+    Mockito.when(exceptionMock.getErrorCode()).thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
+    Mockito.when(exceptionMock.getMessage())
+        .thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage());
+
     // when
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(
         exceptionMock);
     // then
-    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getMessage(), restResponse);
+    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getErrorCode().getErrorCode(),
+        restResponse);
   }
 
   @Test
