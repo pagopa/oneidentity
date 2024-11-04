@@ -386,13 +386,14 @@ module "backup" {
 
   backup_rule = [
     {
-      rule_name         = "ondemand"
-      schedule          = null
+      rule_name         = "monthly"
+      schedule          = "cron(0 4 1 * ? *)"
       start_window      = 60
       completion_window = 140
       lifecycle = {
-        delete_after = 14
+        delete_after = 40
       },
     }
   ]
+
 }
