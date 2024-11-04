@@ -6,21 +6,11 @@ import lombok.Getter;
 @Getter
 public class SAMLValidationException extends RuntimeException {
 
-  private ErrorCode errorCode;
-
-  public SAMLValidationException() {
-    super(String.valueOf(ErrorCode.SAML_VALIDATION_ERROR));
-  }
-
-  public SAMLValidationException(String customErrorMessage) {
-    super(customErrorMessage);
-  }
+  private final ErrorCode errorCode;
 
   public SAMLValidationException(ErrorCode errorCode) {
+    super(errorCode.getErrorMessage());
     this.errorCode = errorCode;
   }
 
-  public SAMLValidationException(Throwable cause) {
-    super(cause);
-  }
 }

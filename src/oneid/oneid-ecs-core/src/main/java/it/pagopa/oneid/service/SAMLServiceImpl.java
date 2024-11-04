@@ -157,7 +157,7 @@ public class SAMLServiceImpl implements SAMLService {
     if (authnContext == null) {
       Log.error(ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING);
       throw new SAMLValidationException(
-          ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage());
+          ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING);
     }
     AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
 
@@ -213,16 +213,13 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private void validateRecipient(SubjectConfirmationData subjectConfirmationData) {
-    String recipient = "";
-    if (subjectConfirmationData != null) {
-      recipient = subjectConfirmationData.getRecipient();
-    }
-    if (StringUtils.isNotBlank(recipient)) {
+    String recipient = subjectConfirmationData.getRecipient();
+    if (recipient == null) {
       Log.error(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage());
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND);
     }
     if (!recipient.equals(BASE_PATH + ACS_URL)) {
-      Log.error(ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage() + ": " + recipient);
+      Log.error(ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage() + ":" + recipient);
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH);
     }
   }
@@ -530,7 +527,7 @@ public class SAMLServiceImpl implements SAMLService {
         authLevelRequest);
 
     validateSignature(samlResponse, entityID);
-    
+
   }
 
   private Assertion extractAssertion(Response samlResponse) {
