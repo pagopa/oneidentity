@@ -24,10 +24,5 @@ export default defineConfig({
       ...config({ path: './.env.test.local' }).parsed,
     },
     include: ['**/*.test.ts?(x)'],
-  },
-  resolve: {
-    alias: {
-      // Add all your absolute paths here
-    },
-  },
+  }
 });

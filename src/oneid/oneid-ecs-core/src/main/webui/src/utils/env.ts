@@ -1,8 +1,13 @@
 const PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL || '';
-const currentEnv: string = import.meta.env.VITE_ENV as string;
 
 export const ENV = {
-  ENV: currentEnv,
+  CURRENT_ENV: import.meta.env.VITE_CURRENT_ENV as string,
+	// Corresponds to the .env.[mode] file loaded
+	// By default vite set mode to development when using vite dev
+	// and set to production when using vite build.
+	// Can be overriden using --mode option
+	// see https://vite.dev/guide/env-and-mode#modes
+  MODE: import.meta.env.MODE,
   PUBLIC_URL,
 
   ENABLED_SPID_TEMPORARY_SELECT: import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',

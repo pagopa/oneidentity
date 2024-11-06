@@ -29,8 +29,9 @@
     "web-vitals": "^4.1.1"
   },
   "scripts": {
-    "develop": "vite dev",
-    "build": "vite build",
+    "start": "vite",
+    "build": "tsc && vite build --mode prod",
+    "serve": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "lint-autofix": "eslint --fix",
