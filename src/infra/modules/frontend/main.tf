@@ -252,7 +252,7 @@ module "webacl_count_alarm" {
 
   count = var.web_acl.cloudwatch_metrics_enabled ? 1 : 0
 
-  alarm_name          = "waf-"
+  alarm_name          = "${var.rest_api_name}-"
   alarm_description   = "Alarm when webacl count greater than 10"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 3
