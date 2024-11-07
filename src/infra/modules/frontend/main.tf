@@ -247,7 +247,8 @@ resource "aws_s3_object" "openapi_exp" {
 ## Alarm
 
 module "webacl_count_alarm" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-cloudwatch.git//modules/metric-alarms-by-multiple-dimensions?ref=60cf981e0f1ae033699e5b274440867e48289967"
+  source  = "terraform-aws-modules/cloudwatch/aws//modules/metric-alarms-by-multiple-dimensions"
+  version = "5.6.0"
 
   count = var.web_acl.cloudwatch_metrics_enabled ? 1 : 0
 
@@ -262,13 +263,13 @@ module "webacl_count_alarm" {
 
   namespace   = "AWS/WAFV2"
   metric_name = "CountedRequests"
-  statistic   = "Sum"
+  statistic   = "Average"
 
   dimensions = {
     "webacl" = {
       WebACL = aws_wafv2_web_acl.main.name
-      Ragion = var.aws_region
-      Rule   = aws_wafv2_web_acl.main.name
+      Region = var.aws_region
+      Rule   = "ALL"
     },
   }
 
