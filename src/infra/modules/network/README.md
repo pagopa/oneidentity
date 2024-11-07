@@ -55,13 +55,13 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.49 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.49 |
 
 ## Modules
 
@@ -74,8 +74,8 @@
 
 | Name | Type |
 |------|------|
-| [aws_security_group.vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/security_group) | resource |
-| [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/security_group) | data source |
+| [aws_security_group.vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_security_group.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/security_group) | data source |
 
 ## Inputs
 
