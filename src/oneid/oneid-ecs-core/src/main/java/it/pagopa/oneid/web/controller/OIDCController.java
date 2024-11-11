@@ -268,8 +268,7 @@ public class OIDCController {
       throw new InvalidRequestMalformedHeaderAuthorizationException();
     }
 
-    // TODO: remove, we are mocking argon2 validation for load testing purposes
-    //oidcServiceImpl.authorizeClient(clientId, clientSecret);
+    oidcServiceImpl.authorizeClient(clientId, clientSecret);
 
     SAMLSession session;
     try {
