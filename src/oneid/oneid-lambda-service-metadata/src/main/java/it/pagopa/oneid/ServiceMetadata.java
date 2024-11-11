@@ -1,17 +1,17 @@
 package it.pagopa.oneid;
 
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -29,9 +29,12 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
-@Path("/saml")
-public class ServiceMetadata {
+public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -41,6 +44,12 @@ public class ServiceMetadata {
 
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
+
+  @ConfigProperty(name = "service_metadata.bucket.name")
+  String bucketName;
+
+  @Inject
+  S3Client s3;
 
   public static String getStringValue(Element element) throws SAMLUtilsException {
     StreamResult result = new StreamResult(new StringWriter());
@@ -55,10 +64,46 @@ public class ServiceMetadata {
     return result.getWriter().toString();
   }
 
-  @GET
-  @Path("/{id_type}/metadata")
-  @Produces(MediaType.APPLICATION_XML)
-  public Response metadata(@PathParam("id_type") IdType idType) throws OneIdentityException {
+  @Override
+  public String handleRequest(DynamodbEvent event, Context context) {
+    try {
+      DynamodbStreamRecord record = event.getRecords().getFirst();
+
+      if (record.getEventName().equals("UPDATE")) {
+        //TODO: handle based on changes made
+      }
+
+      //TODO: consider using a thread pool
+      String spidMetadata = generateMetadata(IdType.spid);
+      String cieMetadata = generateMetadata(IdType.cie);
+
+      uploadToS3("spid-metadata.xml", spidMetadata);
+      uploadToS3("cie-metadata.xml", cieMetadata);
+    } catch (Exception e) {
+      Log.error("Error processing DynamoDB Event: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+
+    return "SPID and CIE metadata uploaded successfully";
+  }
+
+  private void uploadToS3(String objectKey, String content) {
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(bucketName)
+        .key(objectKey)
+        .build();
+
+    // Upload the content as bytes
+    try {
+      s3.putObject(putObjectRequest,
+          RequestBody.fromBytes(content.getBytes(StandardCharsets.UTF_8)));
+    } catch (S3Exception e) {
+      Log.error("error during s3 putObject: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String generateMetadata(IdType idType) throws OneIdentityException {
 
     EntityDescriptor entityDescriptor = samlUtils.buildSAMLObject(EntityDescriptor.class);
     entityDescriptor.setEntityID(ENTITY_ID);
@@ -101,6 +146,6 @@ public class ServiceMetadata {
       throw new OneIdentityException(e);
     }
 
-    return Response.ok(getStringValue(plaintextElement)).build();
+    return getStringValue(plaintextElement);
   }
 }
