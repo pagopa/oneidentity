@@ -8,6 +8,7 @@ on:
       - "**/src/oneid/oneid-ecs-core/**"
       - "**/src/oneid/oneid-common/**"
       - ".github/workflows/deploy-oneid-core-yml"
+      - "!**/src/oneid/oneid-ecs-core/src/main/webui/**"
   workflow_dispatch:
     inputs:
       environment:
