@@ -11,7 +11,6 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -76,6 +75,7 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
         String spidMetadata = generateMetadata(IdType.spid);
         String cieMetadata = generateMetadata(IdType.cie);
 
+        //TODO see how to upload in correct format
         uploadToS3("spid-metadata.xml", spidMetadata);
         uploadToS3("cie-metadata.xml", cieMetadata);
       } catch (Exception e) {
@@ -96,7 +96,7 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
     // Upload the content as bytes
     try {
       s3.putObject(putObjectRequest,
-          RequestBody.fromBytes(content.getBytes(StandardCharsets.UTF_8)));
+          RequestBody.fromString(content));
     } catch (S3Exception e) {
       Log.error("error during s3 putObject: " + e.getMessage());
       throw new RuntimeException(e);
