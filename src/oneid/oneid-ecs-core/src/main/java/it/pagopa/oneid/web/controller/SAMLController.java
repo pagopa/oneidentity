@@ -4,6 +4,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -36,6 +37,7 @@ import java.util.Base64;
 import java.util.Map;
 
 @Path(("/saml"))
+@Startup
 public class SAMLController {
 
   @Inject

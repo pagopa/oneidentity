@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.GrantType;
@@ -52,6 +53,7 @@ import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Path(("/oidc"))
+@Startup
 public class OIDCController {
 
   @Inject

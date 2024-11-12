@@ -19,6 +19,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
@@ -60,6 +61,7 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
 @CustomLogging
+@Startup
 public class OIDCServiceImpl implements OIDCService {
 
   @Inject
