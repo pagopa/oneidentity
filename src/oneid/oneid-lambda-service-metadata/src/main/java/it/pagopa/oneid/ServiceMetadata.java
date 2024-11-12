@@ -76,7 +76,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
         String spidMetadata = generateMetadata(IdType.spid);
         String cieMetadata = generateMetadata(IdType.cie);
 
-        //TODO see how to upload in correct format
         uploadToS3("spid-metadata.xml", spidMetadata);
         uploadToS3("cie-metadata.xml", cieMetadata);
       } catch (Exception e) {
@@ -95,7 +94,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
         .key(objectKey)
         .build();
 
-    // Upload the content as bytes
     try {
       s3.putObject(putObjectRequest,
           RequestBody.fromString(content));
