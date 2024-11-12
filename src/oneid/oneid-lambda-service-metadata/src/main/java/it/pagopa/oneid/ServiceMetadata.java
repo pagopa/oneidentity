@@ -66,22 +66,22 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
 
   @Override
   public String handleRequest(DynamodbEvent event, Context context) {
-    try {
-      DynamodbStreamRecord record = event.getRecords().getFirst();
+    for (DynamodbStreamRecord record : event.getRecords()) {
+      try {
+        if (record.getEventName().equals("UPDATE")) {
+          //TODO: handle based on changes made
+        }
 
-      if (record.getEventName().equals("UPDATE")) {
-        //TODO: handle based on changes made
+        //TODO: consider using a thread pool
+        String spidMetadata = generateMetadata(IdType.spid);
+        String cieMetadata = generateMetadata(IdType.cie);
+
+        uploadToS3("spid-metadata.xml", spidMetadata);
+        uploadToS3("cie-metadata.xml", cieMetadata);
+      } catch (Exception e) {
+        Log.error("Error processing DynamoDB Event: " + e.getMessage());
+        throw new RuntimeException(e);
       }
-
-      //TODO: consider using a thread pool
-      String spidMetadata = generateMetadata(IdType.spid);
-      String cieMetadata = generateMetadata(IdType.cie);
-
-      uploadToS3("spid-metadata.xml", spidMetadata);
-      uploadToS3("cie-metadata.xml", cieMetadata);
-    } catch (Exception e) {
-      Log.error("Error processing DynamoDB Event: " + e.getMessage());
-      throw new RuntimeException(e);
     }
 
     return "SPID and CIE metadata uploaded successfully";
