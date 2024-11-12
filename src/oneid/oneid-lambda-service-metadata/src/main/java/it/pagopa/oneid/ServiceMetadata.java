@@ -10,6 +10,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
@@ -90,6 +91,7 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
   private void uploadToS3(String objectKey, String content) {
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucketName)
+        .contentType(MediaType.APPLICATION_XML)
         .key(objectKey)
         .build();
 
