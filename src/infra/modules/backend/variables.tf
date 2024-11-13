@@ -87,12 +87,12 @@ variable "service_core" {
 # }
 
 variable "aws_caller_identity" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "switch_region_enabled" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "github_repository" {

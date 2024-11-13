@@ -457,7 +457,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 }
 
 resource "aws_iam_role" "switch_region_role" {
-  count = var.switch_region_enabled ? 1 : 0
+  count       = var.switch_region_enabled ? 1 : 0
   name        = "${var.role_prefix}-switch-region-role"
   description = "Role to assume to switch region."
 
@@ -486,7 +486,7 @@ resource "aws_iam_role" "switch_region_role" {
 }
 
 resource "aws_iam_policy" "switch_region_policy" {
-  count = var.switch_region_enabled ? 1 : 0
+  count       = var.switch_region_enabled ? 1 : 0
   name        = "${var.role_prefix}-switch-region-policy"
   description = "Policy to switch region"
 
@@ -495,8 +495,8 @@ resource "aws_iam_policy" "switch_region_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "application-autoscaling:RegisterScalableTarget",
           "ecs:UpdateService",
           "ecs:DescribeServices",
@@ -508,8 +508,8 @@ resource "aws_iam_policy" "switch_region_policy" {
         ]
       },
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "route53:ChangeResourceRecordSets",
           "route53:ListResourceRecordSets"
         ]
@@ -521,7 +521,7 @@ resource "aws_iam_policy" "switch_region_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "switch_region" {
-  count = var.switch_region_enabled ? 1 : 0
+  count      = var.switch_region_enabled ? 1 : 0
   role       = aws_iam_role.switch_region_role[0].name
   policy_arn = aws_iam_policy.switch_region_policy[0].arn
 }

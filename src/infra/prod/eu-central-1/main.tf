@@ -263,7 +263,7 @@ module "backend" {
     sns_topic_arn                     = var.is_gh_sns_arn
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
-  
+
   aws_caller_identity   = data.aws_caller_identity.current.account_id
   switch_region_enabled = true
 
