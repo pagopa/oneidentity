@@ -435,6 +435,81 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
+locals {
+  service_id = [
+    join("/", ["service", 
+      module.ecs_cluster.cluster_name,
+      module.ecs_core_service.name ]),
+  ]
+}
+
+## Autoscaling
+resource "aws_appautoscaling_target" "ecs_target" {
+  count = var.service_core.autoscaling.enable ? 1 : 0
+  max_capacity       = var.service_core.autoscaling.max_capacity
+  min_capacity       = var.service_core.autoscaling.min_capacity
+  resource_id        = local.service_id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
+  count = var.service_core.autoscaling.enable ? 1 : 0
+  name               = format("%s-scaleout", element(split("/", local.service_id), 2))
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target[count.index].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[count.index].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target[count.index].service_namespace
+
+  step_scaling_policy_configuration {
+    adjustment_type = "ChangeInCapacity"
+    step_adjustment {
+      scaling_adjustment = 2  # Add 2 tasks
+      metric_interval_lower_bound = 0
+    }
+    cooldown = var.service_core.autoscaling.scale_out_cooldown
+  }
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
+  count = var.service_core.autoscaling.enable ? 1 : 0
+  name               = format("%s-scalein", element(split("/", local.service_id), 2))
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target[count.index].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[count.index].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target[count.index].service_namespace
+
+  step_scaling_policy_configuration {
+    adjustment_type = "ChangeInCapacity"
+    step_adjustment {
+      scaling_adjustment = -1  # Add 2 tasks
+      metric_interval_lower_bound = 0
+    }
+    cooldown = var.service_core.autoscaling.scale_in_cooldown
+  }
+}
+
+/*
+resource "aws_appautoscaling_policy" "ecs_policy_cpu" {
+  name               = format("%s-cpu-autoscaling", element(split("/", local.service_ids[count.index]), 2))
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target[count.index].resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target[count.index].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target[count.index].service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    scale_in_cooldown  = var.ecs_autoscaling.scale_in_cooldown
+    scale_out_cooldown = var.ecs_autoscaling.scale_out_cooldown
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value = 70
+  }
+}
+
+
+*/
 resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   for_each = var.ecs_alarms
   alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
