@@ -514,7 +514,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
 resource "aws_cloudwatch_metric_alarm" "cpu_low" {
   count               = var.service_core.autoscaling.enable ? 1 : 0
   alarm_name          = "cpu-low-alarm"
-  comparison_operator = "LessThanThresholdOrEqualToThreshold"
+  comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
