@@ -4,8 +4,6 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-console.log(`Running tests on: ${process.env.BASE_URL};`);
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
