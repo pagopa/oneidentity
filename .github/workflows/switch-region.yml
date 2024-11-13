@@ -19,7 +19,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
-          role-to-assume: ${{ vars.IAM_ROLE_IAC }}
+          role-to-assume: ${{ vars.IAM_ROLE_SWITCH_REGION }}
           aws-region: "eu-central-1"
 
       - name: Update ECS autoscaling
