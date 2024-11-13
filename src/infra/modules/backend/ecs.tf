@@ -506,7 +506,9 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
     ServiceName = module.ecs_core_service.name
   }
 
-  alarm_actions = [aws_appautoscaling_policy.ecs_policy_scale_out.arn]
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_out[count.index].arn
+  ]
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_low" {
@@ -525,7 +527,9 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
     ServiceName = module.ecs_core_service.name
   }
 
-  alarm_actions = [aws_appautoscaling_policy.ecs_policy_scale_in.arn]
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_in[count.index].arn
+  ]
 }
 
 /*
