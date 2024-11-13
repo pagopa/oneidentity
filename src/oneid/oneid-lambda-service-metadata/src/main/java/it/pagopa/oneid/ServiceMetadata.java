@@ -8,6 +8,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
@@ -35,6 +36,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+@CustomLogging
 public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
 
   @Inject
@@ -78,7 +80,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
       return true;
     }
 
-    //TODO check if this conversion list-set is correct
     List<String> requestedParametersOld = record.getDynamodb().getOldImage()
         .get("requestedParameters").getSS();
     List<String> requestedParametersNew = record.getDynamodb().getNewImage()
@@ -101,8 +102,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
     boolean isActiveOld = record.getDynamodb().getOldImage().get("active").getBOOL();
     boolean isActiveNew = record.getDynamodb().getNewImage().get("active").getBOOL();
     return isActiveNew != isActiveOld;
-
-
   }
 
   @Override
