@@ -10,6 +10,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,10 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
 
@@ -104,44 +108,43 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
   @Override
   public String handleRequest(DynamodbEvent event, Context context) {
     for (DynamodbStreamRecord record : event.getRecords()) {
-      Log.debug("\n****\nRecord:\n");
-      Log.debug(record);
-//      try {
-//
-//        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-//          return "SPID and CIE metadata didn't change";
-//        }
-//
-//        //TODO: consider using a thread pool
-//        String spidMetadata = generateMetadata(IdType.spid);
-//        String cieMetadata = generateMetadata(IdType.cie);
-//
-//        uploadToS3("spid.xml", spidMetadata);
-//        uploadToS3("cie.xml", cieMetadata);
-//      } catch (Exception e) {
-//        Log.error("Error processing DynamoDB Event: " + e.getMessage());
-//        throw new RuntimeException(e);
-//      }
-//    }
-//
-//    return "SPID and CIE metadata uploaded successfully";
-//  }
-//
-//  private void uploadToS3(String objectKey, String content) {
-//    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-//        .bucket(bucketName)
-//        .contentType(MediaType.APPLICATION_XML)
-//        .key(objectKey)
-//        .build();
-//
-//    try {
-//      s3.putObject(putObjectRequest,
-//          RequestBody.fromString(content));
-//    } catch (S3Exception e) {
-//      Log.error("error during s3 putObject: " + e.getMessage());
-//      throw new RuntimeException(e);
+      try {
+        Log.debug("\n****\nRecord:\n");
+        Log.debug(record);
+
+        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
+          return "SPID and CIE metadata didn't change";
+        }
+
+        //TODO: consider using a thread pool
+        String spidMetadata = generateMetadata(IdType.spid);
+        String cieMetadata = generateMetadata(IdType.cie);
+
+        uploadToS3("spid.xml", spidMetadata);
+        uploadToS3("cie.xml", cieMetadata);
+      } catch (Exception e) {
+        Log.error("Error processing DynamoDB Event: " + e.getMessage());
+        throw new RuntimeException(e);
+      }
     }
-    return "";
+
+    return "SPID and CIE metadata uploaded successfully";
+  }
+
+  private void uploadToS3(String objectKey, String content) {
+    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+        .bucket(bucketName)
+        .contentType(MediaType.APPLICATION_XML)
+        .key(objectKey)
+        .build();
+
+    try {
+      s3.putObject(putObjectRequest,
+          RequestBody.fromString(content));
+    } catch (S3Exception e) {
+      Log.error("error during s3 putObject: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
   }
 
   private String generateMetadata(IdType idType) throws OneIdentityException {
