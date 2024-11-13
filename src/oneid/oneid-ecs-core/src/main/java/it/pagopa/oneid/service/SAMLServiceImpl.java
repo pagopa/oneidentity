@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
@@ -51,6 +52,7 @@ import org.w3c.dom.Element;
 
 @ApplicationScoped
 @CustomLogging
+@Startup
 public class SAMLServiceImpl implements SAMLService {
 
   private final static Set<String> eidasMinimumDataSet = Set.of(
