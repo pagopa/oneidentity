@@ -437,10 +437,10 @@ module "elb" {
 
 locals {
   service_id = join("/", ["service",
-      module.ecs_cluster.cluster_name,
-      module.ecs_core_service.name]
-    )
-  
+    module.ecs_cluster.cluster_name,
+    module.ecs_core_service.name]
+  )
+
 }
 
 ## Autoscaling
