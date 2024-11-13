@@ -12,6 +12,7 @@ import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -64,20 +65,63 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
     return result.getWriter().toString();
   }
 
+  private boolean hasMetadataChanged(DynamodbStreamRecord record) {
+
+    String acsIndexOld = record.getDynamodb().getOldImage().get("acsIndex").getN();
+    String acsIndexNew = record.getDynamodb().getNewImage().get("acsIndex").getN();
+    if (!acsIndexNew.equals(acsIndexOld)) {
+      return true;
+    }
+    String friendlyNameOld = record.getDynamodb().getOldImage().get("friendlyName").getS();
+    String friendlyNameNew = record.getDynamodb().getNewImage().get("friendlyName").getS();
+    if (!friendlyNameNew.equals(friendlyNameOld)) {
+      return true;
+    }
+
+    //TODO check if this conversion list-set is correct
+    List<String> requestedParametersOld = record.getDynamodb().getOldImage()
+        .get("requestedParameters").getSS();
+    List<String> requestedParametersNew = record.getDynamodb().getNewImage()
+        .get("requestedParameters").getSS();
+    if (!requestedParametersNew.equals(requestedParametersOld)) {
+      return true;
+    }
+    String authLevelOld = record.getDynamodb().getOldImage().get("authLevel").getS();
+    String authLevelNew = record.getDynamodb().getNewImage().get("authLevel").getS();
+    if (!authLevelNew.equals(authLevelOld)) {
+      return true;
+    }
+    String attributeIndexOld = record.getDynamodb().getOldImage().get("attributeIndex")
+        .getN();
+    String attributeIndexNew = record.getDynamodb().getNewImage().get("attributeIndex")
+        .getN();
+    if (!attributeIndexNew.equals(attributeIndexOld)) {
+      return true;
+    }
+    boolean isActiveOld = record.getDynamodb().getOldImage().get("isActive").getBOOL();
+    boolean isActiveNew = record.getDynamodb().getNewImage().get("isActive").getBOOL();
+    return isActiveNew != isActiveOld;
+
+
+  }
+
   @Override
   public String handleRequest(DynamodbEvent event, Context context) {
     for (DynamodbStreamRecord record : event.getRecords()) {
       try {
-        if (record.getEventName().equals("UPDATE")) {
-          //TODO: handle based on changes made
+        Log.debug("\n****\nRecord:\n");
+        Log.debug(record);
+        
+        if (record.getEventName().equals("UPDATE") && !hasMetadataChanged(record)) {
+          return "SPID and CIE metadata didn't change";
         }
 
         //TODO: consider using a thread pool
         String spidMetadata = generateMetadata(IdType.spid);
         String cieMetadata = generateMetadata(IdType.cie);
 
-        uploadToS3("spid-metadata.xml", spidMetadata);
-        uploadToS3("cie-metadata.xml", cieMetadata);
+        uploadToS3("spid.xml", spidMetadata);
+        uploadToS3("cie.xml", cieMetadata);
       } catch (Exception e) {
         Log.error("Error processing DynamoDB Event: " + e.getMessage());
         throw new RuntimeException(e);
