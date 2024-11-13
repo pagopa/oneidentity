@@ -80,11 +80,11 @@ variable "service_core" {
   })
 }
 
-# variable "hosted_zone_id" {
-#   type = string
-#   description = "Hosted zone id for IAM Role"
-#   default = ""
-# }
+variable "hosted_zone_id" {
+  type        = string
+  description = "Hosted zone id for IAM Role"
+  default     = "Z065844519UG4CA4QH19U"
+}
 
 variable "aws_caller_identity" {
   type    = string
