@@ -444,6 +444,7 @@ locals {
 }
 
 ## Autoscaling
+/*
 resource "aws_appautoscaling_target" "ecs_target" {
   count              = var.service_core.autoscaling.enable ? 1 : 0
   max_capacity       = var.service_core.autoscaling.max_capacity
@@ -452,14 +453,15 @@ resource "aws_appautoscaling_target" "ecs_target" {
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
+*/
 
 resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
   count              = var.service_core.autoscaling.enable ? 1 : 0
   name               = format("%s-scaleout", element(split("/", local.service_id), 2))
   policy_type        = "StepScaling"
-  resource_id        = aws_appautoscaling_target.ecs_target[count.index].resource_id
-  scalable_dimension = aws_appautoscaling_target.ecs_target[count.index].scalable_dimension
-  service_namespace  = aws_appautoscaling_target.ecs_target[count.index].service_namespace
+  resource_id        = local.service_id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
 
   step_scaling_policy_configuration {
     adjustment_type = "ChangeInCapacity"
@@ -475,9 +477,9 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
   count              = var.service_core.autoscaling.enable ? 1 : 0
   name               = format("%s-scalein", element(split("/", local.service_id), 2))
   policy_type        = "StepScaling"
-  resource_id        = aws_appautoscaling_target.ecs_target[count.index].resource_id
-  scalable_dimension = aws_appautoscaling_target.ecs_target[count.index].scalable_dimension
-  service_namespace  = aws_appautoscaling_target.ecs_target[count.index].service_namespace
+  resource_id        = local.service_id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
 
   step_scaling_policy_configuration {
     adjustment_type = "ChangeInCapacity"
