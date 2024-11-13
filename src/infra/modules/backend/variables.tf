@@ -80,6 +80,21 @@ variable "service_core" {
   })
 }
 
+# variable "hosted_zone_id" {
+#   type = string
+#   description = "Hosted zone id for IAM Role"
+#   default = ""
+# }
+
+variable "aws_caller_identity" {
+  type    = string
+  default = ""
+}
+
+variable "switch_region_enabled" {
+  type    = bool
+  default = false
+}
 variable "github_repository" {
   type        = string
   description = "Github repository responsible to deploy ECS tasks in the form <organization|user/repository>."
