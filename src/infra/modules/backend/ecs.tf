@@ -530,3 +530,73 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 
   alarm_actions = [each.value.sns_topic_alarm_arn]
 }
+
+resource "aws_iam_role" "switch_region_role" {
+  count       = var.switch_region_enabled ? 1 : 0
+  name        = "${var.role_prefix}-switch-region-role"
+  description = "Role to assume to switch region."
+
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          "Federated" : "arn:aws:iam::${var.aws_caller_identity}:oidc-provider/token.actions.githubusercontent.com"
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : "repo:${var.github_repository}:*"
+          },
+          "ForAllValues:StringEquals" = {
+            "token.actions.githubusercontent.com:iss" : "https://token.actions.githubusercontent.com",
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "switch_region_policy" {
+  count       = var.switch_region_enabled ? 1 : 0
+  name        = "${var.role_prefix}-switch-region-policy"
+  description = "Policy to switch region"
+
+  policy = jsonencode({
+
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "application-autoscaling:RegisterScalableTarget",
+          "ecs:UpdateService",
+          "ecs:DescribeServices",
+          "ecs:WaitForServicesStable"
+        ]
+        Resource = [
+          "${module.ecs_cluster.cluster_arn}",
+          "${module.ecs_cluster.cluster_arn}/${var.service_core.service_name}"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ChangeResourceRecordSets",
+          "route53:ListResourceRecordSets"
+        ]
+        Resource = "arn:aws:route53:::hostedzone/Z065844519UG4CA4QH19U"
+      }
+    ]
+  })
+
+}
+
+resource "aws_iam_role_policy_attachment" "switch_region" {
+  count      = var.switch_region_enabled ? 1 : 0
+  role       = aws_iam_role.switch_region_role[0].name
+  policy_arn = aws_iam_policy.switch_region_policy[0].arn
+}

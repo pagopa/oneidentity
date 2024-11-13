@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientFE;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 @CustomLogging
+@Startup
 public class ClientServiceImpl implements ClientService {
 
   @Inject
