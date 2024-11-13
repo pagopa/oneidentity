@@ -98,8 +98,8 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
     if (!attributeIndexNew.equals(attributeIndexOld)) {
       return true;
     }
-    boolean isActiveOld = record.getDynamodb().getOldImage().get("isActive").getBOOL();
-    boolean isActiveNew = record.getDynamodb().getNewImage().get("isActive").getBOOL();
+    boolean isActiveOld = record.getDynamodb().getOldImage().get("active").getBOOL();
+    boolean isActiveNew = record.getDynamodb().getNewImage().get("active").getBOOL();
     return isActiveNew != isActiveOld;
 
 
@@ -109,6 +109,7 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
   public String handleRequest(DynamodbEvent event, Context context) {
     for (DynamodbStreamRecord record : event.getRecords()) {
       try {
+        //TODO: remove before pushing on main
         Log.debug("\n****\nRecord:\n");
         Log.debug(record);
 
