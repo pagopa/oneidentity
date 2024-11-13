@@ -464,10 +464,10 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
   step_scaling_policy_configuration {
     adjustment_type = "ChangeInCapacity"
     step_adjustment {
-      scaling_adjustment          = 2 # Add 2 tasks
+      scaling_adjustment          = 1 # Add 2 tasks
       metric_interval_lower_bound = 0
     }
-    cooldown = var.service_core.autoscaling.scale_out_cooldown
+    cooldown = 60
   }
 }
 
@@ -485,7 +485,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
       scaling_adjustment          = -1 # Add 2 tasks
       metric_interval_lower_bound = 0
     }
-    cooldown = var.service_core.autoscaling.scale_in_cooldown
+    cooldown = 900
   }
 }
 
