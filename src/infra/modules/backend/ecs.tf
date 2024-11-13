@@ -643,12 +643,12 @@ resource "aws_iam_policy" "switch_region_policy" {
         Action = [
           "application-autoscaling:RegisterScalableTarget",
           "ecs:UpdateService",
-          "ecs:DescribeServices",
-          "ecs:WaitForServicesStable"
+          "ecs:DescribeServices"
         ]
         Resource = [
           "${module.ecs_cluster.cluster_arn}",
-          "${module.ecs_cluster.cluster_arn}/${var.service_core.service_name}"
+          "arn:aws:ecs:${var.aws_region}:${var.aws_caller_identity}:service/${var.ecs_cluster_name}/${var.service_core.service_name}",
+          "arn:aws:application-autoscaling:${var.aws_region}:${var.aws_caller_identity}:scalable-target/*"
         ]
       },
       {
@@ -657,7 +657,7 @@ resource "aws_iam_policy" "switch_region_policy" {
           "route53:ChangeResourceRecordSets",
           "route53:ListResourceRecordSets"
         ]
-        Resource = "arn:aws:route53:::hostedzone/Z065844519UG4CA4QH19U"
+        Resource = "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
       }
     ]
   })
