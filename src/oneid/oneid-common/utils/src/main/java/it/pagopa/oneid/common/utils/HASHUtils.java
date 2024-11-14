@@ -12,9 +12,9 @@ import org.bouncycastle.crypto.params.Argon2Parameters;
 public class HASHUtils {
 
   public static final int ARGON_2_ITERATIONS_NUMBER = 2;
-  public static final int ARGON_2_MEM_LIMIT = 66536;
+  public static final int ARGON_2_MEM_LIMIT = 19000;
   public static final int ARGON_2_HASH_LENGTH = 32;
-  public static final int ARGON_2_PARALLELISM = 1;
+  public static final int ARGON_2_PARALLELISM = 4;
 
   public static final Base64.Encoder b64encoder = Base64.getEncoder().withoutPadding();
 
