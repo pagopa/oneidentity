@@ -4,6 +4,7 @@ import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import { ENV } from '../../utils/env';
+import { ImageWithFallback } from '../../components/ImageFallback';
 
 type Props = {
   openSpidModal: boolean;
@@ -27,6 +28,8 @@ export const getSPID = (IDP: IdentityProvider) => {
 
 const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
   const { t } = useTranslation();
+  const idpPlaceholderImg =
+    '/assets/idps/aHR0cHM6Ly92YWxpZGF0b3IuZGV2Lm9uZWlkLnBhZ29wYS5pdC9kZW1v.png';
 
   return (
     <Dialog open={openSpidModal} onClose={() => setOpenSpidModal(false)}>
@@ -61,7 +64,12 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
                 <Icon
                   sx={{ width: '100px', height: '48px', display: 'flex', alignItems: ' center' }}
                 >
-                  <img width="100px" src={IDP.imageUrl} alt={IDP.name} />
+                  <ImageWithFallback
+                    width="100px"
+                    src={IDP.imageUrl}
+                    alt={IDP.name}
+                    placeholder={idpPlaceholderImg}
+                  />
                 </Icon>
               </Button>
             </Grid>
@@ -69,7 +77,12 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
         </Grid>
       </Grid>
       <Grid p={4}>
-        <Button onClick={() => setOpenSpidModal(false)} fullWidth variant="outlined" data-testid="close-button">
+        <Button
+          onClick={() => setOpenSpidModal(false)}
+          fullWidth
+          variant="outlined"
+          data-testid="close-button"
+        >
           {t('spidSelect.cancelButton')}
         </Button>
       </Grid>
