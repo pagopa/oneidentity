@@ -443,18 +443,6 @@ locals {
 
 }
 
-## Autoscaling
-/*
-resource "aws_appautoscaling_target" "ecs_target" {
-  count              = var.service_core.autoscaling.enable ? 1 : 0
-  max_capacity       = var.service_core.autoscaling.max_capacity
-  min_capacity       = var.service_core.autoscaling.min_capacity
-  resource_id        = local.service_id
-  scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace  = "ecs"
-}
-*/
-
 resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
   count              = var.service_core.autoscaling.enable ? 1 : 0
   name               = format("%s-scaleout", element(split("/", local.service_id), 2))
@@ -491,6 +479,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
   }
 }
 
+/*
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   count               = var.service_core.autoscaling.enable ? 1 : 0
   alarm_name          = "cpu-high-alarm"
@@ -554,6 +543,7 @@ resource "aws_cloudwatch_metric_alarm" "mem_high" {
   ]
 }
 
+/*
 resource "aws_cloudwatch_metric_alarm" "mem_low" {
   count               = var.service_core.autoscaling.enable ? 1 : 0
   alarm_name          = "mem-low-alarm"
@@ -574,8 +564,8 @@ resource "aws_cloudwatch_metric_alarm" "mem_low" {
     aws_appautoscaling_policy.ecs_policy_scale_in[count.index].arn
   ]
 }
+*/
 
-/*
 resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   for_each = var.ecs_alarms
   alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
@@ -594,11 +584,11 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
     ServiceName = module.ecs_core_service.name
   }
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
+  alarm_actions = compact([
+    each.value.sns_topic_alarm_arn,
+    each.value.autoscaling && var.service_core.autoscaling.enable ? aws_appautoscaling_policy.ecs_policy_scale_in[0].arn : null
+  ])
 }
-
-*/
-
 
 ## Iam role to switch region ## 
 

@@ -257,6 +257,7 @@ variable "ecs_alarms" {
     statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
+    autoscaling         = optional(bool, false)
   }))
 }
 
