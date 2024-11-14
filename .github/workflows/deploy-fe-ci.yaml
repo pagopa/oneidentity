@@ -60,7 +60,7 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
               yarn build --mode ${{ github.event.inputs.environment }}
           else
-              yarn build --mode
+              yarn build --mode dev
           fi
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
