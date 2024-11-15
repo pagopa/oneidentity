@@ -1,62 +1,62 @@
-import * as env from 'env-var';
-
-const PUBLIC_URL: string = env.get('PUBLIC_URL').default('').asString();
-const currentEnv: string = env.get('REACT_APP_ENV').required().asString();
+const PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL || '';
 
 export const ENV = {
-  ENV: currentEnv,
+  CURRENT_ENV: import.meta.env.VITE_CURRENT_ENV as string,
+	// Corresponds to the .env.[mode] file loaded
+	// By default vite set mode to development when using vite dev
+	// and set to production when using vite build.
+	// Can be overriden using --mode option
+	// see https://vite.dev/guide/env-and-mode#modes
+  MODE: import.meta.env.MODE,
   PUBLIC_URL,
 
-  ENABLED_SPID_TEMPORARY_SELECT: env.get('REACT_APP_LOGIN_SPID_ENABLED_TEMPORARY_SELECT').required().asBool(),
+  ENABLED_SPID_TEMPORARY_SELECT: import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
   ASSISTANCE: {
-    ENABLE: env.get('REACT_APP_ENABLE_ASSISTANCE').required().asBool(),
-    EMAIL: env.get('REACT_APP_PAGOPA_HELP_EMAIL').required().asString(),
+    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE ,
+    EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
   },
 
   JSON_URL: {
-    ALERT: env.get('REACT_APP_LOGIN_ALERT_BANNER').required().asString(),
-    IDP_LIST: env.get('REACT_APP_LOGIN_IDP_LIST').required().asString(),
-    CLIENT_BASE_URL: env.get('REACT_APP_LOGIN_CLIENT_BASE_URL').required().asString(),
+    ALERT: import.meta.env.VITE_LOGIN_ALERT_BANNER as string,
+    IDP_LIST: import.meta.env.VITE_LOGIN_IDP_LIST as string,
+    CLIENT_BASE_URL: import.meta.env.VITE_LOGIN_CLIENT_BASE_URL as string,
   },
 
   URL_FE: {
     LOGIN: PUBLIC_URL + '/login',
     LOGOUT: PUBLIC_URL + '/logout',
-    ASSETS: env.get('REACT_APP_URL_CDN').required().asString(),
+    ASSETS: import.meta.env.VITE_URL_CDN as string,
   },
 
   HEADER: {
     LINK: {
-      ROOTLINK: env.get('REACT_APP_HEADER_LINK_ROOTLINK').required().asString(),
-      PRODUCTURL: env.get('REACT_APP_HEADER_LINK_PRODUCTURL').required().asString(),
+      ROOTLINK: import.meta.env.VITE_HEADER_LINK_ROOTLINK as string,
+      PRODUCTURL: import.meta.env.VITE_HEADER_LINK_PRODUCTURL as string,
     },
   },
 
-  URL_DOCUMENTATION: ' https://docs.pagopa.it/area-riservata/',
+  URL_DOCUMENTATION: 'https://docs.pagopa.it/area-riservata/',
 
   URL_API: {
-    LOGIN: env.get('REACT_APP_URL_API_LOGIN').required().asString(),
-    AUTHORIZE: env.get('REACT_APP_URL_API_AUTHORIZE').required().asString(),
+    LOGIN: import.meta.env.VITE_URL_API_LOGIN as string,
+    AUTHORIZE: import.meta.env.VITE_URL_API_AUTHORIZE as string,
   },
 
   URL_FOOTER: {
-    PRIVACY_DISCLAIMER: env.get('REACT_APP_URL_PRIVACY_DISCLAIMER').required().asString(),
-    TERMS_AND_CONDITIONS: env.get('REACT_APP_URL_TERMS_AND_CONDITIONS').required().asString(),
+    PRIVACY_DISCLAIMER: import.meta.env.VITE_URL_PRIVACY_DISCLAIMER as string,
+    TERMS_AND_CONDITIONS: import.meta.env.VITE_URL_TERMS_AND_CONDITIONS as string,
   },
 
-  SPID_TEST_ENV_ENABLED: env.get('REACT_APP_SPID_TEST_ENV_ENABLED').required().asBool(),
+  SPID_TEST_ENV_ENABLED: import.meta.env.VITE_SPID_TEST_ENV_ENABLED === 'true',
 
-  SPID_CIE_ENTITY_ID: env.get('REACT_APP_SPID_CIE_ENTITY_ID').required().asString(),
+  SPID_CIE_ENTITY_ID: import.meta.env.VITE_SPID_CIE_ENTITY_ID as string,
 
   ANALYTCS: {
-    ENABLE: env.get('REACT_APP_ANALYTICS_ENABLE').default('false').asBool(),
-    MOCK: env.get('REACT_APP_ANALYTICS_MOCK').default('false').asBool(),
-    DEBUG: env.get('REACT_APP_ANALYTICS_DEBUG').default('false').asBool(),
-    TOKEN: env.get('REACT_APP_SERVICE_EXAMPLE_TOKEN').required().asString(),
-    API_HOST: env
-      .get('REACT_APP_SERVICE_EXAMPLE_API_HOST')
-      .default('https://examples.com')
-      .asString(),
+    ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
+    MOCK: import.meta.env.VITE_ANALYTICS_MOCK === 'true',
+    DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',
+    TOKEN: import.meta.env.VITE_SERVICE_EXAMPLE_TOKEN as string,
+    API_HOST: import.meta.env.VITE_SERVICE_EXAMPLE_API_HOST,
   },
 };

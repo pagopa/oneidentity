@@ -1,11 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '@pagopa/mui-italia';
 import App from './App';
 import './locale';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = createRoot(document.getElementById('root')!);
+
 root.render(
   <ThemeProvider theme={theme}>
     <React.StrictMode>
