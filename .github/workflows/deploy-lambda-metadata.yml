@@ -12,6 +12,7 @@ on:
       # TODO: consider remove github workflow path
       - ".github/workflows/deploy-lambda-metadata.yml"
 
+
   workflow_dispatch:
     inputs:
       environment:
