@@ -374,7 +374,7 @@ variable "ecs_alarms" {
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      threshold           = 70
+      threshold           = 50
       period              = 60
       statistic           = "Average"
       autoscaling         = true
@@ -384,8 +384,8 @@ variable "ecs_alarms" {
       namespace           = "AWS/ECS"
       evaluation_periods  = 3
       comparison_operator = "LessThanOrEqualToThreshold"
-      threshold           = 50
-      period              = 300
+      threshold           = 20
+      period              = 900
       statistic           = "Average"
       autoscaling         = true
     },
