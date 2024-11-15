@@ -102,11 +102,11 @@ variable "ecs_oneid_core" {
   description = "Oneidentity core backend configurations."
 
   default = {
-    image_version    = "83b0593b0f113eee056786850de51ecfe5079789"
-    cpu              = 512
-    memory           = 1024
-    container_cpu    = 512
-    container_memory = 1024
+    image_version    = "05d9825a488fc80c2b8cd08d69e55732d4762977"
+    cpu              = 2048
+    memory           = 4096
+    container_cpu    = 2048
+    container_memory = 4096
     autoscaling = {
       enable        = true
       desired_count = 1
@@ -347,21 +347,34 @@ variable "ecs_alarms" {
   }))
 
   default = {
-    "ecs-cpu-utilization" = {
+    "cpu_high" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      threshold           = 50
+      period              = 60
       statistic           = "Average"
+      autoscaling         = true
     },
-    "ecs-memory-utilization" = {
+    "cpu_low" = {
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 3
+      comparison_operator = "LessThanOrEqualToThreshold"
+      threshold           = 20
+      period              = 900
+      statistic           = "Average"
+      autoscaling         = true
+    },
+    "mem_high" = {
       metric_name         = "MemoryUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      period              = 60
       statistic           = "Average"
+      threshold           = 70
     }
   }
 }

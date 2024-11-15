@@ -435,6 +435,137 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
+locals {
+  service_id = join("/", ["service",
+    module.ecs_cluster.cluster_name,
+    module.ecs_core_service.name]
+  )
+
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
+  count              = var.service_core.autoscaling.enable ? 1 : 0
+  name               = format("%s-scaleout", element(split("/", local.service_id), 2))
+  policy_type        = "StepScaling"
+  resource_id        = local.service_id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  step_scaling_policy_configuration {
+    adjustment_type = "ChangeInCapacity"
+    step_adjustment {
+      scaling_adjustment          = 1 # Add 2 tasks
+      metric_interval_lower_bound = 0
+    }
+    cooldown = 60
+  }
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
+  count              = var.service_core.autoscaling.enable ? 1 : 0
+  name               = format("%s-scalein", element(split("/", local.service_id), 2))
+  policy_type        = "StepScaling"
+  resource_id        = local.service_id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  step_scaling_policy_configuration {
+    adjustment_type = "ChangeInCapacity"
+    step_adjustment {
+      scaling_adjustment          = -1 # Add 2 tasks
+      metric_interval_lower_bound = 0
+    }
+    cooldown = 900
+  }
+}
+
+/*
+resource "aws_cloudwatch_metric_alarm" "cpu_high" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "cpu-high-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = 70
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_out[count.index].arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "cpu_low" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "cpu-low-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = 50
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_in[count.index].arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "mem_high" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "mem-high-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = 70
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_out[count.index].arn
+  ]
+}
+
+/*
+resource "aws_cloudwatch_metric_alarm" "mem_low" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "mem-low-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "MemoryUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = 50
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_policy_scale_in[count.index].arn
+  ]
+}
+*/
+
 resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   for_each = var.ecs_alarms
   alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
@@ -453,8 +584,13 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
     ServiceName = module.ecs_core_service.name
   }
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
+  alarm_actions = compact([
+    each.value.sns_topic_alarm_arn,
+    each.value.autoscaling && var.service_core.autoscaling.enable ? aws_appautoscaling_policy.ecs_policy_scale_in[0].arn : null
+  ])
 }
+
+## Iam role to switch region ## 
 
 resource "aws_iam_role" "switch_region_role" {
   count       = var.switch_region_enabled ? 1 : 0

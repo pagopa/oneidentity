@@ -369,21 +369,34 @@ variable "ecs_alarms" {
   }))
 
   default = {
-    "ecs-cpu-utilization" = {
+    "cpu_high" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      threshold           = 50
+      period              = 60
       statistic           = "Average"
+      autoscaling         = true
     },
-    "ecs-memory-utilization" = {
+    "cpu_low" = {
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 3
+      comparison_operator = "LessThanOrEqualToThreshold"
+      threshold           = 20
+      period              = 900
+      statistic           = "Average"
+      autoscaling         = true
+    },
+    "mem_high" = {
       metric_name         = "MemoryUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      period              = 60
       statistic           = "Average"
+      threshold           = 70
     }
   }
 }

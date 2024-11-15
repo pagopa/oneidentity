@@ -158,6 +158,8 @@
 
 | Name | Type |
 |------|------|
+| [aws_appautoscaling_policy.ecs_policy_scale_in](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy) | resource |
+| [aws_appautoscaling_policy.ecs_policy_scale_out](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy) | resource |
 | [aws_cloudwatch_log_group.ecs_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_metric_alarm.dlq_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.dlq_sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
@@ -206,7 +208,7 @@
 | <a name="input_dynamodb_table_sessions"></a> [dynamodb\_table\_sessions](#input\_dynamodb\_table\_sessions) | Dynamodb table sessions anrs | <pre>object({<br>    table_arn    = string<br>    gsi_code_arn = string<br>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_table_stream_arn"></a> [dynamodb\_table\_stream\_arn](#input\_dynamodb\_table\_stream\_arn) | n/a | `string` | `null` | no |
 | <a name="input_ecr_registers"></a> [ecr\_registers](#input\_ecr\_registers) | ECR image repositories | <pre>list(object({<br>    name                            = string<br>    number_of_images_to_keep        = number<br>    repository_image_tag_mutability = optional(string, "IMMUTABLE")<br>  }))</pre> | n/a | yes |
-| <a name="input_ecs_alarms"></a> [ecs\_alarms](#input\_ecs\_alarms) | n/a | <pre>map(object({<br>    metric_name         = string<br>    namespace           = string<br>    threshold           = number<br>    evaluation_periods  = number<br>    period              = number<br>    statistic           = string<br>    comparison_operator = string<br>    sns_topic_alarm_arn = string<br>  }))</pre> | n/a | yes |
+| <a name="input_ecs_alarms"></a> [ecs\_alarms](#input\_ecs\_alarms) | n/a | <pre>map(object({<br>    metric_name         = string<br>    namespace           = string<br>    threshold           = number<br>    evaluation_periods  = number<br>    period              = number<br>    statistic           = string<br>    comparison_operator = string<br>    sns_topic_alarm_arn = string<br>    autoscaling         = optional(bool, false)<br>  }))</pre> | n/a | yes |
 | <a name="input_ecs_cluster_name"></a> [ecs\_cluster\_name](#input\_ecs\_cluster\_name) | ECS Cluster name | `string` | n/a | yes |
 | <a name="input_enable_container_insights"></a> [enable\_container\_insights](#input\_enable\_container\_insights) | ECS enable container insight. | `bool` | `true` | no |
 | <a name="input_eventbridge_pipe_sessions"></a> [eventbridge\_pipe\_sessions](#input\_eventbridge\_pipe\_sessions) | n/a | <pre>object({<br>    pipe_name                     = string<br>    kms_sessions_table_alias      = string<br>    maximum_retry_attempts        = number<br>    maximum_record_age_in_seconds = number<br>  })</pre> | `null` | no |

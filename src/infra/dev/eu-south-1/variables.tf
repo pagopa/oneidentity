@@ -336,29 +336,43 @@ variable "ecs_alarms" {
   type = map(object({
     metric_name         = string
     namespace           = string
-    threshold           = optional(number)
-    evaluation_periods  = optional(number)
-    period              = optional(number)
-    statistic           = optional(string)
-    comparison_operator = optional(string)
+    threshold           = number
+    evaluation_periods  = number
+    period              = number
+    statistic           = string
+    comparison_operator = string
+    autoscaling         = optional(bool, false)
   }))
 
   default = {
-    "ecs-cpu-utilization" = {
+    "cpu_high" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      threshold           = 50
+      period              = 60
       statistic           = "Average"
+      autoscaling         = true
     },
-    "ecs-memory-utilization" = {
+    "cpu_low" = {
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 3
+      comparison_operator = "LessThanOrEqualToThreshold"
+      threshold           = 50
+      period              = 900
+      statistic           = "Average"
+      autoscaling         = true
+    },
+    "mem_high" = {
       metric_name         = "MemoryUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      period              = 60
       statistic           = "Average"
+      threshold           = 70
     }
   }
 }
