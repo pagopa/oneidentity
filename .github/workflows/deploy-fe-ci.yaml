@@ -97,5 +97,5 @@ jobs:
 
       - name: Copy to S3
         run: |
-            aws s3 sync build s3://${{ vars.ASSETS_BUCKET_NAME }}
+            aws s3 sync dist s3://${{ vars.ASSETS_BUCKET_NAME }}
         working-directory: src/oneid/oneid-ecs-core/src/main/webui
