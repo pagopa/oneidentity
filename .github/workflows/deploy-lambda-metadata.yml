@@ -3,10 +3,15 @@ name: Deploy Lambda metadata
 on:
   push:
     branches:
-      - "main"
+      # TODO: replace with main branch
+      # - "main"
+      - "feat/lambda-metadata-maven-caching-dependency"
     paths:
       - "**/src/oneid/oneid-lambda-metadata/**"
       - "**/src/oneid/oneid-common/**"
+      # TODO: consider remove github workflow path
+      - ".github/workflows/deploy-lambda-metadata.yml"
+
   workflow_dispatch:
     inputs:
       environment:
@@ -56,6 +61,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: |
+            ./src/oneid/oneid-lambda-service-metadata/pom.xml
+            ./src/oneid/oneid-common/producer/pom.xml      
+            ./src/oneid/oneid-common/utils/pom.xml      
+
 
       - name: Build with Maven
         working-directory: src/oneid
@@ -91,18 +102,19 @@ jobs:
           name: metadata-lambda
           path: ./src/oneid/oneid-lambda-service-metadata/target
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
-        with:
-          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
-          aws-region: ${{ matrix.region }}
+      #todo remove comments
+      # - name: Configure AWS Credentials
+      #  uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+      #  with:
+      #    role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
+      #    aws-region: ${{ matrix.region }}
 
-      - name: Update Lambda function (${{ matrix.environment }})
-        run: |
-          aws s3 cp src/oneid/oneid-lambda-service-metadata/target/function.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_METADATA_KEY}}
+      #- name: Update Lambda function (${{ matrix.environment }})
+      #  run: |
+      #    aws s3 cp src/oneid/oneid-lambda-service-metadata/target/function.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_METADATA_KEY}}
 
-      - name: Deploy Lambda function (${{ matrix.environment }})
-        run: |
-          aws lambda update-function-code \
-          --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-metadata \
-          --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_METADATA_KEY}}
+      #- name: Deploy Lambda function (${{ matrix.environment }})
+      #  run: |
+      #    aws lambda update-function-code \
+      #    --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-metadata \
+      #    --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_METADATA_KEY}}
