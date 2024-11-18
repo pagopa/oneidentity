@@ -435,7 +435,7 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
-      if (statusMessage != null && !statusMessage.isEmpty()) {
+      if (StringUtils.isNotBlank(statusMessage)) {
         Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
         String message = "";
