@@ -424,7 +424,7 @@ variable "ecs_alarms" {
       threshold           = 50
       period              = 60
       statistic           = "Average"
-      autoscaling         = true
+      scale_out           = true
     },
     "cpu_low" = {
       metric_name         = "CPUUtilization"
@@ -434,7 +434,7 @@ variable "ecs_alarms" {
       threshold           = 20
       period              = 900
       statistic           = "Average"
-      autoscaling         = true
+      scale_in            = true
     },
     "mem_high" = {
       metric_name         = "MemoryUtilization"

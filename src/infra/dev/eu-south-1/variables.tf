@@ -341,7 +341,8 @@ variable "ecs_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    autoscaling         = optional(bool, false)
+    scale_in            = optional(bool, false)
+    scale_out           = optional(bool, false)
   }))
 
   default = {
@@ -353,7 +354,7 @@ variable "ecs_alarms" {
       threshold           = 50
       period              = 60
       statistic           = "Average"
-      autoscaling         = true
+      scale_out           = true
     },
     "cpu_low" = {
       metric_name         = "CPUUtilization"
@@ -363,7 +364,7 @@ variable "ecs_alarms" {
       threshold           = 50
       period              = 900
       statistic           = "Average"
-      autoscaling         = true
+      scale_in            = true
     },
     "mem_high" = {
       metric_name         = "MemoryUtilization"

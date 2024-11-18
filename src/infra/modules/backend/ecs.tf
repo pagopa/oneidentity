@@ -478,7 +478,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
   step_scaling_policy_configuration {
     adjustment_type = "ChangeInCapacity"
     step_adjustment {
-      scaling_adjustment          = 1 # Add 2 tasks
+      scaling_adjustment          = 2 # Add 2 tasks
       metric_interval_lower_bound = 0
     }
     cooldown = 60
@@ -496,7 +496,7 @@ resource "aws_appautoscaling_policy" "ecs_policy_scale_in" {
   step_scaling_policy_configuration {
     adjustment_type = "ChangeInCapacity"
     step_adjustment {
-      scaling_adjustment          = -1 # Add 2 tasks
+      scaling_adjustment          = -1
       metric_interval_lower_bound = 0
     }
     cooldown = 900
@@ -610,7 +610,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 
   alarm_actions = compact([
     each.value.sns_topic_alarm_arn,
-    each.value.autoscaling && var.service_core.autoscaling.enable ? aws_appautoscaling_policy.ecs_policy_scale_in[0].arn : null
+    each.value.scale_in && var.service_core.autoscaling.enable ? aws_appautoscaling_policy.ecs_policy_scale_in[0].arn : null,
+    each.value.scale_out && var.service_core.autoscaling.enable ? aws_appautoscaling_policy.ecs_policy_scale_out[0].arn : null
   ])
 }
 
