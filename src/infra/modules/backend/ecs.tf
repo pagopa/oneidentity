@@ -286,6 +286,8 @@ module "ecs_core_service" {
         "predefined_metric_specification" : {
           "predefined_metric_type" : "ECSServiceAverageCPUUtilization"
         }
+        "disable_scale_in": true
+        "scale_in_cooldown": 900
       }
     },
     "memory" : {
@@ -294,6 +296,8 @@ module "ecs_core_service" {
         "predefined_metric_specification" : {
           "predefined_metric_type" : "ECSServiceAverageMemoryUtilization"
         }
+        "disable_scale_in": true
+        "scale_in_cooldown": 900
       }
     }
   }
