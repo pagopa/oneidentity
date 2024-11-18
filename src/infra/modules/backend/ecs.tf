@@ -279,6 +279,30 @@ module "ecs_core_service" {
   autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
   desired_count            = var.service_core.autoscaling.desired_count
 
+  autoscaling_policies = {
+    "cpu" : {
+      "policy_type" : "TargetTrackingScaling",
+      "target_tracking_scaling_policy_configuration" : {
+        "predefined_metric_specification" : {
+          "predefined_metric_type" : "ECSServiceAverageCPUUtilization"
+        }
+        "disable_scale_in" : true
+        "scale_in_cooldown" : 900
+      }
+    },
+    "memory" : {
+      "policy_type" : "TargetTrackingScaling",
+      "target_tracking_scaling_policy_configuration" : {
+        "predefined_metric_specification" : {
+          "predefined_metric_type" : "ECSServiceAverageMemoryUtilization"
+        }
+        "disable_scale_in" : true
+        "scale_in_cooldown" : 900
+      }
+    }
+  }
+
+
   subnet_ids       = var.private_subnets
   assign_public_ip = false
 
