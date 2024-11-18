@@ -366,7 +366,7 @@ variable "ecs_alarms" {
       threshold           = 20
       period              = 900
       statistic           = "Average"
-      scaling_policy      = "cpu_lows"
+      scaling_policy      = "cpu_low"
     },
     "mem_high" = {
       metric_name         = "MemoryUtilization"
