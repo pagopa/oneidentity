@@ -202,18 +202,18 @@ module "s3_assertions_accesslogs_bucket" {
 
   control_object_ownership = true
 
-  attach_access_log_delivery_policy     = true
+  attach_access_log_delivery_policy = true
 
   access_log_delivery_policy_source_accounts = [var.account_id]
   access_log_delivery_policy_source_buckets  = ["arn:aws:s3:::${local.bucket_name}"]
 
   versioning = {
-    enabled    = true
+    enabled = true
   }
 
 
   tags = {
-    Name   = local.bucket_accessLogs_name 
+    Name = local.bucket_accessLogs_name
   }
 }
 
@@ -262,7 +262,7 @@ module "s3_assertions_bucket" {
   ]
 
   replication_configuration = local.replication_configuration
- 
+
   logging = {
     target_bucket = module.s3_assertions_accesslogs_bucket.s3_bucket_id
   }
