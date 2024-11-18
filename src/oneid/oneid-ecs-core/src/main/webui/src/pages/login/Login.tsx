@@ -12,10 +12,11 @@ import Layout from '../../components/Layout';
 import SpidIcon from '../../assets/SpidIcon.svg';
 import CIEIcon from '../../assets/CIEIcon.svg';
 import { ENV } from '../../utils/env';
-import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
+import { ENABLE_LANDING_REDIRECT, IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
+import { ImageWithFallback } from '../../components/ImageFallback';
 import SpidSelect from './SpidSelect';
 import SpidModal from './SpidModal';
 
@@ -228,10 +229,11 @@ const Login = () => {
           <Grid container item justifyContent="center" textAlign={'center'} mb={2}>
             <Grid item xs={6}>
               <Icon>
-                <img
+                <ImageWithFallback
                   style={{ display: 'flex', height: 'inherit', width: 'inherit' }}
                   src={clientData?.logoUri}
                   alt={clientData?.friendlyName}
+                  placeholder={IDP_PLACEHOLDER_IMG}
                 />
               </Icon>
             </Grid>

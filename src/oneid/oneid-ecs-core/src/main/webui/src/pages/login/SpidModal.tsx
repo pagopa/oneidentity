@@ -5,6 +5,7 @@ import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import { ENV } from '../../utils/env';
 import { ImageWithFallback } from '../../components/ImageFallback';
+import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 
 type Props = {
   openSpidModal: boolean;
@@ -28,8 +29,6 @@ export const getSPID = (IDP: IdentityProvider) => {
 
 const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
   const { t } = useTranslation();
-  const idpPlaceholderImg =
-    '/assets/idps/aHR0cHM6Ly92YWxpZGF0b3IuZGV2Lm9uZWlkLnBhZ29wYS5pdC9kZW1v.png';
 
   return (
     <Dialog open={openSpidModal} onClose={() => setOpenSpidModal(false)}>
@@ -68,7 +67,7 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
                     width="100px"
                     src={IDP.imageUrl}
                     alt={IDP.name}
-                    placeholder={idpPlaceholderImg}
+                    placeholder={IDP_PLACEHOLDER_IMG}
                   />
                 </Icon>
               </Button>
