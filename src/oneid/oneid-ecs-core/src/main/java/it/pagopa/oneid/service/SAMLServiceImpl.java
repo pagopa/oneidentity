@@ -435,11 +435,20 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
-      if (!statusMessage.isEmpty()) {
+      if (statusMessage != null && !statusMessage.isEmpty()) {
         Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
-        throw new SAMLResponseStatusException(
-            ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_")).getErrorCode());
+        String message = "";
+        try {
+          message = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"))
+              .getErrorCode();
+        } catch (IllegalArgumentException e) {
+          Log.error(
+              "SAML Status message " + statusMessage + " not mapped for " + statusCode
+                  + " status code");
+          throw new OneIdentityException("Status message not mapped.");
+        }
+        throw new SAMLResponseStatusException(message);
       } else {
         Log.error(
             "SAML Status message not found for " + statusCode
