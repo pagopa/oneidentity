@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.saml.common.SAMLVersion;
-import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Audience;
@@ -489,7 +488,6 @@ public class SAMLServiceImpl implements SAMLService {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
-    authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
     authnRequest.setID(samlUtils.generateSecureRandomId());
     authnRequest.setIssuer(samlUtils.buildIssuer());
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
