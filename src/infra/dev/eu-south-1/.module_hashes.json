@@ -33,6 +33,7 @@
     "spid_validator.ecs_spid_validator": "293dd573706c98477ef2c0b246c5d79535efc407287a3c73833a55376c538820",
     "spid_validator.record": "bd44eb771d49cd7caa5256046e2a9bb2ef6e39f7c7f259f76971fa58b23d89ed",
     "storage.kms_assertions_bucket": "586eeb0cf1a45d0683f754658f65266c7b5efdbaeb2582e54018623b7764503a",
+    "storage.s3_assertions_accesslogs_bucket": "3de009bc204b62254159f03c1ab84f3cf1abf63f9a677e355b4b43e8ce5b57cd",
     "storage.s3_assertions_bucket": "f04cfe0eba1f9415435e6b394fdb188c6d5ec721e7f8241ab48f2749d687fa9d",
     "storage.s3_assets_bucket": "bc15f05cd1cd45e55fa74d841f266d01ba0d97b900b032c69fd74b0caefd8a23",
     "storage.s3_athena_output_bucket": "ef2cf642a5eaaec0ef322a9f20770fcecb6af13f6b4f1c872a92a367e68b8637",
