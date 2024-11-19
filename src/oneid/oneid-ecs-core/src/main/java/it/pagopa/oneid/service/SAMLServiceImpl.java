@@ -92,6 +92,9 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "acs_url")
   String ACS_URL;
 
+  @ConfigProperty(name = "clock_skew_ms")
+  long CLOCK_SKEW_MS;
+
 
   @Inject
   SAMLServiceImpl(Clock clock) {
@@ -283,7 +286,7 @@ public class SAMLServiceImpl implements SAMLService {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST);
     }
-    if (!issueInstant.isBefore(Instant.now(clock))) {
+    if (!issueInstant.isBefore(Instant.now(clock).plusMillis(CLOCK_SKEW_MS))) {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE);
     }
@@ -316,15 +319,13 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private void checkNotBefore(Instant notBefore) {
-    if (Instant.now(clock).compareTo(notBefore) <= 0) {
-
-      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND);
+    if (Instant.now(clock).plusMillis(CLOCK_SKEW_MS).compareTo(notBefore) <= 0) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE);
     }
   }
 
   private void checkNotOnOrAfter(Instant notOnOrAfter) {
-    if (Instant.now(clock).compareTo(notOnOrAfter) >= 0) {
-
+    if (Instant.now(clock).minusMillis(CLOCK_SKEW_MS).compareTo(notOnOrAfter) >= 0) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED);
     }
   }
