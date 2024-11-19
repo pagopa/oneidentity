@@ -286,8 +286,11 @@ public class SAMLServiceImpl implements SAMLService {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST);
     }
-    if (!issueInstant.isBefore(Instant.now(clock).plusMillis(CLOCK_SKEW_MS))) {
-
+    Instant instant = Instant.now(clock).plusMillis(CLOCK_SKEW_MS);
+    if (!issueInstant.isBefore(instant)) {
+      // TODO: remove this log and compact if statement without defining external variable
+      Log.error(
+          "isBefore not valid -> IDP issueInstant: " + issueInstant + "OI instant: " + instant);
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE);
     }
   }
