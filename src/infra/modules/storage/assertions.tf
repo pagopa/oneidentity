@@ -265,6 +265,7 @@ module "s3_assertions_bucket" {
 
   logging = {
     target_bucket = module.s3_assertions_accesslogs_bucket.s3_bucket_id
+    target_prefix = "/"
   }
   tags = {
     Name   = local.bucket_name
