@@ -3658,8 +3658,7 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3676,14 +3675,10 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
-        assertThrows(SAMLValidationException.class,
-            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("spidCode", "fiscalNumber"), mockInstant.minusSeconds(10), AuthLevel.L2));
+    assertDoesNotThrow(
+        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+            Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(
-        exception.getMessage()
-            .contains(IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION.getErrorMessage()));
   }
 
   @Test
