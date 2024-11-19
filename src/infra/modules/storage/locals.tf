@@ -2,7 +2,7 @@ locals {
   bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
-  bucket_accessLogs_name = format("%s-accessLogs-%s", var.assertion_bucket.name_prefix,
+  bucket_accesslogs_name = format("%s-accesslogs-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
   athena_outputs = format("query-%s", local.bucket_name)

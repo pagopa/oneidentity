@@ -197,7 +197,7 @@ module "s3_assertions_accesslogs_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
-  bucket = local.bucket_accessLogs_name
+  bucket = local.bucket_accesslogs_name
   acl    = "private"
 
   control_object_ownership = true
@@ -213,7 +213,7 @@ module "s3_assertions_accesslogs_bucket" {
 
 
   tags = {
-    Name = local.bucket_accessLogs_name
+    Name = local.bucket_accesslogs_name
   }
 }
 
