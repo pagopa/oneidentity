@@ -252,7 +252,7 @@ public class SAMLServiceImpl implements SAMLService {
     }
   }
 
-  private void validateIssuer(Issuer issuer, String entityID) {
+  private void validateAssertionIssuer(Issuer issuer, String entityID) {
     // Check if element is missing
     if (issuer == null) {
 
@@ -272,6 +272,31 @@ public class SAMLServiceImpl implements SAMLService {
     // Check if format attribute is valid
     if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
         (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY))) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
+    }
+  }
+
+  private void validateResponseIssuer(Issuer issuer, String entityID) {
+    // Check if element is missing
+    if (issuer == null) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND);
+    }
+    String issuerValue = issuer.getValue();
+    // Check if element value is missing or blank
+    if (StringUtils.isBlank(issuerValue)) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
+    }
+    // Check if element value is equal to IDP EntityID
+    if (!issuerValue.equals(entityID)) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_MISMATCH,
+          ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage() + ": " + issuer.getValue());
+    }
+    // Check if format attribute is valid
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+        (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY))) {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
     }
@@ -350,7 +375,7 @@ public class SAMLServiceImpl implements SAMLService {
     validateRecipient(subjectConfirmationData);
     validateInResponseTo(subjectConfirmationData.getInResponseTo());
     validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
-    validateIssuer(assertion.getIssuer(), entityID);
+    validateAssertionIssuer(assertion.getIssuer(), entityID);
     validateConditions(assertion.getConditions());
     validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
     validateAttributeStatements(assertion, requestedAttributes, entityID);
@@ -522,7 +547,7 @@ public class SAMLServiceImpl implements SAMLService {
     validateIssueInstant(samlResponse.getIssueInstant(), samlRequestIssueInstant);
     validateInResponseTo(samlResponse.getInResponseTo());
     validateDestination(samlResponse.getDestination());
-    validateIssuer(samlResponse.getIssuer(), entityID);
+    validateResponseIssuer(samlResponse.getIssuer(), entityID);
     validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
         authLevelRequest);
 
