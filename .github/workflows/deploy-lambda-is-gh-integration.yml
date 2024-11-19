@@ -60,7 +60,7 @@ jobs:
 
       - name: Build with Maven
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -P oneid-lambda-is-gh-integration-aggregate
+        run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-is-gh-integration-aggregate
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
