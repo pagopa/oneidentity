@@ -45,7 +45,18 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        terraform init
+          REPO_OWNER="pagopa" 
+          REPO_NAME="terraform-module-integrity-checker"     
+          RELEASE_TAG="1.0.2"         
+
+          curl -L -o tf "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/tf-linux"
+
+          chmod +x tf
+ 
+          sudo mv tf /usr/local/bin/tf  
+
+          tf init 
+
     - name: Terraform Plan
       id: plan
       shell: bash
