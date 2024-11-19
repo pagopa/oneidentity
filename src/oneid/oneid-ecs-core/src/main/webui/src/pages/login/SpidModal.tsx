@@ -1,5 +1,6 @@
 import { Button, Dialog, Grid, Icon, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+
 import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
@@ -55,13 +56,21 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
             >
               <Button
                 onClick={() => getSPID(IDP)}
-                sx={{ backgroundColor: 'background.default', alignItems: 'center' }}
+                sx={{
+                  backgroundColor: 'background.default',
+                  alignItems: 'center',
+                }}
                 aria-label={IDP.name}
                 id={IDP.entityID}
                 data-testid={`idp-button-${IDP.entityID}`}
               >
                 <Icon
-                  sx={{ width: '100px', height: '48px', display: 'flex', alignItems: ' center' }}
+                  sx={{
+                    width: '100px',
+                    height: '48px',
+                    display: 'flex',
+                    alignItems: ' center',
+                  }}
                 >
                   <ImageWithFallback
                     width="100px"

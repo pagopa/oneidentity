@@ -1,6 +1,7 @@
 /* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
+
 import { ENV } from '../../utils/env';
 import { i18nTestSetup } from '../../__tests__/i18nTestSetup';
 import Login from './Login';
@@ -11,7 +12,7 @@ global.fetch = vi.fn();
 i18nTestSetup({
   loginPage: {
     privacyAndCondition: {
-      text: "terms: {{termsLink}} privacy: {{privacyLink}}",
+      text: 'terms: {{termsLink}} privacy: {{privacyLink}}',
     },
   },
 });
@@ -37,10 +38,12 @@ test('Renders Login component', () => {
   expect(screen.getByText('loginPage.title')).toBeInTheDocument();
 });
 
+const mockWarning = 'This is a warning!';
+
 test('Fetches and displays banner alerts', async () => {
   // Mock the fetch response
   const mockBannerResponse = [
-    { enable: true, severity: 'warning', description: 'This is a warning!' },
+    { enable: true, severity: 'warning', description: mockWarning },
   ];
   (fetch as Mock).mockResolvedValueOnce({
     json: vi.fn().mockResolvedValueOnce(mockBannerResponse),
@@ -49,7 +52,7 @@ test('Fetches and displays banner alerts', async () => {
   render(<Login />);
 
   await waitFor(() => {
-    expect(screen.getByText('This is a warning!')).toBeInTheDocument();
+    expect(screen.getByText(mockWarning)).toBeInTheDocument();
   });
 });
 
@@ -60,7 +63,7 @@ test('Handles fetch error for alert message', async () => {
 
   // Optionally check if an error message or warning is displayed
   await waitFor(() => {
-    expect(screen.queryByText('This is a warning!')).not.toBeInTheDocument();
+    expect(screen.queryByText(mockWarning)).not.toBeInTheDocument();
   });
 });
 
@@ -100,7 +103,9 @@ test('Clicking SPID button opens modal', () => {
 
 test('Clicking CIE button redirects correctly', () => {
   render(<Login />);
-  const buttonCIE = screen.getByRole('button', { name: 'loginPage.loginBox.cieLogin' });
+  const buttonCIE = screen.getByRole('button', {
+    name: 'loginPage.loginBox.cieLogin',
+  });
   fireEvent.click(buttonCIE);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(
@@ -111,10 +116,14 @@ test('Clicking CIE button redirects correctly', () => {
 test('Clicking terms and conditions link redirects correctly', () => {
   render(<Login />);
 
-  const termsConditionLink = screen.getByText('loginPage.privacyAndCondition.terms');
+  const termsConditionLink = screen.getByText(
+    'loginPage.privacyAndCondition.terms'
+  );
   fireEvent.click(termsConditionLink);
 
-  expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.TERMS_AND_CONDITIONS);
+  expect(global.window.location.assign).toHaveBeenCalledWith(
+    ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+  );
 });
 
 test('Clicking privacy link redirects correctly', () => {
@@ -123,5 +132,7 @@ test('Clicking privacy link redirects correctly', () => {
   const privacyLink = screen.getByText('loginPage.privacyAndCondition.privacy');
   fireEvent.click(privacyLink);
 
-  expect(global.window.location.assign).toHaveBeenCalledWith(ENV.URL_FOOTER.PRIVACY_DISCLAIMER);
+  expect(global.window.location.assign).toHaveBeenCalledWith(
+    ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+  );
 });

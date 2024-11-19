@@ -1,6 +1,7 @@
 /* eslint-disable functional/immutable-data */
 import { render } from '@testing-library/react';
 import { vi } from 'vitest';
+
 import { ROUTE_LOGIN } from '../../utils/constants';
 import Logout from './Logout';
 
@@ -13,7 +14,7 @@ afterAll(() => {
   Object.defineProperty(window, 'location', { value: oldWindowLocation });
 });
 
-test('test logout', () => {
+test('logout', () => {
   render(<Logout />);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);

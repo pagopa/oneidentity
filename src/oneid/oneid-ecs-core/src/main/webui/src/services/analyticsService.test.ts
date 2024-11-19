@@ -11,6 +11,8 @@ vi.mock('../utils/env', () => ({
   },
 }));
 
+const mockErrorMsg = 'Test Error';
+
 describe('Analytics Service', () => {
   afterEach(() => {
     vi.clearAllMocks();
@@ -46,7 +48,9 @@ describe('Analytics Service', () => {
 
       trackEvent('TEST_EVENT', { key: 'value' }, callback);
 
-      expect(analyticToolSpy).toHaveBeenCalledWith('trackEvent', 'TEST_EVENT', { key: 'value' });
+      expect(analyticToolSpy).toHaveBeenCalledWith('trackEvent', 'TEST_EVENT', {
+        key: 'value',
+      });
       expect(callback).not.toHaveBeenCalled(); // callback is not called immediately
     });
   });
@@ -56,9 +60,9 @@ describe('Analytics Service', () => {
       ENV.ANALYTCS.ENABLE = false;
       const consoleSpy = vi.spyOn(console, 'error');
 
-      trackAppError('Test Error');
+      trackAppError(mockErrorMsg);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Test Error');
+      expect(consoleSpy).toHaveBeenCalledWith(mockErrorMsg);
     });
 
     it('should call trackEvent for error if analytics is enabled', () => {
@@ -66,9 +70,13 @@ describe('Analytics Service', () => {
       ENV.ANALYTCS.MOCK = false; // Ensure mock is false for this test
       const trackEventSpy = vi.spyOn(console, 'log');
 
-      trackAppError('Test Error');
+      trackAppError(mockErrorMsg);
 
-      expect(trackEventSpy).toHaveBeenCalledWith('trackEvent', 'GENERIC_ERROR', 'Test Error');
+      expect(trackEventSpy).toHaveBeenCalledWith(
+        'trackEvent',
+        'GENERIC_ERROR',
+        mockErrorMsg
+      );
     });
   });
 

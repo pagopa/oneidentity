@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 
 type Props = {
-  children: any;
+  children: React.ReactNode;
 };
 
 const Layout = ({ children }: Props) => (

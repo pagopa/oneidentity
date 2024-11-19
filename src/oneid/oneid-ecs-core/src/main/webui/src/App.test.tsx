@@ -1,8 +1,13 @@
 /* eslint-disable functional/immutable-data */
 import { render } from '@testing-library/react';
 import { vi } from 'vitest';
+
 import App from './App';
-import { ROUTE_LOGIN, ROUTE_LOGOUT, ROUTE_LOGIN_ERROR } from './utils/constants';
+import {
+  ROUTE_LOGIN,
+  ROUTE_LOGOUT,
+  ROUTE_LOGIN_ERROR,
+} from './utils/constants';
 import { redirectToLogin } from './utils/utils';
 
 // Mock imported functions
