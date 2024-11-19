@@ -97,11 +97,11 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
-          aws-region: ${{ matrix.region }
+          aws-region: ${{ matrix.region }}
 
       - name: Update Lambda function (${{ matrix.environment }})
         run: |
-          aws s3 cp src/oneid/oneid-lambda-service-metadata/target/function.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_METADATA_KEY}
+          aws s3 cp src/oneid/oneid-lambda-service-metadata/target/function.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_METADATA_KEY}}
 
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
