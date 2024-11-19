@@ -19,7 +19,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -59,11 +58,7 @@ public class SAMLServiceImpl implements SAMLService {
       Identifier.name.name(),
       Identifier.familyName.name(),
       Identifier.dateOfBirth.name(),
-      Identifier.fiscalNumber.name(),
-      //Optional attributes
-      Identifier.placeOfBirth.name(),
-      Identifier.address.name(),
-      Identifier.gender.name()
+      Identifier.fiscalNumber.name()
   );
 
   private final Clock clock;
@@ -418,20 +413,8 @@ public class SAMLServiceImpl implements SAMLService {
     }
     // CIE
     else {
-      Set<String> validAttributes = new HashSet<>();
-      validAttributes.addAll(requestedAttributes);
-      validAttributes.remove(Identifier.spidCode.name());
 
-      if (!obtainedAttributes.containsAll(validAttributes)) {
-        throw new SAMLValidationException(
-            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
-            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage() + ": "
-                + obtainedAttributes
-                + " vs. " + validAttributes);
-      }
-
-      obtainedAttributes.removeAll(validAttributes);
-      if (!eidasMinimumDataSet.containsAll(obtainedAttributes)) {
+      if (!eidasMinimumDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage() + ": "

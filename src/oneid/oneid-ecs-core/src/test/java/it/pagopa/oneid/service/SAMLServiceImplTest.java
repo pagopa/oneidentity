@@ -3774,10 +3774,15 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    assertDoesNotThrow(
-        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-            Set.of("fiscalNumber", "familyName", "dateOfBirth", "gender"), // requested
-            mockInstant.minusSeconds(10), AuthLevel.L2));
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "familyName", "dateOfBirth"), // requested
+                mockInstant.minusSeconds(10), AuthLevel.L2));
+
+    assertTrue(
+        exception.getMessage()
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
   }
 
   @Test
