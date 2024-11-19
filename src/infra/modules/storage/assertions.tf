@@ -198,14 +198,16 @@ module "s3_assertions_accesslogs_bucket" {
   version = "4.1.1"
 
   bucket = local.bucket_accesslogs_name
-  acl    = "private"
+  # apparently if the control_object_ownership is true it's not possible to set the ACL
+  # https://stackoverflow.com/questions/76049290/error-accesscontrollistnotsupported-when-trying-to-create-a-bucket-acl-in-aws
+  #acl    = "private"
 
   control_object_ownership = true
 
   attach_access_log_delivery_policy = true
 
   access_log_delivery_policy_source_accounts = [var.account_id]
-  access_log_delivery_policy_source_buckets  = ["arn:aws:s3:::${local.bucket_name}"]
+  access_log_delivery_policy_source_buckets  = ["arn:aws:s3:::${local.assertions_bucket_name}"]
 
   versioning = {
     enabled = true
@@ -221,7 +223,7 @@ module "s3_assertions_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
-  bucket = local.bucket_name
+  bucket = local.assertions_bucket_name
   acl    = "private"
 
   control_object_ownership = true
@@ -268,7 +270,7 @@ module "s3_assertions_bucket" {
     target_prefix = "/"
   }
   tags = {
-    Name   = local.bucket_name
+    Name   = local.assertions_bucket_name
     Backup = "True"
   }
 }
@@ -297,7 +299,7 @@ module "s3_athena_output_bucket" {
   }
 
   tags = {
-    Name = local.bucket_name
+    Name = local.assertions_bucket_name
   }
 }
 
