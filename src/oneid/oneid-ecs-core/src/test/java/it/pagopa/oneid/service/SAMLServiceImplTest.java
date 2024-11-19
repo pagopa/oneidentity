@@ -29,6 +29,7 @@ import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_I
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MISSING_CONDITIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND;
@@ -2687,7 +2688,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
