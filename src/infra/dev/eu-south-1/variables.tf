@@ -341,7 +341,8 @@ variable "ecs_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    autoscaling         = optional(bool, false)
+    scaling_policy      = optional(string, null)
+
   }))
 
   default = {
@@ -353,17 +354,17 @@ variable "ecs_alarms" {
       threshold           = 50
       period              = 60
       statistic           = "Average"
-      autoscaling         = true
+      scaling_policy      = "cpu_high"
     },
     "cpu_low" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 3
       comparison_operator = "LessThanOrEqualToThreshold"
-      threshold           = 50
+      threshold           = 20
       period              = 900
       statistic           = "Average"
-      autoscaling         = true
+      scaling_policy      = "cpu_low"
     },
     "mem_high" = {
       metric_name         = "MemoryUtilization"

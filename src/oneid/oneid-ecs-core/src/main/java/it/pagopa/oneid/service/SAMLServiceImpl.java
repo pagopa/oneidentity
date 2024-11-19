@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.saml.common.SAMLVersion;
-import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Audience;
@@ -435,11 +434,20 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
-      if (!statusMessage.isEmpty()) {
+      if (StringUtils.isNotBlank(statusMessage)) {
         Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
-        throw new SAMLResponseStatusException(
-            ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_")).getErrorCode());
+        String message = "";
+        try {
+          message = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"))
+              .getErrorCode();
+        } catch (IllegalArgumentException e) {
+          Log.error(
+              "SAML Status message " + statusMessage + " not mapped for " + statusCode
+                  + " status code");
+          throw new OneIdentityException("Status message not mapped.");
+        }
+        throw new SAMLResponseStatusException(message);
       } else {
         Log.error(
             "SAML Status message not found for " + statusCode
@@ -480,7 +488,6 @@ public class SAMLServiceImpl implements SAMLService {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
-    authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
     authnRequest.setID(samlUtils.generateSecureRandomId());
     authnRequest.setIssuer(samlUtils.buildIssuer());
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());

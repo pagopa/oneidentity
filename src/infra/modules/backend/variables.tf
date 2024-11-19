@@ -247,6 +247,7 @@ variable "sns_topic_arn" {
   type = string
 }
 
+
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string
@@ -257,7 +258,7 @@ variable "ecs_alarms" {
     statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
-    autoscaling         = optional(bool, false)
+    scaling_policy      = optional(string, null)
   }))
 }
 

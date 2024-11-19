@@ -42,8 +42,19 @@ jobs:
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
-  build:
+  
+  deploy:
     runs-on: ubuntu-22.04
+    if: ${{ needs.setup.outputs.matrix != '' }}
+    needs: setup
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    continue-on-error: false
+    environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
 
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -58,37 +69,10 @@ jobs:
           yarn lint
           yarn test:coverage
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-              yarn build --mode ${{ github.event.inputs.environment }}
+            yarn build --mode ${{ github.event.inputs.environment }}
           else
-              yarn build --mode dev
-          fi
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: assets
-          path: src/oneid/oneid-ecs-core/src/main/webui/dist
-
-  deploy:
-      runs-on: ubuntu-22.04
-      if: ${{ needs.setup.outputs.matrix != '' }}
-      needs: [setup, build]
-      permissions:
-        id-token: write
-        contents: read
-      strategy:
-        matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
-
-      continue-on-error: false
-      environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
-
-      steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e
-        with:
-          name: assets
-          path: src/oneid/oneid-ecs-core/src/main/webui/dist
-
-
+            yarn build --mode ${{ matrix.environment }}
+       
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
