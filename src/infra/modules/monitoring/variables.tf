@@ -28,8 +28,9 @@ variable "client_registrations_table" {
 
 variable "ecs" {
   type = object({
-    service_name = string,
-    cluster_name = string
+    service_name   = string,
+    cluster_name   = string
+    log_group_name = string
   })
 }
 
@@ -39,4 +40,9 @@ variable "nlb" {
     target_group_arn_suffix = string
   })
   description = "Network load balancer configurations."
+}
+
+variable "query_files" {
+  type    = list(string)
+  default = [] # Empty list, we'll populate it with locals
 }
