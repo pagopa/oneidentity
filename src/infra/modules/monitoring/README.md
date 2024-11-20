@@ -62,6 +62,7 @@ No modules.
 |------|------|
 | [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_query_definition.ecs_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 
 ## Inputs
 
@@ -71,9 +72,10 @@ No modules.
 | <a name="input_api_name"></a> [api\_name](#input\_api\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | n/a | yes |
 | <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Dynamodb ClientRegistrations table | `string` | n/a | yes |
-| <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name = string,<br>    cluster_name = string<br>  })</pre> | n/a | yes |
+| <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name   = string,<br>    cluster_name   = string<br>    log_group_name = string<br>  })</pre> | n/a | yes |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br>    arn_suffix              = string<br>    target_group_arn_suffix = string<br>  })</pre> | n/a | yes |
+| <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |
 | <a name="input_sessions_table"></a> [sessions\_table](#input\_sessions\_table) | Dynamodb Sessions table | `string` | n/a | yes |
 
 ## Outputs
