@@ -332,7 +332,8 @@ module "monitoring" {
     arn_suffix              = module.backend.nlb_arn_suffix
   }
   ecs = {
-    service_name = module.backend.ecs_service_name,
-    cluster_name = module.backend.ecs_cluster_name
+    service_name   = module.backend.ecs_service_name,
+    cluster_name   = module.backend.ecs_cluster_name,
+    log_group_name = module.backend.ecs_core_log_group_name
   }
 }
