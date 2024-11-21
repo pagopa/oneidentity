@@ -69,7 +69,6 @@
     "@types/react-router": "^5.1.20",
     "@vitejs/plugin-react": "^4.3.2",
     "@vitest/coverage-v8": "^2.1.1",
-    "danger-plugin-digitalcitizenship": "^1.0.0",
     "dotenv": "^16.4.5",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
