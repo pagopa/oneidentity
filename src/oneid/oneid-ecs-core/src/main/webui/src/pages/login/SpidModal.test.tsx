@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+
 import { IdentityProviders } from '../../utils/IDPS';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
@@ -22,7 +23,13 @@ describe('SpidModal', () => {
   });
 
   it('renders the modal with identity providers', () => {
-    render(<SpidModal openSpidModal={true} setOpenSpidModal={vi.fn()} idpList={mockIdpList} />);
+    render(
+      <SpidModal
+        openSpidModal={true}
+        setOpenSpidModal={vi.fn()}
+        idpList={mockIdpList}
+      />
+    );
 
     expect(screen.getByText('spidSelect.modalTitle')).toBeInTheDocument();
     expect(screen.getByTestId('idp-button-idp1')).toBeInTheDocument();
@@ -30,7 +37,13 @@ describe('SpidModal', () => {
   });
 
   it('calls getSPID on button click', () => {
-    render(<SpidModal openSpidModal={true} setOpenSpidModal={vi.fn()} idpList={mockIdpList} />);
+    render(
+      <SpidModal
+        openSpidModal={true}
+        setOpenSpidModal={vi.fn()}
+        idpList={mockIdpList}
+      />
+    );
 
     const button = screen.getByTestId('idp-button-idp1');
     fireEvent.click(button);
@@ -50,7 +63,11 @@ describe('SpidModal', () => {
   it('closes modal on close button click', () => {
     const setOpenSpidModal = vi.fn();
     render(
-      <SpidModal openSpidModal={true} setOpenSpidModal={setOpenSpidModal} idpList={mockIdpList} />
+      <SpidModal
+        openSpidModal={true}
+        setOpenSpidModal={setOpenSpidModal}
+        idpList={mockIdpList}
+      />
     );
 
     const closeButton = screen.getByTestId('close-button');

@@ -1,7 +1,8 @@
 export default {
   loginPage: {
     title: 'Log in to the Area Riservata',
-    description: 'The area dedicated to organizations that use PagoPA products.',
+    description:
+      'The area dedicated to organizations that use PagoPA products.',
     temporaryLogin: {
       alert:
         'If you log in with SPID and encounter a problem, return to this page and press here',
@@ -12,7 +13,7 @@ export default {
       cieLogin: 'Log in with CIE',
     },
     privacyAndCondition: {
-      text: "By logging in, you accept the {{termsLink}} of the service and confirm that you have read the {{privacyLink}}.",
+      text: 'By logging in, you accept the {{termsLink}} of the service and confirm that you have read the {{privacyLink}}.',
       terms: 'Terms and Conditions of Use',
       privacy: 'Privacy Policy',
     },
@@ -39,11 +40,12 @@ export default {
     authTimeout: {
       title: 'Too much time has passed',
       description:
-        "Too much time has passed since you started logging in: please restart from the beginning.",
+        'Too much time has passed since you started logging in: please restart from the beginning.',
     },
     deniedByUser: {
       title: 'You did not consent to the data submission',
-      description: 'To access, you need to consent to the submission of certain data.',
+      description:
+        'To access, you need to consent to the submission of certain data.',
     },
     suspendedOrRevoked: {
       title: 'Identity suspended or revoked',

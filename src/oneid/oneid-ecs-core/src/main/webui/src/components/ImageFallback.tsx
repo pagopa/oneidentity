@@ -1,6 +1,10 @@
+/* eslint-disable functional/immutable-data */
 import { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
 
-type DefaultImgProps = DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>;
+type DefaultImgProps = DetailedHTMLProps<
+  ImgHTMLAttributes<HTMLImageElement>,
+  HTMLImageElement
+>;
 
 export type FallbackImgProps = DefaultImgProps & {
   placeholder: string;

@@ -2,6 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
+
 import { useLoginError } from '../../hooks/useLoginError';
 import { LoginError } from './LoginError';
 
@@ -94,7 +95,9 @@ describe('LoginError Component', () => {
     expect(screen.getByText('Generic Error Description')).toBeInTheDocument();
 
     // Check if the retry button is not rendered
-    expect(screen.queryByRole('button', { name: /retry/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /retry/i })
+    ).not.toBeInTheDocument();
   });
 
   // Add more tests for different error codes as needed

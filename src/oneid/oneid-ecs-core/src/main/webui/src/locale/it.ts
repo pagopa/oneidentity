@@ -1,7 +1,8 @@
 export default {
   loginPage: {
     title: 'Accedi all’Area Riservata',
-    description: 'Lo spazio dedicato agli enti che utilizzano i prodotti di PagoPA.',
+    description:
+      'Lo spazio dedicato agli enti che utilizzano i prodotti di PagoPA.',
     temporaryLogin: {
       alert:
         'Se entri con SPID e riscontri un problema, torna su questa pagina e premi qui accanto',
@@ -43,7 +44,8 @@ export default {
     },
     deniedByUser: {
       title: 'Non hai dato il consenso all’invio dei dati',
-      description: 'Per accedere, è necessario acconsentire all’invio di alcuni dati.',
+      description:
+        'Per accedere, è necessario acconsentire all’invio di alcuni dati.',
     },
     suspendedOrRevoked: {
       title: 'Identità sospesa o revocata',

@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { t } from 'i18next';
+
 import { useLoginError } from './useLoginError';
 
 describe('useLoginError', () => {
@@ -65,9 +66,10 @@ describe('useLoginError', () => {
   test.each(cases)(
     'should return correct error data for error code $errorCode',
     ({ errorCode, expected }) => {
-      const { result } = renderHook(() => useLoginError());
+      const { result } = renderHook(useLoginError);
 
-      const { title, description, haveRetryButton } = result.current.handleErrorCode(errorCode);
+      const { title, description, haveRetryButton } =
+        result.current.handleErrorCode(errorCode);
 
       expect(title).toEqual(expected.title);
       expect(description).toEqual(expected.description);

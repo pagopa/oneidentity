@@ -28,20 +28,22 @@
 		"strict": true,
 		"types": [
 			"vitest/globals",
-			"vite/client"
+			"vite/client",
+			"globals"
 		]
 	},
 	"include": [
 		"src",
 		"vite.config.mts",
 		"vitest.config.mts",
-		"vitest.setup.mts"
+		"vitest.setup.mts",
+		"Dangerfile.ts"
 	],
 	"exclude": [
 		"__mocks__",
 		"dist",
 		"build",
-		"node_modules",
-		"Dangerfile.ts"
+		"coverage",
+		"node_modules"
 	]
 }

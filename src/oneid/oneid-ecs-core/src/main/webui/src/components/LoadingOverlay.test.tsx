@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+
 import { LoadingOverlay } from './LoadingOverlay';
 
 // Mocking useTheme from Material-UI

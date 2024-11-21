@@ -22,16 +22,19 @@ export const trackAppError = (error: string): void => {
  * @property properties: the additional payload sent with the event
  * @property callback: an action taken when the track has completed (If the action taken immediately after the track is an exit action from the application, it's better to use this callback to perform the exit, in order to give to mixPanel the time to send the event)
  */
-export const trackEvent = (event_name: string, properties?: any, callback?: () => void): void => {
+export const trackEvent = (
+  event_name: string,
+  properties?: unknown,
+  callback?: () => void
+): void => {
   if (ENV.ANALYTCS.ENABLE) {
     if (ENV.ANALYTCS.MOCK) {
-       
       console.log(event_name, properties);
       if (callback) {
         callback();
       }
     } else {
-      trackEventThroughAnalyticTool(event_name, properties, callback);
+      trackEventThroughAnalyticTool(event_name, properties);
     }
   } else {
     if (callback) {
@@ -42,8 +45,7 @@ export const trackEvent = (event_name: string, properties?: any, callback?: () =
 
 const trackEventThroughAnalyticTool = (
   event_name: string,
-  properties?: any,
-  _?: () => void
+  properties?: unknown
 ): void => {
   console.log('trackEvent', event_name, properties);
   // to be defined

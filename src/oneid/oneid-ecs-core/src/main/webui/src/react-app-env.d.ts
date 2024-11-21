@@ -1,9 +1,10 @@
 /// <reference types="react-scripts" />
 declare namespace NodeJS {
-  interface ProcessEnv {
+  type ProcessEnv = {
     NODE_ENV: 'development' | 'uat' | 'production';
-  }
+  };
 }
-interface Window {
-  Stripe: any;
-}
+
+type Window = {
+  Stripe: never;
+};
