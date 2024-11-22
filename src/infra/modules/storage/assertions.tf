@@ -224,8 +224,8 @@ module "s3_assertions_accesslogs_bucket" {
       expiration = {
         days = var.assertion_accesslogs_expiration
       }
-    } 
-]   
+    }
+  ]
 
   tags = {
     Name = local.bucket_accesslogs_name
