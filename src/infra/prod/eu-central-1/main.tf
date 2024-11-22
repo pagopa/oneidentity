@@ -38,10 +38,11 @@ module "storage" {
   create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
-  idp_metadata_bucket_prefix = "idp-metadata"
-  assets_bucket_prefix       = "assets"
-  github_repository          = "pagopa/oneidentity"
-  account_id                 = data.aws_caller_identity.current.account_id
+  idp_metadata_bucket_prefix      = "idp-metadata"
+  assets_bucket_prefix            = "assets"
+  github_repository               = "pagopa/oneidentity"
+  account_id                      = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration = 180
 }
 
 ## Database ##  

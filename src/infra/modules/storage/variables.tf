@@ -75,3 +75,7 @@ variable "assertions_crawler_schedule" {
   default     = null
 }
 
+variable "assertion_accesslogs_expiration" {
+  type = number
+}
+
