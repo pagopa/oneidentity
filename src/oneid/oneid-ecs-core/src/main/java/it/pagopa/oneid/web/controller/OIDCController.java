@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
@@ -61,6 +62,9 @@ public class OIDCController {
 
   @Inject
   OIDCServiceImpl oidcServiceImpl;
+
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @Inject
   SessionServiceImpl<SAMLSession> samlSessionServiceImpl;
@@ -304,6 +308,9 @@ public class OIDCController {
         ttl, tokenDataDTO.getAccessToken(), tokenDataDTO.getIdToken());
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
+
+    // TODO evaluate moving this in AOP class
+    cloudWatchConnectorImpl.sendClientSuccessMetricData(clientId);
 
     Log.debug("end");
 

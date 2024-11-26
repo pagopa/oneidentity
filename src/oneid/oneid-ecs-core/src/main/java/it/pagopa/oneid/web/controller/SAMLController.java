@@ -8,6 +8,7 @@ import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.SessionException;
@@ -45,6 +46,9 @@ public class SAMLController {
 
   @Inject
   OIDCServiceImpl oidcServiceImpl;
+
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @Inject
   SessionServiceImpl<SAMLSession> samlSessionService;
@@ -113,6 +117,10 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getIdp(),
         client.getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()),
         client.getAuthLevel());
+
+    // TODO evaluate moving this in AOP class
+    cloudWatchConnectorImpl.sendIDPSuccessMetricData(
+        samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
