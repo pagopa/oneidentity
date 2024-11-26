@@ -436,6 +436,7 @@ resource "aws_iam_policy" "deploy_ecs" {
         Effect = "Allow"
         Action = [
           "ecr:BatchCheckLayerAvailability",
+          "ecr:BatchGetImage",
           "ecr:CompleteLayerUpload",
           "ecr:DescribeImages",
           "ecr:GetAuthorizationToken",
