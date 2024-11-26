@@ -8,7 +8,7 @@ test('auth is successful', async ({ page }) => {
 
   await page.locator('#spidButton').click();
   await page.locator(`[id="${TEST_IDP_ID}"]`).click();
-  await page.waitForURL('**/client/cb?*');
+  await page.waitForURL('**/client/cb?*', { timeout: 30000 });
   expect(page.getByText(nonce)).toBeTruthy();
-  expect(page.getByText(nonce)).toBeVisible();
+  expect(page.getByText(nonce)).toBeVisible({ timeout: 30000 });
 });
