@@ -19,6 +19,7 @@ export default {
   },
   spidSelect: {
     title: 'Izberite svoj SPID',
+    placeholder: 'Ni najdenega IDP-ja',
     modalTitle: 'Izberite svoj ponudnik identitete',
     cancelButton: 'Prekliči',
     closeButton: 'Izhod',
