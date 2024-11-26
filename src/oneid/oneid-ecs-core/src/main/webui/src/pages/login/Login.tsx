@@ -20,6 +20,7 @@ import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import { ImageWithFallback } from '../../components/ImageFallback';
 import SpidSelect from './SpidSelect';
 import SpidModal from './SpidModal';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 type BannerContent = {
   enable: boolean;
@@ -304,17 +305,20 @@ const Login = () => {
             idpList={idpList}
           />
           <Grid item sx={{ width: '100%' }}>
-            <Button
+            <LoadingButton
+              aria-busy={!!idpList}
+              disableElevation
               id="spidButton"
+              loading={!!idpList}
+              loadingPosition="end"
+              onClick={() => setOpenSpidModal(true)}
+              startIcon={<SpidIconWrapper />}
               sx={{
                 borderRadius: '4px',
                 width: '100%',
                 marginBottom: '5px',
               }}
-              onClick={() => setOpenSpidModal(true)}
               variant="contained"
-              disableElevation
-              startIcon={<SpidIconWrapper />}
             >
               <Typography
                 sx={{
@@ -325,7 +329,7 @@ const Login = () => {
               >
                 {t('loginPage.loginBox.spidLogin')}
               </Typography>
-            </Button>
+            </LoadingButton>
           </Grid>
           <Grid item sx={{ width: '100%' }}>
             <Button
