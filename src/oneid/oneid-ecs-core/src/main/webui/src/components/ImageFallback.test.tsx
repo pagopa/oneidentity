@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { FallbackImgProps, ImageWithFallback } from './ImageFallback';
 
 describe('ImageWithFallback', () => {
@@ -15,49 +15,48 @@ describe('ImageWithFallback', () => {
     render(<ImageWithFallback {...defaultProps} />);
   };
 
-  it('should render with the primary image source', () => {
+  it('renders with the primary image source', () => {
     setup();
     const image = screen.getByRole('img') as HTMLImageElement;
     expect(image.src).toContain(src);
   });
 
-  it('should display the placeholder image when the primary image fails to load', () => {
+  it('displays the placeholder image when the primary image fails to load', async () => {
     setup();
     const image = screen.getByRole('img') as HTMLImageElement;
 
-    // Simulate image error event directly
+    // Simulate image error event
     image.dispatchEvent(new Event('error'));
 
-    expect(image.src).toContain(placeholder);
+    // Wait for the src to update to the placeholder
+    await waitFor(() => {
+      expect(image.src).toContain(placeholder);
+    });
   });
 
-  it('should not trigger onError repeatedly if the placeholder image fails', async () => {
-    const consoleSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => null);
+  it('does not enter an error loop if the placeholder image fails', async () => {
     setup();
-
     const image = screen.getByRole('img') as HTMLImageElement;
 
-    // Simulate first error (sets placeholder as src)
+    // Trigger error on the primary image
     image.dispatchEvent(new Event('error'));
-    expect(image.src).toContain(placeholder);
+    await waitFor(() => {
+      expect(image.src).toContain(placeholder);
+    });
 
-    // Trigger error again on the fallback image
+    // Trigger error again on the placeholder image
     image.dispatchEvent(new Event('error'));
-
-    // Check if the onError handler doesn't loop back to placeholder
-    expect(image.src).toContain(placeholder);
-    expect(consoleSpy).not.toHaveBeenCalled(); // No error loop
-
-    consoleSpy.mockRestore();
+    await waitFor(() => {
+      expect(image.src).toContain(placeholder);
+    }); // Ensure it remains the same
   });
 
-  it('should apply other provided props correctly', () => {
-    setup({ alt: 'Custom Alt Text', width: 200 });
+  it('applies additional props to the img element', () => {
+    setup({ alt: 'Custom Alt Text', width: 200, height: 150 });
     const image = screen.getByRole('img') as HTMLImageElement;
 
     expect(image.alt).toBe('Custom Alt Text');
     expect(image.width).toBe(200);
+    expect(image.height).toBe(150);
   });
 });

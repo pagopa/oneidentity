@@ -1,5 +1,4 @@
-/* eslint-disable functional/immutable-data */
-import { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
+import { DetailedHTMLProps, ImgHTMLAttributes, useState } from 'react';
 
 type DefaultImgProps = DetailedHTMLProps<
   ImgHTMLAttributes<HTMLImageElement>,
@@ -10,12 +9,22 @@ export type FallbackImgProps = DefaultImgProps & {
   placeholder: string;
 };
 
-export const ImageWithFallback = (props: FallbackImgProps) => {
-  const onError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    const target = event.currentTarget;
-    target.src = props.placeholder;
-    target.onerror = null; // Avoids infinite loop if fallback fails
+export const ImageWithFallback = ({
+  placeholder,
+  src,
+  ...props
+}: FallbackImgProps) => {
+  const [errored, setErrored] = useState(false);
+
+  const onError = () => {
+    setErrored(true);
   };
 
-  return <img {...props} onError={onError} />;
+  return (
+    <img
+      {...props}
+      onError={onError}
+      src={errored || !src ? placeholder : src}
+    />
+  );
 };

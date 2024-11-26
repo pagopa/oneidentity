@@ -231,7 +231,7 @@ const Login = () => {
             <Typography
               variant="body1"
               color="textPrimary"
-              mb={5}
+              mb={3}
               sx={{
                 textAlign: 'center',
               }}
@@ -249,18 +249,17 @@ const Login = () => {
             mb={2}
           >
             <Grid item xs={6}>
-              <Icon>
-                <ImageWithFallback
-                  style={{
-                    display: 'flex',
-                    height: 'inherit',
-                    width: 'inherit',
-                  }}
-                  src={clientData?.logoUri}
-                  alt={clientData?.friendlyName}
-                  placeholder={IDP_PLACEHOLDER_IMG}
-                />
-              </Icon>
+              <ImageWithFallback
+                style={{
+                  width: '100%',
+                  maxWidth: '100px',
+                  maxHeight: '100px',
+                  objectFit: 'cover',
+                }}
+                src={clientData?.logoUri}
+                alt={clientData?.friendlyName}
+                placeholder={IDP_PLACEHOLDER_IMG}
+              />
             </Grid>
           </Grid>
         )}
