@@ -64,8 +64,8 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .metricData(MetricDatum.builder()
             .metricName(metricName)
             .timestamp(Instant.now(clock))
-            .counts(1.0)
             .unit("Count")
+            .value(1.0)
             .dimensions(dimensions)
             .build())
         .build();
