@@ -2,7 +2,7 @@ module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "1.6.0"
 
-  for_each = {for r in var.ecr_registers : r.name => r}
+  for_each = { for r in var.ecr_registers : r.name => r }
 
   repository_name = each.key
 
@@ -30,7 +30,7 @@ module "ecr" {
   # Registry Replication Configuration
   # TODO: in production it might be replicated in another region.
   create_registry_replication_configuration = false
-  registry_replication_rules = []
+  registry_replication_rules                = []
 }
 
 # SSM parameters
@@ -47,10 +47,10 @@ module "kms_key_pem" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  description           = "KMS key for SSM parameter encryption"
-  key_usage             = "ENCRYPT_DECRYPT"
-  enable_key_rotation   = var.kms_ssm_enable_rotation
-  enable_default_policy = true
+  description             = "KMS key for SSM parameter encryption"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.kms_ssm_enable_rotation
+  enable_default_policy   = true
   rotation_period_in_days = var.kms_rotation_period_in_days
 
   # Aliases
@@ -76,7 +76,7 @@ module "jwt_sign" {
   description              = "KMS key to sign Jwt tokens"
   key_usage                = "SIGN_VERIFY"
   customer_master_key_spec = "RSA_2048"
-  enable_key_rotation = false
+  enable_key_rotation      = false
 
 
   # Aliases
@@ -358,10 +358,10 @@ module "ecs_core_service" {
       source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
-      type      = "egress"
-      from_port = 0
-      to_port   = 0
-      protocol  = "-1"
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
@@ -370,7 +370,7 @@ module "ecs_core_service" {
 
 resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   for_each            = var.ecs_alarms
-  alarm_name = format("%s-%s", module.ecs_core_service.name, each.key)
+  alarm_name          = format("%s-%s", module.ecs_core_service.name, each.key)
   comparison_operator = each.value.comparison_operator
   evaluation_periods  = each.value.evaluation_periods
   metric_name         = each.value.metric_name
@@ -387,8 +387,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 
   alarm_actions = compact([
     each.value.sns_topic_alarm_arn,
-      each.value.scaling_policy != null ?
-      module.ecs_core_service.autoscaling_policies[each.value.scaling_policy].arn : null,
+    each.value.scaling_policy != null ?
+    module.ecs_core_service.autoscaling_policies[each.value.scaling_policy].arn : null,
   ])
 }
 
@@ -437,7 +437,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
 
 */
 resource "aws_iam_policy" "deploy_ecs" {
-  name = format("%s-policy", var.service_core.service_name)
+  name        = format("%s-policy", var.service_core.service_name)
   description = "Policy to allow deploy on ECS."
 
   policy = jsonencode({
@@ -567,7 +567,7 @@ locals {
     "service",
     module.ecs_cluster.cluster_name,
     module.ecs_core_service.name
-  ]
+    ]
   )
 
 }
