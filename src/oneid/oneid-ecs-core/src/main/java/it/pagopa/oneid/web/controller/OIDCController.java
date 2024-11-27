@@ -156,7 +156,7 @@ public class OIDCController {
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
       Log.debug("redirect URI not found");
-      throw new CallbackURINotFoundException();
+      throw new CallbackURINotFoundException(authorizationRequestDTOExtended.getClientId());
     }
 
     // 2. Check if idp exists
@@ -165,7 +165,8 @@ public class OIDCController {
     if (idp.isEmpty()) {
       Log.debug("selected IDP not found");
       throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
-          authorizationRequestDTOExtended.getState());
+          authorizationRequestDTOExtended.getState(),
+          authorizationRequestDTOExtended.getClientId());
     }
 
     // 4. Check if scope is "openid"
@@ -174,7 +175,8 @@ public class OIDCController {
       Log.error(
           "scope not supported");
       throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
-          authorizationRequestDTOExtended.getState());
+          authorizationRequestDTOExtended.getState(),
+          authorizationRequestDTOExtended.getClientId());
     }
 
     // 5. Check if response type is "code"
@@ -182,7 +184,8 @@ public class OIDCController {
       Log.error(
           "response type not supported");
       throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
-          authorizationRequestDTOExtended.getState());
+          authorizationRequestDTOExtended.getState(),
+          authorizationRequestDTOExtended.getClientId());
     }
 
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
@@ -253,12 +256,6 @@ public class OIDCController {
       throws OneIdentityException {
     Log.info("start");
 
-    // TODO check if possible 5xx are returned as json or html which is an error
-    if (!tokenRequestDTOExtended.getGrantType().equals(GrantType.AUTHORIZATION_CODE)) {
-      Log.error("unsupported grant type: " + tokenRequestDTOExtended.getGrantType());
-      throw new UnsupportedGrantTypeException();
-    }
-
     String authorization = tokenRequestDTOExtended.getAuthorization().replaceAll("Basic ", "");
     byte[] decodedBytes;
     String decodedString;
@@ -271,7 +268,14 @@ public class OIDCController {
       clientSecret = URLDecoder.decode(decodedString.split(":")[1],
           StandardCharsets.UTF_8);
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+      // TODO: consider collecting this as Client Error metric
       throw new InvalidRequestMalformedHeaderAuthorizationException();
+    }
+
+    // TODO check if possible 5xx are returned as json or html which is an error
+    if (!tokenRequestDTOExtended.getGrantType().equals(GrantType.AUTHORIZATION_CODE)) {
+      Log.error("unsupported grant type: " + tokenRequestDTOExtended.getGrantType());
+      throw new UnsupportedGrantTypeException(clientId);
     }
 
     oidcServiceImpl.authorizeClient(clientId, clientSecret);
@@ -281,14 +285,14 @@ public class OIDCController {
       session = samlSessionServiceImpl.getSAMLSessionByCode(
           tokenRequestDTOExtended.getCode());
     } catch (SessionException e) {
-      throw new InvalidGrantException();
+      throw new InvalidGrantException(clientId);
     }
 
     // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
     if (!tokenRequestDTOExtended.getRedirectUri()
         .equals(session.getAuthorizationRequestDTOExtended().getRedirectUri())) {
       Log.error("provided redirect URI does not correspond to session redirect URI");
-      throw new InvalidGrantException();
+      throw new InvalidGrantException(clientId);
     }
 
     Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())

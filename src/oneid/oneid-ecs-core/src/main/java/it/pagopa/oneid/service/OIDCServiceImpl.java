@@ -228,16 +228,16 @@ public class OIDCServiceImpl implements OIDCService {
   public void authorizeClient(String clientId, String clientSecret) {
     if (clientsMap.get(clientId) == null) {
       Log.debug("client not found");
-      throw new InvalidClientException("Client ID not valid");
+      throw new InvalidClientException("Client ID not valid", clientId);
     }
 
     SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
-        .orElseThrow(() -> new InvalidClientException("Client secret not found"));
+        .orElseThrow(() -> new InvalidClientException("Client secret not found", clientId));
 
     if (!HASHUtils.validateSecret(secretDTO.getSalt(), clientSecret,
         secretDTO.getSecret())) {
       Log.debug("client secret not valid");
-      throw new InvalidClientException("Client secret not valid");
+      throw new InvalidClientException("Client secret not valid", clientId);
     }
   }
 

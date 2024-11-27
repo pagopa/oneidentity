@@ -67,7 +67,7 @@ public class ExceptionMapper {
 
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
-  
+
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
@@ -193,6 +193,8 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapCallbackUriNotFoundException(
       CallbackURINotFoundException callbackURINotFoundException) {
+    cloudWatchConnectorImpl.sendClientErrorMetricData(callbackURINotFoundException.getClientId(),
+        CallbackURINotFoundException.errorCode);
     return genericHTMLError(callbackURINotFoundException.getMessage());
   }
 
@@ -205,12 +207,16 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapInvalidScopeException(
       InvalidScopeException invalidScopeException) {
+    cloudWatchConnectorImpl.sendClientErrorMetricData(invalidScopeException.getClientId(),
+        InvalidScopeException.errorCode);
     return authenticationErrorResponse(invalidScopeException);
   }
 
   @ServerExceptionMapper
   public RestResponse<Object> mapUnsupportedResponseTypeException(
       UnsupportedResponseTypeException unsupportedResponseTypeException) {
+    cloudWatchConnectorImpl.sendClientErrorMetricData(
+        unsupportedResponseTypeException.getClientId(), UnsupportedResponseTypeException.errorCode);
     return authenticationErrorResponse(unsupportedResponseTypeException);
   }
 
@@ -218,6 +224,10 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapAuthorizationErrorException(
       AuthorizationErrorException authorizationErrorException) {
+    if (authorizationErrorException.getClientId() != null) {
+      cloudWatchConnectorImpl.sendClientErrorMetricData(authorizationErrorException.getClientId(),
+          AuthorizationErrorException.errorCode);
+    }
     return authenticationErrorResponse(authorizationErrorException);
 
   }
@@ -225,6 +235,8 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapIDPNotFoundException(
       IDPNotFoundException idpNotFoundException) {
+    cloudWatchConnectorImpl.sendClientErrorMetricData(idpNotFoundException.getClientId(),
+        IDPNotFoundException.errorCode);
     return authenticationErrorResponse(idpNotFoundException);
   }
 
@@ -249,6 +261,8 @@ public class ExceptionMapper {
   public RestResponse<TokenRequestErrorDTO> mapUnsupportedGrantTypeException(
       UnsupportedGrantTypeException unsupportedGrantTypeException) {
     String message = "The given authorization grant type is not supported.";
+    cloudWatchConnectorImpl.sendClientErrorMetricData(unsupportedGrantTypeException.getClientId(),
+        UnsupportedGrantTypeException.errorCode);
     return RestResponse.status(BAD_REQUEST,
         buildTokenRequestErrorDTO(
             unsupportedGrantTypeException.getMessage(), message));
@@ -266,6 +280,8 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapInvalidClientException(
       InvalidClientException invalidClientException) {
+    cloudWatchConnectorImpl.sendClientErrorMetricData(invalidClientException.getClientId(),
+        InvalidClientException.errorCode);
     return
         ResponseBuilder
             .create(UNAUTHORIZED)
@@ -288,6 +304,8 @@ public class ExceptionMapper {
   public RestResponse<TokenRequestErrorDTO> mapInvalidGrantException(
       InvalidGrantException invalidGrantException) {
     String message = "The provided authorization grant is invalid.";
+    cloudWatchConnectorImpl.sendClientErrorMetricData(invalidGrantException.getClientId(),
+        InvalidGrantException.errorCode);
     return RestResponse.status(BAD_REQUEST,
         buildTokenRequestErrorDTO(
             invalidGrantException.getMessage(), message));

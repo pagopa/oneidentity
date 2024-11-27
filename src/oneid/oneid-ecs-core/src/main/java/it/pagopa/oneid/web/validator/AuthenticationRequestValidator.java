@@ -54,7 +54,8 @@ public class AuthenticationRequestValidator implements
       if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
           .getCallbackURI().contains(callbackUri)) {
         throw new AuthorizationErrorException(
-            ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE.getErrorMessage(), callbackUri, state);
+            ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE.getErrorMessage(), callbackUri, state,
+            clientId);
       } else {
         throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE);
       }
@@ -63,7 +64,7 @@ public class AuthenticationRequestValidator implements
       if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
           .getCallbackURI().contains(callbackUri)) {
         throw new AuthorizationErrorException(ErrorCode.AUTHORIZATION_ERROR_IDP.getErrorMessage(),
-            callbackUri, state);
+            callbackUri, state, clientId);
       } else {
         throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_IDP);
       }
