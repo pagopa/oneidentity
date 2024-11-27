@@ -1,5 +1,5 @@
 fields @timestamp, @message
-| parse @message "+0000 * [" as loglevel
-| filter loglevel in ["ERROR"]
+| filter @message like /ERROR/
+| parse @message "[*] *" as thread, exceptionType
 | sort @timestamp desc
 | limit 20
