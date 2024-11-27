@@ -83,6 +83,7 @@ public class SAMLController {
 
     if (inResponseTo == null || inResponseTo.isBlank()) {
       Log.error("inResponseTo parameter must not be null or blank");
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
     try {
@@ -90,6 +91,7 @@ public class SAMLController {
           RecordType.SAML);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -99,6 +101,7 @@ public class SAMLController {
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -108,6 +111,9 @@ public class SAMLController {
     } catch (OneIdentityException e) {
       Log.error(
           "error during SAMLResponse status check: " + e.getMessage());
+      cloudWatchConnectorImpl.sendIDPErrorMetricData(
+          samlSession.getAuthorizationRequestDTOExtended().getIdp(),
+          ErrorCode.SAML_RESPONSE_STATUS_ERROR);
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 

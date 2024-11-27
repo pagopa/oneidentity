@@ -15,6 +15,7 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -33,6 +34,7 @@ import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
+import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
@@ -60,8 +62,12 @@ public class ExceptionMapper {
 
   private static final String VALIDATION_HEADER = "validation-exception";
 
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
+
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
+  
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
@@ -153,6 +159,10 @@ public class ExceptionMapper {
       SAMLValidationException samlValidationException) {
     Log.error(" - [" + samlValidationException.getErrorCode().name() + "] "
         + samlValidationException.getMessage());
+
+    cloudWatchConnectorImpl.sendIDPErrorMetricData(samlValidationException.getIdp(),
+        samlValidationException.getErrorCode());
+
     return genericHTMLError(samlValidationException.getErrorCode().getErrorCode());
   }
 

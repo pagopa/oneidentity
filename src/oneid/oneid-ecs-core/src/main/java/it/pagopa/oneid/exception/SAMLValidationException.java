@@ -2,11 +2,14 @@ package it.pagopa.oneid.exception;
 
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class SAMLValidationException extends RuntimeException {
 
   private final ErrorCode errorCode;
+  @Setter
+  private String idp;
 
   public SAMLValidationException(ErrorCode errorCode) {
     super(errorCode.getErrorMessage());
@@ -17,5 +20,6 @@ public class SAMLValidationException extends RuntimeException {
     super(message);
     this.errorCode = errorCode;
   }
+  
 
 }

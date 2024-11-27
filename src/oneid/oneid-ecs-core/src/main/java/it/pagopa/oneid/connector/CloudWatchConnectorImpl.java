@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Clock;
@@ -25,8 +26,18 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   String CLOUDWATCH_METRIC_NAMESPACE;
 
   @Override
-  public void sendIDPErrorMetricData(String IDP, String errorMessage) {
-    // TODO: implement
+  public void sendIDPErrorMetricData(String IDP, ErrorCode errorCode) {
+    List<Dimension> dimensions = List.of(Dimension.builder()
+            .name("IDP")
+            .value(IDP)
+            .build(),
+        Dimension.builder()
+            .name("Error")
+            .value(errorCode.name())
+            .build());
+
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest("IDPError", dimensions));
   }
 
   @Override
@@ -42,8 +53,18 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   }
 
   @Override
-  public void sendClientErrorMetricData(String clientID, String errorMessage) {
-    // TODO: implement
+  public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
+    List<Dimension> dimensions = List.of(Dimension.builder()
+            .name("Client ID")
+            .value(clientID)
+            .build(),
+        Dimension.builder()
+            .name("Error")
+            .value(errorCode.name())
+            .build());
+
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest("ClientError", dimensions));
   }
 
   @Override
