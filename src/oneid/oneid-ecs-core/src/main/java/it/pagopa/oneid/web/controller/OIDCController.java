@@ -309,7 +309,6 @@ public class OIDCController {
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
-    // TODO evaluate moving this in AOP class
     cloudWatchConnectorImpl.sendClientSuccessMetricData(clientId);
 
     Log.debug("end");

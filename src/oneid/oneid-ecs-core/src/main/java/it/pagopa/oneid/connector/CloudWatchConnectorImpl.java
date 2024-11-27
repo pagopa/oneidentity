@@ -6,16 +6,17 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+
 
 @ApplicationScoped
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Inject
-  CloudWatchClient cloudWatchClient;
+  CloudWatchAsyncClient cloudWatchAsyncClient;
 
   @Inject
   Clock clock;
@@ -26,7 +27,6 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   @Override
   public void sendIDPErrorMetricData(String IDP, String errorMessage) {
     // TODO: implement
-
   }
 
   @Override
@@ -37,14 +37,13 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(IDP)
         .build());
 
-    cloudWatchClient.putMetricData(generatePutMetricRequest("IDPSuccess", dimensions));
-
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest("IDPSuccess", dimensions));
   }
 
   @Override
   public void sendClientErrorMetricData(String clientID, String errorMessage) {
     // TODO: implement
-
   }
 
   @Override
@@ -54,7 +53,8 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(ClientID)
         .build());
 
-    cloudWatchClient.putMetricData(generatePutMetricRequest("ClientSuccess", dimensions));
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest("ClientSuccess", dimensions));
   }
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,

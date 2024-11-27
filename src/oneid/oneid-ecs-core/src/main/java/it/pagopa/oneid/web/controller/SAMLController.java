@@ -118,10 +118,6 @@ public class SAMLController {
         client.getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()),
         client.getAuthLevel());
 
-    // TODO evaluate moving this in AOP class
-    cloudWatchConnectorImpl.sendIDPSuccessMetricData(
-        samlSession.getAuthorizationRequestDTOExtended().getIdp());
-
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
         samlSession.getAuthorizationRequestDTOExtended());
@@ -160,6 +156,9 @@ public class SAMLController {
       Log.error("error during creation of Callback URI");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
+
+    cloudWatchConnectorImpl.sendIDPSuccessMetricData(
+        samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
     Log.info("end");
 
