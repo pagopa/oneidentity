@@ -51,7 +51,7 @@ module "dev_ns_record" {
 
 
 module "network" {
-  source   = "../../modules/network"
+  source = "../../modules/network"
   vpc_name = format("%s-vpc", local.project)
 
   azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
@@ -90,7 +90,7 @@ module "storage" {
 ## SNS for alarms ##
 module "sns" {
   source            = "../../modules/sns"
-  sns_topic_name    = format("%s-sns", local.project)
+  sns_topic_name = format("%s-sns", local.project)
   alarm_subscribers = var.alarm_subscribers
 }
 
@@ -119,7 +119,7 @@ module "backend" {
     }
   ]
 
-  ecs_cluster_name          = format("%s-ecs", local.project)
+  ecs_cluster_name = format("%s-ecs", local.project)
   enable_container_insights = var.ecs_enable_container_insights
 
   fargate_capacity_providers = {
@@ -198,8 +198,8 @@ module "backend" {
         value = var.app_log_level
       },
       {
-        name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
-        value = format("%s/%s", module.backend.ecs_service_name, var.app_cloudwatch_custom_metric_namespace)
+        name = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
+        value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
   }
@@ -220,18 +220,18 @@ module "backend" {
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
   client_registration_lambda = {
-    name                              = format("%s-client-registration", local.project)
+    name = format("%s-client-registration", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    environment_variables             = { LOG_LEVEL = var.app_log_level }
+    environment_variables = { LOG_LEVEL = var.app_log_level }
   }
 
   metadata_lambda = {
-    name                           = format("%s-metadata", local.project)
+    name = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
@@ -250,22 +250,22 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    vpc_endpoint_ssm_nsg_ids          = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
+    vpc_endpoint_ssm_nsg_ids = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 
 
   dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
-    pipe_name                     = format("%s-sessions-pipe", local.project)
+    pipe_name = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   assertion_lambda = {
-    name     = format("%s-assertion", local.project)
-    filename = "${path.module}/../../hello-python/lambda.zip"
+    name = format("%s-assertion", local.project)
+    filename                = "${path.module}/../../hello-python/lambda.zip"
     #s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     #kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
     # ⚠️ warning: before swiching this values you need to create the resources in the account which is intended 
@@ -284,7 +284,7 @@ module "backend" {
   }
 
   idp_metadata_lambda = {
-    name     = format("%s-update-idp-metadata", local.project)
+    name = format("%s-update-idp-metadata", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
@@ -306,11 +306,11 @@ module "backend" {
   }
 
   is_gh_integration_lambda = {
-    name                              = format("%s-is-gh-integration-lambda", local.project)
+    name = format("%s-is-gh-integration-lambda", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     sns_topic_arn                     = var.is_gh_sns_arn
-    environment_variables             = { LOG_LEVEL = var.app_log_level }
+    environment_variables = { LOG_LEVEL = var.app_log_level }
   }
 
   ssm_cert_key = {}
@@ -326,16 +326,16 @@ module "frontend" {
   role_prefix = local.project
 
   ## API Gateway ##
-  rest_api_name         = format("%s-restapi", local.project)
+  rest_api_name = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"
 
   dns_record_ttl = var.dns_record_ttl
 
   api_gateway_target_arns = [module.backend.nlb_arn]
-  nlb_dns_name            = module.backend.nlb_dns_name
+  nlb_dns_name = module.backend.nlb_dns_name
 
   api_gateway_plan = {
-    name                 = format("%s-restapi-plan", local.project)
+    name = format("%s-restapi-plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
     api_key_name         = "client-registration"
@@ -354,7 +354,7 @@ module "frontend" {
   api_alarms           = local.cloudwatch__api_alarms_with_sns
 
   web_acl = {
-    name                       = format("%s-webacl", local.project)
+    name = format("%s-webacl", local.project)
     cloudwatch_metrics_enabled = true
     sampled_requests_enabled   = true
     sns_topic_arn              = module.sns.sns_topic_arn
@@ -365,7 +365,7 @@ module "frontend" {
 
 module "monitoring" {
   source                     = "../../modules/monitoring"
-  main_dashboard_name        = format("%s-overall-dashboard", local.project)
+  main_dashboard_name = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
   aws_region                 = var.aws_region
   api_name                   = module.frontend.api_name
