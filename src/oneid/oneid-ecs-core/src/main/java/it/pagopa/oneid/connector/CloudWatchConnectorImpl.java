@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
@@ -75,8 +76,13 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(ClientID)
         .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest("ClientSuccess", dimensions));
+    try {
+      cloudWatchAsyncClient.putMetricData(
+          generatePutMetricRequest("ClientSuccess", dimensions)).get();
+    } catch (InterruptedException | ExecutionException e) {
+      Log.error("error putting metrics: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
   }
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,
