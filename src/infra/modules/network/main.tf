@@ -61,12 +61,12 @@ module "vpc_endpoints" {
       tags               = { Name = "logs-endpoint" }
     },
     events = {
-      service             = "events"
+      service             = "monitoring"
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
       #policy              = data.aws_iam_policy_document.generic_endpoint_policy.json
       security_group_ids = [aws_security_group.vpc_tls.id]
-      tags               = { Name = "logs-endpoint" }
+      tags               = { Name = "monitoring-endpoint" }
     },
     /*
     xray = {
