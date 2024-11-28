@@ -186,6 +186,16 @@ resource "aws_iam_policy" "ecs_core_task" {
           "${data.aws_ssm_parameter.certificate.arn}",
           "${aws_ssm_parameter.key_pem.arn}"
         ]
+      },
+      {
+        "Sid" : "CloudWatchPutCustomMetrics",
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudwatch:PutMetricData"
+        ],
+        "Resource" : [
+          "*"
+        ]
       }
     ]
   })
@@ -302,9 +312,10 @@ module "ecs_core_service" {
       "policy_type" : "StepScaling"
       "step_scaling_policy_configuration" : {
         "adjustment_type" : "ChangeInCapacity"
-        "step_adjustment" : [{
-          "scaling_adjustment" : 2 # Add 2 tasks
-          metric_interval_lower_bound = 0
+        "step_adjustment" : [
+          {
+            "scaling_adjustment" : 2 # Add 2 tasks
+            metric_interval_lower_bound = 0
           }
         ]
         cooldown = 60
@@ -314,9 +325,10 @@ module "ecs_core_service" {
       "policy_type" : "StepScaling"
       "step_scaling_policy_configuration" : {
         "adjustment_type" : "ChangeInCapacity"
-        "step_adjustment" : [{
-          "scaling_adjustment" : -1 # Add 2 tasks
-          metric_interval_lower_bound = 0
+        "step_adjustment" : [
+          {
+            "scaling_adjustment" : -1 # Add 2 tasks
+            metric_interval_lower_bound = 0
           }
         ]
         cooldown = 900
@@ -375,7 +387,8 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 
   alarm_actions = compact([
     each.value.sns_topic_alarm_arn,
-    each.value.scaling_policy != null ? module.ecs_core_service.autoscaling_policies[each.value.scaling_policy].arn : null,
+    each.value.scaling_policy != null ?
+    module.ecs_core_service.autoscaling_policies[each.value.scaling_policy].arn : null,
   ])
 }
 
@@ -550,9 +563,11 @@ module "elb" {
 }
 
 locals {
-  service_id = join("/", ["service",
+  service_id = join("/", [
+    "service",
     module.ecs_cluster.cluster_name,
-    module.ecs_core_service.name]
+    module.ecs_core_service.name
+    ]
   )
 
 }

@@ -22,6 +22,12 @@ variable "app_log_level" {
   default     = "DEBUG"
 }
 
+variable "app_cloudwatch_custom_metric_namespace" {
+  type        = string
+  description = "Custom metric namespace for cloudwatch"
+  default     = "ApplicationMetrics"
+}
+
 variable "env_short" {
   type        = string
   default     = "d"

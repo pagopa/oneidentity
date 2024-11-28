@@ -191,6 +191,10 @@ module "backend" {
       {
         name  = "LOG_LEVEL"
         value = var.app_log_level
+      },
+      {
+        name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
+        value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
   }

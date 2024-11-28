@@ -8,6 +8,7 @@ import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.SessionException;
@@ -47,6 +48,9 @@ public class SAMLController {
   OIDCServiceImpl oidcServiceImpl;
 
   @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
+
+  @Inject
   SessionServiceImpl<SAMLSession> samlSessionService;
 
   @Inject
@@ -79,6 +83,7 @@ public class SAMLController {
 
     if (inResponseTo == null || inResponseTo.isBlank()) {
       Log.error("inResponseTo parameter must not be null or blank");
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
     try {
@@ -86,6 +91,7 @@ public class SAMLController {
           RecordType.SAML);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -95,6 +101,7 @@ public class SAMLController {
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
+      // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
@@ -104,6 +111,9 @@ public class SAMLController {
     } catch (OneIdentityException e) {
       Log.error(
           "error during SAMLResponse status check: " + e.getMessage());
+      cloudWatchConnectorImpl.sendIDPErrorMetricData(
+          samlSession.getAuthorizationRequestDTOExtended().getIdp(),
+          ErrorCode.SAML_RESPONSE_STATUS_ERROR);
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
@@ -152,6 +162,9 @@ public class SAMLController {
       Log.error("error during creation of Callback URI");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
+
+    cloudWatchConnectorImpl.sendIDPSuccessMetricData(
+        samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
     Log.info("end");
 
