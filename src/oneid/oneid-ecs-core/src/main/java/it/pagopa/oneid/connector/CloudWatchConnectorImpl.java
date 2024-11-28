@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -80,6 +81,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,
       List<Dimension> dimensions) {
+    Log.debug("writing PutMetricRequest for: " + metricName);
     return PutMetricDataRequest.builder()
         .namespace(CLOUDWATCH_METRIC_NAMESPACE)
         .metricData(MetricDatum.builder()
