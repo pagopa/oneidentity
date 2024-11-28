@@ -60,7 +60,7 @@ module "vpc_endpoints" {
       security_group_ids = [aws_security_group.vpc_tls.id]
       tags               = { Name = "logs-endpoint" }
     },
-    events = {
+    monitoring = {
       service             = "monitoring"
       private_dns_enabled = true
       subnet_ids          = module.vpc.private_subnets
