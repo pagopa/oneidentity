@@ -2,18 +2,19 @@ const PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL || '';
 
 export const ENV = {
   CURRENT_ENV: import.meta.env.VITE_CURRENT_ENV as string,
-	// Corresponds to the .env.[mode] file loaded
-	// By default vite set mode to development when using vite dev
-	// and set to production when using vite build.
-	// Can be overriden using --mode option
-	// see https://vite.dev/guide/env-and-mode#modes
+  // Corresponds to the .env.[mode] file loaded
+  // By default vite set mode to development when using vite dev
+  // and set to production when using vite build.
+  // Can be overriden using --mode option
+  // see https://vite.dev/guide/env-and-mode#modes
   MODE: import.meta.env.MODE,
   PUBLIC_URL,
 
-  ENABLED_SPID_TEMPORARY_SELECT: import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
+  ENABLED_SPID_TEMPORARY_SELECT:
+    import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
   ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE ,
+    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE,
     EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
   },
 
@@ -45,7 +46,8 @@ export const ENV = {
 
   URL_FOOTER: {
     PRIVACY_DISCLAIMER: import.meta.env.VITE_URL_PRIVACY_DISCLAIMER as string,
-    TERMS_AND_CONDITIONS: import.meta.env.VITE_URL_TERMS_AND_CONDITIONS as string,
+    TERMS_AND_CONDITIONS: import.meta.env
+      .VITE_URL_TERMS_AND_CONDITIONS as string,
   },
 
   SPID_TEST_ENV_ENABLED: import.meta.env.VITE_SPID_TEST_ENV_ENABLED === 'true',

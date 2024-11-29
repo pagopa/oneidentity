@@ -6,7 +6,10 @@ type Props = {
   /** The minHeight of the component, can be 52vh for the pages and 100vh for the blocking page */
   minHeight?: '52vh' | '100vh';
   /** The ending page icon */
-  icon?: React.ReactElement<SvgIconProps> | FunctionComponent<SVGProps<SVGSVGElement>> | string;
+  icon?:
+    | React.ReactElement<SvgIconProps>
+    | FunctionComponent<SVGProps<SVGSVGElement>>
+    | string;
   /** The ending page title */
   title: React.ReactNode;
   /** The ending page description */
@@ -66,7 +69,7 @@ type Props = {
 };
 
 /** Selfcare's Ending Page */
-export default ({
+const EndingPage = ({
   minHeight,
   description,
   onButtonClick,
@@ -84,7 +87,13 @@ export default ({
   variantSecondButton = 'contained',
 }: Props) => (
   <Box sx={{ minHeight, position: 'static' }} display="flex" flexGrow={1}>
-    <Grid container direction="column" key="0" style={{ textAlign: 'center' }} margin={'auto'}>
+    <Grid
+      container
+      direction="column"
+      key="0"
+      style={{ textAlign: 'center' }}
+      margin={'auto'}
+    >
       <Grid container item justifyContent="center" mb={3}>
         <Grid item xs={6}>
           {icon as ReactElement}
@@ -133,3 +142,5 @@ export default ({
     </Grid>
   </Box>
 );
+
+export default EndingPage;

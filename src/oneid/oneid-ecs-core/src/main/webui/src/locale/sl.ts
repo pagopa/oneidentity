@@ -12,7 +12,7 @@ export default {
       cieLogin: 'Dostopaj s CIE',
     },
     privacyAndCondition: {
-      text: "Z dostopom se strinjate s {{termsLink}} storitve in potrjujete, da ste prebrali {{privacyLink}}.",
+      text: 'Z dostopom se strinjate s {{termsLink}} storitve in potrjujete, da ste prebrali {{privacyLink}}.',
       terms: 'Pogoji in določila uporabe',
       privacy: 'Izjava o zasebnosti',
     },
@@ -38,12 +38,12 @@ export default {
     },
     authTimeout: {
       title: 'Preveč časa je minilo',
-      description:
-        'Minilo je preveč časa od začetka prijave: začnite znova.',
+      description: 'Minilo je preveč časa od začetka prijave: začnite znova.',
     },
     deniedByUser: {
       title: 'Niste dali soglasja za posredovanje podatkov',
-      description: 'Za dostop se morate strinjati s posredovanjem nekaterih podatkov.',
+      description:
+        'Za dostop se morate strinjati s posredovanjem nekaterih podatkov.',
     },
     suspendedOrRevoked: {
       title: 'Identiteta je bila suspendirana ali preklicana',

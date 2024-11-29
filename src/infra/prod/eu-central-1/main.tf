@@ -38,10 +38,11 @@ module "storage" {
   create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
-  idp_metadata_bucket_prefix = "idp-metadata"
-  assets_bucket_prefix       = "assets"
-  github_repository          = "pagopa/oneidentity"
-  account_id                 = data.aws_caller_identity.current.account_id
+  idp_metadata_bucket_prefix      = "idp-metadata"
+  assets_bucket_prefix            = "assets"
+  github_repository               = "pagopa/oneidentity"
+  account_id                      = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration = 180
 }
 
 ## Database ##  
@@ -148,6 +149,10 @@ module "backend" {
       {
         name  = "LOG_LEVEL"
         value = var.app_log_level
+      },
+      {
+        name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
+        value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
   }
@@ -332,7 +337,8 @@ module "monitoring" {
     arn_suffix              = module.backend.nlb_arn_suffix
   }
   ecs = {
-    service_name = module.backend.ecs_service_name,
-    cluster_name = module.backend.ecs_cluster_name
+    service_name   = module.backend.ecs_service_name,
+    cluster_name   = module.backend.ecs_cluster_name,
+    log_group_name = module.backend.ecs_core_log_group_name
   }
 }

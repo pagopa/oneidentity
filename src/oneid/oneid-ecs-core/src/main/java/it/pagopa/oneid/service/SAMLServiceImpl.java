@@ -523,18 +523,24 @@ public class SAMLServiceImpl implements SAMLService {
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
       AuthLevel authLevelRequest) {
 
-    Assertion assertion = extractAssertion(samlResponse);
+    try {
 
-    validateSAMLResponseId(samlResponse.getID());
-    validateSAMLVersion(samlResponse.getVersion());
-    validateIssueInstant(samlResponse.getIssueInstant(), samlRequestIssueInstant);
-    validateInResponseTo(samlResponse.getInResponseTo());
-    validateDestination(samlResponse.getDestination());
-    validateResponseIssuer(samlResponse.getIssuer(), entityID);
-    validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
-        authLevelRequest);
+      Assertion assertion = extractAssertion(samlResponse);
 
-    validateSignature(samlResponse, entityID);
+      validateSAMLResponseId(samlResponse.getID());
+      validateSAMLVersion(samlResponse.getVersion());
+      validateIssueInstant(samlResponse.getIssueInstant(), samlRequestIssueInstant);
+      validateInResponseTo(samlResponse.getInResponseTo());
+      validateDestination(samlResponse.getDestination());
+      validateResponseIssuer(samlResponse.getIssuer(), entityID);
+      validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
+          authLevelRequest);
+
+      validateSignature(samlResponse, entityID);
+    } catch (SAMLValidationException e) {
+      e.setIdp(entityID);
+      throw (e);
+    }
 
   }
 

@@ -6,12 +6,17 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
+
 import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import SpidBig from '../../assets/spid_big.svg';
 import { ENV } from '../../utils/env';
-import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
+import {
+  ENABLE_LANDING_REDIRECT,
+  IDP_PLACEHOLDER_IMG,
+} from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
+import { ImageWithFallback } from '../../components/ImageFallback';
 
 type Props = {
   onBack: () => void;
@@ -33,6 +38,7 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
       () => window.location.assign(redirectUrl)
     );
   };
+
   const goBackToLandingPage = () => {
     window.location.assign(`${ENV.URL_FE.LOGIN}`);
   };
@@ -40,7 +46,13 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
   return (
     <Fragment>
       <Grid container direction="column">
-        <Grid container direction="row" justifyContent="space-around" mt={3} mb={5}>
+        <Grid
+          container
+          direction="row"
+          justifyContent="space-around"
+          mt={3}
+          mb={5}
+        >
           <Grid item xs={2} display="flex" justifyContent="center">
             <img src={SpidBig} />
           </Grid>
@@ -52,7 +64,7 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
                   maxWidth: '17.42px',
                   '&:hover': { backgroundColor: 'transparent !important' },
                 }}
-                onClick={() => goBackToLandingPage()}
+                onClick={goBackToLandingPage}
                 aria-label={t('spidSelect.closeButton')}
               >
                 <ClearOutlinedIcon />
@@ -60,7 +72,13 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
             </Grid>
           )}
         </Grid>
-        <Grid container direction="column" justifyContent="center" alignItems="center" spacing="10">
+        <Grid
+          container
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          spacing="10"
+        >
           <Grid item>
             <Typography
               pb={5}
@@ -92,7 +110,12 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
                     id={IDP.entityID}
                   >
                     <Icon sx={{ width: '100px', height: '48px' }}>
-                      <img width="100px" src={IDP.imageUrl} alt={IDP.name} />
+                      <ImageWithFallback
+                        width="100px"
+                        src={IDP.imageUrl}
+                        alt={IDP.name}
+                        placeholder={IDP_PLACEHOLDER_IMG}
+                      />
                     </Icon>
                   </Button>
                 </Grid>

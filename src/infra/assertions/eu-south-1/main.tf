@@ -17,12 +17,13 @@ module "storage" {
 
     lambda_role_arn = var.assertion_bucket.lambda_role_arn
   }
-  create_athena_table         = true
-  assertions_crawler_schedule = var.assertions_crawler_schedule
-  create_assets_bucket        = false
-  create_idp_metadata_bucket  = false
-  github_repository           = "pagopa/oneidentity"
-  account_id                  = data.aws_caller_identity.current.account_id
+  create_athena_table             = true
+  assertions_crawler_schedule     = var.assertions_crawler_schedule
+  create_assets_bucket            = false
+  create_idp_metadata_bucket      = false
+  github_repository               = "pagopa/oneidentity"
+  account_id                      = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration = 180
 }
 
 

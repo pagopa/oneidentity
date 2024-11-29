@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
+
 import { ENV } from '../../utils/env';
 import SpidSelect from './SpidSelect';
 
@@ -13,11 +14,13 @@ afterAll(() => {
   Object.defineProperty(window, 'location', { value: oldWindowLocation });
 });
 const idpList = {
-  identityProviders: [{ identifier: 'test', entityID: 'testID', name: 'test', imageUrl: 'test' }],
+  identityProviders: [
+    { identifier: 'test', entityID: 'testID', name: 'test', imageUrl: 'test' },
+  ],
   richiediSpid: '',
 };
 test('go to the spid url', () => {
-  render(<SpidSelect onBack={() => {}} idpList={idpList} />);
+  render(<SpidSelect onBack={() => null} idpList={idpList} />);
 
   idpList.identityProviders.forEach((element) => {
     const spidImg = screen.getByAltText(element.name);

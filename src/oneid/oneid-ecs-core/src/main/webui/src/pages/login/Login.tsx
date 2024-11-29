@@ -8,14 +8,19 @@ import { Alert, IconButton } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { theme } from '@pagopa/mui-italia';
+
 import Layout from '../../components/Layout';
 import SpidIcon from '../../assets/SpidIcon.svg';
 import CIEIcon from '../../assets/CIEIcon.svg';
 import { ENV } from '../../utils/env';
-import { ENABLE_LANDING_REDIRECT } from '../../utils/constants';
+import {
+  ENABLE_LANDING_REDIRECT,
+  IDP_PLACEHOLDER_IMG,
+} from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
+import { ImageWithFallback } from '../../components/ImageFallback';
 import SpidSelect from './SpidSelect';
 import SpidModal from './SpidModal';
 
@@ -76,7 +81,7 @@ const Login = () => {
   });
   const [clientData, setClientData] = useState<Client>();
 
-  const mapToArray = (json: { [key: string]: BannerContent }) => {
+  const mapToArray = (json: Record<string, BannerContent>) => {
     const mapped = Object.values(json);
     setBannerContent(mapped as Array<BannerContent>);
   };
@@ -85,7 +90,7 @@ const Login = () => {
     try {
       const response = await fetch(loginBanner);
       const res = await response.json();
-      mapToArray(res as any);
+      mapToArray(res);
     } catch (error) {
       console.error(error);
     }
@@ -97,9 +102,15 @@ const Login = () => {
       const res: Array<IdentityProvider> = await response.json();
       const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
       const rawIDPS = res
-        .map((i) => ({ ...i, imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png` }))
+        .map((i) => ({
+          ...i,
+          imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png`,
+        }))
         .sort(() => 0.5 - Math.random());
-      const IDPS: { identityProviders: Array<IdentityProvider>; richiediSpid: string } = {
+      const IDPS: {
+        identityProviders: Array<IdentityProvider>;
+        richiediSpid: string;
+      } = {
         identityProviders: rawIDPS,
         richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
       };
@@ -131,6 +142,7 @@ const Login = () => {
     void alertMessage(ENV.JSON_URL.ALERT);
     void getIdpList(ENV.JSON_URL.IDP_LIST);
     void getClientData(ENV.JSON_URL.CLIENT_BASE_URL);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { t } = useTranslation();
@@ -163,12 +175,16 @@ const Login = () => {
 
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-      window.location.assign(clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER)
+      window.location.assign(
+        clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+      )
     );
 
   const redirectToTOS = () =>
     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-      window.location.assign(clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS)
+      window.location.assign(
+        clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+      )
     );
 
   if (showIDPS) {
@@ -189,7 +205,7 @@ const Login = () => {
                   maxWidth: '17.42px',
                   '&:hover': { backgroundColor: 'transparent !important' },
                 }}
-                onClick={() => goBackToLandingPage()}
+                onClick={goBackToLandingPage}
               ></IconButton>
             )}
           </Grid>
@@ -215,7 +231,7 @@ const Login = () => {
             <Typography
               variant="body1"
               color="textPrimary"
-              mb={5}
+              mb={3}
               sx={{
                 textAlign: 'center',
               }}
@@ -225,15 +241,25 @@ const Login = () => {
           </Grid>
         </Grid>
         {clientData?.logoUri && (
-          <Grid container item justifyContent="center" textAlign={'center'} mb={2}>
+          <Grid
+            container
+            item
+            justifyContent="center"
+            textAlign={'center'}
+            mb={2}
+          >
             <Grid item xs={6}>
-              <Icon>
-                <img
-                  style={{ display: 'flex', height: 'inherit', width: 'inherit' }}
-                  src={clientData?.logoUri}
-                  alt={clientData?.friendlyName}
-                />
-              </Icon>
+              <ImageWithFallback
+                style={{
+                  width: '100%',
+                  maxWidth: '100px',
+                  maxHeight: '100px',
+                  objectFit: 'cover',
+                }}
+                src={clientData?.logoUri}
+                alt={clientData?.friendlyName}
+                placeholder={IDP_PLACEHOLDER_IMG}
+              />
             </Grid>
           </Grid>
         )}
@@ -244,7 +270,11 @@ const Login = () => {
                 {t('loginPage.temporaryLogin.alert')}
                 <Link
                   ml={4}
-                  sx={{ fontWeight: 'fontWeightBold', cursor: 'pointer', textDecoration: 'none' }}
+                  sx={{
+                    fontWeight: 'fontWeightBold',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                  }}
                   onClick={onLinkClick}
                 >
                   {t('loginPage.temporaryLogin.join')}
@@ -261,7 +291,9 @@ const Login = () => {
                   <Grid item xs={columnsOccupiedByAlert}>
                     <Box display="flex" justifyContent="center" mb={5}>
                       <Alert severity={bc.severity} sx={{ width: '100%' }}>
-                        <Typography textAlign="center">{bc.description}</Typography>
+                        <Typography textAlign="center">
+                          {bc.description}
+                        </Typography>
                       </Alert>
                     </Box>
                   </Grid>
@@ -325,7 +357,7 @@ const Login = () => {
               }}
               variant="contained"
               startIcon={<CieIconWrapper />}
-              onClick={() => goCIE()}
+              onClick={goCIE}
             >
               {t('loginPage.loginBox.cieLogin')}
             </Button>

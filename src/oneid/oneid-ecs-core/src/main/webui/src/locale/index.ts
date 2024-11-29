@@ -1,5 +1,6 @@
 import { initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
+
 import it from './it';
 import en from './en';
 import fr from './fr';
@@ -7,8 +8,8 @@ import de from './de';
 import sl from './sl';
 
 export const configureI18n = (
-  resources: { [lang: string]: any },
-  defaultLanguage: string = 'it'
+  resources: Record<string, object>,
+  defaultLanguage = 'it'
 ) => {
   const completeResources = {
     ...resources,

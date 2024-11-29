@@ -213,6 +213,19 @@ module "s3_assertions_accesslogs_bucket" {
     enabled = true
   }
 
+  lifecycle_rule = [
+    {
+      id      = "log"
+      enabled = true
+
+      filter = {
+        prefix = "/"
+      }
+      expiration = {
+        days = var.assertion_accesslogs_expiration
+      }
+    }
+  ]
 
   tags = {
     Name = local.bucket_accesslogs_name
