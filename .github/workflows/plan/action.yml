@@ -47,7 +47,7 @@ runs:
       run: |
           REPO_OWNER="pagopa" 
           REPO_NAME="terraform-module-integrity-checker"     
-          RELEASE_TAG="1.0.2"         
+          RELEASE_TAG="1.2.0"         
 
           curl -L -o tf "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/tf-linux"
 
