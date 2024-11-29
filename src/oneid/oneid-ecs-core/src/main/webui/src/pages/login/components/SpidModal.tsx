@@ -1,12 +1,12 @@
 import { Button, Dialog, Grid, Icon, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
-import { trackEvent } from '../../services/analyticsService';
-import { forwardSearchParams } from '../../utils/utils';
-import { ENV } from '../../utils/env';
-import { ImageWithFallback } from '../../components/ImageFallback';
-import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
+import { IdentityProvider, IdentityProviders } from '../../../utils/IDPS';
+import { trackEvent } from '../../../services/analyticsService';
+import { forwardSearchParams } from '../../../utils/utils';
+import { ENV } from '../../../utils/env';
+import { ImageWithFallback } from '../../../components/ImageFallback';
+import { IDP_PLACEHOLDER_IMG } from '../../../utils/constants';
 
 type Props = {
   openSpidModal: boolean;
@@ -75,7 +75,11 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
   const { t } = useTranslation();
 
   return (
-    <Dialog open={openSpidModal} onClose={() => setOpenSpidModal(false)}>
+    <Dialog
+      role="dialog"
+      open={openSpidModal}
+      onClose={() => setOpenSpidModal(false)}
+    >
       <Typography
         fontSize={24}
         fontWeight={600}

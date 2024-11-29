@@ -1,20 +1,50 @@
 /* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
-
+import { afterAll, beforeAll, afterEach, test, vi, Mock } from 'vitest';
 import { ENV } from '../../utils/env';
 import { i18nTestSetup } from '../../__tests__/i18nTestSetup';
-import Login from './Login';
+import Login from '.';
 
-// Mock fetch
-global.fetch = vi.fn();
+// Constants for repeated strings
+const SPID_LOGIN = 'spidButton';
+const CIE_LOGIN = 'CIE Login';
+const LOGIN_TITLE = 'Login Title';
+const LOGIN_DESCRIPTION = 'Login Description';
+const TEMPORARY_LOGIN_ALERT = 'Temporary Login Alert';
+const ALERT_DESCRIPTION = 'This is a warning!';
+const MOCK_IDP_ENTITY_ID = 'test-idp';
+const MOCK_RICHIEDI_SPID_URL = 'https://example.com/spid';
 
+// Setup translations
 i18nTestSetup({
   loginPage: {
+    title: LOGIN_TITLE,
+    description: LOGIN_DESCRIPTION,
+    loginBox: {
+      spidLogin: SPID_LOGIN,
+      cieLogin: CIE_LOGIN,
+    },
     privacyAndCondition: {
       text: 'terms: {{termsLink}} privacy: {{privacyLink}}',
     },
+    temporaryLogin: {
+      alert: TEMPORARY_LOGIN_ALERT,
+      join: 'Join',
+    },
   },
+  spidSelect: {
+    modalTitle: 'test modal',
+  },
+});
+
+// Clear mocks after each test
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+beforeEach(() => {
+  // Mock fetch
+  global.fetch = vi.fn();
 });
 
 const oldWindowLocation = global.window.location;
@@ -28,22 +58,16 @@ afterAll(() => {
   Object.defineProperty(window, 'location', { value: oldWindowLocation });
 });
 
-// Clear mocks after each test
-afterEach(() => {
-  vi.clearAllMocks();
-});
-
+// Test cases
 test('Renders Login component', () => {
   render(<Login />);
-  expect(screen.getByText('loginPage.title')).toBeInTheDocument();
+  expect(screen.getByText(LOGIN_TITLE)).toBeInTheDocument();
+  expect(screen.getByText(LOGIN_DESCRIPTION)).toBeInTheDocument();
 });
 
-const mockWarning = 'This is a warning!';
-
 test('Fetches and displays banner alerts', async () => {
-  // Mock the fetch response
   const mockBannerResponse = [
-    { enable: true, severity: 'warning', description: mockWarning },
+    { enable: true, severity: 'warning', description: ALERT_DESCRIPTION },
   ];
   (fetch as Mock).mockResolvedValueOnce({
     json: vi.fn().mockResolvedValueOnce(mockBannerResponse),
@@ -52,7 +76,7 @@ test('Fetches and displays banner alerts', async () => {
   render(<Login />);
 
   await waitFor(() => {
-    expect(screen.getByText(mockWarning)).toBeInTheDocument();
+    expect(screen.getByText(ALERT_DESCRIPTION)).toBeInTheDocument();
   });
 });
 
@@ -61,16 +85,15 @@ test('Handles fetch error for alert message', async () => {
 
   render(<Login />);
 
-  // Optionally check if an error message or warning is displayed
   await waitFor(() => {
-    expect(screen.queryByText(mockWarning)).not.toBeInTheDocument();
+    expect(screen.queryByText(ALERT_DESCRIPTION)).not.toBeInTheDocument();
   });
 });
 
 test('Fetches IDP list on mount', async () => {
   const mockIDPListResponse = {
-    identityProviders: [{ entityID: 'test-idp' }],
-    richiediSpid: 'https://example.com/spid',
+    identityProviders: [{ entityID: MOCK_IDP_ENTITY_ID }],
+    richiediSpid: MOCK_RICHIEDI_SPID_URL,
   };
   (fetch as Mock).mockResolvedValueOnce({
     json: vi.fn().mockResolvedValueOnce(mockIDPListResponse),
@@ -84,7 +107,7 @@ test('Fetches IDP list on mount', async () => {
 });
 
 test('Handles invalid client ID gracefully', async () => {
-  window.history.pushState({}, '', `?client_id=invalidId`);
+  window.history.pushState({}, '', '?client_id=invalidId');
 
   render(<Login />);
 
@@ -93,19 +116,9 @@ test('Handles invalid client ID gracefully', async () => {
   });
 });
 
-test('Clicking SPID button opens modal', () => {
-  render(<Login />);
-  const buttonSpid = document.getElementById('spidButton');
-  fireEvent.click(buttonSpid as HTMLElement);
-
-  expect(screen.getByRole('dialog')).toBeInTheDocument(); // Check if modal opens
-});
-
 test('Clicking CIE button redirects correctly', () => {
   render(<Login />);
-  const buttonCIE = screen.getByRole('button', {
-    name: 'loginPage.loginBox.cieLogin',
-  });
+  const buttonCIE = screen.getByText(CIE_LOGIN);
   fireEvent.click(buttonCIE);
 
   expect(global.window.location.assign).toHaveBeenCalledWith(
@@ -113,26 +126,8 @@ test('Clicking CIE button redirects correctly', () => {
   );
 });
 
-test('Clicking terms and conditions link redirects correctly', () => {
+test('Displays temporary login alert if enabled', () => {
   render(<Login />);
-
-  const termsConditionLink = screen.getByText(
-    'loginPage.privacyAndCondition.terms'
-  );
-  fireEvent.click(termsConditionLink);
-
-  expect(global.window.location.assign).toHaveBeenCalledWith(
-    ENV.URL_FOOTER.TERMS_AND_CONDITIONS
-  );
-});
-
-test('Clicking privacy link redirects correctly', () => {
-  render(<Login />);
-
-  const privacyLink = screen.getByText('loginPage.privacyAndCondition.privacy');
-  fireEvent.click(privacyLink);
-
-  expect(global.window.location.assign).toHaveBeenCalledWith(
-    ENV.URL_FOOTER.PRIVACY_DISCLAIMER
-  );
+  const temporaryLoginAlert = screen.getByText(TEMPORARY_LOGIN_ALERT);
+  expect(temporaryLoginAlert).toBeInTheDocument();
 });

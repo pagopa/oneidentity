@@ -1,16 +1,15 @@
+/* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 
-import { ENV } from '../../utils/env';
+import { ENV } from '../../../utils/env';
 import SpidSelect from './SpidSelect';
 
 const oldWindowLocation = global.window.location;
 beforeAll(() => {
-  // eslint-disable-next-line functional/immutable-data
   Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
 });
 afterAll(() => {
-  // eslint-disable-next-line functional/immutable-data
   Object.defineProperty(window, 'location', { value: oldWindowLocation });
 });
 const idpList = {

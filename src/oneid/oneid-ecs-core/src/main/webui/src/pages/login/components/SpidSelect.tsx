@@ -5,13 +5,13 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useTranslation } from 'react-i18next';
 
-import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
-import SpidBig from '../../assets/spid_big.svg';
-import { ENV } from '../../utils/env';
-import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
-import { trackEvent } from '../../services/analyticsService';
-import { forwardSearchParams } from '../../utils/utils';
-import { ImageWithFallback } from '../../components/ImageFallback';
+import { IdentityProvider, IdentityProviders } from '../../../utils/IDPS';
+import SpidBig from '../../../assets/spid_big.svg';
+import { ENV } from '../../../utils/env';
+import { IDP_PLACEHOLDER_IMG } from '../../../utils/constants';
+import { trackEvent } from '../../../services/analyticsService';
+import { forwardSearchParams } from '../../../utils/utils';
+import { ImageWithFallback } from '../../../components/ImageFallback';
 
 type Props = {
   onBack: () => void;
