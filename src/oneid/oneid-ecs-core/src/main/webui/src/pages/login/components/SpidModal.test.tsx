@@ -1,12 +1,12 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { IdentityProviders } from '../../utils/IDPS';
-import { trackEvent } from '../../services/analyticsService';
-import { forwardSearchParams } from '../../utils/utils';
+import { IdentityProviders } from '../../../utils/IDPS';
+import { trackEvent } from '../../../services/analyticsService';
+import { forwardSearchParams } from '../../../utils/utils';
 import SpidModal from './SpidModal';
 
-vi.mock('../../services/analyticsService');
-vi.mock('../../utils/utils', () => ({
+vi.mock('../../../services/analyticsService');
+vi.mock('../../../utils/utils', () => ({
   forwardSearchParams: vi.fn(() => 'testParams'),
 }));
 
