@@ -23,22 +23,49 @@ type Props = {
   idpList: IdentityProviders;
 };
 
+export const getSPID = (IDP: IdentityProvider) => {
+  const params = forwardSearchParams(IDP.entityID);
+  const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
+  trackEvent(
+    'LOGIN_IDP_SELECTED',
+    {
+      SPID_IDP_NAME: IDP.name,
+      SPID_IDP_ID: IDP.entityID,
+      FORWARD_PARAMETERS: params,
+    },
+    () => window.location.assign(redirectUrl)
+  );
+};
+
+export const SpidList = ({ idpList }: { idpList: IdentityProviders }) =>
+  idpList.identityProviders.map((IDP, i) => (
+    <Grid
+      item
+      key={IDP.entityID}
+      xs={6}
+      textAlign={i % 2 === 0 ? 'right' : 'left'}
+      sx={{ minWidth: '100px' }}
+    >
+      <Button
+        onClick={() => getSPID(IDP)}
+        sx={{ width: '100px', padding: '0' }}
+        aria-label={IDP.name}
+        id={IDP.entityID}
+      >
+        <Icon sx={{ width: '100px', height: '48px' }}>
+          <ImageWithFallback
+            width="100px"
+            src={IDP.imageUrl}
+            alt={IDP.name}
+            placeholder={IDP_PLACEHOLDER_IMG}
+          />
+        </Icon>
+      </Button>
+    </Grid>
+  ));
+
 const SpidSelect = ({ onBack, idpList }: Props) => {
   const { t } = useTranslation();
-  const getSPID = (IDP: IdentityProvider) => {
-    const params = forwardSearchParams(IDP.entityID);
-    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
-    trackEvent(
-      'LOGIN_IDP_SELECTED',
-      {
-        SPID_IDP_NAME: IDP.name,
-        SPID_IDP_ID: IDP.entityID,
-        FORWARD_PARAMETERS: params,
-      },
-      () => window.location.assign(redirectUrl)
-    );
-  };
-
   const goBackToLandingPage = () => {
     window.location.assign(`${ENV.URL_FE.LOGIN}`);
   };
@@ -95,31 +122,18 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
           </Grid>
           <Grid item pb={5}>
             <Grid container direction="row" justifyItems="center" spacing={2}>
-              {idpList.identityProviders.map((IDP, i) => (
-                <Grid
-                  item
-                  key={IDP.entityID}
-                  xs={6}
-                  textAlign={i % 2 === 0 ? 'right' : 'left'}
-                  sx={{ minWidth: '100px' }}
+              {idpList?.identityProviders?.length ? (
+                <SpidList idpList={idpList} />
+              ) : (
+                <Typography
+                  variant="caption-semibold"
+                  color="textPrimary"
+                  sx={{ textAlign: 'center' }}
+                  fontSize={16}
                 >
-                  <Button
-                    onClick={() => getSPID(IDP)}
-                    sx={{ width: '100px', padding: '0' }}
-                    aria-label={IDP.name}
-                    id={IDP.entityID}
-                  >
-                    <Icon sx={{ width: '100px', height: '48px' }}>
-                      <ImageWithFallback
-                        width="100px"
-                        src={IDP.imageUrl}
-                        alt={IDP.name}
-                        placeholder={IDP_PLACEHOLDER_IMG}
-                      />
-                    </Icon>
-                  </Button>
-                </Grid>
-              ))}
+                  {t('spidSelect.placeholder')}
+                </Typography>
+              )}
             </Grid>
           </Grid>
           <Grid item>

@@ -20,6 +20,7 @@ export default {
   },
   spidSelect: {
     title: 'Choose your SPID',
+    placeholder: 'No IDP found',
     modalTitle: 'Choose your Identity Provider',
     cancelButton: 'Cancel',
     closeButton: 'Exit',

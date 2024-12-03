@@ -20,6 +20,7 @@ export default {
   },
   spidSelect: {
     title: 'Wähle deinen SPID-Anbieter',
+    placeholder: 'Kein IDP gefunden',
     modalTitle: 'Wähle deinen Identitätsanbieter',
     cancelButton: 'Abbrechen',
     closeButton: 'Abmelden',
