@@ -12,7 +12,7 @@ import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_A
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_PRESENT;
-import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_STATEMENTS_NOT_PRESENT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_MISMATCH;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING;
@@ -1232,7 +1232,7 @@ public class SAMLServiceImplTest {
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
-
+    System.out.println(exception.getMessage());
     assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_NOT_FOUND.getErrorMessage()));
   }
 
@@ -3942,6 +3942,9 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains(IDP_ERROR_ATTRIBUTES_STATEMENTS_NOT_PRESENT.getErrorMessage()));
+            .contains(IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT.getErrorMessage()));
   }
+
+  //TODO ADD TESTS FOR NEW ERRORS 
+
 }
