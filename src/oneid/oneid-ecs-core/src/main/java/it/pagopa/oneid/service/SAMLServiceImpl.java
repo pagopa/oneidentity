@@ -223,7 +223,7 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS);
     }
     AudienceRestriction audienceRestriction = audienceRestrictions.getFirst();
-    if (audienceRestriction == null
+    if (audienceRestriction == null || audienceRestriction.getAudiences() == null
         || audienceRestriction.getAudiences().isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY);
     }
@@ -552,7 +552,7 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private Assertion extractAssertion(Response samlResponse) {
-    if (samlResponse.getAssertions().isEmpty() || samlResponse.getAssertions() == null) {
+    if (samlResponse.getAssertions() == null || samlResponse.getAssertions().isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_NOT_FOUND);
     }
     if (samlResponse.getAssertions().size() != 1) {
