@@ -20,7 +20,6 @@ import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -121,6 +120,9 @@ public class SAMLServiceImpl implements SAMLService {
         .isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED);
     }
+    if (subjectConfirmations.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS);
+    }
     SubjectConfirmation subjectConfirmation = subjectConfirmations.getFirst();
     if (subjectConfirmation.getMethod() == null
         || !subjectConfirmation.getMethod()
@@ -217,21 +219,24 @@ public class SAMLServiceImpl implements SAMLService {
     if (audienceRestrictions == null || audienceRestrictions.isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY);
     }
+    if (audienceRestrictions.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS);
+    }
     AudienceRestriction audienceRestriction = audienceRestrictions.getFirst();
-    if (audienceRestriction == null
+    if (audienceRestriction == null || audienceRestriction.getAudiences() == null
         || audienceRestriction.getAudiences().isEmpty()) {
-
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY);
     }
 
+    if (audienceRestriction.getAudiences().size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCES);
+    }
     Audience audience = audienceRestriction.getAudiences().getFirst();
     Element element = audience.getDOM();
     if (element == null || element.getTextContent() == null) {
-
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_MISSING_OR_EMPTY);
     }
     if (!element.getTextContent().strip().equals(ENTITY_ID)) {
-
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_MISMATCH);
     }
   }
@@ -381,8 +386,10 @@ public class SAMLServiceImpl implements SAMLService {
       String entityID) {
     List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
     if (attributeStatements == null || attributeStatements.isEmpty()) {
-
-      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_STATEMENTS_NOT_PRESENT);
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT);
+    }
+    if (attributeStatements.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS);
     }
     AttributeStatement attributeStatement = attributeStatements.getFirst();
     if (attributeStatement.getAttributes() == null || attributeStatement.getAttributes()
@@ -545,12 +552,13 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private Assertion extractAssertion(Response samlResponse) {
-    try {
-      return samlResponse.getAssertions().getFirst();
-    } catch (NoSuchElementException e) {
-
+    if (samlResponse.getAssertions() == null || samlResponse.getAssertions().isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_NOT_FOUND);
     }
+    if (samlResponse.getAssertions().size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_ASSERTIONS);
+    }
+    return samlResponse.getAssertions().getFirst();
   }
 
   private void validateSignature(Response samlResponse, String entityID) {
