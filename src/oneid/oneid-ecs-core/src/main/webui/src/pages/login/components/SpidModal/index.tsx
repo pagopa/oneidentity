@@ -51,6 +51,7 @@ const SpidModal = ({
   return (
     <Dialog
       role="dialog"
+      title={t('spidSelect.modalTitle')}
       open={openSpidModal}
       onClose={() => setOpenSpidModal(false)}
       aria-busy={loading}

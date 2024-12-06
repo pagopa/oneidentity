@@ -1,56 +1,65 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getIdpList, getClientData, fetchBannerContent } from './api';
+/* eslint-disable sonarjs/no-duplicate-string */
+/* eslint-disable functional/immutable-data */
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { ENV } from '../utils/env';
+import { IdentityProvider } from '../utils/IDPS';
+import { getIdpList, getClientData, fetchBannerContent } from './api';
 
-const MOCK_IDP_LIST_URL = 'https://example.com/idps';
-const MOCK_CLIENT_BASE_LIST_URL = 'https://example.com/clients';
-const MOCK_LOGIN_BANNER_URL = 'https://example.com/banner';
-const SPID_RICHIEDI_URL =
-  'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/';
-const INVALID_CLIENT_ID_WARNING =
-  'no client_id supplied, or not valid 32bit Base64Url';
+vi.stubGlobal('fetch', vi.fn());
 
-const mockFetch = vi.fn();
-
-vi.stubGlobal('fetch', mockFetch);
-
-describe('API Functions', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
+describe('Utils functions', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks(); // Reset mocks before each test
   });
 
   describe('getIdpList', () => {
-    it('should return a sorted list of identity providers with image URLs', async () => {
-      const mockIdps = [{ entityID: 'test-idp' }];
-      const expectedImageUrl = `${ENV.URL_FE.ASSETS}/idps/${btoa('test-idp')}.png`;
+    const mockIDPList: Array<Omit<IdentityProvider, 'imageUrl'>> = [
+      { entityID: 'idp1', name: 'IDP 1', identifier: 'idp-identifier-1' },
+      { entityID: 'idp2', name: 'IDP 2', identifier: 'idp-identifier-2' },
+    ];
 
-      mockFetch.mockResolvedValueOnce({
-        json: vi.fn().mockResolvedValueOnce(mockIdps),
+    it('returns a sorted and enhanced IDP list', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockIDPList,
       });
 
-      const result = await getIdpList(MOCK_IDP_LIST_URL);
+      const result = await getIdpList('https://example.com/idp-list');
+      const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
 
-      expect(mockFetch).toHaveBeenCalledWith(MOCK_IDP_LIST_URL);
-      expect(result.idps?.identityProviders).toEqual([
-        { ...mockIdps[0], imageUrl: expectedImageUrl },
-      ]);
-      expect(result.idps?.richiediSpid).toBe(SPID_RICHIEDI_URL);
+      expect(result.identityProviders).toHaveLength(2);
+      expect(result.identityProviders[0]).toHaveProperty(
+        'imageUrl',
+        `${assetsIDPUrl}/${btoa(mockIDPList[0].entityID)}.png`
+      );
     });
 
-    it('should return undefined idps on fetch error', async () => {
-      mockFetch.mockRejectedValueOnce(new Error(INVALID_CLIENT_ID_WARNING));
+    it('throws an error if the fetch fails', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        statusText: 'Not Found',
+      });
 
-      const result = await getIdpList(MOCK_IDP_LIST_URL);
-
-      expect(mockFetch).toHaveBeenCalledWith(MOCK_IDP_LIST_URL);
-      expect(result.idps).toBeUndefined();
+      await expect(getIdpList('https://example.com/idp-list')).rejects.toThrow(
+        'Failed to fetch IDP list: Not Found'
+      );
     });
   });
 
   describe('getClientData', () => {
+    const clientID = '0000000000000000000000000000000000000000000';
+
+    const mockClientData = {
+      clientID: clientID,
+      friendlyName: 'Test Client',
+      logoUri: 'https://example.com/logo.png',
+      policyUri: 'https://example.com/policy',
+      tosUri: 'https://example.com/tos',
+    };
+
     beforeEach(() => {
       vi.stubGlobal('window', {
-        location: { search: '?client_id=test-client-id' },
+        location: { search: `?client_id=${clientID}` },
       });
     });
 
@@ -58,71 +67,72 @@ describe('API Functions', () => {
       vi.restoreAllMocks();
     });
 
-    it.skip('should return client data when client ID is valid', async () => {
-      const mockClientData = {
-        clientID: 'test-client-id',
-        friendlyName: 'Test Client',
-      };
-
-      mockFetch.mockResolvedValueOnce({
-        json: vi.fn().mockResolvedValueOnce(mockClientData),
+    it('fetches client data successfully', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockClientData,
       });
 
-      const result = await getClientData(MOCK_CLIENT_BASE_LIST_URL);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${MOCK_CLIENT_BASE_LIST_URL}/test-client-id`
-      );
-      expect(result.clientData).toEqual(mockClientData);
+      const result = await getClientData('https://example.com/clients');
+      expect(result).toEqual(mockClientData);
     });
 
-    it('should return undefined client data for invalid client ID', async () => {
+    it('throws an error if client_id is invalid or missing', async () => {
       vi.stubGlobal('window', {
-        location: { search: '?client_id=invalid-id' },
+        location: { search: `?client_id=` },
       });
 
-      const result = await getClientData(MOCK_CLIENT_BASE_LIST_URL);
-
-      expect(result.clientData).toBeUndefined();
+      await expect(
+        getClientData('https://example.com/clients')
+      ).rejects.toThrow('Invalid or missing client_id');
     });
 
-    it('should return undefined client data on fetch error', async () => {
-      mockFetch.mockRejectedValueOnce(new Error(INVALID_CLIENT_ID_WARNING));
+    it('throws an error if the fetch fails', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        statusText: 'Unauthorized',
+      });
 
-      const result = await getClientData(MOCK_CLIENT_BASE_LIST_URL);
-
-      expect(result.clientData).toBeUndefined();
+      await expect(
+        getClientData('https://example.com/clients')
+      ).rejects.toThrow('Failed to fetch client data: Unauthorized');
     });
   });
 
   describe('fetchBannerContent', () => {
-    it('should return an array of banner content', async () => {
-      const mockBannerContent = {
-        banner1: { enable: true, severity: 'info', description: 'Test Banner' },
-        banner2: {
-          enable: false,
-          severity: 'error',
-          description: 'Error Banner',
-        },
-      };
+    const mockBannerContent = {
+      banner1: {
+        enable: true,
+        severity: 'info',
+        description: 'This is a test banner',
+      },
+      banner2: {
+        enable: false,
+        severity: 'warning',
+        description: 'This is another test banner',
+      },
+    };
 
-      mockFetch.mockResolvedValueOnce({
-        json: vi.fn().mockResolvedValueOnce(mockBannerContent),
+    it('returns an array of banner content', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockBannerContent,
       });
 
-      const result = await fetchBannerContent(MOCK_LOGIN_BANNER_URL);
-
-      expect(mockFetch).toHaveBeenCalledWith(MOCK_LOGIN_BANNER_URL);
-      expect(result).toEqual(Object.values(mockBannerContent));
+      const result = await fetchBannerContent('https://example.com/banner');
+      expect(result).toHaveLength(2);
+      expect(result[0]).toHaveProperty('description', 'This is a test banner');
     });
 
-    it('should return an empty array on fetch error', async () => {
-      mockFetch.mockRejectedValueOnce(new Error(INVALID_CLIENT_ID_WARNING));
+    it('throws an error if the fetch fails', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        statusText: 'Forbidden',
+      });
 
-      const result = await fetchBannerContent(MOCK_LOGIN_BANNER_URL);
-
-      expect(mockFetch).toHaveBeenCalledWith(MOCK_LOGIN_BANNER_URL);
-      expect(result).toEqual([]);
+      await expect(
+        fetchBannerContent('https://example.com/banner')
+      ).rejects.toThrow('Failed to fetch banner content: Forbidden');
     });
   });
 });

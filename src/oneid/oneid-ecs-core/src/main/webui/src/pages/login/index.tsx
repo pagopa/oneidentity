@@ -27,7 +27,6 @@ export const LinkWrapper = ({
   children?: React.ReactNode;
 }) => (
   <Link
-    key="termsLink"
     sx={{
       cursor: 'pointer',
       textDecoration: 'none !important',
@@ -239,8 +238,16 @@ const Login = () => {
                 privacyLink: `<1>${t('loginPage.privacyAndCondition.privacy')}</1>`,
               }}
               components={[
-                <LinkWrapper key="termsLink" onClick={redirectToTOS} />,
-                <LinkWrapper key="privacyLink" onClick={redirectPrivacyLink} />,
+                <LinkWrapper
+                  data-testid="terms-link"
+                  key="termsLink"
+                  onClick={redirectToTOS}
+                />,
+                <LinkWrapper
+                  data-testid="privacy-link"
+                  key="privacyLink"
+                  onClick={redirectPrivacyLink}
+                />,
               ]}
             />
           </Typography>
