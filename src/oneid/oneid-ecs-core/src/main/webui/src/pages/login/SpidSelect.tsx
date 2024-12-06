@@ -1,7 +1,5 @@
 import { Fragment } from 'react';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import Icon from '@mui/material/Icon';
-import { IconButton } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -10,10 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import SpidBig from '../../assets/spid_big.svg';
 import { ENV } from '../../utils/env';
-import {
-  ENABLE_LANDING_REDIRECT,
-  IDP_PLACEHOLDER_IMG,
-} from '../../utils/constants';
+import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import { ImageWithFallback } from '../../components/ImageFallback';
@@ -66,9 +61,6 @@ export const SpidList = ({ idpList }: { idpList: IdentityProviders }) =>
 
 const SpidSelect = ({ onBack, idpList }: Props) => {
   const { t } = useTranslation();
-  const goBackToLandingPage = () => {
-    window.location.assign(`${ENV.URL_FE.LOGIN}`);
-  };
 
   return (
     <Fragment>
@@ -83,21 +75,6 @@ const SpidSelect = ({ onBack, idpList }: Props) => {
           <Grid item xs={2} display="flex" justifyContent="center">
             <img src={SpidBig} />
           </Grid>
-          {ENABLE_LANDING_REDIRECT && (
-            <Grid item xs={1} sx={{ textAlign: 'right' }}>
-              <IconButton
-                color="primary"
-                sx={{
-                  maxWidth: '17.42px',
-                  '&:hover': { backgroundColor: 'transparent !important' },
-                }}
-                onClick={goBackToLandingPage}
-                aria-label={t('spidSelect.closeButton')}
-              >
-                <ClearOutlinedIcon />
-              </IconButton>
-            </Grid>
-          )}
         </Grid>
         <Grid
           container

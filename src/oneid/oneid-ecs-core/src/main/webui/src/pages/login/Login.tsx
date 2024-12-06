@@ -4,7 +4,7 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Icon from '@mui/material/Icon';
-import { Alert, IconButton } from '@mui/material';
+import { Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { theme } from '@pagopa/mui-italia';
@@ -13,10 +13,7 @@ import Layout from '../../components/Layout';
 import SpidIcon from '../../assets/SpidIcon.svg';
 import CIEIcon from '../../assets/CIEIcon.svg';
 import { ENV } from '../../utils/env';
-import {
-  ENABLE_LANDING_REDIRECT,
-  IDP_PLACEHOLDER_IMG,
-} from '../../utils/constants';
+import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
 import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
@@ -161,10 +158,6 @@ const Login = () => {
     );
   };
 
-  const goBackToLandingPage = () => {
-    window.location.assign(`${ENV.URL_FE.LOGIN}`);
-  };
-
   const onBackAction = () => {
     setShowIDPS(false);
   };
@@ -196,20 +189,6 @@ const Login = () => {
   return (
     <Layout>
       <Grid container direction="column" my={'auto'} alignItems="center">
-        <Grid container direction="row" justifyContent="flex-end" mt={8}>
-          <Grid item xs={2}>
-            {ENABLE_LANDING_REDIRECT && (
-              <IconButton
-                color="primary"
-                sx={{
-                  maxWidth: '17.42px',
-                  '&:hover': { backgroundColor: 'transparent !important' },
-                }}
-                onClick={goBackToLandingPage}
-              ></IconButton>
-            )}
-          </Grid>
-        </Grid>
         <Grid container item justifyContent="center" mb={0}>
           <Grid item xs={4} maxWidth="100%">
             <Typography
