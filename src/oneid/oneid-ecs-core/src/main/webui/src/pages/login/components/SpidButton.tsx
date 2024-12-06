@@ -12,21 +12,17 @@ export const SpidIconWrapper = () => (
 );
 
 export type SpidButtonProps = {
-  loading: boolean;
   onClick: () => void;
 };
 
-export const SpidButton = ({ loading, onClick }: SpidButtonProps) => {
+export const SpidButton = ({ onClick }: SpidButtonProps) => {
   const { t } = useTranslation();
 
   return (
     <LoadingButton
-      aria-busy={loading}
       disableElevation
       id="spidButton"
       data-testid="spidButton"
-      loading={loading}
-      loadingPosition="end"
       onClick={onClick}
       startIcon={<SpidIconWrapper />}
       sx={{
