@@ -1,4 +1,3 @@
-import Login from './pages/login/Login';
 import {
   ROUTE_LOGIN,
   ROUTE_LOGIN_ERROR,
@@ -7,6 +6,7 @@ import {
 import { redirectToLogin } from './utils/utils';
 import Logout from './pages/logout/Logout';
 import { LoginError } from './pages/loginError/LoginError';
+import Login from './pages/login';
 
 const onLogout = () => <Logout />;
 const onLoginError = () => <LoginError />;

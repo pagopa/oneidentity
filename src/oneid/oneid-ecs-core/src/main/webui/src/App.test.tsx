@@ -19,7 +19,7 @@ vi.mock('./services/analyticsService', () => ({
 }));
 
 // Mock the components
-vi.mock('./pages/login/Login', () => ({
+vi.mock('./pages/login', () => ({
   default: () => <div>Mocked Login Component</div>,
 }));
 vi.mock('./pages/logout/Logout', () => ({
