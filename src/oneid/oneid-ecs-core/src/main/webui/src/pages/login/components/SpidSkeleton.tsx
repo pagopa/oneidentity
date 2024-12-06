@@ -4,6 +4,8 @@ export const SpidSkeleton = () => {
   const ImgSkeleton = () => (
     <Skeleton
       variant="rectangular"
+      role="presentation"
+      aria-busy="true"
       height={48}
       width={148}
       sx={{ borderRadius: 1 }}

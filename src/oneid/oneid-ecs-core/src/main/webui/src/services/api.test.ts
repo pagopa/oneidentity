@@ -9,7 +9,11 @@ vi.stubGlobal('fetch', vi.fn());
 
 describe('Utils functions', () => {
   beforeEach(() => {
-    vi.restoreAllMocks(); // Reset mocks before each test
+    vi.spyOn(global.Math, 'random').mockReturnValue(0.5);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('getIdpList', () => {
@@ -18,7 +22,7 @@ describe('Utils functions', () => {
       { entityID: 'idp2', name: 'IDP 2', identifier: 'idp-identifier-2' },
     ];
 
-    it('returns a sorted and enhanced IDP list', async () => {
+    it('returns a enhanced IDP list', async () => {
       (global.fetch as Mock).mockResolvedValueOnce({
         ok: true,
         json: async () => mockIDPList,

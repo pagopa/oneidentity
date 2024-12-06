@@ -1,9 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Mock, vi } from 'vitest';
-import Login from '../login';
+import Login, { LinkWrapper } from '../login';
 import { useLoginData } from '../../hooks/useLoginData';
 import { ENV } from '../../utils/env';
 import { trackEvent } from '../../services/analyticsService';
+import { ThemeProvider } from '@emotion/react';
+import { createTheme } from '@mui/material';
 
 vi.mock('../../hooks/useLoginData');
 vi.mock('../../services/analyticsService', () => ({
@@ -18,6 +20,45 @@ vi.mock('@mui/material', async () => {
       breakpoints: { down: () => '@media (max-width: 960px)' },
     }),
   };
+});
+
+describe('LinkWrapper', () => {
+  const mockOnClick = vi.fn();
+
+  const renderWithTheme = (component: React.ReactNode) => {
+    const theme = createTheme();
+    return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
+  };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('renders children correctly', () => {
+    renderWithTheme(<LinkWrapper onClick={mockOnClick}>Test Link</LinkWrapper>);
+
+    expect(screen.getByText('Test Link')).toBeInTheDocument();
+  });
+
+  it('calls onClick handler when clicked', () => {
+    renderWithTheme(<LinkWrapper onClick={mockOnClick}>Click Me</LinkWrapper>);
+    const link = screen.getByText('Click Me');
+
+    fireEvent.click(link);
+
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies correct styles', () => {
+    renderWithTheme(
+      <LinkWrapper onClick={mockOnClick}>Styled Link</LinkWrapper>
+    );
+    const link = screen.getByText('Styled Link');
+
+    expect(link).toHaveStyle({
+      cursor: 'pointer',
+    });
+  });
 });
 
 describe('<Login />', () => {
