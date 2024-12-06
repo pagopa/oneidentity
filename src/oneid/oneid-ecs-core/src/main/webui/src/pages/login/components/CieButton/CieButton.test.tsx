@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, vi } from 'vitest';
-import { CieButton, CieButtonProps } from './CieButton';
-import { i18nTestSetup } from '../../../__tests__/i18nTestSetup';
+import { CieButtonProps, CieButton } from '../CieButton';
+import { i18nTestSetup } from '../../../../__tests__/i18nTestSetup';
 
 describe('CieButton', () => {
   const BUTTON_TEXT = 'CIE Login';

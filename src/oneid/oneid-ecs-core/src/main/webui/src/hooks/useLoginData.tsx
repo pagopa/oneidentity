@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ENV } from '../utils/env';
 import { IdentityProviders } from '../utils/IDPS';
 import {
@@ -9,47 +9,30 @@ import {
   getClientData,
 } from '../services/api';
 
+const staleTime = 5 * 60 * 1000;
+const retry = 2;
+
 export const useLoginData = () => {
-  const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
-  const [idpList, setIdpList] = useState<IdentityProviders>({
-    identityProviders: [],
-    richiediSpid: '',
+  const bannerQuery = useQuery<Array<BannerContent>, Error>({
+    queryKey: ['bannerContent'],
+    queryFn: () => fetchBannerContent(ENV.JSON_URL.ALERT),
+    staleTime,
+    retry,
   });
-  const [clientData, setClientData] = useState<Client>();
 
-  useEffect(() => {
-    const bannerRequest = fetchBannerContent(ENV.JSON_URL.ALERT);
-    const idpsRequest = getIdpList(ENV.JSON_URL.IDP_LIST);
-    const clientDataRequest = getClientData(ENV.JSON_URL.CLIENT_BASE_URL);
+  const idpQuery = useQuery<IdentityProviders, Error>({
+    queryKey: ['idpList'],
+    queryFn: () => getIdpList(ENV.JSON_URL.IDP_LIST),
+    staleTime,
+    retry,
+  });
 
-    Promise.allSettled([idpsRequest, clientDataRequest, bannerRequest]).then(
-      ([idpsResult, clientDataResult, bannerResult]) => {
-        if (idpsResult.status === 'fulfilled' && idpsResult.value.idps) {
-          setIdpList(idpsResult.value.idps);
-        } else {
-          console.error('Failed to fetch IDP list:', idpsResult.status);
-        }
+  const clientQuery = useQuery<Client, Error>({
+    queryKey: ['clientData'],
+    queryFn: () => getClientData(ENV.JSON_URL.CLIENT_BASE_URL),
+    staleTime,
+    retry,
+  });
 
-        if (
-          clientDataResult.status === 'fulfilled' &&
-          clientDataResult.value.clientData
-        ) {
-          setClientData(clientDataResult.value.clientData);
-        } else {
-          console.error(
-            'Failed to fetch client data:',
-            clientDataResult.status
-          );
-        }
-
-        if (bannerResult.status === 'fulfilled' && bannerResult.value?.length) {
-          setBannerContent(bannerResult.value);
-        } else {
-          console.error('Failed to fetch banner content:', bannerResult.status);
-        }
-      }
-    );
-  }, []);
-
-  return { bannerContent, idpList, clientData };
+  return { bannerQuery, idpQuery, clientQuery };
 };
