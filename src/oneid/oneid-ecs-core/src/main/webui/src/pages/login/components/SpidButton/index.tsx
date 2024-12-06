@@ -1,9 +1,9 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import SpidIcon from '../../../assets/SpidIcon.svg';
 import Icon from '@mui/material/Icon';
 import Typography from '@mui/material/Typography';
 import { theme } from '@pagopa/mui-italia/dist/theme';
 import { useTranslation } from 'react-i18next';
+import SpidIcon from '../../../../assets/SpidIcon.svg';
 
 export const SpidIconWrapper = () => (
   <Icon sx={{ width: '25px', height: '25px' }}>

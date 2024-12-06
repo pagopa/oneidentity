@@ -1,7 +1,7 @@
 import Icon from '@mui/material/Icon';
 import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
-import CIEIcon from '../../../assets/CIEIcon.svg';
+import CIEIcon from '../../../../assets/CIEIcon.svg';
 
 export type CieButtonProps = {
   onClick: () => void;

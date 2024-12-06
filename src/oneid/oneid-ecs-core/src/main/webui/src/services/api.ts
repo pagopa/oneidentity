@@ -15,60 +15,59 @@ export type Client = {
   tosUri: string;
 };
 
+export type IDPList = {
+  identityProviders: Array<IdentityProvider>;
+  richiediSpid: string;
+};
+
 export const getIdpList = async (idpListUrl: string) => {
-  try {
-    const response = await fetch(idpListUrl);
-    const res: Array<IdentityProvider> = await response.json();
-    const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
-    const rawIDPS = res
-      .map((i) => ({
-        ...i,
-        imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png`,
-      }))
-      .sort(() => 0.5 - Math.random());
-    const idps: {
-      identityProviders: Array<IdentityProvider>;
-      richiediSpid: string;
-    } = {
-      identityProviders: rawIDPS,
-      richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
-    };
-    return { idps };
-  } catch (error) {
-    console.error(error);
-    return { idps: undefined };
+  const response = await fetch(idpListUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch IDP list: ${response.statusText}`);
   }
+
+  const res: Array<IdentityProvider> = await response.json();
+  const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
+  const rawIDPS = res
+    .map((i) => ({
+      ...i,
+      imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png`,
+    }))
+    .sort(() => 0.5 - Math.random());
+
+  const out: IDPList = {
+    identityProviders: rawIDPS,
+    richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
+  };
+
+  return out;
 };
 
 export const getClientData = async (clientBaseListUrl: string) => {
-  try {
-    const query = new URLSearchParams(window.location.search);
-    const clientID = query.get('client_id');
+  const query = new URLSearchParams(window.location.search);
+  const clientID = query.get('client_id');
 
-    if (clientID && clientID.match(/^[A-Za-z0-9_-]{43}$/)) {
-      const clientListUrl = `${clientBaseListUrl}/${clientID}`;
-      const response = await fetch(clientListUrl);
-      const res: Client = await response.json();
-      return { clientData: res };
-    } else {
-      console.warn('no client_id supplied, or not valid 32bit Base64Url');
-      return { clientData: undefined };
-    }
-  } catch (error) {
-    console.error(error);
-    return { clientData: undefined };
+  if (!clientID || !clientID.match(/^[A-Za-z0-9_-]{43}$/)) {
+    throw new Error('Invalid or missing client_id');
   }
+
+  const clientListUrl = `${clientBaseListUrl}/${clientID}`;
+  const response = await fetch(clientListUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch client data: ${response.statusText}`);
+  }
+
+  return await response.json();
 };
 
 export const fetchBannerContent = async (
   loginBannerUrl: string
 ): Promise<Array<BannerContent>> => {
-  try {
-    const response = await fetch(loginBannerUrl);
-    const data = await response.json();
-    return Object.values(data) as Array<BannerContent>;
-  } catch (error) {
-    console.error('Failed to fetch banner content:', error);
-    return [];
+  const response = await fetch(loginBannerUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch banner content: ${response.statusText}`);
   }
+
+  const data = await response.json();
+  return Object.values(data) as Array<BannerContent>;
 };

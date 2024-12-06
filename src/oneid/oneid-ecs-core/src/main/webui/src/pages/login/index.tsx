@@ -47,8 +47,7 @@ const Login = () => {
   const [openSpidModal, setOpenSpidModal] = useState(false);
   const [showIDPS, setShowIDPS] = useState(false);
 
-  const { bannerContent, clientData, idpList } = useLoginData();
-  const idpLoading = !idpList?.identityProviders?.length;
+  const { bannerQuery, clientQuery, idpQuery } = useLoginData();
   const { t } = useTranslation();
 
   const columnsOccupiedByAlert = 5;
@@ -82,19 +81,25 @@ const Login = () => {
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
       window.location.assign(
-        clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
       )
     );
 
   const redirectToTOS = () =>
     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
       window.location.assign(
-        clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
       )
     );
 
   if (showIDPS) {
-    return <SpidSelect onBack={onBackAction} idpList={idpList} />;
+    return (
+      <SpidSelect
+        onBack={onBackAction}
+        idpList={idpQuery.data}
+        loading={idpQuery.isLoading}
+      />
+    );
   }
 
   return (
@@ -144,15 +149,15 @@ const Login = () => {
             </Typography>
           </Grid>
         </Grid>
-        {clientData?.logoUri && (
-          <Grid
-            container
-            item
-            justifyContent="center"
-            textAlign={'center'}
-            mb={2}
-          >
-            <Grid item xs={6}>
+        <Grid
+          container
+          item
+          justifyContent="center"
+          textAlign={'center'}
+          mb={2}
+        >
+          <Grid item xs={6} justifyContent="center" alignItems="center">
+            {clientQuery.isFetched && (
               <ImageWithFallback
                 style={{
                   width: '100%',
@@ -160,13 +165,13 @@ const Login = () => {
                   maxHeight: '100px',
                   objectFit: 'cover',
                 }}
-                src={clientData?.logoUri}
-                alt={clientData?.friendlyName}
+                src={clientQuery.data?.logoUri}
+                alt={clientQuery.data?.friendlyName || 'PagoPa Logo'}
                 placeholder={IDP_PLACEHOLDER_IMG}
               />
-            </Grid>
+            )}
           </Grid>
-        )}
+        </Grid>
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>
@@ -187,8 +192,8 @@ const Login = () => {
             </Grid>
           </Grid>
         )}
-        {bannerContent &&
-          bannerContent.map(
+        {bannerQuery.isSuccess &&
+          bannerQuery.data.map(
             (bc, index) =>
               bc.enable && (
                 <Grid container item justifyContent="center" key={index} mt={2}>
@@ -226,8 +231,8 @@ const Login = () => {
           <SpidModal
             openSpidModal={openSpidModal}
             setOpenSpidModal={setOpenSpidModal}
-            idpList={idpList}
-            loading={idpLoading}
+            idpList={idpQuery.data}
+            loading={idpQuery.isLoading}
           />
           <Grid item sx={{ width: '100%' }}>
             <SpidButton onClick={() => setOpenSpidModal(true)} />
