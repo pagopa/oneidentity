@@ -206,12 +206,10 @@ const Login = () => {
             openSpidModal={openSpidModal}
             setOpenSpidModal={setOpenSpidModal}
             idpList={idpList}
+            loading={idpLoading}
           />
           <Grid item sx={{ width: '100%' }}>
-            <SpidButton
-              loading={idpLoading}
-              onClick={() => setOpenSpidModal(true)}
-            />
+            <SpidButton onClick={() => setOpenSpidModal(true)} />
           </Grid>
           <Grid item sx={{ width: '100%' }}>
             <CieButton onClick={goCIE} />

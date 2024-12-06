@@ -1,4 +1,12 @@
-import { Button, Dialog, Grid, Icon, Typography } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  Grid,
+  Icon,
+  Skeleton,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import { IdentityProvider, IdentityProviders } from '../../../utils/IDPS';
@@ -12,6 +20,7 @@ type Props = {
   openSpidModal: boolean;
   setOpenSpidModal: (openDialog: boolean) => void;
   idpList: IdentityProviders;
+  loading: boolean;
 };
 
 export const getSPID = (IDP: IdentityProvider) => {
@@ -71,14 +80,71 @@ const IdpListSelection = ({
     </Grid>
   ));
 
-const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
+const SpidModal = ({
+  openSpidModal,
+  setOpenSpidModal,
+  idpList,
+  loading,
+}: Props) => {
   const { t } = useTranslation();
+
+  const ContentSelection = () => {
+    return (
+      <>
+        {idpList?.identityProviders?.length ? (
+          <Grid item maxWidth={375}>
+            <Grid container direction="row" justifyItems="center">
+              <IdpListSelection identityProviders={idpList.identityProviders} />
+            </Grid>
+          </Grid>
+        ) : (
+          <Typography
+            variant="caption-semibold"
+            color="textPrimary"
+            sx={{ textAlign: 'center' }}
+            fontSize={16}
+          >
+            {t('spidSelect.placeholder')}
+          </Typography>
+        )}
+      </>
+    );
+  };
+
+  const IdpsOverlay = () => {
+    const ImgSkeleton = () => (
+      <Skeleton variant="rectangular" height={48} width={148} />
+    );
+    return (
+      <Stack
+        direction="row"
+        spacing={2}
+        px={4}
+        py={1}
+        aria-label="loading"
+        role="status"
+      >
+        <Stack spacing={2} flex={0.5}>
+          <ImgSkeleton />
+          <ImgSkeleton />
+          <ImgSkeleton />
+        </Stack>
+        <Stack spacing={2} flex={0.5}>
+          <ImgSkeleton />
+          <ImgSkeleton />
+          <ImgSkeleton />
+        </Stack>
+      </Stack>
+    );
+  };
 
   return (
     <Dialog
       role="dialog"
       open={openSpidModal}
       onClose={() => setOpenSpidModal(false)}
+      aria-busy={loading}
+      aria-live="polite"
     >
       <Typography
         fontSize={24}
@@ -90,22 +156,7 @@ const SpidModal = ({ openSpidModal, setOpenSpidModal, idpList }: Props) => {
       >
         {t('spidSelect.modalTitle')}
       </Typography>
-      {idpList?.identityProviders?.length ? (
-        <Grid item maxWidth={375}>
-          <Grid container direction="row" justifyItems="center">
-            <IdpListSelection identityProviders={idpList.identityProviders} />
-          </Grid>
-        </Grid>
-      ) : (
-        <Typography
-          variant="caption-semibold"
-          color="textPrimary"
-          sx={{ textAlign: 'center' }}
-          fontSize={16}
-        >
-          {t('spidSelect.placeholder')}
-        </Typography>
-      )}
+      {loading ? <IdpsOverlay /> : <ContentSelection />}
       <Grid p={4}>
         <Button
           onClick={() => setOpenSpidModal(false)}
