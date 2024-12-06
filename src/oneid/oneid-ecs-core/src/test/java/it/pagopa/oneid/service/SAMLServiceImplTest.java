@@ -97,6 +97,7 @@ import static it.pagopa.oneid.model.Base64SAMLResponses.ISSUE_INSTANT_WITH_MILLI
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_ASSERTION_ID_ATTRIBUTE_SAML_RESPONSE_34;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_ASSERTION_SAML_RESPONSE_32;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_DESTINATION_SAML_RESPONSE_20;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_FORMAT_ATTRIBUTE_SAML_RESPONSE_31;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_ISSUER_ELEMENT_SAML_RESPONSE_28;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_STATUS_CODE_SAML_RESPONSE_25;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_STATUS_SAML_RESPONSE_23;
@@ -619,8 +620,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -653,8 +652,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -687,8 +684,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -722,8 +717,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = Instant.now();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -756,8 +749,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = Instant.now();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -790,8 +781,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -826,8 +815,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -862,8 +849,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -897,8 +882,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -933,8 +916,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -969,8 +950,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1005,8 +984,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1041,8 +1018,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1077,8 +1052,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1113,8 +1086,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1149,8 +1120,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1176,18 +1145,16 @@ public class SAMLServiceImplTest {
         .contains(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
-  /* TODO: fix this test
+
   @Test
-   void validateSAMLResponse_31() throws OneIdentityException {
+  void validateSAMLResponse_31() throws OneIdentityException {
     // given
     Response response = samlUtils.getSAMLResponseFromString(
         MISSING_FORMAT_ATTRIBUTE_SAML_RESPONSE_31
     );
 
     Instant mockInstant = response.getIssueInstant();
-
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1209,7 +1176,7 @@ public class SAMLServiceImplTest {
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
   }
-   */
+
 
   @Test
   void validateSAMLResponse_32() throws OneIdentityException {
@@ -1220,8 +1187,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1254,8 +1219,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1289,8 +1252,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1324,8 +1285,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1359,8 +1318,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1394,8 +1351,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1430,8 +1385,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1466,8 +1419,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1503,8 +1454,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1539,8 +1488,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1575,8 +1522,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1610,8 +1555,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1646,8 +1589,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1681,8 +1622,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1716,8 +1655,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1751,8 +1688,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1786,8 +1721,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1821,8 +1754,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1856,8 +1787,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1891,8 +1820,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1927,8 +1854,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1963,8 +1888,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1999,8 +1922,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2035,8 +1956,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2071,8 +1990,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2107,8 +2024,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2142,8 +2057,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2177,8 +2090,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2212,8 +2123,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2248,8 +2157,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2284,8 +2191,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2320,8 +2225,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2355,8 +2258,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2390,8 +2291,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2425,8 +2324,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2460,8 +2357,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2495,8 +2390,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2530,8 +2423,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2567,8 +2458,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2602,8 +2491,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2637,8 +2524,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2672,8 +2557,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2707,8 +2590,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2742,8 +2623,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2777,8 +2656,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2812,8 +2689,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2848,8 +2723,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2884,8 +2757,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2919,8 +2790,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2955,8 +2824,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2990,8 +2857,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3025,8 +2890,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3061,8 +2924,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3097,8 +2958,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3132,8 +2991,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3168,8 +3025,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3203,7 +3058,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L1_VALUE_SAML_RESPONSE_94);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3234,8 +3088,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3271,8 +3123,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3337,7 +3187,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L2_VALUE_SAML_RESPONSE_95);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3368,8 +3217,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3404,7 +3251,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3434,7 +3280,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3464,7 +3309,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3494,7 +3338,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3525,8 +3368,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3561,8 +3402,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3596,8 +3435,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3632,8 +3469,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3666,7 +3501,6 @@ public class SAMLServiceImplTest {
         ATTRIBUTES_WITHOUT_NAME_FORMAT_SAML_RESPONSE_109);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3697,7 +3531,6 @@ public class SAMLServiceImplTest {
         ISSUE_INSTANT_WITH_MILLISECONDS_SAML_RESPONSE_110);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3730,7 +3563,6 @@ public class SAMLServiceImplTest {
     );
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
@@ -3765,7 +3597,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3804,7 +3635,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3843,7 +3673,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3884,7 +3713,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3924,7 +3752,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3964,8 +3791,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3997,8 +3822,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -4033,8 +3856,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -4069,8 +3890,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -4105,8 +3924,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
