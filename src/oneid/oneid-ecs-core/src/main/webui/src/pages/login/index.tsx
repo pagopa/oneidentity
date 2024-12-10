@@ -1,51 +1,23 @@
-import { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
+import { useState } from 'react';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import Icon from '@mui/material/Icon';
 import { Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { theme } from '@pagopa/mui-italia';
 
 import Layout from '../../components/Layout';
-import SpidIcon from '../../assets/SpidIcon.svg';
-import CIEIcon from '../../assets/CIEIcon.svg';
 import { ENV } from '../../utils/env';
 import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
-import type { IdentityProvider, IdentityProviders } from '../../utils/IDPS';
 import { ImageWithFallback } from '../../components/ImageFallback';
-import SpidSelect from './SpidSelect';
-import SpidModal from './SpidModal';
-
-type BannerContent = {
-  enable: boolean;
-  severity: 'warning' | 'error' | 'info' | 'success';
-  description: string;
-};
-
-type Client = {
-  clientID: string;
-  friendlyName: string;
-  logoUri: string;
-  policyUri: string;
-  tosUri: string;
-};
-
-export const SpidIconWrapper = () => (
-  <Icon sx={{ width: '25px', height: '25px' }}>
-    <img src={SpidIcon} width="25" height="25" />
-  </Icon>
-);
-
-export const CieIconWrapper = () => (
-  <Icon sx={{ width: '25px', height: '25px' }}>
-    <img src={CIEIcon} width="25" height="25" />
-  </Icon>
-);
+import SpidModal from './components/SpidModal';
+import { useLoginData } from '../../hooks/useLoginData';
+import { SpidButton } from './components/SpidButton';
+import { CieButton } from './components/CieButton';
+import SpidSelect from './components/SpidSelect';
 
 export const LinkWrapper = ({
   onClick,
@@ -55,7 +27,6 @@ export const LinkWrapper = ({
   children?: React.ReactNode;
 }) => (
   <Link
-    key="termsLink"
     sx={{
       cursor: 'pointer',
       textDecoration: 'none !important',
@@ -69,80 +40,13 @@ export const LinkWrapper = ({
 );
 
 const Login = () => {
-  const [showIDPS, setShowIDPS] = useState(false);
-  const [bannerContent, setBannerContent] = useState<Array<BannerContent>>();
   const [openSpidModal, setOpenSpidModal] = useState(false);
-  const [idpList, setIdpList] = useState<IdentityProviders>({
-    identityProviders: [],
-    richiediSpid: '',
-  });
-  const [clientData, setClientData] = useState<Client>();
+  const [showIDPS, setShowIDPS] = useState(false);
 
-  const mapToArray = (json: Record<string, BannerContent>) => {
-    const mapped = Object.values(json);
-    setBannerContent(mapped as Array<BannerContent>);
-  };
-
-  const alertMessage = async (loginBanner: string) => {
-    try {
-      const response = await fetch(loginBanner);
-      const res = await response.json();
-      mapToArray(res);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getIdpList = async (idpListUrl: string) => {
-    try {
-      const response = await fetch(idpListUrl);
-      const res: Array<IdentityProvider> = await response.json();
-      const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
-      const rawIDPS = res
-        .map((i) => ({
-          ...i,
-          imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png`,
-        }))
-        .sort(() => 0.5 - Math.random());
-      const IDPS: {
-        identityProviders: Array<IdentityProvider>;
-        richiediSpid: string;
-      } = {
-        identityProviders: rawIDPS,
-        richiediSpid: 'https://www.spid.gov.it/cos-e-spid/come-attivare-spid/',
-      };
-      setIdpList(IDPS);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getClientData = async (clientBaseListUrl: string) => {
-    try {
-      const query = new URLSearchParams(window.location.search);
-      const clientID = query.get('client_id');
-
-      if (clientID && clientID.match(/^[A-Za-z0-9_-]{43}$/)) {
-        const clientListUrl = `${clientBaseListUrl}/${clientID}`;
-        const response = await fetch(clientListUrl);
-        const res: Client = await response.json();
-        setClientData(res);
-      } else {
-        console.warn('no client_id supplied, or not valid 32bit Base64Url');
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    void alertMessage(ENV.JSON_URL.ALERT);
-    void getIdpList(ENV.JSON_URL.IDP_LIST);
-    void getClientData(ENV.JSON_URL.CLIENT_BASE_URL);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  const { bannerQuery, clientQuery, idpQuery } = useLoginData();
   const { t } = useTranslation();
+
+  const columnsOccupiedByAlert = 5;
 
   const goCIE = () => {
     const params = forwardSearchParams(ENV.SPID_CIE_ENTITY_ID);
@@ -169,22 +73,26 @@ const Login = () => {
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
       window.location.assign(
-        clientData?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
       )
     );
 
   const redirectToTOS = () =>
     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
       window.location.assign(
-        clientData?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
       )
     );
 
   if (showIDPS) {
-    return <SpidSelect onBack={onBackAction} idpList={idpList} />;
+    return (
+      <SpidSelect
+        onBack={onBackAction}
+        idpList={idpQuery.data}
+        loading={idpQuery.isLoading}
+      />
+    );
   }
-
-  const columnsOccupiedByAlert = 5;
 
   return (
     <Layout>
@@ -219,15 +127,15 @@ const Login = () => {
             </Typography>
           </Grid>
         </Grid>
-        {clientData?.logoUri && (
-          <Grid
-            container
-            item
-            justifyContent="center"
-            textAlign={'center'}
-            mb={2}
-          >
-            <Grid item xs={6}>
+        <Grid
+          container
+          item
+          justifyContent="center"
+          textAlign={'center'}
+          mb={2}
+        >
+          <Grid item xs={6} justifyContent="center" alignItems="center">
+            {clientQuery.isFetched && (
               <ImageWithFallback
                 style={{
                   width: '100%',
@@ -235,13 +143,13 @@ const Login = () => {
                   maxHeight: '100px',
                   objectFit: 'cover',
                 }}
-                src={clientData?.logoUri}
-                alt={clientData?.friendlyName}
+                src={clientQuery.data?.logoUri}
+                alt={clientQuery.data?.friendlyName || 'PagoPa Logo'}
                 placeholder={IDP_PLACEHOLDER_IMG}
               />
-            </Grid>
+            )}
           </Grid>
-        )}
+        </Grid>
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>
@@ -262,8 +170,8 @@ const Login = () => {
             </Grid>
           </Grid>
         )}
-        {bannerContent &&
-          bannerContent.map(
+        {bannerQuery.isSuccess &&
+          bannerQuery.data.map(
             (bc, index) =>
               bc.enable && (
                 <Grid container item justifyContent="center" key={index} mt={2}>
@@ -301,45 +209,14 @@ const Login = () => {
           <SpidModal
             openSpidModal={openSpidModal}
             setOpenSpidModal={setOpenSpidModal}
-            idpList={idpList}
+            idpList={idpQuery.data}
+            loading={idpQuery.isLoading}
           />
           <Grid item sx={{ width: '100%' }}>
-            <Button
-              id="spidButton"
-              sx={{
-                borderRadius: '4px',
-                width: '100%',
-                marginBottom: '5px',
-              }}
-              onClick={() => setOpenSpidModal(true)}
-              variant="contained"
-              disableElevation
-              startIcon={<SpidIconWrapper />}
-            >
-              <Typography
-                sx={{
-                  fontWeight: 'fontWeightMedium',
-                  textAlign: 'center',
-                  color: theme.palette.primary.contrastText,
-                }}
-              >
-                {t('loginPage.loginBox.spidLogin')}
-              </Typography>
-            </Button>
+            <SpidButton onClick={() => setOpenSpidModal(true)} />
           </Grid>
           <Grid item sx={{ width: '100%' }}>
-            <Button
-              sx={{
-                borderRadius: '4px',
-                width: '100%',
-                marginTop: 2,
-              }}
-              variant="contained"
-              startIcon={<CieIconWrapper />}
-              onClick={goCIE}
-            >
-              {t('loginPage.loginBox.cieLogin')}
-            </Button>
+            <CieButton onClick={goCIE} />
           </Grid>
         </Grid>
         <Grid container item justifyContent="center">
@@ -361,8 +238,16 @@ const Login = () => {
                 privacyLink: `<1>${t('loginPage.privacyAndCondition.privacy')}</1>`,
               }}
               components={[
-                <LinkWrapper key="termsLink" onClick={redirectToTOS} />,
-                <LinkWrapper key="privacyLink" onClick={redirectPrivacyLink} />,
+                <LinkWrapper
+                  data-testid="terms-link"
+                  key="termsLink"
+                  onClick={redirectToTOS}
+                />,
+                <LinkWrapper
+                  data-testid="privacy-link"
+                  key="privacyLink"
+                  onClick={redirectPrivacyLink}
+                />,
               ]}
             />
           </Typography>

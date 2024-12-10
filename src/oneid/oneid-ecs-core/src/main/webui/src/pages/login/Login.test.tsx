@@ -1,138 +1,139 @@
-/* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { afterAll, beforeAll, expect, Mock, test, vi } from 'vitest';
-
+import { Mock, vi } from 'vitest';
+import Login, { LinkWrapper } from '../login';
+import { useLoginData } from '../../hooks/useLoginData';
 import { ENV } from '../../utils/env';
-import { i18nTestSetup } from '../../__tests__/i18nTestSetup';
-import Login from './Login';
+import { trackEvent } from '../../services/analyticsService';
+import { ThemeProvider } from '@emotion/react';
+import { createTheme } from '@mui/material';
 
-// Mock fetch
-global.fetch = vi.fn();
-
-i18nTestSetup({
-  loginPage: {
-    privacyAndCondition: {
-      text: 'terms: {{termsLink}} privacy: {{privacyLink}}',
-    },
-  },
-});
-
-const oldWindowLocation = global.window.location;
-
-beforeAll(() => {
-  // Mock window location
-  Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
-});
-
-afterAll(() => {
-  Object.defineProperty(window, 'location', { value: oldWindowLocation });
-});
-
-// Clear mocks after each test
-afterEach(() => {
-  vi.clearAllMocks();
-});
-
-test('Renders Login component', () => {
-  render(<Login />);
-  expect(screen.getByText('loginPage.title')).toBeInTheDocument();
-});
-
-const mockWarning = 'This is a warning!';
-
-test('Fetches and displays banner alerts', async () => {
-  // Mock the fetch response
-  const mockBannerResponse = [
-    { enable: true, severity: 'warning', description: mockWarning },
-  ];
-  (fetch as Mock).mockResolvedValueOnce({
-    json: vi.fn().mockResolvedValueOnce(mockBannerResponse),
-  });
-
-  render(<Login />);
-
-  await waitFor(() => {
-    expect(screen.getByText(mockWarning)).toBeInTheDocument();
-  });
-});
-
-test('Handles fetch error for alert message', async () => {
-  (fetch as Mock).mockRejectedValueOnce(new Error('Fetch failed'));
-
-  render(<Login />);
-
-  // Optionally check if an error message or warning is displayed
-  await waitFor(() => {
-    expect(screen.queryByText(mockWarning)).not.toBeInTheDocument();
-  });
-});
-
-test('Fetches IDP list on mount', async () => {
-  const mockIDPListResponse = {
-    identityProviders: [{ entityID: 'test-idp' }],
-    richiediSpid: 'https://example.com/spid',
+vi.mock('../../hooks/useLoginData');
+vi.mock('../../services/analyticsService', () => ({
+  trackEvent: vi.fn(),
+}));
+vi.mock('@mui/material', async () => {
+  const actual = await vi.importActual('@mui/material');
+  return {
+    ...actual,
+    useTheme: () => ({
+      spacing: (value: number) => value * 8,
+      breakpoints: { down: () => '@media (max-width: 960px)' },
+    }),
   };
-  (fetch as Mock).mockResolvedValueOnce({
-    json: vi.fn().mockResolvedValueOnce(mockIDPListResponse),
+});
+
+describe('LinkWrapper', () => {
+  const mockOnClick = vi.fn();
+
+  const renderWithTheme = (component: React.ReactNode) => {
+    const theme = createTheme();
+    return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
+  };
+
+  beforeEach(() => {
+    vi.resetAllMocks();
   });
 
-  render(<Login />);
+  it('renders children correctly', () => {
+    renderWithTheme(<LinkWrapper onClick={mockOnClick}>Test Link</LinkWrapper>);
 
-  await waitFor(() => {
-    expect(fetch).toHaveBeenCalledWith(ENV.JSON_URL.IDP_LIST);
+    expect(screen.getByText('Test Link')).toBeInTheDocument();
+  });
+
+  it('calls onClick handler when clicked', () => {
+    renderWithTheme(<LinkWrapper onClick={mockOnClick}>Click Me</LinkWrapper>);
+    const link = screen.getByText('Click Me');
+
+    fireEvent.click(link);
+
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('applies correct styles', () => {
+    renderWithTheme(
+      <LinkWrapper onClick={mockOnClick}>Styled Link</LinkWrapper>
+    );
+    const link = screen.getByText('Styled Link');
+
+    expect(link).toHaveStyle({
+      cursor: 'pointer',
+    });
   });
 });
 
-test('Handles invalid client ID gracefully', async () => {
-  window.history.pushState({}, '', `?client_id=invalidId`);
+describe('<Login />', () => {
+  const mockBannerQuery = {
+    isSuccess: true,
+    data: [{ enable: true, severity: 'warning', description: 'Test banner' }],
+  };
+  const mockClientQuery = {
+    isFetched: true,
+    data: {
+      friendlyName: 'Test Client',
+      logoUri: 'https://example.com/logo.png',
+    },
+  };
+  const mockIdpQuery = {
+    isLoading: false,
+    data: [
+      {
+        entityID: 'idp1',
+        name: 'IDP 1',
+        imageUrl: 'https://example.com/idp1.png',
+      },
+    ],
+  };
 
-  render(<Login />);
-
-  await waitFor(() => {
-    expect(screen.queryByAltText('Test Client')).not.toBeInTheDocument();
+  beforeEach(() => {
+    (useLoginData as Mock).mockReturnValue({
+      bannerQuery: mockBannerQuery,
+      clientQuery: mockClientQuery,
+      idpQuery: mockIdpQuery,
+    });
   });
-});
 
-test('Clicking SPID button opens modal', () => {
-  render(<Login />);
-  const buttonSpid = document.getElementById('spidButton');
-  fireEvent.click(buttonSpid as HTMLElement);
-
-  expect(screen.getByRole('dialog')).toBeInTheDocument(); // Check if modal opens
-});
-
-test('Clicking CIE button redirects correctly', () => {
-  render(<Login />);
-  const buttonCIE = screen.getByRole('button', {
-    name: 'loginPage.loginBox.cieLogin',
+  it('renders titles and descriptions', () => {
+    render(<Login />);
+    expect(screen.getByText('loginPage.title')).toBeInTheDocument();
+    expect(screen.getByText('loginPage.description')).toBeInTheDocument();
   });
-  fireEvent.click(buttonCIE);
 
-  expect(global.window.location.assign).toHaveBeenCalledWith(
-    `${ENV.URL_API.AUTHORIZE}?idp=${ENV.SPID_CIE_ENTITY_ID}`
-  );
-});
+  it('displays the client logo', () => {
+    render(<Login />);
+    const logo = screen.getByAltText('Test Client');
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveAttribute('src', 'https://example.com/logo.png');
+  });
 
-test('Clicking terms and conditions link redirects correctly', () => {
-  render(<Login />);
+  it('shows a banner when bannerQuery is successful', () => {
+    render(<Login />);
+    expect(screen.getByText('Test banner')).toBeInTheDocument();
+  });
 
-  const termsConditionLink = screen.getByText(
-    'loginPage.privacyAndCondition.terms'
-  );
-  fireEvent.click(termsConditionLink);
+  it('opens the SpidModal on SPID button click', () => {
+    render(<Login />);
+    const spidButton = screen.getByRole('button', { name: /SPID/i });
+    fireEvent.click(spidButton);
+    expect(
+      screen.getByRole('dialog', { name: 'spidSelect.modalTitle' })
+    ).toBeInTheDocument();
+  });
 
-  expect(global.window.location.assign).toHaveBeenCalledWith(
-    ENV.URL_FOOTER.TERMS_AND_CONDITIONS
-  );
-});
+  it('navigates to CIE login on CIE button click', async () => {
+    render(<Login />);
+    const cieButton = screen.getByRole('button', { name: /CIE/i });
+    fireEvent.click(cieButton);
 
-test('Clicking privacy link redirects correctly', () => {
-  render(<Login />);
-
-  const privacyLink = screen.getByText('loginPage.privacyAndCondition.privacy');
-  fireEvent.click(privacyLink);
-
-  expect(global.window.location.assign).toHaveBeenCalledWith(
-    ENV.URL_FOOTER.PRIVACY_DISCLAIMER
-  );
+    await waitFor(() => {
+      expect(trackEvent).toHaveBeenCalledWith(
+        'LOGIN_IDP_SELECTED',
+        {
+          SPID_IDP_NAME: 'CIE',
+          SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
+          FORWARD_PARAMETERS: expect.any(String),
+        },
+        expect.any(Function)
+      );
+    });
+  });
 });
