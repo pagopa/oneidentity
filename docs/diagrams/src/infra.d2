@@ -41,7 +41,7 @@ aws: {
 
   dynamoDB :{
     class: dynamo
-   }
+  }
 
   IDPMetadata: {
     class: s3
@@ -83,6 +83,8 @@ aws: {
   }
 }
 
+
+
 productClient -> aws.ApiGW -> aws.vpc.oneid-lambda-client-registration: send API Key to request clientID and clientSecret (POST)
 aws.vpc.oneid-lambda-client-registration -> aws.dynamoDB: generate and store client secret
 
@@ -99,7 +101,7 @@ github -> aws.IDPMetadata: upon PR merge, store IDP metadata
 aws.IDPMetadata -> aws.vpc.oneid-lambda-idp-metadata -> aws.dynamoDB : get IDP metadata from bucket and store it on db
 
 productClient <-> aws.ApiGW <-> aws.vpc.oneid-ecs-core: client authentication
-aws.vpc.oneid-ecs-core <-> aws.dynamoDB: get IDP metadata
+aws.vpc.oneid-ecs-core <-> aws.dynamoDB: get IDP and clients metadata
 aws.vpc.oneid-ecs-core <-> aws.dynamoDB: handle client session
 aws.vpc.oneid-ecs-core <-> aws.parameterStore: get privateKey to sign JWT token
 
