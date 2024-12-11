@@ -60,6 +60,8 @@ services:
       dockerfile: oneid-ecs-core/Dockerfile
       args:
         ENVIRONMENT: local
+        # enable Quinoa to serve frontend within oneid-ecs-core (only for local dev)
+        QUARKUS_QUINOA: true
     container_name: oneid-ecs-core
     ports:
       - "8080:8080"

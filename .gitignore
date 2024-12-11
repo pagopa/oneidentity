@@ -80,9 +80,9 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/gradle
 
 # Frontend stuff
-src/oneid/oneid-ecs-core/src/main/webui/node_modules
-src/oneid/oneid-ecs-core/src/main/webui/dist
-src/oneid/oneid-ecs-core/src/main/webui/coverage
+src/oneid/oneid-fe/node_modules
+src/oneid/oneid-fe/dist
+src/oneid/oneid-fe/coverage
 src/oneid/oneid-ecs-core/.quinoa
 
 # Test stuff
