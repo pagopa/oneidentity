@@ -12,7 +12,7 @@ COPY --chown=quarkus:quarkus ../.mvn ./.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common ./oneid-common
 COPY --chown=quarkus:quarkus ../oneid-ecs-core ./oneid-ecs-core
-COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json ./oneid-ecs-core/src/main/webui/public/assets/login-alert-message.json
+COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json ./oneid-fe/public/assets/login-alert-message.json
 USER quarkus
 
 # TODO debug logs, must be removed as soon as we're sure about caching
