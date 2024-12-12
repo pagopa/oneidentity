@@ -47,7 +47,7 @@ jobs:
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
           -DtestResultsFiles='**/surefire-reports/TEST-*.xml'
-          -DmavenAuthenticateFeed=true
+          -DmavenAuthenticateFeed=false
           -DeffectivePomSkip=false
           -DsonarQubeRunAnalysis=false
       - name: finding jacoco.xml
