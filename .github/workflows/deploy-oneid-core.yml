@@ -103,7 +103,7 @@ jobs:
         with:
           context: ./src/oneid/
           build-args: |
-            "GITHUB_TOKEN_READ_PACKAGES=${{ secrets.GITHUB_TOKEN_READ_PACKAGES }}"
+            "GH_TOKEN_READ_PACKAGES=${{ secrets.GH_TOKEN_READ_PACKAGES }}"
           provenance: false
           push: true
           tags: |
