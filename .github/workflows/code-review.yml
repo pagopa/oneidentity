@@ -37,6 +37,8 @@ jobs:
           cache: 'maven'
 
       - name: Prepare SonarCloud analysis configuration
+        env:
+          GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
         run: >
           mvn -Bclean verify
           -f src/oneid/pom.xml
