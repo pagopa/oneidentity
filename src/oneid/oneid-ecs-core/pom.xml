@@ -208,6 +208,7 @@
                 </executions>
                 <configuration>
                     <fileName>dep-sha256.json</fileName>
+                    <addFileName>dep-sha256-man.json</addFileName>
                     <includePlugins>false</includePlugins>
                     <includeParent>false</includeParent>
                     <excludes>
