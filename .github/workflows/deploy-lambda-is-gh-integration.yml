@@ -59,6 +59,8 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
+        env:
+          GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
         working-directory: src/oneid
         run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-is-gh-integration-aggregate
 
