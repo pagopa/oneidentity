@@ -55,6 +55,16 @@
             <url>https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>github</id>
+            <url>
+                https://public:${env.GH_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/depcheck
+            </url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
