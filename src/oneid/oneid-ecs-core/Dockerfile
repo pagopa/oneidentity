@@ -11,9 +11,14 @@ COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common ./oneid-common
+COPY --chown=quarkus:quarkus ../oneid-fe ./oneid-fe
 COPY --chown=quarkus:quarkus ../oneid-ecs-core ./oneid-ecs-core
-COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json ./oneid-ecs-core/src/main/webui/public/assets/login-alert-message.json
+COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json ./oneid-fe/public/assets/login-alert-message.json
 USER quarkus
+
+# Default disable quinoa but take as build arg from ../docker-compose.yaml file to have it locally if needed
+ARG QUARKUS_QUINOA=false
+ENV QUARKUS_QUINOA=${QUARKUS_QUINOA}
 
 # TODO debug logs, must be removed as soon as we're sure about caching
 RUN \
