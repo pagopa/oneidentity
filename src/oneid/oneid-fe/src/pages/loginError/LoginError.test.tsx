@@ -19,8 +19,14 @@ const mockHandleErrorCode = vi.fn();
 
 describe('LoginError Component', () => {
   beforeEach(() => {
-    // Reset the mock function before each test
-    mockHandleErrorCode.mockReset();
+    mockHandleErrorCode.mockReturnValue({
+      title: 'Test Title',
+      description: 'Test Description',
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   it('should display loading overlay when loading', () => {
@@ -38,12 +44,6 @@ describe('LoginError Component', () => {
   });
 
   it('should display correct error page for errorCode 19', () => {
-    mockHandleErrorCode.mockReturnValue({
-      title: 'Test Title',
-      description: 'Test Description',
-      haveRetryButton: true,
-    });
-
     window.location = { search: '?errorCode=19' } as Location;
 
     (useLoginError as Mock).mockReturnValue({
@@ -62,9 +62,6 @@ describe('LoginError Component', () => {
     // Check if the title and description are rendered correctly
     expect(screen.getByText('Test Title')).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
-
-    // Check if the retry button is rendered
-    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 
   it('should display correct error page for unknown error code', () => {

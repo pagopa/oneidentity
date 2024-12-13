@@ -1,9 +1,17 @@
-import { Button, Grid, Typography, Box, SvgIconProps } from '@mui/material';
+import { ButtonProps } from '@mui/base/Button/Button.types';
+import {
+  Button,
+  Typography,
+  SvgIconProps,
+  Stack,
+  ButtonOwnProps,
+  TypographyOwnProps,
+} from '@mui/material';
 import { theme } from '@pagopa/mui-italia/dist/theme';
 import { FunctionComponent, ReactElement, SVGProps } from 'react';
 
-type Props = {
-  /** The minHeight of the component, can be 52vh for the pages and 100vh for the blocking page */
+type EndingPageProps = {
+  /** The minHeight of the component, can be 52vh or 100vh */
   minHeight?: '52vh' | '100vh';
   /** The ending page icon */
   icon?:
@@ -15,132 +23,57 @@ type Props = {
   /** The ending page description */
   description: React.ReactNode;
   /** The ending page button label if any */
-  buttonLabel?: React.ReactNode;
-  /** The ending page second button label if any */
-  secondButtonLabel?: React.ReactNode;
-  /** if defined performe this action on click of the first button */
-  onButtonClick?: () => void;
-  /** if defined performe this action on click of the second button */
-  onSecondButtonClick?: () => void;
-  /** Set the variant of the title */
-  variantTitle?:
-    | 'button'
-    | 'caption'
-    | 'h1'
-    | 'h2'
-    | 'h3'
-    | 'h4'
-    | 'h5'
-    | 'h6'
-    | 'inherit'
-    | 'subtitle1'
-    | 'subtitle2'
-    | 'body1'
-    | 'body2'
-    | 'overline'
-    | undefined;
+  variantTitle?: TypographyOwnProps['variant'];
   /** Set the variant of the description */
-  variantDescription?:
-    | 'button'
-    | 'caption'
-    | 'h1'
-    | 'h2'
-    | 'h3'
-    | 'h4'
-    | 'h5'
-    | 'h6'
-    | 'inherit'
-    | 'subtitle1'
-    | 'subtitle2'
-    | 'body1'
-    | 'body2'
-    | 'overline'
-    | undefined;
-  /** Set the variant of the first button */
-  variantFirstButton?: 'contained' | 'outlined' | 'text';
-  /** Set the variant of the second button */
-  variantSecondButton?: 'contained' | 'outlined' | 'text';
+  variantDescription?: TypographyOwnProps['variant'];
   /** Set the text of paragraph */
   paragraph?: React.ReactNode;
-  /** Show the paragraph */
-  isParagraphPresent?: boolean;
-  /** Show the second button and the "secondButtonLabel" as text of this one */
-  haveTwoButtons?: boolean;
+  onClickButton?: ButtonProps['onClick'];
+  labelButton?: React.ReactNode;
+  variantButton?: ButtonOwnProps['variant'];
 };
 
 /** Selfcare's Ending Page */
 const EndingPage = ({
-  minHeight,
   description,
-  onButtonClick,
-  onSecondButtonClick,
   icon,
-  title,
-  buttonLabel,
-  variantTitle,
-  variantDescription,
+  labelButton,
+  minHeight = '52vh',
+  onClickButton,
   paragraph,
-  isParagraphPresent,
-  haveTwoButtons = false,
-  secondButtonLabel,
-  variantFirstButton = 'contained',
-  variantSecondButton = 'contained',
-}: Props) => (
-  <Box sx={{ minHeight, position: 'static' }} display="flex" flexGrow={1}>
-    <Grid
-      container
-      direction="column"
-      key="0"
-      style={{ textAlign: 'center' }}
-      margin={'auto'}
-    >
-      <Grid container item justifyContent="center" mb={3}>
-        <Grid item xs={6}>
-          {icon as ReactElement}
-        </Grid>
-      </Grid>
-      <Grid container item justifyContent="center">
-        <Typography width={theme.spacing(56)} variant={variantTitle}>
-          {title}
-        </Typography>
-      </Grid>
-      <Grid container item justifyContent="center" mb={4} mt={1}>
-        <Typography width={theme.spacing(62)} variant={variantDescription}>
-          {description}
-        </Typography>
-      </Grid>
-      {buttonLabel && (
-        <Grid container item justifyContent="center">
-          <Grid item xs={haveTwoButtons ? 12 : 4}>
-            <Button
-              variant={variantFirstButton}
-              sx={{ alignSelf: 'center', marginRight: haveTwoButtons ? 3 : 0 }}
-              onClick={onButtonClick}
-            >
-              {buttonLabel}
-            </Button>
-            {haveTwoButtons && (
-              <Button
-                variant={variantSecondButton}
-                sx={{ alignSelf: 'center' }}
-                onClick={onSecondButtonClick}
-              >
-                {secondButtonLabel}
-              </Button>
-            )}
-          </Grid>
-        </Grid>
-      )}
+  title,
+  variantButton = 'contained',
+  variantDescription,
+  variantTitle,
+}: EndingPageProps) => (
+  <Stack
+    sx={{
+      minHeight: { md: minHeight, xs: 'auto' },
+      marginTop: { md: 0, xs: '25%' },
+      justifyContent: { md: 'center', xs: 'flex-start' },
+      alignItems: 'center',
+      gap: 2,
+    }}
+  >
+    {icon as ReactElement}
+    <Stack textAlign="center" alignItems="center" gap={1}>
+      <Typography maxWidth={theme.spacing(56)} variant={variantTitle}>
+        {title}
+      </Typography>
+      <Typography maxWidth={theme.spacing(62)} variant={variantDescription}>
+        {description}
+      </Typography>
+    </Stack>
+    {labelButton && (
+      <Button variant={variantButton} onClick={onClickButton}>
+        {labelButton}
+      </Button>
+    )}
 
-      {isParagraphPresent && (
-        <Grid container item justifyContent="center" my={4}>
-          <Grid item xs={6}>
-            <Typography variant={variantDescription}>{paragraph}</Typography>
-          </Grid>
-        </Grid>
-      )}
-    </Grid>
-  </Box>
+    {paragraph && (
+      <Typography variant={variantDescription}>{paragraph}</Typography>
+    )}
+  </Stack>
 );
 
 export default EndingPage;
