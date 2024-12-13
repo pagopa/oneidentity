@@ -63,7 +63,7 @@ jobs:
         env:
           GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-service-metadata-aggregate
+        run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-service-metadata-aggregate -s settings.xml
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
