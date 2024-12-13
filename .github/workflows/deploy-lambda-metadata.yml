@@ -59,9 +59,15 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
-      - name: Build with Maven
+      - name: Set up Maven settings.xml
         env:
           GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
+          GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
+        shell: bash
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
+
+      - name: Build with Maven
         working-directory: src/oneid
         run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-service-metadata-aggregate -s settings.xml
 
@@ -100,11 +106,6 @@ jobs:
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_LAMBDA }}
           aws-region: ${{ matrix.region }}
-
-      - name: Set up Maven settings.xml
-        shell: bash
-        run: |
-          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
 
       - name: Update Lambda function (${{ matrix.environment }})
         run: |
