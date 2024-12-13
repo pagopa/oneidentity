@@ -41,7 +41,7 @@ jobs:
 
       - name: Prepare SonarCloud analysis configuration
         run: >
-          mvn -Bclean verify
+          src/oneid/mvnw -Bclean verify
           -f src/oneid/pom.xml
           -P oneid-all
           -s src/oneid/settings.xml
