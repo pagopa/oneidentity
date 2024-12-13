@@ -1030,13 +1030,6 @@
       "sha256": "aczARIfod3nUlwqlDGc8w0qd8IDBwOjY6rLotG-CXPQ="
     },
     {
-      "id": "it.pagopa.oneid.common:model:jar:1.0.0-SNAPSHOT",
-      "artifactId": "model",
-      "groupId": "it.pagopa.oneid.common",
-      "version": "1.0.0-SNAPSHOT",
-      "sha256": "Kl9x79C_BKVNRbGBRPLt3QK0VK16GkDiS51AN9NJDMY="
-    },
-    {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
       "artifactId": "quarkus-amazon-dynamodb-enhanced",
       "groupId": "io.quarkiverse.amazonservices",
@@ -1343,13 +1336,6 @@
       "groupId": "org.bouncycastle",
       "version": "1.78.1",
       "sha256": "2fpW-XsPdhzjvI2ddMXXE3qYe_W9Or_hAD-br6RaHS8="
-    },
-    {
-      "id": "it.pagopa.oneid.common:connector:jar:1.0.0-SNAPSHOT",
-      "artifactId": "connector",
-      "groupId": "it.pagopa.oneid.common",
-      "version": "1.0.0-SNAPSHOT",
-      "sha256": "m_KggGInkXQ96Ki5QcW_KmzcFiU1UATiRjcmoYCKEYE="
     },
     {
       "id": "software.amazon.awssdk:url-connection-client:jar:2.25.15",

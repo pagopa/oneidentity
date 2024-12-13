@@ -134,7 +134,7 @@
                     <includePlugins>false</includePlugins>
                     <includeParent>false</includeParent>
                     <excludes>
-                        <it.pagopa.oneid.common>utils
+                        <it.pagopa.oneid.common>connector,model,producer,utils
                         </it.pagopa.oneid.common>
                     </excludes>
                 </configuration>
