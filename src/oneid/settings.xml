@@ -2,7 +2,7 @@
     <servers>
         <server>
             <id>github</id>
-            <username>oi-pagopa-gh-bot</username>
+            <username>${env.GH_TOKEN_READ_PACKAGES_USER}</username>
             <password>${env.GH_TOKEN_READ_PACKAGES}</password>
         </server>
     </servers>
