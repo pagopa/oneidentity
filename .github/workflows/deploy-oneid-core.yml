@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "main"
-      - "test/cr-pipeline"
     paths:
       - "**/src/oneid/oneid-ecs-core/**"
       - "**/src/oneid/oneid-common/**"
