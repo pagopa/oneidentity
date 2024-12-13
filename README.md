@@ -201,3 +201,6 @@ export AWS_ACCESS_KEY_ID=test-key
 export AWS_SECRET_ACCESS_KEY=test-secret
 aws ssm get-parameter --region eu-south-1 --endpoint http://localhost:4566 --name "cert.pem"
 ```
+
+# Licensing
+This project is licensed under the terms of the [Mozilla Public License Version 2.0](LICENSE).
