@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { IllusError } from '@pagopa/mui-italia';
 
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -19,15 +19,26 @@ export const LoginError = () => {
 
   const { handleErrorCode } = useLoginError();
 
+  const setContent = useCallback(
+    (errorCode: string) => {
+      const { title, description } = handleErrorCode(errorCode);
+      setErrorData({ title, description });
+      setLoading(false);
+    },
+    [handleErrorCode]
+  );
+
+  useEffect(() => {
+    setTimeout(() => {
+      setContent('generic');
+    }, 5 * 1000);
+  }, [setContent]);
+
   useEffect(() => {
     if (errorCode) {
-      setLoading(true);
-      const { title, description, haveRetryButton } =
-        handleErrorCode(errorCode);
-      setErrorData({ title, description, haveRetryButton });
-      setLoading(false);
+      setContent(errorCode);
     }
-  }, [errorCode, handleErrorCode]);
+  }, [setContent, errorCode]);
 
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />
@@ -41,15 +52,9 @@ export const LoginError = () => {
         variantDescription="body1"
         title={errorData.title}
         description={errorData.description}
-        variantFirstButton={
-          errorData.haveRetryButton ? 'outlined' : 'contained'
-        }
-        variantSecondButton="contained"
-        buttonLabel={t('loginError.close')}
-        secondButtonLabel={t('loginError.retry')}
-        onButtonClick={redirectToLogin}
-        onSecondButtonClick={() => history.go(-1)}
-        haveTwoButtons={errorData.haveRetryButton}
+        variantButton="contained"
+        labelButton={t('loginError.close')}
+        onClickButton={redirectToLogin}
       />
     </Layout>
   );
