@@ -26,6 +26,7 @@ jobs:
       AWS_ACCESS_KEY_ID: dummy
       AWS_SECRET_KEY: dummy
       GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
+      GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
 
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -38,15 +39,22 @@ jobs:
           java-version: '21'
           cache: 'maven'
 
+      - name: Set up Maven settings.xml
+        shell: bash
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
+
       - name: Prepare SonarCloud analysis configuration
         run: >
-          mvn -Bclean verify
+          src/oneid/mvnw -Bclean verify
           -f src/oneid/pom.xml
           -P oneid-all
+          -s src/oneid/settings.xml
           -DpublishJUnitResults=true
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
           -DtestResultsFiles='**/surefire-reports/TEST-*.xml'
+          -DmavenAuthenticateFeed=true
           -DeffectivePomSkip=false
           -DsonarQubeRunAnalysis=false
       - name: finding jacoco.xml
@@ -56,7 +64,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         run: >
-          mvn -B sonar:sonar
+          src/oneid/mvnw -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
           -Dsonar.coverage.jacoco.xmlReportPaths=${{ steps.finding-jacoco.outputs.xmlReportPaths}}

@@ -3,13 +3,11 @@ FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:5f2a1c500
 
 WORKDIR /code
 
-#Copy env vars
-ARG GH_TOKEN_READ_PACKAGES
-ENV GH_TOKEN_READ_PACKAGES=${GH_TOKEN_READ_PACKAGES}
-
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml .
+# Settings xml
+COPY --chown=quarkus:quarkus ../settings.xml .
 # Maven wrapper files
 COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
@@ -33,11 +31,11 @@ RUN \
 # Start downloading dependencies
 RUN \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ["./mvnw", "verify", "clean", "-Dmaven.repo.local=/tmp/.build-cache", "--fail-never"]
+  ["./mvnw", "verify", "clean", "-Dmaven.repo.local=/tmp/.build-cache", "--fail-never", "-s", "settings.xml"]
 
 RUN \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true
+  ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -s settings.xml -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true
 
 # TODO debug logs, must be removed as soon as we're sure about caching
 RUN \

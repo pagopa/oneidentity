@@ -97,13 +97,17 @@ jobs:
             }
           skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
+      - name: Set up Maven settings.xml
+        shell: bash
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: ./src/oneid/
-          build-args: |
-            "GH_TOKEN_READ_PACKAGES=${{ secrets.GH_TOKEN_READ_PACKAGES }}"
+
           provenance: false
           push: true
           tags: |

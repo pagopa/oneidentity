@@ -60,7 +60,7 @@
         <pluginRepository>
             <id>github</id>
             <url>
-                https://public:${env.GH_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/depcheck
+                https://maven.pkg.github.com/pagopa/depcheck
             </url>
         </pluginRepository>
     </pluginRepositories>
