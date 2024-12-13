@@ -104,6 +104,8 @@ jobs:
           context: ./src/oneid/
           build-args: |
             "GH_TOKEN_READ_PACKAGES=${{ secrets.GH_TOKEN_READ_PACKAGES }}"
+            "GH_TOKEN_READ_PACKAGES_USER=${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}"
+
           provenance: false
           push: true
           tags: |
