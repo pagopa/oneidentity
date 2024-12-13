@@ -202,5 +202,9 @@ export AWS_SECRET_ACCESS_KEY=test-secret
 aws ssm get-parameter --region eu-south-1 --endpoint http://localhost:4566 --name "cert.pem"
 ```
 
+# Code of Conduct
+For a comprehensive Code of Conduct please refer to the [PagoPA's one](https://github.com/pagopa/ospo-utils/blob/main/common/CODE_OF_CONDUCT.md). 
+
+
 # Licensing
 This project is licensed under the terms of the [Mozilla Public License Version 2.0](LICENSE).
