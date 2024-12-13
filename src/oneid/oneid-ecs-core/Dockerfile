@@ -3,13 +3,6 @@ FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:5f2a1c500
 
 WORKDIR /code
 
-#Copy env vars
-ARG GH_TOKEN_READ_PACKAGES
-ENV GH_TOKEN_READ_PACKAGES=${GH_TOKEN_READ_PACKAGES}
-
-ARG GH_TOKEN_READ_PACKAGES_USER
-ENV GH_TOKEN_READ_PACKAGES_USER=${GH_TOKEN_READ_PACKAGES_USER}
-
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml .

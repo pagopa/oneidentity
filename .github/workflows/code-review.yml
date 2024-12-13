@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - test/cr-pipeline
     paths:
       - "**/src/oneid/**"
       - '!**/src/oneid/oneid-lambda-assertion'
@@ -38,6 +39,11 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
+
+      - name: Set up Maven settings.xml
+        shell: bash
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
 
       - name: Prepare SonarCloud analysis configuration
         run: >
