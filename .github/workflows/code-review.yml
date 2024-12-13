@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - test/cr-pipeline
     paths:
       - "**/src/oneid/**"
       - '!**/src/oneid/oneid-lambda-assertion'
@@ -27,6 +26,7 @@ jobs:
       AWS_ACCESS_KEY_ID: dummy
       AWS_SECRET_KEY: dummy
       GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
+      GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
 
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
@@ -59,7 +59,7 @@ jobs:
 
       - name: Analyze with SonarCloud
         run: >
-          mvn -B sonar:sonar
+          src/oneid/mvnw -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
           -Dsonar.coverage.jacoco.xmlReportPaths=${{ steps.finding-jacoco.outputs.xmlReportPaths}}
