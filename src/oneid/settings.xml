@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>github</id>
+            <username>oi-pagopa-gh-bot</username>
+            <password>${env.GH_TOKEN_READ_PACKAGES}</password>
+        </server>
+    </servers>
+</settings>

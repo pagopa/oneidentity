@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - test/cr-pipeline
     paths:
       - "**/src/oneid/**"
       - '!**/src/oneid/oneid-lambda-assertion'
@@ -43,10 +44,12 @@ jobs:
           mvn -Bclean verify
           -f src/oneid/pom.xml
           -P oneid-all
+          -s src/oneid/settings.xml
           -DpublishJUnitResults=true
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
           -DtestResultsFiles='**/surefire-reports/TEST-*.xml'
+          -DmavenAuthenticateFeed=true
           -DeffectivePomSkip=false
           -DsonarQubeRunAnalysis=false
       - name: finding jacoco.xml
