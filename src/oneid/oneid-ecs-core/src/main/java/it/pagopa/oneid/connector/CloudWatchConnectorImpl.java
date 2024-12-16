@@ -17,7 +17,6 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private final String tagIDP = "IDP";
-  private final String tagClientId = "Client ID";
   private final String tagClient = "Client";
   private final String tagAggregated = "Aggregated";
   private final String tagError = "Error";
@@ -43,7 +42,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
             .build());
 
     List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
-        .name(tagAggregated + tagIDP)
+        .name(tagIDP + tagAggregated)
         .value(IDP)
         .build());
 
@@ -53,14 +52,14 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     // Aggregated for IDP
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
-        tagAggregated + tagIDP + tagError, totalErrorDimensions));
+        tagIDP + tagError, totalErrorDimensions));
   }
 
   @Override
   public void sendIDPSuccessMetricData(String IDP) {
 
     List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagIDP)
+        .name(tagIDP + tagAggregated)
         .value(IDP)
         .build());
 
@@ -71,7 +70,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   @Override
   public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
     List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name(tagClientId)
+            .name("Client ID")
             .value(clientID)
             .build(),
         Dimension.builder()
@@ -80,7 +79,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
             .build());
 
     List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
-        .name(tagAggregated + tagClient)
+        .name(tagClient + tagAggregated)
         .value(clientID)
         .build());
 
@@ -90,13 +89,13 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     // Aggregated for Client
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
-        tagAggregated + tagClient + tagError, totalErrorDimensions));
+        tagClient + tagError, totalErrorDimensions));
   }
 
   @Override
   public void sendClientSuccessMetricData(String ClientID) {
     List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagClientId)
+        .name(tagClient + tagAggregated)
         .value(ClientID)
         .build());
 
