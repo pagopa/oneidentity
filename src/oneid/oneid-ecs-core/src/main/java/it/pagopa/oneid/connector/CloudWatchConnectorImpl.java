@@ -17,13 +17,13 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private final String tagIDP = "IDP";
-  private final String tagClientId = "Client  ID";
+  private final String tagClientId = "Client ID";
   private final String tagClient = "Client";
   private final String tagAggregated = "Aggregated";
   private final String tagError = "Error";
   private final String tagSuccess = "Success";
 
-  
+
   @Inject
   CloudWatchAsyncClient cloudWatchAsyncClient;
   @Inject
