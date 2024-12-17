@@ -394,9 +394,8 @@ variable "alarm_subscribers" {
 }
 
 variable "is_gh_sns_arn" {
-  type = string
-  # default = "arn:aws:sns:eu-south-1:116453376486:history"
-  default = null
+  type    = string
+  default = "arn:aws:sns:eu-south-1:116453376486:history"
 }
 
 variable "ssm_cert_key" {
