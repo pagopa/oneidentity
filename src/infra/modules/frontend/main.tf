@@ -228,14 +228,31 @@ resource "aws_wafv2_web_acl_association" "main" {
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
 
+##OpenApi export
+
+data "aws_api_gateway_export" "api_exp" {
+  rest_api_id = module.rest_api.rest_api_id
+  stage_name  = var.rest_api_stage
+  export_type = "oas30"
+}
+
+resource "aws_s3_object" "openapi_exp" {
+  key              = "static/openapi/oas30.json"
+  bucket           = var.assets_bucket_name
+  content          = data.aws_api_gateway_export.api_exp.body
+  content_encoding = "utf-8"
+  content_type     = "application/json"
+}
+
 ## Alarm
 
 module "webacl_count_alarm" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-cloudwatch.git//modules/metric-alarms-by-multiple-dimensions?ref=60cf981e0f1ae033699e5b274440867e48289967"
+  source  = "terraform-aws-modules/cloudwatch/aws//modules/metric-alarms-by-multiple-dimensions"
+  version = "5.6.0"
 
   count = var.web_acl.cloudwatch_metrics_enabled ? 1 : 0
 
-  alarm_name          = "waf-"
+  alarm_name          = "${var.rest_api_name}-"
   alarm_description   = "Alarm when webacl count greater than 10"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 3
@@ -246,13 +263,13 @@ module "webacl_count_alarm" {
 
   namespace   = "AWS/WAFV2"
   metric_name = "CountedRequests"
-  statistic   = "Sum"
+  statistic   = "Average"
 
   dimensions = {
     "webacl" = {
       WebACL = aws_wafv2_web_acl.main.name
-      Ragion = var.aws_region
-      Rule   = aws_wafv2_web_acl.main.name
+      Region = var.aws_region
+      Rule   = "ALL"
     },
   }
 

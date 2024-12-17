@@ -90,7 +90,7 @@ resource "aws_iam_role_policy" "backup" {
 
 
 module "aws_backup" {
-  source       = "git::https://github.com/pagopa/terraform-aws-backup.git?ref=v1.1.0"
+  source       = "git::https://github.com/pagopa/terraform-aws-backup.git?ref=v1.3.4"
   name         = var.backup_name
   iam_role_arn = aws_iam_role.backup.arn
 
@@ -102,4 +102,7 @@ module "aws_backup" {
   enable_vault_lock_governance = false
 
   backup_rule = var.backup_rule
+
+  create_sns_topic    = true
+  backup_vault_events = ["BACKUP_JOB_FAILED", "BACKUP_JOB_EXPIRED", "S3_BACKUP_OBJECT_FAILED"]
 }

@@ -71,3 +71,7 @@ output "assertion_lambda_arn" {
 output "s3_lambda_code_bucket" {
   value = module.s3_lambda_code_bucket.s3_bucket_id
 }
+
+output "ecs_core_log_group_name" {
+  value = aws_cloudwatch_log_group.ecs_core.name
+}

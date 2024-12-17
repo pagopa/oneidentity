@@ -229,9 +229,9 @@ public class OIDCServiceImplTest {
   void authorizeClient() {
     // given
     String clientID = "test";
-    String clientSecret = "ZHVtbXk="; // base 64 encoded of 'dummy'
-    String salt = "c2FsdGZvb2Jhcg=="; //base64 encoded of 'saltfoobar'
-    String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg"; // argon2 of salt = 'saltfoobar' and secret = 'dummy'
+    String clientSecret = "iB7QoTLouHD6szYS3sB7Ehjs7KClXnCki4kL4DBC3zc";
+    String salt = "wnPIm5bGfbSX5W5LcyScBQ";
+    String hashedSecret = "eQCAH3sO2CiN+6MYx/BdfMOH8vhMUN5ySTp0n6vG3Qk";
     clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
     SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
 

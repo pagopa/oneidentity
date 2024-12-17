@@ -65,14 +65,14 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.49 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.49 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | 3.6.1 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.49 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.49 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.6.1 |
 
 ## Modules
@@ -80,6 +80,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 3.0.0 |
+| <a name="module_s3_assertions_accesslogs_bucket"></a> [s3\_assertions\_accesslogs\_bucket](#module\_s3\_assertions\_accesslogs\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assets_bucket"></a> [s3\_assets\_bucket](#module\_s3\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
@@ -89,34 +90,35 @@
 
 | Name | Type |
 |------|------|
-| [aws_athena_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/athena_database) | resource |
-| [aws_athena_workgroup.assertions_workgroup](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/athena_workgroup) | resource |
-| [aws_glue_catalog_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/glue_catalog_database) | resource |
-| [aws_glue_crawler.assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/glue_crawler) | resource |
-| [aws_iam_policy.github_s3_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.upload_idp_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy) | resource |
-| [aws_iam_policy_attachment.replication](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_policy_attachment) | resource |
-| [aws_iam_role.githubS3deploy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
-| [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
-| [aws_iam_role.replication](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
-| [aws_iam_role.upload_idp_role](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.deploy_s3](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.upload_idp](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_athena_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/athena_database) | resource |
+| [aws_athena_workgroup.assertions_workgroup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/athena_workgroup) | resource |
+| [aws_glue_catalog_database.assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_database) | resource |
+| [aws_glue_crawler.assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_crawler) | resource |
+| [aws_iam_policy.github_s3_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.upload_idp_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy_attachment.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_role.githubS3deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.upload_idp_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.deploy_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.glue_s3_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.upload_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [random_integer.assertion_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [random_integer.asset_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [random_integer.idp_metadata_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
-| [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.lambda_assertions](https://registry.terraform.io/providers/hashicorp/aws/5.49/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.lambda_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | AWS Account id. | `string` | n/a | yes |
+| <a name="input_assertion_accesslogs_expiration"></a> [assertion\_accesslogs\_expiration](#input\_assertion\_accesslogs\_expiration) | n/a | `number` | n/a | yes |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | n/a | <pre>object({<br>    name_prefix                     = string<br>    expiration_days                 = number<br>    mfa_delete                      = optional(bool, false)<br>    kms_key_deletion_window_in_days = optional(number, 10)<br>    kms_multi_region                = optional(bool, false)<br><br>    object_lock_legal_hold_status = optional(bool, false)<br>    object_lock_configuration     = optional(any, null)<br>    enable_key_rotation           = optional(bool, false)<br>    replication_configuration = optional(<br>      object({<br>        id                     = string<br>        destination_bucket_arn = string<br>        kms_key_replica_arn    = string<br>    }), null)<br><br>    lambda_role_arn = optional(string, null)<br>  })</pre> | n/a | yes |
 | <a name="input_assertions_crawler_schedule"></a> [assertions\_crawler\_schedule](#input\_assertions\_crawler\_schedule) | A cron expression used to specify the schedule | `string` | `null` | no |
 | <a name="input_assets_bucket_prefix"></a> [assets\_bucket\_prefix](#input\_assets\_bucket\_prefix) | Assets bucket prefix | `string` | `""` | no |

@@ -6,6 +6,43 @@ import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_N
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR22;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR23;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.ERRORCODE_NR25;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ASSERTION_ID_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ASSERTION_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_PRESENT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_ID_FORMAT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_ID_TYPE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_INVALID_NAME_QUALIFIER;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MISSING_CONDITIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_ASSERTIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCES;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ASSERTION_MISSING_AUDIENCE_RESTRICTION_CONDITION_SAML_RESPONSE_84;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ASSERTION_UNSPECIFIED_AUDIENCE_RESTRICTION_CONDITION_SAML_RESPONSE_83;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ATTRIBUTES_WITHOUT_NAME_FORMAT_SAML_RESPONSE_109;
@@ -64,6 +101,11 @@ import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_FORMAT_ATTRIBUTE
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_ISSUER_ELEMENT_SAML_RESPONSE_28;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_STATUS_CODE_SAML_RESPONSE_25;
 import static it.pagopa.oneid.model.Base64SAMLResponses.MISSING_STATUS_SAML_RESPONSE_23;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_ASSERTIONS_SAMLRESPONSE;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_ATTRIBUTE_STATEMENTS_SAMLRESPONSE;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_AUDIENCES_SAMLRESPONSE;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_AUDIENCE_RESTRICTIONS_SAMLRESPONSE;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_SUBJECT_CONFIRMATIONS_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.NOT_ON_OR_AFTER_BEFORE_RESPONSE_RECEPTION_SAML_RESPONSE_82;
 import static it.pagopa.oneid.model.Base64SAMLResponses.NOT_ON_OR_AFTER_MISSING_SAML_RESPONSE_80;
 import static it.pagopa.oneid.model.Base64SAMLResponses.NOT_PRESENT_ID_SAML_RESPONSE_09;
@@ -129,6 +171,7 @@ import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -577,8 +620,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -600,7 +641,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Response ID not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));
   }
 
   @Test
@@ -610,8 +652,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -633,7 +673,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Response ID not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));
   }
 
   @Test
@@ -643,8 +684,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -666,7 +705,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Version different from 2.0."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
   }
 
   @Test
@@ -677,8 +717,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = Instant.now();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -699,7 +737,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -710,8 +749,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = Instant.now();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -732,7 +769,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -743,8 +781,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -767,7 +803,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not after the request's Issue Instant."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST.getErrorMessage()));
   }
 
   @Test
@@ -778,8 +815,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -802,7 +837,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -813,8 +849,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -836,7 +870,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -847,8 +882,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -870,7 +903,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -882,8 +916,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -905,7 +937,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -917,8 +950,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -940,7 +971,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -952,8 +984,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -975,7 +1005,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Destination mismatch."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_DESTINATION_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -987,8 +1018,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1010,7 +1039,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer value is blank"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
   }
 
   @Test
@@ -1022,8 +1052,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1045,7 +1073,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1057,8 +1086,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1080,7 +1107,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer mismatch"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -1092,8 +1120,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1115,8 +1141,10 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
+
 
   @Test
   void validateSAMLResponse_31() throws OneIdentityException {
@@ -1126,9 +1154,7 @@ public class SAMLServiceImplTest {
     );
 
     Instant mockInstant = response.getIssueInstant();
-
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1145,13 +1171,12 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
-        assertThrows(SAMLValidationException.class,
-            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+    assertDoesNotThrow(
+        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+            Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
   }
+
 
   @Test
   void validateSAMLResponse_32() throws OneIdentityException {
@@ -1162,8 +1187,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1184,8 +1207,7 @@ public class SAMLServiceImplTest {
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
-
-    assertTrue(exception.getMessage().contains("Assertion not found"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1197,8 +1219,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1220,7 +1240,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Assertion ID is missing"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1232,8 +1252,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1255,7 +1273,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Assertion ID is missing"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1267,8 +1285,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1290,7 +1306,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Version different from 2.0."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
   }
 
   @Test
@@ -1301,8 +1318,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1324,7 +1339,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issue Instant not set."));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -1335,8 +1351,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1359,7 +1373,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not after the request's Issue Instant."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST.getErrorMessage()));
   }
 
   @Test
@@ -1370,8 +1385,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1394,7 +1407,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -1405,8 +1419,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
         .certificates(Set.of(
@@ -1429,7 +1441,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Issue Instant is not before current time."));
+        exception.getMessage()
+            .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -1441,8 +1454,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1464,7 +1475,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1476,8 +1488,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1499,7 +1509,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1511,8 +1522,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1534,7 +1543,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1546,8 +1555,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1569,7 +1576,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Subject not correctly initialized"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1581,8 +1589,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1604,7 +1610,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid Name ID type for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
 
   @Test
@@ -1616,8 +1622,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1639,7 +1643,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid Name ID type for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
 
   @Test
@@ -1651,8 +1655,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1674,7 +1676,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameId format for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -1686,8 +1688,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1709,7 +1709,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1721,8 +1721,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1744,7 +1742,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid NameQualifier for Subject"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
 
   @Test
@@ -1756,8 +1754,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1779,7 +1775,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmationData not found"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1790,8 +1787,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1813,7 +1808,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmation not correctly initialized"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED.getErrorMessage()));
   }
 
   @Test
@@ -1824,8 +1820,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1847,7 +1841,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1859,8 +1854,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1882,7 +1875,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1894,8 +1888,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1917,7 +1909,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid method attribute for SubjectConfirmation"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
   }
 
   @Test
@@ -1929,8 +1922,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1952,7 +1943,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("SubjectConfirmationData not found"));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1964,8 +1956,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -1987,7 +1977,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -1999,8 +1990,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2022,7 +2011,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient not found"));
+    assertTrue(
+        exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2034,8 +2024,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2057,7 +2045,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Recipient mismatch"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2069,8 +2057,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2092,7 +2078,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2104,8 +2090,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2127,7 +2111,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("InResponseTo not set."));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2139,8 +2123,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2162,7 +2144,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter not found"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2174,8 +2157,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2197,7 +2178,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter not found"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2209,8 +2191,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2232,7 +2212,8 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("NotOnOrAfter expired"));
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
   }
 
   @Test
@@ -2244,8 +2225,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2267,7 +2246,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer value is blank"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
   }
 
   @Test
@@ -2279,8 +2258,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2302,7 +2279,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer not found"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2314,8 +2291,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2337,7 +2312,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Issuer mismatch"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2349,8 +2324,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2372,7 +2345,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2384,8 +2357,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2407,7 +2378,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2419,8 +2390,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2442,7 +2411,7 @@ public class SAMLServiceImplTest {
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(exception.getMessage().contains("Invalid format attribute for Issuer element"));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
 
   @Test
@@ -2454,8 +2423,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2478,7 +2445,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience Restrictions element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2490,8 +2458,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2514,7 +2480,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Conditions element is missing"));
+        exception.getMessage().contains(IDP_ERROR_MISSING_CONDITIONS.getErrorMessage()));
   }
 
   @Test
@@ -2525,8 +2491,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2549,7 +2513,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2560,8 +2524,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2584,7 +2546,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2595,8 +2557,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2619,7 +2579,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotBefore is in the future"));
+        exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE.getErrorMessage()));
   }
 
   @Test
@@ -2630,8 +2590,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2654,7 +2612,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2665,8 +2623,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2689,7 +2645,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter not found"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
   }
 
   @Test
@@ -2700,8 +2656,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2724,7 +2678,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("NotOnOrAfter expired"));
+        exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
   }
 
   @Test
@@ -2735,8 +2689,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2759,7 +2711,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2770,8 +2723,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2794,7 +2745,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience Restrictions element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2805,8 +2757,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2829,7 +2779,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience mismatch"));
+        exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2840,8 +2790,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2864,7 +2812,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2875,8 +2824,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2899,7 +2846,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Audience mismatch"));
+        exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
   }
 
   @Test
@@ -2910,8 +2857,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2934,7 +2879,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContext element is missing"));
+        exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -2945,8 +2890,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -2969,7 +2912,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnStatements element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY.getErrorMessage()));
   }
 
   @Test
@@ -2980,8 +2924,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3004,7 +2946,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3015,8 +2958,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3039,7 +2980,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContext element is missing"));
+        exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3050,8 +2991,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3074,7 +3013,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing or empty"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3085,8 +3025,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3109,7 +3047,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("AuthnContextClassRef element is missing"));
+        exception.getMessage()
+            .contains(IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING.getErrorMessage()));
   }
 
   @Test
@@ -3119,7 +3058,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L1_VALUE_SAML_RESPONSE_94);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3150,8 +3088,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3175,7 +3111,8 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3186,8 +3123,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3211,7 +3146,8 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3251,7 +3187,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L2_VALUE_SAML_RESPONSE_95);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3282,8 +3217,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3300,14 +3233,15 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
+    SAMLValidationException exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L3));
 
     assertTrue(
-        exception.getMessage()
-            .contains("AuthnContextClassRef value does not match the requested AuthLevel"));
+        exception.getErrorCode().getErrorMessage()
+            .contains(
+                IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL.getErrorMessage()));
   }
 
   @Test
@@ -3317,7 +3251,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3347,7 +3280,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3377,7 +3309,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3407,7 +3338,6 @@ public class SAMLServiceImplTest {
         AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3438,8 +3368,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3462,7 +3390,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Invalid AuthnContextClassRef value"));
+        exception.getMessage()
+            .contains(IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF.getErrorMessage()));
   }
 
   @Test
@@ -3473,8 +3402,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3497,7 +3424,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Attributes element is missing or empty"));
+        exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_PRESENT.getErrorMessage()));
   }
 
   @Test
@@ -3508,8 +3435,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3532,7 +3457,8 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Attributes not obtained from SAML assertion"));
+        exception.getMessage()
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION.getErrorMessage()));
   }
 
   @Test
@@ -3543,8 +3469,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3567,7 +3491,7 @@ public class SAMLServiceImplTest {
                 Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
     assertTrue(
-        exception.getMessage().contains("Obtained attributes do not match requested attributes"));
+        exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage()));
   }
 
   @Test
@@ -3577,9 +3501,7 @@ public class SAMLServiceImplTest {
         ATTRIBUTES_WITHOUT_NAME_FORMAT_SAML_RESPONSE_109);
 
     Instant mockInstant = response.getIssueInstant();
-
-    Mockito.doThrow(SAMLValidationException.class).when(samlUtils)
-        .validateSignature(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
         .certificates(Set.of(
@@ -3596,13 +3518,10 @@ public class SAMLServiceImplTest {
     when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
 
     // then
-    Exception exception =
-        assertThrows(SAMLValidationException.class,
-            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("spidCode", "fiscalNumber"), mockInstant.minusSeconds(10), AuthLevel.L2));
+    assertDoesNotThrow(
+        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+            Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2));
 
-    assertTrue(
-        exception.getMessage().contains("Attributes not obtained from SAML assertion"));
   }
 
   @Test
@@ -3612,7 +3531,6 @@ public class SAMLServiceImplTest {
         ISSUE_INSTANT_WITH_MILLISECONDS_SAML_RESPONSE_110);
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID("https://validator.dev.oneid.pagopa.it")
@@ -3645,7 +3563,6 @@ public class SAMLServiceImplTest {
     );
 
     Instant mockInstant = response.getIssueInstant();
-
     Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
@@ -3680,41 +3597,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
-    IDP testIDP = IDP.builder()
-        .entityID(
-            "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_CIE))
-        .status(IDPStatus.OK)
-        .build();
-    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
-
-    // then
-    assertDoesNotThrow(
-        () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-            Set.of("fiscalNumber", "familyName", "dateOfBirth", "gender"), // requested
-            mockInstant.minusSeconds(10), AuthLevel.L2));
-  }
-
-  @Test
-  void validateSAMLResponse_CIE_EXTRA_NOT_EIDAS_ATTRIBUTE_SAMLRESPONSE()
-      throws OneIdentityException {
-    // given
-    Response response = samlUtils.getSAMLResponseFromString(
-        CIE_EXTRA_NOT_EIDAS_ATTRIBUTE_SAMLRESPONSE
-    );
-
-    Instant mockInstant = response.getIssueInstant();
-
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3740,7 +3622,45 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Obtained attributes do not match requested attributes"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
+  }
+
+  @Test
+  void validateSAMLResponse_CIE_EXTRA_NOT_EIDAS_ATTRIBUTE_SAMLRESPONSE()
+      throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        CIE_EXTRA_NOT_EIDAS_ATTRIBUTE_SAMLRESPONSE
+    );
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID(
+            "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_CIE))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "familyName", "dateOfBirth"), // requested
+                mockInstant.minusSeconds(10), AuthLevel.L2));
+
+    assertTrue(
+        exception.getMessage()
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
   }
 
   @Test
@@ -3753,7 +3673,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3780,7 +3699,7 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Obtained attributes do not match requested attributes"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage()));
   }
 
 
@@ -3794,7 +3713,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3821,7 +3739,7 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("Attributes element is missing or empty"));
+            .contains(IDP_ERROR_ATTRIBUTES_NOT_PRESENT.getErrorMessage()));
   }
 
   @Test
@@ -3834,7 +3752,6 @@ public class SAMLServiceImplTest {
 
     Instant mockInstant = response.getIssueInstant();
 
-    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
     IDP testIDP = IDP.builder()
         .entityID(
             "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO")
@@ -3861,6 +3778,175 @@ public class SAMLServiceImplTest {
 
     assertTrue(
         exception.getMessage()
-            .contains("AttributeStatements element is missing or empty"));
+            .contains(IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT.getErrorMessage()));
   }
+
+
+  @Test
+  void validateSAMLResponse_IDP_ERROR_MULTIPLE_ASSERTIONS() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        MULTIPLE_ASSERTIONS_SAMLRESPONSE
+    );
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://validator.dev.oneid.pagopa.it")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+    assertTrue(exception.getMessage().contains(IDP_ERROR_MULTIPLE_ASSERTIONS.getErrorMessage()));
+  }
+
+  @Test
+  void validateSAMLResponse_IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        MULTIPLE_SUBJECT_CONFIRMATIONS_SAMLRESPONSE);
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://validator.dev.oneid.pagopa.it")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS.getErrorMessage()));
+  }
+
+
+  @Test
+  void validateSAMLResponse_IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        MULTIPLE_AUDIENCE_RESTRICTIONS_SAMLRESPONSE
+    );
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://validator.dev.oneid.pagopa.it")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+
+    assertTrue(
+        exception.getMessage()
+            .contains(IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS.getErrorMessage()));
+  }
+
+  @Test
+  void validateSAMLResponse_IDP_ERROR_MULTIPLE_AUDIENCES() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        MULTIPLE_AUDIENCES_SAMLRESPONSE);
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://validator.dev.oneid.pagopa.it")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_MULTIPLE_AUDIENCES.getErrorMessage()));
+  }
+
+
+  @Test
+  void validateSAMLResponse_IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS() throws OneIdentityException {
+    // given
+    Response response = samlUtils.getSAMLResponseFromString(
+        MULTIPLE_ATTRIBUTE_STATEMENTS_SAMLRESPONSE);
+
+    Instant mockInstant = response.getIssueInstant();
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://validator.dev.oneid.pagopa.it")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
+
+    // then
+    Exception exception =
+        assertThrows(SAMLValidationException.class,
+            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2));
+
+    assertTrue(
+        exception.getMessage().contains(IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS.getErrorMessage()));
+  }
+
 }

@@ -186,6 +186,16 @@ resource "aws_iam_policy" "ecs_core_task" {
           "${data.aws_ssm_parameter.certificate.arn}",
           "${aws_ssm_parameter.key_pem.arn}"
         ]
+      },
+      {
+        "Sid" : "CloudWatchPutCustomMetrics",
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudwatch:PutMetricData"
+        ],
+        "Resource" : [
+          "*"
+        ]
       }
     ]
   })
@@ -279,6 +289,54 @@ module "ecs_core_service" {
   autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
   desired_count            = var.service_core.autoscaling.desired_count
 
+  autoscaling_policies = {
+    "cpu" : {
+      "policy_type" : "TargetTrackingScaling",
+      "target_tracking_scaling_policy_configuration" : {
+        "predefined_metric_specification" : {
+          "predefined_metric_type" : "ECSServiceAverageCPUUtilization"
+        }
+        "disable_scale_in" : true
+      }
+    },
+    "memory" : {
+      "policy_type" : "TargetTrackingScaling",
+      "target_tracking_scaling_policy_configuration" : {
+        "predefined_metric_specification" : {
+          "predefined_metric_type" : "ECSServiceAverageMemoryUtilization"
+        }
+        "disable_scale_in" : true
+      }
+    },
+    "cpu_high" : {
+      "policy_type" : "StepScaling"
+      "step_scaling_policy_configuration" : {
+        "adjustment_type" : "ChangeInCapacity"
+        "step_adjustment" : [
+          {
+            "scaling_adjustment" : 2 # Add 2 tasks
+            metric_interval_lower_bound = 0
+          }
+        ]
+        cooldown = 60
+      }
+    },
+    "cpu_low" : {
+      "policy_type" : "StepScaling"
+      "step_scaling_policy_configuration" : {
+        "adjustment_type" : "ChangeInCapacity"
+        "step_adjustment" : [
+          {
+            "scaling_adjustment" : -1 # Add 2 tasks
+            metric_interval_lower_bound = 0
+          }
+        ]
+        cooldown = 900
+      }
+    }
+  }
+
+
   subnet_ids       = var.private_subnets
   assign_public_ip = false
 
@@ -310,6 +368,74 @@ module "ecs_core_service" {
 
 }
 
+resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
+  for_each            = var.ecs_alarms
+  alarm_name          = format("%s-%s", module.ecs_core_service.name, each.key)
+  comparison_operator = each.value.comparison_operator
+  evaluation_periods  = each.value.evaluation_periods
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = each.value.statistic
+  threshold           = each.value.threshold
+
+
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = compact([
+    each.value.sns_topic_alarm_arn,
+    each.value.scaling_policy != null ?
+    module.ecs_core_service.autoscaling_policies[each.value.scaling_policy].arn : null,
+  ])
+}
+
+/*
+resource "aws_cloudwatch_metric_alarm" "cpu_high" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "cpu-high-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = 50
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    module.ecs_core_service.autoscaling_policies["cpu_high"].arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "cpu_low" {
+  count               = var.service_core.autoscaling.enable ? 1 : 0
+  alarm_name          = "cpu-low-alarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "900"
+  statistic           = "Average"
+  threshold           = 20
+  alarm_description   = "This alarm triggers when CPU utilization exceeds 70%."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    module.ecs_core_service.autoscaling_policies["cpu_low"].arn
+  ]
+}
+
+*/
 resource "aws_iam_policy" "deploy_ecs" {
   name        = format("%s-policy", var.service_core.service_name)
   description = "Policy to allow deploy on ECS."
@@ -323,6 +449,7 @@ resource "aws_iam_policy" "deploy_ecs" {
         Effect = "Allow"
         Action = [
           "ecr:BatchCheckLayerAvailability",
+          "ecr:BatchGetImage",
           "ecr:CompleteLayerUpload",
           "ecr:DescribeImages",
           "ecr:GetAuthorizationToken",
@@ -422,7 +549,7 @@ module "elb" {
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/ping"
+        path                = "/q/health/live"
         port                = var.service_core.container.containerPort
         healthy_threshold   = 3
         unhealthy_threshold = 3
@@ -435,23 +562,84 @@ module "elb" {
   tags = { Name : var.nlb_name }
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
-  for_each = var.ecs_alarms
-  alarm_name = format("%s-%s-High-%s", module.ecs_core_service.id, each.value.metric_name,
-  module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value)
-  comparison_operator = each.value.comparison_operator
-  evaluation_periods  = each.value.evaluation_periods
-  metric_name         = each.value.metric_name
-  namespace           = each.value.namespace
-  period              = each.value.period
-  statistic           = each.value.statistic
-  threshold           = module.ecs_core_service.autoscaling_policies.cpu.target_tracking_scaling_policy_configuration[0].target_value
+locals {
+  service_id = join("/", [
+    "service",
+    module.ecs_cluster.cluster_name,
+    module.ecs_core_service.name
+    ]
+  )
+
+}
+
+## Iam role to switch region ## 
+
+resource "aws_iam_role" "switch_region_role" {
+  count       = var.switch_region_enabled ? 1 : 0
+  name        = "${var.role_prefix}-switch-region-role"
+  description = "Role to assume to switch region."
 
 
-  dimensions = {
-    ClusterName = module.ecs_cluster.cluster_name
-    ServiceName = module.ecs_core_service.name
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          "Federated" : "arn:aws:iam::${var.aws_caller_identity}:oidc-provider/token.actions.githubusercontent.com"
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" : "repo:${var.github_repository}:*"
+          },
+          "ForAllValues:StringEquals" = {
+            "token.actions.githubusercontent.com:iss" : "https://token.actions.githubusercontent.com",
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
+resource "aws_iam_policy" "switch_region_policy" {
+  count       = var.switch_region_enabled ? 1 : 0
+  name        = "${var.role_prefix}-switch-region-policy"
+  description = "Policy to switch region"
+
+  policy = jsonencode({
+
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "application-autoscaling:RegisterScalableTarget",
+          "ecs:UpdateService",
+          "ecs:DescribeServices"
+        ]
+        Resource = [
+          "${module.ecs_cluster.cluster_arn}",
+          "arn:aws:ecs:${var.aws_region}:${var.aws_caller_identity}:service/${var.ecs_cluster_name}/${var.service_core.service_name}",
+          "arn:aws:application-autoscaling:${var.aws_region}:${var.aws_caller_identity}:scalable-target/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ChangeResourceRecordSets",
+          "route53:ListResourceRecordSets"
+        ]
+        Resource = "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
+      }
+    ]
+  })
+
+}
+
+resource "aws_iam_role_policy_attachment" "switch_region" {
+  count      = var.switch_region_enabled ? 1 : 0
+  role       = aws_iam_role.switch_region_role[0].name
+  policy_arn = aws_iam_policy.switch_region_policy[0].arn
 }

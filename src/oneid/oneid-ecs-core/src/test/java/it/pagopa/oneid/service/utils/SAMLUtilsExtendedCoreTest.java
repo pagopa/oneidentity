@@ -39,7 +39,6 @@ import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
-import org.opensaml.xmlsec.signature.support.SignatureException;
 
 @QuarkusTest
 @TestProfile(X509CredentialTestProfile.class)
@@ -52,7 +51,7 @@ public class SAMLUtilsExtendedCoreTest {
 
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
-  
+
   @Inject
   MarshallerFactory marshallerFactory;
 
@@ -246,9 +245,8 @@ public class SAMLUtilsExtendedCoreTest {
 
     SAMLValidationException exception = assertThrows(SAMLValidationException.class,
         () -> samlUtilsExtendedCore.validateSignature(response, testIDP));
-    assertEquals(SignatureException.class, exception.getCause().getClass());
-    assertEquals("Invalid signature",
-        exception.getCause().getMessage());
+    assertEquals("Response invalid signature",
+        exception.getMessage());
 
   }
 

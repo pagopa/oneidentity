@@ -20,7 +20,7 @@ jobs:
           echo "github.ref ${{ github.ref }}"
           echo "event name ${{ github.event_name }}"
           
-          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}]}"
+          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
 
@@ -64,11 +64,10 @@ jobs:
 
       - name: Upload changed files to S3 (${{ matrix.environment }})
         if: ${{ matrix.environment == 'prod' }}
-        working-directory: src/oneid/metadata
         run: |
           for file in ${{ steps.changed-file.outputs.changed_files }}; do
               if [[ -f $file && ! $file == */test/*  && $file == *.xml ]]; then
-                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}
+                aws s3 cp $file ${{vars.IDP_BUCKET_PATH}}/$(basename "$file")
               fi
           done
 

@@ -16,6 +16,18 @@ variable "app_name" {
   default     = "oneid"
 }
 
+variable "app_log_level" {
+  type        = string
+  description = "Log level of application"
+  default     = "DEBUG"
+}
+
+variable "app_cloudwatch_custom_metric_namespace" {
+  type        = string
+  description = "Custom metric namespace for cloudwatch"
+  default     = "ApplicationMetrics"
+}
+
 variable "env_short" {
   type        = string
   default     = "u"
@@ -360,24 +372,38 @@ variable "ecs_alarms" {
     period              = optional(number)
     statistic           = optional(string)
     comparison_operator = optional(string)
+    scaling_policy      = optional(string, null)
   }))
 
   default = {
-    "ecs-cpu-utilization" = {
+    "cpu_high" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      threshold           = 50
+      period              = 60
       statistic           = "Average"
+      scaling_policy      = "cpu_high"
     },
-    "ecs-memory-utilization" = {
+    "cpu_low" = {
+      metric_name         = "CPUUtilization"
+      namespace           = "AWS/ECS"
+      evaluation_periods  = 1
+      comparison_operator = "LessThanOrEqualToThreshold"
+      threshold           = 20
+      period              = 900
+      statistic           = "Average"
+      scaling_policy      = "cpu_low"
+    },
+    "mem_high" = {
       metric_name         = "MemoryUtilization"
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
+      period              = 60
       statistic           = "Average"
+      threshold           = 70
     }
   }
 }

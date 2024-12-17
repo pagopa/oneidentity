@@ -19,6 +19,7 @@ import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
@@ -60,6 +61,7 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 
 @ApplicationScoped
 @CustomLogging
+@Startup
 public class OIDCServiceImpl implements OIDCService {
 
   @Inject
@@ -226,16 +228,16 @@ public class OIDCServiceImpl implements OIDCService {
   public void authorizeClient(String clientId, String clientSecret) {
     if (clientsMap.get(clientId) == null) {
       Log.debug("client not found");
-      throw new InvalidClientException("Client ID not valid");
+      throw new InvalidClientException("Client ID not valid", clientId);
     }
 
     SecretDTO secretDTO = clientConnectorImpl.getClientSecret(clientId)
-        .orElseThrow(() -> new InvalidClientException("Client secret not found"));
+        .orElseThrow(() -> new InvalidClientException("Client secret not found", clientId));
 
     if (!HASHUtils.validateSecret(secretDTO.getSalt(), clientSecret,
         secretDTO.getSecret())) {
       Log.debug("client secret not valid");
-      throw new InvalidClientException("Client secret not valid");
+      throw new InvalidClientException("Client secret not valid", clientId);
     }
   }
 

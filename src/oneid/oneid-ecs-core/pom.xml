@@ -149,6 +149,14 @@
             <version>2.3.10</version>
         </dependency>
         <dependency>
+            <groupId>io.quarkiverse.amazonservices</groupId>
+            <artifactId>quarkus-amazon-cloudwatch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>netty-nio-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jacoco</artifactId>
             <scope>test</scope>
@@ -179,6 +187,35 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>it.pagopa.maven</groupId>
+                <artifactId>depcheck</artifactId>
+                <executions>
+                    <execution>
+                        <id>verify-phase</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-phase</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fileName>dep-sha256.json</fileName>
+                    <addFileName>dep-sha256-man.json</addFileName>
+                    <includePlugins>false</includePlugins>
+                    <includeParent>false</includeParent>
+                    <excludes>
+                        <it.pagopa.oneid.common>connector,model,utils,producer
+                        </it.pagopa.oneid.common>
+                    </excludes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

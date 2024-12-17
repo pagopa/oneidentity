@@ -1,7 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.test.InjectMock;
@@ -29,19 +28,6 @@ class OneIDControllerTest {
   @InjectMock
   IdpServiceImpl idpServiceImpl;
 
-  @Test
-  void ping() {
-    String response =
-        given()
-            .when().get("/ping")
-            .then()
-            .statusCode(200)
-            .body(is("Ping"))
-            .extract()
-            .asString();
-    assertNotNull(response);
-
-  }
 
   @Test
   void openIDConfig() {

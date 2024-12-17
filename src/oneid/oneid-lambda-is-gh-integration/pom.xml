@@ -110,7 +110,35 @@
 
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>it.pagopa.maven</groupId>
+                <artifactId>depcheck</artifactId>
+                <executions>
+                    <execution>
+                        <id>verify-phase</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-phase</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <fileName>dep-sha256.json</fileName>
+                    <addFileName>dep-sha256-man.json</addFileName>
+                    <includePlugins>false</includePlugins>
+                    <includeParent>false</includeParent>
+                    <excludes>
+                        <it.pagopa.oneid.common>connector,model,producer,utils
+                        </it.pagopa.oneid.common>
+                    </excludes>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>

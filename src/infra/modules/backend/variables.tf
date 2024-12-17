@@ -80,6 +80,21 @@ variable "service_core" {
   })
 }
 
+variable "hosted_zone_id" {
+  type        = string
+  description = "Hosted zone id for IAM Role"
+  default     = "Z065844519UG4CA4QH19U"
+}
+
+variable "aws_caller_identity" {
+  type    = string
+  default = ""
+}
+
+variable "switch_region_enabled" {
+  type    = bool
+  default = false
+}
 variable "github_repository" {
   type        = string
   description = "Github repository responsible to deploy ECS tasks in the form <organization|user/repository>."
@@ -130,7 +145,7 @@ variable "client_registration_lambda" {
     vpc_id                            = string
     vpc_endpoint_dynamodb_prefix_id   = string
     vpc_subnet_ids                    = list(string)
-
+    environment_variables             = map(string)
   })
 
 }
@@ -213,6 +228,7 @@ variable "is_gh_integration_lambda" {
     sns_topic_arn                     = optional(string, null)
     cloudwatch_logs_retention_in_days = string
     ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")
+    environment_variables             = map(string)
   })
 
 }
@@ -231,6 +247,7 @@ variable "sns_topic_arn" {
   type = string
 }
 
+
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string
@@ -241,6 +258,7 @@ variable "ecs_alarms" {
     statistic           = string
     comparison_operator = string
     sns_topic_alarm_arn = string
+    scaling_policy      = optional(string, null)
   }))
 }
 

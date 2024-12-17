@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
@@ -18,15 +19,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.saml.common.SAMLVersion;
-import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.Audience;
@@ -50,6 +49,7 @@ import org.w3c.dom.Element;
 
 @ApplicationScoped
 @CustomLogging
+@Startup
 public class SAMLServiceImpl implements SAMLService {
 
   private final static Set<String> eidasMinimumDataSet = Set.of(
@@ -57,11 +57,7 @@ public class SAMLServiceImpl implements SAMLService {
       Identifier.name.name(),
       Identifier.familyName.name(),
       Identifier.dateOfBirth.name(),
-      Identifier.fiscalNumber.name(),
-      //Optional attributes
-      Identifier.placeOfBirth.name(),
-      Identifier.address.name(),
-      Identifier.gender.name()
+      Identifier.fiscalNumber.name()
   );
 
   private final Clock clock;
@@ -90,30 +86,30 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "acs_url")
   String ACS_URL;
 
+  @ConfigProperty(name = "clock_skew_ms")
+  long CLOCK_SKEW_MS;
+
 
   @Inject
   SAMLServiceImpl(Clock clock) {
     this.clock = clock;
   }
 
-  private static void validateInResponseTo(String inResponseTo) throws OneIdentityException {
+  private static void validateInResponseTo(String inResponseTo) {
     if (inResponseTo == null || inResponseTo.isBlank()) {
-      Log.error("InResponseTo cannot be null or empty");
-      throw new OneIdentityException("InResponseTo not set.");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING);
     }
   }
 
-  private static void validateSAMLVersion(SAMLVersion samlVersion) throws OneIdentityException {
+  private static void validateSAMLVersion(SAMLVersion samlVersion) {
     if (samlVersion == null || !samlVersion.equals(SAMLVersion.VERSION_20)) {
-      Log.error("Version must be 2.0");
-      throw new OneIdentityException("Version different from 2.0.");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION);
     }
   }
 
-  private static void validateSAMLResponseId(String id) throws OneIdentityException {
+  private static void validateSAMLResponseId(String id) {
     if (id == null || id.isBlank()) {
-      Log.error("Response ID cannot be null or empty");
-      throw new OneIdentityException("Response ID not set.");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID);
     }
   }
 
@@ -122,22 +118,24 @@ public class SAMLServiceImpl implements SAMLService {
         .getSubjectConfirmations();
     if (subjectConfirmations
         .isEmpty()) {
-      Log.error("SubjectConfirmation not correctly initialized");
-      throw new SAMLValidationException("SubjectConfirmation not correctly initialized");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED);
+    }
+    if (subjectConfirmations.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS);
     }
     SubjectConfirmation subjectConfirmation = subjectConfirmations.getFirst();
     if (subjectConfirmation.getMethod() == null
         || !subjectConfirmation.getMethod()
         .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
-      Log.error("Invalid method attribute for SubjectConfirmation");
-      throw new SAMLValidationException("Invalid method attribute for SubjectConfirmation");
+      throw new SAMLValidationException(
+          ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE);
     }
     SubjectConfirmationData subjectConfirmationData = subjectConfirmation
         .getSubjectConfirmationData();
 
     if (subjectConfirmationData == null) {
-      Log.error("SubjectConfirmationData not found");
-      throw new SAMLValidationException("SubjectConfirmationData not found");
+      throw new SAMLValidationException(
+          ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND);
     }
     return subjectConfirmationData;
   }
@@ -145,62 +143,62 @@ public class SAMLServiceImpl implements SAMLService {
   private static void validateAuthStatement(List<AuthnStatement> authnStatements,
       AuthLevel authLevelRequest) {
     if (authnStatements == null || authnStatements.isEmpty()) {
-      Log.error("AuthnStatements element is missing or empty");
-      throw new SAMLValidationException("AuthnStatements element is missing or empty");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY);
     }
 
     AuthnContext authnContext = authnStatements.getFirst().getAuthnContext();
     if (authnContext == null) {
-      Log.error("AuthnContext element is missing");
-      throw new SAMLValidationException("AuthnContext element is missing");
+
+      throw new SAMLValidationException(
+          ErrorCode.IDP_ERROR_AUTHN_CONTEXT_MISSING);
     }
     AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
 
     if (authnContextClassRef == null) {
-      Log.error("AuthnContextClassRef element is missing");
-      throw new SAMLValidationException("AuthnContextClassRef element is missing");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_MISSING);
     }
     Element element = authnContextClassRef.getDOM();
     if (element == null || element.getTextContent() == null || element.getTextContent().isBlank()) {
-      Log.error("AuthnContextClassRef element is missing or empty");
-      throw new SAMLValidationException("AuthnContextClassRef element is missing or empty");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_EMPTY);
     }
     AuthLevel authLevelResponse = AuthLevel.authLevelFromValue(element.getTextContent().strip());
     if (authLevelResponse
         == null) {
-      Log.error(
-          "Invalid AuthnContextClassRef value: " + element.getTextContent().strip());
-      throw new SAMLValidationException("Invalid AuthnContextClassRef value");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF,
+          ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF.getErrorMessage()
+              + element.getTextContent().strip());
     }
     if (authLevelResponse.compareTo(authLevelRequest) < 0) {
-      Log.error("AuthnContextClassRef value does not match the requested AuthLevel");
       throw new SAMLValidationException(
-          "AuthnContextClassRef value does not match the requested AuthLevel");
+          ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL);
     }
   }
 
   private static void validateSubject(Subject subject) {
     if (subject == null || subject.getNameID() == null) {
-      Log.error("Subject not correctly initialized");
-      throw new SAMLValidationException("Subject not correctly initialized");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED);
     }
     NameID nameID = subject.getNameID();
     // Validate Name ID
-    if (nameID == null || nameID.getFormat() == null) {
-      Log.error("Invalid Name ID type for Subject");
-      throw new SAMLValidationException("Invalid Name ID type for Subject");
+    if (nameID.getFormat() == null) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_NAME_ID_TYPE);
     }
     // Validate NameId format
     if (nameID.getFormat().isBlank() || !nameID.getFormat()
         .equals(NameIDType.TRANSIENT)) {
-      Log.error("Invalid NameId format for Subject");
-      throw new SAMLValidationException("Invalid NameId format for Subject");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_NAME_ID_FORMAT);
     }
     // Validate NameQualifier
     if (nameID.getNameQualifier() == null || nameID.getNameQualifier()
         .isBlank()) {
-      Log.error("Invalid NameQualifier for Subject");
-      throw new SAMLValidationException("Invalid NameQualifier for Subject");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_NAME_QUALIFIER);
     }
 
   }
@@ -208,92 +206,124 @@ public class SAMLServiceImpl implements SAMLService {
   private void validateRecipient(SubjectConfirmationData subjectConfirmationData) {
     String recipient = subjectConfirmationData.getRecipient();
     if (recipient == null) {
-      Log.error("Recipient parameter from Subject Confirmation Data not found");
-      throw new SAMLValidationException("Recipient not found");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND);
     }
     if (!recipient.equals(BASE_PATH + ACS_URL)) {
-      Log.error("Recipient parameter does not match ACS URL: " + recipient);
-      throw new SAMLValidationException("Recipient mismatch");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH,
+          ErrorCode.IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage() + ": " + recipient);
     }
   }
 
   private void validateAudienceRestriction(List<AudienceRestriction> audienceRestrictions) {
     if (audienceRestrictions == null || audienceRestrictions.isEmpty()) {
-      Log.error("Audience Restrictions element is missing or empty");
-      throw new SAMLValidationException("Audience Restrictions element is missing or empty");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY);
+    }
+    if (audienceRestrictions.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS);
     }
     AudienceRestriction audienceRestriction = audienceRestrictions.getFirst();
-    if (audienceRestriction == null
+    if (audienceRestriction == null || audienceRestriction.getAudiences() == null
         || audienceRestriction.getAudiences().isEmpty()) {
-      Log.error("Audience element is missing or empty");
-      throw new SAMLValidationException("Audience element is missing or empty");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_RESTRICTIONS_MISSING_OR_EMPTY);
     }
 
+    if (audienceRestriction.getAudiences().size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCES);
+    }
     Audience audience = audienceRestriction.getAudiences().getFirst();
     Element element = audience.getDOM();
-    if (element == null || element.getTextContent() == null || !element.getTextContent().strip()
-        .equals(ENTITY_ID)) {
-      Log.error("Audience parameter not equal to service provider entity ID");
-      throw new SAMLValidationException("Audience mismatch");
+    if (element == null || element.getTextContent() == null) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_MISSING_OR_EMPTY);
+    }
+    if (!element.getTextContent().strip().equals(ENTITY_ID)) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUDIENCE_MISMATCH);
     }
   }
 
-  private void validateDestination(String destination) throws OneIdentityException {
+  private void validateDestination(String destination) {
     if (destination == null || destination.isBlank()) {
-      Log.error("Destination cannot be null or empty");
-      throw new OneIdentityException("Destination not set.");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND);
     }
     if (!destination.equals(BASE_PATH + ACS_URL)) {
-      Log.error("Destination does not match ACS URL: " + destination);
-      throw new OneIdentityException("Destination mismatch.");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_DESTINATION_MISMATCH);
     }
   }
 
-  private void validateIssuer(Issuer issuer, String entityID) {
+  private void validateAssertionIssuer(Issuer issuer, String entityID) {
     // Check if element is missing
     if (issuer == null) {
-      Log.error("Issuer not found");
-      throw new SAMLValidationException("Issuer not found");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND);
     }
     String issuerValue = issuer.getValue();
     // Check if element value is missing or blank
-    if (issuerValue == null || issuerValue.isBlank()) {
-      Log.error("Issuer value is blank");
-      throw new SAMLValidationException("Issuer value is blank");
+    if (StringUtils.isBlank(issuerValue)) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
     }
     // Check if element value is equal to IDP EntityID
     if (!issuerValue.equals(entityID)) {
-      Log.error("Issuer value does not match IDP EntityID: " + issuer.getValue());
-      throw new SAMLValidationException("Issuer mismatch");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_MISMATCH,
+          ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage() + ": " + issuer.getValue());
     }
     // Check if format attribute is valid
     if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
         (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY))) {
-      Log.error("Invalid format attribute for Issuer element");
-      throw new SAMLValidationException("Invalid format attribute for Issuer element");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
     }
   }
 
-  private void validateIssueInstant(Instant issueInstant, Instant samlRequestIssueInstant)
-      throws OneIdentityException {
+  private void validateResponseIssuer(Issuer issuer, String entityID) {
+    // Check if element is missing
+    if (issuer == null) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND);
+    }
+    String issuerValue = issuer.getValue();
+    // Check if element value is missing or blank
+    if (StringUtils.isBlank(issuerValue)) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
+    }
+    // Check if element value is equal to IDP EntityID
+    if (!issuerValue.equals(entityID)) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_MISMATCH,
+          ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage() + ": " + issuer.getValue());
+    }
+    // Check if format attribute is valid
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+        (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY))) {
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
+    }
+  }
+
+  private void validateIssueInstant(Instant issueInstant, Instant samlRequestIssueInstant) {
     if (issueInstant == null || issueInstant.toString().isBlank()) {
-      Log.error("Issue Instant cannot be null or empty");
-      throw new OneIdentityException("Issue Instant not set.");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING);
     }
     if (!issueInstant.isAfter(samlRequestIssueInstant)) {
-      Log.error("Issue Instant must be after the request's Issue Instant");
-      throw new OneIdentityException("Issue Instant is not after the request's Issue Instant.");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_AFTER_REQUEST);
     }
-    if (!issueInstant.isBefore(Instant.now(clock))) {
-      Log.error("Issue Instant must be before current time");
-      throw new OneIdentityException("Issue Instant is not before current time.");
+    Instant instant = Instant.now(clock).plusMillis(CLOCK_SKEW_MS);
+    if (!issueInstant.isBefore(instant)) {
+      // TODO: remove this log and compact if statement without defining external variable
+      Log.error(
+          "isBefore not valid -> IDP issueInstant: " + issueInstant + "OI instant: " + instant);
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE);
     }
   }
 
   private void validateConditions(Conditions conditions) {
     if (conditions == null) {
-      Log.error("Conditions element is missing");
-      throw new SAMLValidationException("Conditions element is missing");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MISSING_CONDITIONS);
     }
     validateNotBefore(conditions.getNotBefore());
     validateNotOnOrAfter(conditions.getNotOnOrAfter());
@@ -302,31 +332,29 @@ public class SAMLServiceImpl implements SAMLService {
 
   private void validateNotOnOrAfter(Instant notOnOrAfter) {
     if (notOnOrAfter == null) {
-      Log.error("NotOnOrAfter parameter not found");
-      throw new SAMLValidationException("NotOnOrAfter not found");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND);
     }
     checkNotOnOrAfter(notOnOrAfter);
   }
 
   private void validateNotBefore(Instant notBefore) {
     if (notBefore == null) {
-      Log.error("NotBefore parameter not found");
-      throw new SAMLValidationException("NotBefore not found");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND);
     }
     checkNotBefore(notBefore);
   }
 
   private void checkNotBefore(Instant notBefore) {
-    if (Instant.now(clock).compareTo(notBefore) <= 0) {
-      Log.error("NotBefore parameter is in the future");
-      throw new SAMLValidationException("NotBefore is in the future");
+    if (Instant.now(clock).plusMillis(CLOCK_SKEW_MS).compareTo(notBefore) <= 0) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE);
     }
   }
 
   private void checkNotOnOrAfter(Instant notOnOrAfter) {
-    if (Instant.now(clock).compareTo(notOnOrAfter) >= 0) {
-      Log.error("NotOnOrAfter parameter expired");
-      throw new SAMLValidationException("NotOnOrAfter expired");
+    if (Instant.now(clock).minusMillis(CLOCK_SKEW_MS).compareTo(notOnOrAfter) >= 0) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED);
     }
   }
 
@@ -335,47 +363,46 @@ public class SAMLServiceImpl implements SAMLService {
       AuthLevel authLevelRequest) {
 
     // Check if assertion id is valid
-    if (assertion.getID() == null || assertion.getID().isBlank()) {
-      Log.error("Assertion ID is missing");
-      throw new SAMLValidationException("Assertion ID is missing");
-    }
-    try {
-      validateSAMLVersion(assertion.getVersion());
-      validateIssueInstant(assertion.getIssueInstant(), samlRequestIssueInstant);
-      validateSubject(assertion.getSubject());
+    if (StringUtils.isBlank(assertion.getID())) {
 
-      SubjectConfirmationData subjectConfirmationData = extractSubjectConfirmationData(assertion);
-      validateRecipient(subjectConfirmationData);
-      validateInResponseTo(subjectConfirmationData.getInResponseTo());
-      validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
-      validateIssuer(assertion.getIssuer(), entityID);
-      validateConditions(assertion.getConditions());
-      validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
-      validateAttributeStatements(assertion, requestedAttributes, entityID);
-
-    } catch (OneIdentityException e) {
-      throw new SAMLValidationException(e);
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_ID_MISSING);
     }
+    validateSAMLVersion(assertion.getVersion());
+    validateIssueInstant(assertion.getIssueInstant(), samlRequestIssueInstant);
+    validateSubject(assertion.getSubject());
+
+    SubjectConfirmationData subjectConfirmationData = extractSubjectConfirmationData(assertion);
+    validateRecipient(subjectConfirmationData);
+    validateInResponseTo(subjectConfirmationData.getInResponseTo());
+    validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
+    validateAssertionIssuer(assertion.getIssuer(), entityID);
+    validateConditions(assertion.getConditions());
+    validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
+    validateAttributeStatements(assertion, requestedAttributes, entityID);
+
   }
 
   private void validateAttributeStatements(Assertion assertion, Set<String> requestedAttributes,
       String entityID) {
     List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
     if (attributeStatements == null || attributeStatements.isEmpty()) {
-      Log.error("AttributeStatements element is missing or empty");
-      throw new SAMLValidationException("AttributeStatements element is missing or empty");
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT);
+    }
+    if (attributeStatements.size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS);
     }
     AttributeStatement attributeStatement = attributeStatements.getFirst();
     if (attributeStatement.getAttributes() == null || attributeStatement.getAttributes()
         .isEmpty()) {
-      Log.error("Attributes element is missing or empty");
-      throw new SAMLValidationException("Attributes element is missing or empty");
+
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_PRESENT);
     }
     // Validate if obtained attributes match requested attributes
     Optional<List<AttributeDTO>> attributes = samlUtils.getAttributeDTOListFromAssertion(assertion);
     if (attributes.isEmpty()) {
-      Log.error("Attributes not obtained from SAML assertion");
-      throw new SAMLValidationException("Attributes not obtained from SAML assertion");
+
+      throw new SAMLValidationException(
+          ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_OBTAINED_FROM_SAML_ASSERTION);
     }
 
     Set<String> obtainedAttributes = attributes.get().stream().map(AttributeDTO::getAttributeName)
@@ -386,32 +413,20 @@ public class SAMLServiceImpl implements SAMLService {
     if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID
     )) {
       if (!requestedAttributes.equals(obtainedAttributes)) {
-        Log.error("Obtained attributes do not match requested attributes: "
-            + obtainedAttributes + " vs. " + requestedAttributes);
-        throw new SAMLValidationException("Obtained attributes do not match requested attributes");
+        throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
+                obtainedAttributes + " vs. " + requestedAttributes);
       }
     }
     // CIE
     else {
-      Set<String> validAttributes = new HashSet<>();
-      validAttributes.addAll(requestedAttributes);
-      validAttributes.remove(Identifier.spidCode.name());
 
-      if (!obtainedAttributes.containsAll(validAttributes)) {
-        Log.error(
-            "Obtained attributes do not match requested attributes for CIE: " + obtainedAttributes
-                + " vs. " + validAttributes);
+      if (!eidasMinimumDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
-            "Obtained attributes do not match requested attributes for CIE");
-      }
-
-      obtainedAttributes.removeAll(validAttributes);
-      if (!eidasMinimumDataSet.containsAll(obtainedAttributes)) {
-        Log.error(
-            "Obtained attributes do not match requested attributes for CIE: " + obtainedAttributes
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage() + ": "
+                + obtainedAttributes
                 + " vs. " + eidasMinimumDataSet);
-        throw new SAMLValidationException(
-            "Obtained attributes do not match requested attributes for CIE");
       }
     }
   }
@@ -438,11 +453,20 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
-      if (!statusMessage.isEmpty()) {
+      if (StringUtils.isNotBlank(statusMessage)) {
         Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
-        throw new SAMLResponseStatusException(
-            ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_")).getErrorCode());
+        String message = "";
+        try {
+          message = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"))
+              .getErrorCode();
+        } catch (IllegalArgumentException e) {
+          Log.error(
+              "SAML Status message " + statusMessage + " not mapped for " + statusCode
+                  + " status code");
+          throw new OneIdentityException("Status message not mapped.");
+        }
+        throw new SAMLResponseStatusException(message);
       } else {
         Log.error(
             "SAML Status message not found for " + statusCode
@@ -483,7 +507,6 @@ public class SAMLServiceImpl implements SAMLService {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
-    authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
     authnRequest.setID(samlUtils.generateSecureRandomId());
     authnRequest.setIssuer(samlUtils.buildIssuer());
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
@@ -507,46 +530,47 @@ public class SAMLServiceImpl implements SAMLService {
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
       AuthLevel authLevelRequest) {
 
-    Assertion assertion = extractAssertion(samlResponse);
-
     try {
+
+      Assertion assertion = extractAssertion(samlResponse);
+
       validateSAMLResponseId(samlResponse.getID());
       validateSAMLVersion(samlResponse.getVersion());
       validateIssueInstant(samlResponse.getIssueInstant(), samlRequestIssueInstant);
       validateInResponseTo(samlResponse.getInResponseTo());
       validateDestination(samlResponse.getDestination());
-      validateIssuer(samlResponse.getIssuer(), entityID);
+      validateResponseIssuer(samlResponse.getIssuer(), entityID);
       validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
           authLevelRequest);
 
       validateSignature(samlResponse, entityID);
-
-
-    } catch (OneIdentityException e) {
-      throw new SAMLValidationException(e);
+    } catch (SAMLValidationException e) {
+      e.setIdp(entityID);
+      throw (e);
     }
+
   }
 
   private Assertion extractAssertion(Response samlResponse) {
-    try {
-      return samlResponse.getAssertions().getFirst();
-    } catch (NoSuchElementException e) {
-      Log.error("Assertion not found in SAML response");
-      throw new SAMLValidationException("Assertion not found");
+    if (samlResponse.getAssertions() == null || samlResponse.getAssertions().isEmpty()) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_NOT_FOUND);
     }
+    if (samlResponse.getAssertions().size() != 1) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_MULTIPLE_ASSERTIONS);
+    }
+    return samlResponse.getAssertions().getFirst();
   }
 
-  private void validateSignature(Response samlResponse, String entityID)
-      throws OneIdentityException {
+  private void validateSignature(Response samlResponse, String entityID) {
     Optional<IDP> idp = getIDPFromEntityID(entityID);
     if (idp.isEmpty()) {
-      Log.error("IDP not found for entity ID: " + entityID);
-      throw new SAMLValidationException("IDP not found");
+      throw new SAMLValidationException(ErrorCode.OI_ERROR_IDP_NOT_FOUND,
+          ErrorCode.OI_ERROR_IDP_NOT_FOUND.getErrorMessage() + ":" + entityID);
     }
     try {
       samlUtils.validateSignature(samlResponse, idp.get());
     } catch (SAMLUtilsException e) {
-      throw new OneIdentityException(e);
+      throw new SAMLValidationException(ErrorCode.OI_ERROR_VALIDATE_SIGNATURE_ERROR);
     }
   }
 
@@ -570,4 +594,3 @@ public class SAMLServiceImpl implements SAMLService {
     return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_SPID);
   }
 }
-

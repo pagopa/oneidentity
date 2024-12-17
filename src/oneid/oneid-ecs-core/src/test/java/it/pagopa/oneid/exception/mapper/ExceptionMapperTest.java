@@ -35,6 +35,7 @@ import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
+import jakarta.inject.Inject;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import jakarta.validation.Path.Node;
@@ -55,11 +56,9 @@ import org.mockito.Mockito;
 class ExceptionMapperTest {
 
   private final String DETAIL_MESSAGE = "detail_message";
-  private final ExceptionMapper exceptionMapper;
 
-  public ExceptionMapperTest() {
-    this.exceptionMapper = new ExceptionMapper();
-  }
+  @Inject
+  ExceptionMapper exceptionMapper;
 
   @Test
   void mapException() {
@@ -350,12 +349,16 @@ class ExceptionMapperTest {
   void mapSAMLValidationException() {
     // given
     SAMLValidationException exceptionMock = Mockito.mock(SAMLValidationException.class);
-    Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
+    Mockito.when(exceptionMock.getErrorCode()).thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
+    Mockito.when(exceptionMock.getMessage())
+        .thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage());
+
     // when
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(
         exceptionMock);
     // then
-    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getMessage(), restResponse);
+    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getErrorCode().getErrorCode(),
+        restResponse);
   }
 
   @Test

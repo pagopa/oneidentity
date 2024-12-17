@@ -7,6 +7,7 @@ on:
     paths:
       - "**/src/oneid/oneid-lambda-metadata/**"
       - "**/src/oneid/oneid-common/**"
+
   workflow_dispatch:
     inputs:
       environment:
@@ -38,7 +39,7 @@ jobs:
               matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
             fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
@@ -56,10 +57,19 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
+
+      - name: Set up Maven settings.xml
+        env:
+          GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
+          GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
+        shell: bash
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
 
       - name: Build with Maven
         working-directory: src/oneid
-        run: ./mvnw -f pom.xml -B package -P oneid-lambda-service-metadata-aggregate
+        run: ./mvnw -f pom.xml -B package -DskipTests -P oneid-lambda-service-metadata-aggregate -s settings.xml
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808

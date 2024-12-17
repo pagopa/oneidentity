@@ -5,6 +5,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -56,7 +57,7 @@ import org.opensaml.xmlsec.signature.support.Signer;
 @ApplicationScoped
 @CustomLogging
 public class SAMLUtilsExtendedCore extends SAMLUtils {
-  
+
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
 
@@ -84,11 +85,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     List<AttributeDTO> attributes = new ArrayList<>();
     assertion.getAttributeStatements().forEach(attributeStatement ->
         attributeStatement.getAttributes().forEach(attribute ->
-            {
-              if (attribute.getNameFormat() != null && !attribute.getNameFormat().isBlank()) {
-                addAttributeDTO(attribute, attributes);
-              }
-            }
+            addAttributeDTO(attribute, attributes)
         )
     );
     return attributes.isEmpty() ? Optional.empty() : Optional.of(attributes);
@@ -100,24 +97,24 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   public void validateSignature(Response response, IDP idp)
-      throws SAMLUtilsException, SAMLValidationException {
+      throws SAMLUtilsException {
     List<Credential> credentials = getCredentials(idp.getCertificates(),
         response.getIssueInstant());
     try {
       validateResponseSignature(response, credentials);
     } catch (SignatureException e) {
       Log.error(
-          "error during Response signature validation "
+          ErrorCode.IDP_ERROR_RESPONSE_INVALID_SIGNATURE.getErrorMessage() + ": "
               + e.getMessage());
-      throw new SAMLValidationException(e);
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_RESPONSE_INVALID_SIGNATURE);
     }
     try {
       validateAssertionSignature(response.getAssertions().getFirst(), credentials);
     } catch (SignatureException e) {
       Log.error(
-          "error during Assertion signature validation "
+          ErrorCode.IDP_ERROR_ASSERTION_INVALID_SIGNATURE.getErrorMessage() + ": "
               + e.getMessage());
-      throw new SAMLValidationException(e);
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_INVALID_SIGNATURE);
     }
 
   }
@@ -187,10 +184,10 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private void validateResponseSignature(Response response, List<Credential> credentials)
-      throws SAMLValidationException, SignatureException {
+      throws SignatureException {
     if (response.getSignature() == null) {
-      Log.error("Response signature not present");
-      throw new SAMLValidationException("Response signature not present");
+      Log.error(ErrorCode.IDP_ERROR_RESPONSE_SIGNATURE_NOT_PRESENT.getErrorMessage());
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_RESPONSE_SIGNATURE_NOT_PRESENT);
     }
     validateSignatureWithCredentials(response.getSignature(), credentials);
   }
@@ -198,8 +195,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   private void validateAssertionSignature(Assertion assertion, List<Credential> credentials)
       throws SAMLValidationException, SignatureException {
     if (assertion.getSignature() == null) {
-      Log.error("Assertion signature not present");
-      throw new SAMLValidationException("Assertion signature not present");
+      Log.error(ErrorCode.IDP_ERROR_ASSERTION_SIGNATURE_NOT_PRESENT.getErrorMessage());
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ASSERTION_SIGNATURE_NOT_PRESENT);
     }
     validateSignatureWithCredentials(assertion.getSignature(), credentials);
   }

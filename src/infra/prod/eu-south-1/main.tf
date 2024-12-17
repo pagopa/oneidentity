@@ -11,7 +11,7 @@ module "r53_zones" {
   source = "../../modules/dns"
 
   r53_dns_zones = {
-    "${var.r53_dns_zone.name}" = {
+    (var.r53_dns_zone.name) = {
       comment = var.r53_dns_zone.comment
     }
   }
@@ -79,11 +79,12 @@ module "storage" {
 
     replication_configuration = var.assertion_bucket.replication_configuration
   }
-  assertions_crawler_schedule = var.assertions_crawler_schedule
-  idp_metadata_bucket_prefix  = "idp-metadata"
-  assets_bucket_prefix        = "assets"
-  github_repository           = "pagopa/oneidentity"
-  account_id                  = data.aws_caller_identity.current.account_id
+  assertions_crawler_schedule     = var.assertions_crawler_schedule
+  idp_metadata_bucket_prefix      = "idp-metadata"
+  assets_bucket_prefix            = "assets"
+  github_repository               = "pagopa/oneidentity"
+  account_id                      = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration = 180
 }
 
 ## SNS for alarms ##
@@ -166,7 +167,7 @@ module "backend" {
       },
       {
         name  = "ENTITY_ID"
-        value = "https://${var.r53_dns_zone.name}/pub-ag-full"
+        value = "https://${var.r53_dns_zone.name}/pub-op-full"
       },
       {
         name  = "ACS_URL"
@@ -191,6 +192,14 @@ module "backend" {
       {
         name  = "KEY_NAME"
         value = var.ssm_cert_key.key_pem
+      },
+      {
+        name  = "LOG_LEVEL"
+        value = var.app_log_level
+      },
+      {
+        name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
+        value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
   }
@@ -218,6 +227,7 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
   metadata_lambda = {
@@ -229,12 +239,13 @@ module "backend" {
       "CONTACT_PERSON_EMAIL_ADDRESS"    = "pagopa@pec.governo.it"
       "ORGANIZATION_DISPLAY_NAME"       = "PagoPA S.p.A."
       "BASE_PATH"                       = "https://${var.r53_dns_zone.name}"
-      "ENTITY_ID"                       = "https://${var.r53_dns_zone.name}/pub-ag-full"
+      "ENTITY_ID"                       = "https://${var.r53_dns_zone.name}/pub-op-full"
       "ORGANIZATION_NAME"               = "PagoPA S.p.A."
       "ACS_URL"                         = var.metadata_info.acs_url
       "SLO_URL"                         = var.metadata_info.slo_url
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
+      "LOG_LEVEL"                       = var.app_log_level
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -279,6 +290,7 @@ module "backend" {
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
+      LOG_LEVEL                = var.app_log_level
     }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
@@ -298,6 +310,7 @@ module "backend" {
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     sns_topic_arn                     = var.is_gh_sns_arn
+    environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
   ssm_cert_key = {}
@@ -363,7 +376,8 @@ module "monitoring" {
     arn_suffix              = module.backend.nlb_arn_suffix
   }
   ecs = {
-    service_name = module.backend.ecs_service_name,
-    cluster_name = module.backend.ecs_cluster_name
+    service_name   = module.backend.ecs_service_name,
+    cluster_name   = module.backend.ecs_cluster_name,
+    log_group_name = module.backend.ecs_core_log_group_name
   }
 }

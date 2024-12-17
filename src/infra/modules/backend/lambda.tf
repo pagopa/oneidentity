@@ -130,8 +130,7 @@ module "client_registration_lambda" {
   vpc_subnet_ids         = var.client_registration_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_client_registration.security_group_id]
 
-  environment_variables = {
-  }
+  environment_variables = var.client_registration_lambda.environment_variables
 
   cloudwatch_logs_retention_in_days = var.client_registration_lambda.cloudwatch_logs_retention_in_days
 
@@ -353,6 +352,8 @@ module "is_gh_integration_lambda" {
   policy_json        = data.aws_iam_policy_document.is_gh_integration_lambda.json
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
+
+  environment_variables = var.is_gh_integration_lambda.environment_variables
 
   allowed_triggers = [
     {

@@ -10,7 +10,7 @@ public class SAMLUtilsConstants {
   public static String NAMESPACE_PREFIX_SPID = "spid";
   public static String NAMESPACE_PREFIX_CIE = "cie";
   public static String LOCAL_NAME_IPA = "IPACode";
-  public static String LOCAL_NAME_PUBLIC_SERVICE_AGGREGATOR = "PublicServicesFullAggregator";
+  public static String LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR = "PublicServicesFullOperator";
   public static String LOCAL_NAME_VAT_NUMBER = "VATNumber";
   public static String LOCAL_NAME_FISCAL_CODE = "FiscalCode";
   public static String LOCAL_NAME_MUNICIPALITY = "Municipality";
@@ -20,7 +20,6 @@ public class SAMLUtilsConstants {
   public static String LOCAL_NAME_PUBLIC = "Public";
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
   public static String MUNICIPALITY = "H501";
-  public static String SPID_AGGREGATED = "aggregated";
   public static String SPID_AGGREGATOR = "aggregator";
   
 }

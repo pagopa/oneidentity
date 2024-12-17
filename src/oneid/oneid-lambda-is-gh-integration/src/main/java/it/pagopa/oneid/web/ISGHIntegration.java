@@ -13,6 +13,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.service.GitHubServiceImpl;
 import it.pagopa.oneid.service.ISServiceImpl;
 import jakarta.inject.Inject;
+import java.util.regex.PatternSyntaxException;
 
 public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
@@ -34,23 +35,45 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
 
     // 1. Read SNS event
     snsMessage = record.getSNS().getMessage();
-    String timestamp;
-    String idpType;
+    JsonNode jsonNode;
+    JsonNode s3Node;
 
-    JsonNode dataNode;
     try {
-      dataNode = objectMapper.readTree(snsMessage).get("data");
+      jsonNode = objectMapper.readTree(snsMessage).get("Records");
+      s3Node = jsonNode.get(0).get("s3");
     } catch (JsonProcessingException e) {
       Log.error("Error processing SNS message: " + snsMessage);
       throw new RuntimeException(e);
     }
-    if (dataNode == null) {
-      Log.error("No 'data' field found in the SNS message.");
+
+    String timestamp;
+    String idpType;
+
+    JsonNode objectNode;
+    String s3File;
+    String s3Key;
+
+    try {
+      objectNode = s3Node.get("object");
+      s3Key = objectNode.get("key").asText();
+    } catch (NullPointerException e) {
+      Log.error("Error processing SNS message: " + snsMessage);
+      throw new RuntimeException(e);
+    }
+    if (s3Key == null) {
+      Log.error("No 'object' field found in the SNS message.");
       throw new RuntimeException();
     }
 
-    timestamp = dataNode.get("TAG").asText();
-    idpType = dataNode.get("OBJ").asText();
+    try {
+      s3File = s3Key.split("history/")[1];
+      idpType = s3File.split("-")[0].replace(".xml", "");
+      timestamp = s3File.split("-")[1];
+
+    } catch (PatternSyntaxException e) {
+      Log.error("Error parsing s3Key: " + s3Key);
+      throw new RuntimeException(e);
+    }
 
     // 2. Download metadata from IS
     String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType);
