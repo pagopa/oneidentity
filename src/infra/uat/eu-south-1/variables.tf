@@ -305,6 +305,7 @@ variable "api_method_settings" {
       method_path     = "*/*"
       caching_enabled = false
       metrics_enabled = true
+      logging_level   = "ERROR"
     },
     {
       method_path          = "saml/{id_type}/metadata/GET"
