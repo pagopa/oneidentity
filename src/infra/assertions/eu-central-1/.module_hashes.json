@@ -1,0 +1,8 @@
+{
+  "storage.kms_assertions_bucket": "bc9f5480b32a43bc8e9ea8ea9af847a764144583ad2b775a4cd1ef30102cb0f2",
+  "storage.s3_assertions_accesslogs_bucket": "bf1a5b2b27f275bc1047ecb1becc0e07c3d198bf6924928bd609b00e671b075a",
+  "storage.s3_assertions_bucket": "bf1a5b2b27f275bc1047ecb1becc0e07c3d198bf6924928bd609b00e671b075a",
+  "storage.s3_assets_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
+  "storage.s3_athena_output_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
+  "storage.s3_idp_metadata_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59"
+}
