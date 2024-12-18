@@ -341,6 +341,7 @@ variable "api_method_settings" {
       method_path     = "*/*"
       caching_enabled = false
       metrics_enabled = true
+      logging_level   = "ERROR"
     },
     {
       method_path          = "saml/{id_type}/metadata/GET"
@@ -394,9 +395,8 @@ variable "alarm_subscribers" {
 }
 
 variable "is_gh_sns_arn" {
-  type = string
-  # default = "arn:aws:sns:eu-south-1:116453376486:history"
-  default = null
+  type    = string
+  default = "arn:aws:sns:eu-south-1:116453376486:history"
 }
 
 variable "ssm_cert_key" {
