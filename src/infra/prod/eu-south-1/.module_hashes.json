@@ -27,7 +27,7 @@
   "network.vpc_endpoints": "f6114652efd6cb815574780c354ce65fcc18d520bc85621f9ba754ae1923c38e",
   "r53_zones.r53_zones": "6800a3878cebdc1cae49571a6310ef579ca3a53ee9f2765e45732dd42f964a82",
   "storage.kms_assertions_bucket": "0300a2172e1d11c751d952d738a323c5c92512fad921eeb44ee3f60f76bb1de8",
-  "storage.s3_assertions_accesslogs_bucket": "bf1a5b2b27f275bc1047ecb1becc0e07c3d198bf6924928bd609b00e671b075a",
+  "storage.s3_assertions_accesslogs_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
   "storage.s3_assertions_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
   "storage.s3_assets_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
   "storage.s3_athena_output_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
