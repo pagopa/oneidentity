@@ -49,6 +49,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.logmanager.MDC;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -86,8 +87,7 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedGet.getNonce())
             .scope(authorizationRequestDTOExtendedGet.getScope())
             .state(authorizationRequestDTOExtendedGet.getState())
-            .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress())
-            .build();
+            .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress()).build();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
         return AuthorizationRequestDTOExtended.builder()
@@ -98,8 +98,7 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedPost.getNonce())
             .scope(authorizationRequestDTOExtendedPost.getScope())
             .state(authorizationRequestDTOExtendedPost.getState())
-            .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress())
-            .build();
+            .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress()).build();
       }
       default -> {
         throw new OneIdentityException("Invalid object for /oidc/authorize route");
@@ -152,6 +151,11 @@ public class OIDCController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
+    // Put Client ID into MDC {client.id} property
+    MDC.put("client.id", authorizationRequestDTOExtended.getClientId());
+    // Put Client state into MDC {client.state} property
+    MDC.put("client.state", authorizationRequestDTOExtended.getClientId());
+
     // 1. Check if callbackUri exists among clientId parameters
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
@@ -160,8 +164,7 @@ public class OIDCController {
     }
 
     // 2. Check if idp exists
-    idp = samlServiceImpl.getIDPFromEntityID(
-        authorizationRequestDTOExtended.getIdp());
+    idp = samlServiceImpl.getIDPFromEntityID(authorizationRequestDTOExtended.getIdp());
     if (idp.isEmpty()) {
       Log.debug("selected IDP not found");
       throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
@@ -172,8 +175,7 @@ public class OIDCController {
     // 4. Check if scope is "openid"
     if (StringUtils.isNotBlank(authorizationRequestDTOExtended.getScope())
         && !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
-      Log.error(
-          "scope not supported");
+      Log.error("scope not supported");
       throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState(),
           authorizationRequestDTOExtended.getClientId());
@@ -181,8 +183,7 @@ public class OIDCController {
 
     // 5. Check if response type is "code"
     if (!authorizationRequestDTOExtended.getResponseType().equals(ResponseType.CODE)) {
-      Log.error(
-          "response type not supported");
+      Log.error("response type not supported");
       throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState(),
           authorizationRequestDTOExtended.getClientId());
@@ -197,21 +198,17 @@ public class OIDCController {
 
     AuthnRequest authnRequest = null;
     try {
-      authnRequest = samlServiceImpl.buildAuthnRequest(
-          idpSSOEndpoint, client.getAcsIndex(),
-          client.getAttributeIndex(),
-          client.getAuthLevel().getValue());
+      authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint, client.getAcsIndex(),
+          client.getAttributeIndex(), client.getAuthLevel().getValue());
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
              OneIdentityException e) {
-      Log.error("error building authorization request: "
-          + e.getMessage());
+      Log.error("error building authorization request: " + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
     }
 
-    String encodedAuthnRequest = Base64.getEncoder().encodeToString(
-        oidcServiceImpl.getStringValue(
-            oidcServiceImpl.getElementValueFromAuthnRequest(authnRequest)).getBytes());
+    String encodedAuthnRequest = Base64.getEncoder().encodeToString(oidcServiceImpl.getStringValue(
+        oidcServiceImpl.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
 
     // 7. Persist SAMLSession
@@ -228,25 +225,20 @@ public class OIDCController {
     try {
       samlSessionServiceImpl.saveSession(samlSession);
     } catch (SessionException e) {
-      Log.error("error during session management "
-          + e.getMessage());
+      Log.error("error during session management " + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
     }
 
-    String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint
-        + " id='SAMLRequestForm'>" +
-        "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />" +
-        "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />" +
-        "<input id='SAMLSubmitButton' type='submit' value='Submit' />" +
-        "</form>" +
-        "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; " +
-        "document.getElementById('SAMLRequestForm').submit();</script>";
+    String redirectAutoSubmitPOSTForm =
+        "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
+            + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
+            + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
+            + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
+            + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
+            + "document.getElementById('SAMLRequestForm').submit();</script>";
 
-    return Response
-        .ok(redirectAutoSubmitPOSTForm)
-        .type(MediaType.TEXT_HTML)
-        .build();
+    return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
   }
 
   @POST
@@ -265,8 +257,7 @@ public class OIDCController {
       decodedBytes = Base64.getDecoder().decode(authorization);
       decodedString = new String(decodedBytes);
       clientId = URLDecoder.decode(decodedString.split(":")[0], StandardCharsets.UTF_8);
-      clientSecret = URLDecoder.decode(decodedString.split(":")[1],
-          StandardCharsets.UTF_8);
+      clientSecret = URLDecoder.decode(decodedString.split(":")[1], StandardCharsets.UTF_8);
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       // TODO: consider collecting this as Client Error metric
       throw new InvalidRequestMalformedHeaderAuthorizationException();
@@ -280,13 +271,18 @@ public class OIDCController {
 
     oidcServiceImpl.authorizeClient(clientId, clientSecret);
 
+    // Put Client ID into MDC {client.id} property
+    MDC.put("client.id", clientId);
+
     SAMLSession session;
     try {
-      session = samlSessionServiceImpl.getSAMLSessionByCode(
-          tokenRequestDTOExtended.getCode());
+      session = samlSessionServiceImpl.getSAMLSessionByCode(tokenRequestDTOExtended.getCode());
     } catch (SessionException e) {
       throw new InvalidGrantException(clientId);
     }
+
+    // Put Client state into MDC {client.state} property
+    MDC.put("client.state", session.getAuthorizationRequestDTOExtended().getState());
 
     // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
     if (!tokenRequestDTOExtended.getRedirectUri()
@@ -296,8 +292,7 @@ public class OIDCController {
     }
 
     Assertion assertion = samlServiceImpl.getSAMLResponseFromString(session.getSAMLResponse())
-        .getAssertions()
-        .getFirst();
+        .getAssertions().getFirst();
 
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(session.getSamlRequestID(), clientId,
         samlServiceImpl.getAttributesFromSAMLAssertion(assertion),
@@ -307,9 +302,8 @@ public class OIDCController {
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
 
     AccessTokenSession accessTokenSession = new AccessTokenSession(session.getSamlRequestID(),
-        RecordType.ACCESS_TOKEN,
-        creationTime,
-        ttl, tokenDataDTO.getAccessToken(), tokenDataDTO.getIdToken());
+        RecordType.ACCESS_TOKEN, creationTime, ttl, tokenDataDTO.getAccessToken(),
+        tokenDataDTO.getIdToken());
 
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
