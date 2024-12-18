@@ -154,7 +154,7 @@ public class OIDCController {
     // Put Client ID into MDC {client.id} property
     MDC.put("client.id", authorizationRequestDTOExtended.getClientId());
     // Put Client state into MDC {client.state} property
-    MDC.put("client.state", authorizationRequestDTOExtended.getClientId());
+    MDC.put("client.state", authorizationRequestDTOExtended.getState());
 
     // 1. Check if callbackUri exists among clientId parameters
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
