@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.Client;
@@ -27,6 +28,8 @@ import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.utils.MDCHandler;
+import it.pagopa.oneid.web.controller.utils.MDCProperty;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
@@ -49,7 +52,6 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logmanager.MDC;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -151,10 +153,9 @@ public class OIDCController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    // Put Client ID into MDC {client.id} property
-    MDC.put("client.id", authorizationRequestDTOExtended.getClientId());
-    // Put Client state into MDC {client.state} property
-    MDC.put("client.state", authorizationRequestDTOExtended.getState());
+    // Set MDC properties
+    updateMDCClientAndStateProperties(authorizationRequestDTOExtended.getClientId(),
+        authorizationRequestDTOExtended.getState());
 
     // 1. Check if callbackUri exists among clientId parameters
     if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
@@ -272,7 +273,7 @@ public class OIDCController {
     oidcServiceImpl.authorizeClient(clientId, clientSecret);
 
     // Put Client ID into MDC {client.id} property
-    MDC.put("client.id", clientId);
+    MDCHandler.setMDCProperty(MDCProperty.CLIENT_ID, clientId);
 
     SAMLSession session;
     try {
@@ -282,7 +283,8 @@ public class OIDCController {
     }
 
     // Put Client state into MDC {client.state} property
-    MDC.put("client.state", session.getAuthorizationRequestDTOExtended().getState());
+    MDCHandler.setMDCProperty(MDCProperty.CLIENT_STATE,
+        session.getAuthorizationRequestDTOExtended().getState());
 
     // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
     if (!tokenRequestDTOExtended.getRedirectUri()

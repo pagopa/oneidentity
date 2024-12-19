@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -36,7 +37,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Map;
-import org.jboss.logmanager.MDC;
 
 @Path(("/saml"))
 @Startup
@@ -94,10 +94,10 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
-    // Put Client ID into MDC {client.id} property
-    MDC.put("client.id", samlSession.getAuthorizationRequestDTOExtended().getClientId());
-    // Put Client state into MDC {client.state} property
-    MDC.put("client.state", samlSession.getAuthorizationRequestDTOExtended().getState());
+    // Set MDC properties
+    updateMDCClientAndStateProperties(
+        samlSession.getAuthorizationRequestDTOExtended().getClientId(),
+        samlSession.getAuthorizationRequestDTOExtended().getState());
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
