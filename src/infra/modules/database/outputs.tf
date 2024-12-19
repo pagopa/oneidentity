@@ -27,7 +27,7 @@ output "dynamodb_table_stream_arn" {
 }
 
 output "dynamodb_clients_table_stream_arn" {
-  value = module.dynamodb_table_client_registrations.dynamodb_table_stream_arn
+  value = try(module.dynamodb_table_client_registrations[0].dynamodb_table_stream_arn, null)
 }
 
 output "table_idp_metadata_name" {
