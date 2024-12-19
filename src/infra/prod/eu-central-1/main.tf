@@ -212,10 +212,10 @@ module "backend" {
     vpc_endpoint_s3_prefix_id         = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     vpc_endpoint_ssm_nsg_ids          = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
   }
 
 
+  dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
