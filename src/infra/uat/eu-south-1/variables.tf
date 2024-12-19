@@ -312,31 +312,37 @@ variable "api_method_settings" {
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
       metrics_enabled      = true
+      logging_level        = "ERROR"
     },
     {
       method_path          = "static/{proxy+}/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
     },
     {
       method_path          = "assets/{proxy}/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
     },
     {
       method_path          = "login/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
     },
     {
       method_path          = "login/error/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
     },
     {
       method_path          = "idps/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
     }
   ]
 }
