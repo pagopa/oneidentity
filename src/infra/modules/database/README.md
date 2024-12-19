@@ -69,7 +69,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client registrations table configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, false)<br>    stream_view_type               = optional(string, null)<br>    deletion_protection_enabled    = optional(bool, false)<br>    replication_regions = optional(list(object({<br>      region_name            = string<br>      propagate_tags         = optional(bool, true)<br>      point_in_time_recovery = optional(bool, true)<br>    })), [])<br>  })</pre> | n/a | yes |
+| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client registrations table configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, true)<br>    stream_view_type               = optional(string, "NEW_AND_OLD_IMAGES")<br>    deletion_protection_enabled    = optional(bool, false)<br>    replication_regions = optional(list(object({<br>      region_name            = string<br>      propagate_tags         = optional(bool, true)<br>      point_in_time_recovery = optional(bool, true)<br>    })), [])<br>  })</pre> | n/a | yes |
 | <a name="input_idp_metadata_table"></a> [idp\_metadata\_table](#input\_idp\_metadata\_table) | IDP Metadata table configurations. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>    stream_enabled                 = optional(bool, false)<br>    stream_view_type               = optional(string, null)<br>    deletion_protection_enabled    = optional(bool, false)<br>    replication_regions = optional(list(object({<br>      region_name            = string<br>      propagate_tags         = optional(bool, true)<br>      point_in_time_recovery = optional(bool, true)<br>    })), [])<br>  })</pre> | n/a | yes |
 | <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
 | <a name="input_kms_ssm_enable_rotation"></a> [kms\_ssm\_enable\_rotation](#input\_kms\_ssm\_enable\_rotation) | n/a | `bool` | `true` | no |
@@ -79,6 +79,7 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_dynamodb_clients_table_stream_arn"></a> [dynamodb\_clients\_table\_stream\_arn](#output\_dynamodb\_clients\_table\_stream\_arn) | n/a |
 | <a name="output_dynamodb_table_stream_arn"></a> [dynamodb\_table\_stream\_arn](#output\_dynamodb\_table\_stream\_arn) | n/a |
 | <a name="output_kms_sessions_table_alias_arn"></a> [kms\_sessions\_table\_alias\_arn](#output\_kms\_sessions\_table\_alias\_arn) | n/a |
 | <a name="output_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#output\_table\_client\_registrations\_arn) | n/a |
