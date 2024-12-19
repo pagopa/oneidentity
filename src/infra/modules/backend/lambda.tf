@@ -145,7 +145,7 @@ data "aws_iam_policy_document" "metadata_lambda" {
   statement {
     effect    = "Allow"
     actions   = ["dynamodb:Scan"]
-    resources = ["${var.table_client_registrations_arn}"]
+    resources = [var.table_client_registrations_arn]
   }
   statement {
     effect = "Allow"
@@ -153,7 +153,7 @@ data "aws_iam_policy_document" "metadata_lambda" {
       "kms:Decrypt",
       "kms:Encrypt",
     ]
-    resources = ["${module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn}"]
+    resources = [module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn]
   }
   statement {
     effect = "Allow"
@@ -162,7 +162,28 @@ data "aws_iam_policy_document" "metadata_lambda" {
       "ssm:Get*",
       "ssm:List*"
     ]
-    resources = ["${data.aws_ssm_parameter.certificate.arn}", "${aws_ssm_parameter.key_pem.arn}"]
+    resources = [data.aws_ssm_parameter.certificate.arn, aws_ssm_parameter.key_pem.arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject"
+    ]
+    resources = ["${var.metadata_lambda.metadata_bucket_arn}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
   }
 
 }
@@ -179,7 +200,7 @@ module "security_group_lambda_metadata" {
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id]
+  egress_prefix_list_ids = [var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id,var.metadata_lambda.vpc_endpoint_s3_prefix_id]
 
   // egress_rules = ["https-443-tcp"]
 }
@@ -211,6 +232,13 @@ module "metadata_lambda" {
   policy_json           = data.aws_iam_policy_document.metadata_lambda.json
   attach_network_policy = true
 
+  allowed_triggers = {
+    dynamodb = {
+      principal  = "dynamodb.amazonaws.com"
+      source_arn = var.dynamodb_clients_table_stream_arn
+    }
+  }
+
   environment_variables  = var.metadata_lambda.environment_variables
   vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_metadata.security_group_id]
@@ -241,8 +269,8 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
       "dynamodb:DeleteItem",
     ]
     resources = [
-      "${var.dynamodb_table_idpMetadata.table_arn}",
-      "${var.dynamodb_table_idpMetadata.gsi_pointer_arn}"
+      var.dynamodb_table_idpMetadata.table_arn,
+      var.dynamodb_table_idpMetadata.gsi_pointer_arn
     ]
   }
 
@@ -330,7 +358,7 @@ data "aws_iam_policy_document" "is_gh_integration_lambda" {
       "ssm:Get*",
       "ssm:List*"
     ]
-    resources = ["${data.aws_ssm_parameter.is_gh_integration_lambda.arn}"]
+    resources = [data.aws_ssm_parameter.is_gh_integration_lambda.arn]
   }
 }
 
