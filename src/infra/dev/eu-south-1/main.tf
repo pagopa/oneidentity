@@ -88,7 +88,7 @@ module "storage" {
   assertions_crawler_schedule     = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix      = "idp-metadata"
   assets_bucket_prefix            = "assets"
-  metadata_bucket_prefix           = "metadata"
+  metadata_bucket_prefix          = "metadata"
   github_repository               = "pagopa/oneidentity"
   account_id                      = data.aws_caller_identity.current.account_id
   assertion_accesslogs_expiration = 2
@@ -229,7 +229,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    metadata_bucket_arn = module.storage.metadata_bucket_arn
+    metadata_bucket_arn            = module.storage.metadata_bucket_arn
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
@@ -254,7 +254,7 @@ module "backend" {
   }
 
 
-  dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
+  dynamodb_table_stream_arn         = module.database.dynamodb_table_stream_arn
   dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
