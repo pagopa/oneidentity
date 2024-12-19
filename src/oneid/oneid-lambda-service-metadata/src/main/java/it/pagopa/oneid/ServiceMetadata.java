@@ -108,9 +108,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
   public String handleRequest(DynamodbEvent event, Context context) {
     for (DynamodbStreamRecord record : event.getRecords()) {
       try {
-        //TODO: remove before pushing on main
-        Log.debug("\n****\nRecord:\n");
-        Log.debug(record);
 
         if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
           return "SPID and CIE metadata didn't change";
