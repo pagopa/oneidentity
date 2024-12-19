@@ -183,7 +183,7 @@ data "aws_iam_policy_document" "metadata_lambda" {
       "logs:CreateLogStream",
       "logs:PutLogEvents"
     ]
-    resources = ["*"]
+    resources = [var.table_client_registrations_arn]
   }
 
 }
