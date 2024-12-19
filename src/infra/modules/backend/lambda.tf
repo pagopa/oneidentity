@@ -251,6 +251,12 @@ module "metadata_lambda" {
 
 }
 
+resource "aws_lambda_event_source_mapping" "trigger"{
+  event_source_arn  = var.dynamodb_clients_table_stream_arn
+  function_name     = module.metadata_lambda.lambda_function_arn
+  starting_position = "LATEST"
+}
+
 ## Lambda idp_metadata
 
 data "aws_iam_policy_document" "idp_metadata_lambda" {
