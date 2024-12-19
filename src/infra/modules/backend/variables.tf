@@ -163,6 +163,7 @@ variable "metadata_lambda" {
     vpc_endpoint_s3_prefix_id         = string
     vpc_endpoint_ssm_nsg_ids          = list(string)
     cloudwatch_logs_retention_in_days = number
+    dynamodb_clients_table_stream_arn = string
   })
 
 }
