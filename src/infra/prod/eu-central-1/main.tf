@@ -40,7 +40,7 @@ module "storage" {
 
   idp_metadata_bucket_prefix      = "idp-metadata"
   assets_bucket_prefix            = "assets"
-  metadata_bucket_prefix           = "metadata"
+  metadata_bucket_prefix          = "metadata"
   github_repository               = "pagopa/oneidentity"
   account_id                      = data.aws_caller_identity.current.account_id
   assertion_accesslogs_expiration = 180
@@ -190,7 +190,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    metadata_bucket_arn = module.storage.metadata_bucket_arn
+    metadata_bucket_arn            = module.storage.metadata_bucket_arn
     table_client_registrations_arn = local.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
