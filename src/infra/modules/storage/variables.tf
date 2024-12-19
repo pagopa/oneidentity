@@ -32,7 +32,7 @@ variable "assertion_bucket" {
 
 variable "create_assets_bucket" {
   type        = bool
-  description = "Creare assets bucket."
+  description = "Create assets bucket."
   default     = true
 }
 
@@ -53,6 +53,31 @@ variable "idp_metadata_bucket_prefix" {
   description = "Idp metadata bucket prefix."
   default     = ""
 }
+
+variable "create_metadata_bucket" {
+  type        = bool
+  description = "Create metadata bucket."
+  default     = true
+}
+
+variable "metadata_bucket_prefix" {
+  type        = string
+  description = "Metadata bucket prefix."
+  default     = ""
+}
+
+//TODO check if this is needed
+//variable "metadata_bucket" {
+//  type = object({
+//    name_prefix                     = string
+//    expiration_days                 = number
+//    mfa_delete                      = optional(bool, false)
+//    kms_key_deletion_window_in_days = optional(number, 10)
+//    kms_multi_region                = optional(bool, false)
+//
+//    lambda_role_arn = optional(string, null)
+//  })
+//}
 
 variable "github_repository" {
   type = string
