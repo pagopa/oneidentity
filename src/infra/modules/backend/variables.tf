@@ -156,9 +156,11 @@ variable "metadata_lambda" {
     filename                          = string
     table_client_registrations_arn    = string
     environment_variables             = map(string)
+    metadata_bucket_arn               = string
     vpc_id                            = string
     vpc_subnet_ids                    = list(string)
     vpc_endpoint_dynamodb_prefix_id   = string
+    vpc_endpoint_s3_prefix_id         = string
     vpc_endpoint_ssm_nsg_ids          = list(string)
     cloudwatch_logs_retention_in_days = number
   })
@@ -188,6 +190,11 @@ variable "vpc_cidr_block" {
 
 
 variable "dynamodb_table_stream_arn" {
+  type    = string
+  default = null
+}
+
+variable "dynamodb_clients_table_stream_arn" {
   type    = string
   default = null
 }
