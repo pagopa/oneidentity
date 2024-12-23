@@ -143,8 +143,14 @@ module "client_registration_lambda" {
 
 data "aws_iam_policy_document" "metadata_lambda" {
   statement {
-    effect    = "Allow"
-    actions   = ["dynamodb:Scan"]
+    effect = "Allow"
+    actions = [
+      "dynamodb:Scan",
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams",
+    ]
     resources = [var.table_client_registrations_arn]
   }
   statement {
@@ -172,20 +178,6 @@ data "aws_iam_policy_document" "metadata_lambda" {
     ]
     resources = ["${var.metadata_lambda.metadata_bucket_arn}/*"]
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeStream",
-      "dynamodb:GetRecords",
-      "dynamodb:GetShardIterator",
-      "dynamodb:ListStreams",
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = [var.table_client_registrations_arn]
-  }
-
 }
 
 module "security_group_lambda_metadata" {
@@ -251,11 +243,15 @@ module "metadata_lambda" {
 
 }
 
-resource "aws_lambda_event_source_mapping" "trigger"{
-  depends_on = [module.metadata_lambda.lambda_function_name]
+resource "aws_lambda_event_source_mapping" "trigger" {
+  depends_on = [
+    module.metadata_lambda.lambda_function_name,
+    var.table_client_registrations_arn
+  ]
   event_source_arn  = var.dynamodb_clients_table_stream_arn
   function_name     = module.metadata_lambda.lambda_function_arn
   starting_position = "LATEST"
+  enabled           = true
 }
 
 ## Lambda idp_metadata
