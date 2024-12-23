@@ -195,7 +195,6 @@ module "security_group_lambda_metadata" {
 
   vpc_id = var.metadata_lambda.vpc_id
 
-  egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -204,10 +203,10 @@ module "security_group_lambda_metadata" {
     var.metadata_lambda.vpc_s3_prefix_id
   ]
 
-  # egress_rules = ["https-443-tcp"]
+  egress_rules = ["https-443-tcp"]
 }
 
-resource "aws_security_group_rule" "metadata_vpc_tls" {
+/*resource "aws_security_group_rule" "metadata_vpc_tls" {
   type                     = "egress"
   from_port                = 443
   to_port                  = 443
@@ -215,6 +214,7 @@ resource "aws_security_group_rule" "metadata_vpc_tls" {
   security_group_id        = module.security_group_lambda_metadata.security_group_id
   source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
 }
+*/
 
 module "metadata_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
