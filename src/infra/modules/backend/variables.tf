@@ -161,6 +161,7 @@ variable "metadata_lambda" {
     vpc_subnet_ids                    = list(string)
     vpc_endpoint_dynamodb_prefix_id   = string
     vpc_s3_prefix_id                  = string
+    vpc_ssm_prefix_id                 = string
     vpc_endpoint_ssm_nsg_ids          = list(string)
     cloudwatch_logs_retention_in_days = number
   })
