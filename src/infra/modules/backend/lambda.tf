@@ -201,7 +201,7 @@ module "security_group_lambda_metadata" {
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
     var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id,
-    var.idp_metadata_lambda.vpc_s3_prefix_id
+    var.metadata_lambda.vpc_s3_prefix_id
   ]
 
   # egress_rules = ["https-443-tcp"]
