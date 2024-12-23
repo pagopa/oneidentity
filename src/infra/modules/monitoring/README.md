@@ -75,6 +75,7 @@ No modules.
 | <a name="input_api_methods_dashboard_name"></a> [api\_methods\_dashboard\_name](#input\_api\_methods\_dashboard\_name) | Name of the api methods dashboard. | `string` | n/a | yes |
 | <a name="input_api_name"></a> [api\_name](#input\_api\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | n/a | yes |
+| <a name="input_ce_daily_budget"></a> [ce\_daily\_budget](#input\_ce\_daily\_budget) | Cost Explorer daily budget. | `string` | `"300"` | no |
 | <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Dynamodb ClientRegistrations table | `string` | n/a | yes |
 | <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name   = string,<br>    cluster_name   = string<br>    log_group_name = string<br>  })</pre> | n/a | yes |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
