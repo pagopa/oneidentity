@@ -151,7 +151,7 @@ data "aws_iam_policy_document" "metadata_lambda" {
       "dynamodb:GetShardIterator",
       "dynamodb:ListStreams",
     ]
-    resources = [var.table_client_registrations_arn]
+    resources = ["*"]
   }
   statement {
     effect = "Allow"
