@@ -51,3 +51,9 @@ variable "alarm_subscribers" {
   type        = string
   description = "SSM parameter store with the list alarm subscribers."
 }
+
+variable "ce_daily_budget" {
+  type        = string
+  description = "Cost Explorer daily budget."
+  default     = "300"
+}

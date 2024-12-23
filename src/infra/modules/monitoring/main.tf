@@ -65,7 +65,7 @@ resource "aws_ce_anomaly_subscription" "main" {
   threshold_expression {
     dimension {
       key           = "ANOMALY_TOTAL_IMPACT_ABSOLUTE"
-      values        = ["300.0"]
+      values        = [var.ce_daily_budget]
       match_options = ["GREATER_THAN_OR_EQUAL"]
     }
   }
