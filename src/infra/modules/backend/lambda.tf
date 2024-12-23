@@ -145,13 +145,19 @@ data "aws_iam_policy_document" "metadata_lambda" {
   statement {
     effect = "Allow"
     actions = [
-      "dynamodb:Scan",
       "dynamodb:DescribeStream",
       "dynamodb:GetRecords",
       "dynamodb:GetShardIterator",
       "dynamodb:ListStreams",
     ]
-    resources = ["*"]
+    resources = [var.dynamodb_clients_table_stream_arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:Scan",
+    ]
+    resources = [var.table_client_registrations_arn]
   }
   statement {
     effect = "Allow"
