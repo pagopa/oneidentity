@@ -57,3 +57,11 @@ variable "ce_daily_budget" {
   description = "Cost Explorer daily budget."
   default     = "300"
 }
+
+
+variable "create_ce_budget" {
+  type        = bool
+  description = "Create Cost Explorer budget."
+  default     = false
+
+}

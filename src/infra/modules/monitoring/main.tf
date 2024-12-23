@@ -44,17 +44,19 @@ resource "aws_cloudwatch_query_definition" "ecs_log_level_error" {
 }
 
 resource "aws_ce_anomaly_monitor" "service_monitor" {
+  count             = var.create_ce_budget ? 1 : 0
   name              = "AWSServiceMonitor"
   monitor_type      = "DIMENSIONAL"
   monitor_dimension = "SERVICE"
 }
 
 resource "aws_ce_anomaly_subscription" "main" {
+  count     = var.create_ce_budget ? 1 : 0
   name      = "DAILYSUBSCRIPTION"
   frequency = "DAILY"
 
   monitor_arn_list = [
-    aws_ce_anomaly_monitor.service_monitor.arn,
+    aws_ce_anomaly_monitor.service_monitor[0].arn,
   ]
 
   subscriber {
