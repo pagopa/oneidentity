@@ -260,7 +260,7 @@ module "backend" {
 
 
   dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
-  dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
+  dynamodb_table_stream_arn         = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
