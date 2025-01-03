@@ -121,6 +121,11 @@ variable "table_client_registrations_arn" {
   description = "Dynamodb table client registrations arn."
 }
 
+variable "lambda_client_registration_trigger_enabled" {
+  type    = bool
+  default = true
+}
+
 variable "kms_sessions_table_alias_arn" {
   type        = string
   description = "Kms key used to encrypt and dectypt session table."
