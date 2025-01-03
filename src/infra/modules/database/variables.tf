@@ -23,8 +23,8 @@ variable "kms_rotation_period_in_days" {
 variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
-    stream_enabled                 = optional(bool, false)
-    stream_view_type               = optional(string, null)
+    stream_enabled                 = optional(bool, true)
+    stream_view_type               = optional(string, "NEW_AND_OLD_IMAGES")
     deletion_protection_enabled    = optional(bool, false)
     replication_regions = optional(list(object({
       region_name            = string

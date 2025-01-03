@@ -15,7 +15,8 @@ module "records" {
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
-    }]
+    }
+    ]
   )
 }
 
@@ -63,7 +64,7 @@ data "aws_iam_policy_document" "s3_apigw_proxy" {
   statement {
     effect    = "Allow"
     actions   = ["s3:GetObject"]
-    resources = ["${var.assets_bucket_arn}/*"]
+    resources = ["${var.assets_bucket_arn}/*", "${var.metadata_bucket_arn}/*"]
   }
 }
 
@@ -129,6 +130,8 @@ module "rest_api" {
       lambda_apigateway_proxy_role   = aws_iam_role.lambda_apigw_proxy.arn
       assets_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
       var.assets_bucket_name)
+      metadata_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
+      var.metadata_bucket_name)
   })
 
 
@@ -192,7 +195,6 @@ resource "aws_wafv2_web_acl" "main" {
   default_action {
     allow {}
   }
-
 
 
   dynamic "rule" {

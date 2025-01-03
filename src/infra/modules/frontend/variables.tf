@@ -145,9 +145,20 @@ variable "assets_bucket_arn" {
   type        = string
   description = "Assets bucket arn."
 }
+
 variable "assets_bucket_name" {
   type        = string
   description = "Assets bucket name."
+}
+
+variable "metadata_bucket_arn" {
+  type        = string
+  description = "Metadata bucket arn."
+}
+
+variable "metadata_bucket_name" {
+  type        = string
+  description = "Metadata bucket name."
 }
 
 variable "api_alarms" {
