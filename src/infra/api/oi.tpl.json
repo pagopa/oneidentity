@@ -953,6 +953,9 @@
           "200": {
             "$ref": "#/components/responses/responseOkXml"
           },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
           },
