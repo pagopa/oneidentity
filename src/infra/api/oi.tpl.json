@@ -946,6 +946,10 @@
             "404": {
               "statusCode": "404",
               "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "404",
+              "responseParameters": {}
             }
           }
         },
