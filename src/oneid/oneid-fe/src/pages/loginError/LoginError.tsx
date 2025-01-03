@@ -6,7 +6,11 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
 import EndingPage from '../../components/EndingPage';
 import { redirectToLogin } from '../../utils/utils';
-import { ErrorData, useLoginError } from '../../hooks/useLoginError';
+import {
+  ERROR_CODE,
+  ErrorData,
+  useLoginError,
+} from '../../hooks/useLoginError';
 
 export const LoginError = () => {
   const { t } = useTranslation();
@@ -15,12 +19,12 @@ export const LoginError = () => {
 
   const errorCode = new URLSearchParams(window.location.search).get(
     'errorCode'
-  );
+  ) as ERROR_CODE;
 
   const { handleErrorCode } = useLoginError();
 
   const setContent = useCallback(
-    (errorCode: string) => {
+    (errorCode: ERROR_CODE) => {
       const { title, description } = handleErrorCode(errorCode);
       setErrorData({ title, description });
       setLoading(false);
@@ -30,7 +34,7 @@ export const LoginError = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setContent('generic');
+      setContent(ERROR_CODE.GENERIC);
     }, 5 * 1000);
   }, [setContent]);
 
