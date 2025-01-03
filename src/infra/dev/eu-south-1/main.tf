@@ -64,8 +64,11 @@ module "frontend" {
   api_method_settings            = var.api_method_settings
 
 
-  assets_bucket_arn  = module.storage.assets_bucket_arn
-  assets_bucket_name = module.storage.assets_bucket_name
+  assets_bucket_arn    = module.storage.assets_bucket_arn
+  assets_bucket_name   = module.storage.assets_bucket_name
+  metadata_bucket_arn  = module.storage.metadata_bucket_arn
+  metadata_bucket_name = module.storage.metadata_bucket_name
+
 
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns

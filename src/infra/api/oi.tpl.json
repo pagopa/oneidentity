@@ -927,16 +927,27 @@
           }
         ],
         "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${metadata_lambda_arn}/invocations",
-          "passthroughBehavior": "when_no_match",
-          "httpMethod": "POST",
-          "cacheKeyParameters": [],
-          "type": "aws_proxy",
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${metadata_bucket_uri}/${method.request.path.id_type}.xml",
+          "type": "aws",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
             "integration.request.path.id_type": "method.request.path.id_type"
           },
-          "responses": {}
+          "responseParameters": {},
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "integration.response.header.Content-Type"
+              }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            }
+          }
         },
         "responses": {
           "200": {
