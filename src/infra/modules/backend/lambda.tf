@@ -255,6 +255,7 @@ module "metadata_lambda" {
 }
 
 resource "aws_lambda_event_source_mapping" "trigger" {
+  count = var.dynamodb_clients_table_stream_arn != null ? 1 : 0
   depends_on = [
     module.metadata_lambda.lambda_function_name,
     var.table_client_registrations_arn
