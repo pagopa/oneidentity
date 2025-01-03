@@ -200,8 +200,7 @@ module "security_group_lambda_metadata" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
-    var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id,
-    var.metadata_lambda.vpc_s3_prefix_id
+    var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id
   ]
 
   # egress_rules = ["https-443-tcp"]
@@ -214,6 +213,17 @@ resource "aws_security_group_rule" "metadata_vpc_tls" {
   protocol                 = "tcp"
   security_group_id        = module.security_group_lambda_metadata.security_group_id
   source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
+}
+
+resource "aws_security_group_rule" "metadata_vpc_s3" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.security_group_lambda_metadata.security_group_id
+  source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
+  prefix_list_ids          = [var.metadata_lambda.vpc_s3_prefix_id]
+
 }
 
 
