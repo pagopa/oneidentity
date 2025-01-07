@@ -189,7 +189,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    assets_bucket_arn              = module.storage.metadata_bucket_arn
+    assets_bucket_arn              = module.storage.assets_bucket_arn
     table_client_registrations_arn = local.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
@@ -203,7 +203,7 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
       "LOG_LEVEL"                       = var.app_log_level
-      "SERVICE_METADATA_BUCKET_NAME"    = module.storage.metadata_bucket_name
+      "SERVICE_METADATA_BUCKET_NAME"    = module.storage.assets_bucket_name
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -305,8 +305,6 @@ module "frontend" {
     api_key_name         = "client-registration"
   }
 
-  metadata_lamba_name            = module.backend.metadata_lambda_name
-  metadata_lamba_arn             = module.backend.metadata_lambda_arn
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn

@@ -100,6 +100,11 @@ module "dynamodb_table_client_registrations" {
 
 }
 
+data "aws_dynamodb_table" "dynamodb_table_client_registrations" {
+  count = var.client_registrations_table == null ? 1 : 0
+  name  = "ClientRegistrations"
+}
+
 module "dynamodb_table_idpMetadata" {
   count   = var.idp_metadata_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
