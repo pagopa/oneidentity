@@ -1,54 +1,56 @@
 import { renderHook } from '@testing-library/react';
 import { t } from 'i18next';
-
-import { useLoginError } from './useLoginError';
+import { ERROR_CODE, ErrorData, useLoginError } from './useLoginError';
 
 describe('useLoginError', () => {
-  const cases = [
+  const cases: Array<{
+    errorCode: ERROR_CODE;
+    expected: ErrorData;
+  }> = [
     {
-      errorCode: '19',
+      errorCode: ERROR_CODE.TOO_MANY_ATTEMPTS,
       expected: {
         title: t('loginError.tooManyAttempts.title'),
         description: t('loginError.tooManyAttempts.description'),
       },
     },
     {
-      errorCode: '20',
+      errorCode: ERROR_CODE.INCOMPATIBLE_CREDENTIALS,
       expected: {
         title: t('loginError.incompatibleCredentials.title'),
         description: t('loginError.incompatibleCredentials.description'),
       },
     },
     {
-      errorCode: '21',
+      errorCode: ERROR_CODE.AUTH_TIMEOUT,
       expected: {
         title: t('loginError.authTimeout.title'),
         description: t('loginError.authTimeout.description'),
       },
     },
     {
-      errorCode: '22',
+      errorCode: ERROR_CODE.DENIED_BY_USER,
       expected: {
         title: t('loginError.deniedByUser.title'),
         description: t('loginError.deniedByUser.description'),
       },
     },
     {
-      errorCode: '23',
+      errorCode: ERROR_CODE.SUSPENDED_OR_REVOKED,
       expected: {
         title: t('loginError.suspendedOrRevoked.title'),
         description: t('loginError.suspendedOrRevoked.description'),
       },
     },
     {
-      errorCode: '25',
+      errorCode: ERROR_CODE.CANCELED_BY_USER,
       expected: {
         title: t('loginError.canceledbyUser.title'),
         description: t('loginError.canceledbyUser.description'),
       },
     },
     {
-      errorCode: 'unknown',
+      errorCode: ERROR_CODE.MISSING_IDP,
       expected: {
         title: t('loginError.generic.title'),
         description: t('loginError.generic.description'),
