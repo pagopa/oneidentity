@@ -122,18 +122,6 @@ variable "nlb_dns_name" {
   description = "NLB dns name."
 }
 
-## Lambda medatada ##  
-
-variable "metadata_lamba_name" {
-  type        = string
-  description = "Lambda metadata name"
-}
-
-## Lambda metadata
-variable "metadata_lamba_arn" {
-  type        = string
-  description = "lambda metadata arn"
-}
 
 ## Lambda client registration
 variable "client_registration_lambda_arn" {
@@ -145,10 +133,12 @@ variable "assets_bucket_arn" {
   type        = string
   description = "Assets bucket arn."
 }
+
 variable "assets_bucket_name" {
   type        = string
   description = "Assets bucket name."
 }
+
 
 variable "api_alarms" {
   type = map(object({

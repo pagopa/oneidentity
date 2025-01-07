@@ -233,6 +233,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    assets_bucket_arn              = module.storage.assets_bucket_arn
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
@@ -246,16 +247,19 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
       "LOG_LEVEL"                       = var.app_log_level
+      "SERVICE_METADATA_BUCKET_NAME"    = module.storage.assets_bucket_name
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     vpc_endpoint_ssm_nsg_ids          = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 
 
-  dynamodb_table_stream_arn = module.database.dynamodb_table_stream_arn
+  dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
+  dynamodb_table_stream_arn         = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
@@ -341,8 +345,6 @@ module "frontend" {
     api_key_name         = "client-registration"
   }
 
-  metadata_lamba_name            = module.backend.metadata_lambda_name
-  metadata_lamba_arn             = module.backend.metadata_lambda_arn
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn

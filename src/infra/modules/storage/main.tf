@@ -3,7 +3,6 @@ resource "random_integer" "asset_bucket_suffix" {
   max = 9999
 }
 
-
 resource "random_integer" "idp_metadata_bucket_suffix" {
   min = 1000
   max = 9999
