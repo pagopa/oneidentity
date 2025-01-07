@@ -25,13 +25,6 @@ output "assets_bucket_name" {
   value = try(module.s3_assets_bucket[0].s3_bucket_id, null)
 }
 
-output "metadata_bucket_arn" {
-  value = try(module.s3_metadata_bucket[0].s3_bucket_arn, null)
-}
-output "metadata_bucket_name" {
-  value = try(module.s3_metadata_bucket[0].s3_bucket_id, null)
-}
-
 output "deploy_assets_role" {
   value = aws_iam_role.githubS3deploy.arn
 }

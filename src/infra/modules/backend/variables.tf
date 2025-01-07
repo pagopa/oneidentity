@@ -161,7 +161,7 @@ variable "metadata_lambda" {
     filename                          = string
     table_client_registrations_arn    = string
     environment_variables             = map(string)
-    metadata_bucket_arn               = string
+    assets_bucket_arn                 = string
     vpc_id                            = string
     vpc_subnet_ids                    = list(string)
     vpc_endpoint_dynamodb_prefix_id   = string

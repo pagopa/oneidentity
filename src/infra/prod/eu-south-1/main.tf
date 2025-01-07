@@ -82,7 +82,6 @@ module "storage" {
   assertions_crawler_schedule     = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix      = "idp-metadata"
   assets_bucket_prefix            = "assets"
-  metadata_bucket_prefix          = "metadata"
   github_repository               = "pagopa/oneidentity"
   account_id                      = data.aws_caller_identity.current.account_id
   assertion_accesslogs_expiration = 180
@@ -234,7 +233,7 @@ module "backend" {
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    metadata_bucket_arn            = module.storage.metadata_bucket_arn
+    assets_bucket_arn              = module.storage.assets_bucket_arn
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
       "ORGANIZATION_URL"                = "https://www.pagopa.it"
@@ -248,7 +247,7 @@ module "backend" {
       "CONTACT_PERSON_COMPANY"          = "PagoPA S.p.A."
       "CLIENT_REGISTRATIONS_TABLE_NAME" = "ClientRegistrations"
       "LOG_LEVEL"                       = var.app_log_level
-      "SERVICE_METADATA_BUCKET_NAME"    = module.storage.metadata_bucket_name
+      "SERVICE_METADATA_BUCKET_NAME"    = module.storage.assets_bucket_name
     }
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -352,8 +351,6 @@ module "frontend" {
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn
   assets_bucket_name             = module.storage.assets_bucket_name
-  metadata_bucket_arn            = module.storage.metadata_bucket_arn
-  metadata_bucket_name           = module.storage.metadata_bucket_name
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
 

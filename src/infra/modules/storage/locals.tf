@@ -10,7 +10,6 @@ locals {
     var.assets_bucket_prefix,
   random_integer.asset_bucket_suffix.result)
   idp_metadata_bucket = format("%s-%s", var.idp_metadata_bucket_prefix, random_integer.idp_metadata_bucket_suffix.result)
-  metadata_bucket     = format("%s-%s", var.metadata_bucket_prefix, random_integer.metadata_bucket_suffix.result)
 
   replication_configuration = [
     {

@@ -929,7 +929,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${s3_apigateway_proxy_role}",
           "httpMethod": "GET",
-          "uri": "${metadata_bucket_uri}/{id_type}.xml",
+          "uri": "${assets_bucket_uri}/{id_type}.xml",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {

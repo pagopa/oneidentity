@@ -182,7 +182,7 @@ data "aws_iam_policy_document" "metadata_lambda" {
       "s3:PutObject",
       "s3:GetObject"
     ]
-    resources = ["${var.metadata_lambda.metadata_bucket_arn}/*"]
+    resources = ["${var.metadata_lambda.assets_bucket_arn}/*"]
   }
 }
 
@@ -255,7 +255,7 @@ module "metadata_lambda" {
 }
 
 resource "aws_lambda_event_source_mapping" "trigger" {
-  count = var.lambda_client_registration_trigger_enabled != false ? 1 : 0
+  count = var.lambda_client_registration_trigger_enabled ? 1 : 0
   depends_on = [
     module.metadata_lambda.lambda_function_name,
     var.table_client_registrations_arn
