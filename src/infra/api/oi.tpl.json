@@ -947,7 +947,10 @@
               "statusCode": "404",
               "responseParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.id_type"
+          ]
         },
         "responses": {
           "200": {
