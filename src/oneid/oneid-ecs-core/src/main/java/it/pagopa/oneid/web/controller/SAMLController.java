@@ -1,6 +1,5 @@
 package it.pagopa.oneid.web.controller;
 
-import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -20,6 +19,8 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.interceptors.AcsCustomMDC;
+import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.dto.AccessTokenDTO;
 import it.pagopa.oneid.web.dto.SAMLResponseDTO;
 import jakarta.inject.Inject;
@@ -63,41 +64,20 @@ public class SAMLController {
   @Inject
   Map<String, Client> clientsMap;
 
+  @Inject
+  CurrentAuthDTO currentAuthDTO;
 
   @POST
   @Path("/acs")
+  @AcsCustomMDC
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
     Log.info("start");
 
-    org.opensaml.saml.saml2.core.Response response = null;
-    try {
-      response = samlServiceImpl.getSAMLResponseFromString(samlResponseDTO.getSAMLResponse());
-    } catch (OneIdentityException e) {
-      Log.error("error getting SAML Response");
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    }
+    // 0. Get CurrentAuthDTO parameters
 
-    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
-    SAMLSession samlSession = null;
-    String inResponseTo = response.getInResponseTo();
-
-    if (inResponseTo == null || inResponseTo.isBlank()) {
-      Log.error("inResponseTo parameter must not be null or blank");
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    }
-    try {
-      samlSession = samlSessionService.getSession(inResponseTo, RecordType.SAML);
-    } catch (SessionException e) {
-      Log.error("error during session management: " + e.getMessage());
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
-    }
-
-    // Set MDC properties
-    updateMDCClientAndStateProperties(
-        samlSession.getAuthorizationRequestDTOExtended().getClientId(),
-        samlSession.getAuthorizationRequestDTOExtended().getState());
+    String inResponseTo = currentAuthDTO.getInResponseTo();
+    org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
+    SAMLSession samlSession = currentAuthDTO.getSamlSession();
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
