@@ -704,6 +704,9 @@
             "$ref": "#/components/responses/serverError"
           }
         },
+        "cacheKeyParameters": [
+              "method.request.path.client_id"
+        ],
         "security": [
           {
             "api_key": []
@@ -1811,7 +1814,10 @@
               "statusCode": "404",
               "requestParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.client_id"
+          ]
         },
         "parameters": [
           {
