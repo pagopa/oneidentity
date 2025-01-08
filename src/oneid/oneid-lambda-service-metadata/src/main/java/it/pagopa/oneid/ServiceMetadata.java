@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.amazonaws.services.lambda.runtime.events.ScheduledEvent;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -15,6 +16,8 @@ import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -37,7 +40,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
-public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
+public class ServiceMetadata<T> implements RequestHandler<T, String> {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -65,6 +68,29 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
       throw new SAMLUtilsException(e);
     }
     return result.getWriter().toString();
+  }
+
+
+  @Override
+  public String handleRequest(T event, Context context) {
+    switch (event) {
+      case DynamodbEvent dbEvent -> {
+        for (DynamodbStreamRecord record : dbEvent.getRecords()) {
+          if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
+            return "SPID and CIE metadata didn't change";
+          }
+
+          processMetadataAndUpload();
+        }
+      }
+      case ScheduledEvent ignored -> processMetadataAndUpload();
+      default -> {
+        Log.error("Error processing Unknown event type: " + event.getClass());
+        throw new RuntimeException();
+      }
+    }
+
+    return "SPID and CIE metadata uploaded successfully";
   }
 
   private boolean hasMetadataChanged(DynamodbStreamRecord record) {
@@ -104,30 +130,6 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
     return isActiveNew != isActiveOld;
   }
 
-  @Override
-  public String handleRequest(DynamodbEvent event, Context context) {
-    for (DynamodbStreamRecord record : event.getRecords()) {
-      try {
-
-        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-          return "SPID and CIE metadata didn't change";
-        }
-
-        //TODO: consider using a thread pool
-        String spidMetadata = generateMetadata(IdType.spid);
-        String cieMetadata = generateMetadata(IdType.cie);
-
-        uploadToS3("spid.xml", spidMetadata);
-        uploadToS3("cie.xml", cieMetadata);
-      } catch (Exception e) {
-        Log.error("Error processing DynamoDB Event: " + e.getMessage());
-        throw new RuntimeException(e);
-      }
-    }
-
-    return "SPID and CIE metadata uploaded successfully";
-  }
-
   private void uploadToS3(String objectKey, String content) {
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucketName)
@@ -140,6 +142,20 @@ public class ServiceMetadata implements RequestHandler<DynamodbEvent, String> {
           RequestBody.fromString(content));
     } catch (S3Exception e) {
       Log.error("error during s3 putObject: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void processMetadataAndUpload() {
+
+    try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
+      String spidMetadata = generateMetadata(IdType.spid);
+      String cieMetadata = generateMetadata(IdType.cie);
+
+      executorService.submit(() -> uploadToS3("spid.xml", spidMetadata));
+      executorService.submit(() -> uploadToS3("cie.xml", cieMetadata));
+    } catch (Exception e) {
+      Log.error("Error processing event: " + e.getMessage());
       throw new RuntimeException(e);
     }
   }
