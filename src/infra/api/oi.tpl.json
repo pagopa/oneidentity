@@ -540,7 +540,10 @@
               "statusCode": "500",
               "responseParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+              "method.request.path.client_id"
+          ]
         },
         "parameters": [
           {
@@ -704,9 +707,6 @@
             "$ref": "#/components/responses/serverError"
           }
         },
-        "cacheKeyParameters": [
-              "method.request.path.client_id"
-        ],
         "security": [
           {
             "api_key": []
