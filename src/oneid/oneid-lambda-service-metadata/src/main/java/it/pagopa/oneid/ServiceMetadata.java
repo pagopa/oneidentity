@@ -73,6 +73,11 @@ public class ServiceMetadata<T> implements RequestHandler<T, String> {
 
   @Override
   public String handleRequest(T event, Context context) {
+
+    //TODO remove
+    Log.debug("event: " + event);
+    //TODO remove
+
     switch (event) {
       case DynamodbEvent dbEvent -> {
         for (DynamodbStreamRecord record : dbEvent.getRecords()) {
