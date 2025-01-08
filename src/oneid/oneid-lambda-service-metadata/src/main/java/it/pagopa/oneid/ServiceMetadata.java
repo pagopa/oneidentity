@@ -84,8 +84,8 @@ public class ServiceMetadata<T> implements RequestHandler<T, String> {
           if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
             return "SPID and CIE metadata didn't change";
           }
-
           processMetadataAndUpload();
+          break;
         }
       }
       case ScheduledEvent ignored -> processMetadataAndUpload();
