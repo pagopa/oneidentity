@@ -5,8 +5,10 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -79,7 +81,9 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     try {
       ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
       String json = ow.writeValueAsString(event);
-      DynamodbEvent dbEvent = new ObjectMapper().readValue(json, DynamodbEvent.class);
+      JsonMapper mapper = JsonMapper.builder()
+          .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true).build();
+      DynamodbEvent dbEvent = mapper.readValue(json, DynamodbEvent.class);
       Log.debug(dbEvent);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
