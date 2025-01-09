@@ -2,7 +2,6 @@ package it.pagopa.oneid;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
@@ -39,7 +38,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
-public class ServiceMetadata implements RequestHandler<Object, String> {
+public class ServiceMetadata implements RequestHandler<Map<String, String>, String> {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -71,27 +70,25 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
 
   @Override
-  public String handleRequest(Object event, Context context) {
+  public String handleRequest(Map<String, String> event, Context context) {
 
-    try {
-      DynamodbEvent dbEvent = (DynamodbEvent) event;
-      for (DynamodbStreamRecord record : dbEvent.getRecords()) {
-        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-          return "SPID and CIE metadata didn't change";
-        }
-        processMetadataAndUpload();
-        Log.debug("done"); //TODO remove
-      }
-    } catch (ClassCastException e) {
-      Log.debug("no DynamoDB"); //TODO remove
+    Log.debug(event);
+
+    if (event.containsKey("Records")) {
+      // DynamoDB
+
+    } else {
+      // ScheduledEvent
+
     }
 
-  /*  if (event instanceof DynamodbEvent dbEvent) {
+    /*if (event instanceof DynamodbEvent dbEvent) {
       for (DynamodbStreamRecord record : dbEvent.getRecords()) {
         if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
           return "SPID and CIE metadata didn't change";
         }
         processMetadataAndUpload();
+        Log.info("SPID and CIE metadata uploaded successfully");
       }
     } else if (event instanceof ScheduledEvent) {
       processMetadataAndUpload();
