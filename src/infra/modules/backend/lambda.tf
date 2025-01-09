@@ -298,7 +298,7 @@ resource "aws_cloudwatch_event_rule" "cert_key_changes" {
 
 resource "aws_cloudwatch_event_target" "metadata_lambda" {
   rule = aws_cloudwatch_event_rule.cert_key_changes.name
-  arn  = module.metadata_lambda.arn
+  arn  = module.metadata_lambda.lambda_function_arn
 }
 
 ## Lambda idp_metadata
