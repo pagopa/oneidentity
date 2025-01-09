@@ -58,10 +58,11 @@ public class ControllerInterceptor {
         handleTokenRequest(context);
       }
       default -> {
-        throw new OneIdentityException("Invalid method for handleControllerRequest");
+        return context.proceed();
       }
     }
     return context.proceed();
+
   }
 
   private void handleTokenRequest(InvocationContext context) {
