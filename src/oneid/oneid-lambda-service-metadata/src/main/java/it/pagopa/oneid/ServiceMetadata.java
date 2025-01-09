@@ -40,7 +40,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
-public class ServiceMetadata<T> implements RequestHandler<T, String> {
+public class ServiceMetadata implements RequestHandler<Object, String> {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -72,7 +72,7 @@ public class ServiceMetadata<T> implements RequestHandler<T, String> {
 
 
   @Override
-  public String handleRequest(T event, Context context) {
+  public String handleRequest(Object event, Context context) {
 
     //TODO remove
     Log.debug("event: " + event);
