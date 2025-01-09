@@ -19,6 +19,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
@@ -225,7 +226,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
     Element plaintextElement;
     try {
-      plaintextElement = out.marshall(entityDescriptor);
+      plaintextElement = Objects.requireNonNull(out).marshall(entityDescriptor);
     } catch (MarshallingException e) {
       throw new OneIdentityException(e);
     }
