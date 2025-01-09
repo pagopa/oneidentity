@@ -302,10 +302,10 @@ resource "aws_cloudwatch_event_target" "metadata_lambda" {
 }
 
 resource "aws_lambda_permission" "cert_key_changes" {
-  action = "lambda:InvokeFunction"
+  action        = "lambda:InvokeFunction"
   function_name = module.metadata_lambda.lambda_function_name
-  principal = "events.amazonaws.com"
-  source_arn = aws_cloudwatch_event_rule.cert_key_changes.arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.cert_key_changes.arn
 }
 
 ## Lambda idp_metadata
