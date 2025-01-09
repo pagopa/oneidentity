@@ -270,8 +270,6 @@ resource "aws_cloudwatch_event_rule" "cert_key_changes" {
   name        = "capture-cert-key-change"
   description = "Capture each cert.pem and key.pem changes"
 
-  //TODO REMOVE test_cert_key
-
   event_pattern = jsonencode(
     {
       "source" : [
@@ -283,8 +281,7 @@ resource "aws_cloudwatch_event_rule" "cert_key_changes" {
       "detail" : {
         "name" : [
           "cert.pem",
-          "key.pem",
-          "test_cert_key"
+          "key.pem"
         ],
         "operation" : [
           "Create",
