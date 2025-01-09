@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
@@ -183,11 +185,36 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
   private void processMetadataAndUpload() {
 
     try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
-      String spidMetadata = generateMetadata(IdType.spid);
-      String cieMetadata = generateMetadata(IdType.cie);
 
-      executorService.submit(() -> uploadToS3("spid.xml", spidMetadata));
-      executorService.submit(() -> uploadToS3("cie.xml", cieMetadata));
+      // Generate metadata for SPID and CIE in parallel
+      CompletableFuture<String> spidMetadataFuture = CompletableFuture.supplyAsync(() -> {
+        try {
+          return generateMetadata(IdType.spid);
+        } catch (OneIdentityException e) {
+          throw new CompletionException(e);
+        }
+      }, executorService);
+      CompletableFuture<String> cieMetadataFuture = CompletableFuture.supplyAsync(() -> {
+        try {
+          return generateMetadata(IdType.cie);
+        } catch (OneIdentityException e) {
+          throw new CompletionException(e);
+        }
+      }, executorService);
+
+      // Upload spidMetadata to S3 once generated
+      CompletableFuture<Void> spidUpload = spidMetadataFuture.thenAcceptAsync(spidMetadata -> {
+        uploadToS3("spid.xml", spidMetadata);
+      }, executorService);
+
+      // Upload cieMetadata to S3 once generated
+      CompletableFuture<Void> cieUpload = cieMetadataFuture.thenAcceptAsync(cieMetadata -> {
+        uploadToS3("cie.xml", cieMetadata);
+      }, executorService);
+
+      // Wait for both uploads to finish
+      CompletableFuture.allOf(spidUpload, cieUpload).join();
+
     } catch (Exception e) {
       Log.error("Error processing event: " + e.getMessage());
       throw new RuntimeException(e);
