@@ -273,32 +273,32 @@ resource "aws_cloudwatch_event_rule" "cert_key_changes" {
   //TODO REMOVE test_cert_key
 
   event_pattern = jsonencode(
-      {
-        "source": [
-          "aws.ssm"
+    {
+      "source" : [
+        "aws.ssm"
+      ],
+      "detail-type" : [
+        "Parameter Store Change"
+      ],
+      "detail" : {
+        "name" : [
+          "cert.pem",
+          "key.pem",
+          "test_cert_key"
         ],
-        "detail-type": [
-          "Parameter Store Change"
-        ],
-        "detail": {
-          "name": [
-            "cert.pem",
-            "key.pem",
-            "test_cert_key"
-          ],
-          "operation": [
-            "Create",
-            "Update",
-            "Delete",
-            "LabelParameterVersion"
-          ]
-        }
+        "operation" : [
+          "Create",
+          "Update",
+          "Delete",
+          "LabelParameterVersion"
+        ]
+      }
   })
 }
 
 resource "aws_cloudwatch_event_target" "metadata_lambda" {
-  rule      = aws_cloudwatch_event_rule.cert_key_changes.name
-  arn       = module.metadata_lambda.arn
+  rule = aws_cloudwatch_event_rule.cert_key_changes.name
+  arn  = module.metadata_lambda.arn
 }
 
 ## Lambda idp_metadata
