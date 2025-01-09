@@ -4,7 +4,6 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
-import com.amazonaws.services.lambda.runtime.events.ScheduledEvent;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -78,7 +77,16 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     Log.debug("event: " + event);
     //TODO remove
 
-    switch (event) {
+    if (event instanceof DynamodbEvent dbEvent) {
+      for (DynamodbStreamRecord record : dbEvent.getRecords()) {
+        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
+          return "SPID and CIE metadata didn't change";
+        }
+        processMetadataAndUpload();
+      }
+    }
+
+   /* switch (event) {
       case DynamodbEvent dbEvent -> {
         for (DynamodbStreamRecord record : dbEvent.getRecords()) {
           if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
@@ -93,7 +101,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         Log.error("Error processing Unknown event type: " + event.getClass());
         throw new RuntimeException();
       }
-    }
+    }*/
 
     return "SPID and CIE metadata uploaded successfully";
   }
