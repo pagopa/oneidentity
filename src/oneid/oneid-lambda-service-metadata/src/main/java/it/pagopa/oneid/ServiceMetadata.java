@@ -17,6 +17,7 @@ import it.pagopa.oneid.enums.IdType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -81,8 +82,27 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
       String json = ow.writeValueAsString(event);
       JsonMapper mapper = JsonMapper.builder().build();
-      JsonNode node = mapper.readTree(json);
-      Log.debug(node.get("Records"));
+      JsonNode eventNode = mapper.readTree(json);
+
+      // DynamodbEvent
+      JsonNode records = eventNode.get("Records");
+      if (records != null) {
+        records.forEach(record -> {
+          if (record.get("eventName").asText().equals("MODIFY") && !hasMetadataChanged(record)) {
+            Log.info("SPID and CIE metadata didn't change");
+          } else {
+            processMetadataAndUpload();
+            Log.info("SPID and CIE metadata uploaded successfully");
+          }
+        });
+        return "SPID and CIE metadata uploaded successfully";
+      }
+
+      //ScheduledEvent
+      processMetadataAndUpload();
+      Log.info("SPID and CIE metadata uploaded successfully");
+
+
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
@@ -139,6 +159,59 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     }
     boolean isActiveOld = record.getDynamodb().getOldImage().get("active").getBOOL();
     boolean isActiveNew = record.getDynamodb().getNewImage().get("active").getBOOL();
+    return isActiveNew != isActiveOld;
+  }
+
+  private boolean hasMetadataChanged(JsonNode nodeRecord) {
+
+    String acsIndexOld = nodeRecord.get("dynamodb").get("OldImage").get("acsIndex").get("N")
+        .asText();
+    String acsIndexNew = nodeRecord.get("dynamodb").get("NewImage").get("acsIndex").get("N")
+        .asText();
+    if (!acsIndexNew.equals(acsIndexOld)) {
+      return true;
+    }
+    String friendlyNameOld = nodeRecord.get("dynamodb").get("OldImage").get("friendlyName").get("S")
+        .asText();
+    String friendlyNameNew = nodeRecord.get("dynamodb").get("NewImage").get("friendlyName").get("S")
+        .asText();
+    if (!friendlyNameNew.equals(friendlyNameOld)) {
+      return true;
+    }
+
+    List<String> requestedParametersOld = new ArrayList<>();
+    nodeRecord.get("dynamodb").get("OldImage")
+        .get("requestedParameters").get("SS").forEach(parameterOld -> {
+          requestedParametersOld.add(parameterOld.asText());
+        });
+    List<String> requestedParametersNew = new ArrayList<>();
+    nodeRecord.get("dynamodb").get("NewImage")
+        .get("requestedParameters").get("SS").forEach(parameterNew -> {
+          requestedParametersNew.add(parameterNew.asText());
+        });
+    if (!requestedParametersNew.equals(requestedParametersOld)) {
+      return true;
+    }
+    String authLevelOld = nodeRecord.get("dynamodb").get("OldImage").get("authLevel").get("S")
+        .asText();
+    String authLevelNew = nodeRecord.get("dynamodb").get("NewImage").get("authLevel").get("S")
+        .asText();
+    if (!authLevelNew.equals(authLevelOld)) {
+      return true;
+    }
+    String attributeIndexOld = nodeRecord.get("dynamodb").get("OldImage").get("attributeIndex")
+        .get("N")
+        .asText();
+    String attributeIndexNew = nodeRecord.get("dynamodb").get("NewImage").get("attributeIndex")
+        .get("N")
+        .asText();
+    if (!attributeIndexNew.equals(attributeIndexOld)) {
+      return true;
+    }
+    boolean isActiveOld = nodeRecord.get("dynamodb").get("OldImage").get("active").get("BOOL")
+        .asBoolean();
+    boolean isActiveNew = nodeRecord.get("dynamodb").get("NewImage").get("active").get("BOOL")
+        .asBoolean();
     return isActiveNew != isActiveOld;
   }
 
