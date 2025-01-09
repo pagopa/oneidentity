@@ -1,20 +1,17 @@
 package it.pagopa.oneid;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.enums.IdType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
@@ -39,7 +36,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
-public class ServiceMetadata implements RequestHandler<Object, String> {
+@ApplicationScoped
+public class MetadataUtils {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -56,7 +54,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
   @Inject
   S3Client s3;
 
-  public static String getStringValue(Element element) throws SAMLUtilsException {
+  private static String getStringValue(Element element) throws SAMLUtilsException {
     StreamResult result = new StreamResult(new StringWriter());
     try {
       TransformerFactory
@@ -69,64 +67,18 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return result.getWriter().toString();
   }
 
+  public void processMetadataAndUpload() {
 
-  @Override
-  public String handleRequest(Object event, Context context) {
+    try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
+      String spidMetadata = generateMetadata(IdType.spid);
+      String cieMetadata = generateMetadata(IdType.cie);
 
-    if (event instanceof DynamodbEvent dbEvent) {
-      for (DynamodbStreamRecord record : dbEvent.getRecords()) {
-        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-          return "SPID and CIE metadata didn't change";
-        }
-        Log.debug("done");
-        processMetadataAndUpload();
-      }
+      executorService.submit(() -> uploadToS3("spid.xml", spidMetadata));
+      executorService.submit(() -> uploadToS3("cie.xml", cieMetadata));
+    } catch (Exception e) {
+      Log.error("Error processing event: " + e.getMessage());
+      throw new RuntimeException(e);
     }
-/*    } else if (event instanceof ScheduledEvent) {
-      processMetadataAndUpload();
-    } else {
-      Log.error("Error processing Unknown event type: " + ObjectUtils.getClass(event));
-      throw new RuntimeException();
-    }*/
-
-    return "SPID and CIE metadata uploaded successfully";
-  }
-
-  private boolean hasMetadataChanged(DynamodbStreamRecord record) {
-
-    String acsIndexOld = record.getDynamodb().getOldImage().get("acsIndex").getN();
-    String acsIndexNew = record.getDynamodb().getNewImage().get("acsIndex").getN();
-    if (!acsIndexNew.equals(acsIndexOld)) {
-      return true;
-    }
-    String friendlyNameOld = record.getDynamodb().getOldImage().get("friendlyName").getS();
-    String friendlyNameNew = record.getDynamodb().getNewImage().get("friendlyName").getS();
-    if (!friendlyNameNew.equals(friendlyNameOld)) {
-      return true;
-    }
-
-    List<String> requestedParametersOld = record.getDynamodb().getOldImage()
-        .get("requestedParameters").getSS();
-    List<String> requestedParametersNew = record.getDynamodb().getNewImage()
-        .get("requestedParameters").getSS();
-    if (!requestedParametersNew.equals(requestedParametersOld)) {
-      return true;
-    }
-    String authLevelOld = record.getDynamodb().getOldImage().get("authLevel").getS();
-    String authLevelNew = record.getDynamodb().getNewImage().get("authLevel").getS();
-    if (!authLevelNew.equals(authLevelOld)) {
-      return true;
-    }
-    String attributeIndexOld = record.getDynamodb().getOldImage().get("attributeIndex")
-        .getN();
-    String attributeIndexNew = record.getDynamodb().getNewImage().get("attributeIndex")
-        .getN();
-    if (!attributeIndexNew.equals(attributeIndexOld)) {
-      return true;
-    }
-    boolean isActiveOld = record.getDynamodb().getOldImage().get("active").getBOOL();
-    boolean isActiveNew = record.getDynamodb().getNewImage().get("active").getBOOL();
-    return isActiveNew != isActiveOld;
   }
 
   private void uploadToS3(String objectKey, String content) {
@@ -141,20 +93,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
           RequestBody.fromString(content));
     } catch (S3Exception e) {
       Log.error("error during s3 putObject: " + e.getMessage());
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void processMetadataAndUpload() {
-
-    try (ExecutorService executorService = Executors.newFixedThreadPool(2)) {
-      String spidMetadata = generateMetadata(IdType.spid);
-      String cieMetadata = generateMetadata(IdType.cie);
-
-      executorService.submit(() -> uploadToS3("spid.xml", spidMetadata));
-      executorService.submit(() -> uploadToS3("cie.xml", cieMetadata));
-    } catch (Exception e) {
-      Log.error("Error processing event: " + e.getMessage());
       throw new RuntimeException(e);
     }
   }
@@ -191,7 +129,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
     Element plaintextElement;
     try {
-      plaintextElement = out.marshall(entityDescriptor);
+      plaintextElement = Objects.requireNonNull(out).marshall(entityDescriptor);
     } catch (MarshallingException e) {
       throw new OneIdentityException(e);
     }
@@ -204,4 +142,5 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
     return getStringValue(plaintextElement);
   }
+
 }
