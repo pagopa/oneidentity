@@ -73,15 +73,15 @@ public class SAMLController {
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
     Log.info("start");
 
-    // 0. Get CurrentAuthDTO parameters
+    // 1a. Get CurrentAuthDTO parameters
 
-    String inResponseTo = currentAuthDTO.getInResponseTo();
     org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
     SAMLSession samlSession = currentAuthDTO.getSamlSession();
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
-      samlSessionService.setSAMLResponse(inResponseTo, samlResponseDTO.getSAMLResponse());
+      samlSessionService.setSAMLResponse(response.getInResponseTo(),
+          samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
       // TODO: consider collecting this as IDP Error metric
@@ -118,7 +118,8 @@ public class SAMLController {
     AuthorizationCode authorizationCode = authorizationResponse.toSuccessResponse()
         .getAuthorizationCode();
 
-    OIDCSession oidcSession = new OIDCSession(inResponseTo, RecordType.OIDC, creationTime, ttl,
+    OIDCSession oidcSession = new OIDCSession(response.getInResponseTo(), RecordType.OIDC,
+        creationTime, ttl,
         authorizationCode.getValue());
 
     // 4. Save OIDC session

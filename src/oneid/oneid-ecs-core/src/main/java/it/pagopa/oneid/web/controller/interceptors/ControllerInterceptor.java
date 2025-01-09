@@ -118,7 +118,6 @@ public class ControllerInterceptor {
         session.getAuthorizationRequestDTOExtended().getState());
 
     currentAuthDTO.setSamlSession(session);
-    currentAuthDTO.setClientId(clientId);
 
   }
 
@@ -169,7 +168,6 @@ public class ControllerInterceptor {
 
     currentAuthDTO.setResponse(response);
     currentAuthDTO.setSamlSession(samlSession);
-    currentAuthDTO.setInResponseTo(inResponseTo);
 
   }
 }

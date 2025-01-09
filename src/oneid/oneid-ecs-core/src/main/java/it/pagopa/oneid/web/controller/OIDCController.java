@@ -243,9 +243,9 @@ public class OIDCController {
       throws OneIdentityException {
     Log.info("start");
 
-    // 0. Get CurrentAuthDTO parameters
+    // 1. Get CurrentAuthDTO parameters
     SAMLSession session = currentAuthDTO.getSamlSession();
-    String clientId = currentAuthDTO.getClientId();
+    String clientId = session.getAuthorizationRequestDTOExtended().getClientId();
 
     // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
     if (!tokenRequestDTOExtended.getRedirectUri()

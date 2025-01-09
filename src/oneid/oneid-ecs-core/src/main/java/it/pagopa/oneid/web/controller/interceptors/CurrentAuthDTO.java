@@ -9,12 +9,7 @@ import org.opensaml.saml.saml2.core.Response;
 @Data
 public class CurrentAuthDTO {
 
-  String inResponseTo;
-
   Response response;
 
   SAMLSession samlSession;
-
-  String clientId;
-
 }
