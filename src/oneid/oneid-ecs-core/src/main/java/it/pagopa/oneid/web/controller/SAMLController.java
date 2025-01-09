@@ -19,7 +19,7 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
-import it.pagopa.oneid.web.controller.interceptors.AcsCustomMDC;
+import it.pagopa.oneid.web.controller.interceptors.ControllerCustomInterceptor;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.dto.AccessTokenDTO;
 import it.pagopa.oneid.web.dto.SAMLResponseDTO;
@@ -69,7 +69,7 @@ public class SAMLController {
 
   @POST
   @Path("/acs")
-  @AcsCustomMDC
+  @ControllerCustomInterceptor
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
     Log.info("start");
 

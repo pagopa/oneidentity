@@ -24,8 +24,8 @@ import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.interceptors.ControllerCustomInterceptor;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
-import it.pagopa.oneid.web.controller.interceptors.TokenCustomMDC;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
@@ -238,7 +238,7 @@ public class OIDCController {
   @POST
   @Path("/token")
   @Produces(MediaType.APPLICATION_JSON)
-  @TokenCustomMDC
+  @ControllerCustomInterceptor
   public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
     Log.info("start");
