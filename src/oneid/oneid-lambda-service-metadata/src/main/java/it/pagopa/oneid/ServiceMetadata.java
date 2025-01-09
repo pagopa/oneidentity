@@ -22,6 +22,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.Namespace;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -74,20 +75,18 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
   @Override
   public String handleRequest(Object event, Context context) {
 
-    switch (event) {
-      case DynamodbEvent dbEvent -> {
-        for (DynamodbStreamRecord record : dbEvent.getRecords()) {
-          if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-            return "SPID and CIE metadata didn't change";
-          }
-          processMetadataAndUpload();
+    if (event instanceof DynamodbEvent dbEvent) {
+      for (DynamodbStreamRecord record : dbEvent.getRecords()) {
+        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
+          return "SPID and CIE metadata didn't change";
         }
+        processMetadataAndUpload();
       }
-      case ScheduledEvent ignored -> processMetadataAndUpload();
-      case null, default -> {
-        Log.error("Error processing Unknown event type: " + event);
-        throw new RuntimeException();
-      }
+    } else if (event instanceof ScheduledEvent) {
+      processMetadataAndUpload();
+    } else {
+      Log.error("Error processing Unknown event type: " + ObjectUtils.getClass(event));
+      throw new RuntimeException();
     }
 
     return "SPID and CIE metadata uploaded successfully";
