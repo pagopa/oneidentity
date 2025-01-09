@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.amazonaws.services.lambda.runtime.events.ScheduledEvent;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -21,6 +22,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.Namespace;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -78,16 +80,14 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
           return "SPID and CIE metadata didn't change";
         }
-        Log.debug("done");
         processMetadataAndUpload();
       }
-    }
-/*    } else if (event instanceof ScheduledEvent) {
+    } else if (event instanceof ScheduledEvent) {
       processMetadataAndUpload();
     } else {
       Log.error("Error processing Unknown event type: " + ObjectUtils.getClass(event));
       throw new RuntimeException();
-    }*/
+    }
 
     return "SPID and CIE metadata uploaded successfully";
   }
