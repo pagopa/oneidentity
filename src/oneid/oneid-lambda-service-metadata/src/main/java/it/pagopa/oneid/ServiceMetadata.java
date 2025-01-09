@@ -2,7 +2,6 @@ package it.pagopa.oneid;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -107,60 +106,9 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       throw new RuntimeException(e);
     }
 
-    /*if (event instanceof DynamodbEvent dbEvent) {
-      for (DynamodbStreamRecord record : dbEvent.getRecords()) {
-        if (record.getEventName().equals("MODIFY") && !hasMetadataChanged(record)) {
-          return "SPID and CIE metadata didn't change";
-        }
-        processMetadataAndUpload();
-        Log.info("SPID and CIE metadata uploaded successfully");
-      }
-    } else if (event instanceof ScheduledEvent) {
-      processMetadataAndUpload();
-    } else {
-      Log.error("Error processing Unknown event type: " + ObjectUtils.getClass(event));
-      throw new RuntimeException();
-    }*/
-
     return "SPID and CIE metadata uploaded successfully";
   }
 
-  private boolean hasMetadataChanged(DynamodbStreamRecord record) {
-
-    String acsIndexOld = record.getDynamodb().getOldImage().get("acsIndex").getN();
-    String acsIndexNew = record.getDynamodb().getNewImage().get("acsIndex").getN();
-    if (!acsIndexNew.equals(acsIndexOld)) {
-      return true;
-    }
-    String friendlyNameOld = record.getDynamodb().getOldImage().get("friendlyName").getS();
-    String friendlyNameNew = record.getDynamodb().getNewImage().get("friendlyName").getS();
-    if (!friendlyNameNew.equals(friendlyNameOld)) {
-      return true;
-    }
-
-    List<String> requestedParametersOld = record.getDynamodb().getOldImage()
-        .get("requestedParameters").getSS();
-    List<String> requestedParametersNew = record.getDynamodb().getNewImage()
-        .get("requestedParameters").getSS();
-    if (!requestedParametersNew.equals(requestedParametersOld)) {
-      return true;
-    }
-    String authLevelOld = record.getDynamodb().getOldImage().get("authLevel").getS();
-    String authLevelNew = record.getDynamodb().getNewImage().get("authLevel").getS();
-    if (!authLevelNew.equals(authLevelOld)) {
-      return true;
-    }
-    String attributeIndexOld = record.getDynamodb().getOldImage().get("attributeIndex")
-        .getN();
-    String attributeIndexNew = record.getDynamodb().getNewImage().get("attributeIndex")
-        .getN();
-    if (!attributeIndexNew.equals(attributeIndexOld)) {
-      return true;
-    }
-    boolean isActiveOld = record.getDynamodb().getOldImage().get("active").getBOOL();
-    boolean isActiveNew = record.getDynamodb().getNewImage().get("active").getBOOL();
-    return isActiveNew != isActiveOld;
-  }
 
   private boolean hasMetadataChanged(JsonNode nodeRecord) {
 
