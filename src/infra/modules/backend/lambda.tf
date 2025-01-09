@@ -301,6 +301,13 @@ resource "aws_cloudwatch_event_target" "metadata_lambda" {
   arn  = module.metadata_lambda.lambda_function_arn
 }
 
+resource "aws_lambda_permission" "cert_key_changes" {
+  action = "lambda:InvokeFunction"
+  function_name = module.metadata_lambda.lambda_function_name
+  principal = "events.amazonaws.com"
+  source_arn = aws_cloudwatch_event_rule.cert_key_changes.arn
+}
+
 ## Lambda idp_metadata
 
 data "aws_iam_policy_document" "idp_metadata_lambda" {
