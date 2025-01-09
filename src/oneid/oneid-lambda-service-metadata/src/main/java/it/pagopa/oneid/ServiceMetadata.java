@@ -3,6 +3,9 @@ package it.pagopa.oneid;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -38,7 +41,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
-public class ServiceMetadata implements RequestHandler<Map<String, String>, String> {
+public class ServiceMetadata implements RequestHandler<Object, String> {
 
   @Inject
   Map<String, Client> clientsMap;
@@ -70,16 +73,14 @@ public class ServiceMetadata implements RequestHandler<Map<String, String>, Stri
 
 
   @Override
-  public String handleRequest(Map<String, String> event, Context context) {
+  public String handleRequest(Object event, Context context) {
 
-    Log.debug(event);
-
-    if (event.containsKey("Records")) {
-      // DynamoDB
-
-    } else {
-      // ScheduledEvent
-
+    try {
+      ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+      String json = ow.writeValueAsString(event);
+      Log.debug(json);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
 
     /*if (event instanceof DynamodbEvent dbEvent) {
