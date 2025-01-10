@@ -1,11 +1,12 @@
 package it.pagopa.oneid.web.controller.utils;
 
+import java.util.Optional;
 import org.jboss.logmanager.MDC;
 
 public class MDCHandler {
 
   public static void setMDCProperty(MDCProperty property, String value) {
-    MDC.put(property.getValue(), value);
+    MDC.put(property.getValue(), Optional.ofNullable(value).orElse(""));
   }
 
   public static void updateMDCClientAndStateProperties(String clientId, String state) {
