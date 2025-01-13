@@ -266,6 +266,45 @@ resource "aws_lambda_event_source_mapping" "trigger" {
   enabled           = true
 }
 
+resource "aws_cloudwatch_event_rule" "cert_key_changes" {
+  name        = "capture-cert-key-change"
+  description = "Capture each cert.pem and key.pem changes"
+
+  event_pattern = jsonencode(
+    {
+      "source" : [
+        "aws.ssm"
+      ],
+      "detail-type" : [
+        "Parameter Store Change"
+      ],
+      "detail" : {
+        "name" : [
+          "cert.pem",
+          "key.pem"
+        ],
+        "operation" : [
+          "Create",
+          "Update",
+          "Delete",
+          "LabelParameterVersion"
+        ]
+      }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "metadata_lambda" {
+  rule = aws_cloudwatch_event_rule.cert_key_changes.name
+  arn  = module.metadata_lambda.lambda_function_arn
+}
+
+resource "aws_lambda_permission" "cert_key_changes" {
+  action        = "lambda:InvokeFunction"
+  function_name = module.metadata_lambda.lambda_function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.cert_key_changes.arn
+}
+
 ## Lambda idp_metadata
 
 data "aws_iam_policy_document" "idp_metadata_lambda" {

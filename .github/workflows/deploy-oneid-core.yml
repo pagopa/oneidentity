@@ -141,7 +141,7 @@ jobs:
           image: "${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}"
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a # v1.4.11
+        uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2.2.0
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core

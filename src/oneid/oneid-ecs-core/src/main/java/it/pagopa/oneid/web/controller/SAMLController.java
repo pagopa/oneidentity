@@ -19,6 +19,8 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.interceptors.ControllerCustomInterceptor;
+import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.dto.AccessTokenDTO;
 import it.pagopa.oneid.web.dto.SAMLResponseDTO;
 import jakarta.inject.Inject;
@@ -62,42 +64,23 @@ public class SAMLController {
   @Inject
   Map<String, Client> clientsMap;
 
+  @Inject
+  CurrentAuthDTO currentAuthDTO;
 
   @POST
   @Path("/acs")
+  @ControllerCustomInterceptor
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
     Log.info("start");
 
-    org.opensaml.saml.saml2.core.Response response = null;
-    try {
-      response = samlServiceImpl.getSAMLResponseFromString(
-          samlResponseDTO.getSAMLResponse());
-    } catch (OneIdentityException e) {
-      Log.error("error getting SAML Response");
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    }
+    // 1a. Get CurrentAuthDTO parameters
 
-    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
-    SAMLSession samlSession = null;
-    String inResponseTo = response.getInResponseTo();
-
-    if (inResponseTo == null || inResponseTo.isBlank()) {
-      Log.error("inResponseTo parameter must not be null or blank");
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    }
-    try {
-      samlSession = samlSessionService.getSession(inResponseTo,
-          RecordType.SAML);
-    } catch (SessionException e) {
-      Log.error("error during session management: " + e.getMessage());
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
-    }
+    org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
+    SAMLSession samlSession = currentAuthDTO.getSamlSession();
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
-      samlSessionService.setSAMLResponse(inResponseTo,
+      samlSessionService.setSAMLResponse(response.getInResponseTo(),
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
@@ -109,8 +92,7 @@ public class SAMLController {
     try {
       samlServiceImpl.checkSAMLStatus(response);
     } catch (OneIdentityException e) {
-      Log.error(
-          "error during SAMLResponse status check: " + e.getMessage());
+      Log.error("error during SAMLResponse status check: " + e.getMessage());
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
           samlSession.getAuthorizationRequestDTOExtended().getIdp(),
           ErrorCode.SAML_RESPONSE_STATUS_ERROR);
@@ -120,9 +102,8 @@ public class SAMLController {
     // 2. Check if Signatures are valid (Response and Assertion) and if SAML Response is formally correct
     Client client = clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId());
     samlServiceImpl.validateSAMLResponse(response,
-        samlSession.getAuthorizationRequestDTOExtended().getIdp(),
-        client.getRequestedParameters(), Instant.ofEpochSecond(samlSession.getCreationTime()),
-        client.getAuthLevel());
+        samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
+        Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
@@ -137,9 +118,9 @@ public class SAMLController {
     AuthorizationCode authorizationCode = authorizationResponse.toSuccessResponse()
         .getAuthorizationCode();
 
-    OIDCSession oidcSession = new OIDCSession(inResponseTo, RecordType.OIDC,
-        creationTime,
-        ttl, authorizationCode.getValue());
+    OIDCSession oidcSession = new OIDCSession(response.getInResponseTo(), RecordType.OIDC,
+        creationTime, ttl,
+        authorizationCode.getValue());
 
     // 4. Save OIDC session
     try {
@@ -153,12 +134,11 @@ public class SAMLController {
 
     URI redirectStringResponse;
     try {
-      redirectStringResponse = new URI(
-          clientCallbackUri + "?code=" + authorizationCode + "&state="
-              + authorizationResponse.getState());
+      redirectStringResponse = new URI(clientCallbackUri + "?code=" + authorizationCode + "&state="
+          + authorizationResponse.getState());
     } catch (URISyntaxException e) {
-      Log.error("error during setting of Callback URI: "
-          + clientCallbackUri + "error: " + e.getMessage());
+      Log.error("error during setting of Callback URI: " + clientCallbackUri + "error: "
+          + e.getMessage());
       Log.error("error during creation of Callback URI");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -169,10 +149,7 @@ public class SAMLController {
     Log.info("end");
 
     // 5. Redirect to client callback URI
-    return jakarta.ws.rs.core.Response
-        .status(302)
-        .location(redirectStringResponse)
-        .build();
+    return jakarta.ws.rs.core.Response.status(302).location(redirectStringResponse).build();
   }
 
   @GET
@@ -182,8 +159,7 @@ public class SAMLController {
     Log.info("start");
     String samlResponse = null;
     try {
-      samlResponse = accessTokenSessionService.getSAMLResponseByCode(
-          accessToken.getAccessToken());
+      samlResponse = accessTokenSessionService.getSAMLResponseByCode(accessToken.getAccessToken());
     } catch (SessionException e) {
       Log.debug("error during session management: " + e.getMessage());
       throw new AssertionNotFoundException(e);

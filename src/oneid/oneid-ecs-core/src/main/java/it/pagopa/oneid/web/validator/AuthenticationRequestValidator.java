@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.validator;
 
+import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -69,6 +70,9 @@ public class AuthenticationRequestValidator implements
         throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_IDP);
       }
     }
+    // Set MDC properties
+    updateMDCClientAndStateProperties(clientId,
+        state);
     return true;
   }
 }
