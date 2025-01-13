@@ -1,6 +1,5 @@
 package it.pagopa.oneid.connector;
 
-import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,23 +29,10 @@ public class GitHubConnectorImpl implements GitHubConnector {
       throw new RuntimeException(e);
     }
 
-    GHContent existingFile = findFileInDirectory(METADATA_BASE_PATH, idpType,
-        branchName);
+    // Create or update metadata file
+    createOrUpdateFile(fileContent, metadataPath, branchName, idpType);
+    Log.debug("successfully created/updated metadata file");
 
-    if (existingFile != null) {
-      // update the existing file if it exists
-      try {
-        existingFile.update(fileContent, "feat: update metadata file for " + idpType, branchName);
-      } catch (IOException e) {
-        Log.error("error updating existing metadata file: " + e.getMessage());
-        throw new RuntimeException(e);
-      }
-      Log.debug("updated metadata file for " + idpType);
-    } else {
-      // Create a new file with updated content
-      createFileWithUpdatedContent(fileContent, metadataPath, branchName, idpType);
-      Log.debug("successfully created new metadata file");
-    }
   }
 
 
@@ -64,7 +50,7 @@ public class GitHubConnectorImpl implements GitHubConnector {
     }
   }
 
-  private void createFileWithUpdatedContent(String fileContent, String metadataPath,
+  private void createOrUpdateFile(String fileContent, String metadataPath,
       String branchName,
       String idpType) {
     try {
@@ -74,7 +60,7 @@ public class GitHubConnectorImpl implements GitHubConnector {
           .path(metadataPath)
           .branch(branchName)
           .commit();
-      Log.debug("created file metadata for " + idpType);
+      Log.debug("created/updated file metadata for " + idpType);
     } catch (IOException e) {
       Log.error("error creating commit with new metadata: " + e.getMessage());
       throw new RuntimeException(e);

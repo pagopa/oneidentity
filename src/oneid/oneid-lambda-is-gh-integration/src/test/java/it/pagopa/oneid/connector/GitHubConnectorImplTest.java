@@ -76,24 +76,6 @@ public class GitHubConnectorImplTest {
 
   @Test
   @SneakyThrows
-  void createBranchAndCommit_errorUpdatingExistingFile() {
-
-    GHContent content = mock(GHContent.class);
-    when(content.getName()).thenReturn("spid");
-
-    List<GHContent> contentList = new ArrayList<>();
-    contentList.add(content);
-    when(content.update(anyString(), anyString(), anyString())).thenThrow(IOException.class);
-    when(repository.getDirectoryContent(any(), any())).thenReturn(contentList);
-
-    Executable executable = () -> gitHubConnectorImpl.createBranchAndCommit("test-branch",
-        "spid", "content", "/test");
-
-    Assertions.assertThrows(RuntimeException.class, executable);
-  }
-
-  @Test
-  @SneakyThrows
   void createBranchAndCommit_errorCreatingCommit() {
 
     when(repository.getDirectoryContent(any(), any())).thenThrow(IOException.class);
