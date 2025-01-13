@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import static it.pagopa.oneid.utils.Constants.METADATA_BASE_PATH;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,8 +30,12 @@ public class GitHubConnectorImpl implements GitHubConnector {
       throw new RuntimeException(e);
     }
 
+    GHContent existingFile = findFileInDirectory(METADATA_BASE_PATH, idpType,
+        branchName);
+    //TODO: add case where existingFile is null
+
     // Create or update metadata file
-    createOrUpdateFile(fileContent, metadataPath, branchName, idpType);
+    createOrUpdateFile(branchName, idpType, fileContent, metadataPath, existingFile.getSha());
     Log.debug("successfully created/updated metadata file");
 
   }
@@ -50,15 +55,15 @@ public class GitHubConnectorImpl implements GitHubConnector {
     }
   }
 
-  private void createOrUpdateFile(String fileContent, String metadataPath,
-      String branchName,
-      String idpType) {
+  private void createOrUpdateFile(String branchName, String idpType, String fileContent,
+      String metadataPath, String fileSha) {
     try {
       repository.createContent()
           .content(fileContent)
           .message("feat: update metadata file for " + idpType)
           .path(metadataPath)
           .branch(branchName)
+          .sha(fileSha)
           .commit();
       Log.debug("created/updated file metadata for " + idpType);
     } catch (IOException e) {
