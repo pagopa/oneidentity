@@ -357,7 +357,7 @@ variable "api_method_settings" {
       logging_level        = "ERROR"
     },
     {
-      method_path          = "assets/{proxy}/GET"
+      method_path          = "assets/{proxy+}/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
       logging_level        = "ERROR"
@@ -376,6 +376,12 @@ variable "api_method_settings" {
     },
     {
       method_path          = "idps/GET"
+      caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
+    },
+    {
+      method_path          = ".well-known/openid-configuration/GET"
       caching_enabled      = true
       cache_ttl_in_seconds = 3600
       logging_level        = "ERROR"
