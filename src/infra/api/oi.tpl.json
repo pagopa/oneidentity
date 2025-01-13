@@ -540,7 +540,10 @@
               "statusCode": "500",
               "responseParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+              "method.request.path.client_id"
+          ]
         },
         "parameters": [
           {
@@ -947,7 +950,10 @@
               "statusCode": "404",
               "responseParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.id_type"
+          ]
         },
         "responses": {
           "200": {
@@ -1808,7 +1814,10 @@
               "statusCode": "404",
               "requestParameters": {}
             }
-          }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.client_id"
+          ]
         },
         "parameters": [
           {
