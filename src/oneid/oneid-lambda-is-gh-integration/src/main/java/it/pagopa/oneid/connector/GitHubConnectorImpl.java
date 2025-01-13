@@ -34,19 +34,19 @@ public class GitHubConnectorImpl implements GitHubConnector {
         branchName);
 
     if (existingFile != null) {
-      // delete the existing file if it exists
+      // update the existing file if it exists
       try {
-        existingFile.delete("feat: remove metadata file for " + idpType, branchName);
+        existingFile.update(fileContent, "feat: update metadata file for " + idpType, branchName);
       } catch (IOException e) {
-        Log.error("error deleting existing metadata file: " + e.getMessage());
+        Log.error("error updating existing metadata file: " + e.getMessage());
         throw new RuntimeException(e);
       }
-      Log.debug("deleted metadata file for " + idpType);
+      Log.debug("updated metadata file for " + idpType);
+    } else {
+      // Create a new file with updated content
+      createFileWithUpdatedContent(fileContent, metadataPath, branchName, idpType);
+      Log.debug("successfully created new metadata file");
     }
-
-    // Create a new file with updated content
-    createFileWithUpdatedContent(fileContent, metadataPath, branchName, idpType);
-    Log.debug("successfully created new metadata file");
   }
 
 

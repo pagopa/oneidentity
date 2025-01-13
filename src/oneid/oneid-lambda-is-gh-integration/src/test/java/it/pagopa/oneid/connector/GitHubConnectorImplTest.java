@@ -76,14 +76,14 @@ public class GitHubConnectorImplTest {
 
   @Test
   @SneakyThrows
-  void createBranchAndCommit_errorDeletingExistingFile() {
+  void createBranchAndCommit_errorUpdatingExistingFile() {
 
     GHContent content = mock(GHContent.class);
     when(content.getName()).thenReturn("spid");
 
     List<GHContent> contentList = new ArrayList<>();
     contentList.add(content);
-    when(content.delete(anyString(), anyString())).thenThrow(IOException.class);
+    when(content.update(anyString(), anyString(), anyString())).thenThrow(IOException.class);
     when(repository.getDirectoryContent(any(), any())).thenReturn(contentList);
 
     Executable executable = () -> gitHubConnectorImpl.createBranchAndCommit("test-branch",
