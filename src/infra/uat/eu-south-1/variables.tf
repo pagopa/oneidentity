@@ -503,7 +503,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "GET"
-      threshold           = 1000
+      threshold           = 2000
     },
     "acs-5xx-error" = {
       resource_name       = "/saml/acs"
@@ -525,7 +525,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "POST"
-      threshold           = 1000
+      threshold           = 2000
     },
     "oidc-token-5xx-error" = {
       resource_name       = "/oidc/token"
@@ -547,7 +547,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "POST"
-      threshold           = 1000
+      threshold           = 2000
     },
     "oidc-keys-5xx-error" = {
       resource_name       = "/oidc/keys"
@@ -569,7 +569,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "GET"
-      threshold           = 1000
+      threshold           = 2000
     },
     "oidc-authorize-5xx-error" = {
       resource_name       = "/oidc/authorize"
@@ -591,7 +591,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "GET"
-      threshold           = 1000
+      threshold           = 2000
     },
     "oidc-register-5xx-error" = {
       resource_name       = "/oidc/register"
@@ -613,7 +613,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "POST"
-      threshold           = 1000
+      threshold           = 2000
     },
     "login-5xx-error" = {
       resource_name       = "/login"
@@ -635,7 +635,7 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "GET"
-      threshold           = 1000
+      threshold           = 2000
     },
   }
 }
