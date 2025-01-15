@@ -37,12 +37,12 @@ description:
 legal:
   license: MPL-2.0 
   repoOwner: "PagoPA S.p.A."
-  mainCopyrightOwner: “PagoPA S.p.A.”
+  mainCopyrightOwner: "PagoPA S.p.A."
 maintenance:
   type: internal
   contacts:
-    - name: “Open Source Program Office”
-      email: “ospo@pagopa.it”
+    - name: "Open Source Program Office"
+      email: "ospo@pagopa.it"
       affiliation: "PagoPA S.p.A."
 localisation:
   localisationReady: false
