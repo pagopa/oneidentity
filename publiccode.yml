@@ -1,0 +1,66 @@
+publiccodeYmlVersion: "0.4"
+name: One Identity
+url: https://github.com/pagopa/oneidentity
+releaseDate: 2024-10-30
+platforms:
+  - web
+categories:
+  - digital-citizenship
+usedBy:
+  - pagopa
+developmentStatus: stable
+softwareType: library
+description:
+  it:
+    shortDescription: Servizio che centralizza l'autenticazione SPID e CIE per i prodotti PagoPA.
+    longDescription: >
+     One Identity è un prodotto, erogato come servizio, che semplifica l'implementazione dell'autenticazione SPID e CIE per i prodotti PagoPA. Gestisce l'interazione con i fornitori d'identità, garantendo la conformità agli standard richiesti e sollevando i singoli prodotti da questa complessità.
+
+
+     Funzionalità principali
+  
+     * Gestione completa del login SPID e CIE: Il prodotto si occupa di tutti gli aspetti tecnici dell'autenticazione, permettendo ai prodotti PagoPA di integrarsi facilmente.
+
+     * Supporto a SPID Professionale: Oltre al cittadino, supporta anche l'autenticazione per le aziende.
+
+     * Conformità agli standard: One Identity aderisce allo standard SAML 2.0 e al suo "dialetto" SPID, garantendo l'interoperabilità con i fornitori d'identità.
+
+     * Aggregazione dei servizi PagoPA: Supporta l'aggregazione dei servizi come previsto da AgID, semplificando la gestione delle identità per i prodotti PagoPA.
+
+    features:
+      - Autenticazione SPID      
+      - Autenticazione CIE
+      - Supporto SPID professionale
+      - Compatibilità con SAML 2.0 e dialetto SPID
+      - Aggregazione servizi PagoPA
+
+legal:
+  license: MPL-2.0 
+  repoOwner: "PagoPA S.p.A."
+  mainCopyrightOwner: “PagoPA S.p.A.”
+maintenance:
+  type: internal
+  contacts:
+    - name: “Open Source Program Office”
+      email: “ospo@pagopa.it”
+      affiliation: "PagoPA S.p.A."
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - it
+    - en
+it:
+  countryExtensionVersion: "1.0"
+  piattaforme:
+    spid: true
+    cie: true
+    pagopa: true
+    anpr: false
+    io: true
+  conforme:
+    lineeGuidaDesign: true
+    modelloInteroperabilita: true
+    misureMinimeSicurezza: true
+    gdpr: true
+  riuso:
+    codiceIPA: 5N2TR557
