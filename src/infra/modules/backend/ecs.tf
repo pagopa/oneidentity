@@ -397,18 +397,18 @@ resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
   alarm_name          = "ClientErrorAlarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
-  metric_name         = "ClientError"              
-  namespace           = var.client_alarm.namespace 
-  period              = 300                        
-  statistic           = "Sum"                      
-  threshold           = 5                          
+  metric_name         = "ClientError"
+  namespace           = var.client_alarm.namespace
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 5
 
   dimensions = {
-    "ClientAggregated" = each.key 
+    "ClientAggregated" = each.key
   }
 
   alarm_actions = [
-    var.sns_topic_arn 
+    var.sns_topic_arn
   ]
 
 }
