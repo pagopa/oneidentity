@@ -303,6 +303,11 @@ module "backend" {
   }
 
   ssm_cert_key = {}
+
+  client_alarm = {
+    client_id = var.client_ids
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
 }
 
 module "database" {

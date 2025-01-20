@@ -392,6 +392,27 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   ])
 }
 
+resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
+  for_each            = var.client_alarm != null ? { for s in var.client_alarm.client_id : s => s } : {}
+  alarm_name          = "ClientErrorAlarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ClientError"              
+  namespace           = var.client_alarm.namespace 
+  period              = 300                        
+  statistic           = "Sum"                      
+  threshold           = 5                          
+
+  dimensions = {
+    "ClientAggregated" = each.key 
+  }
+
+  alarm_actions = [
+    var.sns_topic_arn 
+  ]
+
+}
+
 /*
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   count               = var.service_core.autoscaling.enable ? 1 : 0
