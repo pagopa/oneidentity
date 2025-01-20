@@ -9,7 +9,7 @@ categories:
 usedBy:
   - pagopa
 developmentStatus: stable
-softwareType: library
+softwareType: standalone/web
 description:
   it:
     shortDescription: Servizio che centralizza l'autenticazione SPID e CIE per i prodotti PagoPA.
