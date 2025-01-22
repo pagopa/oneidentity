@@ -276,6 +276,10 @@ module "backend" {
   aws_caller_identity   = data.aws_caller_identity.current.account_id
   switch_region_enabled = true
 
+  client_alarm = {
+    client_id = var.client_ids
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
 }
 
 

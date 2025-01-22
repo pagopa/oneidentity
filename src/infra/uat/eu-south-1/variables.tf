@@ -376,6 +376,11 @@ variable "tags" {
   }
 }
 
+variable "client_ids" {
+  type    = list(string)
+  default = ["DJVfzho1AP4zPioVu-GsGUPUHmaV98nktSrtr3zJIc8", "he1sOaHCUgCsFWp8b_xUOhMz_q2Gk4zBIIfIUaghErk", "6ncU7sVY2EmvukipyZ1BuHBVsjgyKINJl_oVBfYZp2s"]
+}
+
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string

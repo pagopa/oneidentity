@@ -300,3 +300,11 @@ variable "dlq_alarms" {
     sns_topic_alarm_arn = string
   })
 }
+
+variable "client_alarm" {
+  type = object({
+    namespace = string
+    client_id = list(string)
+  })
+  default = null
+}
