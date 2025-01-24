@@ -308,3 +308,11 @@ variable "client_alarm" {
   })
   default = null
 }
+
+variable "idp_alarm" {
+  type = object({
+    namespace = string
+    entity_id = list(string)
+  })
+  default = null
+}

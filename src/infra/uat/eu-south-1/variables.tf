@@ -381,6 +381,24 @@ variable "client_ids" {
   default = ["DJVfzho1AP4zPioVu-GsGUPUHmaV98nktSrtr3zJIc8", "he1sOaHCUgCsFWp8b_xUOhMz_q2Gk4zBIIfIUaghErk", "6ncU7sVY2EmvukipyZ1BuHBVsjgyKINJl_oVBfYZp2s"]
 }
 
+variable "entity_id" {
+  type    = list(string)
+  default = [
+    "https://loginspid.infocamere.it",
+    "https://idp.intesigroup.com",
+    "https://loginspid.aruba.it",
+    "https://identity.sieltecloud.it",
+    "https://spid.register.it",
+    "https://spid.teamsystem.com/idp",
+    "https://idp.namirialtsp.com/idp",
+    "https://posteid.poste.it",
+    "https://identity.infocert.it",
+    "https://id.eht.eu",
+    "https://login.id.tim.it/affwebservices/public/saml2sso",
+    "https://id.lepida.it/idp/shibboleth",
+    ]
+}
+
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string

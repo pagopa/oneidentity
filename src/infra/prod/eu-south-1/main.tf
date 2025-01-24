@@ -323,6 +323,11 @@ module "backend" {
     client_id = var.client_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
+
+  idp_alarm = {
+    entity_id = var.entity_id
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
 }
 
 module "frontend" {
