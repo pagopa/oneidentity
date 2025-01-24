@@ -382,7 +382,7 @@ variable "client_ids" {
 }
 
 variable "entity_id" {
-  type    = list(string)
+  type = list(string)
   default = [
     "https://loginspid.infocamere.it",
     "https://idp.intesigroup.com",
@@ -396,7 +396,7 @@ variable "entity_id" {
     "https://id.eht.eu",
     "https://login.id.tim.it/affwebservices/public/saml2sso",
     "https://id.lepida.it/idp/shibboleth",
-    ]
+  ]
 }
 
 variable "ecs_alarms" {
