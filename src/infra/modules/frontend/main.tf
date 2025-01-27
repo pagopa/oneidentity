@@ -62,9 +62,12 @@ resource "aws_iam_role" "s3_apigw_proxy" {
 
 data "aws_iam_policy_document" "s3_apigw_proxy" {
   statement {
-    effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:ListBucket"]
-    resources = ["${var.assets_bucket_arn}/*", ]
+    effect  = "Allow"
+    actions = ["s3:GetObject", "s3:ListBucket"]
+    resources = [
+      "${var.assets_bucket_arn}/*",
+      "${var.assets_bucket_arn}",
+    ]
   }
 }
 
