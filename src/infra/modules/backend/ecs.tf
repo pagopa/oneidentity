@@ -394,7 +394,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 
 resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
   for_each            = var.client_alarm != null ? { for s in var.client_alarm.client_id : s => s } : {}
-  alarm_name          = "ClientErrorAlarm"
+  alarm_name          = format("%s-%s", "ClientErrorAlarm", each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "ClientError"
@@ -405,6 +405,27 @@ resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
 
   dimensions = {
     "ClientAggregated" = each.key
+  }
+
+  alarm_actions = [
+    var.sns_topic_arn
+  ]
+
+}
+
+resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
+  for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
+  alarm_name          = format("%s-%s", "IDPErrorAlarm", each.key)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "IDPError"
+  namespace           = var.idp_alarm.namespace
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 5
+
+  dimensions = {
+    "IDPAggregated" = each.key
   }
 
   alarm_actions = [

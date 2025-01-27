@@ -354,11 +354,6 @@ variable "alarm_subscribers" {
   default = "alarm-subscribers"
 }
 
-variable "client_ids" {
-  type    = list(string)
-  default = ["br8sFmmBK2OIjQ4hY0UM_D5mvt1zOR64zjk1m2WXT0Y"]
-}
-
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string
