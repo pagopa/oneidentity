@@ -119,7 +119,7 @@ module "backend" {
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
   lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
   dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
-  idp_success_alarm_enabled = module.backend.idp_success_alarm_status
+  idp_success_alarm_enabled = false
 
   fargate_capacity_providers = {
     FARGATE = {
