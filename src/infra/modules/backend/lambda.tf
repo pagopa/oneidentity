@@ -593,6 +593,7 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
   statement {
     effect = "Allow"
     actions = [
+      "dynamodb:Scan",
       "dynamodb:GetItem",
       "dynamodb:Query",
     "dynamodb:PutItem"]
@@ -603,7 +604,7 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     actions = [
       "cloudwatch:DisableAlarmActions",
     "cloudwatch:EnableAlarmActions"]
-    resources = [aws_cloudwatch_metric_alarm.update_idp_status_lambda.idp_success_alarm[*]]
+    resources = [aws_cloudwatch_metric_alarm.idp_success_alarm[*]]
   }
 }
 
