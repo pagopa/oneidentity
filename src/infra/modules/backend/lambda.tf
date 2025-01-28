@@ -603,7 +603,7 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     actions = [
       "cloudwatch:DisableAlarmActions",
     "cloudwatch:EnableAlarmActions"]
-    resources = ["${var.update_idp_status_lambda.idp_success_alarm[*]}"]
+    resources = [aws_cloudwatch_metric_alarm.update_idp_status_lambda.idp_success_alarm[*]]
   }
 }
 
