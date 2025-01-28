@@ -429,7 +429,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   }
 
   alarm_actions = [
-    var.sns_topic_arn
+    var.sns_topic_arn,
+    module.update_idp_status_lambda.lambda_function_arn
   ]
 
 }
@@ -449,7 +450,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
     "IDPAggregated" = each.key
   }
   alarm_actions = [
-    var.sns_topic_arn
+    var.sns_topic_arn,
+    module.update_idp_status_lambda.lambda_function_arn
   ]
   actions_enabled = var.idp_success_alarm_enabled
   lifecycle {

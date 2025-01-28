@@ -632,9 +632,12 @@ module "update_idp_status_lambda" {
 
   environment_variables = var.update_idp_status_lambda.environment_variables
 
-  #allowed_triggers = [
-  #TODO add triggers
-  #]
+  allowed_triggers = {
+    CloudWatchAlarm = {
+    service    = "cloudwatch"
+    source_arns = [for s in var.idp_alarm.entity_id : "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPSuccessAlarm-${s}"]
+    }
+  }
 
   memory_size = 256
   timeout     = 30
