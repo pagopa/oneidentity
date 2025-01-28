@@ -224,6 +224,9 @@ module "s3_assertions_accesslogs_bucket" {
       expiration = {
         days = var.assertion_accesslogs_expiration
       }
+      noncurrent_version_expiration = {
+        noncurrent_days = var.assertion_accesslogs_expiration
+      }
     }
   ]
 
