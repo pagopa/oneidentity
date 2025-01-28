@@ -617,7 +617,7 @@ module "update_idp_status_lambda" {
 
   function_name           = var.update_idp_status_lambda.name
   description             = "Lambda function update idp status."
-  runtime                 = "python3.13"
+  runtime                 = "python3.12"
   handler                 = "index.lambda_handler"
   create_package          = false
   local_existing_package  = var.update_idp_status_lambda.filename
