@@ -60,7 +60,7 @@ def update_idp_status(idp, status) -> bool:
     try:
         response = dynamodb_client.delete_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
-            Key={"idp": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
+            Key={"entityID": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
             ReturnValues="ALL_OLD",
         )
         old_item = response["Attributes"]
@@ -73,16 +73,16 @@ def update_idp_status(idp, status) -> bool:
         logger.error("No item found with PK: %s and RK: %s", idp, LATEST_POINTER)
         return False
 
-    old_status = old_item["Status"]["S"]
+    old_status = old_item["status"]["S"]
 
     # Add new entry with unix timestamp as the range key and old status as the status
     try:
         dynamodb_client.put_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
             Item={
-                "idp": {"S": idp},
+                "entityID": {"S": idp},
                 "pointer": {"S": current_timestamp},
-                "Status": {"S": old_status},
+                "status": {"S": old_status},
             },
         )
     except Exception as e:
@@ -94,9 +94,9 @@ def update_idp_status(idp, status) -> bool:
         dynamodb_client.put_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
             Item={
-                "idp": {"S": idp},
+                "entityID": {"S": idp},
                 "pointer": {"S": LATEST_POINTER},
-                "Status": {"S": status},
+                "status": {"S": status},
             },
         )
     except Exception as e:
@@ -127,7 +127,7 @@ def update_s3_asset_file(idp_latest_status) -> bool:
     Update the S3 asset file with the latest IDP status
     """
     idp_status_list = [
-        {"IDP": idp["idp"]["S"], "Status": idp["Status"]["S"]}
+        {"IDP": idp["entityID"]["S"], "Status": idp["status"]["S"]}
         for idp in idp_latest_status
     ]
 
