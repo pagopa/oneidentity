@@ -60,7 +60,7 @@ def update_idp_status(idp, status) -> bool:
     try:
         response = dynamodb_client.delete_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
-            Key={"PK": {"S": idp}, "RK": {"S": LATEST_POINTER}},
+            Key={"idp": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
             ReturnValues="ALL_OLD",
         )
         old_item = response["Attributes"]
@@ -80,8 +80,8 @@ def update_idp_status(idp, status) -> bool:
         dynamodb_client.put_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
             Item={
-                "PK": {"S": idp},
-                "RK": {"S": current_timestamp},
+                "idp": {"S": idp},
+                "pointer": {"S": current_timestamp},
                 "Status": {"S": old_status},
             },
         )
@@ -94,8 +94,8 @@ def update_idp_status(idp, status) -> bool:
         dynamodb_client.put_item(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
             Item={
-                "PK": {"S": idp},
-                "RK": {"S": LATEST_POINTER},
+                "idp": {"S": idp},
+                "pointer": {"S": LATEST_POINTER},
                 "Status": {"S": status},
             },
         )
@@ -113,8 +113,8 @@ def get_all_latest_status():
     try:
         response = dynamodb_client.scan(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
-            FilterExpression="RK = :rk",
-            ExpressionAttributeValues={":rk": {"S": LATEST_POINTER}},
+            FilterExpression="pointer = :pointer",
+            ExpressionAttributeValues={":pointer": {"S": LATEST_POINTER}},
         )
         return response.get("Items", [])
     except Exception as e:
@@ -127,7 +127,7 @@ def update_s3_asset_file(idp_latest_status) -> bool:
     Update the S3 asset file with the latest IDP status
     """
     idp_status_list = [
-        {"IDP": idp["PK"]["S"], "Status": idp["Status"]["S"]}
+        {"IDP": idp["idp"]["S"], "Status": idp["Status"]["S"]}
         for idp in idp_latest_status
     ]
 
