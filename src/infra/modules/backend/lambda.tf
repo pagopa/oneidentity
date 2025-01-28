@@ -614,7 +614,7 @@ module "update_idp_status_lambda" {
   version = "7.4.0"
 
   function_name           = var.update_idp_status_lambda.name
-  description             = "Lambda function is-gh integration."
+  description             = "Lambda function update idp status."
   runtime                 = "python3.13"
   handler                 = "index.lambda_handler"
   create_package          = false
