@@ -434,6 +434,26 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
 
 }
 
+
+resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
+  for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
+  alarm_name          = format("%s-%s", "IDPSuccessAlarm", each.key)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "IDPSuccess"
+  namespace           = var.idp_alarm.namespace
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 5
+  dimensions = {
+    "IDPAggregated" = each.key
+  }
+  alarm_actions = [
+    var.sns_topic_arn
+  ]
+  actions_enabled = var.idp_success_alarm_enabled
+}
+
 /*
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   count               = var.service_core.autoscaling.enable ? 1 : 0

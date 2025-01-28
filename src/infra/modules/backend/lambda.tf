@@ -581,3 +581,63 @@ resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
   alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
 }
 
+
+## Lambda update IDP status
+
+data "aws_iam_policy_document" "update_idp_status_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:GetObject"]
+    resources = ["${var.update_idp_status_lambda.assets_bucket_arn}/*"]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = [ 
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:PutItem"]
+    resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
+  }
+    statement {
+    effect    = "Allow"
+    actions   = [ 
+      "cloudwatch:DisableAlarmActions",
+      "cloudwatch:EnableAlarmActions"]
+    resources = ["${var.update_idp_status_lambda.cloudwatch_idp_success_alarm}"]
+  }
+  }
+
+
+
+module "update_idp_status_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.update_idp_status_lambda.name
+  description             = "Lambda function is-gh integration."
+  runtime                 = "python3.13"
+  handler                 = "index.lambda_handler"
+  create_package          = false
+  local_existing_package  = var.update_idp_status_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        =  data.aws_iam_policy_document.update_idp_status_lambda.json
+
+
+  cloudwatch_logs_retention_in_days = var.update_idp_status_lambda.cloudwatch_logs_retention_in_days
+
+  environment_variables = var.update_idp_status_lambda.environment_variables
+
+  allowed_triggers = [
+    #TODO add triggers
+  ]
+
+  memory_size = 256
+  timeout     = 30
+  snap_start  = true
+
+}
+

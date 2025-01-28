@@ -75,3 +75,8 @@ output "s3_lambda_code_bucket" {
 output "ecs_core_log_group_name" {
   value = aws_cloudwatch_log_group.ecs_core.name
 }
+
+## IDP Success Alarm status
+output "idp_success_alarm_status" {
+  value = try(aws_cloudwatch_metric_alarm.idp_success_alarm.actions_enabled, false)
+}

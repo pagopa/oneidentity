@@ -119,6 +119,7 @@ module "backend" {
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
   lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
   dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
+  idp_success_alarm_enabled = module.backend.idp_success_alarm_status
 
   fargate_capacity_providers = {
     FARGATE = {
@@ -306,6 +307,15 @@ module "backend" {
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
+  update_idp_status_lambda = {
+    name                              = format("%s-update-idp-status-lambda", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
+    table_idp_status_history_arn      = "" #TODO
+    cloudwatch_idp_success_alarm      = module.backend.idp_success_alarm_status
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    environment_variables             = { LOG_LEVEL = var.app_log_level } #TODO
+  }
   ssm_cert_key = {}
 }
 
