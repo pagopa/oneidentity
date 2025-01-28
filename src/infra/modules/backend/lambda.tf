@@ -604,7 +604,8 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     actions = [
       "cloudwatch:DisableAlarmActions",
     "cloudwatch:EnableAlarmActions"]
-    resources = [aws_cloudwatch_metric_alarm.idp_success_alarm[0].arn]
+    resources = [for arn in aws_cloudwatch_metric_alarm.idp_success_alarm : arn.arn]
+
   }
 }
 
