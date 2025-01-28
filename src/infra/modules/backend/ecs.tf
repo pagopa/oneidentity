@@ -452,6 +452,9 @@ resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
     var.sns_topic_arn
   ]
   actions_enabled = var.idp_success_alarm_enabled
+  lifecycle {
+    ignore_changes = [ actions_enabled ]
+  }
 }
 
 /*

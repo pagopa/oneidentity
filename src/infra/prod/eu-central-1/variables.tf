@@ -189,6 +189,16 @@ variable "repository_image_tag_mutability" {
   default     = "MUTABLE"
 }
 
+variable "idp_status_history_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "IDP Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 variable "cie_entity_id" {
   type    = string
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"

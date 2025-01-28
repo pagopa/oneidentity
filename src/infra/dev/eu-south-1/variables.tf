@@ -650,3 +650,14 @@ variable "api_alarms" {
   }
 }
 
+variable "entity_id" {
+  type = list(string)
+  default = [
+    "https://demo.spid.gov.it",
+    "https://validator.spid.gov.it",
+    "https://validator.dev.oneid.pagopa.it",
+    "https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws",
+    "https://validator.dev.oneid.pagopa.it/demo",
+    "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws",
+  ]
+}

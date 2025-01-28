@@ -147,6 +147,11 @@ module "dynamodb_table_idpMetadata" {
 
 }
 
+data "aws_dynamodb_table" "dynamodb_table_idp_status_history" {
+  count = var.idp_status_history_table == null ? 1 : 0
+  name  = "IDPStatusHistory"
+}
+
 module "dynamodb_table_idp_status_history" {
   count   = var.idp_status_history_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
