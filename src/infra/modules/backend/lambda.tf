@@ -603,7 +603,7 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     actions = [
       "cloudwatch:DisableAlarmActions",
     "cloudwatch:EnableAlarmActions"]
-    resources = ["${var.update_idp_status_lambda.cloudwatch_idp_success_alarm}"]
+    resources = ["${var.update_idp_status_lambda.idp_success_alarm[*]}"]
   }
 }
 
@@ -631,9 +631,9 @@ module "update_idp_status_lambda" {
 
   environment_variables = var.update_idp_status_lambda.environment_variables
 
-  allowed_triggers = [
-    #TODO add triggers
-  ]
+  #allowed_triggers = [
+  #TODO add triggers
+  #]
 
   memory_size = 256
   timeout     = 30

@@ -251,7 +251,6 @@ variable "update_idp_status_lambda" {
     filename                          = string
     assets_bucket_arn                 = string
     table_idp_status_history_arn      = string
-    cloudwatch_idp_success_alarm      = list(string)
     cloudwatch_logs_retention_in_days = string
     environment_variables             = map(string)
   })

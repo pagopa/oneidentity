@@ -312,7 +312,6 @@ module "backend" {
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     table_idp_status_history_arn      = module.database.table_idp_status_history_arn
-    cloudwatch_idp_success_alarm      = module.backend.aws_cloudwatch_metric_alarm.idp_success_alarm[*]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables             = { LOG_LEVEL = var.app_log_level } #TODO
   }

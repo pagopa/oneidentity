@@ -78,5 +78,5 @@ output "ecs_core_log_group_name" {
 
 ## IDP Success Alarm status
 output "idp_success_alarm_status" {
-  value = try(aws_cloudwatch_metric_alarm.idp_success_alarm.actions_enabled, false)
+  value = try(aws_cloudwatch_metric_alarm.idp_success_alarm[*], false)
 }
