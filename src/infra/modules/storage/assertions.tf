@@ -215,7 +215,7 @@ module "s3_assertions_accesslogs_bucket" {
 
   lifecycle_rule = [
     {
-      id      = "log"
+      id      = "expire_rule"
       enabled = true
 
       filter = {
