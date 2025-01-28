@@ -591,21 +591,21 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     resources = ["${var.update_idp_status_lambda.assets_bucket_arn}/*"]
   }
   statement {
-    effect    = "Allow"
-    actions   = [ 
+    effect = "Allow"
+    actions = [
       "dynamodb:GetItem",
       "dynamodb:Query",
-      "dynamodb:PutItem"]
+    "dynamodb:PutItem"]
     resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
   }
-    statement {
-    effect    = "Allow"
-    actions   = [ 
+  statement {
+    effect = "Allow"
+    actions = [
       "cloudwatch:DisableAlarmActions",
-      "cloudwatch:EnableAlarmActions"]
+    "cloudwatch:EnableAlarmActions"]
     resources = ["${var.update_idp_status_lambda.cloudwatch_idp_success_alarm}"]
   }
-  }
+}
 
 
 
@@ -624,7 +624,7 @@ module "update_idp_status_lambda" {
   publish = true
 
   attach_policy_json = true
-  policy_json        =  data.aws_iam_policy_document.update_idp_status_lambda.json
+  policy_json        = data.aws_iam_policy_document.update_idp_status_lambda.json
 
 
   cloudwatch_logs_retention_in_days = var.update_idp_status_lambda.cloudwatch_logs_retention_in_days

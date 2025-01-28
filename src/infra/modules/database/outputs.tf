@@ -50,6 +50,10 @@ output "table_idp_metadata_arn" {
   value = try(module.dynamodb_table_idpMetadata[0].dynamodb_table_arn, null)
 }
 
+output "table_idp_status_history_arn" {
+  value = try(module.dynamodb_table_idp_status_history[0].dynamodb_table_arn, null)
+}
+
 output "table_idpMetadata_gsi_pointer_arn" {
   value = try("${module.dynamodb_table_idpMetadata[0].dynamodb_table_arn}/index/${local.gsi_pointer}", null)
 }

@@ -311,7 +311,7 @@ module "backend" {
     name                              = format("%s-update-idp-status-lambda", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
-    table_idp_status_history_arn      = "" #TODO
+    table_idp_status_history_arn      = module.database.table_idp_status_history_arn
     cloudwatch_idp_success_alarm      = module.backend.idp_success_alarm_status
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables             = { LOG_LEVEL = var.app_log_level } #TODO
@@ -373,6 +373,7 @@ module "database" {
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
   idp_metadata_table         = var.idp_metadata_table
+  idp_status_history_table   = var.idp_status_history_table
 }
 
 

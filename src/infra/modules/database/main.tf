@@ -146,3 +146,37 @@ module "dynamodb_table_idpMetadata" {
   }
 
 }
+
+module "dynamodb_table_idp_status_history" {
+  count   = var.idp_status_history_table != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "IDPStatusHistory"
+
+  hash_key  = "entityID"
+  range_key = "pointer"
+
+  attributes = [
+    {
+      name = "entityID"
+      type = "S"
+    },
+    {
+      name = "pointer"
+      type = "S"
+    },
+  ]
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.idp_status_history_table.point_in_time_recovery_enabled
+  stream_enabled                 = var.idp_status_history_table.stream_enabled
+  stream_view_type               = var.idp_status_history_table.stream_view_type
+  replica_regions                = var.idp_status_history_table.replication_regions
+  deletion_protection_enabled    = var.idp_status_history_table.deletion_protection_enabled
+  tags = {
+    Name = "IDPStatusHistory"
+  }
+
+}
