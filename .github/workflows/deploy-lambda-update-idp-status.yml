@@ -60,7 +60,7 @@ jobs:
           path: ./src/oneid/oneid-lambda-update-idp-status/target/oneid-lambda-update-idp-status.zip
 
   deploy:
-    name: Deploy lambda update idp statu ${{ matrix.environment }}-${{ matrix.region }}
+    name: Deploy lambda update idp status ${{ matrix.environment }}-${{ matrix.region }}
     if: ${{ needs.setup.outputs.matrix != '' }}
     runs-on: ubuntu-22.04
     needs: [ setup, build ]
