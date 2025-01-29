@@ -604,8 +604,7 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     actions = [
       "cloudwatch:DisableAlarmActions",
     "cloudwatch:EnableAlarmActions"]
-    #resources = [for s in var.idp_alarm.entity_id : "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPSuccessAlarm-${s}"]
-    resources = ["*"]
+    resources = [for s in var.idp_alarm.entity_id : "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPSuccessAlarm-${s}"]
   }
 }
 
@@ -618,7 +617,7 @@ module "update_idp_status_lambda" {
   function_name           = var.update_idp_status_lambda.name
   description             = "Lambda function update idp status."
   runtime                 = "python3.12"
-  handler                 = "index.lambda_handler"
+  handler                 = "lambda.lambda_handler"
   create_package          = false
   local_existing_package  = var.update_idp_status_lambda.filename
   ignore_source_code_hash = true
