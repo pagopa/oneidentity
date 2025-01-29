@@ -420,9 +420,9 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   evaluation_periods  = 1
   metric_name         = "IDPError"
   namespace           = var.idp_alarm.namespace
-  period              = 300
+  period              = 60
   statistic           = "Sum"
-  threshold           = 5
+  threshold           = 0
 
   dimensions = {
     "IDPAggregated" = each.key
@@ -445,7 +445,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
   namespace           = var.idp_alarm.namespace
   period              = 60
   statistic           = "Sum"
-  threshold           = 5
+  threshold           = 0
   dimensions = {
     "IDPAggregated" = each.key
   }
