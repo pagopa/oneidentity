@@ -415,47 +415,55 @@ resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
 
 resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
-  alarm_name          = format("%s-%s", "IDPErrorAlarm", each.key)
+  alarm_name          = format("%s-%s", "IDPErrorRateAlarm", each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
-  metric_name         = "IDPError"
-  namespace           = var.idp_alarm.namespace
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 0
+  threshold           = 1
+  ok_actions          = [ module.update_idp_status_lambda.lambda_function_arn]
 
-  dimensions = {
-    "IDPAggregated" = each.key
-  }
 
   alarm_actions = [
     var.sns_topic_arn,
     module.update_idp_status_lambda.lambda_function_arn
   ]
 
-}
-
-
-resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
-  for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
-  alarm_name          = format("%s-%s", "IDPSuccessAlarm", each.key)
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "IDPSuccess"
-  namespace           = var.idp_alarm.namespace
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 0
-  dimensions = {
-    "IDPAggregated" = each.key
+  metric_query {
+    id          = "error_rate"
+    expression  = "errors/(successes+errors)*100"
+    label       = "Error Rate"
+    return_data = "true"
   }
-  alarm_actions = [
-    var.sns_topic_arn,
-    module.update_idp_status_lambda.lambda_function_arn
-  ]
-  actions_enabled = var.idp_success_alarm_enabled
-  lifecycle {
-    ignore_changes = [actions_enabled]
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "IDPSuccess"
+      namespace   = var.idp_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "IDPAggregated" = each.key
+      }
+    }
+  }
+
+  metric_query {
+    id = "errors"
+
+    metric {
+      metric_name = "IDPError"
+      namespace   = var.idp_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "IDPAggregated" = each.key
+      }
+      }
   }
 }
 

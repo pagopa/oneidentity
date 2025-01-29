@@ -600,13 +600,6 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
     "dynamodb:PutItem"]
     resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "cloudwatch:DisableAlarmActions",
-    "cloudwatch:EnableAlarmActions"]
-    resources = [for s in var.idp_alarm.entity_id : "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPSuccessAlarm-${s}"]
-  }
 }
 
 
@@ -634,13 +627,9 @@ module "update_idp_status_lambda" {
   environment_variables = var.update_idp_status_lambda.environment_variables
 
   allowed_triggers = {
-    IDPSuccess = {
+    IDPErrorRate = {
       principal  = "lambda.alarms.cloudwatch.amazonaws.com"
-      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPSuccessAlarm-*"
-    },
-    IDPError = {
-      principal  = "lambda.alarms.cloudwatch.amazonaws.com"
-      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPErrorAlarm-*"
+      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPErrorRateAlarm-*"
     }
   }
 

@@ -328,7 +328,3 @@ variable "idp_alarm" {
   })
   default = null
 }
-
-variable "idp_success_alarm_enabled" {
-  type = bool
-}
