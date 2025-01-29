@@ -455,7 +455,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_success_alarm" {
   ]
   actions_enabled = var.idp_success_alarm_enabled
   lifecycle {
-    ignore_changes = [ actions_enabled ]
+    ignore_changes = [actions_enabled]
   }
 }
 

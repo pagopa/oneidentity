@@ -132,14 +132,14 @@ module "backend" {
     }
   }
 
-  sns_topic_arn   = module.sns.sns_topic_arn
-  ecs_alarms      = local.cloudwatch__ecs_alarms_with_sns
-  lambda_alarms   = local.cloudwatch__lambda_alarms_with_sns
-  dlq_alarms      = local.cloudwatch__dlq_alarms_with_sns
+  sns_topic_arn             = module.sns.sns_topic_arn
+  ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
+  lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
+  dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
   idp_success_alarm_enabled = false
-  vpc_id          = module.network.vpc_id
-  private_subnets = module.network.private_subnet_ids
-  vpc_cidr_block  = module.network.vpc_cidr_block
+  vpc_id                    = module.network.vpc_id
+  private_subnets           = module.network.private_subnet_ids
+  vpc_cidr_block            = module.network.vpc_cidr_block
 
   service_core = {
     service_name = format("%s-core", local.project)
@@ -319,18 +319,18 @@ module "backend" {
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
-   update_idp_status_lambda = {
+  update_idp_status_lambda = {
     name                              = format("%s-update-idp-status", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     table_idp_status_history_arn      = module.database.table_idp_status_history_arn
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    environment_variables             = { 
-      LOG_LEVEL = var.app_log_level
+    environment_variables = {
+      LOG_LEVEL                 = var.app_log_level
       IDP_STATUS_DYNAMODB_TABLE = module.database.table_idp_status_history_name
-      ASSETS_S3_BUCKET = module.storage.assets_bucket_name
-      IDP_STATUS_S3_FILE_NAME = "idp_status_history.json"
-     }
+      ASSETS_S3_BUCKET          = module.storage.assets_bucket_name
+      IDP_STATUS_S3_FILE_NAME   = "idp_status_history.json"
+    }
   }
 
   ssm_cert_key = {}
