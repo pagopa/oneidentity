@@ -14,16 +14,13 @@ IDP_STATUS_DYNAMODB_TABLE = os.getenv("IDP_STATUS_DYNAMODB_TABLE")
 ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
 IDP_STATUS_S3_FILE_NAME = os.getenv("IDP_STATUS_S3_FILE_NAME")
 LATEST_POINTER = "latest"
-IDP_ERROR_ALARM = "IDPErrorAlarm"
-IDP_SUCCESS_ALARM = "IDPSuccessAlarm"
+IDP_ERROR_RATE_ALARM = "IDPErrorRateAlarm"
 IDP_STATUS_OK = "OK"
 IDP_STATUS_KO = "KO"
+ALARM_STATE_MAP = {"IN_ALARM" : "KO", "OK": "OK"}
 
 # Initialize a logger
 logger = logging.getLogger()
-
-# Initialize a boto3 client for CloudWatch
-cloudwatch_client = boto3.client("cloudwatch", region_name=AWS_REGION)
 
 # Initialize a boto3 client for DynamoDB
 dynamodb_client = boto3.client("dynamodb", region_name=AWS_REGION)
@@ -43,11 +40,12 @@ def get_event_data(event):
     alarm_data = event["alarmData"]
     alarm_name = alarm_data["alarmName"]
     alarm_type, idp = alarm_name.split("-")
+    alarm_state = alarm_data["state"]["value"]
 
-    return alarm_type, idp
+    return alarm_type, idp, alarm_state
 
 
-def update_idp_status(idp, status) -> bool:
+def update_idp_status(idp, alarm_state) -> bool:
     """
     Update the IDP status in the DynamoDB table
     """
@@ -56,21 +54,26 @@ def update_idp_status(idp, status) -> bool:
     # Get the current Unix timestamp as a string
     current_timestamp = str(int(time.time()))
 
+    new_status = ALARM_STATE_MAP[alarm_state]
+
+
     # Remove the latest IDP status
     try:
         response = dynamodb_client.delete_item(
-            TableName=IDP_STATUS_DYNAMODB_TABLE,
-            Key={"entityID": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
-            ReturnValues="ALL_OLD",
+        TableName=IDP_STATUS_DYNAMODB_TABLE,
+        Key={"entityID": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
+        ConditionExpression="status <> :status",
+        ExpressionAttributeValues={":status": {"S": new_status}},
+        ReturnValues="ALL_OLD",
         )
         old_item = response["Attributes"]
         logger.info("Deleted item: %s", response)
-    except Exception as e:
+    # If the status is already the new status, do not delete the item
+    except dynamodb_client.exceptions.ConditionalCheckFailedException:
+        logger.info("No item deleted as the status is already %s", new_status)
+        return True
+    except KeyError as e:
         logger.error("Error deleting item: %s", e)
-        return False
-
-    if not old_item:
-        logger.error("No item found with PK: %s and RK: %s", idp, LATEST_POINTER)
         return False
 
     old_status = old_item["status"]["S"]
@@ -96,13 +99,14 @@ def update_idp_status(idp, status) -> bool:
             Item={
                 "entityID": {"S": idp},
                 "pointer": {"S": LATEST_POINTER},
-                "status": {"S": status},
+                "status": {"S": new_status},
             },
         )
     except Exception as e:
         logger.error("Error inserting item: %s", e)
         return False
 
+    logger.info("Updated IDP status: %s, from %s to %s", idp, old_status, new_status)
     return True
 
 
@@ -159,35 +163,12 @@ def lambda_handler(event, context):
     Lambda handler
     """
     logger.info("Received event: %s", json.dumps(event))
-    # Extract the event type and the idp
-    alarm_type, idp = get_event_data(event)
-    # Related success alarm for the idp
-    alarm_success = f"{IDP_SUCCESS_ALARM}-{idp}"
+    # Extract the event type, the idp and state
+    alarm_type, idp, alarm_state = get_event_data(event)
 
-    if alarm_type == IDP_ERROR_ALARM:
-        # Update the IDP status to {IDP_STATUS_KO}
-        if update_idp_status(idp, IDP_STATUS_KO):
-            # Enable cloudwatch success alarm for the IDP
-            cloudwatch_client.enable_alarm_actions(
-                AlarmNames=[
-                    alarm_success,
-                ]
-            )
-            logger.info("Enabled alarm actions for %s", alarm_success)
-        else:
-            logger.error("Error updating IDP status")
-            return {"statusCode": 500, "body": json.dumps("Error updating IDP status")}
-    elif alarm_type == IDP_SUCCESS_ALARM:
-        # Update the IDP status to {IDP_STATUS_OK}
-        if update_idp_status(idp, IDP_STATUS_OK):
-            # Disable cloudwatch alarm for the IDP
-            cloudwatch_client.disable_alarm_actions(
-                AlarmNames=[
-                    alarm_success,
-                ]
-            )
-            logger.info("Disabled alarm actions for %s", alarm_success)
-        else:
+    if alarm_type == IDP_ERROR_RATE_ALARM:
+        # Update the IDP status using {alarm_state}
+        if not update_idp_status(idp, alarm_state):
             logger.error("Error updating IDP status")
             return {"statusCode": 500, "body": json.dumps("Error updating IDP status")}
     else:
