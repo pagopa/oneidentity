@@ -292,6 +292,12 @@ module "backend" {
   aws_caller_identity   = data.aws_caller_identity.current.account_id
   switch_region_enabled = true
 
+
+  idp_alarm = {
+    entity_id = var.entity_id
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
 }
 
 
