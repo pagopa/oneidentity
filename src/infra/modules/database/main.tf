@@ -162,6 +162,14 @@ module "dynamodb_table_idp_status_history" {
   hash_key  = "entityID"
   range_key = "pointer"
 
+  global_secondary_indexes = [
+    {
+      name            = local.gsi_pointer
+      hash_key        = "pointer"
+      projection_type = "ALL"
+    }
+  ]
+
   attributes = [
     {
       name = "entityID"
@@ -184,4 +192,23 @@ module "dynamodb_table_idp_status_history" {
     Name = "IDPStatusHistory"
   }
 
+}
+
+resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
+  table_name = module.dynamodb_table_idp_status_history[0].dynamodb_table_id
+  hash_key   = "entityID"
+  range_key  = "pointer"
+  lifecycle {
+    ignore_changes = [
+      item
+    ]
+  }
+  for_each = var.idp_entity_ids != null ? { for s in var.idp_entity_ids.entity_id : s => s } : {}
+  item     = <<ITEM
+  {
+    "entityID": {"S": "${each.key}"},
+    "pointer": {"S": "latest"},
+    "idpStatus": {"S": "OK"}
+  }
+  ITEM
 }
