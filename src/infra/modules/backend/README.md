@@ -153,6 +153,7 @@
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_security_group_update_idp_status_lambda"></a> [security\_group\_update\_idp\_status\_lambda](#module\_security\_group\_update\_idp\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_update_idp_status_lambda"></a> [update\_idp\_status\_lambda](#module\_update\_idp\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 
 ## Resources
@@ -240,7 +241,7 @@
 | <a name="input_ssm_cert_key"></a> [ssm\_cert\_key](#input\_ssm\_cert\_key) | TODO fix name | <pre>object({<br>    cert_pem = optional(string, "cert.pem")<br>    key_pem  = optional(string, "key.pem")<br>  })</pre> | n/a | yes |
 | <a name="input_switch_region_enabled"></a> [switch\_region\_enabled](#input\_switch\_region\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#input\_table\_client\_registrations\_arn) | Dynamodb table client registrations arn. | `string` | n/a | yes |
-| <a name="input_update_idp_status_lambda"></a> [update\_idp\_status\_lambda](#input\_update\_idp\_status\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    assets_bucket_arn                 = string<br>    table_idp_status_history_arn      = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>  })</pre> | n/a | yes |
+| <a name="input_update_idp_status_lambda"></a> [update\_idp\_status\_lambda](#input\_update\_idp\_status\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    assets_bucket_arn                 = string<br>    table_idp_status_history_arn      = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_s3_prefix_id                  = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPC cidr block. | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
 
