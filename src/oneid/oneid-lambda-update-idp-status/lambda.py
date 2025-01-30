@@ -13,6 +13,7 @@ AWS_REGION = os.getenv("AWS_REGION")
 IDP_STATUS_DYNAMODB_TABLE = os.getenv("IDP_STATUS_DYNAMODB_TABLE")
 ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
 IDP_STATUS_S3_FILE_NAME = os.getenv("IDP_STATUS_S3_FILE_NAME")
+
 LATEST_POINTER = "latest"
 IDP_ERROR_RATE_ALARM = "IDPErrorRateAlarm"
 IDP_STATUS_OK = "OK"
@@ -21,6 +22,7 @@ ALARM_STATE_MAP = {"ALARM": "KO", "OK": "OK"}
 
 # Initialize a logger
 logger = logging.getLogger()
+logger.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
 
 # Initialize a boto3 client for DynamoDB
 dynamodb_client = boto3.client("dynamodb", region_name=AWS_REGION)
