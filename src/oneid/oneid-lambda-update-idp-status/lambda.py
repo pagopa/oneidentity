@@ -11,6 +11,7 @@ import boto3
 
 AWS_REGION = os.getenv("AWS_REGION")
 IDP_STATUS_DYNAMODB_TABLE = os.getenv("IDP_STATUS_DYNAMODB_TABLE")
+IDP_STATUS_DYNAMODB_IDX = os.getenv("IDP_STATUS_DYNAMODB_IDX")
 ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
 IDP_STATUS_S3_FILE_NAME = os.getenv("IDP_STATUS_S3_FILE_NAME")
 
@@ -116,9 +117,10 @@ def get_all_latest_status():
     Get all items with {LATEST_POINTER} as the sort key from DynamoDB
     """
     try:
-        response = dynamodb_client.scan(
+        response = dynamodb_client.query(
             TableName=IDP_STATUS_DYNAMODB_TABLE,
-            FilterExpression="pointer = :pointer",
+            IndexName=IDP_STATUS_DYNAMODB_IDX,
+            KeyConditionExpression="pointer = :pointer",
             ExpressionAttributeValues={":pointer": {"S": LATEST_POINTER}},
         )
         return response.get("Items", [])
