@@ -603,6 +603,26 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
 }
 
 
+module "security_group_update_idp_status_lambda" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.update_idp_status_lambda.name}-sg"
+  description = "Security Group for Lambda Update IDP Status"
+
+  vpc_id = var.update_idp_status_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [
+    var.update_idp_status_lambda.vpc_s3_prefix_id,
+  ]
+  egress_rules = ["https-443-tcp"]
+}
+
+
 
 module "update_idp_status_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
@@ -625,6 +645,11 @@ module "update_idp_status_lambda" {
   cloudwatch_logs_retention_in_days = var.update_idp_status_lambda.cloudwatch_logs_retention_in_days
 
   environment_variables = var.update_idp_status_lambda.environment_variables
+
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.update_idp_status_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_update_idp_status_lambda.security_group_id]
 
   allowed_triggers = {
     IDPErrorRate = {

@@ -279,6 +279,9 @@ module "backend" {
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     table_idp_status_history_arn      = module.database.table_idp_status_history_arn
+    vpc_id                     = module.network.vpc_id
+    vpc_subnet_ids             = module.network.intra_subnets_ids
+    vpc_s3_prefix_id           = module.network.vpc_endpoints["s3"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
       LOG_LEVEL                 = var.app_log_level

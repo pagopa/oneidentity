@@ -253,6 +253,9 @@ variable "update_idp_status_lambda" {
     table_idp_status_history_arn      = string
     cloudwatch_logs_retention_in_days = string
     environment_variables             = map(string)
+    vpc_s3_prefix_id                  = string
+    vpc_subnet_ids                    = list(string)
+    vpc_id                            = string
   })
 
 }
