@@ -85,14 +85,13 @@ module "backend" {
     }
   }
 
-  idp_success_alarm_enabled = false
-  sns_topic_arn             = module.sns.sns_topic_arn
-  ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
-  lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
-  dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
-  vpc_id                    = module.network.vpc_id
-  private_subnets           = module.network.private_subnet_ids
-  vpc_cidr_block            = module.network.vpc_cidr_block
+  sns_topic_arn   = module.sns.sns_topic_arn
+  ecs_alarms      = local.cloudwatch__ecs_alarms_with_sns
+  lambda_alarms   = local.cloudwatch__lambda_alarms_with_sns
+  dlq_alarms      = local.cloudwatch__dlq_alarms_with_sns
+  vpc_id          = module.network.vpc_id
+  private_subnets = module.network.private_subnet_ids
+  vpc_cidr_block  = module.network.vpc_cidr_block
 
   service_core = {
     service_name = format("%s-core", local.project)
