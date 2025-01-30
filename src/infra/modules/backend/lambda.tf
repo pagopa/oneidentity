@@ -598,7 +598,9 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
       "dynamodb:DeleteItem",
       "dynamodb:Query",
     "dynamodb:PutItem"]
-    resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
+    resources = [
+      var.dynamodb_table_idpStatus.table_arn,
+    var.dynamodb_table_idpStatus.gsi_pointer_arn]
   }
 }
 

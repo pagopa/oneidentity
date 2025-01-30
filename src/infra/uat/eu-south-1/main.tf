@@ -293,6 +293,10 @@ module "backend" {
     gsi_pointer_arn = module.database.table_idpMetadata_gsi_pointer_arn
     table_arn       = module.database.table_idp_metadata_arn
   }
+  dynamodb_table_idpStatus = {
+    gsi_pointer_arn = module.database.table_idp_status_gsi_pointer_arn
+    table_arn       = module.database.table_idp_status_history_arn
+  }
 
   is_gh_integration_lambda = {
     name                              = format("%s-is-gh-integration-lambda", local.project)
@@ -306,7 +310,6 @@ module "backend" {
     name                              = format("%s-update-idp-status", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
-    table_idp_status_history_arn      = module.database.table_idp_status_history_arn
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
@@ -314,6 +317,7 @@ module "backend" {
     environment_variables = {
       LOG_LEVEL                 = var.app_log_level
       IDP_STATUS_DYNAMODB_TABLE = module.database.table_idp_status_history_name
+      IDP_STATUS_DYNAMODB_IDX   = module.database.table_idp_status_history_idx_name
       ASSETS_S3_BUCKET          = module.storage.assets_bucket_name
       IDP_STATUS_S3_FILE_NAME   = "idp_status_history.json"
     }
