@@ -581,3 +581,85 @@ resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
   alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
 }
 
+
+## Lambda update IDP status
+
+data "aws_iam_policy_document" "update_idp_status_lambda" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:GetObject"]
+    resources = ["${var.update_idp_status_lambda.assets_bucket_arn}/*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:Scan",
+      "dynamodb:GetItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query",
+    "dynamodb:PutItem"]
+    resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
+  }
+}
+
+
+module "security_group_update_idp_status_lambda" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.update_idp_status_lambda.name}-sg"
+  description = "Security Group for Lambda Update IDP Status"
+
+  vpc_id = var.update_idp_status_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [
+    var.update_idp_status_lambda.vpc_s3_prefix_id,
+  ]
+  egress_rules = ["https-443-tcp"]
+}
+
+
+
+module "update_idp_status_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.update_idp_status_lambda.name
+  description             = "Lambda function update idp status."
+  runtime                 = "python3.12"
+  handler                 = "lambda.lambda_handler"
+  create_package          = false
+  local_existing_package  = var.update_idp_status_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.update_idp_status_lambda.json
+
+
+  cloudwatch_logs_retention_in_days = var.update_idp_status_lambda.cloudwatch_logs_retention_in_days
+
+  environment_variables = var.update_idp_status_lambda.environment_variables
+
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.update_idp_status_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_update_idp_status_lambda.security_group_id]
+
+  allowed_triggers = {
+    IDPErrorRate = {
+      principal  = "lambda.alarms.cloudwatch.amazonaws.com"
+      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPErrorRateAlarm-*"
+    }
+  }
+
+  memory_size = 256
+  timeout     = 30
+
+}
+

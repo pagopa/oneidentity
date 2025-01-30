@@ -146,3 +146,69 @@ module "dynamodb_table_idpMetadata" {
   }
 
 }
+
+data "aws_dynamodb_table" "dynamodb_table_idp_status_history" {
+  count = var.idp_status_history_table == null ? 1 : 0
+  name  = "IDPStatusHistory"
+}
+
+module "dynamodb_table_idp_status_history" {
+  count   = var.idp_status_history_table != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "IDPStatusHistory"
+
+  hash_key  = "entityID"
+  range_key = "pointer"
+
+  global_secondary_indexes = [
+    {
+      name            = local.gsi_pointer
+      hash_key        = "pointer"
+      projection_type = "ALL"
+    }
+  ]
+
+  attributes = [
+    {
+      name = "entityID"
+      type = "S"
+    },
+    {
+      name = "pointer"
+      type = "S"
+    },
+  ]
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.idp_status_history_table.point_in_time_recovery_enabled
+  stream_enabled                 = var.idp_status_history_table.stream_enabled
+  stream_view_type               = var.idp_status_history_table.stream_view_type
+  replica_regions                = var.idp_status_history_table.replication_regions
+  deletion_protection_enabled    = var.idp_status_history_table.deletion_protection_enabled
+  tags = {
+    Name = "IDPStatusHistory"
+  }
+
+}
+
+resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
+  table_name = module.dynamodb_table_idp_status_history[0].dynamodb_table_id
+  hash_key   = "entityID"
+  range_key  = "pointer"
+  lifecycle {
+    ignore_changes = [
+      item
+    ]
+  }
+  for_each = var.idp_entity_ids != null ? { for s in var.idp_entity_ids.entity_id : s => s } : {}
+  item     = <<ITEM
+  {
+    "entityID": {"S": "${each.key}"},
+    "pointer": {"S": "latest"},
+    "idpStatus": {"S": "OK"}
+  }
+  ITEM
+}

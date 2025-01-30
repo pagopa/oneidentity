@@ -245,6 +245,21 @@ variable "is_gh_integration_lambda" {
 
 }
 
+variable "update_idp_status_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    assets_bucket_arn                 = string
+    table_idp_status_history_arn      = string
+    cloudwatch_logs_retention_in_days = string
+    environment_variables             = map(string)
+    vpc_s3_prefix_id                  = string
+    vpc_subnet_ids                    = list(string)
+    vpc_id                            = string
+  })
+
+}
+
 variable "eventbridge_pipe_sessions" {
   type = object({
     pipe_name                     = string

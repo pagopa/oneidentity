@@ -302,6 +302,24 @@ module "backend" {
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
+  update_idp_status_lambda = {
+    name                              = format("%s-update-idp-status", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
+    table_idp_status_history_arn      = module.database.table_idp_status_history_arn
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    environment_variables = {
+      LOG_LEVEL                 = var.app_log_level
+      IDP_STATUS_DYNAMODB_TABLE = module.database.table_idp_status_history_name
+      ASSETS_S3_BUCKET          = module.storage.assets_bucket_name
+      IDP_STATUS_S3_FILE_NAME   = "idp_status_history.json"
+    }
+  }
+
+
   ssm_cert_key = {}
 
   client_alarm = {
@@ -320,6 +338,10 @@ module "database" {
   sessions_table             = var.sessions_table
   client_registrations_table = var.client_registrations_table
   idp_metadata_table         = var.idp_metadata_table
+  idp_status_history_table   = var.idp_status_history_table
+  idp_entity_ids = {
+    entity_id = var.entity_id
+  }
 }
 
 

@@ -53,6 +53,10 @@ module "database" {
   // they are replicated from the primary region.
   client_registrations_table = null
   idp_metadata_table         = null
+  idp_status_history_table   = var.idp_status_history_table
+  idp_entity_ids = {
+    entity_id = var.entity_id
+  }
 }
 
 
@@ -273,8 +277,31 @@ module "backend" {
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
+  update_idp_status_lambda = {
+    name                              = format("%s-update-idp-status", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
+    table_idp_status_history_arn      = module.database.table_idp_status_history_arn
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    environment_variables = {
+      LOG_LEVEL                 = var.app_log_level
+      IDP_STATUS_DYNAMODB_TABLE = module.database.table_idp_status_history_name
+      ASSETS_S3_BUCKET          = module.storage.assets_bucket_name
+      IDP_STATUS_S3_FILE_NAME   = "idp_status_history.json"
+    }
+  }
+
   aws_caller_identity   = data.aws_caller_identity.current.account_id
   switch_region_enabled = true
+
+
+  idp_alarm = {
+    entity_id = var.entity_id
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
 
 }
 

@@ -216,6 +216,16 @@ variable "idp_metadata_table" {
   }
 }
 
+variable "idp_status_history_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "IDP Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 variable "cie_entity_id" {
   type    = string
   default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
@@ -640,3 +650,14 @@ variable "api_alarms" {
   }
 }
 
+variable "entity_id" {
+  type = list(string)
+  default = [
+    "https://demo.spid.gov.it",
+    "https://validator.spid.gov.it",
+    "https://validator.dev.oneid.pagopa.it",
+    "https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws",
+    "https://validator.dev.oneid.pagopa.it/demo",
+    "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws",
+  ]
+}

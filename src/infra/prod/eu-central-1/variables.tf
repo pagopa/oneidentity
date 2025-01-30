@@ -189,6 +189,16 @@ variable "repository_image_tag_mutability" {
   default     = "MUTABLE"
 }
 
+variable "idp_status_history_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "IDP Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 variable "cie_entity_id" {
   type    = string
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
@@ -352,6 +362,24 @@ variable "rest_api_throttle_settings" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "entity_id" {
+  type = list(string)
+  default = [
+    "https://loginspid.infocamere.it",
+    "https://idp.intesigroup.com",
+    "https://loginspid.aruba.it",
+    "https://identity.sieltecloud.it",
+    "https://spid.register.it",
+    "https://spid.teamsystem.com/idp",
+    "https://idp.namirialtsp.com/idp",
+    "https://posteid.poste.it",
+    "https://identity.infocert.it",
+    "https://id.eht.eu",
+    "https://login.id.tim.it/affwebservices/public/saml2sso",
+    "https://id.lepida.it/idp/shibboleth",
+  ]
 }
 
 variable "ecs_alarms" {
