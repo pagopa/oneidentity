@@ -64,3 +64,10 @@ variable "idp_status_history_table" {
   })
   description = "IDP status history table configurations."
 }
+
+variable "idp_entity_ids" {
+  type = object({
+    entity_id = list(string)
+  })
+  default = null
+}
