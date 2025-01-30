@@ -17,7 +17,7 @@ LATEST_POINTER = "latest"
 IDP_ERROR_RATE_ALARM = "IDPErrorRateAlarm"
 IDP_STATUS_OK = "OK"
 IDP_STATUS_KO = "KO"
-ALARM_STATE_MAP = {"ALARM" : "KO", "OK": "OK"}
+ALARM_STATE_MAP = {"ALARM": "KO", "OK": "OK"}
 
 # Initialize a logger
 logger = logging.getLogger()
@@ -56,15 +56,14 @@ def update_idp_status(idp, alarm_state) -> bool:
 
     new_status = ALARM_STATE_MAP[alarm_state]
 
-
     # Remove the latest IDP status
     try:
         response = dynamodb_client.delete_item(
-        TableName=IDP_STATUS_DYNAMODB_TABLE,
-        Key={"entityID": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
-        ConditionExpression="status <> :status",
-        ExpressionAttributeValues={":status": {"S": new_status}},
-        ReturnValues="ALL_OLD",
+            TableName=IDP_STATUS_DYNAMODB_TABLE,
+            Key={"entityID": {"S": idp}, "pointer": {"S": LATEST_POINTER}},
+            ConditionExpression="idpStatus <> :idpStatus",
+            ExpressionAttributeValues={":idpStatus": {"S": new_status}},
+            ReturnValues="ALL_OLD",
         )
         old_item = response["Attributes"]
         logger.info("Deleted item: %s", response)
@@ -76,7 +75,7 @@ def update_idp_status(idp, alarm_state) -> bool:
         logger.error("Error deleting item: %s", e)
         return False
 
-    old_status = old_item["status"]["S"]
+    old_status = old_item["idpStatus"]["S"]
 
     # Add new entry with unix timestamp as the range key and old status as the status
     try:
@@ -85,7 +84,7 @@ def update_idp_status(idp, alarm_state) -> bool:
             Item={
                 "entityID": {"S": idp},
                 "pointer": {"S": current_timestamp},
-                "status": {"S": old_status},
+                "idpStatus": {"S": old_status},
             },
         )
     except Exception as e:
@@ -99,7 +98,7 @@ def update_idp_status(idp, alarm_state) -> bool:
             Item={
                 "entityID": {"S": idp},
                 "pointer": {"S": LATEST_POINTER},
-                "status": {"S": new_status},
+                "idpStatus": {"S": new_status},
             },
         )
     except Exception as e:
@@ -131,7 +130,7 @@ def update_s3_asset_file(idp_latest_status) -> bool:
     Update the S3 asset file with the latest IDP status
     """
     idp_status_list = [
-        {"IDP": idp["entityID"]["S"], "Status": idp["status"]["S"]}
+        {"IDP": idp["entityID"]["S"], "Status": idp["idpStatus"]["S"]}
         for idp in idp_latest_status
     ]
 
@@ -185,5 +184,5 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "body": json.dumps("IDP status updated successfully"),
         }
-        
+
     return {"statusCode": 500, "body": json.dumps("Error updating S3 asset file")}
