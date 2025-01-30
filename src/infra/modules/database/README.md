@@ -97,7 +97,9 @@ No resources.
 | <a name="output_table_idp_metadata_arn"></a> [table\_idp\_metadata\_arn](#output\_table\_idp\_metadata\_arn) | n/a |
 | <a name="output_table_idp_metadata_idx_name"></a> [table\_idp\_metadata\_idx\_name](#output\_table\_idp\_metadata\_idx\_name) | n/a |
 | <a name="output_table_idp_metadata_name"></a> [table\_idp\_metadata\_name](#output\_table\_idp\_metadata\_name) | n/a |
+| <a name="output_table_idp_status_gsi_pointer_arn"></a> [table\_idp\_status\_gsi\_pointer\_arn](#output\_table\_idp\_status\_gsi\_pointer\_arn) | n/a |
 | <a name="output_table_idp_status_history_arn"></a> [table\_idp\_status\_history\_arn](#output\_table\_idp\_status\_history\_arn) | n/a |
+| <a name="output_table_idp_status_history_idx_name"></a> [table\_idp\_status\_history\_idx\_name](#output\_table\_idp\_status\_history\_idx\_name) | n/a |
 | <a name="output_table_idp_status_history_name"></a> [table\_idp\_status\_history\_name](#output\_table\_idp\_status\_history\_name) | n/a |
 | <a name="output_table_sessions_arn"></a> [table\_sessions\_arn](#output\_table\_sessions\_arn) | n/a |
 | <a name="output_table_sessions_gsi_code_arn"></a> [table\_sessions\_gsi\_code\_arn](#output\_table\_sessions\_gsi\_code\_arn) | n/a |
