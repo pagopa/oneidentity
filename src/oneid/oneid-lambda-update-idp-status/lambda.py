@@ -17,7 +17,7 @@ LATEST_POINTER = "latest"
 IDP_ERROR_RATE_ALARM = "IDPErrorRateAlarm"
 IDP_STATUS_OK = "OK"
 IDP_STATUS_KO = "KO"
-ALARM_STATE_MAP = {"IN_ALARM" : "KO", "OK": "OK"}
+ALARM_STATE_MAP = {"ALARM" : "KO", "OK": "OK"}
 
 # Initialize a logger
 logger = logging.getLogger()
