@@ -419,7 +419,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   threshold           = 1
-  ok_actions          = [ module.update_idp_status_lambda.lambda_function_arn]
+  ok_actions          = [module.update_idp_status_lambda.lambda_function_arn]
 
 
   alarm_actions = [
@@ -463,7 +463,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
       dimensions = {
         "IDPAggregated" = each.key
       }
-      }
+    }
   }
 }
 
