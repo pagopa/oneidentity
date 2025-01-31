@@ -394,18 +394,12 @@ variable "client_ids" {
 variable "entity_id" {
   type = list(string)
   default = [
-    "https://loginspid.infocamere.it",
-    "https://idp.intesigroup.com",
-    "https://loginspid.aruba.it",
-    "https://identity.sieltecloud.it",
-    "https://spid.register.it",
-    "https://spid.teamsystem.com/idp",
-    "https://idp.namirialtsp.com/idp",
-    "https://posteid.poste.it",
-    "https://identity.infocert.it",
-    "https://id.eht.eu",
-    "https://login.id.tim.it/affwebservices/public/saml2sso",
-    "https://id.lepida.it/idp/shibboleth",
+    "https://demo.spid.gov.it",
+    "https://validator.spid.gov.it",
+    "https://validator.dev.oneid.pagopa.it",
+    "https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws",
+    "https://validator.dev.oneid.pagopa.it/demo",
+    "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws",
   ]
 }
 
