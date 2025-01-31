@@ -619,6 +619,7 @@ module "security_group_update_idp_status_lambda" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
+    var.update_idp_status_lambda.vpc_endpoint_dynamodb_prefix_id,
     var.update_idp_status_lambda.vpc_s3_prefix_id,
   ]
   egress_rules = ["https-443-tcp"]
