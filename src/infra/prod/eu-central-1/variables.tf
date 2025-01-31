@@ -199,6 +199,16 @@ variable "idp_status_history_table" {
   }
 }
 
+variable "client_status_history_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Client Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 variable "cie_entity_id" {
   type    = string
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
@@ -362,6 +372,11 @@ variable "rest_api_throttle_settings" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "client_ids" {
+  type    = list(string)
+  default = ["br8sFmmBK2OIjQ4hY0UM_D5mvt1zOR64zjk1m2WXT0Y"]
 }
 
 variable "entity_id" {

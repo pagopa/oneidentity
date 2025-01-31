@@ -392,39 +392,18 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   ])
 }
 
-resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
-  for_each            = var.client_alarm != null ? { for s in var.client_alarm.client_id : s => s } : {}
-  alarm_name          = format("%s-%s", "ClientErrorAlarm", each.key)
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
-  metric_name         = "ClientError"
-  namespace           = var.client_alarm.namespace
-  period              = 300
-  statistic           = "Sum"
-  threshold           = 5
-
-  dimensions = {
-    "ClientAggregated" = each.key
-  }
-
-  alarm_actions = [
-    var.sns_topic_arn
-  ]
-
-}
-
 resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s-%s", "IDPErrorRateAlarm", each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   threshold           = 1
-  ok_actions          = [module.update_idp_status_lambda.lambda_function_arn]
+  ok_actions          = [module.update_status_lambda.lambda_function_arn]
 
 
   alarm_actions = [
     var.sns_topic_arn,
-    module.update_idp_status_lambda.lambda_function_arn
+    module.update_status_lambda.lambda_function_arn
   ]
 
   metric_query {
@@ -462,6 +441,60 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
 
       dimensions = {
         "IDPAggregated" = each.key
+      }
+    }
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
+  for_each            = var.client_alarm != null ? { for s in var.client_alarm.client_id : s => s } : {}
+  alarm_name          = format("%s-%s", "ClientErrorRateAlarm", each.key)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  threshold           = 1
+  ok_actions          = [module.update_status_lambda.lambda_function_arn]
+
+
+  alarm_actions = [
+    var.sns_topic_arn,
+    module.update_status_lambda.lambda_function_arn
+  ]
+
+  metric_query {
+    id          = "error_rate"
+    expression  = "errors/(successes+errors)*100"
+    label       = "Error Rate"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "ClientSuccess"
+      namespace   = var.client_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "ClientAggregated" = each.key
+      }
+    }
+  }
+
+  metric_query {
+    id = "errors"
+
+    metric {
+      metric_name = "ClientError"
+      namespace   = var.client_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "ClientAggregated" = each.key
       }
     }
   }
