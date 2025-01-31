@@ -61,7 +61,7 @@ def get_event_data(event):
     # whilst IDP is one of the IDP entity ids
     alarm_data = event["alarmData"]
     alarm_name = alarm_data["alarmName"]
-    alarm_type, idp = alarm_name.split("-")
+    alarm_type, idp = alarm_name.split("-", 1)
     alarm_state = alarm_data["state"]["value"]
 
     return alarm_type, idp, alarm_state
