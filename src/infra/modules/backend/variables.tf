@@ -124,6 +124,14 @@ variable "dynamodb_table_idpStatus" {
   description = "Dynamodb table idpStatus arns"
 }
 
+variable "dynamodb_table_clientStatus" {
+  type = object({
+    table_arn       = string
+    gsi_pointer_arn = string
+  })
+  description = "Dynamodb table clientStatus arns"
+}
+
 
 variable "table_client_registrations_arn" {
   type        = string
@@ -137,7 +145,7 @@ variable "lambda_client_registration_trigger_enabled" {
 
 variable "kms_sessions_table_alias_arn" {
   type        = string
-  description = "Kms key used to encrypt and dectypt session table."
+  description = "Kms key used to encrypt and decrypt session table."
 }
 
 variable "kms_ssm_enable_rotation" {
@@ -254,7 +262,7 @@ variable "is_gh_integration_lambda" {
 
 }
 
-variable "update_idp_status_lambda" {
+variable "update_status_lambda" {
   type = object({
     name                              = string
     filename                          = string

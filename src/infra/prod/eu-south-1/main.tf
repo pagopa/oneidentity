@@ -96,13 +96,17 @@ module "sns" {
 
 ## Database ##  
 module "database" {
-  source                     = "../../modules/database"
-  sessions_table             = var.sessions_table
-  client_registrations_table = var.client_registrations_table
-  idp_metadata_table         = var.idp_metadata_table
-  idp_status_history_table   = var.idp_status_history_table
+  source                      = "../../modules/database"
+  sessions_table              = var.sessions_table
+  client_registrations_table  = var.client_registrations_table
+  idp_metadata_table          = var.idp_metadata_table
+  idp_status_history_table    = var.idp_status_history_table
+  client_status_history_table = var.client_status_history_table
   idp_entity_ids = {
     entity_id = var.entity_id
+  }
+  client_ids = {
+    client_id = var.client_ids
   }
 }
 
@@ -318,6 +322,11 @@ module "backend" {
     table_arn       = module.database.table_idp_status_history_arn
   }
 
+  dynamodb_table_clientStatus = {
+    gsi_pointer_arn = module.database.table_client_status_gsi_pointer_arn
+    table_arn       = module.database.table_client_status_history_arn
+  }
+
   is_gh_integration_lambda = {
     name                              = format("%s-is-gh-integration-lambda", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
@@ -326,8 +335,8 @@ module "backend" {
     environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
-  update_idp_status_lambda = {
-    name                              = format("%s-update-idp-status", local.project)
+  update_status_lambda = {
+    name                              = format("%s-update-status", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     vpc_id                            = module.network.vpc_id
@@ -336,11 +345,14 @@ module "backend" {
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
-      LOG_LEVEL                 = var.app_log_level
-      IDP_STATUS_DYNAMODB_TABLE = module.database.table_idp_status_history_name
-      IDP_STATUS_DYNAMODB_IDX   = module.database.table_idp_status_history_idx_name
-      ASSETS_S3_BUCKET          = module.storage.assets_bucket_name
-      IDP_STATUS_S3_FILE_NAME   = "idp_status_history.json"
+      LOG_LEVEL                    = var.app_log_level
+      IDP_STATUS_DYNAMODB_TABLE    = module.database.table_idp_status_history_name
+      IDP_STATUS_DYNAMODB_IDX      = module.database.table_idp_status_history_idx_name
+      CLIENT_STATUS_DYNAMODB_TABLE = module.database.table_client_status_history_name
+      CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
+      ASSETS_S3_BUCKET             = module.storage.assets_bucket_name
+      IDP_STATUS_S3_FILE_NAME      = "idp_status_history.json"
+      CLIENT_STATUS_S3_FILE_NAME   = "client_status_history.json"
     }
   }
 

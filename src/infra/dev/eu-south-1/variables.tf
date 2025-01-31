@@ -226,6 +226,16 @@ variable "idp_status_history_table" {
   }
 }
 
+variable "client_status_history_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Client Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 variable "cie_entity_id" {
   type    = string
   default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
@@ -660,4 +670,9 @@ variable "entity_id" {
     "https://validator.dev.oneid.pagopa.it/demo",
     "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws",
   ]
+}
+
+variable "client_ids" {
+  type    = list(string)
+  default = ["bxMiPVktuZ5lBNbZYJ3ODosXL57ltrLp7BgyOkw-0v4"]
 }

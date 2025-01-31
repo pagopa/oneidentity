@@ -194,6 +194,7 @@ module "dynamodb_table_idp_status_history" {
 
 }
 
+
 resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
   table_name = module.dynamodb_table_idp_status_history[0].dynamodb_table_id
   hash_key   = "entityID"
@@ -209,6 +210,72 @@ resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
     "entityID": {"S": "${each.key}"},
     "pointer": {"S": "latest"},
     "idpStatus": {"S": "OK"}
+  }
+  ITEM
+}
+
+data "aws_dynamodb_table" "dynamodb_table_client_status_history" {
+  count = var.client_status_history_table == null ? 1 : 0
+  name  = "ClientStatusHistory"
+}
+
+module "dynamodb_table_client_status_history" {
+  count   = var.client_status_history_table != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "ClientStatusHistory"
+
+  hash_key  = "clientID"
+  range_key = "pointer"
+
+  global_secondary_indexes = [
+    {
+      name            = local.gsi_pointer
+      hash_key        = "pointer"
+      projection_type = "ALL"
+    }
+  ]
+
+  attributes = [
+    {
+      name = "clientID"
+      type = "S"
+    },
+    {
+      name = "pointer"
+      type = "S"
+    },
+  ]
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.client_status_history_table.point_in_time_recovery_enabled
+  stream_enabled                 = var.client_status_history_table.stream_enabled
+  stream_view_type               = var.client_status_history_table.stream_view_type
+  replica_regions                = var.client_status_history_table.replication_regions
+  deletion_protection_enabled    = var.client_status_history_table.deletion_protection_enabled
+  tags = {
+    Name = "ClientStatusHistory"
+  }
+
+}
+
+resource "aws_dynamodb_table_item" "default_client_status_history_item" {
+  table_name = module.dynamodb_table_client_status_history[0].dynamodb_table_id
+  hash_key   = "clientID"
+  range_key  = "pointer"
+  lifecycle {
+    ignore_changes = [
+      item
+    ]
+  }
+  for_each = var.client_ids != null ? { for s in var.client_ids.client_id : s => s } : {}
+  item     = <<ITEM
+  {
+    "clientID": {"S": "${each.key}"},
+    "pointer": {"S": "latest"},
+    "clientStatus": {"S": "OK"}
   }
   ITEM
 }
