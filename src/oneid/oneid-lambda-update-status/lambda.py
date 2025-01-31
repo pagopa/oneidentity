@@ -1,5 +1,5 @@
 """
-Lambda update idp status
+Lambda update status
 """
 
 import json
@@ -56,15 +56,15 @@ def get_event_data(event):
     Extract the event data from event
     """
     # Extract the event data considering that it is a CloudWatch alarm event
-    # The alarm name is in the format {ALARM_TYPE}-{IDP}
-    # ALARM_TYPE is one of the following: IDPErrorAlarm, IDPSuccessAlarm
-    # whilst IDP is one of the IDP entity ids
+    # The alarm name is in the format {ALARM_TYPE}-{KEY}
+    # ALARM_TYPE is one of the following: IDPErrorRateAlarm, ClientErrorRateAlarm
+    # whilst KEY is one of the CLIENT/IDP ids
     alarm_data = event["alarmData"]
     alarm_name = alarm_data["alarmName"]
-    alarm_type, idp = alarm_name.split("-", 1)
+    alarm_type, key = alarm_name.split("-", 1)
     alarm_state = alarm_data["state"]["value"]
 
-    return alarm_type, idp, alarm_state
+    return alarm_type, key, alarm_state
 
 
 def update_status(alarm_type, key, alarm_state) -> bool:
