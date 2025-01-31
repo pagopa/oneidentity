@@ -116,6 +116,15 @@ variable "dynamodb_table_idpMetadata" {
   description = "Dynamodb table idpMetadata anrs"
 }
 
+variable "dynamodb_table_idpStatus" {
+  type = object({
+    table_arn       = string
+    gsi_pointer_arn = string
+  })
+  description = "Dynamodb table idpStatus arns"
+}
+
+
 variable "table_client_registrations_arn" {
   type        = string
   description = "Dynamodb table client registrations arn."
@@ -250,10 +259,10 @@ variable "update_idp_status_lambda" {
     name                              = string
     filename                          = string
     assets_bucket_arn                 = string
-    table_idp_status_history_arn      = string
     cloudwatch_logs_retention_in_days = string
     environment_variables             = map(string)
     vpc_s3_prefix_id                  = string
+    vpc_endpoint_dynamodb_prefix_id   = string
     vpc_subnet_ids                    = list(string)
     vpc_id                            = string
   })

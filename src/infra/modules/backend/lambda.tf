@@ -598,7 +598,9 @@ data "aws_iam_policy_document" "update_idp_status_lambda" {
       "dynamodb:DeleteItem",
       "dynamodb:Query",
     "dynamodb:PutItem"]
-    resources = ["${var.update_idp_status_lambda.table_idp_status_history_arn}"]
+    resources = [
+      var.dynamodb_table_idpStatus.table_arn,
+    var.dynamodb_table_idpStatus.gsi_pointer_arn]
   }
 }
 
@@ -617,6 +619,7 @@ module "security_group_update_idp_status_lambda" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
+    var.update_idp_status_lambda.vpc_endpoint_dynamodb_prefix_id,
     var.update_idp_status_lambda.vpc_s3_prefix_id,
   ]
   egress_rules = ["https-443-tcp"]
