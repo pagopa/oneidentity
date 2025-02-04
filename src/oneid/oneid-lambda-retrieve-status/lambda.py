@@ -39,7 +39,10 @@ EVENT_TYPE_MAPPER = {
 
 def validate_input_data(start, end):
     """
-    Validate input parameters
+    Validate start and end parameters:
+    - If end is provided, start is required
+    - Check if start and end timestamp format is valid
+    - Check if start is less than end
     """
     if end and not start:
         raise ValueError("Start date is required when end date is provided")
@@ -49,7 +52,6 @@ def validate_input_data(start, end):
             raise ValueError(f"Invalid timestamp format: {timestamp}")
 
     if start and end:
-        
         start_value = int(start) if start != LATEST_POINTER else float("inf")
         end_value = int(end) if end != LATEST_POINTER else float("inf")
 
@@ -67,7 +69,6 @@ def check_timestamp_format(timestamp) -> bool:
     except ValueError:
         logger.error("Invalid timestamp format")
         return False
-    
     return True
 
 def get_event_data(event):
@@ -76,7 +77,8 @@ def get_event_data(event):
     """
     # Get the data from the event
     # The event is an API Gateway event in a lambda proxy integration
-    # The endpoint in in the form of /{type}/status with 'entity_key', 'start' and 'end' passed as query parameters
+    # The endpoint in in the form of /{type}/status
+    ## with 'entity_key', 'start' and 'end' passed as query parameters
 
     event_type = event["pathParameters"]["type"]
     entity_key = event["queryStringParameters"].get("entityKey", "").strip()
@@ -97,7 +99,7 @@ def build_filtered_output(status_id, start, end, items):
         else:
             values[int(item["pointer"]["S"])] = item[status_id]["S"]
 
-    # Filter the items by the timestamp
+    # Filter the items by the timestamp, that must be between start and end
     filtered_items = {str(timestamp) if timestamp != float("inf") else LATEST_POINTER : value for timestamp, value in values.items() if start <= timestamp <= end}
 
     return filtered_items
@@ -110,7 +112,7 @@ def get_status_history(event_type, entity_key, start, end):
     table_name = EVENT_TYPE_MAPPER[event_type]["table_name"]
     key_id = EVENT_TYPE_MAPPER[event_type]["key_id"]
     status_id = EVENT_TYPE_MAPPER[event_type]["status_id"]
-    
+
     if start:
         start = float(start) if start != "latest" else float("inf")
     else:
@@ -184,6 +186,5 @@ def lambda_handler(event, context):
 
     if not result:
         return {"statusCode": 404, "body": json.dumps("Not found")}
-
 
     return {"statusCode": 200, "body": result}
