@@ -356,6 +356,24 @@ module "backend" {
     }
   }
 
+  status_endpoint_lambda = {
+    name                              = format("%s-status-endpoint", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
+    vpc_id                            = module.network.vpc_id
+    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    environment_variables = {
+      #TODO
+      LOG_LEVEL = var.app_log_level
+      # IDP_STATUS_DYNAMODB_TABLE    = module.database.table_idp_status_history_name
+      # IDP_STATUS_DYNAMODB_IDX      = module.database.table_idp_status_history_idx_name
+      # CLIENT_STATUS_DYNAMODB_TABLE = module.database.table_client_status_history_name
+      # CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
+    }
+  }
+
   ssm_cert_key = {}
 
   client_alarm = {
@@ -395,6 +413,7 @@ module "frontend" {
   }
 
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
+  status_endpoint_lambda_arn     = module.backend.status_endpoint_lambda_arn
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn
   assets_bucket_name             = module.storage.assets_bucket_name

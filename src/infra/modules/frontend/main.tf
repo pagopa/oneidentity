@@ -128,6 +128,7 @@ module "rest_api" {
       connection_id                  = aws_api_gateway_vpc_link.apigw.id
       aws_region                     = var.aws_region
       client_registration_lambda_arn = var.client_registration_lambda_arn
+      status_endpoint_lambda_arn     = var.status_endpoint_lambda_arn
       s3_apigateway_proxy_role       = aws_iam_role.s3_apigw_proxy.arn
       lambda_apigateway_proxy_role   = aws_iam_role.lambda_apigw_proxy.arn
       assets_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,

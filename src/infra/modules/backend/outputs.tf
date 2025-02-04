@@ -61,6 +61,11 @@ output "client_registration_lambda_arn" {
   value = module.client_registration_lambda.lambda_function_arn
 }
 
+## Status endpoint lambda
+output "status_endpoint_lambda_arn" {
+  value = module.status_endpoint_lambda.lambda_function_arn
+}
+
 ## Metadata lambda ##
 output "assertion_lambda_arn" {
   value = module.assertion_lambda.lambda_function_arn
