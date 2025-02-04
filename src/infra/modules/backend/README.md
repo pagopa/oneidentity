@@ -153,7 +153,9 @@
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_security_group_status_endpoint_lambda"></a> [security\_group\_status\_endpoint\_lambda](#module\_security\_group\_status\_endpoint\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_update_status_lambda"></a> [security\_group\_update\_status\_lambda](#module\_security\_group\_update\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_status_endpoint_lambda"></a> [status\_endpoint\_lambda](#module\_status\_endpoint\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_update_status_lambda"></a> [update\_status\_lambda](#module\_update\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 
 ## Resources
@@ -196,6 +198,7 @@
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.status_endpoint_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.update_status_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_ssm_parameter.certificate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 | [aws_ssm_parameter.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
@@ -241,6 +244,7 @@
 | <a name="input_service_core"></a> [service\_core](#input\_service\_core) | n/a | <pre>object({<br>    service_name           = string<br>    cpu                    = number<br>    memory                 = number<br>    enable_execute_command = optional(bool, true)<br>    container = object({<br>      name                = string<br>      cpu                 = number<br>      memory              = number<br>      image_name          = string<br>      image_version       = string<br>      containerPort       = number<br>      hostPort            = number<br>      logs_retention_days = number<br>    })<br>    autoscaling = object({<br>      enable        = bool<br>      desired_count = number<br>      min_capacity  = number<br>      max_capacity  = number<br>    })<br>    environment_variables = list(object({<br>      name  = string<br>      value = string<br>    }))<br>  })</pre> | n/a | yes |
 | <a name="input_sns_topic_arn"></a> [sns\_topic\_arn](#input\_sns\_topic\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_ssm_cert_key"></a> [ssm\_cert\_key](#input\_ssm\_cert\_key) | TODO fix name | <pre>object({<br>    cert_pem = optional(string, "cert.pem")<br>    key_pem  = optional(string, "key.pem")<br>  })</pre> | n/a | yes |
+| <a name="input_status_endpoint_lambda"></a> [status\_endpoint\_lambda](#input\_status\_endpoint\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_switch_region_enabled"></a> [switch\_region\_enabled](#input\_switch\_region\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#input\_table\_client\_registrations\_arn) | Dynamodb table client registrations arn. | `string` | n/a | yes |
 | <a name="input_update_status_lambda"></a> [update\_status\_lambda](#input\_update\_status\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    assets_bucket_arn                 = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_s3_prefix_id                  = string<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
@@ -269,4 +273,5 @@
 | <a name="output_nlb_dns_name"></a> [nlb\_dns\_name](#output\_nlb\_dns\_name) | n/a |
 | <a name="output_nlb_target_group_suffix_arn"></a> [nlb\_target\_group\_suffix\_arn](#output\_nlb\_target\_group\_suffix\_arn) | n/a |
 | <a name="output_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#output\_s3\_lambda\_code\_bucket) | # S3 buket for lambda code ## |
+| <a name="output_status_endpoint_lambda_arn"></a> [status\_endpoint\_lambda\_arn](#output\_status\_endpoint\_lambda\_arn) | # Status endpoint lambda |
 <!-- END_TF_DOCS -->
