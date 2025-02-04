@@ -37,7 +37,7 @@ EVENT_TYPE_MAPPER = {
     },
 }
 
-def validate_input_data(entity_key, start, end):
+def validate_input_data(start, end):
     """
     Validate input parameters
     """
@@ -49,8 +49,6 @@ def validate_input_data(entity_key, start, end):
             raise ValueError(f"Invalid timestamp format: {timestamp}")
 
     if start and end:
-        if not entity_key:
-            raise ValueError("Entity key is required when start and end dates are provided")
         
         start_value = int(start) if start != LATEST_POINTER else float("inf")
         end_value = int(end) if end != LATEST_POINTER else float("inf")
@@ -97,10 +95,10 @@ def build_filtered_output(status_id, start, end, items):
         if item["pointer"]["S"] == LATEST_POINTER:
             values[float("inf")] = item[status_id]["S"]
         else:
-            values[float(item["pointer"]["S"])] = item[status_id]["S"]
-    
+            values[int(item["pointer"]["S"])] = item[status_id]["S"]
+
     # Filter the items by the timestamp
-    filtered_items = [ {str(timestamp) if timestamp != float("inf") else LATEST_POINTER : value for timestamp, value in values.items() if start <= timestamp <= end} ]
+    filtered_items = {str(timestamp) if timestamp != float("inf") else LATEST_POINTER : value for timestamp, value in values.items() if start <= timestamp <= end}
 
     return filtered_items
 
@@ -112,10 +110,14 @@ def get_status_history(event_type, entity_key, start, end):
     table_name = EVENT_TYPE_MAPPER[event_type]["table_name"]
     key_id = EVENT_TYPE_MAPPER[event_type]["key_id"]
     status_id = EVENT_TYPE_MAPPER[event_type]["status_id"]
-
-    if not start:
+    
+    if start:
+        start = float(start) if start != "latest" else float("inf")
+    else:
         start = float("-inf")
-    if not end:
+    if end:
+        end = float(end) if end != "latest" else float("inf")
+    else:
         end = float("inf")
 
     if entity_key:
@@ -131,10 +133,12 @@ def get_status_history(event_type, entity_key, start, end):
         items = response.get("Items", [])
         if not items:
             return None
-  
-        # Filter items based on start and end dates
 
-        return { entity_key : build_filtered_output(status_id, start, end, items) }
+        # Filter items based on start and end dates
+        result = build_filtered_output(status_id, start, end, items)
+        if result:
+            return { entity_key : result }
+        return None
     # Get all values
     response = dynamodb.scan(TableName=table_name)
 
@@ -153,11 +157,13 @@ def get_status_history(event_type, entity_key, start, end):
     output_items = {}
 
     for key, value in values.items():
-        output_items[key] = build_filtered_output(status_id, start, end, value)
+        result = build_filtered_output(status_id, start, end, value)
+        if result:
+            output_items[key] = result
 
     return output_items
 
-def handler(event, context):
+def lambda_handler(event, context):
     """
     Lambda handler
     """
@@ -168,9 +174,9 @@ def handler(event, context):
 
     # Validate input data
     try:
-        validate_input_data(entity_key,start, end)
+        validate_input_data(start, end)
     except ValueError as error:
-        return {"statusCode": 400, "body": json.dumps(str(error))}
+        return {"statusCode": 400, "body": str(error)}
 
     # Retrieve data from dynamodb
 
@@ -179,4 +185,5 @@ def handler(event, context):
     if not result:
         return {"statusCode": 404, "body": json.dumps("Not found")}
 
-    return {"statusCode": 200, "body": json.dumps(result)}
+
+    return {"statusCode": 200, "body": result}
