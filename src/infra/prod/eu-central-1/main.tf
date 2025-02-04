@@ -321,12 +321,9 @@ module "backend" {
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
-      #TODO
-      LOG_LEVEL = var.app_log_level
-      # IDP_STATUS_DYNAMODB_TABLE    = module.database.table_idp_status_history_name
-      # IDP_STATUS_DYNAMODB_IDX      = module.database.table_idp_status_history_idx_name
-      # CLIENT_STATUS_DYNAMODB_TABLE = module.database.table_client_status_history_name
-      # CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
+      LOG_LEVEL                                 = var.app_log_level
+      DYNAMODB_IDP_STATUS_HISTORY_TABLE_NAME    = module.database.table_idp_status_history_name
+      DYNAMODB_CLIENT_STATUS_HISTORY_TABLE_NAME = module.database.table_client_status_history_name
     }
   }
   rest_api_id = module.frontend.rest_api_id
