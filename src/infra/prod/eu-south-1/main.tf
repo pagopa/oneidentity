@@ -373,6 +373,7 @@ module "backend" {
       # CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
     }
   }
+  rest_api_id = module.frontend.rest_api_id
 
   ssm_cert_key = {}
 

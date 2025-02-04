@@ -14,3 +14,7 @@ output "rest_api_invoke_url" {
 output "api_name" {
   value = module.rest_api.rest_api_name
 }
+
+output "rest_api_id" {
+  value = module.rest_api.rest_api_id
+}

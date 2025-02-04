@@ -290,6 +290,10 @@ variable "status_endpoint_lambda" {
 
 }
 
+variable "rest_api_id" {
+  type = string
+}
+
 variable "eventbridge_pipe_sessions" {
   type = object({
     pipe_name                     = string

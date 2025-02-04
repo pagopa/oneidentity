@@ -715,7 +715,7 @@ module "status_endpoint_lambda" {
   version = "7.4.0"
 
   function_name           = var.status_endpoint_lambda.name
-  description             = "Lambda function update idp status."
+  description             = "Lambda function status endpoint."
   runtime                 = "python3.12"
   handler                 = "lambda.lambda_handler"
   create_package          = false
@@ -739,4 +739,10 @@ module "status_endpoint_lambda" {
   memory_size = 256
   timeout     = 30
 
+  allowed_triggers = {
+    StatusAPIGateway = {
+      service    = "apigateway"
+      source_arn = "arn:aws:execute-api:${var.aws_region}:${var.account_id}:${var.rest_api_id}/*/GET/{type}/status"
+    }
+  }
 }

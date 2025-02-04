@@ -329,6 +329,7 @@ module "backend" {
       # CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
     }
   }
+  rest_api_id = module.frontend.rest_api_id
 
   aws_caller_identity   = data.aws_caller_identity.current.account_id
   switch_region_enabled = true
