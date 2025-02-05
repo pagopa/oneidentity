@@ -716,7 +716,7 @@
       }
     },
 
-    "/{type}/status": {
+    "/monitor/{type}/status": {
       "get": {
         "tags": [
           "Authorization Server APIs"

@@ -83,7 +83,7 @@ def get_event_data(event):
     """
     # Get the data from the event
     # The event is an API Gateway event in a lambda proxy integration
-    # The endpoint in in the form of /{type}/status
+    # The endpoint in in the form of /monitor/{type}/status
     ## with 'entity_key', 'start' and 'end' passed as query parameters
 
     path_parameters = event.get("pathParameters")
