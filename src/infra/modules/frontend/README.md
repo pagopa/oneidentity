@@ -127,6 +127,7 @@
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
+| <a name="input_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#input\_retrieve\_status\_lambda\_arn) | lambda retrieve status arn | `string` | n/a | yes |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the IAM Roles | `string` | n/a | yes |
 | <a name="input_web_acl"></a> [web\_acl](#input\_web\_acl) | WEB acl name | <pre>object({<br>    name                       = string<br>    cloudwatch_metrics_enabled = optional(bool, false)<br>    sampled_requests_enabled   = optional(bool, false)<br>    sns_topic_arn              = optional(string, "")<br>  })</pre> | n/a | yes |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `false` | no |
@@ -138,5 +139,6 @@
 | <a name="output_acm_certificate_arn"></a> [acm\_certificate\_arn](#output\_acm\_certificate\_arn) | n/a |
 | <a name="output_acm_validation_domains"></a> [acm\_validation\_domains](#output\_acm\_validation\_domains) | # ACM ## |
 | <a name="output_api_name"></a> [api\_name](#output\_api\_name) | n/a |
+| <a name="output_rest_api_id"></a> [rest\_api\_id](#output\_rest\_api\_id) | n/a |
 | <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | n/a |
 <!-- END_TF_DOCS -->

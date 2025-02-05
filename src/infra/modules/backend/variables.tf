@@ -277,6 +277,23 @@ variable "update_status_lambda" {
 
 }
 
+variable "retrieve_status_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    cloudwatch_logs_retention_in_days = string
+    environment_variables             = map(string)
+    vpc_endpoint_dynamodb_prefix_id   = string
+    vpc_subnet_ids                    = list(string)
+    vpc_id                            = string
+  })
+
+}
+
+variable "rest_api_id" {
+  type = string
+}
+
 variable "eventbridge_pipe_sessions" {
   type = object({
     pipe_name                     = string

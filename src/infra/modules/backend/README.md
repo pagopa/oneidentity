@@ -148,11 +148,13 @@
 | <a name="module_jwt_sign"></a> [jwt\_sign](#module\_jwt\_sign) | terraform-aws-modules/kms/aws | 2.2.1 |
 | <a name="module_kms_key_pem"></a> [kms\_key\_pem](#module\_kms\_key\_pem) | terraform-aws-modules/kms/aws | 3.0.0 |
 | <a name="module_metadata_lambda"></a> [metadata\_lambda](#module\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#module\_retrieve\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#module\_s3\_lambda\_code\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_security_group_retrieve_status_lambda"></a> [security\_group\_retrieve\_status\_lambda](#module\_security\_group\_retrieve\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_update_status_lambda"></a> [security\_group\_update\_status\_lambda](#module\_security\_group\_update\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_update_status_lambda"></a> [update\_status\_lambda](#module\_update\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 
@@ -196,6 +198,7 @@
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.retrieve_status_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.update_status_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_ssm_parameter.certificate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 | [aws_ssm_parameter.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
@@ -237,6 +240,8 @@
 | <a name="input_metadata_lambda"></a> [metadata\_lambda](#input\_metadata\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    table_client_registrations_arn    = string<br>    environment_variables             = map(string)<br>    assets_bucket_arn                 = string<br>    vpc_id                            = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_s3_prefix_id                  = string<br>    vpc_endpoint_ssm_nsg_ids          = list(string)<br>    cloudwatch_logs_retention_in_days = number<br>  })</pre> | n/a | yes |
 | <a name="input_nlb_name"></a> [nlb\_name](#input\_nlb\_name) | Network load balancer name | `string` | n/a | yes |
 | <a name="input_private_subnets"></a> [private\_subnets](#input\_private\_subnets) | Private subnets ids. | `list(string)` | n/a | yes |
+| <a name="input_rest_api_id"></a> [rest\_api\_id](#input\_rest\_api\_id) | n/a | `string` | n/a | yes |
+| <a name="input_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#input\_retrieve\_status\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | IAM Role prefix. | `string` | n/a | yes |
 | <a name="input_service_core"></a> [service\_core](#input\_service\_core) | n/a | <pre>object({<br>    service_name           = string<br>    cpu                    = number<br>    memory                 = number<br>    enable_execute_command = optional(bool, true)<br>    container = object({<br>      name                = string<br>      cpu                 = number<br>      memory              = number<br>      image_name          = string<br>      image_version       = string<br>      containerPort       = number<br>      hostPort            = number<br>      logs_retention_days = number<br>    })<br>    autoscaling = object({<br>      enable        = bool<br>      desired_count = number<br>      min_capacity  = number<br>      max_capacity  = number<br>    })<br>    environment_variables = list(object({<br>      name  = string<br>      value = string<br>    }))<br>  })</pre> | n/a | yes |
 | <a name="input_sns_topic_arn"></a> [sns\_topic\_arn](#input\_sns\_topic\_arn) | n/a | `string` | n/a | yes |
@@ -268,5 +273,6 @@
 | <a name="output_nlb_arn_suffix"></a> [nlb\_arn\_suffix](#output\_nlb\_arn\_suffix) | n/a |
 | <a name="output_nlb_dns_name"></a> [nlb\_dns\_name](#output\_nlb\_dns\_name) | n/a |
 | <a name="output_nlb_target_group_suffix_arn"></a> [nlb\_target\_group\_suffix\_arn](#output\_nlb\_target\_group\_suffix\_arn) | n/a |
+| <a name="output_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#output\_retrieve\_status\_lambda\_arn) | # Retrieve status lambda |
 | <a name="output_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#output\_s3\_lambda\_code\_bucket) | # S3 buket for lambda code ## |
 <!-- END_TF_DOCS -->

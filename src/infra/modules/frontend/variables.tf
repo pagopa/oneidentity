@@ -129,6 +129,12 @@ variable "client_registration_lambda_arn" {
   description = "lambda client registration arn"
 }
 
+## Lambda retrieve status
+variable "retrieve_status_lambda_arn" {
+  type        = string
+  description = "lambda retrieve status arn"
+}
+
 variable "assets_bucket_arn" {
   type        = string
   description = "Assets bucket arn."

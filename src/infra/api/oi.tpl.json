@@ -715,6 +715,120 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
+
+    "/{type}/status": {
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "Retrieve status endpoint",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${retrieve_status_lambda_arn}/invocations",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "type",
+            "description": "Type of entity to monitor, either idp or client",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "idp",
+                "client"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "key",
+            "description": "Key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start",
+            "description": "Starting timestamp to monitor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },  {
+            "in": "query",
+            "name": "end",
+            "description": "Ending timestamp to monitor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    },
+
     "/saml/acs": {
       "post": {
         "tags": [
