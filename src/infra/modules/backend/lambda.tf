@@ -741,7 +741,7 @@ module "retrieve_status_lambda" {
   allowed_triggers = {
     StatusAPIGateway = {
       service    = "apigateway"
-      source_arn = "arn:aws:execute-api:${var.aws_region}:${var.account_id}:${var.rest_api_id}/*/GET/{type}/status"
+      source_arn = "arn:aws:execute-api:${var.aws_region}:${var.account_id}:${var.rest_api_id}/*/GET/monitor/{type}/status"
     }
   }
 }
