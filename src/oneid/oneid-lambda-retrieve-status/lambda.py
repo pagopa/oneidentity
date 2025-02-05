@@ -20,22 +20,26 @@ AWS_REGION = os.getenv("AWS_REGION")
 dynamodb = boto3.client("dynamodb", AWS_REGION)
 
 # Define 'latest' pointer
-LATEST_POINTER = 'latest'
+LATEST_POINTER = "latest"
+
+IDP_PATH = "idp"
+CLIENT_PATH = "client"
 
 # Get the tables name from the environment
 
 EVENT_TYPE_MAPPER = {
-    "idp": {
+    IDP_PATH: {
         "table_name": os.getenv("DYNAMODB_IDP_STATUS_HISTORY_TABLE_NAME"),
         "key_id": "entityID",
         "status_id": "idpStatus",
     },
-    "client": {
+    CLIENT_PATH: {
         "table_name": os.getenv("DYNAMODB_CLIENT_STATUS_HISTORY_TABLE_NAME"),
         "key_id": "clientID",
         "status_id": "clientStatus",
     },
 }
+
 
 def validate_input_data(start, end):
     """
@@ -58,6 +62,7 @@ def validate_input_data(start, end):
         if start_value > end_value:
             raise ValueError("Start date cannot be greater than end date")
 
+
 def check_timestamp_format(timestamp) -> bool:
     """
     Check if timestamp format is a valid unix timestamp
@@ -71,6 +76,7 @@ def check_timestamp_format(timestamp) -> bool:
         return False
     return True
 
+
 def get_event_data(event):
     """
     Get the needed data from the event
@@ -80,12 +86,17 @@ def get_event_data(event):
     # The endpoint in in the form of /{type}/status
     ## with 'entity_key', 'start' and 'end' passed as query parameters
 
-    event_type = event["pathParameters"]["type"]
-    entity_key = event["queryStringParameters"].get("entityKey", "").strip()
-    start = event["queryStringParameters"].get("start", "").strip()
-    end = event["queryStringParameters"].get("end", "").strip()
+    path_parameters = event.get("pathParameters")
+    event_type = path_parameters.get("type")
+    query_string_parameters = event.get("queryStringParameters")
+    entity_key, start, end = "", "", ""
+    if query_string_parameters:
+        entity_key = query_string_parameters.get("entityKey", "").strip()
+        start = query_string_parameters.get("start", "").strip()
+        end = query_string_parameters.get("end", "").strip()
 
     return event_type, entity_key, start, end
+
 
 def build_filtered_output(status_id, start, end, items):
     """
@@ -100,9 +111,14 @@ def build_filtered_output(status_id, start, end, items):
             values[int(item["pointer"]["S"])] = item[status_id]["S"]
 
     # Filter the items by the timestamp, that must be between start and end
-    filtered_items = {str(timestamp) if timestamp != float("inf") else LATEST_POINTER : value for timestamp, value in values.items() if start <= timestamp <= end}
+    filtered_items = {
+        str(timestamp) if timestamp != float("inf") else LATEST_POINTER: value
+        for timestamp, value in values.items()
+        if start <= timestamp <= end
+    }
 
     return filtered_items
+
 
 def get_status_history(event_type, entity_key, start, end):
     """
@@ -139,7 +155,7 @@ def get_status_history(event_type, entity_key, start, end):
         # Filter items based on start and end dates
         result = build_filtered_output(status_id, start, end, items)
         if result:
-            return { entity_key : result }
+            return {entity_key: result}
         return None
     # Get all values
     response = dynamodb.scan(TableName=table_name)
@@ -165,6 +181,7 @@ def get_status_history(event_type, entity_key, start, end):
 
     return output_items
 
+
 def lambda_handler(event, context):
     """
     Lambda handler
@@ -173,6 +190,14 @@ def lambda_handler(event, context):
 
     # Get event data
     event_type, entity_key, start, end = get_event_data(event)
+
+    if event_type not in EVENT_TYPE_MAPPER:
+        logger.error("Invalid event type: %s", event_type)
+        return {
+            "statusCode": 400,
+            "body": json.dumps("Invalid path"),
+            "headers": {"Content-Type": "application/json"},
+        }
 
     # Validate input data
     try:
@@ -185,6 +210,14 @@ def lambda_handler(event, context):
     result = get_status_history(event_type, entity_key, start, end)
 
     if not result:
-        return {"statusCode": 404, "body": json.dumps("Not found")}
+        return {
+            "statusCode": 404,
+            "body": json.dumps("Not found"),
+            "headers": {"Content-Type": "application/json"},
+        }
 
-    return {"statusCode": 200, "body": result}
+    return {
+        "statusCode": 200,
+        "body": json.dumps(result),
+        "headers": {"Content-Type": "application/json"},
+    }
