@@ -671,70 +671,69 @@ module "update_status_lambda" {
 
 }
 
-## Lambda status endpoint
-data "aws_iam_policy_document" "status_endpoint_lambda" {
+## Lambda retrieve status
+data "aws_iam_policy_document" "retrieve_status_lambda" {
 
   statement {
     effect = "Allow"
     actions = [
       "dynamodb:GetItem",
-    "dynamodb:Query"]
+      "dynamodb:Query",
+      "dynamodb:Scan"
+    ]
     resources = [
       var.dynamodb_table_idpStatus.table_arn,
-      var.dynamodb_table_idpStatus.gsi_pointer_arn,
-      # var.dynamodb_table_clientStatus.table_arn,
-      # var.dynamodb_table_clientStatus.gsi_pointer_arn
-    ]
+    var.dynamodb_table_clientStatus.table_arn]
   }
 }
 
 
-module "security_group_status_endpoint_lambda" {
+module "security_group_retrieve_status_lambda" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.17.2"
 
-  name        = "${var.status_endpoint_lambda.name}-sg"
-  description = "Security Group for Lambda Status Endpoint"
+  name        = "${var.retrieve_status_lambda.name}-sg"
+  description = "Security Group for Lambda Retrieve Status"
 
-  vpc_id = var.status_endpoint_lambda.vpc_id
+  vpc_id = var.retrieve_status_lambda.vpc_id
 
   egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
-    var.status_endpoint_lambda.vpc_endpoint_dynamodb_prefix_id
+    var.retrieve_status_lambda.vpc_endpoint_dynamodb_prefix_id
   ]
   egress_rules = ["https-443-tcp"]
 }
 
 
 
-module "status_endpoint_lambda" {
+module "retrieve_status_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
 
-  function_name           = var.status_endpoint_lambda.name
-  description             = "Lambda function status endpoint."
+  function_name           = var.retrieve_status_lambda.name
+  description             = "Lambda function retrieve status."
   runtime                 = "python3.12"
   handler                 = "lambda.lambda_handler"
   create_package          = false
-  local_existing_package  = var.status_endpoint_lambda.filename
+  local_existing_package  = var.retrieve_status_lambda.filename
   ignore_source_code_hash = true
 
   publish = true
 
   attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.status_endpoint_lambda.json
+  policy_json        = data.aws_iam_policy_document.retrieve_status_lambda.json
 
-  cloudwatch_logs_retention_in_days = var.status_endpoint_lambda.cloudwatch_logs_retention_in_days
+  cloudwatch_logs_retention_in_days = var.retrieve_status_lambda.cloudwatch_logs_retention_in_days
 
-  environment_variables = var.status_endpoint_lambda.environment_variables
+  environment_variables = var.retrieve_status_lambda.environment_variables
 
   attach_network_policy = true
 
-  vpc_subnet_ids         = var.status_endpoint_lambda.vpc_subnet_ids
-  vpc_security_group_ids = [module.security_group_status_endpoint_lambda.security_group_id]
+  vpc_subnet_ids         = var.retrieve_status_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_retrieve_status_lambda.security_group_id]
 
   memory_size = 256
   timeout     = 30

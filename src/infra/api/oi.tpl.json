@@ -721,17 +721,14 @@
         "tags": [
           "Authorization Server APIs"
         ],
-        "description": "IDP status endpoint",
+        "description": "Retrieve status endpoint",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${status_endpoint_lambda_arn}/invocations",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${retrieve_status_lambda_arn}/invocations",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
-          "requestParameters": {
-            "integration.request.path.id_type": "method.request.path.type"
-          },
           "responses": {
             "200": {
               "statusCode": "200",

@@ -129,10 +129,10 @@ variable "client_registration_lambda_arn" {
   description = "lambda client registration arn"
 }
 
-## Lambda status endpoint
-variable "status_endpoint_lambda_arn" {
+## Lambda retrieve status
+variable "retrieve_status_lambda_arn" {
   type        = string
-  description = "lambda status endpoint arn"
+  description = "lambda retrieve status arn"
 }
 
 variable "assets_bucket_arn" {

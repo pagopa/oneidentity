@@ -277,7 +277,7 @@ variable "update_status_lambda" {
 
 }
 
-variable "status_endpoint_lambda" {
+variable "retrieve_status_lambda" {
   type = object({
     name                              = string
     filename                          = string
