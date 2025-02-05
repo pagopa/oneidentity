@@ -191,7 +191,7 @@ def lambda_handler(event, context):
     # Get event data
     event_type, entity_key, start, end = get_event_data(event)
 
-    if event_type not in (IDP_PATH, CLIENT_PATH):
+    if event_type not in EVENT_TYPE_MAPPER:
         logger.error("Invalid event type: %s", event_type)
         return {
             "statusCode": 400,
