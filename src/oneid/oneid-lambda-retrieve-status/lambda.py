@@ -130,7 +130,7 @@ def build_filtered_output(status_id, start, end, items):
         filtered_output.append({
             "start": sorted_timestamps[len(sorted_timestamps) - 2],
             "end": LATEST_POINTER,
-            "status": values[LATEST_POINTER]
+            "status": values[float("inf")]
     })
     return filtered_output
 
