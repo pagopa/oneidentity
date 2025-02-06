@@ -115,23 +115,28 @@ def build_filtered_output(status_id, start, end, items):
 
     # Build the filtered output
     filtered_output = []
-    previous_timestamp = 0 if start < sorted_timestamps[0] else sorted_timestamps[0] if sorted_timestamps[0] != float("inf") else 0
+    previous_timestamp = 0
 
     for timestamp in sorted_timestamps:
         if start <= timestamp <= end:
-            filtered_output.append({
-                "start": previous_timestamp,
-                "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
-                "status": values[timestamp]
-            })
-            previous_timestamp = timestamp
+            filtered_output.append(
+                {
+                    "start": previous_timestamp,
+                    "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
+                    "status": values[timestamp],
+                }
+            )
+        elif start <= timestamp and timestamp > end:
+            filtered_output.append(
+                {
+                    "start": previous_timestamp,
+                    "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
+                    "status": values[timestamp],
+                }
+            )
+            break
+        previous_timestamp = timestamp
 
-    if end > sorted_timestamps[len(sorted_timestamps) - 2]:
-        filtered_output.append({
-            "start": sorted_timestamps[len(sorted_timestamps) - 2],
-            "end": LATEST_POINTER,
-            "status": values[float("inf")]
-    })
     return filtered_output
 
 
