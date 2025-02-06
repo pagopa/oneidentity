@@ -115,7 +115,7 @@ def build_filtered_output(status_id, start, end, items):
 
     # Build the filtered output
     filtered_output = []
-    previous_timestamp = 0 if start < sorted_timestamps[0] else sorted_timestamps[0]
+    previous_timestamp = 0 if start < sorted_timestamps[0] else sorted_timestamps[0] if sorted_timestamps[0] != float("inf") else 0
 
     for timestamp in sorted_timestamps:
         if start <= timestamp <= end:
