@@ -110,14 +110,34 @@ def build_filtered_output(status_id, start, end, items):
         else:
             values[int(item["pointer"]["S"])] = item[status_id]["S"]
 
-    # Filter the items by the timestamp, that must be between start and end
-    filtered_items = {
-        str(timestamp) if timestamp != float("inf") else LATEST_POINTER: value
-        for timestamp, value in values.items()
-        if start <= timestamp <= end
-    }
+    # Sort the timestamps
+    sorted_timestamps = sorted(values.keys())
 
-    return filtered_items
+    # Build the filtered output
+    filtered_output = []
+    previous_timestamp = 0
+
+    for timestamp in sorted_timestamps:
+        if start <= timestamp <= end:
+            filtered_output.append(
+                {
+                    "start": previous_timestamp,
+                    "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
+                    "status": values[timestamp],
+                }
+            )
+        elif start <= timestamp and timestamp > end:
+            filtered_output.append(
+                {
+                    "start": previous_timestamp,
+                    "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
+                    "status": values[timestamp],
+                }
+            )
+            break
+        previous_timestamp = timestamp
+
+    return filtered_output
 
 
 def get_status_history(event_type, entity_key, start, end):
