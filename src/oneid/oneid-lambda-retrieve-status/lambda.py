@@ -126,6 +126,12 @@ def build_filtered_output(status_id, start, end, items):
             })
             previous_timestamp = timestamp
 
+    if end > sorted_timestamps[len(sorted_timestamps) - 2]:
+        filtered_output.append({
+            "start": sorted_timestamps[len(sorted_timestamps) - 2],
+            "end": LATEST_POINTER,
+            "status": values[LATEST_POINTER]
+    })
     return filtered_output
 
 
