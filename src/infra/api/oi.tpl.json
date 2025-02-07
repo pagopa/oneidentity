@@ -778,8 +778,8 @@
           },
           {
             "in": "query",
-            "name": "key",
-            "description": "Key",
+            "name": "entityKey",
+            "description": "Entity id of requested client or idp",
             "required": false,
             "schema": {
               "type": "string"
