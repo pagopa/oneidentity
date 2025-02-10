@@ -118,7 +118,7 @@ def build_filtered_output(status_id, start, end, items):
     previous_timestamp = 0
 
     for timestamp in sorted_timestamps:
-        if start <= timestamp <= end:
+        if start <= timestamp:
             filtered_output.append(
                 {
                     "start": previous_timestamp,
@@ -126,15 +126,8 @@ def build_filtered_output(status_id, start, end, items):
                     "status": values[timestamp],
                 }
             )
-        elif start <= timestamp and timestamp > end:
-            filtered_output.append(
-                {
-                    "start": previous_timestamp,
-                    "end": timestamp if timestamp != float("inf") else LATEST_POINTER,
-                    "status": values[timestamp],
-                }
-            )
-            break
+            if timestamp > end:
+                break
         previous_timestamp = timestamp
 
     return filtered_output
