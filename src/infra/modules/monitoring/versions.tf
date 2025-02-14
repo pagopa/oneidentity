@@ -6,5 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">=5.49"
     }
+
+    betteruptime = { 
+      source  = "BetterStackHQ/better-uptime"
+      version = ">= 0.9.3"
+    }
   }
 }

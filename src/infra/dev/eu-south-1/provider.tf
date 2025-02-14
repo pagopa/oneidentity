@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "5.74.0"
     }
+    betteruptime = { 
+      source  = "BetterStackHQ/better-uptime"
+      version = ">= 0.9.3"
+    }
   }
 }
 
@@ -14,4 +18,8 @@ provider "aws" {
   default_tags {
     tags = var.tags
   }
+}
+
+provider "betteruptime" {
+
 }

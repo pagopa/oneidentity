@@ -72,3 +72,36 @@ resource "aws_ce_anomaly_subscription" "main" {
     }
   }
 }
+
+# BetterStack
+
+resource "betteruptime_status_page" "this" {
+  company_name = "OneIdentity Test Status TF"
+  company_url  = "https://example.com"
+  timezone     = "UTC"
+  subdomain    = "oneidentity-test-tf"
+}
+
+resource "betteruptime_monitor" "this" {
+  url          = "https://dev.oneid.pagopa.it/monitor/idp/status?entityKey=https://validator.dev.oneid.pagopa.it&start=latest"
+  monitor_type = "keyword_absence"
+  required_keyword      = "\"status\": \"KO\""
+  pronounceable_name = "DEV-ValidatorIDP-Status"
+  email = false
+
+}
+
+resource "betteruptime_status_page_section" "idp_status" {
+  status_page_id = betteruptime_status_page.this.id
+  name = "IDP-Status"
+  position = 0
+
+}
+
+resource "betteruptime_status_page_resource" "monitor" {
+  status_page_id = betteruptime_status_page.this.id
+  resource_id    = betteruptime_monitor.this.id
+  resource_type  = "Monitor"
+  public_name    = "DEV-ValidatorIDP-Status"
+  status_page_section_id = betteruptime_status_page_section.idp_status.id
+}
