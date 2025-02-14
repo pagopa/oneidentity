@@ -45,12 +45,14 @@ No outputs.
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.49 |
+| <a name="requirement_betteruptime"></a> [betteruptime](#requirement\_betteruptime) | >= 0.9.3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.49 |
+| <a name="provider_betteruptime"></a> [betteruptime](#provider\_betteruptime) | >= 0.9.3 |
 
 ## Modules
 
@@ -65,6 +67,10 @@ No modules.
 | [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_query_definition.ecs_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
+| [betteruptime_monitor.this](https://registry.terraform.io/providers/BetterStackHQ/better-uptime/latest/docs/resources/monitor) | resource |
+| [betteruptime_status_page.this](https://registry.terraform.io/providers/BetterStackHQ/better-uptime/latest/docs/resources/status_page) | resource |
+| [betteruptime_status_page_resource.monitor](https://registry.terraform.io/providers/BetterStackHQ/better-uptime/latest/docs/resources/status_page_resource) | resource |
+| [betteruptime_status_page_section.idp_status](https://registry.terraform.io/providers/BetterStackHQ/better-uptime/latest/docs/resources/status_page_section) | resource |
 | [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
