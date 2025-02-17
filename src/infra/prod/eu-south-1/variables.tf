@@ -462,6 +462,8 @@ variable "entity_id" {
     "https://id.eht.eu",
     "https://login.id.tim.it/affwebservices/public/saml2sso",
     "https://id.lepida.it/idp/shibboleth",
+    "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
+
   ]
 }
 
