@@ -13,8 +13,8 @@ public class IDPNotFoundException extends AuthorizationErrorException {
 
 
   public IDPNotFoundException(String callbackUri, String state, String clientId) {
-    super(String.valueOf(errorCode), callbackUri,
-        errorCode.getErrorMessage(), OAuth2Error.INVALID_REQUEST_CODE, state);
+    super(String.valueOf(errorCode), callbackUri, OAuth2Error.INVALID_REQUEST_CODE,
+        errorCode.getErrorMessage(), state);
     this.clientId = clientId;
   }
 }
