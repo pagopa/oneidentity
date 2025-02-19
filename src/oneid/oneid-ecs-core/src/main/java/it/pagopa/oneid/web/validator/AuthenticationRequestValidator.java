@@ -76,7 +76,7 @@ public class AuthenticationRequestValidator implements
         throw new AuthorizationErrorException(ErrorCode.AUTHORIZATION_ERROR_STATE.getErrorMessage(),
             callbackUri, null, clientId);
       } else {
-        throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_IDP);
+        throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_STATE);
       }
     }
     // Set MDC properties
