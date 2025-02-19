@@ -12,8 +12,8 @@ public class InvalidScopeException extends AuthorizationErrorException {
   private final String clientId;
 
   public InvalidScopeException(String callbackUri, String state, String clientId) {
-    super(String.valueOf(errorCode), callbackUri,
-        errorCode.getErrorMessage(), OAuth2Error.INVALID_SCOPE_CODE,
+    super(String.valueOf(errorCode), callbackUri, OAuth2Error.INVALID_SCOPE_CODE,
+        errorCode.getErrorMessage(),
         state);
     this.clientId = clientId;
   }
