@@ -37,7 +37,6 @@
 		"vite.config.mts",
 		"vitest.config.mts",
 		"vitest.setup.mts",
-		"Dangerfile.ts"
 	],
 	"exclude": [
 		"__mocks__",

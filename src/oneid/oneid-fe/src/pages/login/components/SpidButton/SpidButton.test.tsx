@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SpidButton, SpidButtonProps } from '../SpidButton';
 import { i18nTestSetup } from '../../../../__tests__/i18nTestSetup';
 
