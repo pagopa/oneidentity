@@ -34,12 +34,15 @@ public class AuthorizationRequestDTOExtendedGet {
   @RestQuery("redirect_uri")
   private String redirectUri;
 
+  @NotBlank
   @RestQuery
   private String scope;
 
+  @NotBlank
   @RestQuery
   private String nonce;
 
+  @NotBlank
   @RestQuery
   private String state;
 

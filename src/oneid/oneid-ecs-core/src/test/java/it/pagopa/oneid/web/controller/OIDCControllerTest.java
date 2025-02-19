@@ -328,7 +328,7 @@ class OIDCControllerTest {
         ))
         .when().post("/authorize")
         .then()
-        .statusCode(200)
+        .statusCode(400)
         .body(notNullValue());
   }
 

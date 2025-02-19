@@ -34,12 +34,15 @@ public class AuthorizationRequestDTOExtendedPost {
   @RestForm("redirect_uri")
   private String redirectUri;
 
+  @NotBlank
   @RestForm
   private String scope;
 
+  @NotBlank
   @RestForm
   private String nonce;
 
+  @NotBlank
   @RestForm
   private String state;
 
