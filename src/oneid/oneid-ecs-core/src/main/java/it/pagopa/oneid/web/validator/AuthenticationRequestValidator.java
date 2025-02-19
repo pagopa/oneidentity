@@ -70,6 +70,15 @@ public class AuthenticationRequestValidator implements
         throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_IDP);
       }
     }
+    if (state == null) {
+      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
+          .getCallbackURI().contains(callbackUri)) {
+        throw new AuthorizationErrorException(ErrorCode.AUTHORIZATION_ERROR_STATE.getErrorMessage(),
+            callbackUri, null, clientId);
+      } else {
+        throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_STATE);
+      }
+    }
     // Set MDC properties
     updateMDCClientAndStateProperties(clientId,
         state);

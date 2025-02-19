@@ -167,8 +167,8 @@ public class OIDCController {
     }
 
     // 4. Check if scope is "openid"
-    if (StringUtils.isNotBlank(authorizationRequestDTOExtended.getScope())
-        && !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
+    if (StringUtils.isBlank(authorizationRequestDTOExtended.getScope())
+        || !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error("scope not supported");
       throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState(),
