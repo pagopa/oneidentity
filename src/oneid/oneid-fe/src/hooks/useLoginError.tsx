@@ -1,4 +1,5 @@
-import { t } from 'i18next';
+import i18next from '../locale';
+const { t } = i18next;
 
 export type ErrorData = {
   title: string;
