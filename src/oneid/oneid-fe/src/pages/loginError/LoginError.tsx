@@ -23,20 +23,12 @@ export const LoginError = () => {
 
   const { handleErrorCode } = useLoginError();
 
-  const setContent = useCallback(
-    (errorCode: ERROR_CODE) => {
-      const { title, description } = handleErrorCode(errorCode);
-      setErrorData({ title, description });
-      setLoading(false);
-    },
-    [handleErrorCode]
-  );
-
-  useEffect(() => {
-    setTimeout(() => {
-      setContent(ERROR_CODE.GENERIC);
-    }, 5 * 1000);
-  }, [setContent]);
+  const setContent = useCallback((errorCode: ERROR_CODE) => {
+    const { title, description } = handleErrorCode(errorCode);
+    setErrorData({ title, description });
+    setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (errorCode) {
