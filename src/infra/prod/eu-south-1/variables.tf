@@ -315,6 +315,16 @@ variable "idp_metadata_table" {
   }
 }
 
+variable "last_idp_used_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Last IDP used table configurations."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 # DNS
 variable "dns_record_ttl" {
   type        = number
