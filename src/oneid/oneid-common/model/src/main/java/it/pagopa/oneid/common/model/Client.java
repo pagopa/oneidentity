@@ -58,4 +58,6 @@ public class Client {
   private String policyUri;
 
   private String tosUri;
+
+  private boolean requiredSameIdp;
 }
