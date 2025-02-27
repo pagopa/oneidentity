@@ -86,7 +86,7 @@ variable "r53_dns_zone" {
 ## ECS Cluster ##
 variable "ecs_enable_container_insights" {
   type        = bool
-  description = "Enable ecs cluster container inight."
+  description = "Enable ecs cluster container insight."
   default     = false
 }
 
@@ -231,6 +231,16 @@ variable "client_status_history_table" {
     point_in_time_recovery_enabled = optional(bool, false)
   })
   description = "Client Status History configurations table."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
+variable "last_idp_used_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Last IDP used table configurations."
   default = {
     point_in_time_recovery_enabled = false
   }
