@@ -63,6 +63,7 @@ No modules.
 | [aws_ce_anomaly_monitor.service_monitor](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ce_anomaly_monitor) | resource |
 | [aws_ce_anomaly_subscription.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ce_anomaly_subscription) | resource |
 | [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_dashboard.detailed_metrics_dashboard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_query_definition.ecs_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 | [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
@@ -76,9 +77,12 @@ No modules.
 | <a name="input_api_name"></a> [api\_name](#input\_api\_name) | n/a | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | n/a | yes |
 | <a name="input_ce_daily_budget"></a> [ce\_daily\_budget](#input\_ce\_daily\_budget) | Cost Explorer daily budget. | `string` | `"300"` | no |
+| <a name="input_client_ids"></a> [client\_ids](#input\_client\_ids) | n/a | <pre>object({<br>    client_ids = list(string)<br>  })</pre> | `null` | no |
 | <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Dynamodb ClientRegistrations table | `string` | n/a | yes |
 | <a name="input_create_ce_budget"></a> [create\_ce\_budget](#input\_create\_ce\_budget) | Create Cost Explorer budget. | `bool` | `false` | no |
+| <a name="input_detailed_metrics_dashboard_name"></a> [detailed\_metrics\_dashboard\_name](#input\_detailed\_metrics\_dashboard\_name) | Name of the detailed metrics dashboard. | `string` | n/a | yes |
 | <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name   = string,<br>    cluster_name   = string<br>    log_group_name = string<br>  })</pre> | n/a | yes |
+| <a name="input_idp_entity_ids"></a> [idp\_entity\_ids](#input\_idp\_entity\_ids) | n/a | <pre>object({<br>    entity_id = list(string)<br>  })</pre> | `null` | no |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br>    arn_suffix              = string<br>    target_group_arn_suffix = string<br>  })</pre> | n/a | yes |
 | <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |
