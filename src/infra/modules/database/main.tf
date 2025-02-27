@@ -5,6 +5,7 @@ locals {
 }
 
 
+# Sessions
 module "kms_sessions_table" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
@@ -71,6 +72,8 @@ module "dynamodb_sessions_table" {
 
 }
 
+
+# Client Registrations
 module "dynamodb_table_client_registrations" {
   count   = var.client_registrations_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
@@ -105,6 +108,8 @@ data "aws_dynamodb_table" "dynamodb_table_client_registrations" {
   name  = "ClientRegistrations"
 }
 
+
+# IDP Metadata
 module "dynamodb_table_idpMetadata" {
   count   = var.idp_metadata_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
@@ -147,6 +152,8 @@ module "dynamodb_table_idpMetadata" {
 
 }
 
+
+# Idp Status History
 data "aws_dynamodb_table" "dynamodb_table_idp_status_history" {
   count = var.idp_status_history_table == null ? 1 : 0
   name  = "IDPStatusHistory"
@@ -194,7 +201,6 @@ module "dynamodb_table_idp_status_history" {
 
 }
 
-
 resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
   table_name = module.dynamodb_table_idp_status_history[0].dynamodb_table_id
   hash_key   = "entityID"
@@ -214,6 +220,8 @@ resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
   ITEM
 }
 
+
+## Client Status History
 data "aws_dynamodb_table" "dynamodb_table_client_status_history" {
   count = var.client_status_history_table == null ? 1 : 0
   name  = "ClientStatusHistory"
@@ -278,4 +286,42 @@ resource "aws_dynamodb_table_item" "default_client_status_history_item" {
     "clientStatus": {"S": "OK"}
   }
   ITEM
+}
+
+
+# LastIDPUsed
+module "dynamodb_table_last_idp_used" {
+  count   = var.last_idp_used_table != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "LastIDPUsed"
+
+  hash_key  = "fiscalCode"
+  range_key = "clientId"
+
+  attributes = [
+    {
+      name = "id"
+      type = "S"
+    },
+    {
+      name = "clientId"
+      type = "S"
+    }
+  ]
+
+  ttl_attribute_name = "ttl"
+  ttl_enabled        = var.last_idp_used_table.ttl_enabled
+  billing_mode       = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.last_idp_used_table.point_in_time_recovery_enabled
+  stream_enabled                 = var.last_idp_used_table.stream_enabled
+  stream_view_type               = var.last_idp_used_table.stream_view_type
+  replica_regions                = var.last_idp_used_table.replication_regions
+  deletion_protection_enabled    = var.last_idp_used_table.deletion_protection_enabled
+  tags = {
+    Name = "LastIDPUsed"
+  }
+
 }
