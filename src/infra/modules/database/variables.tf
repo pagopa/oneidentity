@@ -92,3 +92,20 @@ variable "clients" {
   }))
   default = null
 }
+
+
+variable "last_idp_used_table" {
+  type = object({
+    ttl_enabled                    = optional(bool, true)
+    point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
+    deletion_protection_enabled    = optional(bool, false)
+    replication_regions = optional(list(object({
+      region_name            = string
+      propagate_tags         = optional(bool, true)
+      point_in_time_recovery = optional(bool, true)
+    })), [])
+  })
+  description = "Last IDP used table configurations."
+}
