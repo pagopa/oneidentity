@@ -99,7 +99,7 @@ output "table_idpMetadata_gsi_pointer_arn" {
 # Last IDP Used
 output "table_last_idp_used_arn" {
   value = try(
-    module.last_idp_used_table[0].dynamodb_table_arn,
+    module.dynamodb_table_last_idp_used[0].dynamodb_table_arn,
     data.aws_dynamodb_table.dynamodb_table_last_idp_used[0].arn
   )
 }
