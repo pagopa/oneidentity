@@ -82,6 +82,7 @@ No modules.
 | <a name="input_create_ce_budget"></a> [create\_ce\_budget](#input\_create\_ce\_budget) | Create Cost Explorer budget. | `bool` | `false` | no |
 | <a name="input_detailed_metrics_dashboard_name"></a> [detailed\_metrics\_dashboard\_name](#input\_detailed\_metrics\_dashboard\_name) | Name of the detailed metrics dashboard. | `string` | n/a | yes |
 | <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name   = string,<br>    cluster_name   = string<br>    log_group_name = string<br>  })</pre> | n/a | yes |
+| <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_idp_entity_ids"></a> [idp\_entity\_ids](#input\_idp\_entity\_ids) | n/a | <pre>object({<br>    entity_id = list(string)<br>  })</pre> | `null` | no |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br>    arn_suffix              = string<br>    target_group_arn_suffix = string<br>  })</pre> | n/a | yes |
