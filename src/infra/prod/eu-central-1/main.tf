@@ -392,6 +392,7 @@ module "frontend" {
 ## Monitoring / Dashboard ##
 
 module "monitoring" {
+  env_short                       = var.env_short
   source                          = "../../modules/monitoring"
   main_dashboard_name             = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name      = format("%s-api-methods-dashboard", local.project)

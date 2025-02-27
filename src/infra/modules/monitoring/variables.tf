@@ -1,3 +1,8 @@
+variable "env_short" {
+  type        = string
+  description = "Name of the main dashboard."
+}
+
 variable "main_dashboard_name" {
   type        = string
   description = "Name of the main dashboard."
