@@ -61,6 +61,8 @@ public class Client {
   private String policyUri;
 
   private String tosUri;
+
+  private boolean requiredSameIdp;
   // Fields related to FE
   private String a11yUri;
   private boolean backButtonEnabled;
