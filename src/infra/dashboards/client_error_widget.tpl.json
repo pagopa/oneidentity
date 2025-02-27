@@ -1,0 +1,21 @@
+{
+    "type": "metric",
+    "height": 6,
+    "width": 8,
+    "properties": {
+        "title": "Client Error - ${client_id}",
+        "stat": "Sum",
+        "view": "bar",
+        "period": 300,
+        "height": 200,
+        "width": 1710,
+        "region": "${aws_region}",
+        "metrics": [
+            [{
+                "expression": "SEARCH('{oneid-es-1-d-core/ApplicationMetrics, \"Client ID\", Error} \"Client ID\"=\"${client_id}\" MetricName=\"ClientError\"', 'Sum', 300)", 
+                "id": "errors",
+                "region": "${aws_region}"
+                }]
+        ]
+    }
+}
