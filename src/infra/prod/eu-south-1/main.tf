@@ -432,9 +432,17 @@ module "frontend" {
 ## Monitoring / Dashboard ##
 
 module "monitoring" {
-  source                     = "../../modules/monitoring"
-  main_dashboard_name        = format("%s-overall-dashboard", local.project)
-  api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
+  env_short                       = var.env_short
+  source                          = "../../modules/monitoring"
+  main_dashboard_name             = format("%s-overall-dashboard", local.project)
+  api_methods_dashboard_name      = format("%s-api-methods-dashboard", local.project)
+  detailed_metrics_dashboard_name = format("%s-detailed-metrics-dashboard", local.project)
+  idp_entity_ids = {
+    entity_id = var.entity_id
+  }
+  client_ids = {
+    client_ids = var.client_ids
+  }
   aws_region                 = var.aws_region
   api_name                   = module.frontend.api_name
   sessions_table             = module.database.table_sessions_name

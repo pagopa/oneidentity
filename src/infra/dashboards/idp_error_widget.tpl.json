@@ -1,0 +1,21 @@
+{
+    "type": "metric",
+    "height": 6,
+    "width": 8,
+    "properties": {
+        "title": "IDP Error - ${idp}",
+        "stat": "Sum",
+        "view": "bar",
+        "period": 300,
+        "height": 200,
+        "width": 1710,
+        "region": "${aws_region}",
+        "metrics": [
+            [{ 
+                "expression": "SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"IDPError\"', 'Sum', 300)", 
+                "id": "errors", 
+                "region": "${aws_region}" 
+                }]
+        ]
+    }
+}

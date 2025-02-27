@@ -1,3 +1,8 @@
+variable "env_short" {
+  type        = string
+  description = "Name of the main dashboard."
+}
+
 variable "main_dashboard_name" {
   type        = string
   description = "Name of the main dashboard."
@@ -6,6 +11,25 @@ variable "main_dashboard_name" {
 variable "api_methods_dashboard_name" {
   type        = string
   description = "Name of the api methods dashboard."
+}
+
+variable "detailed_metrics_dashboard_name" {
+  type        = string
+  description = "Name of the detailed metrics dashboard."
+}
+
+variable "idp_entity_ids" {
+  type = object({
+    entity_id = list(string)
+  })
+  default = null
+}
+
+variable "client_ids" {
+  type = object({
+    client_ids = list(string)
+  })
+  default = null
 }
 
 variable "aws_region" {
