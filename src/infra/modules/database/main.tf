@@ -290,6 +290,11 @@ resource "aws_dynamodb_table_item" "default_client_status_history_item" {
 
 
 # LastIDPUsed
+data "aws_dynamodb_table" "dynamodb_table_last_idp_used" {
+  count = var.last_idp_used_table == null ? 1 : 0
+  name  = "LastIDPUsed"
+}
+
 module "dynamodb_table_last_idp_used" {
   count   = var.last_idp_used_table != null ? 1 : 0
   source  = "terraform-aws-modules/dynamodb-table/aws"
@@ -297,8 +302,8 @@ module "dynamodb_table_last_idp_used" {
 
   name = "LastIDPUsed"
 
-  hash_key  = "fiscalCode"
-  range_key = "id"
+  hash_key  = "id"
+  range_key = "clientId"
 
   attributes = [
     {
