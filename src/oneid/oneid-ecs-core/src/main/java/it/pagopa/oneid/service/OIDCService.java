@@ -22,7 +22,7 @@ public interface OIDCService {
   AuthorizationResponse getAuthorizationResponse(AuthorizationRequest authorizationRequest);
 
   TokenDataDTO getOIDCTokens(String requestId, String clientId, List<AttributeDTO> attributeDTOList,
-      String nonce);
+      String nonce, String entityId);
 
   void authorizeClient(String clientId, String clientSecret);
 
