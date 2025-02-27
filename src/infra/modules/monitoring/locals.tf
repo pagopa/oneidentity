@@ -3,7 +3,7 @@ locals {
     aws_region = var.aws_region
     idp        = entity_id
   })]
-  
+
   client_widgets = [for client in var.client_ids.client_ids : templatefile("../../dashboards/client_error_widget.tpl.json", {
     aws_region = var.aws_region
     client_id  = client
