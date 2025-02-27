@@ -1,6 +1,7 @@
 package it.pagopa.oneid.common.utils;
 
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.validation.constraints.NotBlank;
 import java.security.SecureRandom;
@@ -21,6 +22,8 @@ public class HASHUtils {
   public static final Base64.Decoder b64decoder = Base64.getDecoder();
 
   public static boolean validateSecret(String salt, String secret, String hashedSecret) {
+    // TODO: remove this logs
+    Log.debug("Salt: " + salt + ", secret: " + secret + ", hashedSecret: " + hashedSecret);
     return generateArgon2(b64decoder.decode(salt), b64decoder.decode(secret)).equals(hashedSecret);
   }
 
