@@ -262,6 +262,7 @@
 | <a name="input_ssm_cert_key"></a> [ssm\_cert\_key](#input\_ssm\_cert\_key) | TODO fix name | <pre>object({<br>    cert_pem = optional(string, "cert.pem")<br>    key_pem  = optional(string, "key.pem")<br>  })</pre> | n/a | yes |
 | <a name="input_switch_region_enabled"></a> [switch\_region\_enabled](#input\_switch\_region\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#input\_table\_client\_registrations\_arn) | Dynamodb table client registrations arn. | `string` | n/a | yes |
+| <a name="input_table_last_idp_used_arn"></a> [table\_last\_idp\_used\_arn](#input\_table\_last\_idp\_used\_arn) | Dynamodb table Last IDP used arn. | `string` | n/a | yes |
 | <a name="input_update_status_lambda"></a> [update\_status\_lambda](#input\_update\_status\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    assets_bucket_arn                 = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_s3_prefix_id                  = string<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPC cidr block. | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
