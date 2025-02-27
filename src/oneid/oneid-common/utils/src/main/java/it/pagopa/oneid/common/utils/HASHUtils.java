@@ -1,6 +1,7 @@
 package it.pagopa.oneid.common.utils;
 
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.validation.constraints.NotBlank;
 import java.security.SecureRandom;
@@ -18,10 +19,28 @@ public class HASHUtils {
 
   public static final Base64.Encoder b64encoder = Base64.getEncoder().withoutPadding();
 
-  public static final Base64.Decoder b64decoder = Base64.getUrlDecoder();
+  public static final Base64.Decoder b64decoder = Base64.getDecoder();
 
   public static boolean validateSecret(String salt, String secret, String hashedSecret) {
-    return generateArgon2(b64decoder.decode(salt), b64decoder.decode(secret)).equals(hashedSecret);
+    byte[] saltBytes;
+
+    try {
+      saltBytes = b64decoder.decode(salt);
+    } catch (IllegalArgumentException e) {
+      Log.error("Invalid salt value: " + salt);
+      throw new RuntimeException(e);
+    }
+
+    byte[] secretBytes;
+
+    try {
+      secretBytes = b64decoder.decode(secret);
+    } catch (IllegalArgumentException e) {
+      Log.error("Invalid secret value");
+      return false;
+    }
+
+    return generateArgon2(saltBytes, secretBytes).equals(hashedSecret);
   }
 
   public static byte[] generateSecureRandom(int bytesLength) {
