@@ -75,6 +75,7 @@ No resources.
 | [aws_dynamodb_table.dynamodb_table_client_registrations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/dynamodb_table) | data source |
 | [aws_dynamodb_table.dynamodb_table_client_status_history](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/dynamodb_table) | data source |
 | [aws_dynamodb_table.dynamodb_table_idp_status_history](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/dynamodb_table) | data source |
+| [aws_dynamodb_table.dynamodb_table_last_idp_used](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/dynamodb_table) | data source |
 
 ## Inputs
 
@@ -113,6 +114,7 @@ No resources.
 | <a name="output_table_idp_status_history_arn"></a> [table\_idp\_status\_history\_arn](#output\_table\_idp\_status\_history\_arn) | n/a |
 | <a name="output_table_idp_status_history_idx_name"></a> [table\_idp\_status\_history\_idx\_name](#output\_table\_idp\_status\_history\_idx\_name) | n/a |
 | <a name="output_table_idp_status_history_name"></a> [table\_idp\_status\_history\_name](#output\_table\_idp\_status\_history\_name) | IDP status history |
+| <a name="output_table_last_idp_used_arn"></a> [table\_last\_idp\_used\_arn](#output\_table\_last\_idp\_used\_arn) | Last IDP Used |
 | <a name="output_table_sessions_arn"></a> [table\_sessions\_arn](#output\_table\_sessions\_arn) | n/a |
 | <a name="output_table_sessions_gsi_code_arn"></a> [table\_sessions\_gsi\_code\_arn](#output\_table\_sessions\_gsi\_code\_arn) | n/a |
 | <a name="output_table_sessions_name"></a> [table\_sessions\_name](#output\_table\_sessions\_name) | Sessions |
