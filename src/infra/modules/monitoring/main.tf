@@ -33,6 +33,19 @@ resource "aws_cloudwatch_dashboard" "api_methods" {
   )
 }
 
+resource "aws_cloudwatch_dashboard" "detailed_metrics_dashboard" {
+  dashboard_name = var.detailed_metrics_dashboard_name
+  dashboard_body = jsonencode({
+    widgets = concat(
+      [local.idp_widget_header],
+      [for w in local.idp_widgets : jsondecode(w)],
+      [local.client_widget_header],
+      [for w in local.client_widgets : jsondecode(w)]
+  ) })
+
+
+}
+
 resource "aws_cloudwatch_query_definition" "ecs_log_level_error" {
   for_each = toset(local.query_files)
 
