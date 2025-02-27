@@ -178,6 +178,11 @@ variable "client_registration_lambda" {
 
 }
 
+variable "table_last_idp_used_arn" {
+  type        = string
+  description = "Dynamodb table Last IDP used arn."
+}
+
 variable "metadata_lambda" {
   type = object({
     name                              = string
