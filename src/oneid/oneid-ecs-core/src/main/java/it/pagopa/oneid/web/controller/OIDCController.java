@@ -259,7 +259,8 @@ public class OIDCController {
 
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(session.getSamlRequestID(), clientId,
         samlServiceImpl.getAttributesFromSAMLAssertion(assertion),
-        session.getAuthorizationRequestDTOExtended().getNonce());
+        session.getAuthorizationRequestDTOExtended().getNonce(),
+        session.getAuthorizationRequestDTOExtended().getIdp());
 
     long creationTime = Instant.now().getEpochSecond();
     long ttl = Instant.now().plus(2, ChronoUnit.DAYS).getEpochSecond();
