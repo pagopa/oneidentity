@@ -268,6 +268,48 @@ public class OIDCServiceImplTest {
   }
 
   @Test
+  void authorizeClient_invalidBase64Salt() {
+    // given
+    String clientID = "test";
+    String secret = "aW52YWxpZFNlY3JldA==";
+    String salt = "-c2FsdGZvb2Jhcg=="; //salt with an invalid base64 character '-'
+    String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg";
+    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
+
+    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+        .thenReturn(Optional.of(secretDTO));
+
+    QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
+
+    // then
+    assertThrows(RuntimeException.class,
+        () -> oidcServiceImpl.authorizeClient(clientID, secret));
+
+  }
+
+  @Test
+  void authorizeClient_invalidBase64Secret() {
+    // given
+    String clientID = "test";
+    String invalidSecret = "-aW52YWxpZFNlY3JldA=="; // secret with invalid base64 character '-'
+    String salt = "c2FsdGZvb2Jhcg==";
+    String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg";
+    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
+
+    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+        .thenReturn(Optional.of(secretDTO));
+
+    QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
+
+    // then
+    assertThrows(InvalidClientException.class,
+        () -> oidcServiceImpl.authorizeClient(clientID, invalidSecret));
+
+  }
+
+  @Test
   void authorizeClient_nullClientID() {
     // given
     String clientID = "nullClient";
