@@ -298,7 +298,7 @@ module "dynamodb_table_last_idp_used" {
   name = "LastIDPUsed"
 
   hash_key  = "fiscalCode"
-  range_key = "clientId"
+  range_key = "id"
 
   attributes = [
     {
