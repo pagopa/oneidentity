@@ -18,7 +18,7 @@ public class HASHUtils {
 
   public static final Base64.Encoder b64encoder = Base64.getEncoder().withoutPadding();
 
-  public static final Base64.Decoder b64decoder = Base64.getUrlDecoder();
+  public static final Base64.Decoder b64decoder = Base64.getDecoder();
 
   public static boolean validateSecret(String salt, String secret, String hashedSecret) {
     return generateArgon2(b64decoder.decode(salt), b64decoder.decode(secret)).equals(hashedSecret);
