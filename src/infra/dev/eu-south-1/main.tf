@@ -281,6 +281,7 @@ module "backend" {
   dynamodb_clients_table_stream_arn       = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn               = module.database.dynamodb_table_stream_arn
+  table_last_idp_used_arn           = module.database.table_last_idp_used_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
