@@ -517,7 +517,58 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/responseOkHtml"
+            "description": "Successful response containing the status history for the specified entity. The response includes an array of status records, each with a start timestamp, an end timestamp, and a status value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "entityId": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "start": {
+                            "type": "string",
+                            "description": "The start timestamp for the status period."
+                          },
+                          "end": {
+                            "type": "string",
+                            "description": "The end timestamp for the status period."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The status value for the specified period.",
+                            "enum": ["OK", "KO"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "entityId1": [
+                    {
+                      "start": "0",
+                      "end": "latest",
+                      "status": "OK"
+                    },
+                    {
+                      "start": "1738314911",
+                      "end": "1738315031",
+                      "status": "KO"
+                    }
+                  ],
+                  "entityId2": [
+                    {
+                      "start": "0",
+                      "end": "latest",
+                      "status": "OK"
+                    }
+                  ]
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
