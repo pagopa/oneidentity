@@ -28,4 +28,15 @@ locals {
       "markdown" : "## Client Errors\n"
     }
   }
+
+  detailed_metrics_dashboard_body = jsonencode({
+    widgets = concat(
+      [local.idp_widget_header],
+      [for w in local.idp_widgets : jsondecode(w)],
+      [local.client_widget_header],
+      [for w in local.client_widgets : jsondecode(w)]
+    )
+    }
+  )
+
 }
