@@ -32,9 +32,9 @@ public class ClientExtended extends Client {
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
-      String tosURi) {
+      String tosURi, boolean requiredSameIdp) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp);
     this.secret = secret;
     this.salt = salt;
   }
@@ -44,7 +44,7 @@ public class ClientExtended extends Client {
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
-        client.getTosUri());
+        client.getTosUri(), client.isRequiredSameIdp());
     this.secret = secret;
     this.salt = salt;
   }
