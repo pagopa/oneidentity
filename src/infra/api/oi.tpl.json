@@ -267,63 +267,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "redirect_uris": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": [
-                      "https://client.example.org/callback",
-                      "https://client.example.org/callback2"
-                    ]
-                  },
-                  "client_name": {
-                    "type": "string",
-                    "example": "https://example.org"
-                  },
-                  "logo_uri": {
-                    "type": "string",
-                    "description": "The RP logo URI",
-                    "example": "https://example.org/logo.png",
-                    "format": "uri"
-                  },
-                  "policy_uri": {
-                    "type": "string",
-                    "description": "The privacy policy URI",
-                    "example": "https://example.org/policy",
-                    "format": "uri"
-                  },
-                  "tos_uri": {
-                    "type": "string",
-                    "description": "The terms of service URI",
-                    "example": "https://example.org/tos",
-                    "format": "uri"
-                  },
-                  "default_acr_values": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "list of the Authentication Context Class References that this RP supports",
-                    "example": [
-                      "https://www.spid.gov.it/SpidL1",
-                      "https://www.spid.gov.it/SpidL2",
-                      "https://www.spid.gov.it/SpidL3"
-                    ]
-                  },
-                  "saml_requested_attributes": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-                    "example": ["spidCode", "name", "familyName", "fiscalNumber"]
-                  }
-                }
-              }
+              "schema": { "$ref": "#/components/schemas/ClientRegistration" }
             }
           },
           "description": "Request body",
@@ -335,124 +279,34 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "client_id": {
-                      "type": "string",
-                      "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
-                      "description": "The registered client_id"
-                    },
-                    "client_secret_expires_at": {
-                      "type": "integer",
-                      "example": 0,
-                      "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
-                    },
-                    "client_secret": {
-                      "type": "string",
-                      "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
-                      "description": "The registered client_secret"
-                    },
-                    "registration_access_token": {
-                      "type": "string",
-                      "example": "db4b7554-e359-43ed-bbf6-1a50909ceeef",
-                      "description": "An access_token to be used at {registration_client_uri} to retrieve the registered information"
-                    },
-                    "registration_client_uri": {
-                      "type": "string",
-                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
-                      "description": "The URI to retrieved the registered values"
-                    },
-                    "client_id_issued_at": {
-                      "type": "integer",
-                      "example": 1497455914,
-                      "description": "The timestamp in seconds indicating the time of registration"
-                    },
-                    "token_endpoint_auth_method": {
-                      "type": "string",
-                      "example": "client_secret_basic",
-                      "description": "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
-                    },
-                    "application_type": {
-                      "type": "string",
-                      "example": "web",
-                      "description": "The kind of application"
-                    },
-                    "redirect_uris": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": [
-                        "https://client.example.org/callback",
-                        "https://client.example.org/callback2"
-                      ],
-                      "description": "The array of redirection URI values used by this client"
-                    },
-                    "client_name": {
-                      "type": "string",
-                      "example": "https://example.org",
-                      "description": "The name of the client to be presented to the end-user"
-                    },
-                    "subject_type": {
-                      "type": "string",
-                      "example": "pairwise",
-                      "description": "The subject type requested for responses to this client"
-                    },
-                    "contacts": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["user1@example.org", "user2@example.org"],
-                      "description": "The array of e-mail addresses of people responsible for this client"
-                    },
-                    "response_types": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["code", "token_id_token"],
-                      "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
-                    },
-                    "grant_types": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["authorization_code", "implicit"],
-                      "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
-                    },
-                    "id_token_signed_response_alg": {
-                      "type": "string",
-                      "example": "RS256",
-                      "description": "The algorithm requried for signing the ID token issued to this client"
-                    },
-                    "environment": {
-                      "type": "string",
-                      "example": "ALL",
-                      "description": "The development environment of the client e.g., IOS"
-                    },
-                    "organization": {
-                      "type": "string",
-                      "example": "https://organization.com",
-                      "description": "The organization of the requestor"
-                    },
-                    "master": {
-                      "type": "boolean",
-                      "example": false,
-                      "description": "The value identifies the client as being used as a master-key"
-                    },
-                    "description": {
-                      "type": "string",
-                      "example": "Registered via OpenID Connect Dynamic Registration",
-                      "description": "A description for this client"
-                    },
-                    "scope": {
-                      "type": "string",
-                      "example": "openid email profile openid_client_registration",
-                      "description": "A custom scope"
+                  "allOf": [
+                    { "$ref": "#/components/schemas/ClientRegistration" },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "client_id": {
+                          "type": "string",
+                          "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+                          "description": "The registered client_id"
+                        },
+                        "client_secret": {
+                          "type": "string",
+                          "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
+                          "description": "The registered client_secret"
+                        },
+                        "client_id_issued_at": {
+                          "type": "integer",
+                          "example": 1497455914,
+                          "description": "The timestamp in seconds indicating the time of registration"
+                        },
+                        "client_secret_expires_at": {
+                          "type": "integer",
+                          "example": 0,
+                          "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -546,119 +400,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "client_id": {
-                      "type": "string",
-                      "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
-                      "description": "The registered client_id"
-                    },
-                    "client_secret_expires_at": {
-                      "type": "integer",
-                      "example": 0,
-                      "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
-                    },
-                    "client_secret": {
-                      "type": "string",
-                      "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
-                      "description": "The registered client_secret"
-                    },
-                    "registration_client_uri": {
-                      "type": "string",
-                      "example": "https://server.example.org/oidc/register/s6BhdRkqt3",
-                      "description": "The URI to retrieved the registered values"
-                    },
-                    "client_id_issued_at": {
-                      "type": "integer",
-                      "example": 1497455914,
-                      "description": "The timestamp in seconds indicating the time of registration"
-                    },
-                    "token_endpoint_auth_method": {
-                      "type": "string",
-                      "example": "client_secret_basic",
-                      "description": "The requested client authentication method for the token endpoint. Supports: client_secret_post, client_secret_basic, client_secret_jwt, private_key_jwt, none"
-                    },
-                    "application_type": {
-                      "type": "string",
-                      "example": "web",
-                      "description": "The kind of application"
-                    },
-                    "redirect_uris": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": [
-                        "https://client.example.org/callback",
-                        "https://client.example.org/callback2"
-                      ],
-                      "description": "The array of redirection URI values used by this client"
-                    },
-                    "client_name": {
-                      "type": "string",
-                      "example": "https://example.org",
-                      "description": "The name of the client to be presented to the end-user"
-                    },
-                    "subject_type": {
-                      "type": "string",
-                      "example": "pairwise",
-                      "description": "The subject type requested for responses to this client"
-                    },
-                    "contacts": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["user1@example.org", "user2@example.org"],
-                      "description": "The array of e-mail addresses of people responsible for this client"
-                    },
-                    "response_types": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["code", "token_id_token"],
-                      "description": "The array containing a list of the OAuth 2.0 response_type values that this client is declaring that it will restrict itself to using"
-                    },
-                    "grant_types": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "example": ["authorization_code", "implicit"],
-                      "description": "The array containing a list of the OAuth 2.0 grant types that this client is declaring that it will restrict itself to using"
-                    },
-                    "id_token_signed_response_alg": {
-                      "type": "string",
-                      "example": "RS256",
-                      "description": "The algorithm requried for signing the ID token issued to this client"
-                    },
-                    "environment": {
-                      "type": "string",
-                      "example": "ALL",
-                      "description": "The development environment of the client e.g., IOS"
-                    },
-                    "organization": {
-                      "type": "string",
-                      "example": "https://organization.com",
-                      "description": "The organization of the requestor"
-                    },
-                    "master": {
-                      "type": "boolean",
-                      "example": false,
-                      "description": "The value identifies the client as being used as a master-key"
-                    },
-                    "description": {
-                      "type": "string",
-                      "example": "Registered via OpenID Connect Dynamic Registration",
-                      "description": "A description for this client"
-                    },
-                    "scope": {
-                      "type": "string",
-                      "example": "openid email profile openid_client_registration",
-                      "description": "A custom scope"
-                    }
-                  }
+                  "$ref": "#/components/schemas/ClientRegistration"
                 }
               }
             }
@@ -2567,6 +2309,63 @@
           }
         },
         "description": "The OpenID configuration document as defined by the specification: http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata"
+      },
+      "ClientRegistration": {
+        "type": "object",
+        "properties": {
+          "redirect_uris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "https://client.example.org/callback",
+              "https://client.example.org/callback2"
+            ]
+          },
+          "client_name": {
+            "type": "string",
+            "example": "https://example.org"
+          },
+          "logo_uri": {
+            "type": "string",
+            "description": "The RP logo URI",
+            "example": "https://example.org/logo.png",
+            "format": "uri"
+          },
+          "policy_uri": {
+            "type": "string",
+            "description": "The privacy policy URI",
+            "example": "https://example.org/policy",
+            "format": "uri"
+          },
+          "tos_uri": {
+            "type": "string",
+            "description": "The terms of service URI",
+            "example": "https://example.org/tos",
+            "format": "uri"
+          },
+          "default_acr_values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of the Authentication Context Class References that this RP supports",
+            "example": [
+              "https://www.spid.gov.it/SpidL1",
+              "https://www.spid.gov.it/SpidL2",
+              "https://www.spid.gov.it/SpidL3"
+            ]
+          },
+          "saml_requested_attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
+            "example": ["spidCode", "name", "familyName", "fiscalNumber"]
+          }
+        }
       }
     }
   }
