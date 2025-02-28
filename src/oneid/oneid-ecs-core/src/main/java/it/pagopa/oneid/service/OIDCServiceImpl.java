@@ -267,6 +267,7 @@ public class OIDCServiceImpl implements OIDCService {
       lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
           .id(id)
           .clientId(clientId)
+          .entityId(entityId)
           .ttl(ttl)
           .build());
 
