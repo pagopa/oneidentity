@@ -263,7 +263,7 @@ public class OIDCServiceImpl implements OIDCService {
     if (clientsMap.get(clientId).isRequiredSameIdp() && id != null) {
       // if client needed the "sameIdp" claim we need to update the lastIDP record
 
-      long ttl = Instant.now().plus(12, ChronoUnit.MONTHS).getEpochSecond();
+      long ttl = Instant.now().plus(365, ChronoUnit.DAYS).getEpochSecond();
       lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
           .id(id)
           .clientId(clientId)
