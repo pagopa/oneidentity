@@ -234,18 +234,25 @@ public class OIDCServiceImpl implements OIDCService {
       id = getIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
         // if fiscalNumber is present, use it as id for the findLastIDPUsed
+        boolean sameIdp = false;
         Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
         if (lastIDPUsed.isPresent()) {
           // if there are last login information available for the id and clientId, check if tha lastIdp matches the current one
           // TODO do we need to check the 'ttl' parameter to avoid DynamoDB delayed deletion issues?
-          boolean sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
-          signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-              nonce, sameIdp);
-        } else {
-          // if there are no last login information available (expired or first login case) for the id and clientId, force sameIdp to false
-          signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-              nonce, false);
+          sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
         }
+        if (!sameIdp) {
+          // if the IDP has changed we need to update the lastIDP record
+          long ttl = Instant.now().plus(365, ChronoUnit.DAYS).getEpochSecond();
+          lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
+              .id(id)
+              .clientId(clientId)
+              .entityId(entityId)
+              .ttl(ttl)
+              .build());
+        }
+        signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+            nonce, sameIdp);
       } else {
         // if fiscalNumber is not present we can't check last login information
         signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
@@ -259,20 +266,7 @@ public class OIDCServiceImpl implements OIDCService {
       Log.error("error during parsing JWT");
       throw new OIDCSignJWTException(e);
     }
-
-    if (clientsMap.get(clientId).isRequiredSameIdp() && id != null) {
-      // if client needed the "sameIdp" claim we need to update the lastIDP record
-
-      long ttl = Instant.now().plus(365, ChronoUnit.DAYS).getEpochSecond();
-      lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
-          .id(id)
-          .clientId(clientId)
-          .entityId(entityId)
-          .ttl(ttl)
-          .build());
-
-    }
-
+    
     return TokenDataDTO
         .builder()
         .idToken(signedJWTIDToken.serialize())
