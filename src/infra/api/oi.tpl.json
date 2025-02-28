@@ -549,14 +549,19 @@
                 "example": {
                   "entityId1": [
                     {
-                      "start": "0",
-                      "end": "latest",
+                      "start": 0,
+                      "end": 1738314911,
                       "status": "OK"
                     },
                     {
-                      "start": "1738314911",
-                      "end": "1738315031",
+                      "start": 1738314911,
+                      "end": 1738315031,
                       "status": "KO"
+                    },
+                    {
+                      "start": 1738315031,
+                      "end": "latest",
+                      "status": "OK"
                     }
                   ],
                   "entityId2": [
