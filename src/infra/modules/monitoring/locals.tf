@@ -35,7 +35,7 @@ locals {
       [for w in local.idp_widgets : jsondecode(w)],
       [local.client_widget_header],
       [for w in local.client_widgets : jsondecode(w)]
-      )
+    )
     }
   )
 
