@@ -1,0 +1,22 @@
+{
+    "type": "metric",
+    "height": 6,
+    "width": 8,
+    "properties": {
+        "title": "Client Aggregated ${aggregated_metric}",
+        "stat": "Sum",
+        "view": "bar",
+        "period": 300,
+        "height": 200,
+        "width": 1710,
+        "region": "${aws_region}",
+        "setPeriodToTimeRange": true,
+        "metrics": [
+            [{
+                "expression": "SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"${aggregated_metric}\"', 'Sum', 300)", 
+                "id": "aggregated_metrics",
+                "region": "${aws_region}"
+                }]
+        ]
+    }
+}

@@ -11,6 +11,18 @@ locals {
     env_short  = var.env_short
   })]
 
+  aggregated_success_widget = templatefile("../../dashboards/client_aggregated_widget.tpl.json", {
+    aggregated_metric = "ClientSuccess",
+    aws_region = var.aws_region
+    env_short  = var.env_short
+  })  
+
+  aggregated_error_widget = templatefile("../../dashboards/client_aggregated_widget.tpl.json", {
+    aggregated_metric = "ClientError",
+    aws_region = var.aws_region
+    env_short  = var.env_short
+  })
+
   idp_widget_header = {
     "height" : 1,
     "width" : 24,
@@ -29,12 +41,24 @@ locals {
     }
   }
 
+  client_aggregated_widget_header = {
+    "height" : 1,
+    "width" : 24,
+    "type" : "text",
+    "properties" : {
+      "markdown" : "## Client Aggregated Success/Errors\n"
+    }
+  }
+
   detailed_metrics_dashboard_body = jsonencode({
     widgets = concat(
       [local.idp_widget_header],
       [for w in local.idp_widgets : jsondecode(w)],
       [local.client_widget_header],
-      [for w in local.client_widgets : jsondecode(w)]
+      [for w in local.client_widgets : jsondecode(w)],
+      [local.client_aggregated_widget_header],
+      [jsondecode(local.aggregated_success_widget)],
+      [jsondecode(local.aggregated_error_widget)]
     )
     }
   )
