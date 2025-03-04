@@ -1,8 +1,7 @@
 export default {
   loginPage: {
-    title: 'Accedi all’Area Riservata',
-    description:
-      'Lo spazio dedicato agli enti che utilizzano i prodotti di PagoPA.',
+    title: 'Come vuoi entrare?',
+    description: 'Scegli il metodo di autenticazione che preferisci',
     temporaryLogin: {
       alert:
         'Se entri con SPID e riscontri un problema, torna su questa pagina e premi qui accanto',
