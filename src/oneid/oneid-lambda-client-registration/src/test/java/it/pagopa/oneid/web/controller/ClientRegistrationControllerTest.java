@@ -57,7 +57,7 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
-  void testRegister() {
+  void testGetClientInfoByClientId() {
 
     ClientMetadataDTO mockResponse = Mockito.mock(ClientMetadataDTO.class);
     Mockito.when(clientRegistrationServiceImpl.getClientMetadataDTO(Mockito.anyString()))
