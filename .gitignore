@@ -39,6 +39,7 @@ override.tf.json
 
 # Ignore any IDE configuration files
 **/.idea/*
+**/.vscode/*
 
 # Intellij stuff
 *.iml
