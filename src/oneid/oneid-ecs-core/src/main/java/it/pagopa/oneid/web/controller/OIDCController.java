@@ -268,6 +268,13 @@ public class OIDCController {
         RecordType.ACCESS_TOKEN, creationTime, ttl, tokenDataDTO.getAccessToken(),
         tokenDataDTO.getIdToken());
 
+    try {
+      accessTokenSessionServiceImpl.saveSession(accessTokenSession);
+    } catch (SessionException e) {
+      Log.error("error during session management " + e.getMessage());
+      throw new InvalidGrantException(clientId);
+    }
+
     accessTokenSessionServiceImpl.saveSession(accessTokenSession);
 
     cloudWatchConnectorImpl.sendClientSuccessMetricData(clientId);
