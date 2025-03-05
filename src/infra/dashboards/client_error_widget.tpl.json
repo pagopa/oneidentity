@@ -3,7 +3,7 @@
     "height": 6,
     "width": 8,
     "properties": {
-        "title": "Client Error - ${client_id}",
+        "title": "Friendly Name: ${friendly_name} - Client ID: ${client_id}",
         "stat": "Sum",
         "view": "bar",
         "period": 300,

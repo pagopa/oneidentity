@@ -3,9 +3,9 @@
     "height": 6,
     "width": 8,
     "properties": {
-        "title": "Client Aggregated ${aggregated_metric}",
+        "title": "Friendly Name: ${friendly_name} - Client ID: ${client_id}",
         "stat": "Sum",
-        "view": "bar",
+        "view": "timeSeries",
         "period": 300,
         "height": 200,
         "width": 1710,
@@ -13,7 +13,7 @@
         "setPeriodToTimeRange": true,
         "metrics": [
             [{
-                "expression": "SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"${aggregated_metric}\"', 'Sum', 300)", 
+                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} \"ClientAggregated\"=\"${client_id}\"', 'Sum', 300), 0)", 
                 "id": "aggregated_metrics",
                 "region": "${aws_region}"
                 }]

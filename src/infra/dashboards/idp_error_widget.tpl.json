@@ -3,7 +3,7 @@
     "height": 6,
     "width": 8,
     "properties": {
-        "title": "IDP Error - ${idp}",
+        "title": "Entity ID: ${idp}",
         "stat": "Sum",
         "view": "bar",
         "period": 300,
