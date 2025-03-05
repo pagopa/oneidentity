@@ -50,6 +50,17 @@ public class OneIDController {
   }
 
   @GET
+  @Path("/clients")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response findAllClients() {
+    Log.info("start");
+    Optional<ArrayList<ClientFE>> clients = clientServiceImpl.getAllClientsInformation();
+    return clients.isEmpty() ?
+        Response.status(404).build() :
+        Response.ok(clients).build();
+  }
+
+  @GET
   @Path("/idps")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAllIdp() {
