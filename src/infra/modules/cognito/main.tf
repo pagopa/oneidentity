@@ -13,7 +13,7 @@ resource "aws_cognito_user_pool" "main" {
 
   account_recovery_setting {
     recovery_mechanism {
-      name = "admin_only"
+      name     = "admin_only"
       priority = 1
     }
   }
@@ -23,22 +23,22 @@ resource "aws_cognito_user_pool" "main" {
   }
 
   schema {
-    attribute_data_type = "String"
+    attribute_data_type      = "String"
     developer_only_attribute = true
-    mutable = false
-    name = "clientID"
-    required = false #to check
+    mutable                  = false
+    name                     = "clientID"
+    required                 = false #to check
   }
 
   deletion_protection = "INACTIVE"
-  
+
   email_configuration {
     email_sending_account = "COGNITO_DEFAULT"
   }
-  
+
   verification_message_template {
     default_email_option = "CONFIRM_WITH_CODE"
-    email_message = "Your verification code is {####}"
+    email_message        = "Your verification code is {####}"
   }
 }
 

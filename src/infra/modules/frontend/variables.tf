@@ -162,12 +162,12 @@ variable "api_alarms" {
 }
 
 variable "user_pool_arn" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "api_authorizer_name" {
-  type = string
+  type    = string
   default = ""
 }
 

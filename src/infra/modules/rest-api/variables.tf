@@ -96,7 +96,7 @@ variable "plan" {
 
 variable "api_authorizer" {
   type = object({
-    name = optional(string,"")
-    user_pool_arn= optional(string,"")
+    name          = optional(string, "")
+    user_pool_arn = optional(string, "")
   })
 }
