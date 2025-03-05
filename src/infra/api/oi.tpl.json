@@ -1768,10 +1768,6 @@
           "uri": "${uri}/clients/{client_id}",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
-          "requestParameters": {
-            "integration.request.header.accept": "'*/*'",
-            "integration.request.path.client_id": "method.request.path.client_id"
-          },
           "responses": {
             "200": {
               "statusCode": "200",
