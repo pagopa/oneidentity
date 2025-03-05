@@ -25,7 +25,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cognito"></a> [cognito](#input\_cognito) | n/a | <pre>object({<br>    user_pool_name = string,<br>    user_pool_domain = string,<br>    user_pool_client = string,<br>    logout_url       = string,  #https://dev.oneid.pagopa.it/logout<br>    callback_url     = string<br>  })</pre> | n/a | yes |
+| <a name="input_cognito"></a> [cognito](#input\_cognito) | n/a | <pre>object({<br>    user_pool_name   = string,<br>    user_pool_domain = string,<br>    user_pool_client = string,<br>    logout_url       = string, #https://dev.oneid.pagopa.it/logout<br>    callback_url     = string<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
