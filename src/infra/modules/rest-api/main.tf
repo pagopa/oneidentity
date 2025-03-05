@@ -171,3 +171,11 @@ resource "aws_apigatewayv2_api_mapping" "main" {
   stage       = var.stage_name
   domain_name = var.custom_domain_name
 }
+
+resource "aws_api_gateway_authorizer" "main" {
+  count = var.api_authorizer.name != "" ? 1 : 0
+  name = var.api_authorizer.name
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  type = "COGNITO_USER_POOLS"
+  provider_arns = [var.api_authorizer.user_pool_arn]
+}

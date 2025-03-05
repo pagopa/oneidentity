@@ -72,6 +72,8 @@ module "frontend" {
   web_acl = {
     name = format("%s-webacl", local.project)
   }
+  user_pool_arn = module.cognito.user_pool_arn
+  api_authorizer_name = format("%s-restapi-authorizer", local.project)
 }
 
 
@@ -482,4 +484,15 @@ module "backup" {
     }
   ]
 
+}
+
+module "cognito" {
+  source = "../../modules/cognito"
+  cognito = {
+    logout_url = "https://dev.oneid.pagopa.it/logout",
+    user_pool_client = format("%s-user_pool_client", local.project),
+    user_pool_name = format("%s-user_pool", local.project),
+    user_pool_domain = format("%s-user_pool_domain", local.project),
+    callback_url = "https://dev.oneid.pagopa.it/"
+  }
 }
