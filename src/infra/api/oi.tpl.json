@@ -1696,7 +1696,7 @@
         "description": "This endpoint retrieves all ipds"
       }
     },
-    "/client/{client_id}": {
+    "/clients/{client_id}": {
       "get": {
         "tags": [
           "Authorization Server APIs"

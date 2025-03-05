@@ -58,7 +58,7 @@ class OneIDControllerTest {
     String response =
         given()
             .pathParam("client_id", clientID)
-            .when().get("/client/{client_id}")
+            .when().get("/clients/{client_id}")
             .then()
             .statusCode(200)
             .extract()
@@ -81,7 +81,7 @@ class OneIDControllerTest {
     String response =
         given()
             .pathParams("client_id", clientID)
-            .when().get("/client/{client_id}")
+            .when().get("/clients/{client_id}")
             .then()
             .statusCode(404)
             .extract()

@@ -39,7 +39,7 @@ public class OneIDController {
   }
 
   @GET
-  @Path("/client/{client_id}")
+  @Path("/clients/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findClientById(@PathParam("client_id") String clientID) {
     Log.info("start");
