@@ -13,9 +13,16 @@
         "setPeriodToTimeRange": true,
         "metrics": [
             [{
-                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} \"ClientAggregated\"=\"${client_id}\"', 'Sum', 300), 0)", 
-                "id": "aggregated_metrics",
-                "region": "${aws_region}"
+                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientSuccess\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)", 
+                "id": "aggregated_success",
+                "region": "${aws_region}",
+                "color": "#12a0d7"
+                }],
+            [{
+                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientError\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)", 
+                "id": "aggregated_errors",
+                "region": "${aws_region}",
+                "color": "#ff7f0e"
                 }]
         ]
     }
