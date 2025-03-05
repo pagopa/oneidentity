@@ -1776,7 +1776,7 @@
             "404": {
               "statusCode": "404",
               "requestParameters": {}
-            }
+           }
           }
         },
         "responses": {
