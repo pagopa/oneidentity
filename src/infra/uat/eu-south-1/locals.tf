@@ -41,8 +41,8 @@ locals {
 
   clients = try(
     [for client in jsondecode(data.http.clients_api.response_body) : {
-      clientID     = client.clientID
-      friendlyName = client.friendlyName
+      client_id     = client.clientID
+      friendly_name = client.friendlyName
     }],
     []
   )
@@ -60,6 +60,10 @@ data "http" "idps_api" {
       condition     = self.status_code == 200
       error_message = "Status code invalid"
     }
+    postcondition {
+      condition     = alltrue([for idp in jsondecode(self.response_body) : can(idp.entityID)])
+      error_message = "Each idp must include 'entityID'"
+    }
   }
 }
 
@@ -74,6 +78,17 @@ data "http" "clients_api" {
     postcondition {
       condition     = self.status_code == 200
       error_message = "Status code invalid"
+    }
+  }
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Status code invalid"
+    }
+
+    postcondition {
+      condition     = alltrue([for client in jsondecode(self.response_body) : can(client.clientID) && can(client.friendlyName)])
+      error_message = "Each Client must include 'clientID' and 'friendlyName'"
     }
   }
 }
