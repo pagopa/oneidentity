@@ -1705,7 +1705,7 @@
         "x-amazon-apigateway-integration": {
           "type": "HTTP_PROXY",
           "httpMethod": "GET",
-          "uri": "${uri}/client/{client_id}",
+          "uri": "${uri}/clients/{client_id}",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "requestParameters": {
@@ -1761,11 +1761,11 @@
         "tags": [
           "Authorization Server APIs"
         ],
-        "operationId": "Get_ClientFromClientId",
+        "operationId": "Get_AllClients",
         "x-amazon-apigateway-integration": {
           "type": "HTTP_PROXY",
           "httpMethod": "GET",
-          "uri": "${uri}/client/{client_id}",
+          "uri": "${uri}/clients/{client_id}",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "requestParameters": {
@@ -1781,10 +1781,7 @@
               "statusCode": "404",
               "requestParameters": {}
             }
-          },
-          "cacheKeyParameters": [
-            "method.request.path.client_id"
-          ]
+          }
         },
         "responses": {
           "200": {
