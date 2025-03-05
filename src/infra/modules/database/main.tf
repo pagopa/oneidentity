@@ -204,7 +204,7 @@ resource "aws_dynamodb_table_item" "default_idp_status_history_item" {
       item
     ]
   }
-  for_each = var.idp_entity_ids != null ? { for s in var.idp_entity_ids.entity_id : s => s } : {}
+  for_each = var.idp_entity_ids != null ? { for i in var.idp_entity_ids : i => i } : {}
   item     = <<ITEM
   {
     "entityID": {"S": "${each.key}"},
@@ -270,7 +270,7 @@ resource "aws_dynamodb_table_item" "default_client_status_history_item" {
       item
     ]
   }
-  for_each = var.client_ids != null ? { for s in var.client_ids.client_id : s => s } : {}
+  for_each = var.clients != null ? { for c in var.clients : c.client_id => c } : {}
   item     = <<ITEM
   {
     "clientID": {"S": "${each.key}"},

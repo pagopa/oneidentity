@@ -66,9 +66,7 @@ variable "idp_status_history_table" {
 }
 
 variable "idp_entity_ids" {
-  type = object({
-    entity_id = list(string)
-  })
+  type    = list(string)
   default = null
 }
 
@@ -87,9 +85,10 @@ variable "client_status_history_table" {
   description = "Client status history table configurations."
 }
 
-variable "client_ids" {
-  type = object({
-    client_id = list(string)
-  })
+variable "clients" {
+  type = list(object({
+    client_id     = string
+    friendly_name = string
+  }))
   default = null
 }

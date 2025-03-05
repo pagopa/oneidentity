@@ -447,7 +447,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
-  for_each            = var.client_alarm != null ? { for s in var.client_alarm.client_id : s => s } : {}
+  for_each            = var.client_alarm != null ? { for c in var.client_alarm.clients : c.client_id => c } : {}
   alarm_name          = format("%s-%s", "ClientErrorRateAlarm", each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1

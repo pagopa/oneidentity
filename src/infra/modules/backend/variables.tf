@@ -353,7 +353,10 @@ variable "dlq_alarms" {
 variable "client_alarm" {
   type = object({
     namespace = string
-    client_id = list(string)
+    clients = list(object({
+      client_id     = string
+      friendly_name = string
+    }))
   })
   default = null
 }
