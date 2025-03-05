@@ -275,8 +275,6 @@ public class OIDCController {
       throw new InvalidGrantException(clientId);
     }
 
-    accessTokenSessionServiceImpl.saveSession(accessTokenSession);
-
     cloudWatchConnectorImpl.sendClientSuccessMetricData(clientId);
 
     Log.debug("end");
