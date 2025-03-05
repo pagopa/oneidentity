@@ -35,5 +35,47 @@ locals {
       }
     )
   }
+
+  idp_entity_ids = try(
+    [for entity in jsondecode(data.http.idps_api.response_body) : entity.entityID],
+    []
+  )
+
+  clients = try(
+    [for client in jsondecode(data.http.clients_api.response_body) : {
+      clientID     = client.clientID
+      friendlyName = client.friendlyName
+    }],
+    []
+  )
 }
 
+data "http" "idps_api" {
+  url = "https://dev.oneid.pagopa.it/idps"
+  retry {
+    attempts     = 3
+    min_delay_ms = 1000
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Status code invalid"
+    }
+  }
+}
+
+data "http" "clients_api" {
+  url = "https://dev.oneid.pagopa.it/clients"
+  retry {
+    attempts     = 3
+    min_delay_ms = 1000
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Status code invalid"
+    }
+  }
+}
