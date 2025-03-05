@@ -85,6 +85,7 @@ No outputs.
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.74.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | n/a |
 
 ## Modules
 
@@ -103,6 +104,8 @@ No outputs.
 | Name | Type |
 |------|------|
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.74.0/docs/data-sources/caller_identity) | data source |
+| [http_http.clients_api](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
+| [http_http.idps_api](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
 
 ## Inputs
 
@@ -121,7 +124,6 @@ No outputs.
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to create resources. Default Milan | `string` | `"eu-central-1"` | no |
 | <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | `"ec-1"` | no |
 | <a name="input_cie_entity_id"></a> [cie\_entity\_id](#input\_cie\_entity\_id) | n/a | `string` | `"https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"` | no |
-| <a name="input_client_ids"></a> [client\_ids](#input\_client\_ids) | n/a | `list(string)` | <pre>[<br>  "br8sFmmBK2OIjQ4hY0UM_D5mvt1zOR64zjk1m2WXT0Y"<br>]</pre> | no |
 | <a name="input_client_status_history_table"></a> [client\_status\_history\_table](#input\_client\_status\_history\_table) | Client Status History configurations table. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
 | <a name="input_dlq_alarms"></a> [dlq\_alarms](#input\_dlq\_alarms) | n/a | <pre>object({<br>    metric_name         = string<br>    namespace           = string<br>    threshold           = optional(number)<br>    evaluation_periods  = optional(number)<br>    period              = optional(number)<br>    statistic           = optional(string)<br>    comparison_operator = optional(string)<br>    sns_topic_alarm_arn = optional(list(string))<br>  })</pre> | <pre>{<br>  "comparison_operator": "GreaterThanThreshold",<br>  "evaluation_periods": 1,<br>  "metric_name": "ApproximateNumberOfMessagesVisible",<br>  "namespace": "AWS/SQS",<br>  "period": 300,<br>  "statistic": "Sum",<br>  "threshold": 0<br>}</pre> | no |
 | <a name="input_dlq_assertion_setting"></a> [dlq\_assertion\_setting](#input\_dlq\_assertion\_setting) | n/a | <pre>object({<br>    maximum_retry_attempts        = number<br>    maximum_record_age_in_seconds = number<br>  })</pre> | <pre>{<br>  "maximum_record_age_in_seconds": 604800,<br>  "maximum_retry_attempts": 3<br>}</pre> | no |
@@ -130,7 +132,6 @@ No outputs.
 | <a name="input_ecs_enable_container_insights"></a> [ecs\_enable\_container\_insights](#input\_ecs\_enable\_container\_insights) | Enable ecs cluster container inight. | `bool` | `true` | no |
 | <a name="input_ecs_oneid_core"></a> [ecs\_oneid\_core](#input\_ecs\_oneid\_core) | Oneidentity core backend configurations. | <pre>object({<br>    image_version    = string<br>    cpu              = number<br>    memory           = number<br>    container_cpu    = number<br>    container_memory = number<br>    autoscaling = object({<br>      enable        = bool<br>      desired_count = number<br>      min_capacity  = number<br>      max_capacity  = number<br>    })<br>    logs_retention_days   = number<br>    app_spid_test_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "autoscaling": {<br>    "desired_count": 1,<br>    "enable": true,<br>    "max_capacity": 12,<br>    "min_capacity": 1<br>  },<br>  "container_cpu": 2048,<br>  "container_memory": 4096,<br>  "cpu": 2048,<br>  "image_version": "05d9825a488fc80c2b8cd08d69e55732d4762977",<br>  "logs_retention_days": 30,<br>  "memory": 4096<br>}</pre> | no |
 | <a name="input_enable_nat_gateway"></a> [enable\_nat\_gateway](#input\_enable\_nat\_gateway) | Create nat gateway(s) | `bool` | `false` | no |
-| <a name="input_entity_id"></a> [entity\_id](#input\_entity\_id) | n/a | `list(string)` | <pre>[<br>  "https://loginspid.infocamere.it",<br>  "https://idp.intesigroup.com",<br>  "https://loginspid.aruba.it",<br>  "https://identity.sieltecloud.it",<br>  "https://spid.register.it",<br>  "https://spid.teamsystem.com/idp",<br>  "https://idp.namirialtsp.com/idp",<br>  "https://posteid.poste.it",<br>  "https://identity.infocert.it",<br>  "https://id.eht.eu",<br>  "https://login.id.tim.it/affwebservices/public/saml2sso",<br>  "https://id.lepida.it/idp/shibboleth",<br>  "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"<br>]</pre> | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Environment short. | `string` | `"p"` | no |
 | <a name="input_idp_status_history_table"></a> [idp\_status\_history\_table](#input\_idp\_status\_history\_table) | IDP Status History configurations table. | <pre>object({<br>    point_in_time_recovery_enabled = optional(bool, false)<br>  })</pre> | <pre>{<br>  "point_in_time_recovery_enabled": false<br>}</pre> | no |
 | <a name="input_is_gh_sns_arn"></a> [is\_gh\_sns\_arn](#input\_is\_gh\_sns\_arn) | n/a | `string` | `null` | no |
