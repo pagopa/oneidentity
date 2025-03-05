@@ -81,7 +81,6 @@ data "http" "clients_api" {
       condition     = self.status_code == 200
       error_message = "Status code invalid"
     }
-
     postcondition {
       condition     = alltrue([for client in jsondecode(self.response_body) : can(client.clientID) && can(client.friendlyName)])
       error_message = "Each Client must include 'clientID' and 'friendlyName'"
