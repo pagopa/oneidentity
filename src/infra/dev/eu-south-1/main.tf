@@ -423,7 +423,7 @@ module "database" {
   idp_status_history_table    = var.idp_status_history_table
   client_status_history_table = var.client_status_history_table
   idp_entity_ids              = local.idp_entity_ids
-  clients                     = local.cloudwatch__ecs_alarms_with_sns
+  clients                     = local.clients
 }
 
 
