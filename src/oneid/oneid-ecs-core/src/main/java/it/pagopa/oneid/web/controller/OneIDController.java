@@ -39,7 +39,7 @@ public class OneIDController {
   }
 
   @GET
-  @Path("/client/{client_id}")
+  @Path("/clients/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findClientById(@PathParam("client_id") String clientID) {
     Log.info("start");
@@ -47,6 +47,17 @@ public class OneIDController {
     return clientFE.isEmpty() ?
         Response.status(404).build() :
         Response.ok(clientFE).build();
+  }
+
+  @GET
+  @Path("/clients")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response findAllClients() {
+    Log.info("start");
+    Optional<ArrayList<ClientFE>> clients = clientServiceImpl.getAllClientsInformation();
+    return clients.isEmpty() ?
+        Response.status(404).build() :
+        Response.ok(clients).build();
   }
 
   @GET
