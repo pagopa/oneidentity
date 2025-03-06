@@ -625,7 +625,7 @@ class OIDCControllerTest {
     TokenDataDTO tokenDataDTO = mock(TokenDataDTO.class);
     when(
         oidcServiceImpl.getOIDCTokens(anyString(), anyString(), Mockito.anyList(),
-            anyString())).thenReturn(tokenDataDTO);
+            anyString(), anyString())).thenReturn(tokenDataDTO);
 
     given()
         .contentType("application/x-www-form-urlencoded")

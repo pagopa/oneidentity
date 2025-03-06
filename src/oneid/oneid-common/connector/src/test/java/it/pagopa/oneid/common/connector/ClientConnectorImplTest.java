@@ -99,10 +99,11 @@ class ClientConnectorImplTest {
     String logoUri = "test";
     String policyUri = "test";
     String tosURi = "test";
+    boolean isRequiredSameIdp = false;
 
     ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
         requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-        clientIdIssuedAt, logoUri, policyUri, tosURi
+        clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp
     );
 
     Executable executable = () -> clientConnectorImpl.saveClientIfNotExists(clientExtended);
@@ -130,10 +131,11 @@ class ClientConnectorImplTest {
       String logoUri = "test";
       String policyUri = "test";
       String tosURi = "test";
+      boolean isRequiredSameIdp = false;
 
       ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
           requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-          clientIdIssuedAt, logoUri, policyUri, tosURi
+          clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp
       );
 
       clientConnectorImpl.saveClientIfNotExists(clientExtended);
