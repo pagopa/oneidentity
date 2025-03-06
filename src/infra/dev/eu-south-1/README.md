@@ -107,7 +107,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.74.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | n/a |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.4.5 |
 
 ## Modules
 
@@ -115,6 +115,7 @@
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
 | <a name="module_backup"></a> [backup](#module\_backup) | ../../modules/backup | n/a |
+| <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../modules/cognito | n/a |
 | <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
 | <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |

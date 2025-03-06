@@ -145,6 +145,10 @@ module "rest_api" {
   api_cache_cluster_size    = var.api_cache_cluster_size
   method_settings           = var.api_method_settings
 
+  api_authorizer = {
+    name          = var.api_authorizer_name == "" ? null : var.api_authorizer_name
+    user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
+  }
 }
 
 resource "aws_api_gateway_vpc_link" "apigw" {

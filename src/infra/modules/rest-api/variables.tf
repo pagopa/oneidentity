@@ -92,3 +92,11 @@ variable "plan" {
   })
   description = "Name of the plan associated to the set of apis."
 }
+
+
+variable "api_authorizer" {
+  type = object({
+    name          = optional(string, "")
+    user_pool_arn = optional(string, "")
+  })
+}

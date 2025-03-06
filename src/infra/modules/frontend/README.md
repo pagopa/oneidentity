@@ -109,6 +109,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_api_alarms"></a> [api\_alarms](#input\_api\_alarms) | n/a | <pre>map(object({<br>    metric_name         = string<br>    namespace           = string<br>    threshold           = number<br>    evaluation_periods  = number<br>    period              = number<br>    statistic           = string<br>    comparison_operator = string<br>    resource_name       = string<br>    sns_topic_alarm_arn = string<br>    method              = string<br>  }))</pre> | n/a | yes |
+| <a name="input_api_authorizer_name"></a> [api\_authorizer\_name](#input\_api\_authorizer\_name) | n/a | `string` | `""` | no |
 | <a name="input_api_cache_cluster_enabled"></a> [api\_cache\_cluster\_enabled](#input\_api\_cache\_cluster\_enabled) | Enablr cache cluster is enabled for the stage. | `bool` | `false` | no |
 | <a name="input_api_cache_cluster_size"></a> [api\_cache\_cluster\_size](#input\_api\_cache\_cluster\_size) | Size of the cache cluster for the stage, if enabled. | `number` | `0.5` | no |
 | <a name="input_api_gateway_plan"></a> [api\_gateway\_plan](#input\_api\_gateway\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br>    name                 = string<br>    throttle_burst_limit = number<br>    throttle_rate_limit  = number<br>    api_key_name         = optional(string, null)<br>  })</pre> | n/a | yes |
@@ -129,6 +130,7 @@
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
 | <a name="input_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#input\_retrieve\_status\_lambda\_arn) | lambda retrieve status arn | `string` | n/a | yes |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the IAM Roles | `string` | n/a | yes |
+| <a name="input_user_pool_arn"></a> [user\_pool\_arn](#input\_user\_pool\_arn) | n/a | `string` | `""` | no |
 | <a name="input_web_acl"></a> [web\_acl](#input\_web\_acl) | WEB acl name | <pre>object({<br>    name                       = string<br>    cloudwatch_metrics_enabled = optional(bool, false)<br>    sampled_requests_enabled   = optional(bool, false)<br>    sns_topic_arn              = optional(string, "")<br>  })</pre> | n/a | yes |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `false` | no |
 
