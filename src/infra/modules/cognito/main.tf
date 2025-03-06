@@ -22,6 +22,7 @@ resource "aws_cognito_user_pool" "main" {
     allow_admin_create_user_only = false
   }
 
+  /*
   schema {
     attribute_data_type      = "String"
     developer_only_attribute = true
@@ -29,6 +30,7 @@ resource "aws_cognito_user_pool" "main" {
     name                     = "clientID"
     required                 = false #to check
   }
+  */
 
   deletion_protection = "INACTIVE"
 
