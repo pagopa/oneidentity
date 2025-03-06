@@ -266,7 +266,7 @@ public class OIDCServiceImpl implements OIDCService {
       Log.error("error during parsing JWT");
       throw new OIDCSignJWTException(e);
     }
-    
+
     return TokenDataDTO
         .builder()
         .idToken(signedJWTIDToken.serialize())

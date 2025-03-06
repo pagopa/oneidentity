@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ResponseMode;
@@ -176,7 +177,8 @@ public class OIDCServiceImplTest {
   void getOIDCTokens() throws ParseException {
     // given
     String requestID = "dummyId";
-    String clientID = "foobar";
+    String clientID = "testIsRequiredSameIdpFalse";
+    String entityID = "dummy";
     String nonce = "dummyNonce";
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
 
@@ -190,7 +192,77 @@ public class OIDCServiceImplTest {
 
     // then
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
-        nonce);
+        nonce, entityID);
+
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String[] chunks = tokenDataDTO.getIdToken().split("\\.");
+    String payload = new String(decoder.decode(chunks[1]));
+
+    Object obj = new JSONParser().parse(payload);
+    JSONObject jo = (JSONObject) obj;
+
+    String fiscalNumber = (String) jo.get("fiscalNumber");
+
+    assertEquals(fiscalNumber, "test");
+  }
+
+  @Test
+  void getOIDCTokens_requiredSameIdp() throws ParseException {
+    // given
+    String requestID = "dummyId";
+    String clientID = "testIsRequiredSameIdpTrue";
+    String entityID = "dummy";
+    String nonce = "dummyNonce";
+    ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
+    attributeDTOList.add(new AttributeDTO("fiscalNumber", "test"));
+
+    oidcUtils = Mockito.mock(OIDCUtils.class);
+    String validJWT = "\n"
+        + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
+    Mockito.when(
+            oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.anyBoolean()))
+        .thenReturn(validJWT);
+    QuarkusMock.installMockForType(oidcUtils, OIDCUtils.class);
+
+    // then
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
+        nonce, entityID);
+
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String[] chunks = tokenDataDTO.getIdToken().split("\\.");
+    String payload = new String(decoder.decode(chunks[1]));
+
+    Object obj = new JSONParser().parse(payload);
+    JSONObject jo = (JSONObject) obj;
+
+    String fiscalNumber = (String) jo.get("fiscalNumber");
+    boolean sameIdp = (Boolean) jo.get("sameIdp");
+
+    assertEquals(fiscalNumber, "test");
+    assertTrue(sameIdp);
+  }
+
+  @Test
+  void getOIDCTokens_requiredSameIdp_noId() throws ParseException {
+    // given
+    String requestID = "dummyId";
+    String clientID = "testIsRequiredSameIdpTrue";
+    String entityID = "dummy";
+    String nonce = "dummyNonce";
+    ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
+
+    oidcUtils = Mockito.mock(OIDCUtils.class);
+    String validJWT = "\n"
+        + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
+    Mockito.when(
+            oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(validJWT);
+    QuarkusMock.installMockForType(oidcUtils, OIDCUtils.class);
+
+    // then
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
+        nonce, entityID);
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
@@ -208,8 +280,10 @@ public class OIDCServiceImplTest {
   void getOIDCTokens_OIDCSignJWTException() {
     // given
     String requestID = "dummyId";
-    String clientID = "foobar";
+    String clientID = "testIsRequiredSameIdpFalse";
     String nonce = "dummyNonce";
+    String entityID = "dummy";
+
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
 
     oidcUtils = Mockito.mock(OIDCUtils.class);
@@ -222,7 +296,7 @@ public class OIDCServiceImplTest {
     // then
     assertThrows(OIDCSignJWTException.class, () ->
         oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
-            nonce));
+            nonce, entityID));
   }
 
   @Test
