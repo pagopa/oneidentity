@@ -19,17 +19,16 @@ variable "detailed_metrics_dashboard_name" {
 }
 
 variable "idp_entity_ids" {
-  type = object({
-    entity_id = list(string)
-  })
-  default = null
+  type    = list(string)
+  default = []
 }
 
-variable "client_ids" {
-  type = object({
-    client_ids = list(string)
-  })
-  default = null
+variable "clients" {
+  type = list(object({
+    client_id     = string
+    friendly_name = string
+  }))
+  default = []
 }
 
 variable "aws_region" {

@@ -396,28 +396,6 @@ variable "tags" {
   }
 }
 
-variable "client_ids" {
-  type = list(string)
-  default = [
-    "DJVfzho1AP4zPioVu-GsGUPUHmaV98nktSrtr3zJIc8", "he1sOaHCUgCsFWp8b_xUOhMz_q2Gk4zBIIfIUaghErk",
-    "6ncU7sVY2EmvukipyZ1BuHBVsjgyKINJl_oVBfYZp2s"
-  ]
-}
-
-variable "entity_id" {
-  type = list(string)
-  default = [
-    "https://demo.spid.gov.it",
-    "https://validator.spid.gov.it",
-    "https://validator.dev.oneid.pagopa.it",
-    "https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws",
-    "https://validator.dev.oneid.pagopa.it/demo",
-    "https://koz3yhpkscymaqgp4m7ceguu6m0tffuz.lambda-url.eu-south-1.on.aws",
-    "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO",
-    "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
-  ]
-}
-
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string

@@ -102,12 +102,8 @@ module "database" {
   idp_metadata_table          = var.idp_metadata_table
   idp_status_history_table    = var.idp_status_history_table
   client_status_history_table = var.client_status_history_table
-  idp_entity_ids = {
-    entity_id = var.entity_id
-  }
-  client_ids = {
-    client_id = var.client_ids
-  }
+  idp_entity_ids              = local.idp_entity_ids
+  clients                     = local.clients
 }
 
 ## Backend ##
@@ -375,12 +371,12 @@ module "backend" {
   ssm_cert_key = {}
 
   client_alarm = {
-    client_id = var.client_ids
+    clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
   idp_alarm = {
-    entity_id = var.entity_id
+    entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 }
@@ -437,16 +433,12 @@ module "monitoring" {
   main_dashboard_name             = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name      = format("%s-api-methods-dashboard", local.project)
   detailed_metrics_dashboard_name = format("%s-detailed-metrics-dashboard", local.project)
-  idp_entity_ids = {
-    entity_id = var.entity_id
-  }
-  client_ids = {
-    client_ids = var.client_ids
-  }
-  aws_region                 = var.aws_region
-  api_name                   = module.frontend.api_name
-  sessions_table             = module.database.table_sessions_name
-  client_registrations_table = module.database.table_client_registrations_name
+  idp_entity_ids                  = local.idp_entity_ids
+  clients                         = local.clients
+  aws_region                      = var.aws_region
+  api_name                        = module.frontend.api_name
+  sessions_table                  = module.database.table_sessions_name
+  client_registrations_table      = module.database.table_client_registrations_name
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
     arn_suffix              = module.backend.nlb_arn_suffix
