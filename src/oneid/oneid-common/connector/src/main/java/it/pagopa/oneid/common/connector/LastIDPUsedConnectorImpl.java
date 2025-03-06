@@ -16,7 +16,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 @CustomLogging
 public class LastIDPUsedConnectorImpl implements LastIDPUsedConnector {
 
-  private final DynamoDbTable<LastIDPUsed> lastIDPUsedMapper;
+  private DynamoDbTable<LastIDPUsed> lastIDPUsedMapper;
 
 
   @Inject
@@ -24,6 +24,10 @@ public class LastIDPUsedConnectorImpl implements LastIDPUsedConnector {
       @ConfigProperty(name = "last_idp_used_table_name") String TABLE_NAME) {
     lastIDPUsedMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(LastIDPUsed.class));
+  }
+
+  public LastIDPUsedConnectorImpl() {
+
   }
 
   @Override
