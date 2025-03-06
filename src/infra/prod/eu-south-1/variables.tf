@@ -442,31 +442,6 @@ variable "ssm_cert_key" {
   }
 }
 
-variable "client_ids" {
-  type    = list(string)
-  default = ["br8sFmmBK2OIjQ4hY0UM_D5mvt1zOR64zjk1m2WXT0Y"]
-}
-
-variable "entity_id" {
-  type = list(string)
-  default = [
-    "https://loginspid.infocamere.it",
-    "https://idp.intesigroup.com",
-    "https://loginspid.aruba.it",
-    "https://identity.sieltecloud.it",
-    "https://spid.register.it",
-    "https://spid.teamsystem.com/idp",
-    "https://idp.namirialtsp.com/idp",
-    "https://posteid.poste.it",
-    "https://identity.infocert.it",
-    "https://id.eht.eu",
-    "https://login.id.tim.it/affwebservices/public/saml2sso",
-    "https://id.lepida.it/idp/shibboleth",
-    "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
-
-  ]
-}
-
 variable "ecs_alarms" {
   type = map(object({
     metric_name         = string

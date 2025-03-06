@@ -35,5 +35,55 @@ locals {
       }
     )
   }
+
+  idp_entity_ids = try(
+    [for entity in jsondecode(data.http.idps_api.response_body) : entity.entityID],
+    []
+  )
+
+  clients = try(
+    [for client in jsondecode(data.http.clients_api.response_body) : {
+      client_id     = client.clientID
+      friendly_name = client.friendlyName
+    }],
+    []
+  )
 }
 
+data "http" "idps_api" {
+  url = "https://dev.oneid.pagopa.it/idps"
+  retry {
+    attempts     = 3
+    min_delay_ms = 1000
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Status code invalid"
+    }
+    postcondition {
+      condition     = alltrue([for idp in jsondecode(self.response_body) : can(idp.entityID)])
+      error_message = "Each idp must include 'entityID'"
+    }
+  }
+}
+
+data "http" "clients_api" {
+  url = "https://dev.oneid.pagopa.it/clients"
+  retry {
+    attempts     = 3
+    min_delay_ms = 1000
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Status code invalid"
+    }
+    postcondition {
+      condition     = alltrue([for client in jsondecode(self.response_body) : can(client.clientID) && can(client.friendlyName)])
+      error_message = "Each Client must include 'clientID' and 'friendlyName'"
+    }
+  }
+}

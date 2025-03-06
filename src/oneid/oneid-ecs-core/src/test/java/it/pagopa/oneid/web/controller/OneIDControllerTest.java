@@ -58,7 +58,7 @@ class OneIDControllerTest {
     String response =
         given()
             .pathParam("client_id", clientID)
-            .when().get("/client/{client_id}")
+            .when().get("/clients/{client_id}")
             .then()
             .statusCode(200)
             .extract()
@@ -81,7 +81,48 @@ class OneIDControllerTest {
     String response =
         given()
             .pathParams("client_id", clientID)
-            .when().get("/client/{client_id}")
+            .when().get("/clients/{client_id}")
+            .then()
+            .statusCode(404)
+            .extract()
+            .asString();
+
+    //then
+    assertNotNull(response);
+  }
+
+  @Test
+  void findAllClients() {
+
+    //given
+    ArrayList<ClientFE> clients = Mockito.mock(ArrayList.class);
+    Mockito.when(clientServiceImpl.getAllClientsInformation())
+        .thenReturn(Optional.of(clients));
+
+    //when
+    String response =
+        given()
+            .when().get("/clients")
+            .then()
+            .statusCode(200)
+            .extract()
+            .asString();
+
+    //then
+    assertNotNull(response);
+  }
+
+  @Test
+  void findAllClients_error() {
+
+    //given
+    Mockito.when(clientServiceImpl.getAllClientsInformation())
+        .thenReturn(Optional.empty());
+
+    //when
+    String response =
+        given()
+            .when().get("/clients")
             .then()
             .statusCode(404)
             .extract()

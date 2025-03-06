@@ -20,7 +20,7 @@ public class SPARouting {
   // we might think to get them from properties file
   private static final String[] PATH_PREFIXES = {"/oidc/", "/api/", "/@",
       "/saml/",
-      "/.well-known/", "/client/", "/idps"};
+      "/.well-known/", "/clients", "/idps"};
   private static final Predicate<String> FILE_NAME_PREDICATE = Pattern.compile(".+\\.[a-zA-Z0-9]+$")
       .asMatchPredicate();
 
