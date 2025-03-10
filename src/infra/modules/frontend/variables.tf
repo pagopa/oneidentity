@@ -168,6 +168,6 @@ variable "user_pool_arn" {
 
 variable "api_authorizer_name" {
   type    = string
-  default = ""
+  default = null
 }
 

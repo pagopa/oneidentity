@@ -2,6 +2,14 @@
 resource "aws_cognito_user_pool" "main" {
   name = var.cognito.user_pool_name
 
+  schema {
+    attribute_data_type = "String"
+    name                = "email"
+    required            = true
+  }
+
+  username_attributes = ["email"]
+
   password_policy {
     minimum_length                   = 8
     require_lowercase                = true

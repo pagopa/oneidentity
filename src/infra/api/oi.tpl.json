@@ -346,7 +346,8 @@
         },
         "security": [
           {
-            "api_key": []
+            "${authorizer}": []
+            
           }
         ]
       }
@@ -444,7 +445,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "${authorizer}": []
           }
         ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
@@ -2306,6 +2307,16 @@
         "type": "apiKey",
         "name": "x-api-key",
         "in": "header"
+      },
+      "oneid-es-1-d-restapi-authorizer" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header",
+        "x-amazon-apigateway-authtype" : "cognito_user_pools",
+        "x-amazon-apigateway-authorizer" : {
+          "type" : "cognito_user_pools",
+          "providerARNs" : [ "arn:aws:cognito-idp:eu-south-1:471112878885:userpool/eu-south-1_YuZDQ8zeH" ]
+        }
       }
     },
     "schemas": {
