@@ -47,6 +47,12 @@ import {
   id = "key.pem"
 }
 
+
+import {
+  to = module.frontend.module.rest_api.aws_api_gateway_authorizer.main[0]
+  id = "l3ji2mvg0f/umuwue"
+}
+
 ## Moved ##
 moved {
   from = module.network.module.acm.aws_acm_certificate.this[0]
