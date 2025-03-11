@@ -108,16 +108,16 @@ variable "ecs_oneid_core" {
   description = "Oneidentity core backend configurations."
 
   default = {
-    image_version    = "2a7c568789e1e651a0357e183057f6d2478ce5b5"
-    cpu              = 512
-    memory           = 1024
-    container_cpu    = 512
-    container_memory = 1024
+    image_version    = "f763adc608cc5d6ab294ee678acbb6d2fe8762d3"
+    cpu              = 2048
+    memory           = 4096
+    container_cpu    = 2048
+    container_memory = 4096
     autoscaling = {
       enable        = true
       desired_count = 3
-      min_capacity  = 1
-      max_capacity  = 6
+      min_capacity  = 3
+      max_capacity  = 10
     }
     logs_retention_days   = 30
     app_spid_test_enabled = false
