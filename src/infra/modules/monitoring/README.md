@@ -84,6 +84,8 @@ No modules.
 | <a name="input_ecs"></a> [ecs](#input\_ecs) | n/a | <pre>object({<br>    service_name   = string,<br>    cluster_name   = string<br>    log_group_name = string<br>  })</pre> | n/a | yes |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_idp_entity_ids"></a> [idp\_entity\_ids](#input\_idp\_entity\_ids) | n/a | `list(string)` | `[]` | no |
+| <a name="input_lambda_client_registration"></a> [lambda\_client\_registration](#input\_lambda\_client\_registration) | n/a | <pre>object({<br>    log_group_name = string<br>  })</pre> | n/a | yes |
+| <a name="input_lambda_metadata"></a> [lambda\_metadata](#input\_lambda\_metadata) | n/a | <pre>object({<br>    log_group_name = string<br>  })</pre> | n/a | yes |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br>    arn_suffix              = string<br>    target_group_arn_suffix = string<br>  })</pre> | n/a | yes |
 | <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |

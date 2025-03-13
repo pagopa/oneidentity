@@ -56,11 +56,18 @@ output "metadata_lambda_arn" {
   value = module.metadata_lambda.lambda_function_arn
 }
 
+output "metadata_lambda_log_group_name" {
+  value = module.metadata_lambda.lambda_cloudwatch_log_group_name
+}
+
 ## Client registration lambda
 output "client_registration_lambda_arn" {
   value = module.client_registration_lambda.lambda_function_arn
 }
 
+output "client_registration_log_group_name" {
+  value = module.client_registration_lambda.lambda_cloudwatch_log_group_name
+}
 ## Retrieve status lambda
 output "retrieve_status_lambda_arn" {
   value = module.retrieve_status_lambda.lambda_function_arn

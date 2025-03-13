@@ -57,6 +57,18 @@ variable "ecs" {
   })
 }
 
+variable "lambda_metadata" {
+  type = object({
+    log_group_name = string
+  })
+}
+
+variable "lambda_client_registration" {
+  type = object({
+    log_group_name = string
+  })
+}
+
 variable "nlb" {
   type = object({
     arn_suffix              = string
