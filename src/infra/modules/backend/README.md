@@ -258,6 +258,7 @@
 |------|-------------|
 | <a name="output_assertion_lambda_arn"></a> [assertion\_lambda\_arn](#output\_assertion\_lambda\_arn) | # Metadata lambda ## |
 | <a name="output_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#output\_client\_registration\_lambda\_arn) | # Client registration lambda |
+| <a name="output_client_registration_log_group_name"></a> [client\_registration\_log\_group\_name](#output\_client\_registration\_log\_group\_name) | n/a |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
 | <a name="output_ecs_cluster_arn"></a> [ecs\_cluster\_arn](#output\_ecs\_cluster\_arn) | n/a |
 | <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | n/a |
@@ -268,6 +269,7 @@
 | <a name="output_jwt_sign_aliases"></a> [jwt\_sign\_aliases](#output\_jwt\_sign\_aliases) | n/a |
 | <a name="output_lambda_deploy_iam_role_arn"></a> [lambda\_deploy\_iam\_role\_arn](#output\_lambda\_deploy\_iam\_role\_arn) | n/a |
 | <a name="output_metadata_lambda_arn"></a> [metadata\_lambda\_arn](#output\_metadata\_lambda\_arn) | n/a |
+| <a name="output_metadata_lambda_log_group_name"></a> [metadata\_lambda\_log\_group\_name](#output\_metadata\_lambda\_log\_group\_name) | n/a |
 | <a name="output_metadata_lambda_name"></a> [metadata\_lambda\_name](#output\_metadata\_lambda\_name) | TODO get the name from the arn |
 | <a name="output_nlb_arn"></a> [nlb\_arn](#output\_nlb\_arn) | # Network loadbalancer ## |
 | <a name="output_nlb_arn_suffix"></a> [nlb\_arn\_suffix](#output\_nlb\_arn\_suffix) | n/a |
