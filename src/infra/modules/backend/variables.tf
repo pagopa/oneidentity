@@ -8,6 +8,11 @@ variable "aws_region" {
   description = "AWS Region."
 }
 
+variable "env_short" {
+  type        = string
+  description = "env short"
+}
+
 variable "role_prefix" {
   type        = string
   description = "IAM Role prefix."
