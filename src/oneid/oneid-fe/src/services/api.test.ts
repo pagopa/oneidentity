@@ -1,5 +1,5 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable functional/immutable-data */
+
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { ENV } from '../utils/env';
 import { IdentityProvider } from '../utils/IDPS';
