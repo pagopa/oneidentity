@@ -102,6 +102,7 @@ module "vpc_endpoints" {
       # policy          = data.aws_iam_policy_document.dynamodb_endpoint_policy.json
       tags = { Name = "dynamodb-vpc-endpoint" }
     },
+    /*
     ecs = {
       service             = "ecs"
       private_dns_enabled = true
@@ -114,6 +115,7 @@ module "vpc_endpoints" {
       subnet_ids          = module.vpc.private_subnets
       tags                = { Name = "ecs-telemetry-endpoint" }
     },
+    */
     kms = {
       service             = "kms"
       private_dns_enabled = true
