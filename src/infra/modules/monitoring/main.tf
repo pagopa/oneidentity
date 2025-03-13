@@ -44,8 +44,11 @@ resource "aws_cloudwatch_query_definition" "ecs_log_level_error" {
   name = "ECS/${replace(each.value, ".sql", "")}" # Dynamically set the name based on the query file
   log_group_names = [
     var.ecs.log_group_name,
+    var.lambda_client_registration.log_group_name,
+    var.lambda_metadata.log_group_name,
   ]
-  query_string = file("../../cloudwatch-query/${each.value}") # Read the query from the file dynamically
+  query_string = file("../../cloudwatch-query/${each.value}")
+  # Read the query from the file dynamically
 }
 
 resource "aws_ce_anomaly_monitor" "service_monitor" {

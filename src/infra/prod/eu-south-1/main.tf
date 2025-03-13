@@ -449,6 +449,14 @@ module "monitoring" {
     log_group_name = module.backend.ecs_core_log_group_name
   }
 
+  lambda_client_registration = {
+    log_group_name = module.backend.client_registration_log_group_name
+  }
+
+  lambda_metadata = {
+    log_group_name = module.backend.metadata_lambda_log_group_name
+  }
+
   create_ce_budget = true
 
   alarm_subscribers = var.alarm_subscribers
