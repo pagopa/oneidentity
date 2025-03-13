@@ -51,6 +51,30 @@ resource "aws_cloudwatch_query_definition" "ecs_log_level_error" {
   # Read the query from the file dynamically
 }
 
+resource "aws_cloudwatch_query_definition" "client_registration_log_level_error" {
+  for_each = toset(local.query_files)
+
+  name = "ClientRegistration/${replace(each.value, ".sql", "")}"
+  # Dynamically set the name based on the query file
+  log_group_names = [
+    var.lambda_client_registration.log_group_name,
+  ]
+  query_string = file("../../cloudwatch-query/${each.value}")
+  # Read the query from the file dynamically
+}
+
+resource "aws_cloudwatch_query_definition" "metadata_log_level_error" {
+  for_each = toset(local.query_files)
+
+  name = "Metadata/${replace(each.value, ".sql", "")}"
+  # Dynamically set the name based on the query file
+  log_group_names = [
+    var.lambda_metadata.log_group_name,
+  ]
+  query_string = file("../../cloudwatch-query/${each.value}")
+  # Read the query from the file dynamically
+}
+
 resource "aws_ce_anomaly_monitor" "service_monitor" {
   count             = var.create_ce_budget ? 1 : 0
   name              = "AWSServiceMonitor"
