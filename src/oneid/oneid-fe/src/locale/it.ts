@@ -1,4 +1,65 @@
+const ERROR_MESSAGE = 'Spiacenti, qualcosa è andato storto.';
+const PP_LINK = 'Informativa Privacy';
+
 export default {
+  common: {
+    errorBoundary: {
+      sessionModalTitle: 'Errore',
+      sessionModalMessage: ERROR_MESSAGE,
+      toastError: 'ERRORE',
+      toastMessage: ERROR_MESSAGE,
+    },
+    blockingErrorPage: {
+      title: ERROR_MESSAGE,
+      description:
+        'A causa di un errore del sistema non è possibile completare la procedura.',
+      buttonLabel: "Contatta l'assistenza",
+    },
+    footer: {
+      legalInfoText: `<0>PagoPA S.p.A.</0> - Società per azioni con socio unico - Capitale sociale di euro 1,000,000 interamente versato - Sede legale in Roma, Piazza Colonna 370, <2/> CAP 00187 - N. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009`,
+      privacyPolicyLink: PP_LINK,
+      termsAndConditionLink: 'Termini e condizioni d’uso del sito ',
+      informationSecurityLink: 'Sicurezza delle informazioni ',
+      assistanceLink: 'Assistenza ',
+      preLoginLinks: {
+        aboutUs: {
+          links: {
+            aboutUs: 'PagoPA S.p.A.',
+            media: 'Media',
+            workwithud: 'Lavora con noi',
+          },
+        },
+        resources: {
+          title: 'Risorse',
+          links: {
+            privacyPolicy: PP_LINK,
+            certifications: 'Certificazioni',
+            informationsecurity: 'Sicurezza delle informazioni',
+            protectionofpersonaldata:
+              'Diritto alla protezione dei dati personali',
+            cookies: 'Preferenze Cookie',
+            termsandconditions: 'Termini e Condizioni',
+            transparentcompany: 'Società trasparente',
+            disclosurePolicy: 'Responsible Disclosure Policy',
+            model231: 'Modello 231',
+          },
+        },
+        followUs: {
+          title: 'Seguici su',
+        },
+        accessibility: 'Accessibilità',
+      },
+      postLoginLinks: {
+        privacyPolicy: PP_LINK,
+        protectionofpersonaldata: 'Diritto alla protezione dei dati personali',
+        termsandconditions: 'Termini e Condizioni',
+        accessibility: 'Accessibilità',
+      },
+    },
+    header: {
+      exitButton: 'Esci',
+    },
+  },
   loginPage: {
     title: 'Come vuoi entrare?',
     description: 'Scegli il metodo di autenticazione che preferisci',

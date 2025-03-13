@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import Header from './Header';
 import { ENV } from '../utils/env';
 import Footer from './footer/Footer';
+import { PRODUCTS_URL } from '../utils/constants';
 
 type Props = {
   children: React.ReactNode;
@@ -25,10 +26,7 @@ const Layout = ({ children }: Props) => (
     />
     {children}
     <Box mt={16}>
-      <Footer
-        loggedUser={false}
-        productsJsonUrl={ENV.JSON_URL.CLIENT_BASE_URL}
-      />
+      <Footer loggedUser={false} productsJsonUrl={PRODUCTS_URL} />
     </Box>
   </Box>
 );

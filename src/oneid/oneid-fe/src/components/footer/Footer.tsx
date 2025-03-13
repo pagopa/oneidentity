@@ -9,6 +9,7 @@ import { LangCode } from '@pagopa/mui-italia';
 import { ENV } from '../../utils/env';
 import { LANGUAGES, pagoPALink } from './FooterConfig';
 import i18n from '../../locale';
+import { useLoginData } from '../../hooks/useLoginData';
 
 type FooterProps = {
   loggedUser: boolean;
@@ -23,12 +24,14 @@ declare const window: Window &
       ToggleInfoDisplay: () => void;
     };
   };
-// eslint-disable-next-line sonarjs/cognitive-complexity
+
 export default function Footer({
   loggedUser,
   productsJsonUrl,
   onExit = (exitAction) => exitAction(),
 }: FooterProps) {
+  const { clientQuery } = useLoginData();
+
   const { t } = useTranslation();
 
   const currentLangByUrl = new URLSearchParams(window.location.search).get(
@@ -49,13 +52,6 @@ export default function Footer({
     aboutUs: {
       title: undefined,
       links: [
-        // TODO
-        // {
-        //   label: 'PNRR',
-        //   href: 'CONFIG.FOOTER.LINK.PNRR',
-        //   ariaLabel: 'Vai al link: PNRR',
-        //   linkType: 'internal',
-        // },
         {
           label: t('common.footer.preLoginLinks.aboutUs.links.aboutUs'),
           href: ENV.FOOTER.LINK.ABOUTUS,
@@ -82,7 +78,8 @@ export default function Footer({
       links: [
         {
           label: t('common.footer.preLoginLinks.resources.links.privacyPolicy'),
-          href: ENV.FOOTER.LINK.PRIVACYPOLICY,
+          href:
+            clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
           ariaLabel: 'Vai al link: Informativa Privacy',
           linkType: 'internal',
         },
@@ -120,7 +117,7 @@ export default function Footer({
           label: t(
             'common.footer.preLoginLinks.resources.links.termsandconditions'
           ),
-          href: ENV.FOOTER.LINK.TERMSANDCONDITIONS,
+          href: clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
           ariaLabel: 'Vai al link: Termini e Condizioni',
           linkType: 'internal',
         },
@@ -190,7 +187,7 @@ export default function Footer({
   const postLoginLinks: Array<FooterLinksType> = [
     {
       label: t('common.footer.postLoginLinks.privacyPolicy'),
-      href: ENV.FOOTER.LINK.PRIVACYPOLICY,
+      href: ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
       ariaLabel: 'Vai al link: Informativa Privacy',
       linkType: 'internal',
     },
@@ -202,7 +199,7 @@ export default function Footer({
     },
     {
       label: t('common.footer.postLoginLinks.termsandconditions'),
-      href: ENV.FOOTER.LINK.TERMSANDCONDITIONS,
+      href: ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
       ariaLabel: 'Vai al link: Termini e condizioni',
       linkType: 'internal',
     },

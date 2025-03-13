@@ -28,6 +28,14 @@ export const configureI18n = (
         escapeValue: false,
       },
     })
+    .then(() => {
+      i18n.on('languageChanged', (lng) => {
+        if (lng.includes('-')) {
+          const normalizedLng = lng.split('-')[0];
+          void i18n.changeLanguage(normalizedLng);
+        }
+      });
+    })
     .catch((err) => {
       throw new Error(err);
     });
