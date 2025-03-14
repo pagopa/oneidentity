@@ -497,4 +497,9 @@ module "cognito" {
     user_pool_domain = format("%s-user-pool-domain", local.project),
     callback_url     = "https://dev.oneid.pagopa.it/"
   }
+  cognito_presignup_lambda = {
+    name                              = format("%s-cognito-presignup", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+  }
 }
