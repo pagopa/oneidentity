@@ -10,6 +10,8 @@ type Props = {
 const withSecondHeader = false;
 const Layout = ({ children }: Props) => (
   <Box
+    bgcolor={'#F5F5F5'}
+    margin={0}
     sx={{
       display: 'flex',
       flexDirection: 'column',
