@@ -1,4 +1,68 @@
+const ERROR_MESSAGE = 'Es ist leider ein Fehler aufgetreten. ';
+const PP_LINK = 'Datenschutzerklärung ';
+const TOS_LINK = 'Allgemeine Geschäftsbedingungen ';
+
 export default {
+  common: {
+    errorBoundary: {
+      sessionModalTitle: 'Fehler',
+      sessionModalMessage: ERROR_MESSAGE,
+      toastError: 'FEHLER',
+      toastMessage: ERROR_MESSAGE,
+    },
+    blockingErrorPage: {
+      title: ERROR_MESSAGE,
+      description:
+        'Aufgrund eines Systemfehlers kann der Vorgang nicht abgeschlossen werden.',
+      buttonLabel: 'Kontaktiere den Support',
+    },
+    footer: {
+      legalInfoText:
+        '<0>PagoPA S.p.A.</0> - Aktiengesellschaft mit Alleingesellschafter - Gesellschaftskapital von 1.000.000 Euro voll eingezahlt - Sitz in Rom, Piazza Colonna 370, <2/> PLZ 00187 - Eintrag im Handelsregister von Rom Nr., Steuernummer und USt-IdNr. 15376371009',
+      privacyPolicyLink: PP_LINK,
+      termsAndConditionLink:
+        'Allgemeine Geschäftsbedingungen zur Benutzung der Site ',
+      informationSecurityLink: 'Informationssicherheit ',
+      assistanceLink: 'Betreuung ',
+      preLoginLinks: {
+        aboutUs: {
+          links: {
+            aboutUs: 'PagoPA S.p.A.',
+            media: 'Medien',
+            workwithud: 'Karriere',
+          },
+        },
+        resources: {
+          title: 'Quellen',
+          links: {
+            privacyPolicy: PP_LINK,
+            certifications: 'Zertifizierungen',
+            informationsecurity: 'Informationssicherheit',
+            protectionofpersonaldata:
+              'Recht auf Schutz personenbezogener Daten',
+            cookies: 'Cookie-Einstellungen',
+            termsandconditions: TOS_LINK,
+            transparentcompany: 'Transparente Gesellschaft',
+            disclosurePolicy: 'Responsible Disclosure Policy',
+            model231: 'Modell 231',
+          },
+        },
+        followUs: {
+          title: 'Folg uns auf',
+        },
+        accessibility: 'Zugänglichkeit',
+      },
+      postLoginLinks: {
+        privacyPolicy: PP_LINK,
+        protectionofpersonaldata: 'Recht auf Schutz personenbezogener Daten',
+        termsandconditions: TOS_LINK,
+        accessibility: 'Zugänglichkeit',
+      },
+    },
+    header: {
+      exitButton: 'Abmelden',
+    },
+  },
   loginPage: {
     title: 'Zugriff auf die Area Riservata',
     description:
@@ -14,7 +78,7 @@ export default {
     },
     privacyAndCondition: {
       text: 'Wenn du dich anmeldest, akzeptierst du die {{termsLink}} des Dienstes und bestätigst, die {{privacyLink}} gelesen zu haben.',
-      terms: 'Allgemeine Geschäftsbedingungen',
+      terms: TOS_LINK,
       privacy: 'Datenschutzerklärung',
     },
   },
