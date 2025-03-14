@@ -1,4 +1,5 @@
 import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
 import i18n from 'i18next';
 
 import it from './it';
@@ -21,14 +22,21 @@ export const configureI18n = (
   };
   i18n
     .use(initReactI18next)
+    .use(LanguageDetector)
     .init({
       resources: completeResources,
-      lng: defaultLanguage,
+      fallbackLng: defaultLanguage,
       interpolation: {
         escapeValue: false,
       },
+      detection: {
+        order: ['querystring', 'sessionStorage', 'navigator'],
+        caches: ['sessionStorage'],
+        lookupSessionStorage: 'lang',
+      },
     })
     .then(() => {
+      // TODO remove
       i18n.on('languageChanged', (lng) => {
         if (lng.includes('-')) {
           const normalizedLng = lng.split('-')[0];
