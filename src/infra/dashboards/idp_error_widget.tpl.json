@@ -14,6 +14,7 @@
         "metrics": [
             [{ 
                 "expression": "SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"IDPError\"', 'Sum', 300)", 
+                "label": "$${PROP('Dim.Error')}",
                 "id": "idp_errors", 
                 "region": "${aws_region}" 
                 }]

@@ -65,6 +65,7 @@ module "backend" {
   source = "../../modules/backend"
 
   aws_region = var.aws_region
+  env_short  = var.env_short
 
   role_prefix = local.project
 
