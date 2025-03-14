@@ -40,6 +40,9 @@ resource "aws_cognito_user_pool" "main" {
   }
   */
 
+  lambda_config {
+    pre_sign_up = module.cognito_presignup_lambda.lambda_function_arn
+  }
   deletion_protection = "INACTIVE"
 
   email_configuration {
@@ -82,4 +85,31 @@ resource "aws_cognito_user_pool_client" "client" {
 
 }
 
+module "cognito_presignup_lambda" {
+  source                 = "terraform-aws-modules/lambda/aws"
+  version                = "7.4.0"
+  function_name          = var.cognito_presignup_lambda.name
+  description            = "Lambda function cognito preSignUp."
+  runtime                = "python3.12"
+  handler                = "index.lambda_handler"
+  create_package         = false
+  local_existing_package = var.cognito_presignup_lambda.filename
+
+  ignore_source_code_hash = true
+
+  publish = true
+
+  allowed_triggers = {
+    events = {
+      principal  = "cognito-idp.amazonaws.com"
+      source_arn = aws_cognito_user_pool.main.arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+
+  cloudwatch_logs_retention_in_days = var.cognito_presignup_lambda.cloudwatch_logs_retention_in_days
+
+}
 

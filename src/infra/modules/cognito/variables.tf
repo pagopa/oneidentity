@@ -7,3 +7,11 @@ variable "cognito" {
     callback_url     = string
   })
 }
+
+variable "cognito_presignup_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    cloudwatch_logs_retention_in_days = number
+  })
+}
