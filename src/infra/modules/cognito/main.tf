@@ -8,7 +8,8 @@ resource "aws_cognito_user_pool" "main" {
     required            = true
   }
 
-  username_attributes = ["email"]
+  username_attributes      = ["email"]
+  auto_verified_attributes = ["email"]
 
   password_policy {
     minimum_length                   = 8
