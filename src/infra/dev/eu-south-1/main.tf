@@ -74,6 +74,7 @@ module "frontend" {
   }
   user_pool_arn       = module.cognito.user_pool_arn
   api_authorizer_name = format("%s-restapi-authorizer", local.project)
+  provider_arn        = module.cognito.user_pool_arn
 }
 
 

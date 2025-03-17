@@ -19,6 +19,7 @@
   "backend.security_group_retrieve_status_lambda": "a431b2c448a563824a94d319338880a7e14224c1a7316c439db6234e0ae3f1bc",
   "backend.security_group_update_status_lambda": "a431b2c448a563824a94d319338880a7e14224c1a7316c439db6234e0ae3f1bc",
   "backend.update_status_lambda": "263de3f619fa722d9ab1dfd1a5ab9ccfc7ec4205af822b98fda2065f7a7cfa46",
+  "cognito.cognito_presignup_lambda": "5e1be81177b90fc2aa3be27ccc91b86d8ccea834e2b18833454a83cce0570575",
   "database.dynamodb_sessions_table": "d0436fb10f5b1426586f66ff2066a1457ea294a7f76d375c3e07e3f4c873c096",
   "database.dynamodb_table_client_registrations": "509f026e20e96d5b9dca73043d6a1b36c9b0f779d421f52193cf4f2e5ce63c80",
   "database.dynamodb_table_client_status_history": "509f026e20e96d5b9dca73043d6a1b36c9b0f779d421f52193cf4f2e5ce63c80",
