@@ -2315,7 +2315,7 @@
         "x-amazon-apigateway-authtype" : "cognito_user_pools",
         "x-amazon-apigateway-authorizer" : {
           "type" : "cognito_user_pools",
-          "providerARNs" : [ "arn:aws:cognito-idp:eu-south-1:471112878885:userpool/eu-south-1_YuZDQ8zeH" ]
+          "providerARNs" : [ "${ provider_arn }" ]
         }
       }
     },

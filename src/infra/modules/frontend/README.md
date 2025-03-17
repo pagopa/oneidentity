@@ -125,6 +125,7 @@
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
 | <a name="input_openapi_template_file"></a> [openapi\_template\_file](#input\_openapi\_template\_file) | Openapi template file path. | `string` | n/a | yes |
+| <a name="input_provider_arn"></a> [provider\_arn](#input\_provider\_arn) | Value of the provider arn. | `string` | `""` | no |
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |

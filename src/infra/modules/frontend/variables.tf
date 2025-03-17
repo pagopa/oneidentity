@@ -171,3 +171,9 @@ variable "api_authorizer_name" {
   default = null
 }
 
+variable "provider_arn" {
+  type        = string
+  description = "Value of the provider arn."
+  default     = ""
+}
+
