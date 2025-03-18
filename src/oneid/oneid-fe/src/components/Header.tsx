@@ -11,6 +11,10 @@ import {
 import { PartySwitchItem } from '@pagopa/mui-italia/dist/components/PartySwitch';
 import { ENV } from '../utils/env';
 import { buildAssistanceURI } from '../services/assistanceService';
+import { useLoginData } from '../hooks/useLoginData';
+import { mapClientToProduct } from '../utils/utils';
+import { ImageWithFallback } from './ImageFallback';
+import { IDP_PLACEHOLDER_IMG } from '../utils/constants';
 
 type PartyEntity = PartySwitchItem;
 type HeaderProps = {
@@ -40,8 +44,6 @@ type HeaderProps = {
   userActions?: Array<UserAction>;
   /** If true the user dropdown in headerAccount component is visible. It's visible only if enableLogin is true */
   enableDropdown?: boolean;
-  /** If true it concatenates selfcareProduct with productsList */
-  addSelfcareProduct?: boolean;
   /* The number of characters beyond which the multiLine is applied in component PartyAccountItemButton */
   maxCharactersNumberMultiLineButton?: number;
   /* The number of characters beyond which the multiLine is applied in component PartyAccountItem */
@@ -52,32 +54,23 @@ type HeaderProps = {
   onDocumentationClick?: () => void;
 };
 
-const selfcareProduct: ProductEntity = {
-  id: 'prod-selfcare',
-  title: 'Area Riservata',
-  productUrl: ENV.HEADER.LINK.PRODUCTURL,
-  linkType: 'internal',
-};
 const rootLink: RootLinkType = {
   label: 'PagoPA S.p.A.',
-  href: ENV.HEADER.LINK.ROOTLINK,
+  href: ENV.HEADER.LINK.PAGOPALINK,
   ariaLabel: 'Link: vai al sito di PagoPA S.p.A.',
   title: 'Sito di PagoPA S.p.A.',
 };
 
-/** SelfCare Header component */
+/** Header component */
 const Header = ({
   withSecondHeader,
-  productsList = [],
   selectedPartyId,
-  selectedProductId = selfcareProduct.id,
   partyList = [],
   loggedUser,
   assistanceEmail,
   enableLogin = true,
   userActions = [],
   enableDropdown = false,
-  addSelfcareProduct = true,
   onExit = (exitAction) => exitAction(),
   onSelectedProduct,
   onSelectedParty,
@@ -85,49 +78,69 @@ const Header = ({
   maxCharactersNumberMultiLineItem,
   enableAssistanceButton = true,
   onDocumentationClick,
-}: HeaderProps) => (
-  <Fragment>
-    <header>
-      <HeaderAccount
-        rootLink={rootLink}
-        loggedUser={loggedUser}
-        onAssistanceClick={() =>
-          onExit(() =>
-            window.location.assign(buildAssistanceURI(assistanceEmail))
-          )
-        }
-        onLogin={() => onExit(() => window.location.assign(ENV.URL_FE.LOGIN))}
-        onLogout={() => onExit(() => window.location.assign(ENV.URL_FE.LOGOUT))}
-        enableLogin={enableLogin}
-        userActions={userActions}
-        enableDropdown={enableDropdown}
-        enableAssistanceButton={enableAssistanceButton}
-        onDocumentationClick={onDocumentationClick}
-      />
-    </header>
-    {withSecondHeader === true ? (
-      <nav>
-        <HeaderProduct
-          productId={selectedProductId}
-          productsList={
-            addSelfcareProduct
-              ? [selfcareProduct].concat(productsList)
-              : productsList
-          }
-          partyId={selectedPartyId}
-          partyList={partyList}
-          onSelectedProduct={onSelectedProduct}
-          onSelectedParty={onSelectedParty}
-          maxCharactersNumberMultiLineButton={
-            maxCharactersNumberMultiLineButton
-          }
-          maxCharactersNumberMultiLineItem={maxCharactersNumberMultiLineItem}
+}: HeaderProps) => {
+  const { clientQuery } = useLoginData();
+  const getClientLogo = () => (
+    <>
+      {clientQuery.isFetched && (
+        <ImageWithFallback
+          style={{
+            width: '50%',
+            maxWidth: '100px',
+            maxHeight: '100px',
+            objectFit: 'cover',
+          }}
+          src={clientQuery.data?.logoUri}
+          alt={clientQuery.data?.friendlyName || 'PagoPa Logo'}
+          placeholder={IDP_PLACEHOLDER_IMG}
         />
-      </nav>
-    ) : (
-      ''
-    )}
-  </Fragment>
-);
+      )}
+    </>
+  );
+  const product = mapClientToProduct(clientQuery.data, getClientLogo());
+
+  return (
+    <Fragment>
+      <header>
+        <HeaderAccount
+          rootLink={rootLink}
+          loggedUser={loggedUser}
+          onAssistanceClick={() =>
+            onExit(() =>
+              window.location.assign(buildAssistanceURI(assistanceEmail))
+            )
+          }
+          onLogin={() => onExit(() => window.location.assign(ENV.URL_FE.LOGIN))}
+          onLogout={() =>
+            onExit(() => window.location.assign(ENV.URL_FE.LOGOUT))
+          }
+          enableLogin={enableLogin}
+          userActions={userActions}
+          enableDropdown={enableDropdown}
+          enableAssistanceButton={enableAssistanceButton}
+          onDocumentationClick={onDocumentationClick}
+        />
+      </header>
+      {withSecondHeader === true && product ? (
+        <nav>
+          <HeaderProduct
+            productId={product?.id}
+            productsList={[product]}
+            partyId={selectedPartyId}
+            partyList={partyList}
+            onSelectedProduct={onSelectedProduct}
+            onSelectedParty={onSelectedParty}
+            maxCharactersNumberMultiLineButton={
+              maxCharactersNumberMultiLineButton
+            }
+            maxCharactersNumberMultiLineItem={maxCharactersNumberMultiLineItem}
+          />
+        </nav>
+      ) : (
+        ''
+      )}
+    </Fragment>
+  );
+};
 
 export default Header;

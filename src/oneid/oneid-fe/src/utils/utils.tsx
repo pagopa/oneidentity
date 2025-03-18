@@ -1,3 +1,5 @@
+import { ProductEntity } from '@pagopa/mui-italia';
+import { Client } from '../services/api';
 import { ROUTE_LOGIN } from './constants';
 
 export const redirectToLogin = () => {
@@ -14,3 +16,27 @@ export const forwardSearchParams = (idp?: string) => {
   const params = encodeURIComponent(searchParams.toString());
   return decodeURIComponent(params);
 };
+
+export const mapClientToProduct = (
+  client: Client | undefined,
+  logoUri: React.ReactNode
+): ProductEntity | null => {
+  if (client) {
+    return {
+      id: client.clientID,
+      title: '', // passing an empty title to display only the icon
+      icon: logoUri,
+      productUrl: client.policyUri,
+      linkType: 'external',
+    };
+  }
+  return null;
+};
+
+// const selfcareProduct: ProductEntity = {
+//   id: 'prod-selfcare',
+//   title: 'Area Riservata',
+//   productUrl: ENV.HEADER.LINK.PAGOPALINK,
+//   linkType: 'internal',
+//   icon: 'it-user',
+// };
