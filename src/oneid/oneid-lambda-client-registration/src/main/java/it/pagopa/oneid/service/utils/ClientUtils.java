@@ -44,6 +44,8 @@ public class ClientUtils {
         .isActive(true)
         .clientIdIssuedAt(clientIdIssuedAt)
         .logoUri(clientRegistrationRequestDTO.getLogoUri())
+        .policyUri(clientRegistrationRequestDTO.getPolicyUri())
+        .tosUri(clientRegistrationRequestDTO.getTosUri())
         .build();
   }
 
@@ -61,6 +63,8 @@ public class ClientUtils {
         .logoUri(client.getLogoUri())
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
         .samlRequestedAttributes(samlRequestedAttributes)
+        .policyUri(client.getPolicyUri())
+        .tosUri(client.getTosUri())
         .build();
 
   }
