@@ -7,7 +7,7 @@ import { PRODUCTS_URL } from '../utils/constants';
 type Props = {
   children: React.ReactNode;
 };
-const withSecondHeader = false;
+const withSecondHeader = true;
 const Layout = ({ children }: Props) => (
   <Box
     bgcolor={'#F5F5F5'}

@@ -9,10 +9,8 @@ import { theme } from '@pagopa/mui-italia';
 
 import Layout from '../../components/Layout';
 import { ENV } from '../../utils/env';
-import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
-import { ImageWithFallback } from '../../components/ImageFallback';
 import SpidModal from './components/SpidModal';
 import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
@@ -72,15 +70,17 @@ const Login = () => {
 
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-      window.location.assign(
-        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+      window.open(
+        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
+        '_blank'
       )
     );
 
   const redirectToTOS = () =>
     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-      window.location.assign(
-        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+      window.open(
+        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
+        '_blank'
       )
     );
 
@@ -97,8 +97,8 @@ const Login = () => {
   return (
     <Layout>
       <Grid container direction="column" my={'auto'} alignItems="center">
-        <Grid container item justifyContent="center" mb={0}>
-          <Grid item xs={4} maxWidth="100%">
+        <Grid container item justifyContent="center" mb={0} mt={5}>
+          <Grid item xs={6} maxWidth="100%">
             <Typography
               variant="h3"
               py={1}
@@ -114,7 +114,7 @@ const Login = () => {
         </Grid>
 
         <Grid container item justifyContent="center">
-          <Grid item xs={6}>
+          <Grid item xs={10}>
             <Typography
               variant="body1"
               color="textPrimary"
@@ -133,23 +133,7 @@ const Login = () => {
           justifyContent="center"
           textAlign={'center'}
           mb={2}
-        >
-          <Grid item xs={6} justifyContent="center" alignItems="center">
-            {clientQuery.isFetched && (
-              <ImageWithFallback
-                style={{
-                  width: '100%',
-                  maxWidth: '100px',
-                  maxHeight: '100px',
-                  objectFit: 'cover',
-                }}
-                src={clientQuery.data?.logoUri}
-                alt={clientQuery.data?.friendlyName || 'PagoPa Logo'}
-                placeholder={IDP_PLACEHOLDER_IMG}
-              />
-            )}
-          </Grid>
-        </Grid>
+        />
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
           <Grid container justifyContent="center" mb={5}>
             <Grid item>

@@ -32,8 +32,7 @@ export const ENV = {
 
   HEADER: {
     LINK: {
-      ROOTLINK: import.meta.env.VITE_HEADER_LINK_ROOTLINK as string,
-      PRODUCTURL: import.meta.env.VITE_HEADER_LINK_PRODUCTURL as string,
+      PAGOPALINK: import.meta.env.VITE_HEADER_LINK_PAGOPALINK as string,
     },
   },
 
