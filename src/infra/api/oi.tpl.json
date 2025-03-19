@@ -2309,7 +2309,7 @@
         "in": "header"
       },
       %{ if authorizer != "api_key" }
-      "${ var.authorizer }" : {
+      "${ authorizer }" : {
         "type" : "apiKey",
         "name" : "Authorization",
         "in" : "header",
