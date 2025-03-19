@@ -2308,8 +2308,8 @@
         "name": "x-api-key",
         "in": "header"
       },
-      %{ if authorizer != "api_key"}
-      "oneid-es-1-d-restapi-authorizer" : {
+      %{ if authorizer != "api_key" }
+      "${ var.authorizer }" : {
         "type" : "apiKey",
         "name" : "Authorization",
         "in" : "header",
