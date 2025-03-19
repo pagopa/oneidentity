@@ -2308,7 +2308,8 @@
         "name": "x-api-key",
         "in": "header"
       },
-      "oneid-es-1-d-restapi-authorizer" : {
+      %{ if authorizer != "api_key" }
+      "${ authorizer }" : {
         "type" : "apiKey",
         "name" : "Authorization",
         "in" : "header",
@@ -2318,6 +2319,7 @@
           "providerARNs" : [ "${ provider_arn }" ]
         }
       }
+      %{ endif }
     },
     "schemas": {
       "TokenData": {
