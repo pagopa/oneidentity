@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -17,6 +18,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +51,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 public class ServiceMetadata implements RequestHandler<Object, String> {
 
   @Inject
-  Map<String, Client> clientsMap;
+  ClientConnectorImpl clientConnectorImpl;
 
   @Inject
   SAMLUtilsExtendedMetadata samlUtils;
@@ -233,6 +235,8 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     spssoDescriptor.getSingleLogoutServices().add(samlUtils.buildSingleLogoutService());
     spssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 
+    Map<String, Client> clientsMap = getClientsMap();
+
     for (Client client : clientsMap.values()) {
       spssoDescriptor.getAttributeConsumingServices()
           .add(samlUtils.buildAttributeConsumingService(client));
@@ -265,5 +269,15 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     }
 
     return getStringValue(plaintextElement);
+  }
+
+  private Map<String, Client> getClientsMap() {
+    Map<String, Client> map = new HashMap<>();
+    ArrayList<Client> clients =
+        clientConnectorImpl.findAll().orElse(new ArrayList<>());
+
+    clients.forEach(client -> map.put(client.getClientId(), client));
+
+    return map;
   }
 }
