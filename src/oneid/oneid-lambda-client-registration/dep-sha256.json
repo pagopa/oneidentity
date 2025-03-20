@@ -666,13 +666,6 @@
       "sha256": "azs2KLi0rt2g0kwzVDNemFSX2O88UQuPMCjpINW4Zj0="
     },
     {
-      "id": "org.jboss.logging:commons-logging-jboss-logging:jar:1.0.0.Final",
-      "artifactId": "commons-logging-jboss-logging",
-      "groupId": "org.jboss.logging",
-      "version": "1.0.0.Final",
-      "sha256": "8SF2Jj6iX054u0-ks20zWilzjd5qgSPhttqJplXRUP8="
-    },
-    {
       "id": "jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.2",
       "artifactId": "jakarta.xml.bind-api",
       "groupId": "jakarta.xml.bind",
@@ -904,11 +897,11 @@
       "sha256": "l1dGdOKiX1Z6MTc2rOAN-Hh9RD3jFkB9V_yHfZ8Zpl0="
     },
     {
-      "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
-      "artifactId": "quarkus-amazon-dynamodb-enhanced",
+      "id": "io.quarkiverse.amazonservices:quarkus-amazon-sns:jar:2.13.1",
+      "artifactId": "quarkus-amazon-sns",
       "groupId": "io.quarkiverse.amazonservices",
       "version": "2.13.1",
-      "sha256": "9MrBsdQDV4a6snKKsZilvVwhyzjd9-CSgkmxxQpqjiM="
+      "sha256": "M6GdZtDjqau02B_--5JXlk8aSnc0CE2fbvLxJq_Zd8c="
     },
     {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-common:jar:2.13.1",
@@ -974,6 +967,118 @@
       "sha256": "18nxyixsFtUoyE-esy5yKIvif5r_0cAHOchC3mZJW8I="
     },
     {
+      "id": "software.amazon.awssdk:http-client-spi:jar:2.25.15",
+      "artifactId": "http-client-spi",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "_IxKnv4d6yy-4jWDsj6UBk5PBHFf4JHTnP7JOdC-x1U="
+    },
+    {
+      "id": "software.amazon.awssdk:sns:jar:2.25.15",
+      "artifactId": "sns",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "VaiV0z-V2HbW5nZJJG5s83PqOqZlDWH6kSu7mSQuwSU="
+    },
+    {
+      "id": "software.amazon.awssdk:aws-query-protocol:jar:2.25.15",
+      "artifactId": "aws-query-protocol",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "WI-qIKHgcq8tegKfQzQMiNvx6-ACbrQOdUBaMGQ-qWQ="
+    },
+    {
+      "id": "software.amazon.awssdk:protocol-core:jar:2.25.15",
+      "artifactId": "protocol-core",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "I7ToWE7dJVCOEgbou-dH9_Wv7kFKUCkmQUMLQMSIz70="
+    },
+    {
+      "id": "software.amazon.awssdk:http-auth-aws:jar:2.25.15",
+      "artifactId": "http-auth-aws",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "3lxGRVmmgb5yhWIhsPVny0ewJ45nzQALSun_-rv5BBI="
+    },
+    {
+      "id": "software.amazon.awssdk:http-auth-spi:jar:2.25.15",
+      "artifactId": "http-auth-spi",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "HTTiXs-RAMkpirzWsYtftL4I-G-7ta-K-OhsGFR650M="
+    },
+    {
+      "id": "software.amazon.awssdk:http-auth:jar:2.25.15",
+      "artifactId": "http-auth",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "lsGIUM6NjgzyuR-_Tnf3TmbDOAogBdMy1cimayZxScA="
+    },
+    {
+      "id": "software.amazon.awssdk:identity-spi:jar:2.25.15",
+      "artifactId": "identity-spi",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "JH5pW1hYlelc3YQm-Wnb2u24F9TbpjZ0DaeLPyZxEvA="
+    },
+    {
+      "id": "software.amazon.awssdk:annotations:jar:2.25.15",
+      "artifactId": "annotations",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "D07d5Lw4vmNYEsJXyCdEqG3_xJWa3Dq1co_NTYOZypQ="
+    },
+    {
+      "id": "software.amazon.awssdk:utils:jar:2.25.15",
+      "artifactId": "utils",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "FCAo62yGytA-50lchksQyBPAYHSpP57gS2QwAfrplgw="
+    },
+    {
+      "id": "software.amazon.awssdk:metrics-spi:jar:2.25.15",
+      "artifactId": "metrics-spi",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "ol_c6APRRcjDk9jDItiKqQ9keK6QpivHYFcQL3E_PaA="
+    },
+    {
+      "id": "software.amazon.awssdk:json-utils:jar:2.25.15",
+      "artifactId": "json-utils",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "XEvDS6W1nc8TLuSeGv77nfoW4UHY2RubiQX_ew7iX-4="
+    },
+    {
+      "id": "software.amazon.awssdk:third-party-jackson-core:jar:2.25.15",
+      "artifactId": "third-party-jackson-core",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "I3b2-aFU4rzkJ8HUcEzNTMQ3YS7ptUj-FzLapHIpHi8="
+    },
+    {
+      "id": "software.amazon.awssdk:endpoints-spi:jar:2.25.15",
+      "artifactId": "endpoints-spi",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "7B9Thqy7LuBuWyWjK2n3mi71C5gsMTJ3oxzTn65VqMA="
+    },
+    {
+      "id": "org.jboss.logging:commons-logging-jboss-logging:jar:1.0.0.Final",
+      "artifactId": "commons-logging-jboss-logging",
+      "groupId": "org.jboss.logging",
+      "version": "1.0.0.Final",
+      "sha256": "8SF2Jj6iX054u0-ks20zWilzjd5qgSPhttqJplXRUP8="
+    },
+    {
+      "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
+      "artifactId": "quarkus-amazon-dynamodb-enhanced",
+      "groupId": "io.quarkiverse.amazonservices",
+      "version": "2.13.1",
+      "sha256": "9MrBsdQDV4a6snKKsZilvVwhyzjd9-CSgkmxxQpqjiM="
+    },
+    {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb:jar:2.13.1",
       "artifactId": "quarkus-amazon-dynamodb",
       "groupId": "io.quarkiverse.amazonservices",
@@ -995,53 +1100,11 @@
       "sha256": "evxkdCjWMJkGt_GUQzWRJkHeRf3PxZtxkd8KSS6IdBI="
     },
     {
-      "id": "software.amazon.awssdk:json-utils:jar:2.25.15",
-      "artifactId": "json-utils",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "XEvDS6W1nc8TLuSeGv77nfoW4UHY2RubiQX_ew7iX-4="
-    },
-    {
-      "id": "software.amazon.awssdk:third-party-jackson-core:jar:2.25.15",
-      "artifactId": "third-party-jackson-core",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "I3b2-aFU4rzkJ8HUcEzNTMQ3YS7ptUj-FzLapHIpHi8="
-    },
-    {
       "id": "software.amazon.awssdk:url-connection-client:jar:2.25.15",
       "artifactId": "url-connection-client",
       "groupId": "software.amazon.awssdk",
       "version": "2.25.15",
       "sha256": "creYk1l_A6j35PUab8s7KoOC09vNe7XJRv8XrwyQ7i4="
-    },
-    {
-      "id": "software.amazon.awssdk:utils:jar:2.25.15",
-      "artifactId": "utils",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "FCAo62yGytA-50lchksQyBPAYHSpP57gS2QwAfrplgw="
-    },
-    {
-      "id": "software.amazon.awssdk:annotations:jar:2.25.15",
-      "artifactId": "annotations",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "D07d5Lw4vmNYEsJXyCdEqG3_xJWa3Dq1co_NTYOZypQ="
-    },
-    {
-      "id": "software.amazon.awssdk:http-client-spi:jar:2.25.15",
-      "artifactId": "http-client-spi",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "_IxKnv4d6yy-4jWDsj6UBk5PBHFf4JHTnP7JOdC-x1U="
-    },
-    {
-      "id": "software.amazon.awssdk:metrics-spi:jar:2.25.15",
-      "artifactId": "metrics-spi",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "ol_c6APRRcjDk9jDItiKqQ9keK6QpivHYFcQL3E_PaA="
     },
     {
       "id": "org.opensaml:opensaml-core:jar:4.3.0",
@@ -1238,48 +1301,6 @@
       "groupId": "software.amazon.awssdk",
       "version": "2.25.15",
       "sha256": "zDZZ8JMbNbSM1fRN1BaTFMQ-Xup54VbDJh2gz0oX9s8="
-    },
-    {
-      "id": "software.amazon.awssdk:protocol-core:jar:2.25.15",
-      "artifactId": "protocol-core",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "I7ToWE7dJVCOEgbou-dH9_Wv7kFKUCkmQUMLQMSIz70="
-    },
-    {
-      "id": "software.amazon.awssdk:http-auth-aws:jar:2.25.15",
-      "artifactId": "http-auth-aws",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "3lxGRVmmgb5yhWIhsPVny0ewJ45nzQALSun_-rv5BBI="
-    },
-    {
-      "id": "software.amazon.awssdk:http-auth-spi:jar:2.25.15",
-      "artifactId": "http-auth-spi",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "HTTiXs-RAMkpirzWsYtftL4I-G-7ta-K-OhsGFR650M="
-    },
-    {
-      "id": "software.amazon.awssdk:http-auth:jar:2.25.15",
-      "artifactId": "http-auth",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "lsGIUM6NjgzyuR-_Tnf3TmbDOAogBdMy1cimayZxScA="
-    },
-    {
-      "id": "software.amazon.awssdk:identity-spi:jar:2.25.15",
-      "artifactId": "identity-spi",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "JH5pW1hYlelc3YQm-Wnb2u24F9TbpjZ0DaeLPyZxEvA="
-    },
-    {
-      "id": "software.amazon.awssdk:endpoints-spi:jar:2.25.15",
-      "artifactId": "endpoints-spi",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "7B9Thqy7LuBuWyWjK2n3mi71C5gsMTJ3oxzTn65VqMA="
     },
     {
       "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.78.1",
