@@ -15,12 +15,24 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @Path("/oidc")
 public class ClientRegistrationController {
 
   @Inject
   ClientRegistrationServiceImpl clientRegistrationService;
+
+  @Inject
+  SnsClient sns;
+
+  @ConfigProperty(name = "sns_topic_arn")
+  String topicArn;
+
+  @ConfigProperty(name = "sns_topic_notification_environment")
+  String environment;
+
 
   @POST
   @Path("/register")
@@ -35,6 +47,18 @@ public class ClientRegistrationController {
 
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
         clientRegistrationRequestDTO);
+
+    String message =
+        "New Client registered in " + environment + " environment: \n" +
+            "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
+            "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
+            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
+            "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
+    try {
+      sns.publish(p -> p.topicArn(topicArn).message(message));
+    } catch (Exception e) {
+      Log.error("Failed to send SNS notification: ", e);
+    }
 
     Log.info("end");
 

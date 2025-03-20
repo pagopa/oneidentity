@@ -41,6 +41,10 @@
             <groupId>org.projectlombok</groupId>
         </dependency>
         <dependency>
+            <groupId>io.quarkiverse.amazonservices</groupId>
+            <artifactId>quarkus-amazon-sns</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>connector</artifactId>
             <groupId>it.pagopa.oneid.common</groupId>
         </dependency>
