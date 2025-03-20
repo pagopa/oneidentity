@@ -59,6 +59,7 @@ export default {
     header: {
       exitButton: 'Esci',
     },
+    backButtonText: 'Indietro',
   },
   loginPage: {
     title: 'Come vuoi entrare?',

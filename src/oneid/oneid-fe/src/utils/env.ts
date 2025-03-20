@@ -10,6 +10,8 @@ export const ENV = {
   MODE: import.meta.env.MODE,
   PUBLIC_URL,
 
+  // The following will disable the modal for selection of the SPID IDP
+  // and will switch to SpidSelect page
   ENABLED_SPID_TEMPORARY_SELECT:
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 

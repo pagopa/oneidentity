@@ -60,6 +60,7 @@ export default {
     header: {
       exitButton: 'Quitter',
     },
+    backButtonText: 'Retour',
   },
   loginPage: {
     title: "Accéder à l'Espace réservé",

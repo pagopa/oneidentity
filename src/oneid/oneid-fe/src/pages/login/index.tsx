@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import { Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
-import { theme } from '@pagopa/mui-italia';
+import { ButtonNaked, theme } from '@pagopa/mui-italia';
 
 import Layout from '../../components/Layout';
 import { ENV } from '../../utils/env';
@@ -16,6 +16,7 @@ import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
 import { CieButton } from './components/CieButton';
 import SpidSelect from './components/SpidSelect';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export const LinkWrapper = ({
   onClick,
@@ -96,8 +97,22 @@ const Login = () => {
 
   return (
     <Layout>
-      <Grid container direction="column" my={'auto'} alignItems="center">
-        <Grid container item justifyContent="center" mb={0} mt={5}>
+      <Box mt={3} ml={3}>
+        {clientQuery.isFetched ? (
+          <ButtonNaked
+            color="text"
+            onClick={() => window.history.back()}
+            size="medium"
+            startIcon={<ArrowBackIcon />}
+          >
+            {t('common.backButtonText')}
+          </ButtonNaked>
+        ) : (
+          <Box pt={3} />
+        )}
+      </Box>
+      <Grid container direction="column" alignItems="center" mt={7}>
+        <Grid container item justifyContent="center" mb={0}>
           <Grid item xs={6} maxWidth="100%">
             <Typography
               variant="h3"
@@ -113,12 +128,11 @@ const Login = () => {
           </Grid>
         </Grid>
 
-        <Grid container item justifyContent="center">
+        <Grid container item justifyContent="center" mb={4}>
           <Grid item xs={10}>
             <Typography
               variant="body1"
               color="textPrimary"
-              mb={3}
               sx={{
                 textAlign: 'center',
               }}
@@ -127,15 +141,9 @@ const Login = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Grid
-          container
-          item
-          justifyContent="center"
-          textAlign={'center'}
-          mb={2}
-        />
+
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
-          <Grid container justifyContent="center" mb={5}>
+          <Grid container justifyContent="center" mb={4}>
             <Grid item>
               <Alert severity="warning">
                 {t('loginPage.temporaryLogin.alert')}
@@ -158,9 +166,9 @@ const Login = () => {
           bannerQuery.data.map(
             (bc, index) =>
               bc.enable && (
-                <Grid container item justifyContent="center" key={index} mt={2}>
+                <Grid container item justifyContent="center" key={index}>
                   <Grid item xs={columnsOccupiedByAlert}>
-                    <Box display="flex" justifyContent="center" mb={5}>
+                    <Box display="flex" justifyContent="center" mb={4}>
                       <Alert severity={bc.severity} sx={{ width: '100%' }}>
                         <Typography textAlign="center">
                           {bc.description}
@@ -203,10 +211,9 @@ const Login = () => {
             <CieButton onClick={goCIE} />
           </Grid>
         </Grid>
-        <Grid container item justifyContent="center">
+        <Grid container item justifyContent="center" mt={4}>
           <Typography
             color="textPrimary"
-            mt={5}
             px={0}
             maxWidth={theme.spacing(55)}
             sx={{

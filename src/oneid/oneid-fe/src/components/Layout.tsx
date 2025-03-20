@@ -8,29 +8,36 @@ type Props = {
   children: React.ReactNode;
 };
 const withSecondHeader = true;
-const Layout = ({ children }: Props) => (
-  <Box
-    bgcolor={'#F5F5F5'}
-    margin={0}
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-    }}
-  >
-    <Header
-      withSecondHeader={withSecondHeader ?? false}
-      enableAssistanceButton={ENV.CURRENT_ENV !== 'UAT'}
-      assistanceEmail={ENV.ASSISTANCE.ENABLE ? ENV.ASSISTANCE.EMAIL : undefined}
-      enableLogin={false}
-      loggedUser={false}
-      onDocumentationClick={() => window.open(ENV.URL_DOCUMENTATION, '_blank')}
-    />
-    {children}
-    <Box mt={16}>
-      <Footer loggedUser={false} productsJsonUrl={PRODUCTS_URL} />
+const Layout = ({ children }: Props) => {
+  return (
+    <Box
+      bgcolor={'#F5F5F5'}
+      margin={0}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
+    >
+      <Header
+        withSecondHeader={withSecondHeader ?? false}
+        enableAssistanceButton={ENV.CURRENT_ENV !== 'UAT'}
+        assistanceEmail={
+          ENV.ASSISTANCE.ENABLE ? ENV.ASSISTANCE.EMAIL : undefined
+        }
+        enableLogin={false}
+        loggedUser={false}
+        onDocumentationClick={() =>
+          window.open(ENV.URL_DOCUMENTATION, '_blank')
+        }
+      />
+
+      {children}
+      <Box mt={10}>
+        <Footer loggedUser={false} productsJsonUrl={PRODUCTS_URL} />
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 export default Layout;
