@@ -85,9 +85,9 @@ const Header = ({
       {clientQuery.isFetched && (
         <ImageWithFallback
           style={{
-            width: '50%',
-            maxWidth: '100px',
-            maxHeight: '100px',
+            width: '100%',
+            maxWidth: '48px',
+            maxHeight: '48px',
             objectFit: 'cover',
           }}
           src={clientQuery.data?.logoUri}
