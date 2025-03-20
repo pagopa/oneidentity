@@ -57,6 +57,7 @@ export default {
     header: {
       exitButton: 'Izhod',
     },
+    backButtonText: 'Nazaj',
   },
   loginPage: {
     title: 'Dostop do rezerviranega območja',

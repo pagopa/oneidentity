@@ -32,11 +32,3 @@ export const mapClientToProduct = (
   }
   return null;
 };
-
-// const selfcareProduct: ProductEntity = {
-//   id: 'prod-selfcare',
-//   title: 'Area Riservata',
-//   productUrl: ENV.HEADER.LINK.PAGOPALINK,
-//   linkType: 'internal',
-//   icon: 'it-user',
-// };

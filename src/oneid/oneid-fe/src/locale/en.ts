@@ -59,6 +59,7 @@ export default {
     header: {
       exitButton: 'Exit',
     },
+    backButtonText: 'Back',
   },
   loginPage: {
     title: 'Log in to the Area Riservata',

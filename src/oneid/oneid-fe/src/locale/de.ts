@@ -62,6 +62,7 @@ export default {
     header: {
       exitButton: 'Abmelden',
     },
+    backButtonText: 'Zurück',
   },
   loginPage: {
     title: 'Zugriff auf die Area Riservata',
