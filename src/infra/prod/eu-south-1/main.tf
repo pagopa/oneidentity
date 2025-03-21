@@ -232,6 +232,7 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_endpoint_sns_prefix_id        = module.network.vpc_endpoints["sns"]["prefix_list_id"]
     environment_variables = {
       "LOG_LEVEL"                          = var.app_log_level
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
