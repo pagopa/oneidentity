@@ -86,6 +86,13 @@ data "aws_iam_policy_document" "client_registration_lambda" {
       var.client_registration_lambda.table_client_registrations_arn
     ]
   }
+  statement {
+    effect  = "Allow"
+    actions = ["sns:Publish"]
+    resources = [
+      var.sns_topic_arn
+    ]
+  }
 }
 
 module "security_group_lambda_client_registration" {
@@ -596,12 +603,14 @@ data "aws_iam_policy_document" "update_status_lambda" {
       "dynamodb:GetItem",
       "dynamodb:DeleteItem",
       "dynamodb:Query",
-    "dynamodb:PutItem"]
+      "dynamodb:PutItem"
+    ]
     resources = [
       var.dynamodb_table_idpStatus.table_arn,
       var.dynamodb_table_idpStatus.gsi_pointer_arn,
       var.dynamodb_table_clientStatus.table_arn,
-    var.dynamodb_table_clientStatus.gsi_pointer_arn]
+      var.dynamodb_table_clientStatus.gsi_pointer_arn
+    ]
   }
 }
 
@@ -625,7 +634,6 @@ module "security_group_update_status_lambda" {
   ]
   egress_rules = ["https-443-tcp"]
 }
-
 
 
 module "update_status_lambda" {
@@ -683,7 +691,8 @@ data "aws_iam_policy_document" "retrieve_status_lambda" {
     ]
     resources = [
       var.dynamodb_table_idpStatus.table_arn,
-    var.dynamodb_table_clientStatus.table_arn]
+      var.dynamodb_table_clientStatus.table_arn
+    ]
   }
 }
 
@@ -706,7 +715,6 @@ module "security_group_retrieve_status_lambda" {
   ]
   egress_rules = ["https-443-tcp"]
 }
-
 
 
 module "retrieve_status_lambda" {
