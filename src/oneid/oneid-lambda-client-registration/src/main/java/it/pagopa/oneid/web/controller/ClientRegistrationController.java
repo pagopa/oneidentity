@@ -57,10 +57,10 @@ public class ClientRegistrationController {
         clientRegistrationRequestDTO);
 
     String message =
-        "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
-            "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
-            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
-            "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
+        "**Name**: " + clientRegistrationResponseDTO.getClientName() + "\n" +
+            "**Client ID**: " + clientRegistrationResponseDTO.getClientID() + "\n" +
+            "**Attributes**: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
+            "**Redirect URIs**: " + clientRegistrationResponseDTO.getRedirectUris();
 
     String subject = "New Client registered in " + envShortToLong.get(environment);
     try {
