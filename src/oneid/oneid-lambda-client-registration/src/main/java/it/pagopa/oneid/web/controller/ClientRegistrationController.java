@@ -52,7 +52,7 @@ public class ClientRegistrationController {
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
             "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
             "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes().stream()
-            .map(Enum::name) + "\n" +
+            .map(Enum::name).toList() + "\n" +
             "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
 
     String subject =
