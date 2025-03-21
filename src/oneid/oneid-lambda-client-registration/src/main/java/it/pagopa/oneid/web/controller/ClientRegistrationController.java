@@ -15,6 +15,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -33,6 +35,12 @@ public class ClientRegistrationController {
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
 
+  Map<String, String> envShortToLong = new HashMap<>() {{
+    put("d", "dev");
+    put("u", "uat");
+    put("p", "prod");
+  }};
+
 
   @POST
   @Path("/register")
@@ -49,13 +57,15 @@ public class ClientRegistrationController {
         clientRegistrationRequestDTO);
 
     String message =
-        "New Client registered in " + environment + " environment: \n" +
-            "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
+        "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
             "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
             "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
             "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
+
+    String subject = "New Client registered in " + envShortToLong.get(environment);
     try {
-      sns.publish(p -> p.topicArn(topicArn).message(message));
+      sns.publish(p ->
+          p.topicArn(topicArn).subject(subject).message(message));
     } catch (Exception e) {
       Log.error("Failed to send SNS notification: ", e);
     }
