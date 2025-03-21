@@ -22,3 +22,7 @@ output "intra_subnets_ids" {
 output "vpc_endpoints" {
   value = module.vpc_endpoints.endpoints
 }
+
+output "security_group_vpc_tls_id" {
+  value = aws_security_group.vpc_tls.id
+}

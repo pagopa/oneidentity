@@ -165,15 +165,15 @@ variable "kms_rotation_period_in_days" {
 
 variable "client_registration_lambda" {
   type = object({
-    name                              = string
-    filename                          = string
-    table_client_registrations_arn    = string
-    cloudwatch_logs_retention_in_days = number
-    vpc_id                            = string
-    vpc_endpoint_dynamodb_prefix_id   = string
-    vpc_endpoint_sns_prefix_id        = string
-    vpc_subnet_ids                    = list(string)
-    environment_variables             = map(string)
+    name                               = string
+    filename                           = string
+    table_client_registrations_arn     = string
+    cloudwatch_logs_retention_in_days  = number
+    vpc_id                             = string
+    vpc_endpoint_dynamodb_prefix_id    = string
+    vpc_tls_security_group_endpoint_id = string
+    vpc_subnet_ids                     = list(string)
+    environment_variables              = map(string)
   })
 
 }

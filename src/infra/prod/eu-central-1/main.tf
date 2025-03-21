@@ -183,13 +183,12 @@ module "backend" {
     name     = format("%s-client-registration", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     // todo this must be the replica arn
-    table_client_registrations_arn    = local.table_client_registrations_arn
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
-    vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    vpc_endpoint_sns_prefix_id        = module.network.vpc_endpoints["sns"]["prefix_list_id"]
-
+    table_client_registrations_arn     = local.table_client_registrations_arn
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     environment_variables = {
       "LOG_LEVEL"                          = var.app_log_level
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
