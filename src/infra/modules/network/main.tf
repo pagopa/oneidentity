@@ -47,10 +47,13 @@ module "vpc_endpoints" {
 
   endpoints = {
     s3 = {
-      service         = "s3"
-      service_type    = "Gateway"
-      route_table_ids = flatten([module.vpc.intra_route_table_ids, module.vpc.private_route_table_ids, module.vpc.public_route_table_ids])
-      tags            = { Name = "s3-vpc-endpoint" }
+      service      = "s3"
+      service_type = "Gateway"
+      route_table_ids = flatten([
+        module.vpc.intra_route_table_ids, module.vpc.private_route_table_ids,
+        module.vpc.public_route_table_ids
+      ])
+      tags = { Name = "s3-vpc-endpoint" }
     },
     logs = {
       service             = "logs"
@@ -96,9 +99,12 @@ module "vpc_endpoints" {
       tags               = { Name = "ecr.dkr-endpoint" }
     },
     dynamodb = {
-      service         = "dynamodb"
-      service_type    = "Gateway"
-      route_table_ids = flatten([module.vpc.intra_route_table_ids, module.vpc.private_route_table_ids, module.vpc.public_route_table_ids])
+      service      = "dynamodb"
+      service_type = "Gateway"
+      route_table_ids = flatten([
+        module.vpc.intra_route_table_ids, module.vpc.private_route_table_ids,
+        module.vpc.public_route_table_ids
+      ])
       # policy          = data.aws_iam_policy_document.dynamodb_endpoint_policy.json
       tags = { Name = "dynamodb-vpc-endpoint" }
     },
@@ -129,6 +135,13 @@ module "vpc_endpoints" {
       subnet_ids          = module.vpc.private_subnets
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "ssm-endpoint" }
+    },
+    sns = {
+      service             = "sns"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      security_group_ids  = [aws_security_group.vpc_tls.id]
+      tags                = { Name = "sns-endpoint" }
     },
     /*
     sqs = {
