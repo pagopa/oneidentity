@@ -3,6 +3,7 @@ package it.pagopa.oneid.web.controller;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
+import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -15,8 +16,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import java.util.HashMap;
-import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -35,13 +34,6 @@ public class ClientRegistrationController {
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
 
-  Map<String, String> envShortToLong = new HashMap<>() {{
-    put("d", "dev");
-    put("u", "uat");
-    put("p", "prod");
-  }};
-
-
   @POST
   @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
@@ -57,17 +49,20 @@ public class ClientRegistrationController {
         clientRegistrationRequestDTO);
 
     String message =
-        "**Name**: " + clientRegistrationResponseDTO.getClientName() + "\n" +
-            "**Client ID**: " + clientRegistrationResponseDTO.getClientID() + "\n" +
-            "**Attributes**: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
-            "**Redirect URIs**: " + clientRegistrationResponseDTO.getRedirectUris();
+        "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
+            "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
+            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes().stream()
+            .map(Enum::name) + "\n" +
+            "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
 
-    String subject = "New Client registered in " + envShortToLong.get(environment);
+    String subject =
+        "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
     try {
       sns.publish(p ->
           p.topicArn(topicArn).subject(subject).message(message));
     } catch (Exception e) {
-      Log.error("Failed to send SNS notification: ", e);
+      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+          "Failed to send SNS notification: ", e);
     }
 
     Log.info("end");
