@@ -227,7 +227,11 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    environment_variables             = { "LOG_LEVEL" = var.app_log_level }
+    environment_variables = {
+      "LOG_LEVEL"                          = var.app_log_level
+      "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
+      "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
+    }
   }
 
   metadata_lambda = {
@@ -344,13 +348,14 @@ module "backend" {
   }
 
   retrieve_status_lambda = {
-    name                              = format("%s-retrieve-status", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
-    assets_bucket_arn                 = module.storage.assets_bucket_arn
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
-    vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    name                               = format("%s-retrieve-status", local.project)
+    filename                           = "${path.module}/../../hello-python/lambda.zip"
+    assets_bucket_arn                  = module.storage.assets_bucket_arn
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
       LOG_LEVEL                                 = var.app_log_level
       DYNAMODB_IDP_STATUS_HISTORY_TABLE_NAME    = module.database.table_idp_status_history_name
