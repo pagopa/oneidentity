@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbFlatten;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 
@@ -23,6 +24,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @NoArgsConstructor
 @Builder
 public class Client {
+
 
   @Getter(onMethod_ = @DynamoDbPartitionKey)
   @NotNull
@@ -60,7 +62,11 @@ public class Client {
   private String policyUri;
 
   private String tosUri;
-
+  // Fields related to FE
+  private String docUri;
+  private String a11yUri;
+  private String cookieUri;
+  private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
   private Map<String, LocalizedContent> localizedContent;
 

@@ -33,9 +33,11 @@ public class ClientExtended extends Client {
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
-      String tosURi, Map<String, LocalizedContent> localizedContent) {
+      String tosURi, String docUri, String a11yUri, String cookieUri, boolean backButtonEnabled,
+      Map<String, LocalizedContent> localizedContentMap) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, localizedContent);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, docUri,
+        a11yUri, cookieUri, backButtonEnabled, localizedContentMap);
     this.secret = secret;
     this.salt = salt;
   }
@@ -45,7 +47,8 @@ public class ClientExtended extends Client {
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
-        client.getTosUri(), client.getLocalizedContent());
+        client.getTosUri(), client.getDocUri(), client.getA11yUri(), client.getCookieUri(),
+        client.isBackButtonEnabled(), client.getLocalizedContent());
     this.secret = secret;
     this.salt = salt;
   }
