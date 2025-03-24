@@ -1,8 +1,10 @@
 package it.pagopa.oneid.common.model;
 
+import it.pagopa.oneid.common.model.converters.HashMapAttributeConverter;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
 import jakarta.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,4 +60,11 @@ public class Client {
   private String policyUri;
 
   private String tosUri;
+
+  @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
+  private Map<String, LocalizedContent> localizedContent;
+
+  public record LocalizedContent(String title, String description) {
+
+  }
 }

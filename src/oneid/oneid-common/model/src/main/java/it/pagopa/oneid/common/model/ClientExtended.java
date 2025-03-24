@@ -3,6 +3,7 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,9 +33,9 @@ public class ClientExtended extends Client {
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
-      String tosURi) {
+      String tosURi, Map<String, LocalizedContent> localizedContent) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, localizedContent);
     this.secret = secret;
     this.salt = salt;
   }
@@ -44,7 +45,7 @@ public class ClientExtended extends Client {
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
-        client.getTosUri());
+        client.getTosUri(), client.getLocalizedContent());
     this.secret = secret;
     this.salt = salt;
   }
