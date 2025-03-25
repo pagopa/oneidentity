@@ -32,6 +32,7 @@ public class ClientFE {
     this.a11yUri = Optional.ofNullable(client.getA11yUri()).orElse("");
     this.cookieUri = Optional.ofNullable(client.getCookieUri()).orElse("");
     this.backButtonEnabled = Optional.of(client.isBackButtonEnabled()).orElse(false);
-    this.localizedContentMap = Optional.ofNullable(client.getLocalizedContent()).orElse(Map.of());
+    this.localizedContentMap = Optional.ofNullable(client.getLocalizedContentMap())
+        .orElse(Map.of());
   }
 }

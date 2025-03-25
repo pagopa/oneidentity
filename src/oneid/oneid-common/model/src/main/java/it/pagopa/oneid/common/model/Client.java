@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbFlatten;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 
@@ -68,7 +67,7 @@ public class Client {
   private String cookieUri;
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
-  private Map<String, LocalizedContent> localizedContent;
+  private Map<String, LocalizedContent> localizedContentMap;
 
   public record LocalizedContent(String title, String description) {
 
