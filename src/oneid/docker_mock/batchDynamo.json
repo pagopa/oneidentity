@@ -16,9 +16,7 @@
             "S": "YP1cYg+39af5jm2ZKpnLJw"
           },
           "callbackURI": {
-            "SS": [
-              "http://localhost:8084/client/cb"
-            ]
+            "SS": ["http://localhost:8084/client/cb"]
           },
           "acsIndex": {
             "N": "0"
@@ -27,28 +25,124 @@
             "N": "1722348547446"
           },
           "requestedParameters": {
-            "SS": [
-              "spidCode",
-              "fiscalNumber"
-            ]
+            "SS": ["spidCode", "fiscalNumber"]
           },
           "logoUri": {
             "S": "https://io.italia.it/assets/img/io-it-logo-blue.svg"
           },
           "friendlyName": {
-            "S": "test_16_09"
+            "S": "client_1"
           },
           "attributeIndex": {
             "N": "2"
           },
           "clientId": {
-            "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-Hnboag1E"
+            "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-client_1"
           },
           "policyUri": {
             "S": "https://io.italia.it/privacy-policy/"
           },
           "tosUri": {
             "S": "https://io.italia.it/note-legali/"
+          },
+          "docUri": {
+            "S": "https://docs.pagopa.it/home/tutti-i-prodotti/io-lapp-dei-servizi-pubblici"
+          },
+          "a11yUri": {
+            "S": "https://form.agid.gov.it/view/cf4a7360-df2d-11ef-8637-9f856ac3da10"
+          },
+          "cookieUri": {
+            "S": "https://io.italia.it"
+          },
+          "backButtonEnabled": {
+            "BOOL": true
+          },
+          "localizedContentMap": {
+            "M": {
+              "it": {
+                "M": {
+                  "title": {
+                    "S": "Entra nella tua area pagoPA"
+                  },
+                  "description": {
+                    "S": "Lo spazio dedicato ai pagamenti e le tue ricevute pagoPA"
+                  }
+                }
+              },
+              "en": {
+                "M": {
+                  "title": {
+                    "S": "Sign in to your pagoPA account."
+                  },
+                  "description": {
+                    "S": "This is your personal area where you can manage your payments and view your pagoPA receipts."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "authLevel": {
+            "S": "https://www.spid.gov.it/SpidL2"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "hashed_client_secret": {
+            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
+          },
+          "salt": {
+            "S": "YP1cYg+39af5jm2ZKpnLJw"
+          },
+          "callbackURI": {
+            "SS": ["http://localhost:8084/client/cb"]
+          },
+          "acsIndex": {
+            "N": "0"
+          },
+          "clientIdIssuedAt": {
+            "N": "1722348547446"
+          },
+          "requestedParameters": {
+            "SS": ["spidCode", "fiscalNumber"]
+          },
+          "logoUri": {
+            "S": "https://io.italia.it/assets/img/io-it-logo-blue.svg"
+          },
+          "friendlyName": {
+            "S": "client_2"
+          },
+          "attributeIndex": {
+            "N": "2"
+          },
+          "clientId": {
+            "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-client_2"
+          },
+          "policyUri": {
+            "S": ""
+          },
+          "tosUri": {
+            "S": ""
+          },
+          "docUri": {
+            "S": ""
+          },
+          "a11yUri": {
+            "S": ""
+          },
+          "cookieUri": {
+            "S": "na"
+          },
+          "backButtonEnabled": {
+            "BOOL": false
+          },
+          "localizedContentMap": {
+            "M": {}
           }
         }
       }

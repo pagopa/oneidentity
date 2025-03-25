@@ -109,7 +109,8 @@ export default function Footer({
         },
         {
           label: t('common.footer.preLoginLinks.resources.links.cookies'),
-          onClick: () => window.OneTrust.ToggleInfoDisplay(),
+          // onClick: () => window.OneTrust.ToggleInfoDisplay(),
+          href: clientQuery.data?.cookieUri || ENV.FOOTER.LINK.COOKIE,
           ariaLabel: 'Vai al link: Preferenze Cookie',
           linkType: 'internal',
         },

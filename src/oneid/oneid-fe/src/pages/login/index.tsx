@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import { Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
-import { ButtonNaked, theme } from '@pagopa/mui-italia';
+import { ButtonNaked, LangCode, theme } from '@pagopa/mui-italia';
 
 import Layout from '../../components/Layout';
 import { ENV } from '../../utils/env';
@@ -17,6 +17,7 @@ import { SpidButton } from './components/SpidButton';
 import { CieButton } from './components/CieButton';
 import SpidSelect from './components/SpidSelect';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import i18n from '../../locale';
 
 export const LinkWrapper = ({
   onClick,
@@ -44,6 +45,7 @@ const Login = () => {
 
   const { bannerQuery, clientQuery, idpQuery } = useLoginData();
   const { t } = useTranslation();
+  const lang: LangCode = i18n.language as LangCode;
 
   const columnsOccupiedByAlert = 5;
 
@@ -98,7 +100,7 @@ const Login = () => {
   return (
     <Layout>
       <Box mt={3} ml={3}>
-        {clientQuery.isFetched ? (
+        {clientQuery.data?.backButtonEnabled ? (
           <ButtonNaked
             color="text"
             onClick={() => window.history.back()}
@@ -123,7 +125,8 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {t('loginPage.title')}
+              {clientQuery.data?.localizedContentMap[lang]?.title ||
+                t('loginPage.title')}
             </Typography>
           </Grid>
         </Grid>
@@ -137,7 +140,8 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {t('loginPage.description')}
+              {clientQuery.data?.localizedContentMap[lang]?.description ||
+                t('loginPage.description')}
             </Typography>
           </Grid>
         </Grid>

@@ -36,7 +36,6 @@ export const configureI18n = (
       },
     })
     .then(() => {
-      // TODO remove
       i18n.on('languageChanged', (lng) => {
         if (lng.includes('-')) {
           const normalizedLng = lng.split('-')[0];

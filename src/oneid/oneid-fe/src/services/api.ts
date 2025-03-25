@@ -1,3 +1,4 @@
+import { LangCode } from '@pagopa/mui-italia';
 import { ENV } from '../utils/env';
 import { IdentityProvider } from '../utils/IDPS';
 
@@ -13,6 +14,14 @@ export type Client = {
   logoUri: string;
   policyUri: string;
   tosUri: string;
+  docUri: string;
+  a11yUri: string;
+  cookieUri: string;
+  backButtonEnabled: boolean;
+  localizedContentMap: Record<
+    LangCode,
+    Record<'title' | 'description', string>
+  >;
 };
 
 export type IDPList = {

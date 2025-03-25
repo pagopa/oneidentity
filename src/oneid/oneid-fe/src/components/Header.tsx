@@ -50,8 +50,6 @@ type HeaderProps = {
   maxCharactersNumberMultiLineItem?: number;
   /** If false hides assistance button */
   enableAssistanceButton?: boolean;
-  /** A callback function that controls the visibility of the documentation button and handles user clicks on the documentation button. */
-  onDocumentationClick?: () => void;
 };
 
 const rootLink: RootLinkType = {
@@ -77,7 +75,6 @@ const Header = ({
   maxCharactersNumberMultiLineButton,
   maxCharactersNumberMultiLineItem,
   enableAssistanceButton = true,
-  onDocumentationClick,
 }: HeaderProps) => {
   const { clientQuery } = useLoginData();
   const getClientLogo = () => (
@@ -98,6 +95,11 @@ const Header = ({
     </>
   );
   const product = mapClientToProduct(clientQuery.data, getClientLogo());
+
+  // Enable documentation button if docUri is present
+  const onDocumentationClick = clientQuery.data?.docUri
+    ? () => window.open(clientQuery.data?.docUri, '_blank')
+    : undefined;
 
   return (
     <Fragment>

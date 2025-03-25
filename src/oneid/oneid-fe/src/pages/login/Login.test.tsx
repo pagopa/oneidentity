@@ -71,6 +71,7 @@ describe('<Login />', () => {
     data: {
       friendlyName: 'Test Client',
       logoUri: 'https://example.com/logo.png',
+      localizedContentMap: {},
     },
   };
   const mockIdpQuery = {

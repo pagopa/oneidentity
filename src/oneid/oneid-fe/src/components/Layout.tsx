@@ -27,9 +27,6 @@ const Layout = ({ children }: Props) => {
         }
         enableLogin={false}
         loggedUser={false}
-        onDocumentationClick={() =>
-          window.open(ENV.URL_DOCUMENTATION, '_blank')
-        }
       />
 
       {children}
