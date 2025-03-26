@@ -9,6 +9,9 @@ type Props = {
 };
 
 const Layout = ({ children }: Props) => {
+  // enable assistance button whether assistance is enabled and email is set
+  const assistanceEnabled = ENV.ASSISTANCE.ENABLE && !!ENV.ASSISTANCE.EMAIL;
+
   return (
     <Box
       bgcolor={'#F5F5F5'}
@@ -21,7 +24,7 @@ const Layout = ({ children }: Props) => {
     >
       <Header
         withSecondHeader
-        enableAssistanceButton={ENV.CURRENT_ENV !== 'UAT'}
+        enableAssistanceButton={assistanceEnabled}
         assistanceEmail={
           ENV.ASSISTANCE.ENABLE ? ENV.ASSISTANCE.EMAIL : undefined
         }

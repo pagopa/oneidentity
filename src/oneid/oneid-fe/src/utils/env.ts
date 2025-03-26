@@ -16,7 +16,7 @@ export const ENV = {
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
   ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE,
+    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE === 'true',
     EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
   },
 

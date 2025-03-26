@@ -73,12 +73,9 @@ describe('useLoginData', () => {
 
     const { result } = renderHook(useLoginData, { wrapper });
 
-    await waitFor(() => {
-      console.log(result.current.clientQuery.error?.message);
-      console.log(ENV.JSON_URL.CLIENT_BASE_URL);
-
-      expect(result.current.clientQuery.isSuccess).toBe(true);
-    });
+    await waitFor(() =>
+      expect(result.current.clientQuery.isSuccess).toBe(true)
+    );
     expect(getClientData).toHaveBeenCalledWith(ENV.JSON_URL.CLIENT_BASE_URL);
     expect(result.current.clientQuery.data).toEqual(mockClientData);
   });

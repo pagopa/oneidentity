@@ -20,19 +20,7 @@ describe('Header Component', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
-        policyUri: 'https://example.com/privacy',
-        tosUri: 'https://example.com/terms',
-        backButtonEnabled: true,
-        cookieUri: 'https://example.com/cookie',
         docUri: 'https://example.com/doc',
-        a11yUri: 'https://example.com/a11y',
-        logoUri: 'https://example.com/logo.png',
-        localizedContentMap: {
-          it: {
-            title: 'title',
-            description: 'description',
-          },
-        },
       },
     };
 
@@ -80,16 +68,4 @@ describe('Header Component', () => {
 
     vi.clearAllMocks();
   });
-
-  // it('changes language when a new language is selected', async () => {
-  //   render(<Header loggedUser={false} withSecondHeader={false} />);
-
-  //   const languageButton = screen.getByRole('button', { name: /lingua/i });
-  //   fireEvent.click(languageButton);
-
-  //   const englishOption = screen.getByRole('menuitem', { name: /english/i });
-  //   fireEvent.click(englishOption);
-
-  //   expect(i18n.changeLanguage).toHaveBeenCalledWith('en');
-  // });
 });
