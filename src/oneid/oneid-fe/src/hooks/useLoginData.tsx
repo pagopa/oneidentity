@@ -31,6 +31,11 @@ export const useLoginData = () => {
     queryKey: ['clientData'],
     queryFn: () => getClientData(ENV.JSON_URL.CLIENT_BASE_URL),
     staleTime,
+    enabled() {
+      const q = new URLSearchParams(window.location.search);
+      const clientID = q.get('client_id');
+      return !!clientID;
+    },
     retry,
   });
 

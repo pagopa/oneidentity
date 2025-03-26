@@ -7,7 +7,7 @@ import { PRODUCTS_URL } from '../utils/constants';
 type Props = {
   children: React.ReactNode;
 };
-const withSecondHeader = true;
+
 const Layout = ({ children }: Props) => {
   return (
     <Box
@@ -20,7 +20,7 @@ const Layout = ({ children }: Props) => {
       }}
     >
       <Header
-        withSecondHeader={withSecondHeader ?? false}
+        withSecondHeader
         enableAssistanceButton={ENV.CURRENT_ENV !== 'UAT'}
         assistanceEmail={
           ENV.ASSISTANCE.ENABLE ? ENV.ASSISTANCE.EMAIL : undefined

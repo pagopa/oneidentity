@@ -72,6 +72,7 @@ describe('<Login />', () => {
       friendlyName: 'Test Client',
       logoUri: 'https://example.com/logo.png',
       localizedContentMap: {},
+      backButtonEnabled: true,
     },
   };
   const mockIdpQuery = {
@@ -91,6 +92,30 @@ describe('<Login />', () => {
       clientQuery: mockClientQuery,
       idpQuery: mockIdpQuery,
     });
+    vi.clearAllMocks();
+  });
+
+  it('not renders back button', () => {
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        localizedContentMap: {},
+        backButtonEnabled: false,
+      },
+    };
+    (useLoginData as Mock).mockReturnValue({
+      bannerQuery: mockBannerQuery,
+      clientQuery: mockClientQuery,
+      idpQuery: mockIdpQuery,
+    });
+    render(<Login />);
+    expect(screen.queryByText('common.backButtonText')).toBeNull();
+    vi.clearAllMocks();
+  });
+
+  it('renders back button', () => {
+    render(<Login />);
+    expect(screen.getByText('common.backButtonText')).toBeInTheDocument();
   });
 
   it('renders titles and descriptions', () => {

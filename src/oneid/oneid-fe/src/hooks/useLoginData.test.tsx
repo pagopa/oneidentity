@@ -18,10 +18,11 @@ vi.mock('../utils/env', () => ({
     JSON_URL: {
       ALERT: 'mock-alert-url',
       IDP_LIST: 'mock-idp-list-url',
-      CLIENT_BASE_URL: 'mock-client-base-url',
+      CLIENT_BASE_URL: 'mock-client-base-url.org',
     },
   },
 }));
+vi.stubGlobal('location', { search: '?client_id=mock-client-id' });
 
 describe('useLoginData', () => {
   const wrapper = ({ children }: { children: React.ReactNode }) => {
@@ -65,16 +66,19 @@ describe('useLoginData', () => {
 
   it('fetches client data successfully', async () => {
     const mockClientData = {
-      clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
+      friendlyName: 'Test Client',
+      logoUri: 'https://example.com/logo.png',
     };
     (getClientData as Mock).mockResolvedValue(mockClientData);
 
     const { result } = renderHook(useLoginData, { wrapper });
 
-    await waitFor(() =>
-      expect(result.current.clientQuery.isSuccess).toBe(true)
-    );
+    await waitFor(() => {
+      console.log(result.current.clientQuery.error?.message);
+      console.log(ENV.JSON_URL.CLIENT_BASE_URL);
+
+      expect(result.current.clientQuery.isSuccess).toBe(true);
+    });
     expect(getClientData).toHaveBeenCalledWith(ENV.JSON_URL.CLIENT_BASE_URL);
     expect(result.current.clientQuery.data).toEqual(mockClientData);
   });
