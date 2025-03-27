@@ -11,8 +11,6 @@ import { theme } from '@pagopa/mui-italia/dist/theme';
 import { FunctionComponent, ReactElement, SVGProps } from 'react';
 
 type EndingPageProps = {
-  /** The minHeight of the component, can be 52vh or 100vh */
-  minHeight?: '52vh' | '100vh';
   /** The ending page icon */
   icon?:
     | React.ReactElement<SvgIconProps>
@@ -33,12 +31,11 @@ type EndingPageProps = {
   variantButton?: ButtonOwnProps['variant'];
 };
 
-/** Selfcare's Ending Page */
+/** Ending Page */
 const EndingPage = ({
   description,
   icon,
   labelButton,
-  minHeight = '52vh',
   onClickButton,
   paragraph,
   title,
@@ -48,15 +45,14 @@ const EndingPage = ({
 }: EndingPageProps) => (
   <Stack
     sx={{
-      minHeight: { md: minHeight, xs: 'auto' },
-      marginTop: { md: 0, xs: '25%' },
+      marginTop: '96px',
       justifyContent: { md: 'center', xs: 'flex-start' },
       alignItems: 'center',
       gap: 2,
     }}
   >
     {icon as ReactElement}
-    <Stack textAlign="center" alignItems="center" gap={1}>
+    <Stack textAlign="center" alignItems="center" gap={2} mt={2}>
       <Typography maxWidth={theme.spacing(56)} variant={variantTitle}>
         {title}
       </Typography>
@@ -65,7 +61,11 @@ const EndingPage = ({
       </Typography>
     </Stack>
     {labelButton && (
-      <Button variant={variantButton} onClick={onClickButton}>
+      <Button
+        variant={variantButton}
+        onClick={onClickButton}
+        sx={{ marginTop: 2 }}
+      >
         {labelButton}
       </Button>
     )}

@@ -113,6 +113,21 @@ describe('<Login />', () => {
     vi.clearAllMocks();
   });
 
+  it('not break with not clients attribute', () => {
+    const mockClientQuery = {
+      isFetched: true,
+      data: {},
+    };
+    (useLoginData as Mock).mockReturnValue({
+      bannerQuery: mockBannerQuery,
+      clientQuery: mockClientQuery,
+      idpQuery: mockIdpQuery,
+    });
+    render(<Login />);
+    expect(screen.getByText('loginPage.title')).toBeInTheDocument();
+    vi.clearAllMocks();
+  });
+
   it('renders back button', () => {
     render(<Login />);
     expect(screen.getByText('common.backButtonText')).toBeInTheDocument();

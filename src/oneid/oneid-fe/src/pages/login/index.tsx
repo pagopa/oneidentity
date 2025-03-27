@@ -125,7 +125,7 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {clientQuery.data?.localizedContentMap[lang]?.title ||
+              {clientQuery.data?.localizedContentMap?.[lang]?.title ||
                 t('loginPage.title')}
             </Typography>
           </Grid>
@@ -140,7 +140,7 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {clientQuery.data?.localizedContentMap[lang]?.description ||
+              {clientQuery.data?.localizedContentMap?.[lang]?.description ||
                 t('loginPage.description')}
             </Typography>
           </Grid>

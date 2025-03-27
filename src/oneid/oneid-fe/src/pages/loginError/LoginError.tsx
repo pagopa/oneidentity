@@ -42,7 +42,6 @@ export const LoginError = () => {
     <Layout>
       {/* TODO add footer */}
       <EndingPage
-        minHeight={'100vh'}
         icon={<IllusError size={60} />}
         variantTitle="h4"
         variantDescription="body1"
