@@ -8,7 +8,7 @@ services:
       - "8000:8000"
     working_dir: /home/dynamodblocal
   aws-local-ssm:
-    image: "localstack/localstack"
+    image: "localstack/localstack@sha256:852524851bf8ae04720953eaee665f0097b81f323276c7ab53c4a2ea28f6f68b"
     ports:
       - "4566:4566"
     container_name: aws-local-ssm
@@ -26,7 +26,7 @@ services:
     links:
       - dynamodb-local
       - aws-local-ssm
-    image: amazon/aws-cli
+    image: amazon/aws-cli@sha256:55b1cb7f57437933bf907660bbf01f85d12737e2af67dd94256c070d53199f0a
     volumes:
       - ${PWD}/docker_mock/gsi_pointer.json:/home/aws/gsi_pointer.json
       - ${PWD}/docker_mock/gsi_code.json:/home/aws/gsi_code.json
@@ -49,7 +49,7 @@ services:
         aws ssm put-parameter --region eu-south-1 --endpoint http://aws-local-ssm:4566 --name cert.pem --type String --value file:///home/aws/cert.pem --overwrite
         aws ssm put-parameter --region eu-south-1 --endpoint http://aws-local-ssm:4566 --name "key.pem" --type "SecureString" --value file:///home/aws/key.pem --overwrite
   local-kms:
-    image: nsmithuk/local-kms
+    image: nsmithuk/local-kms@sha256:c0d7ff506b4aa1c061ae6743cf292a99fb9ec1968a6e5f3a3272110925860501
     ports:
       - "8085:8080"
     volumes:

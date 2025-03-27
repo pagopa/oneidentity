@@ -1,5 +1,5 @@
 ## Stage 1 : build with maven builder image with native capabilities
-FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21 AS build
+FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:c3c6f9fb2fcb65c5661d3dae7a55718ae3845b866632cccc407d549826f45184 AS build
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml /code/
