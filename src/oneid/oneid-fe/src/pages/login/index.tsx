@@ -5,19 +5,19 @@ import Box from '@mui/material/Box';
 import { Alert } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
-import { theme } from '@pagopa/mui-italia';
+import { ButtonNaked, LangCode, theme } from '@pagopa/mui-italia';
 
 import Layout from '../../components/Layout';
 import { ENV } from '../../utils/env';
-import { IDP_PLACEHOLDER_IMG } from '../../utils/constants';
 import { trackEvent } from '../../services/analyticsService';
 import { forwardSearchParams } from '../../utils/utils';
-import { ImageWithFallback } from '../../components/ImageFallback';
 import SpidModal from './components/SpidModal';
 import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
 import { CieButton } from './components/CieButton';
 import SpidSelect from './components/SpidSelect';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import i18n from '../../locale';
 
 export const LinkWrapper = ({
   onClick,
@@ -45,6 +45,7 @@ const Login = () => {
 
   const { bannerQuery, clientQuery, idpQuery } = useLoginData();
   const { t } = useTranslation();
+  const lang: LangCode = i18n.language as LangCode;
 
   const columnsOccupiedByAlert = 5;
 
@@ -72,15 +73,17 @@ const Login = () => {
 
   const redirectPrivacyLink = () =>
     trackEvent('LOGIN_PRIVACY', { SPID_IDP_NAME: 'LOGIN_PRIVACY' }, () =>
-      window.location.assign(
-        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER
+      window.open(
+        clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
+        '_blank'
       )
     );
 
   const redirectToTOS = () =>
     trackEvent('LOGIN_TOS', { SPID_IDP_NAME: 'LOGIN_TOS' }, () =>
-      window.location.assign(
-        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS
+      window.open(
+        clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
+        '_blank'
       )
     );
 
@@ -96,9 +99,23 @@ const Login = () => {
 
   return (
     <Layout>
-      <Grid container direction="column" my={'auto'} alignItems="center">
+      <Box mt={3} ml={3}>
+        {clientQuery.data?.backButtonEnabled ? (
+          <ButtonNaked
+            color="text"
+            onClick={() => window.history.back()}
+            size="medium"
+            startIcon={<ArrowBackIcon />}
+          >
+            {t('common.backButtonText')}
+          </ButtonNaked>
+        ) : (
+          <Box pt={3} />
+        )}
+      </Box>
+      <Grid container direction="column" alignItems="center" mt={7}>
         <Grid container item justifyContent="center" mb={0}>
-          <Grid item xs={4} maxWidth="100%">
+          <Grid item xs={6} maxWidth="100%">
             <Typography
               variant="h3"
               py={1}
@@ -108,50 +125,29 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {t('loginPage.title')}
+              {clientQuery.data?.localizedContentMap[lang]?.title ||
+                t('loginPage.title')}
             </Typography>
           </Grid>
         </Grid>
 
-        <Grid container item justifyContent="center">
-          <Grid item xs={6}>
+        <Grid container item justifyContent="center" mb={4}>
+          <Grid item xs={10}>
             <Typography
               variant="body1"
               color="textPrimary"
-              mb={3}
               sx={{
                 textAlign: 'center',
               }}
             >
-              {t('loginPage.description')}
+              {clientQuery.data?.localizedContentMap[lang]?.description ||
+                t('loginPage.description')}
             </Typography>
           </Grid>
         </Grid>
-        <Grid
-          container
-          item
-          justifyContent="center"
-          textAlign={'center'}
-          mb={2}
-        >
-          <Grid item xs={6} justifyContent="center" alignItems="center">
-            {clientQuery.isFetched && (
-              <ImageWithFallback
-                style={{
-                  width: '100%',
-                  maxWidth: '100px',
-                  maxHeight: '100px',
-                  objectFit: 'cover',
-                }}
-                src={clientQuery.data?.logoUri}
-                alt={clientQuery.data?.friendlyName || 'PagoPa Logo'}
-                placeholder={IDP_PLACEHOLDER_IMG}
-              />
-            )}
-          </Grid>
-        </Grid>
+
         {ENV.ENABLED_SPID_TEMPORARY_SELECT && (
-          <Grid container justifyContent="center" mb={5}>
+          <Grid container justifyContent="center" mb={4}>
             <Grid item>
               <Alert severity="warning">
                 {t('loginPage.temporaryLogin.alert')}
@@ -174,9 +170,9 @@ const Login = () => {
           bannerQuery.data.map(
             (bc, index) =>
               bc.enable && (
-                <Grid container item justifyContent="center" key={index} mt={2}>
+                <Grid container item justifyContent="center" key={index}>
                   <Grid item xs={columnsOccupiedByAlert}>
-                    <Box display="flex" justifyContent="center" mb={5}>
+                    <Box display="flex" justifyContent="center" mb={4}>
                       <Alert severity={bc.severity} sx={{ width: '100%' }}>
                         <Typography textAlign="center">
                           {bc.description}
@@ -219,10 +215,9 @@ const Login = () => {
             <CieButton onClick={goCIE} />
           </Grid>
         </Grid>
-        <Grid container item justifyContent="center">
+        <Grid container item justifyContent="center" mt={4}>
           <Typography
             color="textPrimary"
-            mt={5}
             px={0}
             maxWidth={theme.spacing(55)}
             sx={{

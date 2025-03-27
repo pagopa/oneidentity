@@ -1,8 +1,22 @@
 import { render, screen } from '@testing-library/react';
-
 import Layout from './Layout';
+import { useLoginData } from '../hooks/useLoginData';
+import { Mock } from 'vitest';
 
+vi.mock('../hooks/useLoginData');
 describe('Layout Component', () => {
+  const mockClientQuery = {
+    isFetched: true,
+    data: {
+      friendlyName: 'Test Client',
+      logoUri: 'https://example.com/logo.png',
+    },
+  };
+  beforeEach(() => {
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+  });
   test('should render children elements', () => {
     render(
       <Layout>

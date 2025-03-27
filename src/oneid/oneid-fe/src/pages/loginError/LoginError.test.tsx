@@ -5,6 +5,7 @@ import { Mock } from 'vitest';
 
 import { useLoginError } from '../../hooks/useLoginError';
 import { LoginError } from './LoginError';
+import { useLoginData } from '../../hooks/useLoginData';
 
 // Mocking the LoadingOverlay component
 vi.mock('../../components/LoadingOverlay', () => ({
@@ -13,12 +14,23 @@ vi.mock('../../components/LoadingOverlay', () => ({
   ),
 }));
 
+vi.mock('../../hooks/useLoginData');
 vi.mock('../../hooks/useLoginError');
 
 const mockHandleErrorCode = vi.fn();
 
 describe('LoginError Component', () => {
+  const mockClientQuery = {
+    isFetched: true,
+    data: {
+      friendlyName: 'Test Client',
+      logoUri: 'https://example.com/logo.png',
+    },
+  };
   beforeEach(() => {
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
     mockHandleErrorCode.mockReturnValue({
       title: 'Test Title',
       description: 'Test Description',

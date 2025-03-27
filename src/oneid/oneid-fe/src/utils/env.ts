@@ -10,11 +10,13 @@ export const ENV = {
   MODE: import.meta.env.MODE,
   PUBLIC_URL,
 
+  // The following will disable the modal for selection of the SPID IDP
+  // and will switch to SpidSelect page
   ENABLED_SPID_TEMPORARY_SELECT:
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
   ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE,
+    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE === 'true',
     EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
   },
 
@@ -32,12 +34,11 @@ export const ENV = {
 
   HEADER: {
     LINK: {
-      ROOTLINK: import.meta.env.VITE_HEADER_LINK_ROOTLINK as string,
-      PRODUCTURL: import.meta.env.VITE_HEADER_LINK_PRODUCTURL as string,
+      PAGOPALINK: import.meta.env.VITE_HEADER_LINK_PAGOPALINK as string,
     },
   },
 
-  URL_DOCUMENTATION: 'https://docs.pagopa.it/area-riservata/',
+  URL_DOCUMENTATION: 'https://docs.pagopa.it/home',
 
   URL_API: {
     LOGIN: import.meta.env.VITE_URL_API_LOGIN as string,
@@ -50,6 +51,31 @@ export const ENV = {
       .VITE_URL_TERMS_AND_CONDITIONS as string,
   },
 
+  FOOTER: {
+    LINK: {
+      ABOUTUS: import.meta.env.VITE_FOOTER_LINK_ABOUTUS as string,
+      MEDIA: import.meta.env.VITE_FOOTER_LINK_MEDIA as string,
+      WORKWITHUS: import.meta.env.VITE_FOOTER_LINK_WORKWITHUS as string,
+      ACCESSIBILITY: import.meta.env.VITE_FOOTER_LINK_ACCESSIBILITY as string,
+      COOKIE: import.meta.env.VITE_FOOTER_LINK_COOKIE as string,
+      CERTIFICATIONS: import.meta.env.VITE_FOOTER_LINK_CERTIFICATIONS as string,
+      INFORMATIONSECURITY: import.meta.env
+        .VITE_FOOTER_LINK_INFORMATIONSECURITY as string,
+      PROTECTIONOFPERSONALDATA: import.meta.env
+        .VITE_FOOTER_LINK_PROTECTIONOFPERSONALDATA as string,
+      TRANSPARENTCOMPANY: import.meta.env
+        .VITE_FOOTER_LINK_TRANSPARENTCOMPANY as string,
+      DISCLOSUREPOLICY: import.meta.env
+        .VITE_FOOTER_LINK_DISCLOSUREPOLICY as string,
+      MODEL231: import.meta.env.VITE_FOOTER_LINK_MODEL231 as string,
+      LINKEDIN: import.meta.env.VITE_FOOTER_LINK_LINKEDIN as string,
+      TWITTER: import.meta.env.VITE_FOOTER_LINK_TWITTER as string,
+      INSTAGRAM: import.meta.env.VITE_FOOTER_LINK_INSTAGRAM as string,
+      MEDIUM: import.meta.env.VITE_FOOTER_LINK_MEDIUM as string,
+      PAGOPALINK: import.meta.env.VITE_FOOTER_LINK_PAGOPALINK as string,
+    },
+  },
+
   SPID_TEST_ENV_ENABLED: import.meta.env.VITE_SPID_TEST_ENV_ENABLED === 'true',
 
   SPID_CIE_ENTITY_ID: import.meta.env.VITE_SPID_CIE_ENTITY_ID as string,
@@ -58,7 +84,6 @@ export const ENV = {
     ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
     MOCK: import.meta.env.VITE_ANALYTICS_MOCK === 'true',
     DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',
-    TOKEN: import.meta.env.VITE_SERVICE_EXAMPLE_TOKEN as string,
     API_HOST: import.meta.env.VITE_SERVICE_EXAMPLE_API_HOST,
   },
 };
