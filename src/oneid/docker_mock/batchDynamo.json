@@ -146,6 +146,54 @@
           }
         }
       }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "authLevel": {
+            "S": "https://www.spid.gov.it/SpidL2"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "hashed_client_secret": {
+            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
+          },
+          "salt": {
+            "S": "YP1cYg+39af5jm2ZKpnLJw"
+          },
+          "callbackURI": {
+            "SS": ["http://localhost:8084/client/cb"]
+          },
+          "acsIndex": {
+            "N": "0"
+          },
+          "clientIdIssuedAt": {
+            "N": "1722348547446"
+          },
+          "requestedParameters": {
+            "SS": ["spidCode", "fiscalNumber"]
+          },
+          "logoUri": {
+            "S": ""
+          },
+          "friendlyName": {
+            "S": "client_3"
+          },
+          "attributeIndex": {
+            "N": "2"
+          },
+          "clientId": {
+            "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-client_3"
+          },
+          "policyUri": {
+            "S": ""
+          },
+          "tosUri": {
+            "S": ""
+          }
+        }
+      }
     }
   ],
   "IDPMetadata": [
