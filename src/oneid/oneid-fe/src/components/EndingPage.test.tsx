@@ -6,7 +6,6 @@ describe('EndingPage Component', () => {
   it('should render the title, description, and icon', () => {
     render(
       <EndingPage
-        minHeight="52vh"
         icon={<div data-testid="mock-icon" />}
         title="Test Title"
         description="Test Description"
