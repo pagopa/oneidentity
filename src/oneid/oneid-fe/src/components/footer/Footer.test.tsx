@@ -33,7 +33,7 @@ describe('Footer Component', () => {
   });
 
   it('renders links correctly', () => {
-    render(<Footer loggedUser={false} />);
+    render(<Footer />);
 
     expect(
       screen.getByLabelText('Vai al link: Informativa Privacy')
@@ -52,7 +52,7 @@ describe('Footer Component', () => {
   });
 
   it('changes language when a new language is selected', async () => {
-    render(<Footer loggedUser={false} />);
+    render(<Footer />);
 
     const languageButton = screen.getByRole('button', { name: /lingua/i });
     fireEvent.click(languageButton);

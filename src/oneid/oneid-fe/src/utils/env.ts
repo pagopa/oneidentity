@@ -75,7 +75,7 @@ export const ENV = {
 
   CIE_ENTITY_ID: import.meta.env.VITE_CIE_ENTITY_ID as string,
 
-  ANALYTCS: {
+  ANALYTICS: {
     ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
     MOCK: import.meta.env.VITE_ANALYTICS_MOCK === 'true',
     DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',
