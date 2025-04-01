@@ -90,7 +90,8 @@ public class SAMLController {
 
     // 1c. Check status, will raise CustomException in case of error mapped to a custom html error page
     try {
-      samlServiceImpl.checkSAMLStatus(response);
+      samlServiceImpl.checkSAMLStatus(response,
+          samlSession.getAuthorizationRequestDTOExtended().getRedirectUri());
     } catch (OneIdentityException e) {
       Log.error("error during SAMLResponse status check: " + e.getMessage());
       cloudWatchConnectorImpl.sendIDPErrorMetricData(

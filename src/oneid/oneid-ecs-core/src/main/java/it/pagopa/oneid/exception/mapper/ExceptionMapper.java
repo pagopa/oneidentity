@@ -151,7 +151,8 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
-    return genericHTMLError(samlResponseStatusException.getMessage());
+    return genericHTMLError(samlResponseStatusException.getMessage(),
+        samlResponseStatusException.getRedirectUri());
   }
 
   @ServerExceptionMapper
@@ -326,6 +327,20 @@ public class ExceptionMapper {
           .location(new URI(
               BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
                   StandardCharsets.UTF_8))).build();
+    } catch (URISyntaxException | NullPointerException exception) {
+      return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  private RestResponse<Object> genericHTMLError(String errorCode, String redirectUri) {
+    try {
+      return ResponseBuilder
+          .create(FOUND)
+          .location(new URI(
+              BASE_PATH + "/login/error?errorCode=" +
+                  URLEncoder.encode(errorCode, StandardCharsets.UTF_8)
+                  + "&redirectUri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)))
+          .build();
     } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
