@@ -2,6 +2,7 @@ import { ProductEntity } from '@pagopa/mui-italia';
 import { Client } from '../services/api';
 import { ROUTE_LOGIN } from './constants';
 import { ERROR_CODE } from '../hooks/useLoginError';
+import { storageWrite } from '../services/storage';
 
 export const redirectToLogin = () => {
   window.location.assign(ROUTE_LOGIN);
@@ -37,6 +38,12 @@ export const forwardSearchParams = (idp?: string) => {
   }
   const params = encodeURIComponent(searchParams.toString());
   return decodeURIComponent(params);
+};
+
+export const writeParamsToSessionStorage = () => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(searchParams.entries());
+  storageWrite('oidc_parameters', JSON.stringify(params), 'string', false);
 };
 
 export const mapClientToProduct = (
