@@ -5,7 +5,7 @@ import { IllusError } from '@pagopa/mui-italia';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
 import EndingPage from '../../components/EndingPage';
-import { redirectToLogin } from '../../utils/utils';
+import { isUrlInSameOrigin, redirectToLogin } from '../../utils/utils';
 import {
   ERROR_CODE,
   ErrorData,
@@ -20,6 +20,10 @@ export const LoginError = () => {
   const errorCode = new URLSearchParams(window.location.search).get(
     'errorCode'
   ) as ERROR_CODE;
+
+  const clientRedirecUri = new URLSearchParams(window.location.search).get(
+    'redirectUri'
+  ) as string;
 
   const { handleErrorCode } = useLoginError();
 
@@ -36,6 +40,14 @@ export const LoginError = () => {
     }
   }, [setContent, errorCode]);
 
+  const handleRedirect = useCallback(() => {
+    if (clientRedirecUri && isUrlInSameOrigin(clientRedirecUri)) {
+      window.location.assign(clientRedirecUri);
+    } else {
+      redirectToLogin();
+    }
+  }, [clientRedirecUri]);
+
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />
   ) : (
@@ -49,7 +61,7 @@ export const LoginError = () => {
         description={errorData.description}
         variantButton="contained"
         labelButton={t('loginError.close')}
-        onClickButton={redirectToLogin}
+        onClickButton={handleRedirect}
       />
     </Layout>
   );

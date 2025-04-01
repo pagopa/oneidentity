@@ -1,5 +1,5 @@
 /* eslint-disable functional/immutable-data */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Mock } from 'vitest';
 
@@ -23,11 +23,23 @@ describe('LoginError Component', () => {
   const mockClientQuery = {
     isFetched: true,
     data: {
+      clientID: 'test-client-id',
       friendlyName: 'Test Client',
       logoUri: 'https://example.com/logo.png',
     },
   };
+
   beforeEach(() => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        search: '?errorCode=19&redirectUri=https://example.com',
+        assign: vi.fn(),
+      },
+    });
+    (useLoginError as Mock).mockReturnValue({
+      handleErrorCode: mockHandleErrorCode,
+    });
     (useLoginData as Mock).mockReturnValue({
       clientQuery: mockClientQuery,
     });
@@ -42,10 +54,7 @@ describe('LoginError Component', () => {
   });
 
   it('should display loading overlay when loading', () => {
-    (useLoginError as Mock).mockReturnValue({
-      handleErrorCode: mockHandleErrorCode,
-    });
-
+    window.location.search = ''; // Reset location for this test
     render(
       <MemoryRouter>
         <LoginError />
@@ -56,12 +65,6 @@ describe('LoginError Component', () => {
   });
 
   it('should display correct error page for errorCode 19', () => {
-    window.location = { search: '?errorCode=19' } as Location;
-
-    (useLoginError as Mock).mockReturnValue({
-      handleErrorCode: mockHandleErrorCode,
-    });
-
     render(
       <MemoryRouter>
         <LoginError />
@@ -82,8 +85,6 @@ describe('LoginError Component', () => {
       description: 'Generic Error Description',
       haveRetryButton: false,
     });
-
-    window.location = { search: '?errorCode=19' } as Location;
 
     (useLoginError as Mock).mockReturnValue({
       handleErrorCode: mockHandleErrorCode,
@@ -109,5 +110,44 @@ describe('LoginError Component', () => {
     ).not.toBeInTheDocument();
   });
 
-  // Add more tests for different error codes as needed
+  it('should redirect to redirectUri if present', () => {
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+
+    const closeButton = screen.queryByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+    if (!closeButton) {
+      throw new Error('Close button not found');
+    }
+    fireEvent.click(closeButton);
+    expect(window.location.assign).toHaveBeenCalledWith('https://example.com');
+  });
+
+  it('should redirect to login if redirectUri is not present', () => {
+    // Set different search params for this test
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        search: '?errorCode=19',
+        assign: vi.fn(),
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    const closeButton = screen.queryByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+    if (!closeButton) {
+      throw new Error('Close button not found');
+    }
+    fireEvent.click(closeButton);
+
+    expect(window.location.assign).toHaveBeenCalledWith('/login?errorCode=19');
+  });
 });
