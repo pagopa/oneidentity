@@ -20,6 +20,9 @@ export const LoginError = () => {
   const errorCode = new URLSearchParams(window.location.search).get(
     'errorCode'
   ) as ERROR_CODE;
+  const clientRedirecUri = new URLSearchParams(window.location.search).get(
+    'redirectUri'
+  ) as string;
 
   const { handleErrorCode } = useLoginError();
 
@@ -36,6 +39,14 @@ export const LoginError = () => {
     }
   }, [setContent, errorCode]);
 
+  const handleRedirect = useCallback(() => {
+    if (clientRedirecUri) {
+      window.location.assign(clientRedirecUri);
+    } else {
+      redirectToLogin();
+    }
+  }, [clientRedirecUri]);
+
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />
   ) : (
@@ -49,7 +60,7 @@ export const LoginError = () => {
         description={errorData.description}
         variantButton="contained"
         labelButton={t('loginError.close')}
-        onClickButton={redirectToLogin}
+        onClickButton={handleRedirect}
       />
     </Layout>
   );
