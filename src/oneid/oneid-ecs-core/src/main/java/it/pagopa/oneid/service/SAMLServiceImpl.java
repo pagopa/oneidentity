@@ -528,7 +528,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest) {
+      AuthLevel authLevelRequest, String redirectUri) {
 
     try {
 
@@ -546,6 +546,7 @@ public class SAMLServiceImpl implements SAMLService {
       validateSignature(samlResponse, entityID);
     } catch (SAMLValidationException e) {
       e.setIdp(entityID);
+      e.setRedirectUri(redirectUri);
       throw (e);
     }
 

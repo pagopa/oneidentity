@@ -164,7 +164,8 @@ public class ExceptionMapper {
     cloudWatchConnectorImpl.sendIDPErrorMetricData(samlValidationException.getIdp(),
         samlValidationException.getErrorCode());
 
-    return genericHTMLError(samlValidationException.getErrorCode().getErrorCode());
+    return genericHTMLError(samlValidationException.getErrorCode().getErrorCode(),
+        samlValidationException.getRedirectUri());
   }
 
   @ServerExceptionMapper

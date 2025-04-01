@@ -355,6 +355,7 @@ class ExceptionMapperTest {
     Mockito.when(exceptionMock.getErrorCode()).thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK);
     Mockito.when(exceptionMock.getMessage())
         .thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage());
+    Mockito.when(exceptionMock.getRedirectUri()).thenReturn("test.com");
 
     // when
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(
