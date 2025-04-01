@@ -90,7 +90,8 @@ public class SAMLController {
 
     // 1c. Check status, will raise CustomException in case of error mapped to a custom html error page
     try {
-      samlServiceImpl.checkSAMLStatus(response);
+      samlServiceImpl.checkSAMLStatus(response,
+          samlSession.getAuthorizationRequestDTOExtended().getRedirectUri());
     } catch (OneIdentityException e) {
       Log.error("error during SAMLResponse status check: " + e.getMessage());
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
@@ -103,7 +104,8 @@ public class SAMLController {
     Client client = clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId());
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
-        Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel());
+        Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel(),
+        samlSession.getAuthorizationRequestDTOExtended().getRedirectUri());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
