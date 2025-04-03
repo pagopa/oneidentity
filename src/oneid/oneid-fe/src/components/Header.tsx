@@ -14,7 +14,11 @@ import { buildAssistanceURI } from '../services/assistanceService';
 import { useLoginData } from '../hooks/useLoginData';
 import { mapClientToProduct } from '../utils/utils';
 import { ImageWithFallback } from './ImageFallback';
-import { IDP_PLACEHOLDER_IMG } from '../utils/constants';
+import {
+  IDP_PLACEHOLDER_IMG,
+  ROUTE_LOGIN,
+  ROUTE_LOGOUT,
+} from '../utils/constants';
 
 type PartyEntity = PartySwitchItem;
 type HeaderProps = {
@@ -116,10 +120,8 @@ const Header = ({
               window.location.assign(buildAssistanceURI(assistanceEmail))
             )
           }
-          onLogin={() => onExit(() => window.location.assign(ENV.URL_FE.LOGIN))}
-          onLogout={() =>
-            onExit(() => window.location.assign(ENV.URL_FE.LOGOUT))
-          }
+          onLogin={() => onExit(() => window.location.assign(ROUTE_LOGIN))}
+          onLogout={() => onExit(() => window.location.assign(ROUTE_LOGOUT))}
           enableLogin={enableLogin}
           userActions={userActions}
           enableDropdown={enableDropdown}

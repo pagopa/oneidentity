@@ -1,5 +1,3 @@
-const PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL || '';
-
 export const ENV = {
   CURRENT_ENV: import.meta.env.VITE_CURRENT_ENV as string,
   // Corresponds to the .env.[mode] file loaded
@@ -8,7 +6,6 @@ export const ENV = {
   // Can be overriden using --mode option
   // see https://vite.dev/guide/env-and-mode#modes
   MODE: import.meta.env.MODE,
-  PUBLIC_URL,
 
   // The following will disable the modal for selection of the SPID IDP
   // and will switch to SpidSelect page
@@ -27,8 +24,6 @@ export const ENV = {
   },
 
   URL_FE: {
-    LOGIN: PUBLIC_URL + '/login',
-    LOGOUT: PUBLIC_URL + '/logout',
     ASSETS: import.meta.env.VITE_URL_CDN as string,
   },
 
@@ -78,7 +73,7 @@ export const ENV = {
 
   SPID_TEST_ENV_ENABLED: import.meta.env.VITE_SPID_TEST_ENV_ENABLED === 'true',
 
-  SPID_CIE_ENTITY_ID: import.meta.env.VITE_SPID_CIE_ENTITY_ID as string,
+  CIE_ENTITY_ID: import.meta.env.VITE_CIE_ENTITY_ID as string,
 
   ANALYTCS: {
     ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
