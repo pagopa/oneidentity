@@ -21,9 +21,8 @@ public class ClientFE {
   public String a11yUri;
   public String cookieUri;
   public boolean backButtonEnabled;
+  public Set<String> callbackURI;
   Map<String, Client.LocalizedContent> localizedContentMap;
-
-  private Set<String> callbackURI;
 
   public ClientFE(@NotNull Client client) {
     this.clientID = Optional.ofNullable(client.getClientId()).orElse("");
