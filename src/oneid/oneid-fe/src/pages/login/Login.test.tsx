@@ -170,7 +170,7 @@ describe('<Login />', () => {
         'LOGIN_IDP_SELECTED',
         {
           SPID_IDP_NAME: 'CIE',
-          SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
+          SPID_IDP_ID: ENV.CIE_ENTITY_ID,
           FORWARD_PARAMETERS: expect.any(String),
         },
         expect.any(Function)

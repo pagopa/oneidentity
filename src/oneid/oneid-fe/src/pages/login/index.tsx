@@ -50,13 +50,13 @@ const Login = () => {
   const columnsOccupiedByAlert = 5;
 
   const goCIE = () => {
-    const params = forwardSearchParams(ENV.SPID_CIE_ENTITY_ID);
+    const params = forwardSearchParams(ENV.CIE_ENTITY_ID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
         SPID_IDP_NAME: 'CIE',
-        SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
+        SPID_IDP_ID: ENV.CIE_ENTITY_ID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
