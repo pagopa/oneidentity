@@ -432,7 +432,8 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public void checkSAMLStatus(Response response, String redirectUri) throws OneIdentityException {
+  public void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp)
+      throws OneIdentityException {
     String statusCode = "";
     String statusMessage = "";
     if (response.getStatus() != null) {
@@ -466,7 +467,7 @@ public class SAMLServiceImpl implements SAMLService {
                   + " status code");
           throw new OneIdentityException("Status message not mapped.");
         }
-        throw new SAMLResponseStatusException(message, redirectUri);
+        throw new SAMLResponseStatusException(message, redirectUri, clientId, idp);
       } else {
         Log.error(
             "SAML Status message not found for " + statusCode
