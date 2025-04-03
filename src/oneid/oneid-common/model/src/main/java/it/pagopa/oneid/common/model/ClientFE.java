@@ -3,6 +3,7 @@ package it.pagopa.oneid.common.model;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import lombok.Data;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class ClientFE {
   public String a11yUri;
   public String cookieUri;
   public boolean backButtonEnabled;
+  public Set<String> callbackURI;
   Map<String, Client.LocalizedContent> localizedContentMap;
 
   public ClientFE(@NotNull Client client) {
@@ -34,5 +36,8 @@ public class ClientFE {
     this.backButtonEnabled = Optional.of(client.isBackButtonEnabled()).orElse(false);
     this.localizedContentMap = Optional.ofNullable(client.getLocalizedContentMap())
         .orElse(Map.of());
+
+    this.callbackURI = Optional.ofNullable(client.getCallbackURI())
+        .orElse(Set.of());
   }
 }
