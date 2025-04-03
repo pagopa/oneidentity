@@ -96,7 +96,7 @@ public class ControllerInterceptor {
     }
 
     // TODO check if possible 5xx are returned as json or html which is an error
-    if (!tokenRequestDTOExtended.getGrantType().equals(GrantType.AUTHORIZATION_CODE)) {
+    if (!GrantType.AUTHORIZATION_CODE.equals(tokenRequestDTOExtended.getGrantType())) {
       Log.error("unsupported grant type: " + tokenRequestDTOExtended.getGrantType());
       throw new UnsupportedGrantTypeException(clientId);
     }
