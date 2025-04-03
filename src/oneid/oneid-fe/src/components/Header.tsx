@@ -94,6 +94,10 @@ const Header = ({
       )}
     </>
   );
+
+  if (!clientQuery.data?.logoUri) {
+    withSecondHeader = false; // deactivate header if logo is null
+  }
   const product = mapClientToProduct(clientQuery.data, getClientLogo());
 
   // Enable documentation button if docUri is present
