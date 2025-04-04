@@ -22,6 +22,7 @@ public class ClientFE {
   public String cookieUri;
   public boolean backButtonEnabled;
   public Set<String> callbackURI;
+  public String supportAddress;
   Map<String, Client.LocalizedContent> localizedContentMap;
 
   public ClientFE(@NotNull Client client) {
@@ -39,5 +40,6 @@ public class ClientFE {
 
     this.callbackURI = Optional.ofNullable(client.getCallbackURI())
         .orElse(Set.of());
+    this.supportAddress = Optional.ofNullable(client.getSupportAddress()).orElse("");
   }
 }

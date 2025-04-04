@@ -68,6 +68,7 @@ public class Client {
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
   private Map<String, LocalizedContent> localizedContentMap;
+  private String supportAddress;
 
   public record LocalizedContent(String title, String description) {
 

@@ -45,15 +45,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       }
     }
 
-    // Validate logoUri
-    String logoUri = clientRegistrationRequestDTO.getLogoUri();
-    try {
-      CustomURIUtils.validateURI(logoUri);
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid Logo URI");
-    }
-
     // Validate policyUri
     String policyUri = clientRegistrationRequestDTO.getPolicyUri();
     try {
