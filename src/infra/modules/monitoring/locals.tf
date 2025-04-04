@@ -12,11 +12,23 @@ locals {
     env_short     = var.env_short
   })]
 
-  aggregated_all_widget = [for client in var.clients : templatefile("../../dashboards/client_aggregated_widget.tpl.json", {
+  client_aggregated_widgets = [for client in var.clients : templatefile("../../dashboards/client_aggregated_widget.tpl.json", {
     client_id     = client.client_id
     friendly_name = client.friendly_name
     aws_region    = var.aws_region
     env_short     = var.env_short
+  })]
+
+  user_idp_widgets = [for error_code in var.spid_error_codes : templatefile("../../dashboards/user_idp_related_error_widget.tpl.json", {
+    error_code = error_code
+    aws_region = var.aws_region
+    env_short  = var.env_short
+  })]
+
+  user_client_widgets = [for error_code in var.spid_error_codes : templatefile("../../dashboards/user_client_related_error_widget.tpl.json", {
+    error_code = error_code
+    aws_region = var.aws_region
+    env_short  = var.env_short
   })]
 
   idp_widget_header = {
@@ -46,6 +58,24 @@ locals {
     }
   }
 
+  user_idp_error_widget_header = {
+    "height" : 1,
+    "width" : 24,
+    "type" : "text",
+    "properties" : {
+      "markdown" : "## IDP related users errors\n"
+    }
+  }
+
+  user_client_error_widget_header = {
+    "height" : 1,
+    "width" : 24,
+    "type" : "text",
+    "properties" : {
+      "markdown" : "## Client related users errors\n"
+    }
+  }
+
   detailed_metrics_dashboard_body = jsonencode({
     widgets = concat(
       [local.idp_widget_header],
@@ -53,7 +83,11 @@ locals {
       [local.client_widget_header],
       [for w in local.client_widgets : jsondecode(w)],
       [local.client_aggregated_widget_header],
-      [for w in local.aggregated_all_widget : jsondecode(w)]
+      [for w in local.client_aggregated_widgets : jsondecode(w)],
+      [local.user_idp_error_widget_header],
+      [for w in local.user_idp_widgets : jsondecode(w)],
+      [local.user_client_error_widget_header],
+      [for w in local.user_client_widgets : jsondecode(w)]
     )
     }
   )
