@@ -48,7 +48,7 @@ public class ClientExtended extends Client {
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
         client.getTosUri(), client.getDocUri(), client.getA11yUri(), client.getCookieUri(),
-        client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.getSupportUri());
+        client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.getSupportAddress());
     this.secret = secret;
     this.salt = salt;
   }
