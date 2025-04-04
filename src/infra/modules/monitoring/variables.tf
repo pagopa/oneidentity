@@ -100,3 +100,27 @@ variable "create_ce_budget" {
   default     = false
 
 }
+
+#ref: https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/messaggi-errore.html
+variable "spid_error_codes" {
+  type = list(string)
+  default = [
+    "08",
+    "09",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "25",
+    "30"
+  ]
+}

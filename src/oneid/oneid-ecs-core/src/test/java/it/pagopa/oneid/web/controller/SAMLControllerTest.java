@@ -74,7 +74,8 @@ public class SAMLControllerTest {
     Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
-    doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any(), Mockito.any());
+    doNothing().when(samlServiceImpl)
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any());
@@ -221,7 +222,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doThrow(new OneIdentityException()).when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // location header to verify
     String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
@@ -260,7 +261,8 @@ public class SAMLControllerTest {
     Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
-    doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any(), Mockito.any());
+    doNothing().when(samlServiceImpl)
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     samlValidationException.setRedirectUri("test.com");
     doThrow(samlValidationException).when(
             samlServiceImpl)
@@ -297,7 +299,8 @@ public class SAMLControllerTest {
     Mockito.when(response.getInResponseTo()).thenReturn("exceptionOIDC");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
-    doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any(), Mockito.any());
+    doNothing().when(samlServiceImpl)
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any());
@@ -356,7 +359,8 @@ public class SAMLControllerTest {
     Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
-    doNothing().when(samlServiceImpl).checkSAMLStatus(Mockito.any(), Mockito.any());
+    doNothing().when(samlServiceImpl)
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
             Mockito.any(), Mockito.any());

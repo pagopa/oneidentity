@@ -29,6 +29,7 @@ public interface SAMLService {
 
   Optional<IDP> getIDPFromEntityID(String entityID);
 
-  void checkSAMLStatus(Response response, String redirectUri) throws OneIdentityException;
+  void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp)
+      throws OneIdentityException;
 
 }
