@@ -10,6 +10,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class ClientUtils {
         .attributeIndex(maxAttributeIndex + 1)
         .isActive(true)
         .clientIdIssuedAt(clientIdIssuedAt)
-        .logoUri(clientRegistrationRequestDTO.getLogoUri())
+        .logoUri(Optional.ofNullable(clientRegistrationRequestDTO.getLogoUri()).orElse(""))
         .policyUri(clientRegistrationRequestDTO.getPolicyUri())
         .tosUri(clientRegistrationRequestDTO.getTosUri())
         .build();
@@ -60,7 +61,7 @@ public class ClientUtils {
         .redirectUris(client
             .getCallbackURI())
         .clientName(client.getFriendlyName())
-        .logoUri(client.getLogoUri())
+        .logoUri(Optional.ofNullable(client.getLogoUri()).orElse(""))
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
         .samlRequestedAttributes(samlRequestedAttributes)
         .policyUri(client.getPolicyUri())
