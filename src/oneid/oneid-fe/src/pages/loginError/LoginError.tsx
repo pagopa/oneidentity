@@ -5,7 +5,7 @@ import { IllusError } from '@pagopa/mui-italia';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
 import EndingPage from '../../components/EndingPage';
-import { redirectToLogin } from '../../utils/utils';
+import { redirectToClientWithError, redirectToLogin } from '../../utils/utils';
 import {
   ERROR_CODE,
   ErrorData,
@@ -25,13 +25,18 @@ export const LoginError = () => {
   ) as ERROR_CODE;
 
   const clientRedirecUri = new URLSearchParams(window.location.search).get(
-    'redirectUri'
+    'redirect_uri'
+  ) as string;
+
+  const state = new URLSearchParams(window.location.search).get(
+    'state'
   ) as string;
 
   const clientRedirectUriSanitized = useCallback((): string => {
     try {
       return decodeURIComponent(clientRedirecUri);
-    } catch {
+    } catch (error) {
+      console.error('Error decoding client redirect URI:', error);
       return '';
     }
   }, [clientRedirecUri]);
@@ -57,11 +62,16 @@ export const LoginError = () => {
       clientRedirectUriSanitized &&
       clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
     ) {
-      window.location.assign(clientRedirectUriSanitized());
+      redirectToClientWithError(errorCode, clientRedirectUriSanitized(), state);
     } else {
       redirectToLogin();
     }
-  }, [clientRedirectUriSanitized, clientQuery.data?.callbackURI]);
+  }, [
+    clientRedirectUriSanitized,
+    clientQuery.data?.callbackURI,
+    errorCode,
+    state,
+  ]);
 
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />

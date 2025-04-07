@@ -36,7 +36,7 @@ describe('LoginError Component', () => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: '?errorCode=19&redirectUri=https://example.com',
+        search: '?errorCode=19&redirect_uri=https://example.com',
         assign: vi.fn(),
       },
     });
@@ -113,7 +113,7 @@ describe('LoginError Component', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should redirect to login if redirectUri if do not match with one in /clients', () => {
+  it('should redirect to login if redirect_uri if do not match with one in /clients', () => {
     render(
       <MemoryRouter>
         <LoginError />
@@ -129,12 +129,12 @@ describe('LoginError Component', () => {
     expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
   });
 
-  it('should redirect to redirectUri if present', () => {
-    // Set correct redirectUri for this test
+  it('should redirect to redirect_uri if present', () => {
+    // Set correct redirect_uri for this test
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: `?errorCode=19&redirectUri=${validCallbackURI}`,
+        search: `?errorCode=19&redirect_uri=${validCallbackURI}`,
         assign: vi.fn(),
       },
     });
@@ -150,16 +150,18 @@ describe('LoginError Component', () => {
       throw new Error('Close button not found');
     }
     fireEvent.click(closeButton);
-    expect(window.location.assign).toHaveBeenCalledWith(validCallbackURI);
+    expect(window.location.assign).toHaveBeenCalledWith(
+      `${validCallbackURI}?error=access_denied&error_description=19&state=null`
+    );
   });
 
-  it('should not redirect to redirectUri if present and encoded but malformed', () => {
-    // Set correct redirectUri for this test
+  it('should not redirect to redirect_uri if present and encoded but malformed', () => {
+    // Set correct redirect_uri for this test
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
         search:
-          '?errorCode=19&redirectUri=https%3A%2F%example.com%3A8084%2Fcallback',
+          '?errorCode=19&redirect_uri=https%3A%2F%example.com%3A8084%2Fcallback',
         assign: vi.fn(),
       },
     });
@@ -178,13 +180,13 @@ describe('LoginError Component', () => {
     expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
   });
 
-  it('should redirect to redirectUri if present and encoded', () => {
-    // Set correct redirectUri for this test
+  it('should redirect to redirect_uri if present and encoded', () => {
+    // Set correct redirect_uri for this test
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
         search:
-          '?errorCode=19&redirectUri=https%3A%2F%2Fexample.com%2Fcallback',
+          '?errorCode=19&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback',
         assign: vi.fn(),
       },
     });
@@ -200,10 +202,12 @@ describe('LoginError Component', () => {
       throw new Error('Close button not  found');
     }
     fireEvent.click(closeButton);
-    expect(window.location.assign).toHaveBeenCalledWith(validCallbackURI);
+    expect(window.location.assign).toHaveBeenCalledWith(
+      `${validCallbackURI}?error=access_denied&error_description=19&state=null`
+    );
   });
 
-  it('should redirect to login if redirectUri is not present', () => {
+  it('should redirect to login if redirect_uri is not present', () => {
     // Set different search params for this test
     Object.defineProperty(window, 'location', {
       writable: true,
