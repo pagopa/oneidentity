@@ -151,6 +151,12 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
+
+    cloudWatchConnectorImpl.sendUserRelatedErrorMetricData(
+        samlResponseStatusException.getIdp(),
+        samlResponseStatusException.getClientId(),
+        samlResponseStatusException.getMessage());
+
     return genericHTMLError(samlResponseStatusException.getMessage(),
         samlResponseStatusException.getRedirectUri());
   }

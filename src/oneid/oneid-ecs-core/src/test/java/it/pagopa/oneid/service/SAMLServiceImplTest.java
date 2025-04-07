@@ -206,6 +206,8 @@ public class SAMLServiceImplTest {
 
   private static final Logger log = LoggerFactory.getLogger(SAMLServiceImplTest.class);
   private final String defaultFallbackUri = "test.com";
+  private final String defaultClientId = "foobar";
+  private final String defaultIdp = "dummy";
   @ConfigProperty(name = "timestamp_spid")
   String TIMESTAMP_SPID;
   @ConfigProperty(name = "timestamp_cie")
@@ -304,7 +306,9 @@ public class SAMLServiceImplTest {
     when(status.getStatusCode()).thenReturn(statusCode);
     when(response.getStatus()).thenReturn(status);
     // then
-    assertDoesNotThrow(() -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+    assertDoesNotThrow(
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
   }
 
   @Test
@@ -317,7 +321,8 @@ public class SAMLServiceImplTest {
     when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
   }
 
   @Test
@@ -335,7 +340,8 @@ public class SAMLServiceImplTest {
     when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
   }
 
   @Test
@@ -353,7 +359,8 @@ public class SAMLServiceImplTest {
     when(response.getStatus()).thenReturn(status);
     // then
     assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
   }
 
   @Test
@@ -363,7 +370,8 @@ public class SAMLServiceImplTest {
     Response response = samlUtils.getSAMLResponseFromString(NOT_SPECIFIED_STATUS_SAML_RESPONSE_22);
     // then
     Exception exception = assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains("Status Code not set."));
   }
@@ -375,7 +383,8 @@ public class SAMLServiceImplTest {
     Response response = samlUtils.getSAMLResponseFromString(MISSING_STATUS_SAML_RESPONSE_23);
     // then
     Exception exception = assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains("Status message not set."));
   }
@@ -388,7 +397,8 @@ public class SAMLServiceImplTest {
         NOT_SPECIFIED_STATUS_CODE_SAML_RESPONSE_24);
     // then
     Exception exception = assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains("Status Code not set."));
   }
@@ -401,7 +411,8 @@ public class SAMLServiceImplTest {
         MISSING_STATUS_CODE_SAML_RESPONSE_25);
     // then
     Exception exception = assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains("Status Code not set."));
   }
@@ -414,7 +425,8 @@ public class SAMLServiceImplTest {
         STATUS_CODE_DIFFERENT_FROM_SUCCESS_SAML_RESPONSE_26);
     // then
     Exception exception = assertThrows(OneIdentityException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains("Status message not set."));
   }
@@ -427,7 +439,8 @@ public class SAMLServiceImplTest {
         REPEATED_WRONG_CREDENTIALS_SUBMITTED_SAML_RESPONSE_104);
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR19.getErrorCode()));
   }
@@ -440,7 +453,8 @@ public class SAMLServiceImplTest {
         USER_WITHOUT_COMPATIBLE_CREDENTIALS_SAML_RESPONSE_105);
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR20.getErrorCode()));
   }
@@ -453,7 +467,8 @@ public class SAMLServiceImplTest {
         TIMEOUT_SAML_RESPONSE_106);
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR21.getErrorCode()));
   }
@@ -466,7 +481,8 @@ public class SAMLServiceImplTest {
         CONSENT_NEGATED_SAML_RESPONSE_107);
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR22.getErrorCode()));
   }
@@ -479,7 +495,8 @@ public class SAMLServiceImplTest {
         BLOCKED_CREDENTIALS_SAML_RESPONSE_108);
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR23.getErrorCode()));
   }
@@ -493,7 +510,8 @@ public class SAMLServiceImplTest {
     );
     // then
     Exception exception = assertThrows(SAMLResponseStatusException.class,
-        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri));
+        () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
+            defaultIdp));
 
     assertTrue(exception.getMessage().contains(ERRORCODE_NR25.getErrorCode()));
   }
