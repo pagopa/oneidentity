@@ -56,12 +56,16 @@ def get_event_data(event):
     Extract the event data from event
     """
     # Extract the event data considering that it is a CloudWatch alarm event
-    # The alarm name is in the format {ALARM_TYPE}-{KEY}
+    # The alarm name is in the format {ALARM_TYPE}_{ENV_SHORT}_{KEY}
     # ALARM_TYPE is one of the following: IDPErrorRateAlarm, ClientErrorRateAlarm
-    # whilst KEY is one of the CLIENT/IDP ids
+    # whilst KEY is "entityId" if Alarm Type is "IDPErrorRateAlarm" or "FriendlyName_ClientId" if Alarm Type is "ClientErrorRateAlarm"
     alarm_data = event["alarmData"]
     alarm_name = alarm_data["alarmName"]
-    alarm_type, key = alarm_name.split("-", 1)
+    alarm_type, env_short, key = alarm_name.split("_", 2)
+    if alarm_type == "ClientErrorRateAlarm":
+        # Extract the client ID from the alarm name
+        # The client ID is the last 43 characters of the alarm name
+        key = key[-43:]
     alarm_state = alarm_data["state"]["value"]
 
     return alarm_type, key, alarm_state
