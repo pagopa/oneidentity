@@ -598,7 +598,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
 }
 
 
-## Lambda update IDP status
+## Lambda update IDP and Client status
 
 data "aws_iam_policy_document" "update_status_lambda" {
   statement {
@@ -675,11 +675,11 @@ module "update_status_lambda" {
   allowed_triggers = {
     IDPErrorRate = {
       principal  = "lambda.alarms.cloudwatch.amazonaws.com"
-      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPErrorRateAlarm-*"
+      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPErrorRateAlarm*"
     },
     ClientErrorRate = {
       principal  = "lambda.alarms.cloudwatch.amazonaws.com"
-      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:ClientErrorRateAlarm-*"
+      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:ClientErrorRateAlarm*"
     }
   }
 
