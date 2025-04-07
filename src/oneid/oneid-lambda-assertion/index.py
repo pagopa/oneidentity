@@ -46,7 +46,7 @@ def publish_metric(value: float, metric_name: str) -> None:
             'MetricName': metric_name,
             'Value': float(value),
             'Unit': 'Count',
-            'StorageResolution': 60,
+            'StorageResolution': 60
         }]
     )    
        

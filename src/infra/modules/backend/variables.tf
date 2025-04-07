@@ -236,6 +236,7 @@ variable "assertion_lambda" {
     environment_variables             = map(string)
     cloudwatch_logs_retention_in_days = number
     vpc_s3_prefix_id                  = string
+    vpc_tls_security_group_id         = string
     vpc_subnet_ids                    = list(string)
     vpc_id                            = string
   })
