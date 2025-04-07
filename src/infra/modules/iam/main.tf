@@ -45,7 +45,8 @@ resource "aws_iam_role" "githubiac" {
             "token.actions.githubusercontent.com:sub" : [
               "repo:${var.github_repository}:environment:dev",
               "repo:${var.github_repository}:environment:uat",
-              "repo:${var.github_repository}:environment:prod",
+              "repo:${var.github_repository}:environment:prod/eu-central-1",
+              "repo:${var.github_repository}:environment:prod/eu-south-1",
               "repo:${var.github_repository}:ref:refs/heads/main"
             ]
           }
