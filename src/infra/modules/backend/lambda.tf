@@ -499,6 +499,7 @@ data "aws_iam_policy_document" "assertion_lambda" {
   }
 }
 
+
 module "security_group_lambda_assertion" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.17.2"
@@ -518,9 +519,20 @@ module "security_group_lambda_assertion" {
   egress_rules = ["https-443-tcp"]
 }
 
+
+resource "aws_vpc_security_group_egress_rule" "https_rule" {
+  security_group_id            = module.security_group_lambda_assertion.security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.assertion_lambda.vpc_tls_security_group_id
+}
+
 resource "aws_sqs_queue" "dlq_lambda_assertion" {
   name = format("%s-dlq", var.assertion_lambda.name)
 }
+
+
 
 module "assertion_lambda" {
   source                 = "terraform-aws-modules/lambda/aws"
