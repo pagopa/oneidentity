@@ -488,6 +488,12 @@ data "aws_iam_policy_document" "assertion_lambda" {
 
   statement {
     effect    = "Allow"
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect    = "Allow"
     actions   = ["kms:GenerateDataKey"]
     resources = [var.assertion_lambda.kms_assertion_key_arn]
   }
