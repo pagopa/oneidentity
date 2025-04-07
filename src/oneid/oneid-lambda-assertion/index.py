@@ -15,7 +15,7 @@ s3 = boto3.resource("s3")
 cloudwatch = boto3.client('cloudwatch')
 
 bucket_name = os.environ['S3_BUCKET']
-CW_NAMESPACE = os.environ['CLOUDWATCH_CUSTOM_METRIC_NAMESPACE']
+CW_NAMESPACE = os.environ.get("CLOUDWATCH_CUSTOM_METRIC_NAMESPACE", "Assertions/TestCounter")
 
 def decode_base64_content(content):
     
@@ -38,7 +38,7 @@ def get_fiscal_number(token):
       logger.error(f'Error parsing fiscalNumber: {str(e)}')
       return ""
     
-def publish_metric(value: float, metric_name: str='AssertionCount') -> None:
+def publish_metric(value: float, metric_name: str) -> None:
     """Publish a single metric to CloudWatch"""
     cloudwatch.put_metric_data(
         Namespace=CW_NAMESPACE,
@@ -64,9 +64,10 @@ def lambda_handler(event, context):
             if record_type == "SAML" :
                 record['SAMLRequest'] = decode_base64_content(record['SAMLRequest'])
                 record['SAMLResponse'] = decode_base64_content(record['SAMLResponse'])
-                publish_metric(0)
+                publish_metric(1, "Saml")
             elif record_type == "ACCESS_TOKEN":
                 record['fiscalNumber'] = get_fiscal_number(record['idToken'])
+                publish_metric(1, "AccessToken")
             
             # Write the file to S3
             file_key = cet_time.strftime(f"year=%Y/month=%m/day=%d/hour=%H/type={record_type}/{saml_request_id}.json")

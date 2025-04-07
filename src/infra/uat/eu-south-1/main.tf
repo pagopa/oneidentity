@@ -272,8 +272,7 @@ module "backend" {
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
     environment_variables = {
-      S3_BUCKET                          = module.storage.assertions_bucket_name
-      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
+      S3_BUCKET = module.storage.assertions_bucket_name
     }
 
     vpc_id                            = module.network.vpc_id
