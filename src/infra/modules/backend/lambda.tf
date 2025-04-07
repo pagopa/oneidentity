@@ -488,7 +488,7 @@ data "aws_iam_policy_document" "assertion_lambda" {
 
   statement {
     effect    = "Allow"
-    actions   = ["cloudwatch:PutMetricData", "cloudwatch:GetMetricData"]
+    actions   = ["cloudwatch:PutMetricData"]
     resources = ["*"]
   }
 
