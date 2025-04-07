@@ -514,6 +514,7 @@ module "security_group_lambda_assertion" {
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
     var.assertion_lambda.vpc_s3_prefix_id,
+    var.assertion_lambda.vpc_monitoring_prefix_id
   ]
   egress_rules = ["https-443-tcp"]
 }
