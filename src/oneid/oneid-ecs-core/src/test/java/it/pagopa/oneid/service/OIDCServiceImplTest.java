@@ -192,7 +192,7 @@ public class OIDCServiceImplTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce);
 
-    Base64.Decoder decoder = Base64.getUrlDecoder();
+    Base64.Decoder decoder = Base64.getDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
     String payload = new String(decoder.decode(chunks[1]));
 
