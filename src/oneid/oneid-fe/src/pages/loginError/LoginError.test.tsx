@@ -6,6 +6,7 @@ import { Mock } from 'vitest';
 import { useLoginError } from '../../hooks/useLoginError';
 import { LoginError } from './LoginError';
 import { useLoginData } from '../../hooks/useLoginData';
+import { ROUTE_LOGIN } from '../../utils/constants';
 
 // Mocking the LoadingOverlay component
 vi.mock('../../components/LoadingOverlay', () => ({
@@ -20,12 +21,14 @@ vi.mock('../../hooks/useLoginError');
 const mockHandleErrorCode = vi.fn();
 
 describe('LoginError Component', () => {
+  const validCallbackURI = 'https://example.com/callback';
   const mockClientQuery = {
     isFetched: true,
     data: {
       clientID: 'test-client-id',
       friendlyName: 'Test Client',
       logoUri: 'https://example.com/logo.png',
+      callbackURI: [validCallbackURI],
     },
   };
 
@@ -110,7 +113,31 @@ describe('LoginError Component', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should redirect to login if redirectUri if do not match with one in /clients', () => {
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+
+    const closeButton = screen.queryByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+    if (!closeButton) {
+      throw new Error('Close button  not  found');
+    }
+    fireEvent.click(closeButton);
+    expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+  });
+
   it('should redirect to redirectUri if present', () => {
+    // Set correct redirectUri for this test
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        search: `?errorCode=19&redirectUri=${validCallbackURI}`,
+        assign: vi.fn(),
+      },
+    });
     render(
       <MemoryRouter>
         <LoginError />
@@ -123,7 +150,57 @@ describe('LoginError Component', () => {
       throw new Error('Close button not found');
     }
     fireEvent.click(closeButton);
-    expect(window.location.assign).toHaveBeenCalledWith('https://example.com');
+    expect(window.location.assign).toHaveBeenCalledWith(validCallbackURI);
+  });
+
+  it('should not redirect to redirectUri if present and encoded but malformed', () => {
+    // Set correct redirectUri for this test
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        search:
+          '?errorCode=19&redirectUri=https%3A%2F%example.com%3A8084%2Fcallback',
+        assign: vi.fn(),
+      },
+    });
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+
+    const closeButton = screen.queryByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+    if (!closeButton) {
+      throw new Error('Close button not  found');
+    }
+    fireEvent.click(closeButton);
+    expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+  });
+
+  it('should redirect to redirectUri if present and encoded', () => {
+    // Set correct redirectUri for this test
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        search:
+          '?errorCode=19&redirectUri=https%3A%2F%2Fexample.com%2Fcallback',
+        assign: vi.fn(),
+      },
+    });
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+
+    const closeButton = screen.queryByRole('button', { name: /close/i });
+    expect(closeButton).toBeInTheDocument();
+    if (!closeButton) {
+      throw new Error('Close button not  found');
+    }
+    fireEvent.click(closeButton);
+    expect(window.location.assign).toHaveBeenCalledWith(validCallbackURI);
   });
 
   it('should redirect to login if redirectUri is not present', () => {
@@ -148,6 +225,6 @@ describe('LoginError Component', () => {
     }
     fireEvent.click(closeButton);
 
-    expect(window.location.assign).toHaveBeenCalledWith('/login?errorCode=19');
+    expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
   });
 });

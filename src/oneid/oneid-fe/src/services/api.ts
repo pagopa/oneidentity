@@ -17,6 +17,8 @@ export type Client = {
   docUri: string;
   a11yUri: string;
   cookieUri: string;
+  callbackURI: Array<string>;
+  supportAddress: string;
   backButtonEnabled: boolean;
   localizedContentMap: Record<
     LangCode,

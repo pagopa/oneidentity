@@ -5,17 +5,20 @@ import { IllusError } from '@pagopa/mui-italia';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
 import EndingPage from '../../components/EndingPage';
-import { isUrlInSameOrigin, redirectToLogin } from '../../utils/utils';
+import { redirectToLogin } from '../../utils/utils';
 import {
   ERROR_CODE,
   ErrorData,
   useLoginError,
 } from '../../hooks/useLoginError';
+import { useLoginData } from '../../hooks/useLoginData';
 
 export const LoginError = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(true);
   const [errorData, setErrorData] = useState<ErrorData | undefined>(undefined);
+  const { clientQuery } = useLoginData();
+  const { handleErrorCode } = useLoginError();
 
   const errorCode = new URLSearchParams(window.location.search).get(
     'errorCode'
@@ -25,14 +28,23 @@ export const LoginError = () => {
     'redirectUri'
   ) as string;
 
-  const { handleErrorCode } = useLoginError();
+  const clientRedirectUriSanitized = useCallback((): string => {
+    try {
+      return decodeURIComponent(clientRedirecUri);
+    } catch {
+      return '';
+    }
+  }, [clientRedirecUri]);
 
-  const setContent = useCallback((errorCode: ERROR_CODE) => {
-    const { title, description } = handleErrorCode(errorCode);
-    setErrorData({ title, description });
-    setLoading(false);
+  const setContent = useCallback(
+    (errorCode: ERROR_CODE) => {
+      const { title, description } = handleErrorCode(errorCode);
+      setErrorData({ title, description });
+      setLoading(false);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
   useEffect(() => {
     if (errorCode) {
@@ -41,18 +53,20 @@ export const LoginError = () => {
   }, [setContent, errorCode]);
 
   const handleRedirect = useCallback(() => {
-    if (clientRedirecUri && isUrlInSameOrigin(clientRedirecUri)) {
-      window.location.assign(clientRedirecUri);
+    if (
+      clientRedirectUriSanitized &&
+      clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
+    ) {
+      window.location.assign(clientRedirectUriSanitized());
     } else {
       redirectToLogin();
     }
-  }, [clientRedirecUri]);
+  }, [clientRedirectUriSanitized, clientQuery.data?.callbackURI]);
 
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />
   ) : (
     <Layout>
-      {/* TODO add footer */}
       <EndingPage
         icon={<IllusError size={60} />}
         variantTitle="h4"
