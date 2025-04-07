@@ -5,6 +5,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.InvalidGrantException;
 import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
@@ -23,9 +24,6 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Interceptor
 @ControllerCustomInterceptor
@@ -86,10 +84,10 @@ public class ControllerInterceptor {
     String clientId;
     String clientSecret;
     try {
-      decodedBytes = Base64.getDecoder().decode(authorization);
+      decodedBytes = HASHUtils.b64decoder.decode(authorization);
       decodedString = new String(decodedBytes);
-      clientId = URLDecoder.decode(decodedString.split(":")[0], StandardCharsets.UTF_8);
-      clientSecret = URLDecoder.decode(decodedString.split(":")[1], StandardCharsets.UTF_8);
+      clientId = decodedString.split(":")[0];
+      clientSecret = decodedString.split(":")[1];
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       // TODO: consider collecting this as Client Error metric
       throw new InvalidRequestMalformedHeaderAuthorizationException();
