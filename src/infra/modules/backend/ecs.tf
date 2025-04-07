@@ -80,7 +80,7 @@ module "jwt_sign" {
 
 
   # Aliases
-  aliases = ["test-sign-jwt"]
+  aliases = ["test-sign-jwt", "sign-jwt"]
 }
 
 resource "aws_iam_policy" "ecs_core_task" {
@@ -149,7 +149,7 @@ resource "aws_iam_policy" "ecs_core_task" {
           "kms:GetPublicKey",
         ]
         Resource = [
-          "${module.jwt_sign.aliases.test-sign-jwt.target_key_arn}"
+          "${module.jwt_sign.aliases.sign-jwt.target_key_arn}"
         ]
       },
       {
@@ -276,7 +276,7 @@ module "ecs_core_service" {
       environment = setunion(var.service_core.environment_variables, [
         {
           name  = "KMS_KEY_ID"
-          value = module.jwt_sign.aliases.test-sign-jwt.target_key_id
+          value = module.jwt_sign.aliases.sign-jwt.target_key_id
         }
       ])
 
