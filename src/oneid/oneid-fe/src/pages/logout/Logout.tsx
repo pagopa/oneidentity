@@ -1,7 +1,7 @@
-import { redirectToLogin } from '../../utils/utils';
+import { redirectToLoginWithParams } from '../../utils/utils';
 
 const Logout = () => {
-  redirectToLogin();
+  redirectToLoginWithParams();
   return <div />;
 };
 

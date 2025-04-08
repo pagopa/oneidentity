@@ -37,6 +37,7 @@ export const useLoginData = () => {
       return !!clientID;
     },
     retry,
+    throwOnError: false, //be careful with this option, it can cause unexpected behavior
   });
 
   return { bannerQuery, idpQuery, clientQuery };

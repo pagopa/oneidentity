@@ -3,7 +3,7 @@ import {
   ROUTE_LOGIN_ERROR,
   ROUTE_LOGOUT,
 } from './utils/constants';
-import { redirectToLogin } from './utils/utils';
+import { redirectToLoginWithParams } from './utils/utils';
 import Logout from './pages/logout/Logout';
 import { LoginError } from './pages/loginError/LoginError';
 import Login from './pages/login';
@@ -17,7 +17,7 @@ function App() {
     case ROUTE_LOGOUT:
       return <Logout />;
     default:
-      redirectToLogin();
+      redirectToLoginWithParams();
       return;
   }
 }

@@ -8,11 +8,11 @@ import {
   ROUTE_LOGOUT,
   ROUTE_LOGIN_ERROR,
 } from './utils/constants';
-import { redirectToLogin } from './utils/utils';
+import { redirectToLoginWithParams } from './utils/utils';
 
 // Mock imported functions
 vi.mock('./utils/utils', () => ({
-  redirectToLogin: vi.fn(),
+  redirectToLoginWithParams: vi.fn(),
 }));
 vi.mock('./services/analyticsService', () => ({
   trackEvent: vi.fn(),
@@ -79,6 +79,6 @@ describe('App component with mocked components', () => {
     });
 
     render(<App />);
-    expect(redirectToLogin).toHaveBeenCalled();
+    expect(redirectToLoginWithParams).toHaveBeenCalled();
   });
 });
