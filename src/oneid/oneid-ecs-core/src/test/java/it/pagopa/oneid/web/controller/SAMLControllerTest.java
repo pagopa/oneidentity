@@ -75,10 +75,10 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -131,7 +131,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
         .thenThrow(new OneIdentityException());
 
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
 
@@ -162,7 +162,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -192,7 +192,7 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -222,10 +222,10 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doThrow(new OneIdentityException()).when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -253,6 +253,8 @@ public class SAMLControllerTest {
     Response response = Mockito.mock(Response.class);
     SAMLValidationException samlValidationException = Mockito.mock(SAMLValidationException.class);
     Mockito.when(samlValidationException.getRedirectUri()).thenReturn("test.com");
+    Mockito.when(samlValidationException.getState()).thenReturn("dummyState");
+    Mockito.when(samlValidationException.getClientId()).thenReturn("dummyClientId");
     Mockito.when(samlValidationException.getMessage())
         .thenReturn(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage());
     Mockito.when(samlValidationException.getErrorCode())
@@ -262,17 +264,17 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     samlValidationException.setRedirectUri("test.com");
     doThrow(samlValidationException).when(
             samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" +
+    String headerLocation = BASE_PATH + "/login/error?error_code=" +
         URLEncoder.encode(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorCode(),
             StandardCharsets.UTF_8) +
-        "&redirectUri=" + URLEncoder.encode("test.com", StandardCharsets.UTF_8);
+        "&redirect_uri=" + URLEncoder.encode("test.com", StandardCharsets.UTF_8);
     String location = given()
         .formParams(samlResponseDTO)
         .when()
@@ -300,10 +302,10 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -329,7 +331,7 @@ public class SAMLControllerTest {
     // due to its @Dependent scope which does not permit to use the @InjectMock annotation
 
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.SESSION_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
@@ -360,10 +362,10 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -392,7 +394,7 @@ public class SAMLControllerTest {
     // due to its @Dependent scope which does not permit to use the @InjectMock annotation
 
     // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(
+    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
     String location = given()
