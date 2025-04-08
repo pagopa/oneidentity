@@ -58,11 +58,17 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendUserRelatedErrorMetricData(String IDP, String client, String errorCode) {
-    List<Dimension> specificErrorDimensions = List.of(
+    List<Dimension> specificUserIDPErrorDimensions = List.of(
         Dimension.builder()
             .name(tagIDP)
             .value(IDP)
             .build(),
+        Dimension.builder()
+            .name(tagError)
+            .value(errorCode)
+            .build());
+
+    List<Dimension> specificUserClientErrorDimensions = List.of(
         Dimension.builder()
             .name(tagClient)
             .value(client)
@@ -82,9 +88,14 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(client)
         .build());
 
-    // Specific error
+    // Specific IDP User related error
     cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagIDP + tagClient + tagError, specificErrorDimensions));
+        generatePutMetricRequest(tagUser + tagIDP + tagError, specificUserIDPErrorDimensions));
+
+    // Specific Client User related error
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest(tagUser + tagClient + tagError,
+            specificUserClientErrorDimensions));
 
     // Aggregated for IDP User related error
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
