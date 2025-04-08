@@ -61,6 +61,8 @@ class ExceptionMapperTest {
 
   private final String DEFAULT_STATE = "dummyState";
 
+  private final String DEFAULT_CLIENT_ID = "dummyClientId";
+
   @Inject
   ExceptionMapper exceptionMapper;
 
@@ -344,6 +346,7 @@ class ExceptionMapperTest {
     Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
     Mockito.when(exceptionMock.getRedirectUri()).thenReturn(DEFAULT_FALLBACK_URI);
     Mockito.when(exceptionMock.getState()).thenReturn(DEFAULT_STATE);
+    Mockito.when(exceptionMock.getClientId()).thenReturn(DEFAULT_CLIENT_ID);
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLResponseStatusException(
         exceptionMock);
     // then
@@ -359,6 +362,7 @@ class ExceptionMapperTest {
         .thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage());
     Mockito.when(exceptionMock.getRedirectUri()).thenReturn("test.com");
     Mockito.when(exceptionMock.getState()).thenReturn("dummyState");
+    Mockito.when(exceptionMock.getClientId()).thenReturn("dummyClientId");
 
     // when
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(

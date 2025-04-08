@@ -530,7 +530,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri, String state) {
+      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
 
     try {
 
@@ -550,6 +550,7 @@ public class SAMLServiceImpl implements SAMLService {
       e.setIdp(entityID);
       e.setRedirectUri(redirectUri);
       e.setState(state);
+      e.setClientId(clientId);
       throw (e);
     }
 

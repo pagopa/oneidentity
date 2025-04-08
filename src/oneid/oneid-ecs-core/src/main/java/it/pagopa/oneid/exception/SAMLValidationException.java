@@ -18,6 +18,9 @@ public class SAMLValidationException extends RuntimeException {
   @Setter
   private String state;
 
+  @Setter
+  private String clientId;
+
   public SAMLValidationException(ErrorCode errorCode) {
     super(errorCode.getErrorMessage());
     this.errorCode = errorCode;
