@@ -22,6 +22,8 @@ const mockHandleErrorCode = vi.fn();
 
 describe('LoginError Component', () => {
   const validCallbackURI = 'https://example.com/callback';
+  const testTitle = 'Test Title';
+  const testDescription = 'Test Description';
   const mockClientQuery = {
     isFetched: true,
     data: {
@@ -47,8 +49,8 @@ describe('LoginError Component', () => {
       clientQuery: mockClientQuery,
     });
     mockHandleErrorCode.mockReturnValue({
-      title: 'Test Title',
-      description: 'Test Description',
+      title: testTitle,
+      description: testDescription,
     });
   });
 
@@ -56,7 +58,7 @@ describe('LoginError Component', () => {
     vi.clearAllMocks();
   });
 
-  it('should display loading overlay when loading', () => {
+  it('should display generic error when no params are provided (or wrong error_code var)', () => {
     window.location.search = ''; // Reset location for this test
     render(
       <MemoryRouter>
@@ -64,7 +66,10 @@ describe('LoginError Component', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/loading/i)).toBeInTheDocument(); // Assuming you have a loading text
+    // when no params are present, generic error must be shown
+    expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+    expect(screen.getByText(testTitle)).toBeInTheDocument();
+    expect(screen.getByText(testDescription)).toBeInTheDocument();
   });
 
   it('should display correct error page for error_code 19', () => {
@@ -78,8 +83,8 @@ describe('LoginError Component', () => {
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
 
     // Check if the title and description are rendered correctly
-    expect(screen.getByText('Test Title')).toBeInTheDocument();
-    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByText(testTitle)).toBeInTheDocument();
+    expect(screen.getByText(testDescription)).toBeInTheDocument();
   });
 
   it('should display correct error page for unknown error code', () => {
