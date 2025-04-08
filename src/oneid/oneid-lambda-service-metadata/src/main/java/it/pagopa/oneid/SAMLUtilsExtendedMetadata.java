@@ -53,11 +53,7 @@ import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
-
-  static {
-    System.setProperty("com.sun.org.apache.xml.internal.security.ignoreLineBreaks", "true");
-  }
-
+  
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
 
