@@ -50,18 +50,19 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @CustomLogging
 public class ServiceMetadata implements RequestHandler<Object, String> {
 
+  static {
+    System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true");
+    org.apache.xml.security.Init.init();
+  }
+
   @Inject
   ClientConnectorImpl clientConnectorImpl;
-
   @Inject
   SAMLUtilsExtendedMetadata samlUtils;
-
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
-
   @ConfigProperty(name = "service_metadata.bucket.name")
   String bucketName;
-
   @Inject
   S3Client s3;
 

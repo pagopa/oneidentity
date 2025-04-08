@@ -53,7 +53,7 @@ import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
-
+  
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
 
