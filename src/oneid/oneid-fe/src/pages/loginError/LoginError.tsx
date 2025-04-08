@@ -54,9 +54,10 @@ export const LoginError = () => {
   useEffect(() => {
     if (errorCode) {
       setContent(errorCode);
+    } else {
+      // fallback if errorCode is not present
+      setContent(ERROR_CODE.GENERIC);
     }
-    // fallback if errorCode is not present
-    setContent(ERROR_CODE.GENERIC);
   }, [setContent, errorCode]);
 
   const handleRedirect = useCallback(() => {
