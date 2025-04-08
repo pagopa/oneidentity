@@ -36,7 +36,7 @@ describe('LoginError Component', () => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: '?errorCode=19&redirect_uri=https://example.com',
+        search: '?error_code=19&redirect_uri=https://example.com',
         assign: vi.fn(),
       },
     });
@@ -67,7 +67,7 @@ describe('LoginError Component', () => {
     expect(screen.getByText(/loading/i)).toBeInTheDocument(); // Assuming you have a loading text
   });
 
-  it('should display correct error page for errorCode 19', () => {
+  it('should display correct error page for error_code 19', () => {
     render(
       <MemoryRouter>
         <LoginError />
@@ -94,7 +94,7 @@ describe('LoginError Component', () => {
     });
 
     // Set a different error code for this test
-    window.location.search = '?errorCode=unknown';
+    window.location.search = '?error_code=unknown';
 
     render(
       <MemoryRouter>
@@ -134,7 +134,7 @@ describe('LoginError Component', () => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: `?errorCode=19&redirect_uri=${validCallbackURI}`,
+        search: `?error_code=19&redirect_uri=${validCallbackURI}`,
         assign: vi.fn(),
       },
     });
@@ -161,7 +161,7 @@ describe('LoginError Component', () => {
       writable: true,
       value: {
         search:
-          '?errorCode=19&redirect_uri=https%3A%2F%example.com%3A8084%2Fcallback',
+          '?error_code=19&redirect_uri=https%3A%2F%example.com%3A8084%2Fcallback',
         assign: vi.fn(),
       },
     });
@@ -186,7 +186,7 @@ describe('LoginError Component', () => {
       writable: true,
       value: {
         search:
-          '?errorCode=19&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback',
+          '?error_code=19&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback',
         assign: vi.fn(),
       },
     });
@@ -212,7 +212,7 @@ describe('LoginError Component', () => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: '?errorCode=19',
+        search: '?error_code=19',
         assign: vi.fn(),
       },
     });

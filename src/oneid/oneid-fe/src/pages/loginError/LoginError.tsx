@@ -21,7 +21,7 @@ export const LoginError = () => {
   const { handleErrorCode } = useLoginError();
 
   const errorCode = new URLSearchParams(window.location.search).get(
-    'errorCode'
+    'error_code'
   ) as ERROR_CODE;
 
   const clientRedirecUri = new URLSearchParams(window.location.search).get(
