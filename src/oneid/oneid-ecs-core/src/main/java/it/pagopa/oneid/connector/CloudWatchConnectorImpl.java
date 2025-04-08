@@ -72,9 +72,27 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
             .value(errorCode)
             .build());
 
+    List<Dimension> totalIDPUserErrorDimensions = List.of(Dimension.builder()
+        .name(tagUser + tagIDP + tagAggregated)
+        .value(IDP)
+        .build());
+
+    List<Dimension> totalClientUserErrorDimensions = List.of(Dimension.builder()
+        .name(tagUser + tagClient + tagAggregated)
+        .value(client)
+        .build());
+
     // Specific error
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagIDP + tagClient + tagError, specificErrorDimensions));
+
+    // Aggregated for IDP User related error
+    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
+        tagUser + tagIDP + tagError, totalIDPUserErrorDimensions));
+
+    // Aggregated for Client User related error
+    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
+        tagUser + tagClient + tagError, totalClientUserErrorDimensions));
 
   }
 
