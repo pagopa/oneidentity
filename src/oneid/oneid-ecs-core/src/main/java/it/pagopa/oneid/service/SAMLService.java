@@ -19,7 +19,7 @@ public interface SAMLService {
       throws OneIdentityException;
 
   void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes,
-      Instant samlRequestIssueInstant, AuthLevel authLevelRequest, String redirectUri)
+      Instant samlRequestIssueInstant, AuthLevel authLevelRequest, String redirectUri, String state)
       throws OneIdentityException;
 
   Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException;
@@ -29,7 +29,8 @@ public interface SAMLService {
 
   Optional<IDP> getIDPFromEntityID(String entityID);
 
-  void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp)
+  void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp,
+      String state)
       throws OneIdentityException;
 
 }

@@ -8,12 +8,15 @@ import lombok.Setter;
 public class SAMLValidationException extends RuntimeException {
 
   private final ErrorCode errorCode;
-  
+
   @Setter
   private String idp;
 
   @Setter
   private String redirectUri;
+
+  @Setter
+  private String state;
 
   public SAMLValidationException(ErrorCode errorCode) {
     super(errorCode.getErrorMessage());

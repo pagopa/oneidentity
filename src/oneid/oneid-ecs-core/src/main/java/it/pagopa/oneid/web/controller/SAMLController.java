@@ -93,7 +93,8 @@ public class SAMLController {
       samlServiceImpl.checkSAMLStatus(response,
           samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
           samlSession.getAuthorizationRequestDTOExtended().getClientId(),
-          samlSession.getAuthorizationRequestDTOExtended().getIdp());
+          samlSession.getAuthorizationRequestDTOExtended().getIdp(),
+          samlSession.getAuthorizationRequestDTOExtended().getState());
     } catch (OneIdentityException e) {
       Log.error("error during SAMLResponse status check: " + e.getMessage());
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
@@ -107,7 +108,8 @@ public class SAMLController {
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
         Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel(),
-        samlSession.getAuthorizationRequestDTOExtended().getRedirectUri());
+        samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
+        samlSession.getAuthorizationRequestDTOExtended().getState());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
