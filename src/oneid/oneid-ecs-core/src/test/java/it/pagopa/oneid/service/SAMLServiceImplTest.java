@@ -443,7 +443,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR19.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR19.getErrorMessage()));
   }
 
   @Test
@@ -457,7 +457,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR20.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR20.getErrorMessage()));
   }
 
   @Test
@@ -471,7 +471,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR21.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR21.getErrorMessage()));
   }
 
   @Test
@@ -485,7 +485,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR22.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR22.getErrorMessage()));
   }
 
   @Test
@@ -499,7 +499,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR23.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR23.getErrorMessage()));
   }
 
   @Test
@@ -514,7 +514,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.checkSAMLStatus(response, defaultFallbackUri, defaultClientId,
             defaultIdp, defaultState));
 
-    assertTrue(exception.getMessage().contains(ERRORCODE_NR25.getErrorCode()));
+    assertTrue(exception.getMessage().contains(ERRORCODE_NR25.getErrorMessage()));
   }
 
   @Test
