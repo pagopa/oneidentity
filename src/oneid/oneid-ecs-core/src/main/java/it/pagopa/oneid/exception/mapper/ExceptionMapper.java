@@ -155,7 +155,8 @@ public class ExceptionMapper {
     cloudWatchConnectorImpl.sendUserRelatedErrorMetricData(
         samlResponseStatusException.getIdp(),
         samlResponseStatusException.getClientId(),
-        samlResponseStatusException.getMessage());
+        samlResponseStatusException.getErrorCode() + "_"
+            + samlResponseStatusException.getMessage());
 
     return genericHTMLError(samlResponseStatusException.getErrorCode(),
         samlResponseStatusException.getRedirectUri(), samlResponseStatusException.getState(),
