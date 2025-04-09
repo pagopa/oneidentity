@@ -1,30 +1,34 @@
 {
-    "type": "metric",
-    "height": 6,
-    "width": 8,
-    "properties": {
-        "title": "Friendly Name: ${friendly_name} - Client ID: ${client_id}",
-        "stat": "Sum",
-        "view": "timeSeries",
-        "period": 300,
-        "height": 200,
-        "width": 1710,
-        "region": "${aws_region}",
-        "setPeriodToTimeRange": true,
-        "liveData": true,
-        "metrics": [
-            [{
-                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientSuccess\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)", 
-                "id": "aggregated_success",
-                "region": "${aws_region}",
-                "color": "#12a0d7"
-                }],
-            [{
-                "expression": "FILL(SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientError\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)", 
-                "id": "aggregated_errors",
-                "region": "${aws_region}",
-                "color": "#ff7f0e"
-                }]
-        ]
-    }
+  "type": "metric",
+  "height": 6,
+  "width": 8,
+  "properties": {
+    "title": "Friendly Name: ${friendly_name} - Client ID: ${client_id}",
+    "stat": "Sum",
+    "view": "timeSeries",
+    "period": 300,
+    "height": 200,
+    "width": 1710,
+    "region": "${aws_region}",
+    "setPeriodToTimeRange": true,
+    "liveData": true,
+    "metrics": [
+      [
+        {
+          "expression": "FILL(SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientSuccess\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)",
+          "id": "aggregated_success",
+          "region": "${aws_region}",
+          "color": "#12a0d7"
+        }
+      ],
+      [
+        {
+          "expression": "FILL(SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, ClientAggregated} MetricName=\"ClientError\" \"ClientAggregated\"=\"${client_id}\" ', 'Sum', 300), 0)",
+          "id": "aggregated_errors",
+          "region": "${aws_region}",
+          "color": "#ff7f0e"
+        }
+      ]
+    ]
+  }
 }

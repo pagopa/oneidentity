@@ -1,24 +1,26 @@
 {
-    "type": "metric",
-    "height": 6,
-    "width": 8,
-    "properties": {
-        "title": "Entity ID: ${idp}",
-        "stat": "Sum",
-        "view": "bar",
-        "period": 300,
-        "height": 200,
-        "width": 1710,
-        "region": "${aws_region}",
-        "setPeriodToTimeRange": true,
-        "liveData": true,
-        "metrics": [
-            [{ 
-                "expression": "SEARCH('{oneid-es-1-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"IDPError\"', 'Sum', 300)", 
-                "label": "$${PROP('Dim.Error')}",
-                "id": "idp_errors", 
-                "region": "${aws_region}" 
-                }]
-        ]
-    }
+  "type": "metric",
+  "height": 6,
+  "width": 8,
+  "properties": {
+    "title": "Entity ID: ${idp}",
+    "stat": "Sum",
+    "view": "bar",
+    "period": 300,
+    "height": 200,
+    "width": 1710,
+    "region": "${aws_region}",
+    "setPeriodToTimeRange": true,
+    "liveData": true,
+    "metrics": [
+      [
+        {
+          "expression": "SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"IDPError\"', 'Sum', 300)",
+          "label": "$${PROP('Dim.Error')}",
+          "id": "idp_errors",
+          "region": "${aws_region}"
+        }
+      ]
+    ]
+  }
 }
