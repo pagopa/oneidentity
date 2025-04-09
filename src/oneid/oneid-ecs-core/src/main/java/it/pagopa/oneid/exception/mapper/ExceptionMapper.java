@@ -157,7 +157,7 @@ public class ExceptionMapper {
         samlResponseStatusException.getClientId(),
         samlResponseStatusException.getMessage());
 
-    return genericHTMLError(samlResponseStatusException.getMessage(),
+    return genericHTMLError(samlResponseStatusException.getErrorCode(),
         samlResponseStatusException.getRedirectUri(), samlResponseStatusException.getState(),
         samlResponseStatusException.getClientId());
   }
