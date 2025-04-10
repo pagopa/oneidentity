@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+/* eslint-disable functional/immutable-data */
+import { fireEvent, render, screen } from '@testing-library/react';
 import Header from './Header';
 import { useLoginData } from '../hooks/useLoginData';
 import { Mock, vi } from 'vitest';
@@ -15,27 +16,31 @@ vi.mock('../locale', async () => {
     },
   };
 });
+const supportAddress = 'support@example.com';
+const fallbackAddress = 'fallback@example.com';
 
 vi.mock('../utils/env', () => ({
   ENV: {
-    ASSISTANCE: {
+    FALLBACK_ASSISTANCE: {
       ENABLE: true,
       MOCK: true,
       EMAIL: 'fallback@example.com',
-    },
-    URL_FE: {
-      LOGIN: '/login',
-      LOGOUT: '/logout',
     },
     HEADER: {
       LINK: {
         PAGOPALINK: 'https://www.pagopa.it',
       },
     },
+    ANALYTICS: {
+      ENABLE: false,
+    },
   },
 }));
 
 describe('Header Component', () => {
+  beforeEach(() => {
+    window.open = vi.fn();
+  });
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -92,11 +97,93 @@ describe('Header Component', () => {
     vi.clearAllMocks();
   });
 
-  it('renders assistance button when enableAssistance is true and assistanceString is valid', () => {
+  it('renders assistance button and use client supportAddress if present', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
-        assistanceAddress: 'support@example.com',
+        supportAddress,
+      },
+    };
+
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+
+    render(<Header withSecondHeader />);
+    const supportButton = screen.getByText('Assistenza', {
+      selector: 'button',
+    });
+
+    expect(supportButton).toBeInTheDocument();
+    if (!supportButton) {
+      throw new Error('Support button is not found');
+    }
+    fireEvent.click(supportButton);
+    expect(window.open).toHaveBeenCalledWith(
+      `mailto:${supportAddress}`,
+      '_blank'
+    );
+  });
+
+  it('renders assistance button and use fallback ASSISTANCE.EMAIL if present and active', () => {
+    ENV.FALLBACK_ASSISTANCE.ENABLE = true;
+    ENV.FALLBACK_ASSISTANCE.EMAIL = fallbackAddress;
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        supportAddress: '',
+      },
+    };
+
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+
+    render(<Header withSecondHeader />);
+    const supportButton = screen.getByText('Assistenza', {
+      selector: 'button',
+    });
+
+    expect(supportButton).toBeInTheDocument();
+    if (!supportButton) {
+      throw new Error('Support button not found');
+    }
+    fireEvent.click(supportButton);
+    expect(window.open).toHaveBeenCalledWith(
+      `mailto:${ENV.FALLBACK_ASSISTANCE.EMAIL}`,
+      '_blank'
+    );
+  });
+
+  it('hide assistance button if client do not provide supportAddress and fallback are off', () => {
+    ENV.FALLBACK_ASSISTANCE.ENABLE = false;
+    ENV.FALLBACK_ASSISTANCE.EMAIL = fallbackAddress;
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        supportAddress: '',
+      },
+    };
+
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+
+    render(<Header withSecondHeader />);
+    const supportButton = screen.queryByText('Assistenza', {
+      selector: 'button',
+    });
+
+    expect(supportButton).not.toBeInTheDocument();
+  });
+
+  it('show assistance button when enableAssistance is false but client supportAddress is present', () => {
+    ENV.FALLBACK_ASSISTANCE.ENABLE = false;
+
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        supportAddress,
       },
     };
 
@@ -106,18 +193,50 @@ describe('Header Component', () => {
 
     render(<Header withSecondHeader />);
 
-    expect(
-      screen.getAllByRole('button', { name: /Assistenza/i }).length
-    ).toBeGreaterThanOrEqual(1);
+    const supportButton = screen.getByText('Assistenza', {
+      selector: 'button',
+    });
+
+    expect(supportButton).toBeInTheDocument();
+    if (!supportButton) {
+      throw new Error('Support button not found');
+    }
+    fireEvent.click(supportButton);
+    expect(window.open).toHaveBeenCalledWith(
+      `mailto:${supportAddress}`,
+      '_blank'
+    );
   });
 
-  it('hides assistance button when enableAssistance is false', () => {
-    ENV.ASSISTANCE.ENABLE = false;
+  it('hide assistance button if client do not provide supportAddress and fallback are on but email is not provided', () => {
+    ENV.FALLBACK_ASSISTANCE.ENABLE = true;
+    ENV.FALLBACK_ASSISTANCE.EMAIL = '';
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        supportAddress: '',
+      },
+    };
+
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+
+    render(<Header withSecondHeader />);
+    const supportButton = screen.queryByText('Assistenza', {
+      selector: 'button',
+    });
+
+    expect(supportButton).not.toBeInTheDocument();
+  });
+
+  it('show assistance button when enableAssistance is false but client supportAddress is url and follow it', () => {
+    ENV.FALLBACK_ASSISTANCE.ENABLE = false;
 
     const mockClientQuery = {
       isFetched: true,
       data: {
-        assistanceAddress: 'support@example.com',
+        supportAddress: 'https://example.com/support',
       },
     };
 
@@ -127,66 +246,18 @@ describe('Header Component', () => {
 
     render(<Header withSecondHeader />);
 
-    expect(screen.queryByRole('button', { name: /Assistenza/i })).toBeNull();
-  });
-
-  it('uses ENV.ASSISTANCE.EMAIL when assistanceAddress is not provided', () => {
-    ENV.ASSISTANCE.ENABLE = true;
-    ENV.ASSISTANCE.EMAIL = 'fallback@example.com';
-
-    const mockClientQuery = {
-      isFetched: true,
-      data: {},
-    };
-
-    (useLoginData as Mock).mockReturnValue({
-      clientQuery: mockClientQuery,
+    const supportButton = screen.getByText('Assistenza', {
+      selector: 'button',
     });
 
-    render(<Header withSecondHeader />);
-
-    expect(
-      screen.getAllByRole('button', { name: /Assistenza/i }).length
-    ).toBeGreaterThanOrEqual(1);
-  });
-
-  it('hides assistance button when assistanceString is invalid', () => {
-    ENV.ASSISTANCE.ENABLE = true;
-    ENV.ASSISTANCE.EMAIL = '';
-    const mockClientQuery = {
-      isFetched: true,
-      data: {
-        assistanceAddress: '',
-      },
-    };
-
-    (useLoginData as Mock).mockReturnValue({
-      clientQuery: mockClientQuery,
-    });
-
-    render(<Header withSecondHeader />);
-
-    expect(screen.queryByRole('button', { name: /Assistenza/i })).toBeNull();
-  });
-
-  it('hides assistance button when assistanceString is invalid', () => {
-    ENV.ASSISTANCE.ENABLE = true;
-    ENV.ASSISTANCE.EMAIL = '';
-    const mockClientQuery = {
-      isFetched: true,
-      data: {
-        assistanceAddress: 'support@example.com',
-      },
-    };
-
-    (useLoginData as Mock).mockReturnValue({
-      clientQuery: mockClientQuery,
-    });
-
-    render(<Header withSecondHeader />);
-
-    expect(
-      screen.getAllByRole('button', { name: /Assistenza/i }).length
-    ).toBeGreaterThanOrEqual(1);
+    expect(supportButton).toBeInTheDocument();
+    if (!supportButton) {
+      throw new Error('Support button is not found');
+    }
+    fireEvent.click(supportButton);
+    expect(window.open).toHaveBeenCalledWith(
+      'https://example.com/support',
+      '_blank'
+    );
   });
 });

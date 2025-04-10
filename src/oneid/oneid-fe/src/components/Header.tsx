@@ -99,12 +99,14 @@ const Header = ({
     ? () => window.open(clientQuery.data?.docUri, '_blank')
     : undefined;
 
-  /** The string wich could represent a valid email address or URL to help users to get assistance */
-  const assistanceString =
-    clientQuery.data?.supportAddress || ENV.ASSISTANCE.EMAIL;
+  // The string wich could represent a valid email address or URL to help users to get assistance
+  let assistanceString = '';
 
-  // enable assistance whether assistance is enabled and email is set
-  const enableAssistance = ENV.ASSISTANCE.ENABLE && !!assistanceString;
+  // enable assistance fallback whether assistance is enabled and email is set
+  if (ENV.FALLBACK_ASSISTANCE.ENABLE && ENV.FALLBACK_ASSISTANCE.EMAIL) {
+    assistanceString = ENV.FALLBACK_ASSISTANCE.EMAIL;
+  }
+  assistanceString = clientQuery.data?.supportAddress || assistanceString;
 
   return (
     <Fragment>
@@ -113,14 +115,14 @@ const Header = ({
           rootLink={rootLink}
           onAssistanceClick={() =>
             onExit(() =>
-              window.location.assign(buildAssistanceURI(assistanceString) || '')
+              window.open(buildAssistanceURI(assistanceString) || '', '_blank')
             )
           }
           onLogin={() => onExit(() => window.location.assign(ROUTE_LOGIN))}
           onLogout={() => onExit(() => window.location.assign(ROUTE_LOGOUT))}
           userActions={userActions}
           enableDropdown={enableDropdown}
-          enableAssistanceButton={enableAssistance}
+          enableAssistanceButton={!!assistanceString}
           onDocumentationClick={onDocumentationClick}
           enableLogin={false}
         />

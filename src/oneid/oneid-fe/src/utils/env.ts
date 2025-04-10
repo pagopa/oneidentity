@@ -12,9 +12,9 @@ export const ENV = {
   ENABLED_SPID_TEMPORARY_SELECT:
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
-  ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE === 'true',
-    EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
+  FALLBACK_ASSISTANCE: {
+    ENABLE: import.meta.env.VITE_ENABLE_FALLBACK_ASSISTANCE === 'true',
+    EMAIL: import.meta.env.VITE_PAGOPA_FALLBACK_SUPPORT_EMAIL as string,
   },
 
   JSON_URL: {
