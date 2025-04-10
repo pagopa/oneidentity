@@ -3,7 +3,7 @@
   "height": 6,
   "width": 8,
   "properties": {
-    "title": "Entity ID: ${idp}",
+    "title": "Friendly Name: ${friendly_name} - Client ID: ${client_id}",
     "stat": "Sum",
     "view": "bar",
     "period": 300,
@@ -15,9 +15,9 @@
     "metrics": [
       [
         {
-          "expression": "SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"UserIDPError\"', 'Sum', 300)",
+          "expression": "SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, \"Client\", Error} \"Client\"=\"${client_id}\" MetricName=\"SAMLStatusClientError\"', 'Sum', 300)",
           "label": "$${PROP('Dim.Error')}",
-          "id": "user_idp_errors",
+          "id": "samlstatus_client_errors",
           "region": "${aws_region}"
         }
       ]
