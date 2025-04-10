@@ -80,7 +80,7 @@ module "jwt_sign" {
 
 
   # Aliases
-  aliases = ["test-sign-jwt", "sign-jwt"]
+  aliases = ["sign-jwt"]
 }
 
 resource "aws_iam_policy" "ecs_core_task" {
