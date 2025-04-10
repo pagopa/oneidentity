@@ -31,9 +31,9 @@ locals {
     })
   ]
 
-  user_idp_widgets = [
+  samlstatus_idp_widgets = [
     for entity_id in var.idp_entity_ids :
-    templatefile("../../dashboards/user_idp_related_error_widget.tpl.json", {
+    templatefile("../../dashboards/samlstatus_idp_related_error_widget.tpl.json", {
       idp          = entity_id
       aws_region   = var.aws_region
       env_short    = var.env_short
@@ -42,9 +42,9 @@ locals {
     })
   ]
 
-  user_client_widgets = [
+  samlstatus_client_widgets = [
     for client in var.clients :
-    templatefile("../../dashboards/user_client_related_error_widget.tpl.json", {
+    templatefile("../../dashboards/samlstatus_client_related_error_widget.tpl.json", {
       client_id     = client.client_id
       friendly_name = client.friendly_name
       aws_region    = var.aws_region
@@ -81,21 +81,21 @@ locals {
     }
   }
 
-  user_idp_error_widget_header = {
+  samlstatus_idp_error_widget_header = {
     "height" : 1,
     "width" : 24,
     "type" : "text",
     "properties" : {
-      "markdown" : "## IDP related users errors\n"
+      "markdown" : "## SAML Status Errors - by IDP\n"
     }
   }
 
-  user_client_error_widget_header = {
+  samlstatus_client_error_widget_header = {
     "height" : 1,
     "width" : 24,
     "type" : "text",
     "properties" : {
-      "markdown" : "## Client related users errors\n"
+      "markdown" : "## SAML Status Errors - by Client\n"
     }
   }
 
@@ -107,10 +107,10 @@ locals {
       [for w in local.client_widgets : jsondecode(w)],
       [local.client_aggregated_widget_header],
       [for w in local.client_aggregated_widgets : jsondecode(w)],
-      [local.user_idp_error_widget_header],
-      [for w in local.user_idp_widgets : jsondecode(w)],
-      [local.user_client_error_widget_header],
-      [for w in local.user_client_widgets : jsondecode(w)]
+      [local.samlstatus_idp_error_widget_header],
+      [for w in local.samlstatus_idp_widgets : jsondecode(w)],
+      [local.samlstatus_client_error_widget_header],
+      [for w in local.samlstatus_client_widgets : jsondecode(w)]
     )
     }
   )
