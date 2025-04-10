@@ -152,7 +152,7 @@ public class ExceptionMapper {
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
 
-    cloudWatchConnectorImpl.sendUserRelatedErrorMetricData(
+    cloudWatchConnectorImpl.sendSAMLStatusRelatedErrorMetricData(
         samlResponseStatusException.getIdp(),
         samlResponseStatusException.getClientId(),
         samlResponseStatusException.getErrorCode() + "_"

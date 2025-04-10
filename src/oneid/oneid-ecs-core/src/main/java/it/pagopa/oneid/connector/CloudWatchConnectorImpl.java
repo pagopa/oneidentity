@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private final String tagIDP = "IDP";
-  private final String tagUser = "User";
+  private final String tagSAMLStatus = "SAMLStatus";
   private final String tagClient = "Client";
   private final String tagAggregated = "Aggregated";
   private final String tagError = "Error";
@@ -57,7 +57,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   }
 
   @Override
-  public void sendUserRelatedErrorMetricData(String IDP, String client, String errorCode) {
+  public void sendSAMLStatusRelatedErrorMetricData(String IDP, String client, String errorCode) {
     List<Dimension> specificUserIDPErrorDimensions = List.of(
         Dimension.builder()
             .name(tagIDP)
@@ -78,13 +78,14 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
             .value(errorCode)
             .build());
 
-    // Specific IDP User related error
+    // Specific IDP SAMLStatus related error
     cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagUser + tagIDP + tagError, specificUserIDPErrorDimensions));
+        generatePutMetricRequest(tagSAMLStatus + tagIDP + tagError,
+            specificUserIDPErrorDimensions));
 
-    // Specific Client User related error
+    // Specific Client SAMLStatus related error
     cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagUser + tagClient + tagError,
+        generatePutMetricRequest(tagSAMLStatus + tagClient + tagError,
             specificUserClientErrorDimensions));
 
 
