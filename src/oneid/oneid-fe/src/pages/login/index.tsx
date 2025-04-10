@@ -102,7 +102,8 @@ const Login = () => {
       <Box mt={3} ml={3}>
         {clientQuery.data?.backButtonEnabled ? (
           <ButtonNaked
-            color="text"
+            color="primary"
+            sx={{ fontWeight: '700' }}
             onClick={() => window.history.back()}
             size="medium"
             startIcon={<ArrowBackIcon />}

@@ -87,8 +87,8 @@ const Header = ({
         <ImageWithFallback
           style={{
             width: '100%',
-            maxWidth: '48px',
-            maxHeight: '48px',
+            maxWidth: '56px',
+            maxHeight: '56px',
             objectFit: 'cover',
           }}
           src={clientQuery.data?.logoUri}

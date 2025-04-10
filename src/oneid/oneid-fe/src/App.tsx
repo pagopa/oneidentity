@@ -7,6 +7,7 @@ import { redirectToLoginWithParams } from './utils/utils';
 import Logout from './pages/logout/Logout';
 import { LoginError } from './pages/loginError/LoginError';
 import Login from './pages/login';
+import './global.css';
 
 function App() {
   switch (window.location.pathname) {
