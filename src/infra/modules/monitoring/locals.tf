@@ -54,6 +54,12 @@ locals {
     })
   ]
 
+  assertion_counter_widgets = [
+    templatefile("../../dashboards/assertion_counter_widget.tpl.json", {
+      aws_region = var.aws_region
+    })
+  ]
+
   idp_widget_header = {
     "height" : 1,
     "width" : 24,
@@ -99,6 +105,15 @@ locals {
     }
   }
 
+  assertion_counter_widget_header = {
+    "height" : 1,
+    "width" : 24,
+    "type" : "text",
+    "properties" : {
+      "markdown" : "## Assertions Counter\n"
+    }
+  }
+
   detailed_metrics_dashboard_body = jsonencode({
     widgets = concat(
       [local.idp_widget_header],
@@ -110,7 +125,9 @@ locals {
       [local.samlstatus_idp_error_widget_header],
       [for w in local.samlstatus_idp_widgets : jsondecode(w)],
       [local.samlstatus_client_error_widget_header],
-      [for w in local.samlstatus_client_widgets : jsondecode(w)]
+      [for w in local.samlstatus_client_widgets : jsondecode(w)],
+      [local.assertion_counter_widget_header],
+      [for w in local.assertion_counter_widgets : jsondecode(w)]
     )
     }
   )
