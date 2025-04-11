@@ -5,21 +5,23 @@
     "properties": {
       "title": "Saml and Access-Token counter",
       "stat": "Sum",
-      "view": "gauge",
+      "view": "bar",
       "height": 200,
       "width": 1710,
       "region": "${aws_region}",
       "setPeriodToTimeRange": true,
       "stacked": false,
+      "sparkline": false,
+      "trend": false,
+      "legend": {
+        "position": "bottom"
+      },
       "metrics": [
-        [ "Assertions/TestCounter", "AccessToken" ],
-        [ ".", "Saml" ]
-      ],
-      "yAxis": {
-        "left": {
-            "min": 0,
-            "max": 10000
-        }
-    }
+        [ "Assertions/TestCounter", "AccessToken", { "label": "[sum: ${SUM}] AccessToken" } ],
+        [ ".", "Saml", { "label": "[sum: ${SUM}] Saml" } ]
+      ]
     }
   }
+
+
+  
