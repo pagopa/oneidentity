@@ -12,9 +12,9 @@ export const ENV = {
   ENABLED_SPID_TEMPORARY_SELECT:
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
-  ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE === 'true',
-    EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
+  FALLBACK_ASSISTANCE: {
+    ENABLE: import.meta.env.VITE_ENABLE_FALLBACK_ASSISTANCE === 'true',
+    EMAIL: import.meta.env.VITE_PAGOPA_FALLBACK_SUPPORT_EMAIL as string,
   },
 
   JSON_URL: {
@@ -75,7 +75,7 @@ export const ENV = {
 
   CIE_ENTITY_ID: import.meta.env.VITE_CIE_ENTITY_ID as string,
 
-  ANALYTCS: {
+  ANALYTICS: {
     ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
     MOCK: import.meta.env.VITE_ANALYTICS_MOCK === 'true',
     DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',
