@@ -1,0 +1,25 @@
+{
+    "type": "metric",
+    "height": 6,
+    "width": 8,
+    "properties": {
+      "title": "Saml and Access-Token counter",
+      "stat": "Sum",
+      "view": "gauge",
+      "height": 200,
+      "width": 1710,
+      "region": "${aws_region}",
+      "setPeriodToTimeRange": true,
+      "stacked": false,
+      "metrics": [
+        [ "Assertions/TestCounter", "AccessToken" ],
+        [ ".", "Saml" ]
+      ],
+      "yAxis": {
+        "left": {
+            "min": 0,
+            "max": 10000
+        }
+    }
+    }
+  }
