@@ -127,7 +127,7 @@ locals {
       [local.samlstatus_client_error_widget_header],
       [for w in local.samlstatus_client_widgets : jsondecode(w)],
       [local.assertion_counter_widget_header],
-      [local.assertion_counter_widgets]
+      [for w in local.assertion_counter_widgets : jsondecode(w)]
     )
     }
   )
