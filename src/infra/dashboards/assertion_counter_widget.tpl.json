@@ -17,8 +17,8 @@
         "position": "bottom"
       },
       "metrics": [
-        [ "Assertions/TestCounter", "AccessToken", { "label": "[sum: ${SUM}] AccessToken" } ],
-        [ ".", "Saml", { "label": "[sum: ${SUM}] Saml" } ]
+        [ "Assertions/TestCounter", "AccessToken", { "label": "[sum: $${SUM}] AccessToken" } ],
+        [ ".", "Saml", { "label": "[sum: $${SUM}] Saml" } ]
       ]
     }
   }
