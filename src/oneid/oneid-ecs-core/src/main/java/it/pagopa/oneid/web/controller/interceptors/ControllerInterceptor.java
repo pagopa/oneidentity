@@ -110,7 +110,8 @@ public class ControllerInterceptor {
     try {
       session = samlSessionServiceImpl.getSAMLSessionByCode(tokenRequestDTOExtended.getCode());
     } catch (SessionException e) {
-      Log.error("authorization code not found or expired");
+      Log.error(
+          "authorization code: " + tokenRequestDTOExtended.getCode() + " not found or expired");
       throw new InvalidGrantException(clientId);
     }
 
