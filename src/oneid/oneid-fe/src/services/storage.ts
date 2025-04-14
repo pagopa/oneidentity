@@ -53,16 +53,3 @@ export type StorageOps<T> = {
   read: () => T;
   write: (value: T) => void;
 };
-
-/** Build an object with a complete set of operation to perform on the same key */
-export function storageOpsBuilder<T extends StorageValue>(
-  key: string,
-  type: StorageValueType,
-  local: boolean
-): StorageOps<T> {
-  return {
-    delete: () => storageDelete(key, local),
-    read: () => storageRead(key, type, local),
-    write: (value) => storageWrite(key, value, type, local),
-  };
-}

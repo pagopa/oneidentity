@@ -35,11 +35,22 @@ describe('LoginError Component', () => {
   };
 
   beforeEach(() => {
+    const mockStorage = {
+      setItem: vi.fn(),
+      getItem: vi.fn(),
+      length: 0,
+    };
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
         search: '?error_code=19&redirect_uri=https://example.com',
         assign: vi.fn(),
+      },
+    });
+    Object.defineProperty(window, 'sessionStorage', {
+      writable: true,
+      value: {
+        ...mockStorage,
       },
     });
     (useLoginError as Mock).mockReturnValue({
@@ -51,6 +62,7 @@ describe('LoginError Component', () => {
     mockHandleErrorCode.mockReturnValue({
       title: testTitle,
       description: testDescription,
+      haveRetryButton: true,
     });
   });
 
@@ -70,6 +82,21 @@ describe('LoginError Component', () => {
     expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
     expect(screen.getByText(testTitle)).toBeInTheDocument();
     expect(screen.getByText(testDescription)).toBeInTheDocument();
+  });
+
+  it('should not display retry button', () => {
+    mockHandleErrorCode.mockReturnValue({
+      title: testTitle,
+      description: testDescription,
+      haveRetryButton: false,
+    });
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    const retryButton = screen.queryByRole('button', { name: /retry/i });
+    expect(retryButton).not.toBeInTheDocument();
   });
 
   it('should display correct error page for error_code 19', () => {
@@ -235,5 +262,48 @@ describe('LoginError Component', () => {
     fireEvent.click(closeButton);
 
     expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+  });
+
+  it('should redirect to login to make retry possible', () => {
+    const value =
+      '{"scope":"openid","client_id":"client_1","state":"state","nonce":"nonce","redirect_uri":"http://example.com/cb"}';
+    const redirectRetryRoute =
+      '/login?scope=openid&client_id=client_1&state=state&nonce=nonce&redirect_uri=http%3A%2F%2Fexample.com%2Fcb';
+
+    (window.sessionStorage.getItem as Mock).mockReturnValue(value);
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    const retryButton = screen.queryByRole('button', { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+    if (!retryButton) {
+      throw new Error('Retry button not found');
+    }
+    fireEvent.click(retryButton);
+
+    expect(window.location.assign).toHaveBeenCalledWith(redirectRetryRoute);
+  });
+
+  it('should not redirect to login to make retry possible with inconsistent params', () => {
+    const value = '{"scope":"openid","client_id":"client_1"}';
+
+    (window.sessionStorage.getItem as Mock).mockReturnValue(value);
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    const retryButton = screen.queryByRole('button', { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+    if (!retryButton) {
+      throw new Error('Retry button not found');
+    }
+    fireEvent.click(retryButton);
+
+    expect(window.location.assign).not.toHaveBeenCalled();
   });
 });

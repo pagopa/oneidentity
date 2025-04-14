@@ -2,7 +2,27 @@ import { ProductEntity } from '@pagopa/mui-italia';
 import { Client } from '../services/api';
 import { ROUTE_LOGIN } from './constants';
 import { ERROR_CODE } from '../hooks/useLoginError';
-import { storageWrite } from '../services/storage';
+import { storageRead, storageWrite } from '../services/storage';
+
+export type OIDCParameters = {
+  scope: string;
+  client_id: string;
+  state: string;
+  nonce: string;
+  redirect_uri: string;
+};
+
+function isValidOIDCParameters(
+  params: OIDCParameters | unknown
+): params is OIDCParameters {
+  return (
+    (params as OIDCParameters).client_id !== undefined &&
+    (params as OIDCParameters).scope !== undefined &&
+    (params as OIDCParameters).state !== undefined &&
+    (params as OIDCParameters).nonce !== undefined &&
+    (params as OIDCParameters).redirect_uri !== undefined
+  );
+}
 
 export const redirectToLogin = () => {
   window.location.assign(ROUTE_LOGIN);
@@ -12,6 +32,21 @@ export const redirectToLoginWithParams = () => {
   const params = forwardSearchParams();
   const route = params ? `${ROUTE_LOGIN}?${params}` : ROUTE_LOGIN;
   window.location.assign(route);
+};
+
+export const redirectToLoginToRetry = () => {
+  const params = new URLSearchParams();
+  const storedParams = storageRead('oidc_parameters', 'object', false);
+
+  if (storedParams && isValidOIDCParameters(storedParams)) {
+    Object.entries(storedParams).forEach(([key, value]) => {
+      params.set(key, value as string);
+    });
+    console.log('redirectToLoginToRetry', params, storedParams);
+    return `${ROUTE_LOGIN}?${params}`;
+  } else {
+    return null;
+  }
 };
 
 export const redirectToClientWithError = (
