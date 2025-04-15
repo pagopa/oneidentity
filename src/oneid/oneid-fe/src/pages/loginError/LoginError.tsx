@@ -70,7 +70,12 @@ export const LoginError = () => {
       clientRedirectUriSanitized &&
       clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
     ) {
-      redirectToClientWithError(errorCode, clientRedirectUriSanitized(), state);
+      const route = redirectToClientWithError(
+        errorCode,
+        clientRedirectUriSanitized(),
+        state
+      );
+      window.location.assign(route);
     } else {
       redirectToLogin();
     }

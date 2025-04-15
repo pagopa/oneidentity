@@ -42,7 +42,6 @@ export const redirectToLoginToRetry = () => {
     Object.entries(storedParams).forEach(([key, value]) => {
       params.set(key, value as string);
     });
-    console.log('redirectToLoginToRetry', params, storedParams);
     return `${ROUTE_LOGIN}?${params}`;
   } else {
     return null;
@@ -62,8 +61,7 @@ export const redirectToClientWithError = (
   params.set('error', 'access_denied');
   params.set('error_description', errorCode);
   params.set('state', state);
-  const route = `${redirectUri}?${params.toString()}`;
-  window.location.assign(route);
+  return `${redirectUri}?${params.toString()}`;
 };
 
 export const forwardSearchParams = (idp?: string) => {

@@ -1,5 +1,6 @@
 import { describe, it, vi, expect, Mock } from 'vitest';
-import { redirectToLoginToRetry } from './utils';
+import { redirectToClientWithError, redirectToLoginToRetry } from './utils';
+import { ERROR_CODE } from '../hooks/useLoginError';
 
 describe('storage utilities', () => {
   // Mock localStorage and sessionStorage
@@ -60,5 +61,14 @@ describe('storage utilities', () => {
     (window.sessionStorage.getItem as Mock).mockReturnValue(value);
 
     expect(redirectToLoginToRetry()).toBeNull();
+  });
+
+  it('should return correct route using given parameters', () => {
+    const error = ERROR_CODE.CANCELED_BY_USER;
+    const redirectUri = 'http://example.com/cb';
+    const state = 'state';
+    const expectedRoute = `http://example.com/cb?error=access_denied&error_description=${error}&state=state`;
+    const result = redirectToClientWithError(error, redirectUri, state);
+    expect(result).toBe(expectedRoute);
   });
 });
