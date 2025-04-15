@@ -102,6 +102,14 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       JsonMapper mapper = JsonMapper.builder().build();
       JsonNode eventNode = mapper.readTree(json);
 
+      // Update Clients data onto s3 bucket
+      processClientDataAndUpload();
+      Log.info("Clients data uploaded successfully");
+
+      // Flush assets/clients API Gateway cache
+      flushApiGatewayStageCache();
+      Log.info("API Gateway cache flushed successfully");
+
       // DynamodbEvent
       JsonNode records = eventNode.get("Records");
       if (records != null) {
@@ -113,6 +121,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
             Log.info("SPID and CIE metadata uploaded successfully");
           }
         });
+
         return "SPID and CIE metadata uploaded successfully";
       }
 
@@ -120,13 +129,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       processMetadataAndUpload();
       Log.info("SPID and CIE metadata uploaded successfully");
 
-      // Update Clients data onto s3 bucket
-      processClientDataAndUpload();
-      Log.info("Clients data uploaded successfully");
-
-      // Flush assets/clients API Gateway cache
-      flushApiGatewayStageCache();
-      Log.info("API Gateway cache flushed successfully");
 
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
