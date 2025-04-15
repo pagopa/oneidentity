@@ -98,7 +98,7 @@ export const LoginError = () => {
         variantDescription="body1"
         title={errorData.title}
         description={errorData.description}
-        variantButton="contained"
+        variantButton={errorData.haveRetryButton ? 'outlined' : 'contained'}
         labelButton={t('loginError.close')}
         onClickButton={handleRedirect}
         secondLabelButton={t('loginError.retry')}
