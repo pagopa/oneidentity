@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -43,6 +44,8 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
+import software.amazon.awssdk.services.apigateway.model.FlushStageCacheRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -61,10 +64,20 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
   SAMLUtilsExtendedMetadata samlUtils;
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
-  @ConfigProperty(name = "service_metadata.bucket.name")
-  String bucketName;
+  @ConfigProperty(name = "assets.bucket.name")
+  String bucketAssets;
+  @ConfigProperty(name = "assets.bucket.clients.path")
+  String bucketAssetsClientsPath;
+  @ConfigProperty(name = "api_gateway_rest_api_id")
+  String apiGWRestApiId;
+  @ConfigProperty(name = "api_gateway_stage_name")
+  String apiGWStageName;
+
   @Inject
   S3Client s3;
+
+  @Inject
+  ApiGatewayClient apiGatewayClient;
 
   public static String getStringValue(Element element) throws SAMLUtilsException {
     StreamResult result = new StreamResult(new StringWriter());
@@ -107,6 +120,13 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       processMetadataAndUpload();
       Log.info("SPID and CIE metadata uploaded successfully");
 
+      // Update Clients data onto s3 bucket
+      processClientDataAndUpload();
+      Log.info("Clients data uploaded successfully");
+
+      // Flush assets/clients API Gateway cache
+      flushApiGatewayStageCache();
+      Log.info("API Gateway cache flushed successfully");
 
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
@@ -115,6 +135,14 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return "SPID and CIE metadata uploaded successfully";
   }
 
+  private void flushApiGatewayStageCache() {
+
+    apiGatewayClient.flushStageCache(
+        FlushStageCacheRequest.builder()
+            .restApiId(apiGWRestApiId)
+            .stageName((apiGWStageName)).build());
+
+  }
 
   private boolean hasMetadataChanged(JsonNode nodeRecord) {
 
@@ -169,10 +197,10 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return isActiveNew != isActiveOld;
   }
 
-  private void uploadToS3(String objectKey, String content) {
+  private void uploadToS3(String objectKey, String content, String mediaType) {
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-        .bucket(bucketName)
-        .contentType(MediaType.APPLICATION_XML)
+        .bucket(bucketAssets)
+        .contentType(mediaType)
         .key(objectKey)
         .build();
 
@@ -183,6 +211,28 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       Log.error("error during s3 putObject: " + e.getMessage());
       throw new RuntimeException(e);
     }
+  }
+
+  private void processClientDataAndUpload() {
+    Map<String, Client> clientsMap = getClientsMap();
+
+    ArrayList<ClientFE> clientsFe = new ArrayList<>();
+
+    clientsMap.forEach((clientId, client) -> clientsFe.add(new ClientFE(client)));
+
+    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+    clientsFe.forEach(clientFe -> {
+          try {
+            String json = ow.writeValueAsString(clientFe);
+            uploadToS3(bucketAssetsClientsPath + clientFe.getClientID(), json,
+                MediaType.APPLICATION_JSON);
+          } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+          }
+        }
+    );
+
   }
 
   private void processMetadataAndUpload() {
@@ -207,12 +257,12 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
       // Upload spidMetadata to S3 once generated
       CompletableFuture<Void> spidUpload = spidMetadataFuture.thenAcceptAsync(spidMetadata -> {
-        uploadToS3("spid.xml", spidMetadata);
+        uploadToS3("spid.xml", spidMetadata, MediaType.APPLICATION_XML);
       }, executorService);
 
       // Upload cieMetadata to S3 once generated
       CompletableFuture<Void> cieUpload = cieMetadataFuture.thenAcceptAsync(cieMetadata -> {
-        uploadToS3("cie.xml", cieMetadata);
+        uploadToS3("cie.xml", cieMetadata, MediaType.APPLICATION_XML);
       }, executorService);
 
       // Wait for both uploads to finish
