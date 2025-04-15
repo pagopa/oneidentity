@@ -44,8 +44,6 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.apigateway.ApiGatewayClient;
-import software.amazon.awssdk.services.apigateway.model.FlushStageCacheRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -68,16 +66,10 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
   String bucketAssets;
   @ConfigProperty(name = "assets.bucket.clients.path")
   String bucketAssetsClientsPath;
-  @ConfigProperty(name = "api_gateway_rest_api_id")
-  String apiGWRestApiId;
-  @ConfigProperty(name = "api_gateway_stage_name")
-  String apiGWStageName;
 
   @Inject
   S3Client s3;
 
-  @Inject
-  ApiGatewayClient apiGatewayClient;
 
   public static String getStringValue(Element element) throws SAMLUtilsException {
     StreamResult result = new StreamResult(new StringWriter());
@@ -106,10 +98,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       processClientDataAndUpload();
       Log.info("Clients data uploaded successfully");
 
-      // Flush assets/clients API Gateway cache
-      flushApiGatewayStageCache();
-      Log.info("API Gateway cache flushed successfully");
-
       // DynamodbEvent
       JsonNode records = eventNode.get("Records");
       if (records != null) {
@@ -137,14 +125,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return "SPID and CIE metadata uploaded successfully";
   }
 
-  private void flushApiGatewayStageCache() {
-
-    apiGatewayClient.flushStageCache(
-        FlushStageCacheRequest.builder()
-            .restApiId(apiGWRestApiId)
-            .stageName((apiGWStageName)).build());
-
-  }
 
   private boolean hasMetadataChanged(JsonNode nodeRecord) {
 
