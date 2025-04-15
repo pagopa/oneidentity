@@ -4,6 +4,7 @@ const { t } = i18next;
 export type ErrorData = {
   title: string;
   description: string;
+  haveRetryButton: boolean;
 };
 
 export enum ERROR_CODE {
@@ -27,32 +28,39 @@ export enum ERROR_CODE {
 export const GENERIC_ERROR_DATA = {
   title: t('loginError.generic.title'),
   description: t('loginError.generic.description'),
+  haveRetryButton: true,
 };
 
 export const erroMap: Record<ERROR_CODE, ErrorData> = {
   [ERROR_CODE.TOO_MANY_ATTEMPTS]: {
     title: t('loginError.tooManyAttempts.title'),
     description: t('loginError.tooManyAttempts.description'),
+    haveRetryButton: true,
   },
   [ERROR_CODE.INCOMPATIBLE_CREDENTIALS]: {
     title: t('loginError.incompatibleCredentials.title'),
     description: t('loginError.incompatibleCredentials.description'),
+    haveRetryButton: false,
   },
   [ERROR_CODE.AUTH_TIMEOUT]: {
     title: t('loginError.authTimeout.title'),
     description: t('loginError.authTimeout.description'),
+    haveRetryButton: true,
   },
   [ERROR_CODE.DENIED_BY_USER]: {
     title: t('loginError.deniedByUser.title'),
     description: t('loginError.deniedByUser.description'),
+    haveRetryButton: true,
   },
   [ERROR_CODE.SUSPENDED_OR_REVOKED]: {
     title: t('loginError.suspendedOrRevoked.title'),
     description: t('loginError.suspendedOrRevoked.description'),
+    haveRetryButton: false,
   },
   [ERROR_CODE.CANCELED_BY_USER]: {
     title: t('loginError.canceledbyUser.title'),
     description: t('loginError.canceledbyUser.description'),
+    haveRetryButton: true,
   },
   [ERROR_CODE.ID_NOT_SUPPORTED]: GENERIC_ERROR_DATA,
   [ERROR_CODE.MISSING_RESPONSE_TYPE]: GENERIC_ERROR_DATA,

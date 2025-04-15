@@ -5,7 +5,11 @@ import { IllusError } from '@pagopa/mui-italia';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import Layout from '../../components/Layout';
 import EndingPage from '../../components/EndingPage';
-import { redirectToClientWithError, redirectToLogin } from '../../utils/utils';
+import {
+  redirectToClientWithError,
+  redirectToLogin,
+  redirectToLoginToRetry,
+} from '../../utils/utils';
 import {
   ERROR_CODE,
   ErrorData,
@@ -43,8 +47,9 @@ export const LoginError = () => {
 
   const setContent = useCallback(
     (errorCode: ERROR_CODE) => {
-      const { title, description } = handleErrorCode(errorCode);
-      setErrorData({ title, description });
+      const { title, description, haveRetryButton } =
+        handleErrorCode(errorCode);
+      setErrorData({ title, description, haveRetryButton });
       setLoading(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,7 +70,12 @@ export const LoginError = () => {
       clientRedirectUriSanitized &&
       clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
     ) {
-      redirectToClientWithError(errorCode, clientRedirectUriSanitized(), state);
+      const route = redirectToClientWithError(
+        errorCode,
+        clientRedirectUriSanitized(),
+        state
+      );
+      window.location.assign(route);
     } else {
       redirectToLogin();
     }
@@ -75,6 +85,13 @@ export const LoginError = () => {
     errorCode,
     state,
   ]);
+
+  const handleRetry = useCallback(() => {
+    const route = redirectToLoginToRetry();
+    if (errorData?.haveRetryButton && route) {
+      window.location.assign(route);
+    }
+  }, [errorData]);
 
   return loading || !errorData ? (
     <LoadingOverlay loadingText="" />
@@ -86,9 +103,13 @@ export const LoginError = () => {
         variantDescription="body1"
         title={errorData.title}
         description={errorData.description}
-        variantButton="contained"
+        variantButton={errorData.haveRetryButton ? 'outlined' : 'contained'}
         labelButton={t('loginError.close')}
         onClickButton={handleRedirect}
+        secondLabelButton={t('loginError.retry')}
+        secondVariantButton="contained"
+        onSecondButtonClick={handleRetry}
+        haveTwoButtons={errorData.haveRetryButton}
       />
     </Layout>
   );

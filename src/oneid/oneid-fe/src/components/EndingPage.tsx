@@ -29,9 +29,13 @@ type EndingPageProps = {
   onClickButton?: ButtonProps['onClick'];
   labelButton?: React.ReactNode;
   variantButton?: ButtonOwnProps['variant'];
+  /** The ending page second button if any */
+  secondLabelButton?: React.ReactNode;
+  onSecondButtonClick?: () => void;
+  secondVariantButton?: ButtonOwnProps['variant'];
+  haveTwoButtons?: boolean;
 };
 
-/** Ending Page */
 const EndingPage = ({
   description,
   icon,
@@ -42,6 +46,10 @@ const EndingPage = ({
   variantButton = 'contained',
   variantDescription,
   variantTitle,
+  secondLabelButton,
+  onSecondButtonClick,
+  secondVariantButton = 'outlined',
+  haveTwoButtons = false,
 }: EndingPageProps) => (
   <Stack
     sx={{
@@ -60,15 +68,19 @@ const EndingPage = ({
         {description}
       </Typography>
     </Stack>
-    {labelButton && (
-      <Button
-        variant={variantButton}
-        onClick={onClickButton}
-        sx={{ marginTop: 2 }}
-      >
-        {labelButton}
-      </Button>
-    )}
+
+    <Stack direction="row" spacing={2} marginTop={2}>
+      {labelButton && (
+        <Button variant={variantButton} onClick={onClickButton}>
+          {labelButton}
+        </Button>
+      )}
+      {haveTwoButtons && (
+        <Button variant={secondVariantButton} onClick={onSecondButtonClick}>
+          {secondLabelButton}
+        </Button>
+      )}
+    </Stack>
 
     {paragraph && (
       <Typography variant={variantDescription}>{paragraph}</Typography>
