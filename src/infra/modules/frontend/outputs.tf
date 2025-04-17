@@ -18,3 +18,15 @@ output "api_name" {
 output "rest_api_id" {
   value = module.rest_api.rest_api_id
 }
+
+output "rest_api_execution_arn" {
+  value = module.rest_api.rest_api_execution_arn
+}
+
+output "rest_api_stage_name" {
+  value = module.rest_api.rest_api_stage_name
+}
+
+output "rest_api_arn" {
+  value = module.rest_api.rest_api_arn
+}
