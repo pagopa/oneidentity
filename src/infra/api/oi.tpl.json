@@ -370,14 +370,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'application/json'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'"
-              },
-              "headers": {
-                "Access-Control-Allow-Origin": {
-                "schema": {
-                    "type": "string"
-                }
+                "method.response.header.content-type": "'application/json'"
               }
             }
             },
@@ -429,6 +422,12 @@
                 "schema": {
                   "$ref": "#/components/schemas/ClientRegistration"
                 }
+              }
+            },
+            "headers": {
+                "Access-Control-Allow-Origin": {
+                "schema": {
+                    "type": "string"
               }
             }
           },
