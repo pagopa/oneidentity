@@ -370,9 +370,9 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
+                "method.response.header.content-type": "'application/json'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
               }
-            }
             },
             "400": {
               "statusCode": "400",
@@ -428,6 +428,7 @@
                 "Access-Control-Allow-Origin": {
                 "schema": {
                     "type": "string"
+                }
               }
             }
           },
@@ -503,7 +504,7 @@
                 }
             }
         }
-    }
+      }
     },
     "/monitor/{type}/status": {
       "get": {
