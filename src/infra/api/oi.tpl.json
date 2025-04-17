@@ -361,7 +361,7 @@
         "operationId": "Get_oidc_register_config",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
+          "passthroughBehavior": "never",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -425,7 +425,7 @@
               }
             },
             "headers": {
-                "Access-Control-Allow-Origin": {
+              "Access-Control-Allow-Origin": {
                 "schema": {
                     "type": "string"
                 }
@@ -464,6 +464,14 @@
         "tags": [
             "CORS"
         ],
+        "parameters" : [ {
+          "name" : "client_id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses": {
             "200": {
                 "description": "Default response for CORS method",
@@ -493,13 +501,17 @@
                 "application/json": "{\"statusCode\": 200}"
             },
             "passthroughBehavior": "never",
+            "contentHandling" : "CONVERT_TO_TEXT",
             "responses": {
                 "default": {
                     "statusCode": "200",
                     "responseParameters": {
-                        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
-                        "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
-                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                      "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                      "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    },
+                    "responseTemplates" : {
+                      "application/json" : "{\"statusCode\": 200}"
                     }
                 }
             }
