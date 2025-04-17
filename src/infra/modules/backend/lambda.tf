@@ -789,7 +789,7 @@ module "invalidate_cache_lambda" {
   function_name           = var.invalidate_cache_lambda.name
   description             = "Lambda function invalidate cache."
   runtime                 = "python3.12"
-  handler                 = "lambda.lambda_handler"
+  handler                 = "index.lambda_handler"
   create_package          = false
   local_existing_package  = var.invalidate_cache_lambda.filename
   ignore_source_code_hash = true
