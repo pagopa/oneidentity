@@ -126,8 +126,10 @@ No modules.
 | <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | n/a |
 | <a name="output_regional_domain_name"></a> [regional\_domain\_name](#output\_regional\_domain\_name) | n/a |
 | <a name="output_regional_zone_id"></a> [regional\_zone\_id](#output\_regional\_zone\_id) | n/a |
+| <a name="output_rest_api_arn"></a> [rest\_api\_arn](#output\_rest\_api\_arn) | n/a |
 | <a name="output_rest_api_execution_arn"></a> [rest\_api\_execution\_arn](#output\_rest\_api\_execution\_arn) | n/a |
 | <a name="output_rest_api_id"></a> [rest\_api\_id](#output\_rest\_api\_id) | n/a |
 | <a name="output_rest_api_invoke_url"></a> [rest\_api\_invoke\_url](#output\_rest\_api\_invoke\_url) | n/a |
 | <a name="output_rest_api_name"></a> [rest\_api\_name](#output\_rest\_api\_name) | n/a |
+| <a name="output_rest_api_stage_name"></a> [rest\_api\_stage\_name](#output\_rest\_api\_stage\_name) | n/a |
 <!-- END_TF_DOCS -->

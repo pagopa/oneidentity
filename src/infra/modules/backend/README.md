@@ -144,12 +144,14 @@
 | <a name="module_ecs_core_service"></a> [ecs\_core\_service](#module\_ecs\_core\_service) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
 | <a name="module_idp_metadata_lambda"></a> [idp\_metadata\_lambda](#module\_idp\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_invalidate_cache_lambda"></a> [invalidate\_cache\_lambda](#module\_invalidate\_cache\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_is_gh_integration_lambda"></a> [is\_gh\_integration\_lambda](#module\_is\_gh\_integration\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_jwt_sign"></a> [jwt\_sign](#module\_jwt\_sign) | terraform-aws-modules/kms/aws | 2.2.1 |
 | <a name="module_kms_key_pem"></a> [kms\_key\_pem](#module\_kms\_key\_pem) | terraform-aws-modules/kms/aws | 3.0.0 |
 | <a name="module_metadata_lambda"></a> [metadata\_lambda](#module\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#module\_retrieve\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#module\_s3\_lambda\_code\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_security_group_invalidate_cache_lambda"></a> [security\_group\_invalidate\_cache\_lambda](#module\_security\_group\_invalidate\_cache\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
@@ -183,6 +185,7 @@
 | [aws_iam_role_policy_attachment.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.switch_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_event_source_mapping.invalidate_cache_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping) | resource |
 | [aws_lambda_event_source_mapping.trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping) | resource |
 | [aws_lambda_permission.cert_key_changes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
@@ -198,6 +201,7 @@
 | [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.invalidate_cache_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.is_gh_integration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.retrieve_status_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -234,6 +238,7 @@
 | <a name="input_hosted_zone_id"></a> [hosted\_zone\_id](#input\_hosted\_zone\_id) | Hosted zone id for IAM Role | `string` | `"Z065844519UG4CA4QH19U"` | no |
 | <a name="input_idp_alarm"></a> [idp\_alarm](#input\_idp\_alarm) | n/a | <pre>object({<br>    namespace = string<br>    entity_id = list(string)<br>  })</pre> | `null` | no |
 | <a name="input_idp_metadata_lambda"></a> [idp\_metadata\_lambda](#input\_idp\_metadata\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    environment_variables             = map(string)<br>    s3_idp_metadata_bucket_arn        = string<br>    s3_idp_metadata_bucket_id         = string<br>    vpc_id                            = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_s3_prefix_id                  = string<br>    cloudwatch_logs_retention_in_days = number<br>  })</pre> | n/a | yes |
+| <a name="input_invalidate_cache_lambda"></a> [invalidate\_cache\_lambda](#input\_invalidate\_cache\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    vpc_endpoint_apigw_prefix_id      = string<br>    vpc_endpoint_dynamodb_prefix_id   = string<br>    vpc_subnet_ids                    = list(string)<br>    vpc_id                            = string<br>    rest_api_execution_arn            = string<br>    rest_api_arn                      = string<br>  })</pre> | n/a | yes |
 | <a name="input_is_gh_integration_lambda"></a> [is\_gh\_integration\_lambda](#input\_is\_gh\_integration\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    sns_topic_arn                     = optional(string, null)<br>    cloudwatch_logs_retention_in_days = string<br>    ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")<br>    environment_variables             = map(string)<br>  })</pre> | n/a | yes |
 | <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
 | <a name="input_kms_sessions_table_alias_arn"></a> [kms\_sessions\_table\_alias\_arn](#input\_kms\_sessions\_table\_alias\_arn) | Kms key used to encrypt and decrypt session table. | `string` | n/a | yes |
