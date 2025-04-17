@@ -861,12 +861,19 @@ module "security_group_invalidate_cache_lambda" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
-    var.invalidate_cache_lambda.vpc_endpoint_apigw_prefix_id,
     var.invalidate_cache_lambda.vpc_endpoint_dynamodb_prefix_id
   ]
 
-  # egress_rules = ["https-443-tcp"]
+  egress_rules = ["https-443-tcp"]
 
+}
+
+resource "aws_vpc_security_group_egress_rule" "invalidate_cache_sec_group_egress_rule" {
+  security_group_id            = module.security_group_invalidate_cache_lambda.security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.invalidate_cache_lambda.vpc_tls_security_group_endpoint_id
 }
 
 resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {

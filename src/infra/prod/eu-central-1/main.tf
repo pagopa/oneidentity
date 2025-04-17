@@ -165,15 +165,15 @@ module "backend" {
   ssm_cert_key = var.ssm_cert_key
 
   invalidate_cache_lambda = {
-    name                              = format("%s-invalidate-cache", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
-    vpc_endpoint_apigw_prefix_id      = module.network.vpc_endpoints["apigw"]["prefix_list_id"]
-    vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    rest_api_execution_arn            = module.frontend.rest_api_execution_arn
-    rest_api_arn                      = module.frontend.rest_api_arn
+    name                               = format("%s-invalidate-cache", local.project)
+    filename                           = "${path.module}/../../hello-python/lambda.zip"
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    rest_api_execution_arn             = module.frontend.rest_api_execution_arn
+    rest_api_arn                       = module.frontend.rest_api_arn
     environment_variables = {
       REST_API_ID = module.frontend.rest_api_id
       STAGE_NAME  = module.frontend.rest_api_stage_name
