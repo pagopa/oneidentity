@@ -33,6 +33,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginForm />} />
           <Route path="/dashboard" element={<ProtectedRoute />} />
+          <Route path="/dashboard/:client_id" element={<ProtectedRoute />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -1,5 +1,4 @@
-import { LangCode } from '@pagopa/mui-italia';
-export interface LoginResponse {
+export type LoginResponse = {
   valid: boolean;
   client_id?: string;
 }
@@ -17,56 +16,38 @@ export enum SamlAttribute {
   FISCAL_NUMBER = 'fiscalNumber',
 }
 
-export interface ClientData {
+export type Client = {
   client_id: string;
   client_secret?: string;
   client_id_issued_at?: number;
   client_secret_expires_at?: number;
   client_name: string;
-  policy_uri?: string;
-  tos_uri?: string;
-  redirect_uris: string[];
-  saml_requested_attributes: SamlAttribute[];
-  logo_uri?: string;
-  default_acr_values: SpidLevel[];
-}
-
-export type Client = {
-  clientID: string;
-  friendlyName: string;
   logoUri: string;
-  policyUri: string;
-  tosUri: string;
-  docUri: string;
-  a11yUri: string;
-  cookieUri: string;
-  callbackURI: Array<string>;
-  supportAddress: string;
-  backButtonEnabled: boolean;
-  localizedContentMap: Record<
-    LangCode,
-    Record<'title' | 'description', string>
-  >;
+  policy_uri: string;
+  tos_uri: string;
+  redirect_uris: Array<string>;
+  saml_requested_attributes: Array<SamlAttribute>;
+  logo_uri?: string;
+  default_acr_values: Array<SpidLevel>;
 };
 
 export type ClientFormData = Omit<
-  ClientData,
+  Client,
   | 'client_id'
   | 'client_secret'
   | 'client_id_issued_at'
   | 'client_secret_expires_at'
 >;
 
-export interface RegisterClientRequest
-  extends Omit<ClientData, 'client_id' | 'client_secret'> {
+export type RegisterClientRequest = {
   // Fields that can be submitted in the form
-}
+} & Omit<Client, 'client_id' | 'client_secret'>;
 
-export interface LoginError {
+export type LoginError = {
   message: string;
   status: number;
-}
+};
 
-export interface FormData extends LoginResponse {
+export type FormData = {
   // Add any additional fields needed for the form
-}
+} & LoginResponse;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LoginResponse, ClientData } from '../types/api';
+import { LoginResponse, Client } from '../types/api';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
 
@@ -10,12 +10,11 @@ const api = axios.create({
   },
 });
 
-
 export const verifyToken = async (token: string): Promise<LoginResponse> => {
   try {
     const response = await api.get<LoginResponse>(`${ENV.URL_API.LOGIN}`, {
       headers: {
-        'x-api-key': token,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -25,41 +24,53 @@ export const verifyToken = async (token: string): Promise<LoginResponse> => {
 };
 
 export const getClientData = async (
-  clientId: string,
+  clientId: string | undefined,
   token: string
-): Promise<ClientData | null> => {
+): Promise<Client> => {
+  if (!clientId) {
+    throw new Error('Client ID is required');
+  }
+  const out =
+    '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
+  return JSON.parse(out);
   try {
-    const response = await api.get<ClientData>(
+    const response = await api.get<Client>(
       `${ENV.URL_API.REGISTER}/${clientId}`,
       {
+        withCredentials: false,
         headers: {
-          'x-api-key': token,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null; // Client doesn't exist yet
+      throw new Error('Client not found');
     }
-    throw error;
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Failed to fetch client data'
+      );
+    }
+    throw new Error('An unknown error occurred');
   }
 };
 
 export const createOrUpdateClient = async (
-  data: Partial<Omit<ClientData, 'client_id' | 'client_secret'>>,
+  data: Partial<Omit<Client, 'client_id' | 'client_secret'>>,
   token: string,
   clientId?: string
-): Promise<ClientData> => {
+): Promise<Client> => {
   try {
     const url = clientId
       ? `${ENV.URL_API.REGISTER}/${clientId}`
       : ENV.URL_API.REGISTER;
     const method = clientId ? 'put' : 'post';
 
-    const response = await api[method]<ClientData>(url, data, {
+    const response = await api[method]<Client>(url, data, {
       headers: {
-        'x-api-key': token,
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;

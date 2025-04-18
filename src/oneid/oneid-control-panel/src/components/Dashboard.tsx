@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -12,54 +12,72 @@ import {
   FormControl,
   InputLabel,
   OutlinedInput,
-  Alert,
   CircularProgress,
+  Alert,
+  Fab,
+  InputAdornment,
+  FormGroup,
 } from '@mui/material';
-// import { useClient, useUpdateClient } from '../hooks/useClient';
-import { useNavigate } from 'react-router-dom';
-import { ClientData, SpidLevel, SamlAttribute } from '../types/api';
+import { useParams } from 'react-router-dom';
+import { SpidLevel, SamlAttribute, Client } from '../types/api';
 import { useAuth } from 'react-oidc-context';
-import { useAuthSignoutRedirect } from '../services/api';
 import { ENV } from '../utils/env';
-import { red } from '@mui/material/colors';
-import { r } from 'react-router/dist/development/fog-of-war-oa9CGk10';
+import { useClient } from '../hooks/useClient';
+import { Add, Delete } from '@mui/icons-material';
 
 export const Dashboard = () => {
   const { user, isAuthenticated, removeUser, signoutRedirect } = useAuth();
-  const [formData, setFormData] = useState<Partial<ClientData> | null>(
-    user?.profile
-  );
-  const navigate = useNavigate();
+  const { client_id } = useParams(); // Get the client_id from the URL
+  const [formData, setFormData] = useState<Partial<Client> | null>(null);
+  const [redirectUris, setRedirectUris] = useState<Array<string>>(['']);
 
-  // const {
-  //   clientData: fetchedClientData,
-  //   isLoading: isLoadingClient,
-  //   error: fetchError,
-  // } = useClient('asd'); // Replace 'asd' with the actual client ID
+  const {
+    clientQuery: {
+      data: fetchedClientData,
+      isLoading: isLoadingClient,
+      error: fetchError,
+    },
+  } = useClient(client_id); // Replace 'asd' with the actual client ID
 
-  // useEffect(() => {
-  //   if (fetchedClientData) {
-  //     setFormData(fetchedClientData);
-  //   }
-  // }, [fetchedClientData]);
+  useEffect(() => {
+    if (fetchedClientData) {
+      setFormData({ ...fetchedClientData, client_id });
+      console.log('Fetched client data:', fetchedClientData);
+      setRedirectUris(fetchedClientData.redirect_uris || ['']);
+    }
+  }, [client_id, fetchedClientData]);
 
-  // const {
-  //   mutate: updateClient,
-  //   isPending: isUpdating,
-  //   error: updateError,
-  // } = useUpdateClient();
+  useEffect(() => {
+    if (isAuthenticated) {
+      // console.log('User is authenticated', user, client_id);
+    }
+  }, [client_id, isAuthenticated, user]);
+
+  const isFormValid = () => {
+    return (
+      !!formData?.client_name &&
+      !!formData?.redirect_uris?.length &&
+      !!formData?.default_acr_values?.length &&
+      !!formData?.saml_requested_attributes?.length
+    );
+  };
+  // if (!formData) return null;
+
+  const handleAddRedirectUri = () => {
+    setRedirectUris((prev) => [...prev, '']);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData) return;
 
-    const {
-      client_id,
-      client_secret,
-      client_id_issued_at,
-      client_secret_expires_at,
-      ...submitData
-    } = formData;
+    // const {
+    //   client_id,
+    //   client_secret,
+    //   client_id_issued_at,
+    //   client_secret_expires_at,
+    //   ...submitData
+    // } = formData;
 
     // updateClient({
     //   data: submitData,
@@ -80,7 +98,7 @@ export const Dashboard = () => {
     });
   }
   const handleChange =
-    (field: keyof ClientData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof Client) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
@@ -89,31 +107,13 @@ export const Dashboard = () => {
     signout();
   };
 
-  const isFormValid = () => {
-    return !!formData?.client_name;
-  };
-
-  // if (isLoadingClient) {
-  //   return (
-  //     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-  //       <CircularProgress />
-  //     </Box>
-  //   );
-  // }
-
-  // if (fetchError) {
-  //   return (
-  //     <Box sx={{ mt: 4 }}>
-  //       <Alert severity="error">
-  //         {fetchError instanceof Error
-  //           ? fetchError.message
-  //           : 'An error occurred'}
-  //       </Alert>
-  //     </Box>
-  //   );
-  // }
-
-  // if (!formData) return null;
+  if (isLoadingClient) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -132,6 +132,15 @@ export const Dashboard = () => {
           </Button>
         </Toolbar>
       </AppBar>
+      {fetchError && (
+        <Box sx={{ mt: 4 }}>
+          <Alert severity="error">
+            {fetchError instanceof Error
+              ? fetchError.message
+              : 'An error occurred'}
+          </Alert>
+        </Box>
+      )}
       <Typography variant="h6" sx={{ mt: 2 }}>
         User: {user?.profile?.email}
       </Typography>
@@ -194,6 +203,56 @@ export const Dashboard = () => {
         />
 
         <FormControl fullWidth margin="normal">
+          <Box component="section" sx={{ p: 5, border: '1px dashed grey' }}>
+            <InputLabel>Redirect URIs</InputLabel>
+            {redirectUris.map((uri, index) => (
+              <TextField
+                key={index}
+                label={`Redirect URI ${index + 1}`}
+                value={uri}
+                sx={{ width: '100%' }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="start">
+                      <Delete
+                        onClick={() => {
+                          const newUris = redirectUris
+                            .slice(0, index)
+                            .concat(redirectUris.slice(index + 1));
+                          console.log('Delete URI:', newUris);
+
+                          setRedirectUris(newUris);
+                          setFormData((prev) => ({
+                            ...prev,
+                            redirect_uris: newUris,
+                          }));
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) => {
+                  const newUris = [...(formData?.redirect_uris || [])];
+                  newUris[index] = e.target.value as string;
+                  setFormData((prev) => ({
+                    ...prev,
+                    redirect_uris: newUris,
+                  }));
+                }}
+                margin="normal"
+              />
+            ))}
+            <Fab
+              color="primary"
+              aria-label="add"
+              onClick={handleAddRedirectUri}
+            >
+              <Add />
+            </Fab>
+          </Box>
+        </FormControl>
+
+        {/* <FormControl fullWidth margin="normal">
           <InputLabel>Redirect URIs</InputLabel>
           <Select
             multiple
@@ -219,7 +278,10 @@ export const Dashboard = () => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+          <Fab color="primary" aria-label="add">
+            <Add />
+          </Fab>
+        </FormControl> */}
 
         <FormControl fullWidth margin="normal">
           <InputLabel>SPID Level</InputLabel>
@@ -271,8 +333,9 @@ export const Dashboard = () => {
           variant="contained"
           sx={{ mt: 2 }}
           // disabled={isUpdating || !isFormValid()}
+          disabled={!isFormValid()}
         >
-          as
+          Save Changes
           {/* {isUpdating ? 'Saving...' : 'Save Changes'} */}
         </Button>
         {isAuthenticated && (
