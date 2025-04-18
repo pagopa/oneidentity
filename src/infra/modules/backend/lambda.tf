@@ -861,11 +861,10 @@ module "security_group_invalidate_cache_lambda" {
 
   # Prefix list ids to use in all egress rules in this module
   egress_prefix_list_ids = [
-    var.invalidate_cache_lambda.vpc_endpoint_apigw_prefix_id,
     var.invalidate_cache_lambda.vpc_endpoint_dynamodb_prefix_id
   ]
 
-  # egress_rules = ["https-443-tcp"]
+  #egress_rules = ["https-443-tcp"]
 
 }
 
