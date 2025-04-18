@@ -361,7 +361,7 @@
         "operationId": "Get_oidc_register_config",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
+          "passthroughBehavior": "never",
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -370,7 +370,8 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
+                "method.response.header.content-type": "'application/json'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
               }
             },
             "400": {
@@ -422,6 +423,13 @@
                   "$ref": "#/components/schemas/ClientRegistration"
                 }
               }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                    "type": "string"
+                }
+              }
             }
           },
           "400": {
@@ -449,6 +457,65 @@
           }
         ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+      },
+      "options": {
+        "summary": "CORS support",
+        "description": "Enable CORS by returning correct headers\n",
+        "tags": [
+            "CORS"
+        ],
+        "parameters" : [ {
+          "name" : "client_id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses": {
+            "200": {
+                "description": "Default response for CORS method",
+                "headers": {
+                    "Access-Control-Allow-Origin": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "Access-Control-Allow-Methods": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "Access-Control-Allow-Headers": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "content": {}
+            }
+        },
+        "x-amazon-apigateway-integration": {
+            "type": "mock",
+            "requestTemplates": {
+                "application/json": "{\"statusCode\": 200}"
+            },
+            "passthroughBehavior": "never",
+            "contentHandling" : "CONVERT_TO_TEXT",
+            "responses": {
+                "default": {
+                    "statusCode": "200",
+                    "responseParameters": {
+                      "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                      "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                      "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    },
+                    "responseTemplates" : {
+                      "application/json" : "{\"statusCode\": 200}"
+                    }
+                }
+            }
+        }
       }
     },
     "/monitor/{type}/status": {
