@@ -807,7 +807,9 @@ module "invalidate_cache_lambda" {
   attach_network_policy = true
 
   vpc_subnet_ids         = var.invalidate_cache_lambda.vpc_subnet_ids
-  vpc_security_group_ids = [module.security_group_invalidate_cache_lambda.security_group_id]
+  vpc_security_group_ids = [
+    module.security_group_invalidate_cache_lambda.security_group_id
+    ]
 
   allowed_triggers = {
     dynamodb = {
