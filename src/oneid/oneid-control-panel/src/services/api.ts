@@ -57,8 +57,45 @@ export const getClientData = async (
   }
 };
 
+const isInvalidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return false;
+  } catch (e) {
+    return true;
+  }
+};
+
+const simulateErrors = (c: Omit<Client, 'client_id' | 'client_secret'>) => {
+  const errors = {};
+  if (c.client_name === '') {
+    errors.client_name = 'Client name is required';
+  }
+  // if url is present and valid
+  if (c.redirect_uris.length === 0 || c.redirect_uris.some(isInvalidUrl)) {
+    errors.redirect_uris = 'At least one VALID redirect URI is required';
+  }
+  if (c.default_acr_values.length === 0) {
+    errors.default_acr_values = 'At least one default ACR value is required';
+  }
+  if (c.saml_requested_attributes.length === 0) {
+    errors.saml_requested_attributes =
+      'At least one SAML requested attribute is required';
+  }
+  if (c.logo_uri && isInvalidUrl(c.logo_uri)) {
+    errors.logo_uri = 'Logo URI is invalid';
+  }
+  if (c.policy_uri && isInvalidUrl(c.policy_uri)) {
+    errors.policy_uri = 'Policy URI is invalid';
+  }
+  if (c.tos_uri && isInvalidUrl(c.tos_uri)) {
+    errors.tos_uri = 'TOS URI is invalid';
+  }
+  return errors;
+};
+
 export const createOrUpdateClient = async (
-  data: Partial<Omit<Client, 'client_id' | 'client_secret'>>,
+  data: Omit<Client, 'client_id' | 'client_secret'>,
   token: string,
   clientId?: string
 ): Promise<Client> => {
@@ -67,6 +104,20 @@ export const createOrUpdateClient = async (
       ? `${ENV.URL_API.REGISTER}/${clientId}`
       : ENV.URL_API.REGISTER;
     const method = clientId ? 'put' : 'post';
+    console.log('Creating or updating client:', data, clientId);
+
+    const errors = simulateErrors(data);
+    if (Object.keys(errors).length > 0) {
+      return Promise.reject(simulateErrors(data));
+    }
+
+    return Promise.resolve({
+      ...data,
+      client_id: clientId || 'xxx',
+      client_secret: 'xxx',
+      client_id_issued_at: 1234567890,
+      client_secret_expires_at: 1234567890,
+    });
 
     const response = await api[method]<Client>(url, data, {
       headers: {

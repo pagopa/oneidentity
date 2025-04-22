@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Client, ClientData } from '../types/api';
+import { Client } from '../types/api';
 import { getClientData, createOrUpdateClient } from '../services/api';
 import { useAuth } from 'react-oidc-context';
 
@@ -44,11 +44,14 @@ export const useClient = (clientId?: string) => {
   });
 
   const createOrUpdateClientMutation = useMutation({
+    onError(error) {
+      console.error('Error creating or updating client:', error);
+    },
     mutationFn: async ({
       data,
       clientId,
     }: {
-      data: Partial<Omit<ClientData, 'client_id' | 'client_secret'>>;
+      data: Omit<Client, 'client_id' | 'client_secret'>;
       clientId?: string;
     }) => {
       return withTimeout(
@@ -60,6 +63,6 @@ export const useClient = (clientId?: string) => {
 
   return {
     clientQuery,
-    createOrUpdateClient: createOrUpdateClientMutation,
+    createOrUpdateClientMutation,
   };
 };

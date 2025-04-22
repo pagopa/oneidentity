@@ -39,9 +39,8 @@ export type Client = {
   client_id_issued_at?: number;
   client_secret_expires_at?: number;
   client_name: string;
-  logoUri: string;
-  policy_uri: string;
-  tos_uri: string;
+  policy_uri?: string;
+  tos_uri?: string;
   redirect_uris: Array<string>;
   saml_requested_attributes: Array<SamlAttribute>;
   logo_uri?: string;
