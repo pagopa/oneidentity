@@ -6,7 +6,6 @@ import {
   Typography,
   AppBar,
   Toolbar,
-  Chip,
   Select,
   MenuItem,
   FormControl,
@@ -14,22 +13,20 @@ import {
   OutlinedInput,
   CircularProgress,
   Alert,
-  Fab,
-  InputAdornment,
-  FormGroup,
+  Chip,
+  FormHelperText,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { SpidLevel, SamlAttribute, Client } from '../types/api';
 import { useAuth } from 'react-oidc-context';
 import { ENV } from '../utils/env';
 import { useClient } from '../hooks/useClient';
-import { Add, Delete } from '@mui/icons-material';
+import { FormArrayTextField } from './FormArrayTextField';
 
 export const Dashboard = () => {
   const { user, isAuthenticated, removeUser, signoutRedirect } = useAuth();
   const { client_id } = useParams(); // Get the client_id from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
-  const [redirectUris, setRedirectUris] = useState<Array<string>>(['']);
 
   const {
     clientQuery: {
@@ -37,13 +34,11 @@ export const Dashboard = () => {
       isLoading: isLoadingClient,
       error: fetchError,
     },
-  } = useClient(client_id); // Replace 'asd' with the actual client ID
+  } = useClient(client_id);
 
   useEffect(() => {
     if (fetchedClientData) {
       setFormData({ ...fetchedClientData, client_id });
-      console.log('Fetched client data:', fetchedClientData);
-      setRedirectUris(fetchedClientData.redirect_uris || ['']);
     }
   }, [client_id, fetchedClientData]);
 
@@ -63,12 +58,10 @@ export const Dashboard = () => {
   };
   // if (!formData) return null;
 
-  const handleAddRedirectUri = () => {
-    setRedirectUris((prev) => [...prev, '']);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted', formData);
+
     if (!formData) return;
 
     // const {
@@ -203,91 +196,32 @@ export const Dashboard = () => {
         />
 
         <FormControl fullWidth margin="normal">
-          <Box component="section" sx={{ p: 5, border: '1px dashed grey' }}>
-            <InputLabel>Redirect URIs</InputLabel>
-            {redirectUris.map((uri, index) => (
-              <TextField
-                key={index}
-                label={`Redirect URI ${index + 1}`}
-                value={uri}
-                sx={{ width: '100%' }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="start">
-                      <Delete
-                        onClick={() => {
-                          const newUris = redirectUris
-                            .slice(0, index)
-                            .concat(redirectUris.slice(index + 1));
-                          console.log('Delete URI:', newUris);
-
-                          setRedirectUris(newUris);
-                          setFormData((prev) => ({
-                            ...prev,
-                            redirect_uris: newUris,
-                          }));
-                        }}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
-                onChange={(e) => {
-                  const newUris = [...(formData?.redirect_uris || [])];
-                  newUris[index] = e.target.value as string;
-                  setFormData((prev) => ({
-                    ...prev,
-                    redirect_uris: newUris,
-                  }));
-                }}
-                margin="normal"
-              />
-            ))}
-            <Fab
-              color="primary"
-              aria-label="add"
-              onClick={handleAddRedirectUri}
-            >
-              <Add />
-            </Fab>
-          </Box>
+          <FormArrayTextField
+            formData={formData}
+            setFormData={setFormData}
+            fieldName="redirect_uris"
+            label="Redirect URIs"
+          />
         </FormControl>
-
-        {/* <FormControl fullWidth margin="normal">
-          <InputLabel>Redirect URIs</InputLabel>
-          <Select
-            multiple
-            value={formData?.redirect_uris || []}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                redirect_uris: e.target.value as Array<string>,
-              }))
-            }
-            input={<OutlinedInput label="Redirect URIs" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
-          >
-            {formData?.redirect_uris?.map((uri) => (
-              <MenuItem key={uri} value={uri}>
-                {uri}
-              </MenuItem>
-            ))}
-          </Select>
-          <Fab color="primary" aria-label="add">
-            <Add />
-          </Fab>
-        </FormControl> */}
 
         <FormControl fullWidth margin="normal">
           <InputLabel>SPID Level</InputLabel>
           <Select
             multiple
             value={formData?.default_acr_values || []}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip
+                    key={value}
+                    label={value.replace(
+                      'https://www.spid.gov.it/Spid',
+                      'Level '
+                    )}
+                  />
+                ))}
+              </Box>
+            )}
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
@@ -326,6 +260,18 @@ export const Dashboard = () => {
               </MenuItem>
             ))}
           </Select>
+          <FormHelperText>
+            Lista completa:{' '}
+            <Link
+              target="_blank"
+              rel="noopener noreferrer"
+              to={
+                'https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html'
+              }
+            >
+              Qui
+            </Link>
+          </FormHelperText>
         </FormControl>
 
         <Button

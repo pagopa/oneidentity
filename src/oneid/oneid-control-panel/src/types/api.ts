@@ -1,10 +1,10 @@
 export type LoginResponse = {
   valid: boolean;
   client_id?: string;
-}
+};
 
 export enum SpidLevel {
-  L1 = 'https://www.spid.gov.it/SpidL1',
+  // L1 = 'https://www.spid.gov.it/SpidL1',
   L2 = 'https://www.spid.gov.it/SpidL2',
   L3 = 'https://www.spid.gov.it/SpidL3',
 }
@@ -14,6 +14,23 @@ export enum SamlAttribute {
   NAME = 'name',
   FAMILY_NAME = 'familyName',
   FISCAL_NUMBER = 'fiscalNumber',
+  DATE_OF_BIRTH = 'dateOfBirth',
+  PLACE_OF_BIRTH = 'placeOfBirth',
+  COUNTRY_OF_BIRTH = 'countyOfBirth',
+  GENDER = 'gender',
+  COMPANY_NAME = 'companyName',
+  REGISTERED_OFFICE = 'registeredOffice',
+  VAT_NUMBER = 'ivaCode',
+  ID_CARD = 'idCard',
+  MOBILE_PHONE = 'mobilePhone',
+  EMAIL = 'email',
+  DOMICILE_ADDRESS = 'domicileStreetAddress',
+  DOMICILE_CAP = 'domicilePostalCode',
+  DOMICILE_MUNICIPALITY = 'domicileMunicipality',
+  DOMICILE_PROVINCE = 'domicileProvince',
+  DOMICILE_NATION = 'domicileNation',
+  DOMICILE_DIGITAL = 'digitalAddress',
+  EXPIRATION_DATE = 'expirationDate',
 }
 
 export type Client = {
