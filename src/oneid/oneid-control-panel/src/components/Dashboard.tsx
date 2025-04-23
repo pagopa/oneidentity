@@ -143,7 +143,11 @@ export const Dashboard = () => {
           >
             OneIdentity Client Management
           </Typography>
-          <Button color="inherit" onClick={handleLogout}>
+          <Button
+            color="inherit"
+            onClick={handleLogout}
+            data-testid="logout-button"
+          >
             Logout
           </Button>
         </Toolbar>
@@ -165,14 +169,6 @@ export const Dashboard = () => {
         onSubmit={handleSubmit}
         sx={{ p: 3, maxWidth: 800, mx: 'auto' }}
       >
-        {/* {updateError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {updateError instanceof Error
-              ? updateError.message
-              : 'An error occurred'}
-          </Alert>
-        )} */}
-
         <Typography variant="h5" gutterBottom>
           Client Information
         </Typography>
@@ -247,8 +243,10 @@ export const Dashboard = () => {
           required
           error={!!(errorUi as ClientErrors)?.default_acr_values?._errors}
         >
-          <InputLabel>SPID Level</InputLabel>
+          <InputLabel id="spid-level-label">SPID Level</InputLabel>
           <Select
+            labelId="spid-level-label"
+            id="spid-level-select"
             multiple
             value={formData?.default_acr_values || []}
             renderValue={(selected) => (
@@ -270,7 +268,7 @@ export const Dashboard = () => {
                 default_acr_values: e.target.value as Array<SpidLevel>,
               }))
             }
-            input={<OutlinedInput label="SPID Level" />}
+            input={<OutlinedInput />}
             data-testid="spid-level-select"
           >
             {Object.values(SpidLevel).map((level) => (
@@ -292,8 +290,10 @@ export const Dashboard = () => {
             !!(errorUi as ClientErrors)?.saml_requested_attributes?._errors
           }
         >
-          <InputLabel>SAML Attributes</InputLabel>
+          <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
           <Select
+            labelId="saml-attributes-label"
+            id="saml-attributes-select"
             multiple
             value={formData?.saml_requested_attributes || []}
             onChange={(e) =>
@@ -303,7 +303,7 @@ export const Dashboard = () => {
                   .value as Array<SamlAttribute>,
               }))
             }
-            input={<OutlinedInput label="SAML Attributes" />}
+            input={<OutlinedInput />}
             data-testid="saml-attributes-select"
           >
             {Object.values(SamlAttribute).map((attr) => (
@@ -333,6 +333,7 @@ export const Dashboard = () => {
           type="submit"
           variant="contained"
           sx={{ mt: 2 }}
+          data-testid="submit-button"
           disabled={isUpdating || !isFormValid()}
         >
           {isUpdating ? 'Saving...' : 'Save Changes'}
@@ -344,6 +345,7 @@ export const Dashboard = () => {
             fullWidth
             sx={{ mt: 2 }}
             onClick={handleLogout}
+            data-testid="logout-button-secondary"
           >
             Logout
           </Button>
