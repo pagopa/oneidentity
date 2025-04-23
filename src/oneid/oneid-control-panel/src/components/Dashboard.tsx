@@ -15,6 +15,8 @@ import {
   Alert,
   Chip,
   FormHelperText,
+  Snackbar,
+  IconButton,
 } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { SpidLevel, SamlAttribute, Client, ClientErrors } from '../types/api';
@@ -22,13 +24,15 @@ import { useAuth } from 'react-oidc-context';
 import { ENV } from '../utils/env';
 import { useClient } from '../hooks/useClient';
 import { FormArrayTextField } from './FormArrayTextField';
-import { ZodFormattedError } from 'zod';
+import { Close } from '@mui/icons-material';
+import { Notify } from './Notify';
 
 export const Dashboard = () => {
   const { user, isAuthenticated, removeUser, signoutRedirect } = useAuth();
   const { client_id } = useParams(); // Get the client_id from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
+  const [notify, setNotify] = useState<Notify>({ open: false });
 
   const {
     clientQuery: {
@@ -38,7 +42,7 @@ export const Dashboard = () => {
     },
     createOrUpdateClientMutation: {
       data: clientUpdated,
-      mutate: updateClient,
+      mutate: createOrUpdateClient,
       error: updateError,
       isPending: isUpdating,
     },
@@ -59,11 +63,21 @@ export const Dashboard = () => {
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
-      setErrorUi(updateError);
+      setErrorUi(updateError as unknown as ClientErrors);
+      setNotify({
+        open: true,
+        message: 'Error updating client',
+        severity: 'error',
+      });
     }
     if (clientUpdated) {
       console.log('Client updated successfully:', clientUpdated);
       setErrorUi(null);
+      setNotify({
+        open: true,
+        message: 'Client updated successfully',
+        severity: 'success',
+      });
     }
   }, [updateError, clientUpdated]);
 
@@ -84,8 +98,8 @@ export const Dashboard = () => {
       console.error('Form is not valid');
     }
 
-    updateClient({
-      data: formData,
+    createOrUpdateClient({
+      data: formData as Omit<Client, 'client_id' | 'client_secret'>,
       clientId: client_id,
     });
   };
@@ -338,6 +352,13 @@ export const Dashboard = () => {
           </Button>
         )}
       </Box>
+
+      <Notify
+        open={notify.open}
+        message={notify.message}
+        severity={notify.severity}
+        handleOpen={(open) => setNotify({ ...notify, open })}
+      />
     </>
   );
 };
