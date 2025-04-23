@@ -29,7 +29,8 @@
     "react-router-dom": "^7.5.0",
     "typescript": "^5.8.3",
     "util": "^0.12.5",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "zod": "^3.24.3"
   },
   "scripts": {
     "start": "vite",

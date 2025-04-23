@@ -17,17 +17,18 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-import { SpidLevel, SamlAttribute, Client } from '../types/api';
+import { SpidLevel, SamlAttribute, Client, ClientErrors } from '../types/api';
 import { useAuth } from 'react-oidc-context';
 import { ENV } from '../utils/env';
 import { useClient } from '../hooks/useClient';
 import { FormArrayTextField } from './FormArrayTextField';
+import { ZodFormattedError } from 'zod';
 
 export const Dashboard = () => {
   const { user, isAuthenticated, removeUser, signoutRedirect } = useAuth();
   const { client_id } = useParams(); // Get the client_id from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
-  const [errorUi, setErrorUi] = useState<Error | null>(null);
+  const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
 
   const {
     clientQuery: {
@@ -74,7 +75,6 @@ export const Dashboard = () => {
       !!formData?.saml_requested_attributes?.length
     );
   };
-  // if (!formData) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,8 +181,8 @@ export const Dashboard = () => {
           value={formData?.client_name || ''}
           onChange={handleChange('client_name')}
           margin="normal"
-          error={!!(errorUi as unknown as Client)?.['client_name']}
-          helperText={(errorUi as unknown as Client)?.['client_name']}
+          error={!!(errorUi as ClientErrors)?.client_name?._errors}
+          helperText={(errorUi as ClientErrors)?.client_name?._errors}
         />
 
         <TextField
@@ -191,8 +191,8 @@ export const Dashboard = () => {
           value={formData?.logo_uri || ''}
           onChange={handleChange('logo_uri')}
           margin="normal"
-          error={!!(errorUi as unknown as Client)?.['logo_uri']}
-          helperText={(errorUi as unknown as Client)?.['logo_uri']}
+          error={!!(errorUi as ClientErrors)?.logo_uri?._errors}
+          helperText={(errorUi as ClientErrors)?.logo_uri?._errors}
         />
 
         <TextField
@@ -201,8 +201,8 @@ export const Dashboard = () => {
           value={formData?.policy_uri || ''}
           onChange={handleChange('policy_uri')}
           margin="normal"
-          error={!!(errorUi as unknown as Client)?.['policy_uri']}
-          helperText={(errorUi as unknown as Client)?.['policy_uri']}
+          error={!!(errorUi as ClientErrors)?.policy_uri?._errors}
+          helperText={(errorUi as ClientErrors)?.policy_uri?._errors}
         />
 
         <TextField
@@ -211,32 +211,30 @@ export const Dashboard = () => {
           value={formData?.tos_uri || ''}
           onChange={handleChange('tos_uri')}
           margin="normal"
-          error={!!(errorUi as unknown as Client)?.['tos_uri']}
-          helperText={(errorUi as unknown as Client)?.['tos_uri']}
+          error={!!(errorUi as ClientErrors)?.tos_uri?._errors}
+          helperText={(errorUi as ClientErrors)?.tos_uri?._errors}
         />
 
         <FormControl
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as unknown as Client)?.['redirect_uris']}
+          error={!!(errorUi as ClientErrors)?.redirect_uris?._errors}
         >
           <FormArrayTextField
             formData={formData}
             setFormData={setFormData}
             fieldName="redirect_uris"
             label="Redirect URIs"
+            errors={errorUi as ClientErrors}
           />
-          <FormHelperText>
-            {(errorUi as unknown as Client)?.['redirect_uris']}
-          </FormHelperText>
         </FormControl>
 
         <FormControl
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as unknown as Client)?.['default_acr_values']}
+          error={!!(errorUi as ClientErrors)?.default_acr_values?._errors}
         >
           <InputLabel>SPID Level</InputLabel>
           <Select
@@ -271,7 +269,7 @@ export const Dashboard = () => {
             ))}
           </Select>
           <FormHelperText>
-            {(errorUi as unknown as Client)?.['default_acr_values']}
+            {(errorUi as ClientErrors)?.default_acr_values?._errors}
           </FormHelperText>
         </FormControl>
 
@@ -280,7 +278,7 @@ export const Dashboard = () => {
           margin="normal"
           required
           error={
-            !!(errorUi as unknown as Client)?.['saml_requested_attributes']
+            !!(errorUi as ClientErrors)?.saml_requested_attributes?._errors
           }
         >
           <InputLabel>SAML Attributes</InputLabel>
@@ -304,6 +302,9 @@ export const Dashboard = () => {
             ))}
           </Select>
           <FormHelperText>
+            {(errorUi as ClientErrors)?.saml_requested_attributes?._errors}
+          </FormHelperText>
+          <FormHelperText>
             Lista completa:{' '}
             <Link
               target="_blank"
@@ -315,9 +316,6 @@ export const Dashboard = () => {
               Qui
             </Link>
           </FormHelperText>
-          <FormHelperText>
-            {(errorUi as unknown as Client)?.['saml_requested_attributes']}
-          </FormHelperText>
         </FormControl>
 
         <Button
@@ -326,8 +324,7 @@ export const Dashboard = () => {
           sx={{ mt: 2 }}
           disabled={isUpdating || !isFormValid()}
         >
-          Save Changes
-          {/* {isUpdating ? 'Saving...' : 'Save Changes'} */}
+          {isUpdating ? 'Saving...' : 'Save Changes'}
         </Button>
         {isAuthenticated && (
           <Button

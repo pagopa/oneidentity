@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type LoginResponse = {
   valid: boolean;
   client_id?: string;
@@ -33,19 +35,49 @@ export enum SamlAttribute {
   EXPIRATION_DATE = 'expirationDate',
 }
 
-export type Client = {
-  client_id: string;
-  client_secret?: string;
-  client_id_issued_at?: number;
-  client_secret_expires_at?: number;
-  client_name: string;
-  policy_uri?: string;
-  tos_uri?: string;
-  redirect_uris: Array<string>;
-  saml_requested_attributes: Array<SamlAttribute>;
-  logo_uri?: string;
-  default_acr_values: Array<SpidLevel>;
-};
+export const SpidLevelSchema = z.enum([SpidLevel.L2, SpidLevel.L3]);
+export const SamlAttributeSchema = z.enum([
+  SamlAttribute.SPID_CODE,
+  SamlAttribute.NAME,
+  SamlAttribute.FAMILY_NAME,
+  SamlAttribute.FISCAL_NUMBER,
+  SamlAttribute.DATE_OF_BIRTH,
+  SamlAttribute.PLACE_OF_BIRTH,
+  SamlAttribute.COUNTRY_OF_BIRTH,
+  SamlAttribute.GENDER,
+  SamlAttribute.COMPANY_NAME,
+  SamlAttribute.REGISTERED_OFFICE,
+  SamlAttribute.VAT_NUMBER,
+  SamlAttribute.ID_CARD,
+  SamlAttribute.MOBILE_PHONE,
+  SamlAttribute.EMAIL,
+  SamlAttribute.DOMICILE_ADDRESS,
+  SamlAttribute.DOMICILE_CAP,
+  SamlAttribute.DOMICILE_MUNICIPALITY,
+  SamlAttribute.DOMICILE_PROVINCE,
+  SamlAttribute.DOMICILE_NATION,
+  SamlAttribute.DOMICILE_DIGITAL,
+  SamlAttribute.EXPIRATION_DATE,
+]);
+export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
+export const SpidLevelArraySchema = z.array(SpidLevelSchema);
+
+export const clientSchema = z.object({
+  client_id: z.string(),
+  client_secret: z.string().optional(),
+  client_id_issued_at: z.number().optional(),
+  client_secret_expires_at: z.number().optional(),
+  client_name: z.string(),
+  policy_uri: z.string().url().optional().nullable(),
+  tos_uri: z.string().url().optional().nullable(),
+  redirect_uris: z.array(z.string().url().min(1)),
+  saml_requested_attributes: SamlAttributeArraySchema.min(1),
+  logo_uri: z.string().url().optional().nullable(),
+  default_acr_values: SpidLevelArraySchema.min(1),
+});
+
+export type Client = z.infer<typeof clientSchema>;
+export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 
 export type ClientFormData = Omit<
   Client,
