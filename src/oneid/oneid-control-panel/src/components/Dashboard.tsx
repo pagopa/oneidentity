@@ -15,8 +15,6 @@ import {
   Alert,
   Chip,
   FormHelperText,
-  Snackbar,
-  IconButton,
 } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { SpidLevel, SamlAttribute, Client, ClientErrors } from '../types/api';
@@ -24,7 +22,6 @@ import { useAuth } from 'react-oidc-context';
 import { ENV } from '../utils/env';
 import { useClient } from '../hooks/useClient';
 import { FormArrayTextField } from './FormArrayTextField';
-import { Close } from '@mui/icons-material';
 import { Notify } from './Notify';
 
 export const Dashboard = () => {

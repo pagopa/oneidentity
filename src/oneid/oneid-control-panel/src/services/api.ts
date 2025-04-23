@@ -35,9 +35,9 @@ export const getClientData = async (
   if (!clientId) {
     throw new Error('Client ID is required');
   }
-  const out =
-    '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
-  return JSON.parse(out);
+  // const out =
+  //   '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
+  // return JSON.parse(out);
   try {
     const response = await api.get<Client>(
       `${ENV.URL_API.REGISTER}/${clientId}`,
@@ -58,7 +58,7 @@ export const getClientData = async (
         error.response?.data?.message || 'Failed to fetch client data'
       );
     }
-    throw new Error('An unknown error occurred');
+    throw new Error(`An unknown error occurred ${JSON.stringify(error)}`);
   }
 };
 
@@ -78,13 +78,13 @@ export const createOrUpdateClient = async (
       return Promise.reject(errors.error.format());
     }
 
-    return Promise.resolve({
-      ...data,
-      client_id: clientId || 'xxx',
-      client_secret: 'xxx',
-      client_id_issued_at: 1234567890,
-      client_secret_expires_at: 1234567890,
-    });
+    // return Promise.resolve({
+    //   ...data,
+    //   client_id: clientId || 'xxx',
+    //   client_secret: 'xxx',
+    //   client_id_issued_at: 1234567890,
+    //   client_secret_expires_at: 1234567890,
+    // });
 
     const response = await api[method]<Client>(url, data, {
       headers: {
