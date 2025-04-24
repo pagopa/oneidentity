@@ -1,68 +1,28 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Client } from '../types/api';
-import { getClientData, createOrUpdateClient } from '../services/api';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
+import { setClientToUser } from '../api/client';
 
-const TIMEOUT_DURATION = 10000; // 10 seconds
 const staleTime = 5 * 60 * 1000;
 const retry = 2;
 
-const withTimeout = <T extends object>(
-  promise: Promise<T>,
-  timeoutMs: number
-): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(
-        () =>
-          reject(
-            new Error(
-              'Request timed out. Please check your network connection.'
-            )
-          ),
-        timeoutMs
-      )
-    ),
-  ]);
-};
-
 export const useClient = (clientId?: string) => {
   const { user } = useAuth();
-  const token = user?.access_token;
+  const token = user?.id_token;
   if (!token) {
     throw new Error('No token available');
   }
+  const userId = user?.profile.sub;
 
-  const clientQuery = useQuery<Client, Error>({
-    queryKey: ['client', clientId],
-    queryFn: () => getClientData(clientId, token),
-    enabled: !!token && !!clientId,
+  const setCognitoProfile = useQuery<string, Error>({
+    queryKey: ['client', clientId, userId],
+    queryFn: () => setClientToUser(clientId, userId, token),
+    enabled: !!token && !!clientId && !!userId,
     staleTime,
     retry,
     throwOnError: false, //be careful with this option, it can cause unexpected behavior
   });
 
-  const createOrUpdateClientMutation = useMutation({
-    onError(error) {
-      console.error('Error creating or updating client:', error);
-    },
-    mutationFn: async ({
-      data,
-      clientId,
-    }: {
-      data: Omit<Client, 'client_id' | 'client_secret'>;
-      clientId?: string;
-    }) => {
-      return withTimeout(
-        createOrUpdateClient(data, token, clientId),
-        TIMEOUT_DURATION
-      );
-    },
-  });
-
   return {
-    clientQuery,
-    createOrUpdateClientMutation,
+    setCognitoProfile,
   };
 };

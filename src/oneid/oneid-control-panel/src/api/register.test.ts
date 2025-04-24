@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getClientData, createOrUpdateClient } from './api';
+import { getClientData, createOrUpdateClient } from './register';
 import { ENV } from '../utils/env';
 import { SamlAttribute, SpidLevel } from '../types/api';
 

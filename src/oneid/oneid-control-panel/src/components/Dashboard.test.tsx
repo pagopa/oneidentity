@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
     user: {
+      id_token: 'fake-token',
       access_token: 'fake-token',
       profile: { email: 'test@example.com' },
     },

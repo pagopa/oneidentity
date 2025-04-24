@@ -1,6 +1,5 @@
 import { Add, Delete } from '@mui/icons-material';
 import {
-  Box,
   Fab,
   FormHelperText,
   InputAdornment,
@@ -9,6 +8,7 @@ import {
 } from '@mui/material';
 import { ChangeEvent, Fragment, useEffect, useState } from 'react';
 import { Client, ClientErrors } from '../types/api';
+import Grid from '@mui/material/Unstable_Grid2';
 
 type ErrorCast = Record<string | number, { _errors: string }>;
 
@@ -61,44 +61,39 @@ export const FormArrayTextField = ({
     }));
   };
   return (
-    <Box component="section" sx={{ p: 5, border: '1px dashed grey' }}>
+    <Grid container sx={{ p: 5, border: '1px dashed grey' }}>
       <InputLabel>{label}</InputLabel>
-      {data.map((value, index) => (
-        <Fragment key={index}>
-          <TextField
-            key={index}
-            label={`${label} ${index + 1}`}
-            value={value}
-            sx={{ width: '100%' }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="start">
-                  <Delete onClick={() => handleDeleteTextField(index)} />
-                </InputAdornment>
-              ),
-            }}
-            onChange={(e) => {
-              handleOnChange(e, index);
-            }}
-            margin="normal"
-          />
-          <FormHelperText>
-            {(errors?.[fieldName] as unknown as ErrorCast)?.[index]?._errors}
-          </FormHelperText>
-        </Fragment>
-      ))}
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={handleAddTextField}
-        sx={{
-          position: 'absolute',
-          bottom: 16,
-          right: 16,
-        }}
-      >
-        <Add />
-      </Fab>
-    </Box>
+      <Grid xs={10} mt={2}>
+        {data.map((value, index) => (
+          <Fragment key={index}>
+            <TextField
+              key={index}
+              label={`${label} ${index + 1}`}
+              value={value}
+              sx={{ width: '100%', m: 0 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="start">
+                    <Delete onClick={() => handleDeleteTextField(index)} />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(e) => {
+                handleOnChange(e, index);
+              }}
+              margin="normal"
+            />
+            <FormHelperText>
+              {(errors?.[fieldName] as unknown as ErrorCast)?.[index]?._errors}
+            </FormHelperText>
+          </Fragment>
+        ))}
+      </Grid>
+      <Grid xs={2} mt={2} pl={2}>
+        <Fab color="primary" aria-label="add" onClick={handleAddTextField}>
+          <Add />
+        </Fab>
+      </Grid>
+    </Grid>
   );
 };
