@@ -2,10 +2,27 @@
 resource "aws_cognito_user_pool" "main" {
   name = var.cognito.user_pool_name
 
+  # schema {
+  #   attribute_data_type = "String"
+  #   name                = "email"
+  #   required            = true
+  # }
+
   schema {
-    attribute_data_type = "String"
-    name                = "email"
-    required            = true
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = false
+    name                     = "email"
+    required                 = true
+  }
+  schema {
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    name                     = "client_id"
+    required                 = false
+
+    string_attribute_constraints {}
   }
 
   username_attributes      = ["email"]
