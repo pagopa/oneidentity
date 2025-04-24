@@ -19,7 +19,6 @@ export const LoginForm = () => {
   } = useAuth();
 
   useEffect(() => {
-    // Clear the query parameters if the user is authenticated
     if (isAuthenticated) {
       console.log('User is authenticated', user);
 
