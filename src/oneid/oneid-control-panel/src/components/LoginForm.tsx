@@ -54,7 +54,7 @@ export const LoginForm = () => {
         boxShadow: 3,
       }}
     >
-      <Typography variant="h5" component="h1" gutterBottom>
+      <Typography variant="h5" component="h1" gutterBottom align="center">
         OneIdentity Control Panel
       </Typography>
       {(error || !navigator.onLine) && (

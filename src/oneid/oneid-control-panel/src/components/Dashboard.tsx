@@ -4,8 +4,6 @@ import {
   TextField,
   Button,
   Typography,
-  AppBar,
-  Toolbar,
   Select,
   MenuItem,
   FormControl,
@@ -19,13 +17,13 @@ import {
 import { Link, useParams } from 'react-router-dom';
 import { SpidLevel, SamlAttribute, Client, ClientErrors } from '../types/api';
 import { useAuth } from 'react-oidc-context';
-import { ENV } from '../utils/env';
 import { useClient } from '../hooks/useClient';
 import { FormArrayTextField } from './FormArrayTextField';
 import { Notify } from './Notify';
+import Layout from './Layout';
 
 export const Dashboard = () => {
-  const { user, isAuthenticated, removeUser, signoutRedirect } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { client_id } = useParams(); // Get the client_id from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
@@ -101,27 +99,10 @@ export const Dashboard = () => {
     });
   };
 
-  function signout() {
-    return signoutRedirect({
-      // aws cognito extras
-      extraQueryParams: {
-        client_id: ENV.OIDC.CLIENT_ID,
-        logout_uri: ENV.OIDC.REDIRECT_URI,
-        redirect_uri: ENV.OIDC.REDIRECT_URI,
-        response_type: ENV.OIDC.RESPONSE_TYPE,
-        scope: ENV.OIDC.SCOPE,
-      },
-    });
-  }
   const handleChange =
     (field: keyof Client) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
-
-  const handleLogout = () => {
-    removeUser();
-    signout();
-  };
 
   if (isLoadingClient) {
     return (
@@ -132,26 +113,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography
-            variant="h6"
-            component="div"
-            color={'white'}
-            sx={{ flexGrow: 1 }}
-          >
-            OneIdentity Client Management
-          </Typography>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            data-testid="logout-button"
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+    <Layout>
       {fetchError && (
         <Box sx={{ mt: 4 }}>
           <Alert severity="error">
@@ -161,7 +123,7 @@ export const Dashboard = () => {
           </Alert>
         </Box>
       )}
-      <Typography variant="h6" sx={{ mt: 2 }}>
+      <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
         User: {user?.profile?.email}
       </Typography>
       <Box
@@ -338,18 +300,6 @@ export const Dashboard = () => {
         >
           {isUpdating ? 'Saving...' : 'Save Changes'}
         </Button>
-        {isAuthenticated && (
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 2 }}
-            onClick={handleLogout}
-            data-testid="logout-button-secondary"
-          >
-            Logout
-          </Button>
-        )}
       </Box>
 
       <Notify
@@ -358,6 +308,6 @@ export const Dashboard = () => {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </>
+    </Layout>
   );
 };
