@@ -51,7 +51,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      // console.log('User is authenticated', user, client_id);
+      console.log('User is authenticated', user, client_id);
     }
   }, [client_id, isAuthenticated, user]);
 
