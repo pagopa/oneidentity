@@ -363,17 +363,14 @@
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "responses": {
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "'application/json'",
-                "method.response.header.Access-Control-Allow-Origin" : "'*'"
-              },
-              "responseTemplates" : {
-                "application/json" : "$input.path('$').body"
+                "method.response.header.content-type": "'application/json'"
               }
             },
             "400": {
@@ -425,14 +422,8 @@
                   "$ref": "#/components/schemas/ClientRegistration"
                 }
               }
-            },
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "schema" : {
-                  "type" : "string"
-              }
             }
-          },  
+          },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
           },
@@ -467,7 +458,7 @@
           "schema" : {
             "type" : "string"
           }
-        }],
+        } ],
         "responses" : {
           "200" : {
             "description" : "200 response",
@@ -501,14 +492,14 @@
                 "method.response.header.Access-Control-Allow-Origin" : "'*'"
               }
             }
-        },
-        "requestTemplates" : {
-          "application/json" : "{\"statusCode\": 200}"
-        },
-        "passthroughBehavior" : "when_no_match",
-        "type" : "mock"
+          },
+          "requestTemplates" : {
+            "application/json" : "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior" : "when_no_match",
+          "type" : "mock"
+        }
       }
-    }
     },
     "/monitor/{type}/status": {
       "get": {
