@@ -363,7 +363,6 @@
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
           "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "responses": {
@@ -372,6 +371,9 @@
               "responseParameters": {
                 "method.response.header.content-type": "'application/json'",
                 "method.response.header.Access-Control-Allow-Origin" : "'*'"
+              },
+              "responseTemplates" : {
+                "application/json" : "$input.path('$').body"
               }
             },
             "400": {
@@ -430,7 +432,7 @@
                   "type" : "string"
               }
             }
-          },
+          },  
           "400": {
             "$ref": "#/components/responses/invalidParameters"
           },
