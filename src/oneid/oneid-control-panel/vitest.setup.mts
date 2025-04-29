@@ -9,6 +9,7 @@ afterEach(() => {
 });
 
 // Mock window.matchMedia
+// eslint-disable-next-line functional/immutable-data
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({

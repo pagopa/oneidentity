@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-export const setCognitoParam = async (
+export const setClientParam = async (
   clientId: string | undefined,
   token: string
 ) => {

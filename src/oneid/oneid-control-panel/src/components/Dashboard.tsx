@@ -17,7 +17,7 @@ import {
 import { Link, useParams } from 'react-router-dom';
 import { SpidLevel, SamlAttribute, Client, ClientErrors } from '../types/api';
 import { useAuth } from 'react-oidc-context';
-import { useClient } from '../hooks/useClient';
+import { useRegister } from '../hooks/useRegister';
 import { FormArrayTextField } from './FormArrayTextField';
 import { Notify } from './Notify';
 import Layout from './Layout';
@@ -41,7 +41,7 @@ export const Dashboard = () => {
       error: updateError,
       isPending: isUpdating,
     },
-  } = useClient(client_id);
+  } = useRegister(client_id);
 
   useEffect(() => {
     if (fetchedClientData) {
