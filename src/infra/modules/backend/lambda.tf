@@ -871,3 +871,92 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 #   # egress_rules = ["https-443-tcp"]
 
 # }
+
+resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
+  depends_on = [
+    module.invalidate_cache_lambda.lambda_function_name,
+    var.table_client_registrations_arn
+  ]
+  event_source_arn  = var.dynamodb_clients_table_stream_arn
+  function_name     = module.invalidate_cache_lambda.lambda_function_arn
+  starting_position = "LATEST"
+  enabled           = true
+}
+
+# Lambda client manager
+
+module "client_manager_lambda" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.client_manager_lambda.name
+  description             = "Lambda function client manager."
+  runtime                 = "python3.12"
+  handler                 = "index.lambda_handler"
+  create_package          = false
+  local_existing_package  = var.client_manager_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.client_manager_lambda.json
+
+
+  cloudwatch_logs_retention_in_days = var.client_manager_lambda.cloudwatch_logs_retention_in_days
+
+  environment_variables = var.client_manager_lambda.environment_variables
+
+  attach_network_policy = true
+
+  # TODO: move lambda client manager to VPC
+  # vpc_subnet_ids         = var.client_manager_lambda.vpc_subnet_ids
+  # vpc_security_group_ids = [module.security_group_client_manager_lambda.security_group_id]
+
+  memory_size = 256
+  timeout     = 30
+
+}
+
+module "security_group_client_manager_lambda" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.client_manager_lambda.name}-sg"
+  description = "Security Group for Lambda Client Manager"
+
+  # TODO: move lambda client manager to VPC
+  # vpc_id = var.client_manager_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  # TODO: move lambda client manager to VPC
+  # egress_prefix_list_ids = [ var.client_manager_lambda.vpc_endpoint_dynamodb_prefix_id]
+
+  # egress_rules = ["https-443-tcp"]
+
+}
+
+data "aws_iam_policy_document" "client_manager_lambda" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:UpdateItem",
+    ]
+    resources = [
+      var.client_manager_lambda.table_client_registrations_arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "cognito-idp:AdminUpdateUserAttributes"
+    ]
+    resources = [
+      var.client_manager_lambda.cognito_user_pool_arn
+    ]
+  }
+}
