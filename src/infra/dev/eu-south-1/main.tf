@@ -405,6 +405,22 @@ module "backend" {
       STAGE_NAME  = module.frontend.rest_api_stage_name
     }
   }
+
+  client_manager_lambda = {
+    name     = format("%s-client-manager", local.project)
+    filename = "${path.module}/../../hello-python/lambda.zip"
+    # vpc_id                            = module.network.vpc_id
+    # vpc_subnet_ids                    = module.network.intra_subnets_ids
+    # vpc_endpoint_apigw_prefix_id      = module.network.vpc_endpoints["apigw"]["prefix_list_id"]
+    # vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    table_client_registrations_arn    = module.database.table_client_registrations_arn
+    cognito_user_pool_arn             = module.cognito.user_pool_arn
+    environment_variables = {
+      LOG_LEVEL    = "DEBUG"
+      USER_POOL_ID = module.cognito.user_pool_id
+    }
+  }
 }
 
 module "spid_validator" {
