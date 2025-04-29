@@ -804,17 +804,12 @@ module "invalidate_cache_lambda" {
 
   environment_variables = var.invalidate_cache_lambda.environment_variables
 
-  attach_network_policy = true
-
-  vpc_subnet_ids         = var.invalidate_cache_lambda.vpc_subnet_ids
-  vpc_security_group_ids = [module.security_group_invalidate_cache_lambda.security_group_id]
-
-  allowed_triggers = {
-    dynamodb = {
-      principal  = "dynamodb.amazonaws.com"
-      source_arn = var.dynamodb_clients_table_stream_arn
-    }
-  }
+  # allowed_triggers = {
+  #   dynamodb = {
+  #     principal  = "dynamodb.amazonaws.com"
+  #     source_arn = var.dynamodb_clients_table_stream_arn
+  #   }
+  # }
 
   memory_size = 256
   timeout     = 30
@@ -847,27 +842,27 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
   }
 }
 
-module "security_group_invalidate_cache_lambda" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "4.17.2"
+# module "security_group_invalidate_cache_lambda" {
+#   source  = "terraform-aws-modules/security-group/aws"
+#   version = "4.17.2"
 
-  name        = "${var.invalidate_cache_lambda.name}-sg"
-  description = "Security Group for Lambda Invalidate Cache"
+#   name        = "${var.invalidate_cache_lambda.name}-sg"
+#   description = "Security Group for Lambda Invalidate Cache"
 
-  vpc_id = var.invalidate_cache_lambda.vpc_id
+#   vpc_id = var.invalidate_cache_lambda.vpc_id
 
-  egress_cidr_blocks      = []
-  egress_ipv6_cidr_blocks = []
+#   egress_cidr_blocks      = []
+#   egress_ipv6_cidr_blocks = []
 
-  # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids = [
-    var.invalidate_cache_lambda.vpc_endpoint_apigw_prefix_id,
-    var.invalidate_cache_lambda.vpc_endpoint_dynamodb_prefix_id
-  ]
+#   # Prefix list ids to use in all egress rules in this module
+#   egress_prefix_list_ids = [
+#     var.invalidate_cache_lambda.vpc_endpoint_apigw_prefix_id,
+#     var.invalidate_cache_lambda.vpc_endpoint_dynamodb_prefix_id
+#   ]
 
-  # egress_rules = ["https-443-tcp"]
+#   # egress_rules = ["https-443-tcp"]
 
-}
+# }
 
 resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
   depends_on = [
