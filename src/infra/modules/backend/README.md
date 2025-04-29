@@ -151,7 +151,6 @@
 | <a name="module_metadata_lambda"></a> [metadata\_lambda](#module\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#module\_retrieve\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#module\_s3\_lambda\_code\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
-| <a name="module_security_group_invalidate_cache_lambda"></a> [security\_group\_invalidate\_cache\_lambda](#module\_security\_group\_invalidate\_cache\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
