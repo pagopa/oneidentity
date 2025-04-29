@@ -21,8 +21,13 @@ export const LoginForm = () => {
   useEffect(() => {
     if (isAuthenticated) {
       console.log('User is authenticated', user);
-
-      window.location.assign('/dashboard');
+      if (user?.profile && Object.hasOwn(user.profile, 'custom:client_id')) {
+        window.location.assign(
+          `/dashboard/${user.profile['custom:client_id']}`
+        );
+      } else {
+        window.location.assign('/dashboard');
+      }
     }
   }, [isAuthenticated, user]);
 

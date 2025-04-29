@@ -19,6 +19,10 @@ export const ENV = {
   URL_API: {
     LOGIN: import.meta.env.VITE_URL_API_LOGIN as string,
     REGISTER: import.meta.env.VITE_URL_API_REGISTER as string,
+    CLIENT: {
+      USER_ATTRIBUTES: import.meta.env
+        .VITE_URL_API_CLIENT_USER_ATTRIBUTES as string,
+    },
   },
 
   API: {
