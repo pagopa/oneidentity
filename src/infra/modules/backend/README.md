@@ -138,6 +138,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_assertion_lambda"></a> [assertion\_lambda](#module\_assertion\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_client_manager_lambda"></a> [client\_manager\_lambda](#module\_client\_manager\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_client_registration_lambda"></a> [client\_registration\_lambda](#module\_client\_registration\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | terraform-aws-modules/ecs/aws | 5.9.1 |
@@ -151,6 +152,7 @@
 | <a name="module_metadata_lambda"></a> [metadata\_lambda](#module\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#module\_retrieve\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#module\_s3\_lambda\_code\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_security_group_client_manager_lambda"></a> [security\_group\_client\_manager\_lambda](#module\_security\_group\_client\_manager\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_invalidate_cache_lambda"></a> [security\_group\_invalidate\_cache\_lambda](#module\_security\_group\_invalidate\_cache\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
@@ -199,6 +201,7 @@
 | [aws_vpc_security_group_egress_rule.https_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [random_integer.bucket_lambda_code_suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) | resource |
 | [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.client_manager_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.invalidate_cache_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -219,6 +222,7 @@
 | <a name="input_aws_caller_identity"></a> [aws\_caller\_identity](#input\_aws\_caller\_identity) | n/a | `string` | `""` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_alarm"></a> [client\_alarm](#input\_client\_alarm) | n/a | <pre>object({<br>    namespace = string<br>    clients = list(object({<br>      client_id     = string<br>      friendly_name = string<br>    }))<br>  })</pre> | `null` | no |
+| <a name="input_client_manager_lambda"></a> [client\_manager\_lambda](#input\_client\_manager\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    cloudwatch_logs_retention_in_days = string<br>    environment_variables             = map(string)<br>    table_client_registrations_arn    = string<br>    cognito_user_pool_arn             = string<br>    # TODO: move client_manager_lambda to VPC<br>    # vpc_endpoint_apigw_prefix_id      = string<br>    # vpc_endpoint_dynamodb_prefix_id   = string<br>    # vpc_subnet_ids                    = list(string)<br>    # vpc_id                            = string<br>  })</pre> | n/a | yes |
 | <a name="input_client_registration_lambda"></a> [client\_registration\_lambda](#input\_client\_registration\_lambda) | n/a | <pre>object({<br>    name                               = string<br>    filename                           = string<br>    table_client_registrations_arn     = string<br>    cloudwatch_logs_retention_in_days  = number<br>    vpc_id                             = string<br>    vpc_endpoint_dynamodb_prefix_id    = string<br>    vpc_tls_security_group_endpoint_id = string<br>    vpc_subnet_ids                     = list(string)<br>    environment_variables              = map(string)<br>  })</pre> | n/a | yes |
 | <a name="input_dlq_alarms"></a> [dlq\_alarms](#input\_dlq\_alarms) | n/a | <pre>object({<br>    metric_name         = string<br>    namespace           = string<br>    threshold           = number<br>    evaluation_periods  = number<br>    period              = number<br>    statistic           = string<br>    comparison_operator = string<br>    sns_topic_alarm_arn = string<br>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_clients_table_stream_arn"></a> [dynamodb\_clients\_table\_stream\_arn](#input\_dynamodb\_clients\_table\_stream\_arn) | n/a | `string` | `null` | no |
@@ -265,6 +269,7 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_assertion_lambda_arn"></a> [assertion\_lambda\_arn](#output\_assertion\_lambda\_arn) | # Metadata lambda ## |
+| <a name="output_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#output\_client\_manager\_lambda\_arn) | # Client manager lambda |
 | <a name="output_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#output\_client\_registration\_lambda\_arn) | # Client registration lambda |
 | <a name="output_client_registration_log_group_name"></a> [client\_registration\_log\_group\_name](#output\_client\_registration\_log\_group\_name) | n/a |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |

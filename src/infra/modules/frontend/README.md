@@ -118,6 +118,7 @@
 | <a name="input_assets_bucket_arn"></a> [assets\_bucket\_arn](#input\_assets\_bucket\_arn) | Assets bucket arn. | `string` | n/a | yes |
 | <a name="input_assets_bucket_name"></a> [assets\_bucket\_name](#input\_assets\_bucket\_name) | Assets bucket name. | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
+| <a name="input_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#input\_client\_manager\_lambda\_arn) | lambda client manager arn | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
 | <a name="input_create_custom_domain_name"></a> [create\_custom\_domain\_name](#input\_create\_custom\_domain\_name) | ApiGw create custom domain name. | `bool` | `true` | no |
 | <a name="input_create_dns_record"></a> [create\_dns\_record](#input\_create\_dns\_record) | Create DNS record to associate the API Gateway RestApi to the hosted zone. | `bool` | `true` | no |
