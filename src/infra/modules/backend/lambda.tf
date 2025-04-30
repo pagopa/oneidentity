@@ -911,6 +911,9 @@ module "client_manager_lambda" {
 
   vpc_security_group_ids = [module.security_group_client_manager_lambda.security_group_id]
 
+  # lambda powertools layer
+  layers = ["arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"]
+
   memory_size = 256
   timeout     = 30
 
