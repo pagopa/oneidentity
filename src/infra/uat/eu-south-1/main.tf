@@ -66,6 +66,7 @@ module "frontend" {
   }
   client_manager_lambda_arn      = "" //set arn client manager lambda
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
+  client_manager_lambda_arn      = module.backend.client_manager_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn
@@ -392,6 +393,19 @@ module "backend" {
     environment_variables = {
       REST_API_ID = module.frontend.rest_api_id
       STAGE_NAME  = module.frontend.rest_api_stage_name
+    }
+  }
+
+  client_manager_lambda = {
+    name                              = format("%s-client-manager", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    table_client_registrations_arn    = module.database.table_client_registrations_arn
+    cognito_user_pool_arn             = module.cognito.user_pool_arn
+    environment_variables = {
+      LOG_LEVEL                       = "DEBUG"
+      USER_POOL_ID                    = module.cognito.user_pool_id
+      CLIENT_REGISTRATIONS_TABLE_NAME = module.database.table_client_registrations_name
     }
   }
 
