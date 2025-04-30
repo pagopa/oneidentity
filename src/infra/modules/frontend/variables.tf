@@ -129,6 +129,14 @@ variable "client_registration_lambda_arn" {
   description = "lambda client registration arn"
 }
 
+## Lambda client manager
+
+variable "client_manager_lambda_arn" {
+  type        = string
+  description = "lambda client manager arn"
+
+}
+
 ## Lambda retrieve status
 variable "retrieve_status_lambda_arn" {
   type        = string
