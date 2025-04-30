@@ -2095,6 +2095,105 @@
           }
         }
       }
+    },
+    "/admin/client-manager/user-attributes": {
+      "put": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Put_admin_client_manager_user_attributes",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "201": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAttributes"
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "201": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+            
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2785,6 +2884,19 @@
             "description": "The terms of service URI",
             "example": "https://example.org/tos",
             "format": "uri"
+          }
+        }
+      },
+      "UserAttributes": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The user id"
+          },
+          "client_id": {
+            "type": "string",
+            "description": "The client id"
           }
         }
       }

@@ -892,7 +892,7 @@ module "client_manager_lambda" {
   function_name           = var.client_manager_lambda.name
   description             = "Lambda function client manager."
   runtime                 = "python3.12"
-  handler                 = "index.lambda_handler"
+  handler                 = "index.handler"
   create_package          = false
   local_existing_package  = var.client_manager_lambda.filename
   ignore_source_code_hash = true
@@ -909,9 +909,7 @@ module "client_manager_lambda" {
 
   attach_network_policy = true
 
-  # TODO: move lambda client manager to VPC
-  # vpc_subnet_ids         = var.client_manager_lambda.vpc_subnet_ids
-  # vpc_security_group_ids = [module.security_group_client_manager_lambda.security_group_id]
+  vpc_security_group_ids = [module.security_group_client_manager_lambda.security_group_id]
 
   memory_size = 256
   timeout     = 30
@@ -925,17 +923,8 @@ module "security_group_client_manager_lambda" {
   name        = "${var.client_manager_lambda.name}-sg"
   description = "Security Group for Lambda Client Manager"
 
-  # TODO: move lambda client manager to VPC
-  # vpc_id = var.client_manager_lambda.vpc_id
-
   egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
-
-  # Prefix list ids to use in all egress rules in this module
-  # TODO: move lambda client manager to VPC
-  # egress_prefix_list_ids = [ var.client_manager_lambda.vpc_endpoint_dynamodb_prefix_id]
-
-  # egress_rules = ["https-443-tcp"]
 
 }
 
@@ -944,6 +933,7 @@ data "aws_iam_policy_document" "client_manager_lambda" {
     effect = "Allow"
     actions = [
       "dynamodb:UpdateItem",
+      "dynamodb:GetItem"
     ]
     resources = [
       var.client_manager_lambda.table_client_registrations_arn
