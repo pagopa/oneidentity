@@ -46,7 +46,6 @@ class LocalizedContentMap:
         :return: A dictionary formatted for DynamoDB.
         """
         return {
-            "content_map": {
                 "M": {
                     language: {
                         "M": {
@@ -65,7 +64,7 @@ class LocalizedContentMap:
                     for language, themes in self.content_map.items()
                 }
             }
-        }
+            
 
     @classmethod
     def from_json(cls, json_data: Dict) -> "LocalizedContentMap":
