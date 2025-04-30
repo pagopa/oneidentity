@@ -408,14 +408,14 @@ module "backend" {
   }
 
   client_manager_lambda = {
-    name     = format("%s-client-manager", local.project)
-    filename = "${path.module}/../../hello-python/lambda.zip"
+    name                              = format("%s-client-manager", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
     environment_variables = {
-      LOG_LEVEL    = "DEBUG"
-      USER_POOL_ID = module.cognito.user_pool_id
+      LOG_LEVEL                       = "DEBUG"
+      USER_POOL_ID                    = module.cognito.user_pool_id
       CLIENT_REGISTRATIONS_TABLE_NAME = module.database.table_client_registrations_name
     }
   }
