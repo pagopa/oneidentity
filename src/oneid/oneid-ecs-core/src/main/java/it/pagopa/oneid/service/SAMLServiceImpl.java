@@ -432,7 +432,8 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   @Override
-  public void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp)
+  public void checkSAMLStatus(Response response, String redirectUri, String clientId, String idp,
+      String state)
       throws OneIdentityException {
     String statusCode = "";
     String statusMessage = "";
@@ -457,17 +458,16 @@ public class SAMLServiceImpl implements SAMLService {
       if (StringUtils.isNotBlank(statusMessage)) {
         Log.debug("SAML Response status code: " + statusCode
             + statusMessage);
-        String message = "";
+        ErrorCode errorCode = null;
         try {
-          message = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"))
-              .getErrorCode();
+          errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));
         } catch (IllegalArgumentException e) {
           Log.error(
               "SAML Status message " + statusMessage + " not mapped for " + statusCode
                   + " status code");
           throw new OneIdentityException("Status message not mapped.");
         }
-        throw new SAMLResponseStatusException(message, redirectUri, clientId, idp);
+        throw new SAMLResponseStatusException(errorCode, redirectUri, clientId, idp, state);
       } else {
         Log.error(
             "SAML Status message not found for " + statusCode
@@ -529,7 +529,7 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri) {
+      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
 
     try {
 
@@ -548,6 +548,8 @@ public class SAMLServiceImpl implements SAMLService {
     } catch (SAMLValidationException e) {
       e.setIdp(entityID);
       e.setRedirectUri(redirectUri);
+      e.setState(state);
+      e.setClientId(clientId);
       throw (e);
     }
 

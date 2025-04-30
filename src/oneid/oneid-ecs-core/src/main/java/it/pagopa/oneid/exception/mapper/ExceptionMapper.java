@@ -152,13 +152,15 @@ public class ExceptionMapper {
   public RestResponse<Object> mapSAMLResponseStatusException(
       SAMLResponseStatusException samlResponseStatusException) {
 
-    cloudWatchConnectorImpl.sendUserRelatedErrorMetricData(
+    cloudWatchConnectorImpl.sendSAMLStatusRelatedErrorMetricData(
         samlResponseStatusException.getIdp(),
         samlResponseStatusException.getClientId(),
-        samlResponseStatusException.getMessage());
+        samlResponseStatusException.getErrorCode() + "_"
+            + samlResponseStatusException.getMessage());
 
-    return genericHTMLError(samlResponseStatusException.getMessage(),
-        samlResponseStatusException.getRedirectUri());
+    return genericHTMLError(samlResponseStatusException.getErrorCode(),
+        samlResponseStatusException.getRedirectUri(), samlResponseStatusException.getState(),
+        samlResponseStatusException.getClientId());
   }
 
   @ServerExceptionMapper
@@ -171,7 +173,8 @@ public class ExceptionMapper {
         samlValidationException.getErrorCode());
 
     return genericHTMLError(samlValidationException.getErrorCode().getErrorCode(),
-        samlValidationException.getRedirectUri());
+        samlValidationException.getRedirectUri(), samlValidationException.getState(),
+        samlValidationException.getClientId());
   }
 
   @ServerExceptionMapper
@@ -332,21 +335,24 @@ public class ExceptionMapper {
       return ResponseBuilder
           .create(FOUND)
           .location(new URI(
-              BASE_PATH + "/login/error?errorCode=" + URLEncoder.encode(errorCode,
+              BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(errorCode,
                   StandardCharsets.UTF_8))).build();
     } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
   }
 
-  private RestResponse<Object> genericHTMLError(String errorCode, String redirectUri) {
+  private RestResponse<Object> genericHTMLError(String errorCode, String redirectUri,
+      String state, String clientId) {
     try {
       return ResponseBuilder
           .create(FOUND)
           .location(new URI(
-              BASE_PATH + "/login/error?errorCode=" +
+              BASE_PATH + "/login/error?error_code=" +
                   URLEncoder.encode(errorCode, StandardCharsets.UTF_8)
-                  + "&redirectUri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)))
+                  + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
+                  + "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8)
+                  + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)))
           .build();
     } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();

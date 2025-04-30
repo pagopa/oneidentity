@@ -12,6 +12,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.tooManyAttempts.title'),
         description: t('loginError.tooManyAttempts.description'),
+        haveRetryButton: true,
       },
     },
     {
@@ -19,6 +20,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.incompatibleCredentials.title'),
         description: t('loginError.incompatibleCredentials.description'),
+        haveRetryButton: false,
       },
     },
     {
@@ -26,6 +28,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.authTimeout.title'),
         description: t('loginError.authTimeout.description'),
+        haveRetryButton: true,
       },
     },
     {
@@ -33,6 +36,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.deniedByUser.title'),
         description: t('loginError.deniedByUser.description'),
+        haveRetryButton: true,
       },
     },
     {
@@ -40,6 +44,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.suspendedOrRevoked.title'),
         description: t('loginError.suspendedOrRevoked.description'),
+        haveRetryButton: false,
       },
     },
     {
@@ -47,6 +52,7 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.canceledbyUser.title'),
         description: t('loginError.canceledbyUser.description'),
+        haveRetryButton: true,
       },
     },
     {
@@ -54,6 +60,15 @@ describe('useLoginError', () => {
       expected: {
         title: t('loginError.generic.title'),
         description: t('loginError.generic.description'),
+        haveRetryButton: true,
+      },
+    },
+    {
+      errorCode: ERROR_CODE.GENERIC,
+      expected: {
+        title: t('loginError.generic.title'),
+        description: t('loginError.generic.description'),
+        haveRetryButton: true,
       },
     },
   ];
@@ -63,10 +78,12 @@ describe('useLoginError', () => {
     ({ errorCode, expected }) => {
       const { result } = renderHook(useLoginError);
 
-      const { title, description } = result.current.handleErrorCode(errorCode);
+      const { title, description, haveRetryButton } =
+        result.current.handleErrorCode(errorCode);
 
       expect(title).toEqual(expected.title);
       expect(description).toEqual(expected.description);
+      expect(haveRetryButton).toBe(expected.haveRetryButton);
     }
   );
 });

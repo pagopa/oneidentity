@@ -25,3 +25,11 @@ output "rest_api_execution_arn" {
 output "rest_api_name" {
   value = aws_api_gateway_rest_api.main.name
 }
+
+output "rest_api_stage_name" {
+  value = aws_api_gateway_stage.main.stage_name
+}
+
+output "rest_api_arn" {
+  value = aws_api_gateway_rest_api.main.arn
+}

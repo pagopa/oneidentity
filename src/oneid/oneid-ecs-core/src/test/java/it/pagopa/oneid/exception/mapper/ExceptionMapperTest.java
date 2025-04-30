@@ -59,6 +59,12 @@ class ExceptionMapperTest {
 
   private final String DEFAULT_FALLBACK_URI = "test.com";
 
+  private final String DEFAULT_STATE = "dummyState";
+
+  private final String DEFAULT_CLIENT_ID = "dummyClientId";
+
+  private final String DEFAULT_ERROR_CODE = "dummyErrorCode";
+
   @Inject
   ExceptionMapper exceptionMapper;
 
@@ -341,11 +347,13 @@ class ExceptionMapperTest {
     SAMLResponseStatusException exceptionMock = Mockito.mock(SAMLResponseStatusException.class);
     Mockito.when(exceptionMock.getMessage()).thenReturn(DETAIL_MESSAGE);
     Mockito.when(exceptionMock.getRedirectUri()).thenReturn(DEFAULT_FALLBACK_URI);
-    // when
+    Mockito.when(exceptionMock.getState()).thenReturn(DEFAULT_STATE);
+    Mockito.when(exceptionMock.getClientId()).thenReturn(DEFAULT_CLIENT_ID);
+    Mockito.when(exceptionMock.getErrorCode()).thenReturn(DEFAULT_ERROR_CODE);
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLResponseStatusException(
         exceptionMock);
     // then
-    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getMessage(), restResponse);
+    checkErrorWithGenericHTMLError(FOUND, exceptionMock.getErrorCode(), restResponse);
   }
 
   @Test
@@ -356,6 +364,8 @@ class ExceptionMapperTest {
     Mockito.when(exceptionMock.getMessage())
         .thenReturn(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage());
     Mockito.when(exceptionMock.getRedirectUri()).thenReturn("test.com");
+    Mockito.when(exceptionMock.getState()).thenReturn("dummyState");
+    Mockito.when(exceptionMock.getClientId()).thenReturn("dummyClientId");
 
     // when
     RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(

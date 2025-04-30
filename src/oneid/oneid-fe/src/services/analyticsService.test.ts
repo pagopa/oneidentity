@@ -4,7 +4,7 @@ import { initAnalytics, trackAppError, trackEvent } from './analyticsService';
 
 vi.mock('../utils/env', () => ({
   ENV: {
-    ANALYTCS: {
+    ANALYTICS: {
       ENABLE: true,
       MOCK: true,
     },
@@ -30,7 +30,7 @@ describe('Analytics Service', () => {
     });
 
     it('should not log or call callback when analytics is disabled', () => {
-      ENV.ANALYTCS.ENABLE = false;
+      ENV.ANALYTICS.ENABLE = false;
       const consoleSpy = vi.spyOn(console, 'log');
       const callback = vi.fn();
 
@@ -41,8 +41,8 @@ describe('Analytics Service', () => {
     });
 
     it('should call trackEventThroughAnalyticTool when mock is false', () => {
-      ENV.ANALYTCS.ENABLE = true;
-      ENV.ANALYTCS.MOCK = false;
+      ENV.ANALYTICS.ENABLE = true;
+      ENV.ANALYTICS.MOCK = false;
       const analyticToolSpy = vi.spyOn(console, 'log'); // Mock `trackEventThroughAnalyticTool`
       const callback = vi.fn();
 
@@ -57,7 +57,7 @@ describe('Analytics Service', () => {
 
   describe('trackAppError', () => {
     it('should log the error if analytics is disabled', () => {
-      ENV.ANALYTCS.ENABLE = false;
+      ENV.ANALYTICS.ENABLE = false;
       const consoleSpy = vi.spyOn(console, 'error');
 
       trackAppError(mockErrorMsg);
@@ -66,8 +66,8 @@ describe('Analytics Service', () => {
     });
 
     it('should call trackEvent for error if analytics is enabled', () => {
-      ENV.ANALYTCS.ENABLE = true;
-      ENV.ANALYTCS.MOCK = false; // Ensure mock is false for this test
+      ENV.ANALYTICS.ENABLE = true;
+      ENV.ANALYTICS.MOCK = false; // Ensure mock is false for this test
       const trackEventSpy = vi.spyOn(console, 'log');
 
       trackAppError(mockErrorMsg);

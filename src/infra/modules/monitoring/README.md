@@ -91,8 +91,8 @@ No modules.
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br>    arn_suffix              = string<br>    target_group_arn_suffix = string<br>  })</pre> | n/a | yes |
 | <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |
+| <a name="input_region_short"></a> [region\_short](#input\_region\_short) | AWS Region short format. | `string` | n/a | yes |
 | <a name="input_sessions_table"></a> [sessions\_table](#input\_sessions\_table) | Dynamodb Sessions table | `string` | n/a | yes |
-| <a name="input_spid_error_codes"></a> [spid\_error\_codes](#input\_spid\_error\_codes) | ref: https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/messaggi-errore.html | `list(string)` | <pre>[<br>  "08",<br>  "09",<br>  "11",<br>  "12",<br>  "13",<br>  "14",<br>  "15",<br>  "16",<br>  "17",<br>  "18",<br>  "19",<br>  "20",<br>  "21",<br>  "22",<br>  "23",<br>  "25",<br>  "30"<br>]</pre> | no |
 
 ## Outputs
 

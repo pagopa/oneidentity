@@ -1,5 +1,3 @@
-const PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL || '';
-
 export const ENV = {
   CURRENT_ENV: import.meta.env.VITE_CURRENT_ENV as string,
   // Corresponds to the .env.[mode] file loaded
@@ -8,16 +6,15 @@ export const ENV = {
   // Can be overriden using --mode option
   // see https://vite.dev/guide/env-and-mode#modes
   MODE: import.meta.env.MODE,
-  PUBLIC_URL,
 
   // The following will disable the modal for selection of the SPID IDP
   // and will switch to SpidSelect page
   ENABLED_SPID_TEMPORARY_SELECT:
     import.meta.env.VITE_LOGIN_SPID_ENABLED_TEMPORARY_SELECT === 'true',
 
-  ASSISTANCE: {
-    ENABLE: import.meta.env.VITE_ENABLE_ASSISTANCE === 'true',
-    EMAIL: import.meta.env.VITE_PAGOPA_HELP_EMAIL as string,
+  FALLBACK_ASSISTANCE: {
+    ENABLE: import.meta.env.VITE_ENABLE_FALLBACK_ASSISTANCE === 'true',
+    EMAIL: import.meta.env.VITE_PAGOPA_FALLBACK_SUPPORT_EMAIL as string,
   },
 
   JSON_URL: {
@@ -27,8 +24,6 @@ export const ENV = {
   },
 
   URL_FE: {
-    LOGIN: PUBLIC_URL + '/login',
-    LOGOUT: PUBLIC_URL + '/logout',
     ASSETS: import.meta.env.VITE_URL_CDN as string,
   },
 
@@ -78,9 +73,9 @@ export const ENV = {
 
   SPID_TEST_ENV_ENABLED: import.meta.env.VITE_SPID_TEST_ENV_ENABLED === 'true',
 
-  SPID_CIE_ENTITY_ID: import.meta.env.VITE_SPID_CIE_ENTITY_ID as string,
+  CIE_ENTITY_ID: import.meta.env.VITE_CIE_ENTITY_ID as string,
 
-  ANALYTCS: {
+  ANALYTICS: {
     ENABLE: import.meta.env.VITE_ANALYTICS_ENABLE === 'true',
     MOCK: import.meta.env.VITE_ANALYTICS_MOCK === 'true',
     DEBUG: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',

@@ -345,12 +345,20 @@ variable "api_method_settings" {
     {
       method_path          = "idps/GET"
       caching_enabled      = true
+      metrics_enabled      = true
       cache_ttl_in_seconds = 3600
       logging_level        = "ERROR"
     },
     {
       method_path          = ".well-known/openid-configuration/GET"
       caching_enabled      = true
+      cache_ttl_in_seconds = 3600
+      logging_level        = "ERROR"
+    },
+    {
+      method_path          = "clients/{client_id}/GET"
+      caching_enabled      = true
+      metrics_enabled      = true
       cache_ttl_in_seconds = 3600
       logging_level        = "ERROR"
     }

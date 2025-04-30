@@ -3,7 +3,6 @@ import { HeaderProduct } from '@pagopa/mui-italia/dist/components/HeaderProduct/
 import { HeaderAccount } from '@pagopa/mui-italia/dist/components/HeaderAccount/HeaderAccount';
 import {
   RootLinkType,
-  JwtUser,
   UserAction,
   ProductSwitchItem,
   ProductEntity,
@@ -14,7 +13,11 @@ import { buildAssistanceURI } from '../services/assistanceService';
 import { useLoginData } from '../hooks/useLoginData';
 import { mapClientToProduct } from '../utils/utils';
 import { ImageWithFallback } from './ImageFallback';
-import { IDP_PLACEHOLDER_IMG } from '../utils/constants';
+import {
+  IDP_PLACEHOLDER_IMG,
+  ROUTE_LOGIN,
+  ROUTE_LOGOUT,
+} from '../utils/constants';
 
 type PartyEntity = PartySwitchItem;
 type HeaderProps = {
@@ -28,18 +31,13 @@ type HeaderProps = {
   selectedProductId?: string;
   /** The parties list */
   partyList?: Array<PartyEntity>;
-  /** The logged user or false if there is not a valid session */
-  loggedUser: JwtUser | false;
-  /** The email to which the assistance button will ask to send an email, if the user is not logged in, otherwise it will be redirect to the assistance form */
-  assistanceEmail?: string;
+
   /** The function invoked when the user click on a product */
   onSelectedProduct?: (product: ProductSwitchItem) => void;
   /** The function invoked when the user click on a party from the switch  */
   onSelectedParty?: (party: PartySwitchItem) => void;
   /** The function to be invoked when pressing the rendered logout button, if not defined it will redirect to the logout page, if setted to null it will no render the logout button. It's possible to modify the logout path changing the value in CONFIG.logout inside the index.tsx file */
   onExit?: (exitAction: () => void) => void;
-  /** If false hides login button  */
-  enableLogin?: boolean;
   /** The users actions inside the user dropdown. It's visible only if enableLogin and enableDropdown are true */
   userActions?: Array<UserAction>;
   /** If true the user dropdown in headerAccount component is visible. It's visible only if enableLogin is true */
@@ -64,9 +62,6 @@ const Header = ({
   withSecondHeader,
   selectedPartyId,
   partyList = [],
-  loggedUser,
-  assistanceEmail,
-  enableLogin = true,
   userActions = [],
   enableDropdown = false,
   onExit = (exitAction) => exitAction(),
@@ -74,7 +69,6 @@ const Header = ({
   onSelectedParty,
   maxCharactersNumberMultiLineButton,
   maxCharactersNumberMultiLineItem,
-  enableAssistanceButton = true,
 }: HeaderProps) => {
   const { clientQuery } = useLoginData();
   const getClientLogo = () => (
@@ -83,8 +77,8 @@ const Header = ({
         <ImageWithFallback
           style={{
             width: '100%',
-            maxWidth: '48px',
-            maxHeight: '48px',
+            maxWidth: '56px',
+            maxHeight: '56px',
             objectFit: 'cover',
           }}
           src={clientQuery.data?.logoUri}
@@ -105,26 +99,32 @@ const Header = ({
     ? () => window.open(clientQuery.data?.docUri, '_blank')
     : undefined;
 
+  // The string wich could represent a valid email address or URL to help users to get assistance
+  let assistanceString = '';
+
+  // enable assistance fallback whether assistance is enabled and email is set
+  if (ENV.FALLBACK_ASSISTANCE.ENABLE && ENV.FALLBACK_ASSISTANCE.EMAIL) {
+    assistanceString = ENV.FALLBACK_ASSISTANCE.EMAIL;
+  }
+  assistanceString = clientQuery.data?.supportAddress || assistanceString;
+
   return (
     <Fragment>
       <header>
         <HeaderAccount
           rootLink={rootLink}
-          loggedUser={loggedUser}
           onAssistanceClick={() =>
             onExit(() =>
-              window.location.assign(buildAssistanceURI(assistanceEmail))
+              window.open(buildAssistanceURI(assistanceString) || '', '_blank')
             )
           }
-          onLogin={() => onExit(() => window.location.assign(ENV.URL_FE.LOGIN))}
-          onLogout={() =>
-            onExit(() => window.location.assign(ENV.URL_FE.LOGOUT))
-          }
-          enableLogin={enableLogin}
+          onLogin={() => onExit(() => window.location.assign(ROUTE_LOGIN))}
+          onLogout={() => onExit(() => window.location.assign(ROUTE_LOGOUT))}
           userActions={userActions}
           enableDropdown={enableDropdown}
-          enableAssistanceButton={enableAssistanceButton}
+          enableAssistanceButton={!!assistanceString}
           onDocumentationClick={onDocumentationClick}
+          enableLogin={false}
         />
       </header>
       {withSecondHeader === true && product ? (

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -10,7 +10,10 @@ import { ButtonNaked, LangCode, theme } from '@pagopa/mui-italia';
 import Layout from '../../components/Layout';
 import { ENV } from '../../utils/env';
 import { trackEvent } from '../../services/analyticsService';
-import { forwardSearchParams } from '../../utils/utils';
+import {
+  forwardSearchParams,
+  writeParamsToSessionStorage,
+} from '../../utils/utils';
 import SpidModal from './components/SpidModal';
 import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
@@ -48,15 +51,18 @@ const Login = () => {
   const lang: LangCode = i18n.language as LangCode;
 
   const columnsOccupiedByAlert = 5;
+  useEffect(() => {
+    writeParamsToSessionStorage();
+  }, []);
 
   const goCIE = () => {
-    const params = forwardSearchParams(ENV.SPID_CIE_ENTITY_ID);
+    const params = forwardSearchParams(ENV.CIE_ENTITY_ID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
         SPID_IDP_NAME: 'CIE',
-        SPID_IDP_ID: ENV.SPID_CIE_ENTITY_ID,
+        SPID_IDP_ID: ENV.CIE_ENTITY_ID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -102,7 +108,8 @@ const Login = () => {
       <Box mt={3} ml={3}>
         {clientQuery.data?.backButtonEnabled ? (
           <ButtonNaked
-            color="text"
+            color="primary"
+            sx={{ fontWeight: '700' }}
             onClick={() => window.history.back()}
             size="medium"
             startIcon={<ArrowBackIcon />}

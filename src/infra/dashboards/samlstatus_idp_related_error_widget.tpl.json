@@ -15,9 +15,9 @@
     "metrics": [
       [
         {
-          "expression": "SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"IDPError\"', 'Sum', 300)",
+          "expression": "SEARCH('{oneid-${region_short}-${env_short}-core/ApplicationMetrics, IDP, Error} IDP=\"${idp}\" MetricName=\"SAMLStatusIDPError\"', 'Sum', 300)",
           "label": "$${PROP('Dim.Error')}",
-          "id": "idp_errors",
+          "id": "samlstatus_idp_errors",
           "region": "${aws_region}"
         }
       ]

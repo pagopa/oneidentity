@@ -2,14 +2,14 @@ import { ENV } from '../utils/env';
 
 /** To call in order to start the analytics service, otherwise no event will be sent */
 export const initAnalytics = (): void => {
-  if (ENV.ANALYTCS.ENABLE) {
+  if (ENV.ANALYTICS.ENABLE) {
     // to be defined
   }
 };
 
 /** To notify an error through the analytics tool */
 export const trackAppError = (error: string): void => {
-  if (ENV.ANALYTCS.ENABLE) {
+  if (ENV.ANALYTICS.ENABLE) {
     trackEvent('GENERIC_ERROR', error);
   } else {
     console.error(error);
@@ -27,8 +27,8 @@ export const trackEvent = (
   properties?: unknown,
   callback?: () => void
 ): void => {
-  if (ENV.ANALYTCS.ENABLE) {
-    if (ENV.ANALYTCS.MOCK) {
+  if (ENV.ANALYTICS.ENABLE) {
+    if (ENV.ANALYTICS.MOCK) {
       console.log(event_name, properties);
       if (callback) {
         callback();

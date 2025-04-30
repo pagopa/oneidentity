@@ -1,0 +1,27 @@
+{
+    "type": "metric",
+    "height": 6,
+    "width": 8,
+    "properties": {
+      "title": "Saml and Access-Token counter",
+      "stat": "Sum",
+      "view": "bar",
+      "height": 200,
+      "width": 1710,
+      "region": "${aws_region}",
+      "setPeriodToTimeRange": true,
+      "stacked": false,
+      "sparkline": false,
+      "trend": false,
+      "legend": {
+        "position": "bottom"
+      },
+      "metrics": [
+        [ "Assertions/TestCounter", "AccessToken", { "label": "[sum: $${SUM}] AccessToken" } ],
+        [ ".", "Saml", { "label": "[sum: $${SUM}] Saml" } ]
+      ]
+    }
+  }
+
+
+  
