@@ -11,31 +11,40 @@ import software.amazon.awssdk.enhanced.dynamodb.internal.converter.string.String
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 public class HashMapAttributeConverter implements
-    AttributeConverter<Map<String, LocalizedContent>> {
+    AttributeConverter<Map<String, Map<String, LocalizedContent>>> {
 
-  private static AttributeConverter<Map<String, LocalizedContent>> mapConverter;
+  private static AttributeConverter<Map<String, Map<String, LocalizedContent>>> mapConverter;
 
   public HashMapAttributeConverter() {
     mapConverter =
-        MapAttributeConverter.builder(EnhancedType.mapOf(String.class, LocalizedContent.class))
+        MapAttributeConverter.builder(
+                EnhancedType.mapOf(
+                    EnhancedType.of(String.class),
+                    EnhancedType.mapOf(String.class, LocalizedContent.class)))
             .mapConstructor(HashMap::new)
             .keyConverter(StringStringConverter.create())
-            .valueConverter(new LocalizedContentAttributeConverter())
+            .valueConverter(
+                MapAttributeConverter.builder(
+                        EnhancedType.mapOf(String.class, LocalizedContent.class))
+                    .mapConstructor(HashMap::new)
+                    .keyConverter(StringStringConverter.create())
+                    .valueConverter(new LocalizedContentAttributeConverter())
+                    .build())
             .build();
   }
 
   @Override
-  public AttributeValue transformFrom(Map<String, LocalizedContent> map) {
+  public AttributeValue transformFrom(Map<String, Map<String, LocalizedContent>> map) {
     return mapConverter.transformFrom(map);
   }
 
   @Override
-  public Map<String, LocalizedContent> transformTo(AttributeValue attributeValue) {
+  public Map<String, Map<String, LocalizedContent>> transformTo(AttributeValue attributeValue) {
     return mapConverter.transformTo(attributeValue);
   }
 
   @Override
-  public EnhancedType<Map<String, LocalizedContent>> type() {
+  public EnhancedType<Map<String, Map<String, LocalizedContent>>> type() {
     return mapConverter.type();
   }
 
