@@ -2194,6 +2194,105 @@
           }
         ]
       }
+    },
+    "/admin/client-manager/client-additional/{client_id}": {
+      "put": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Put_admin_client_manager_client_additional",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "201": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientAdditional"
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "201": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+            
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2897,6 +2996,74 @@
           "client_id": {
             "type": "string",
             "description": "The client id"
+          }
+        }
+      },
+      "ClientAdditional": {
+        "type": "object",
+        "properties": {
+          "a11y_uri": {
+            "type": "string",
+            "description": "The accessibility URI"
+          },
+          "back_button_enabled": {
+            "type": "string",
+            "description": "The back button enabled flag"
+          },
+          "localizedContentMap": {
+            "type": "object",
+            "properties":{
+              "en": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              },
+              "it": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              },
+              "fr": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              },
+              "de": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              },
+              "sl": {
+                "schema": {
+                  "$ref": "#/components/schemas/Theme"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Theme": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The displayed title"
+          },
+          "desc": {
+            "type": "string",
+            "description": "The displayed description"
+          },
+          "doc_uri": {
+            "type": "string",
+            "description": "The doc uri"
+          },
+          "support_address": {
+            "type": "string",
+            "description": "The support address"
+          },
+          "cookie_uri": {
+            "type": "string",
+            "description": "The cookie_uri"
           }
         }
       }
