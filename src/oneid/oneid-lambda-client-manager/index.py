@@ -146,7 +146,7 @@ def update_optional_attributes(client_id):
         # Extract optional attributes from the request body
         a11y_uri = body.get("a11y_uri")
         back_button_enabled = body.get("back_button_enabled")
-        localized_content = body.get("localized_content")
+        localized_content = body.get("localizedContentMap")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
         logger.debug("[update_optional_attributes]: %s", localized_content_map_object)
@@ -156,7 +156,7 @@ def update_optional_attributes(client_id):
         response = dynamodb_client.update_item(
             TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
             Key={"clientId": {"S": client_id}},
-            UpdateExpression="SET a11y_uri = :a11y_uri, back_button_enabled = :back_button_enabled, localizedContentMap = :localized_content",
+            UpdateExpression="SET a11y_uri = :a11y_uri, back_button_enabled = :back_button_enabled, localizedContentMap = :localizedContentMap",
             ExpressionAttributeValues={
                 ":a11y_uri": {"S": a11y_uri},
                 ":back_button_enabled": {"BOOL": back_button_enabled},
