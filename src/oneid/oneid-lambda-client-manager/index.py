@@ -156,10 +156,10 @@ def update_optional_attributes(client_id):
         response = dynamodb_client.update_item(
             TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
             Key={"clientId": {"S": client_id}},
-            UpdateExpression="SET a11y_uri = :a11y_uri, back_button_enabled = :back_button_enabled, localizedContentMap = :localizedContentMap",
+            UpdateExpression="SET a11yUri = :a11yUri, backButtonEnabled = :backButtonEnabled, localizedContentMap = :localizedContentMap",
             ExpressionAttributeValues={
-                ":a11y_uri": {"S": a11y_uri},
-                ":back_button_enabled": {"BOOL": back_button_enabled},
+                ":a11yUri": {"S": a11y_uri},
+                ":backButtonEnabled": {"BOOL": back_button_enabled},
                 ":localizedContentMap": localized_content_map_object_value,
             },
         )
