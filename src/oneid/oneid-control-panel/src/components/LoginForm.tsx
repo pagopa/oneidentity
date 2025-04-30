@@ -8,6 +8,8 @@ import {
 } from '@mui/material';
 import { useAuth } from 'react-oidc-context';
 
+const cognitoCustomAttribute = 'custom:client_id';
+
 export const LoginForm = () => {
   const {
     isAuthenticated,
@@ -20,23 +22,19 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User is authenticated', user);
-      if (user?.profile && Object.hasOwn(user.profile, 'custom:client_id')) {
+      if (
+        user?.profile &&
+        Object.hasOwn(user.profile, cognitoCustomAttribute) &&
+        user.profile[cognitoCustomAttribute]
+      ) {
         window.location.assign(
-          `/dashboard/${user.profile['custom:client_id']}`
+          `/dashboard/${user.profile[cognitoCustomAttribute]}`
         );
       } else {
         window.location.assign('/dashboard');
       }
     }
   }, [isAuthenticated, user]);
-
-  useEffect(() => {
-    const handleOnline = () => {};
-
-    window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

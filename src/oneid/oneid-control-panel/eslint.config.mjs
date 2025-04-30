@@ -16,7 +16,7 @@ export default tseslint.config([
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: ['dist/', 'coverage/'],
+    ignores: ['dist/', 'coverage/', '.yarn/', 'node_modules/'],
   },
   {
     settings: {

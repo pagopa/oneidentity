@@ -29,7 +29,7 @@ const withTimeout = <T extends object>(
 
 export const useRegister = (clientId?: string) => {
   const { user } = useAuth();
-  const token = user?.access_token;
+  const token = user?.id_token;
   if (!token) {
     throw new Error('No token available');
   }

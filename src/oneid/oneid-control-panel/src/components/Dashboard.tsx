@@ -23,7 +23,7 @@ import { Notify } from './Notify';
 import Layout from './Layout';
 
 export const Dashboard = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { client_id } = useParams(); // Get the client_id from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
@@ -48,12 +48,6 @@ export const Dashboard = () => {
       setFormData({ ...fetchedClientData, client_id });
     }
   }, [client_id, fetchedClientData]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log('User is authenticated', user, client_id);
-    }
-  }, [client_id, isAuthenticated, user]);
 
   useEffect(() => {
     if (updateError) {
@@ -230,7 +224,7 @@ export const Dashboard = () => {
                 default_acr_values: e.target.value as Array<SpidLevel>,
               }))
             }
-            input={<OutlinedInput />}
+            input={<OutlinedInput label={'SPID Level'} />}
             data-testid="spid-level-select"
           >
             {Object.values(SpidLevel).map((level) => (
@@ -265,7 +259,7 @@ export const Dashboard = () => {
                   .value as Array<SamlAttribute>,
               }))
             }
-            input={<OutlinedInput />}
+            input={<OutlinedInput label="SAML Attributes" />}
             data-testid="saml-attributes-select"
           >
             {Object.values(SamlAttribute).map((attr) => (
