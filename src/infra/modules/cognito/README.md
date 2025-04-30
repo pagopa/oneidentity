@@ -38,4 +38,5 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_user_pool_arn"></a> [user\_pool\_arn](#output\_user\_pool\_arn) | n/a |
+| <a name="output_user_pool_id"></a> [user\_pool\_id](#output\_user\_pool\_id) | n/a |
 <!-- END_TF_DOCS -->
