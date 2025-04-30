@@ -15,7 +15,7 @@ from localized_content_map import LocalizedContentMap
 # AWS_REGION
 # USER_POOL_ID
 # LOG_LEVEL
-# CLIENT_REGISTRATIONS_TABLE
+# CLIENT_REGISTRATIONS_TABLE_NAME
 
 # Get tracer
 tracer = Tracer()
@@ -36,8 +36,8 @@ def check_client_id_exists(client_id: str) -> bool:
     """
     try:
         response = dynamodb_client.get_item(
-            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE"),
-            Key={"client_id": {"S": client_id}},
+            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
+            Key={"clientId": {"S": client_id}},
         )
         logger.debug("[check_client_id_exists]: %s", response)
         return "Item" in response
@@ -149,17 +149,18 @@ def update_optional_attributes(client_id):
         localized_content = body.get("localized_content")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
+        logger.debug("[update_optional_attributes]: %s", localized_content_map_object)
         localized_content_map_object_value = localized_content_map_object.to_dynamodb()
-
+        logger.debug("[update_optional_attributes]: %s", localized_content_map_object_value)
         # Update the optional attributes in DynamoDB in ClientRegistrations table
         response = dynamodb_client.update_item(
-            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE"),
-            Key={"client_id": {"S": client_id}},
-            UpdateExpression="SET a11y_uri = :a11y_uri, back_button_enabled = :back_button_enabled, localized_content = :localized_content",
+            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
+            Key={"clientId": {"S": client_id}},
+            UpdateExpression="SET a11y_uri = :a11y_uri, back_button_enabled = :back_button_enabled, localizedContentMap = :localized_content",
             ExpressionAttributeValues={
                 ":a11y_uri": {"S": a11y_uri},
                 ":back_button_enabled": {"BOOL": back_button_enabled},
-                ":localized_content": localized_content_map_object_value,
+                ":localizedContentMap": localized_content_map_object_value,
             },
         )
         logger.debug("[update_optional_attributes]: %s", response)
