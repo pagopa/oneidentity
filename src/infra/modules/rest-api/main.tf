@@ -11,7 +11,7 @@ resource "aws_api_gateway_rest_api" "main" {
   }
 
   disable_execute_api_endpoint = var.create_custom_domain_name ? true : false
-
+  binary_media_types           = []
   tags = {
     Name = var.name
   }
