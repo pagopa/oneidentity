@@ -2,10 +2,27 @@
 resource "aws_cognito_user_pool" "main" {
   name = var.cognito.user_pool_name
 
+  # schema {
+  #   attribute_data_type = "String"
+  #   name                = "email"
+  #   required            = true
+  # }
+
   schema {
-    attribute_data_type = "String"
-    name                = "email"
-    required            = true
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = false
+    name                     = "email"
+    required                 = true
+  }
+  schema {
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    name                     = "client_id"
+    required                 = false
+
+    string_attribute_constraints {}
   }
 
   username_attributes      = ["email"]
@@ -75,10 +92,10 @@ resource "aws_cognito_user_pool_client" "client" {
   ]
 
 
-  allowed_oauth_flows  = ["code", "implicit"]
-  allowed_oauth_scopes = ["email", "openid"]
+  allowed_oauth_flows  = ["code"]
+  allowed_oauth_scopes = ["email", "openid", "profile"]
 
-  callback_urls = ["${var.cognito.callback_url}"]
+  callback_urls = ["http://localhost", "${var.cognito.callback_url}"]
   logout_urls   = ["${var.cognito.logout_url}"] # Update with your app's logout URL
 
   supported_identity_providers = ["COGNITO"]
