@@ -22,6 +22,9 @@
       "url": "${server_url}"
     }
   ],
+  "x-amazon-apigateway-binary-media-types": [
+    "*/*"
+  ],
   "paths": {
     "/status": {
       "get": {
