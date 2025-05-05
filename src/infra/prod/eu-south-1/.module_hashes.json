@@ -6,7 +6,7 @@
   "backend.ecs_core_service": "ede5fb3b2396d939574e90a4753eba04d8f4a64b25a8d9fd9890b900f56bffa1",
   "backend.elb": "fc63bd2c42d393cd7d57774e67ad8ea91e5dbc7bc22ebd4bbd12b0e3a73b66d2",
   "backend.idp_metadata_lambda": "263de3f619fa722d9ab1dfd1a5ab9ccfc7ec4205af822b98fda2065f7a7cfa46",
-  "backend.invalidate_cache_lambda": "5e1be81177b90fc2aa3be27ccc91b86d8ccea834e2b18833454a83cce0570575",
+  "backend.invalidate_cache_lambda": "263de3f619fa722d9ab1dfd1a5ab9ccfc7ec4205af822b98fda2065f7a7cfa46",
   "backend.is_gh_integration_lambda": "263de3f619fa722d9ab1dfd1a5ab9ccfc7ec4205af822b98fda2065f7a7cfa46",
   "backend.jwt_sign": "86c8813c568092b6a6656cbf1104be2bf8e9ab8addf510ebf9f11dbe9dac9880",
   "backend.kms_key_pem": "bc9f5480b32a43bc8e9ea8ea9af847a764144583ad2b775a4cd1ef30102cb0f2",
