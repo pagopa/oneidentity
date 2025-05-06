@@ -1,1 +1,1 @@
-aws-lambda-powertools == 3.11.0
+aws-lambda-powertools[parser, validation, tracer] == 3.11.0
