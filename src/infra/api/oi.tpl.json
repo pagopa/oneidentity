@@ -497,6 +497,7 @@
             "application/json" : "{\"statusCode\": 200}"
           },
           "passthroughBehavior" : "when_no_match",
+          "contentHandling" : "CONVERT_TO_TEXT",
           "type" : "mock"
         }
       }
