@@ -1,14 +1,14 @@
 """Lambda function which serves as BE for Client Portal"""
 
-import boto3
 import logging
 import os
 from typing import Optional
+
+import boto3
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from localized_content_map import LocalizedContentMap
-
 
 # ENVIRONMENT VARIABLES
 
@@ -169,6 +169,9 @@ def update_optional_attributes(client_id):
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
             logger.error("[update_optional_attributes]: %s", response)
             return {"message": "Failed to update optional attributes"}, 500
+
+        # Return success response
+        return {"message": "Optional attributes updated successfully"}, 200
 
     except Exception as e:
         logger.error("Error updating optional attributes: %s", repr(e))
