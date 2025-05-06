@@ -1,25 +1,29 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import { setClientToUser } from '../api/client';
 
-const staleTime = 5 * 60 * 1000;
 const retry = 2;
 
-export const useClient = (clientId?: string) => {
+export const useClient = () => {
   const { user } = useAuth();
   const token = user?.id_token;
+  const userId = user?.profile.sub;
   if (!token) {
     throw new Error('No token available');
   }
-  const userId = user?.profile.sub;
 
-  const setCognitoProfile = useQuery<string, Error>({
-    queryKey: ['client', clientId, userId],
-    queryFn: () => setClientToUser(clientId, userId, token),
-    enabled: !!token && !!clientId && !!userId,
-    staleTime,
+  const setCognitoProfile = useMutation({
+    onError(error) {
+      console.error('Error creating or updating client:', error);
+    },
+    mutationFn: async ({ clientId }: { clientId: string | undefined }) => {
+      if (!clientId && !userId) {
+        throw new Error('Client ID and User ID are required');
+      }
+
+      return await setClientToUser(clientId, userId, token);
+    },
     retry,
-    throwOnError: false, //be careful with this option, it can cause unexpected behavior
   });
 
   return {

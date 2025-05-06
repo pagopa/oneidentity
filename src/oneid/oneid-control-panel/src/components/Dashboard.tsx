@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -21,6 +21,9 @@ import { useRegister } from '../hooks/useRegister';
 import { FormArrayTextField } from './FormArrayTextField';
 import { Notify } from './Notify';
 import Layout from './Layout';
+import { useClient } from '../hooks/useClient';
+import { SecretModal } from './SecretModal';
+import { useModalManager } from '../hooks/useModal';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -28,12 +31,14 @@ export const Dashboard = () => {
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const { isModalOpen, openModal, closeModal } = useModalManager();
 
   const {
     clientQuery: {
       data: fetchedClientData,
       isLoading: isLoadingClient,
       error: fetchError,
+      isSuccess: isUpdatePhase,
     },
     createOrUpdateClientMutation: {
       data: clientUpdated,
@@ -43,11 +48,32 @@ export const Dashboard = () => {
     },
   } = useRegister(client_id);
 
+  const {
+    setCognitoProfile: {
+      data: cognitoUpdated,
+      mutate: setCognitoProfile,
+      error: cognitoError,
+    },
+  } = useClient();
+
   useEffect(() => {
     if (fetchedClientData) {
       setFormData({ ...fetchedClientData, client_id });
     }
   }, [client_id, fetchedClientData]);
+
+  const updateCognitoMapping = useCallback(() => {
+    if (
+      clientUpdated?.client_id &&
+      typeof clientUpdated.client_id === 'string' &&
+      user?.profile.sub &&
+      user?.id_token
+    ) {
+      setCognitoProfile({
+        clientId: clientUpdated.client_id,
+      });
+    }
+  }, [clientUpdated, setCognitoProfile, user?.id_token, user?.profile.sub]);
 
   useEffect(() => {
     if (updateError) {
@@ -60,15 +86,51 @@ export const Dashboard = () => {
       });
     }
     if (clientUpdated) {
-      console.log('Client updated successfully:', clientUpdated);
       setErrorUi(null);
       setNotify({
         open: true,
-        message: 'Client updated successfully',
+        message: 'Client updated successfully, id: ' + clientUpdated.client_id,
+        severity: 'success',
+      });
+
+      // Associate the client with the user in Cognito if not in update phase
+      if (!isUpdatePhase) {
+        updateCognitoMapping();
+      }
+      // before redirecting we need to show a modal with client_id and client_secret
+      // open only if it is in creation phase, not an update
+      if (!isUpdatePhase) {
+        openModal('secretViewer');
+      }
+    }
+  }, [
+    updateError,
+    clientUpdated,
+    updateCognitoMapping,
+    isUpdatePhase,
+    openModal,
+  ]);
+
+  useEffect(() => {
+    // If everything is ok, redirect to the dashboard's client in edit mode
+    if (cognitoUpdated) {
+      setErrorUi(null);
+      setNotify({
+        open: true,
+        message:
+          'Cognito updated successfully, id: ' + clientUpdated?.client_id,
         severity: 'success',
       });
     }
-  }, [updateError, clientUpdated]);
+
+    if (cognitoError) {
+      setNotify({
+        open: true,
+        message: 'Error updating cognito',
+        severity: 'error',
+      });
+    }
+  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated, openModal]);
 
   const isFormValid = () => {
     return (
@@ -79,9 +141,14 @@ export const Dashboard = () => {
     );
   };
 
+  const handleCloseSecretModal = () => {
+    // TODO check cognito status before redirecting
+    closeModal(() => {
+      window.location.assign(`/dashboard/${clientUpdated?.client_id}`);
+    });
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted', formData);
 
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
@@ -117,6 +184,23 @@ export const Dashboard = () => {
           </Alert>
         </Box>
       )}
+
+      <SecretModal
+        title="Secret Viewer"
+        onClose={handleCloseSecretModal}
+        open={isModalOpen('secretViewer')}
+        data={{
+          client_id:
+            typeof clientUpdated?.client_id === 'string'
+              ? clientUpdated.client_id
+              : 'error',
+          client_secret:
+            typeof clientUpdated?.client_secret === 'string'
+              ? clientUpdated.client_secret
+              : 'error',
+        }}
+      />
+
       <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
         User: {user?.profile?.email}
       </Typography>
@@ -130,6 +214,7 @@ export const Dashboard = () => {
         </Typography>
 
         <TextField
+          hidden
           fullWidth
           label="Client ID"
           value={formData?.client_id || ''}

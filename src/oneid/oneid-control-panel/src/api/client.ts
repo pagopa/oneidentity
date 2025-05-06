@@ -18,14 +18,17 @@ export const setClientToUser = async (
   if (!clientId && !userId) {
     throw new Error('Client ID and User ID are required');
   }
+  // mock:
+  // return Promise.resolve(true);
+  const data = {
+    client_id: clientId,
+    user_id: userId,
+  };
+
   try {
-    const response = await api.put<string>(`${ENDPOINT}`, {
+    const response = await api.put<string>(`${ENDPOINT}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
-      },
-      data: {
-        client_id: clientId,
-        user_id: userId,
       },
     });
     return response.data;

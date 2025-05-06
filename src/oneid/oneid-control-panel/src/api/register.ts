@@ -35,6 +35,7 @@ export const getClientData = async (
   if (!clientId) {
     throw new Error('Client ID is required');
   }
+  // mock:
   // const out =
   //   '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
   // return JSON.parse(out);
@@ -42,7 +43,6 @@ export const getClientData = async (
     const response = await api.get<Client>(
       `${ENV.URL_API.REGISTER}/${clientId}`,
       {
-        // withCredentials: false,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -78,9 +78,10 @@ export const createOrUpdateClient = async (
       return Promise.reject(errors.error.format());
     }
 
+    // mock:
     // return Promise.resolve({
     //   ...data,
-    //   client_id: clientId || 'xxx',
+    //   client_id: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
     //   client_secret: 'xxx',
     //   client_id_issued_at: 1234567890,
     //   client_secret_expires_at: 1234567890,

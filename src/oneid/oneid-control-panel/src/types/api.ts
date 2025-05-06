@@ -87,6 +87,14 @@ export type ClientFormData = Omit<
   | 'client_secret_expires_at'
 >;
 
+export type ClientRegisteredData = Pick<
+  Client,
+  | 'client_id'
+  | 'client_secret'
+  | 'client_id_issued_at'
+  | 'client_secret_expires_at'
+>;
+
 export type RegisterClientRequest = {
   // Fields that can be submitted in the form
 } & Omit<Client, 'client_id' | 'client_secret'>;
