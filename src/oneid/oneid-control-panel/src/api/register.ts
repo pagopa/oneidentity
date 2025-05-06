@@ -78,13 +78,13 @@ export const createOrUpdateClient = async (
       return Promise.reject(errors.error.format());
     }
 
-    // return Promise.resolve({
-    //   ...data,
-    //   client_id: clientId || 'xxx',
-    //   client_secret: 'xxx',
-    //   client_id_issued_at: 1234567890,
-    //   client_secret_expires_at: 1234567890,
-    // });
+    return Promise.resolve({
+      ...data,
+      client_id: clientId || 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
+      client_secret: 'xxx',
+      client_id_issued_at: 1234567890,
+      client_secret_expires_at: 1234567890,
+    });
 
     const response = await api[method]<Client>(url, data, {
       headers: {

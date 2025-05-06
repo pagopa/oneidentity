@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -21,6 +21,7 @@ import { useRegister } from '../hooks/useRegister';
 import { FormArrayTextField } from './FormArrayTextField';
 import { Notify } from './Notify';
 import Layout from './Layout';
+import { useClient } from '../hooks/useClient';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -43,11 +44,32 @@ export const Dashboard = () => {
     },
   } = useRegister(client_id);
 
+  const {
+    setCognitoProfile: {
+      data: cognitoUpdated,
+      mutate: setCognitoProfile,
+      error: cognitoError,
+    },
+  } = useClient();
+
   useEffect(() => {
     if (fetchedClientData) {
       setFormData({ ...fetchedClientData, client_id });
     }
   }, [client_id, fetchedClientData]);
+
+  const updateCognitoMapping = useCallback(() => {
+    if (
+      clientUpdated?.client_id &&
+      typeof clientUpdated.client_id === 'string' &&
+      user?.profile.sub &&
+      user?.id_token
+    ) {
+      setCognitoProfile({
+        clientId: clientUpdated.client_id,
+      });
+    }
+  }, [clientUpdated, setCognitoProfile, user?.id_token, user?.profile.sub]);
 
   useEffect(() => {
     if (updateError) {
@@ -64,11 +86,38 @@ export const Dashboard = () => {
       setErrorUi(null);
       setNotify({
         open: true,
-        message: 'Client updated successfully',
+        message: 'Client updated successfully, id: ' + clientUpdated.client_id,
         severity: 'success',
       });
+      // Associate the client with the user in Cognito
+      updateCognitoMapping();
     }
-  }, [updateError, clientUpdated]);
+  }, [updateError, clientUpdated, updateCognitoMapping]);
+
+  useEffect(() => {
+    // If everything is ok, redirect to the dashboard's client in edit mode
+    if (cognitoUpdated) {
+      console.log('Cognito updated successfully:', cognitoUpdated);
+      setErrorUi(null);
+      setNotify({
+        open: true,
+        message:
+          'Cognito updated successfully, id: ' + clientUpdated?.client_id,
+        severity: 'success',
+      });
+      setTimeout(
+        () => window.location.assign(`/dashboard/${clientUpdated?.client_id}`),
+        3000
+      );
+    }
+    if (cognitoError) {
+      setNotify({
+        open: true,
+        message: 'Error updating cognito',
+        severity: 'error',
+      });
+    }
+  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated]);
 
   const isFormValid = () => {
     return (

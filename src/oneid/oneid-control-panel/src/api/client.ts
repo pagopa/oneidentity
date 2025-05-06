@@ -18,6 +18,7 @@ export const setClientToUser = async (
   if (!clientId && !userId) {
     throw new Error('Client ID and User ID are required');
   }
+  // return Promise.resolve(true);
   try {
     const response = await api.put<string>(`${ENDPOINT}`, {
       headers: {
