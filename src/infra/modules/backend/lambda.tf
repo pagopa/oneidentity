@@ -811,9 +811,44 @@ module "invalidate_cache_lambda" {
   #   }
   # }
 
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_cloudwatch_event_rule.dynamodb_stream_event.arn
+    }
+  }
+
   memory_size = 256
   timeout     = 30
 
+}
+
+resource "aws_cloudwatch_event_rule" "dynamodb_stream_event" {
+  name        = "dynamodb-stream-event"
+  description = "Capture DynamoDB stream events and trigger a Lambda function"
+
+  event_pattern = <<EOF
+{
+  "source": ["aws.dynamodb"],
+  "detail-type": ["DynamoDB Stream Record"],
+  "detail": {
+    "eventSource": ["dynamodb"],
+    "eventName": ["INSERT", "MODIFY", "REMOVE"],
+    "eventVersion": ["1.0", "1.1"],
+    "dynamodb": {
+      "StreamName": ["${var.invalidate_cache_lambda.client_registration_stream_label}"],
+      "StreamViewType": ["NEW_AND_OLD_IMAGES"]
+    }
+  }
+}
+EOF
+}
+
+# Associate the CloudWatch Events rule with the Lambda function
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule      = aws_cloudwatch_event_rule.dynamodb_stream_event.name
+  target_id = "trigger-lambda"
+  arn       = module.invalidate_cache_lambda.lambda_function_arn
 }
 
 data "aws_iam_policy_document" "invalidate_cache_lambda" {
@@ -830,16 +865,16 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
       "${var.invalidate_cache_lambda.rest_api_execution_arn}/*"
     ]
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeStream",
-      "dynamodb:GetRecords",
-      "dynamodb:GetShardIterator",
-      "dynamodb:ListStreams",
-    ]
-    resources = [var.dynamodb_clients_table_stream_arn]
-  }
+  # statement {
+  #   effect = "Allow"
+  #   actions = [
+  #     "dynamodb:DescribeStream",
+  #     "dynamodb:GetRecords",
+  #     "dynamodb:GetShardIterator",
+  #     "dynamodb:ListStreams",
+  #   ]
+  #   resources = [var.dynamodb_clients_table_stream_arn]
+  # }
 }
 
 # module "security_group_invalidate_cache_lambda" {

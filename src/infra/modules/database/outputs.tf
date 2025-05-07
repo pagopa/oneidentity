@@ -92,3 +92,7 @@ output "table_idpMetadata_gsi_pointer_arn" {
   value = try("${module.dynamodb_table_idpMetadata[0].dynamodb_table_arn}/index/${local.gsi_pointer}", null)
 }
 
+output "table_client_registrations_stream_label" {
+  value = try(module.dynamodb_table_client_registrations[0].dynamodb_table_stream_label, null)
+}
+
