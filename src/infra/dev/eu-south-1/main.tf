@@ -44,7 +44,8 @@ module "frontend" {
   rest_api_name         = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"
 
-  dns_record_ttl = var.dns_record_ttl
+  dns_record_ttl     = var.dns_record_ttl
+  cors_allow_origins = ["http://localhost"]
 
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
