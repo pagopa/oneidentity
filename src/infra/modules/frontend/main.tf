@@ -135,6 +135,7 @@ module "rest_api" {
       var.assets_bucket_name)
       authorizer   = var.api_authorizer_name != null ? var.api_authorizer_name : "api_key"
       provider_arn = var.provider_arn
+      cors_allow_origins = join(",", concat(var.cors_allow_origins, [var.domain_name]))
   })
 
 
