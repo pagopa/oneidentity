@@ -244,7 +244,7 @@ module "backend" {
 
 
   dynamodb_clients_table_stream_arn          = module.database.dynamodb_clients_table_stream_arn
-  dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
+  dynamodb_table_stream_registrations_arn    = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn                  = module.database.dynamodb_table_stream_arn
   lambda_client_registration_trigger_enabled = false
   eventbridge_pipe_sessions = {
