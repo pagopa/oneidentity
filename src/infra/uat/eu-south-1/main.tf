@@ -256,8 +256,9 @@ module "backend" {
   }
 
 
-  dynamodb_clients_table_stream_arn = module.database.dynamodb_clients_table_stream_arn
-  dynamodb_table_stream_arn         = module.database.dynamodb_table_stream_arn
+  dynamodb_clients_table_stream_arn       = module.database.dynamodb_clients_table_stream_arn
+  dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
+  dynamodb_table_stream_arn               = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
@@ -359,6 +360,12 @@ module "backend" {
 
 
   ssm_cert_key = {}
+
+  eventbridge_pipe_invalidate_cache = {
+    pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
 
   invalidate_cache_lambda = {
     name                             = format("%s-invalidate-cache", local.project)

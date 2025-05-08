@@ -166,3 +166,83 @@ resource "aws_pipes_pipe" "sessions" {
 EOF
   }
 }
+
+resource "aws_iam_role" "pipe_invalidate_cache" {
+  name = "${var.eventbridge_pipe_invalidate_cache.pipe_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = {
+      Effect = "Allow"
+      Action = "sts:AssumeRole"
+      Principal = {
+        Service = "pipes.amazonaws.com"
+      }
+      Condition = {
+        StringEquals = {
+          "aws:SourceAccount" = var.account_id
+        }
+      }
+    }
+  })
+}
+
+resource "aws_iam_role_policy" "pipe_cache_source" {
+  name = "AllowConsumeStreamAndInvokeLambda"
+
+  role = aws_iam_role.pipe_invalidate_cache.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadFromStream"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetRecords",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeStream",
+          "dynamodb:ListStreams"
+        ],
+        Resource = [
+          var.dynamodb_table_stream_registrations_arn
+        ]
+      },
+      {
+        Sid    = "InvokeLambdaInvalidateCache"
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction"
+        ]
+        Resource = [
+          module.invalidate_cache_lambda.lambda_function_arn
+        ]
+      },
+    ]
+  })
+}
+
+resource "aws_pipes_pipe" "invalidate_cache" {
+  name     = var.eventbridge_pipe_invalidate_cache.pipe_name
+  role_arn = aws_iam_role.pipe_invalidate_cache.arn
+  source   = var.dynamodb_table_stream_registrations_arn
+
+  target = module.invalidate_cache_lambda.lambda_function_arn
+
+  source_parameters {
+    dynamodb_stream_parameters {
+      starting_position = "LATEST"
+
+      maximum_retry_attempts        = var.eventbridge_pipe_invalidate_cache.maximum_retry_attempts
+      maximum_record_age_in_seconds = var.eventbridge_pipe_invalidate_cache.maximum_record_age_in_seconds
+
+    }
+  }
+
+  target_parameters {
+    input_template = <<EOF
+{
+  "clientId": "<$.dynamodb.NewImage.clientId.S>"
+}
+EOF
+  }
+}

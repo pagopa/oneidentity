@@ -814,7 +814,7 @@ module "invalidate_cache_lambda" {
   allowed_triggers = {
     events = {
       principal  = "events.amazonaws.com"
-      source_arn = aws_cloudwatch_event_rule.dynamodb_stream_event.arn
+      source_arn = aws_pipes_pipe.invalidate_cache.arn
     }
   }
 
@@ -823,33 +823,6 @@ module "invalidate_cache_lambda" {
 
 }
 
-resource "aws_cloudwatch_event_rule" "dynamodb_stream_event" {
-  name        = "dynamodb-stream-event"
-  description = "Capture DynamoDB stream events and trigger a Lambda function"
-
-  event_pattern = <<EOF
-{
-  "source": ["aws.dynamodb"],
-  "detail-type": ["DynamoDB Stream Record"],
-  "detail": {
-    "eventSource": ["dynamodb"],
-    "eventName": ["INSERT", "MODIFY", "REMOVE"],
-    "eventVersion": ["1.0", "1.1"],
-    "dynamodb": {
-      "StreamName": ["${var.invalidate_cache_lambda.client_registration_stream_label}"],
-      "StreamViewType": ["NEW_AND_OLD_IMAGES"]
-    }
-  }
-}
-EOF
-}
-
-# Associate the CloudWatch Events rule with the Lambda function
-resource "aws_cloudwatch_event_target" "lambda_target" {
-  rule      = aws_cloudwatch_event_rule.dynamodb_stream_event.name
-  target_id = "trigger-lambda"
-  arn       = module.invalidate_cache_lambda.lambda_function_arn
-}
 
 data "aws_iam_policy_document" "invalidate_cache_lambda" {
 
@@ -898,14 +871,3 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 #   # egress_rules = ["https-443-tcp"]
 
 # }
-
-resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
-  depends_on = [
-    module.invalidate_cache_lambda.lambda_function_name,
-    var.table_client_registrations_arn
-  ]
-  event_source_arn  = var.dynamodb_clients_table_stream_arn
-  function_name     = module.invalidate_cache_lambda.lambda_function_arn
-  starting_position = "LATEST"
-  enabled           = true
-}
