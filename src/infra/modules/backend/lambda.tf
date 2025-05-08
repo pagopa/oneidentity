@@ -811,10 +811,18 @@ module "invalidate_cache_lambda" {
   #   }
   # }
 
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_pipes_pipe.invalidate_cache.arn
+    }
+  }
+
   memory_size = 256
   timeout     = 30
 
 }
+
 
 data "aws_iam_policy_document" "invalidate_cache_lambda" {
 
@@ -830,16 +838,16 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
       "${var.invalidate_cache_lambda.rest_api_execution_arn}/*"
     ]
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeStream",
-      "dynamodb:GetRecords",
-      "dynamodb:GetShardIterator",
-      "dynamodb:ListStreams",
-    ]
-    resources = [var.dynamodb_clients_table_stream_arn]
-  }
+  # statement {
+  #   effect = "Allow"
+  #   actions = [
+  #     "dynamodb:DescribeStream",
+  #     "dynamodb:GetRecords",
+  #     "dynamodb:GetShardIterator",
+  #     "dynamodb:ListStreams",
+  #   ]
+  #   resources = [var.dynamodb_clients_table_stream_arn]
+  # }
 }
 
 # module "security_group_invalidate_cache_lambda" {
@@ -863,14 +871,3 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 #   # egress_rules = ["https-443-tcp"]
 
 # }
-
-resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
-  depends_on = [
-    module.invalidate_cache_lambda.lambda_function_name,
-    var.table_client_registrations_arn
-  ]
-  event_source_arn  = var.dynamodb_clients_table_stream_arn
-  function_name     = module.invalidate_cache_lambda.lambda_function_arn
-  starting_position = "LATEST"
-  enabled           = true
-}
