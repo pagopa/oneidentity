@@ -222,6 +222,11 @@ variable "dynamodb_table_stream_arn" {
   default = null
 }
 
+variable "dynamodb_table_stream_registrations_arn" {
+  type    = string
+  default = null
+}
+
 variable "dynamodb_clients_table_stream_arn" {
   type    = string
   default = null
@@ -322,6 +327,15 @@ variable "eventbridge_pipe_sessions" {
   type = object({
     pipe_name                     = string
     kms_sessions_table_alias      = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+  default = null
+}
+
+variable "eventbridge_pipe_invalidate_cache" {
+  type = object({
+    pipe_name                     = string
     maximum_retry_attempts        = number
     maximum_record_age_in_seconds = number
   })
