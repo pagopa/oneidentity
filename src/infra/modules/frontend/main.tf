@@ -133,8 +133,8 @@ module "rest_api" {
       lambda_apigateway_proxy_role   = aws_iam_role.lambda_apigw_proxy.arn
       assets_bucket_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
       var.assets_bucket_name)
-      authorizer   = var.api_authorizer_name != null ? var.api_authorizer_name : "api_key"
-      provider_arn = var.provider_arn
+      authorizer         = var.api_authorizer_name != null ? var.api_authorizer_name : "api_key"
+      provider_arn       = var.provider_arn
       cors_allow_origins = join(",", concat(var.cors_allow_origins, [var.domain_name]))
   })
 
