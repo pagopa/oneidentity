@@ -303,7 +303,7 @@ variable "invalidate_cache_lambda" {
     filename                          = string
     cloudwatch_logs_retention_in_days = string
     environment_variables             = map(string)
-    client_registration_stream_label  = optional(string, null)
+    client_registration_stream_label  = string
     # vpc_endpoint_apigw_prefix_id      = string
     # vpc_endpoint_dynamodb_prefix_id = string
     # vpc_subnet_ids                    = list(string)
