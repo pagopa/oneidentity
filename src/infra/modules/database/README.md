@@ -98,6 +98,7 @@ No resources.
 | <a name="output_kms_sessions_table_alias_arn"></a> [kms\_sessions\_table\_alias\_arn](#output\_kms\_sessions\_table\_alias\_arn) | n/a |
 | <a name="output_table_client_registrations_arn"></a> [table\_client\_registrations\_arn](#output\_table\_client\_registrations\_arn) | n/a |
 | <a name="output_table_client_registrations_name"></a> [table\_client\_registrations\_name](#output\_table\_client\_registrations\_name) | n/a |
+| <a name="output_table_client_registrations_stream_label"></a> [table\_client\_registrations\_stream\_label](#output\_table\_client\_registrations\_stream\_label) | n/a |
 | <a name="output_table_client_status_gsi_pointer_arn"></a> [table\_client\_status\_gsi\_pointer\_arn](#output\_table\_client\_status\_gsi\_pointer\_arn) | n/a |
 | <a name="output_table_client_status_history_arn"></a> [table\_client\_status\_history\_arn](#output\_table\_client\_status\_history\_arn) | n/a |
 | <a name="output_table_client_status_history_idx_name"></a> [table\_client\_status\_history\_idx\_name](#output\_table\_client\_status\_history\_idx\_name) | n/a |

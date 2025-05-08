@@ -164,6 +164,12 @@ module "backend" {
 
   ssm_cert_key = var.ssm_cert_key
 
+  eventbridge_pipe_invalidate_cache = {
+    pipe_name                     = format("%s-flush-apigw-cache-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
   invalidate_cache_lambda = {
     name     = format("%s-invalidate-cache", local.project)
     filename = "${path.module}/../../hello-python/lambda.zip"
@@ -238,6 +244,7 @@ module "backend" {
 
 
   dynamodb_clients_table_stream_arn          = module.database.dynamodb_clients_table_stream_arn
+  dynamodb_table_stream_registrations_arn    = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn                  = module.database.dynamodb_table_stream_arn
   lambda_client_registration_trigger_enabled = false
   eventbridge_pipe_sessions = {
