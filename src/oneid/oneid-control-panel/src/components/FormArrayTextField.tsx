@@ -72,7 +72,7 @@ export const FormArrayTextField = ({
               value={value}
               sx={{ width: '100%', m: 0 }}
               InputProps={{
-                endAdornment: (
+                endAdornment: index >= 1 && (
                   <InputAdornment position="start">
                     <Delete onClick={() => handleDeleteTextField(index)} />
                   </InputAdornment>
