@@ -383,7 +383,7 @@
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
                 "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'"
+                "method.response.header.Access-Control-Allow-Origin": "'${cors_allow_origins}'"
               }
             }
           },
@@ -533,7 +533,7 @@
               "responseParameters" : {
                 "method.response.header.Access-Control-Allow-Methods" : "'GET,OPTIONS'",
                 "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                "method.response.header.Access-Control-Allow-Origin" : "'*'"
+                "method.response.header.Access-Control-Allow-Origin" : "'${cors_allow_origins}'"
               }
             }
           },

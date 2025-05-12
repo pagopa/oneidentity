@@ -87,6 +87,12 @@ variable "api_cache_cluster_size" {
   default     = 0.5
 }
 
+variable "cors_allow_origins" {
+  type        = list(string)
+  description = "List of allowed origins for CORS."
+  default     = []
+}
+
 variable "api_method_settings" {
   description = "List of Api Gateway method settings."
   type = list(object({
