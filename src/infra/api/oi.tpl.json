@@ -26,6 +26,42 @@
     "*/*"
   ],
   "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "mock",
+          "requestParameters": {},
+          "passthroughBehavior": "when_no_match",
+          "responses": {
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.location": "'${uri}/login'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Responds with no content",
+            "headers": {
+              "location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      }
+    },
     "/status": {
       "get": {
         "tags": [
@@ -347,7 +383,6 @@
         "security": [
           {
             "${authorizer}": []
-            
           }
         ]
       },
@@ -494,55 +529,57 @@
         ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
-      "options" : {
-        "parameters" : [ {
-          "name" : "client_id",
-          "in" : "path",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
+      "options": {
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "200 response",
-            "headers" : {
-              "Access-Control-Allow-Origin" : {
-                "schema" : {
-                  "type" : "string"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
                 }
               },
-              "Access-Control-Allow-Methods" : {
-                "schema" : {
-                  "type" : "string"
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
                 }
               },
-              "Access-Control-Allow-Headers" : {
-                "schema" : {
-                  "type" : "string"
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
                 }
               }
             },
-            "content" : { }
+            "content": {}
           }
         },
-        "x-amazon-apigateway-integration" : {
-          "responses" : {
-            "default" : {
-              "statusCode" : "200",
-              "responseParameters" : {
-                "method.response.header.Access-Control-Allow-Methods" : "'GET,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Headers" : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                "method.response.header.Access-Control-Allow-Origin" : "'${cors_allow_origins}'"
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Origin": "'${cors_allow_origins}'"
               }
             }
           },
-          "requestTemplates" : {
-            "application/json" : "{\"statusCode\": 200}"
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
           },
-          "passthroughBehavior" : "when_no_match",
-          "contentHandling" : "CONVERT_TO_TEXT",
-          "type" : "mock"
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "mock"
         }
       }
     },
@@ -2403,19 +2440,22 @@
         "name": "x-api-key",
         "in": "header"
       }
-      %{ if authorizer != "api_key" }
-      ,
-      "${ authorizer }" : {
-        "type" : "apiKey",
-        "name" : "Authorization",
-        "in" : "header",
-        "x-amazon-apigateway-authtype" : "cognito_user_pools",
-        "x-amazon-apigateway-authorizer" : {
-          "type" : "cognito_user_pools",
-          "providerARNs" : [ "${ provider_arn }" ]
+      %{ if authorizer != "api_key"
+      },
+      "${ authorizer }": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "cognito_user_pools",
+        "x-amazon-apigateway-authorizer": {
+          "type": "cognito_user_pools",
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
         }
       }
-      %{ endif }
+      %{ endif
+      }
     },
     "schemas": {
       "TokenData": {
