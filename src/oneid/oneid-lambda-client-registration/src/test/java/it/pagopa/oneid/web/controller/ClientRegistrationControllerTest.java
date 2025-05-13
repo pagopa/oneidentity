@@ -10,7 +10,6 @@ import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,17 +38,23 @@ class ClientRegistrationControllerTest {
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
 
+    System.out.println("{\"redirect_uris\": " + "[\"http://test.com\"]" + "," +
+        "\"client_name\": \"" + clientRegistrationRequestDTO.getClientName() + "\"," +
+        "\"logo_uri\": \"" + clientRegistrationRequestDTO.getLogoUri() + "\"," +
+        "\"policy_uri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
+        "\"tos_uri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
+        "\"default_acr_values\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
+        "\"saml_requested_attributes\": [\"name\"]}");
+
     given()
-        .contentType("application/x-www-form-urlencoded")
-        .formParams(Map.of(
-            "redirect_uris", clientRegistrationRequestDTO.getRedirectUris(),
-            "client_name", clientRegistrationRequestDTO.getClientName(),
-            "logo_uri", clientRegistrationRequestDTO.getLogoUri(),
-            "policy_uri", clientRegistrationRequestDTO.getPolicyUri(),
-            "tos_uri", clientRegistrationRequestDTO.getTosUri(),
-            "default_acr_values", clientRegistrationRequestDTO.getDefaultAcrValues(),
-            "saml_requested_attributes", "name"
-        ))
+        .contentType("application/json")
+        .body("{\"redirect_uris\": " + "[\"http://test.com\"]" + "," +
+            "\"client_name\": \"" + clientRegistrationRequestDTO.getClientName() + "\"," +
+            "\"logo_uri\": \"" + clientRegistrationRequestDTO.getLogoUri() + "\"," +
+            "\"policy_uri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
+            "\"tos_uri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
+            "\"default_acr_values\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
+            "\"saml_requested_attributes\": [\"name\"]}")
         .when()
         .post("/register")
         .then()
