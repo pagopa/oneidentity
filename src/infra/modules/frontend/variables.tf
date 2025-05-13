@@ -88,9 +88,9 @@ variable "api_cache_cluster_size" {
 }
 
 variable "cors_allow_origins" {
-  type        = list(string)
+  type        = string
   description = "List of allowed origins for CORS."
-  default     = []
+  default     = null
 }
 
 variable "api_method_settings" {

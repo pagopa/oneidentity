@@ -45,7 +45,7 @@ module "frontend" {
   openapi_template_file = "../../api/oi.tpl.json"
 
   dns_record_ttl     = var.dns_record_ttl
-  cors_allow_origins = ["http://localhost"]
+  cors_allow_origins = "*"
 
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
