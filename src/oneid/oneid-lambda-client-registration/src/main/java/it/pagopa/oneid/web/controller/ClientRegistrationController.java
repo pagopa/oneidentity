@@ -7,7 +7,7 @@ import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -37,10 +37,11 @@ public class ClientRegistrationController {
   @POST
   @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response register(
-      @BeanParam @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
+      @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.info("start");
-
+    
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
 
     Log.info("client info validated successfully");

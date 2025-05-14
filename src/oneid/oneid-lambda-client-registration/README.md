@@ -7,19 +7,17 @@ your product using the following API.
 ```bash
 curl --location 'https://{ENV}.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
---header 'Content-Type: application/x-www-form-urlencoded' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
---data-urlencode 'client_name={CLIENT_FRIENDLY_NAME}' \
---data-urlencode 'policy_uri={POLICY_URI}' \
---data-urlencode 'tos_uri={TOS_URI}' \
---data-urlencode 'logo_uri={CLIENT_LOGO_PNG}' \
---data-urlencode 'default_acr_values={ACR_VALUE}' \
---data-urlencode 'redirect_uris={REDIRECT_URI_1}' \
---data-urlencode 'redirect_uris={REDIRECT_URI_2}' \
---data-urlencode 'redirect_uris={REDIRECT_URI_N}' \
---data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_1}' \
---data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_2}' \
---data-urlencode 'saml_requested_attributes={SAML_ATTRIBUTE_N}'
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "client_name": "{CLIENT_FRIENDLY_NAME}",
+  "policy_uri": "{POLICY_URI}",
+  "tos_uri": "{TOS_URI}",
+  "logo_uri": "{CLIENT_LOGO_PNG}",
+  "default_acr_values": ["{ACR_VALUE}"],
+  "redirect_uris": ["{REDIRECT_URI_1}", "{REDIRECT_URI_2}", "{REDIRECT_URI_N}"],
+  "saml_requested_attributes": ["{SAML_ATTRIBUTE_1}", "{SAML_ATTRIBUTE_2}", "{SAML_ATTRIBUTE_N}"]
+}'
 ```
 
 Example of API Call:
@@ -27,16 +25,17 @@ Example of API Call:
 ```bash
 curl --location 'https://dev.oneid.pagopa.it/oidc/register' \
 --header 'accept: */*' \
---header 'Content-Type: application/x-www-form-urlencoded' \
+--header 'Content-Type: application/json' \
 --header 'x-api-key: {REGISTRATION_API_KEY}' \
---data-urlencode 'client_name=TestClient' \
---data-urlencode 'policy_uri=http://test.com/policy.html' \
---data-urlencode 'tos_uri=http://test.com/tos.html' \
---data-urlencode 'logo_uri=http://test.com/logo.png' \
---data-urlencode 'default_acr_values=https://www.spid.gov.it/SpidL2' \
---data-urlencode 'redirect_uris=https://test.com/client/cb' \
---data-urlencode 'saml_requested_attributes=spidCode' \
---data-urlencode 'saml_requested_attributes=fiscalNumber'
+--data-raw '{
+  "client_name": "TestClient",
+  "policy_uri": "http://test.com/policy.html",
+  "tos_uri": "http://test.com/tos.html",
+  "logo_uri": "http://test.com/logo.png",
+  "default_acr_values": ["https://www.spid.gov.it/SpidL2"],
+  "redirect_uris": ["https://test.com/client/cb"],
+  "saml_requested_attributes": ["spidCode", "fiscalNumber"]
+}'
 ```
 
 Example of response:
