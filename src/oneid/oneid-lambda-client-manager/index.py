@@ -115,7 +115,7 @@ def update_user_attributes_with_client_id():
             return {"message": "Failed to update user attributes"}, 500
 
         # Return success response
-        return {"message": "Optional attributes updated successfully"}, 200
+        return {"message": "Optional attributes updated successfully"}, 204
 
     except Exception as e:
         logger.error("Error updating client id: %s", repr(e))
@@ -171,7 +171,7 @@ def update_optional_attributes(client_id):
             return {"message": "Failed to update optional attributes"}, 500
 
         # Return success response
-        return {"message": "Optional attributes updated successfully"}, 200
+        return {"message": "Optional attributes updated successfully"}, 204
 
     except Exception as e:
         logger.error("Error updating optional attributes: %s", repr(e))
