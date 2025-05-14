@@ -263,6 +263,10 @@
               "statusCode": "405",
               "responseParameters": {}
             },
+            "415": {
+              "statusCode": "415",
+              "responseParameters": {}
+            },
             "429": {
               "statusCode": "405",
               "responseParameters": {}
@@ -336,6 +340,9 @@
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "415": {
+            "$ref": "#/components/responses/unsupportedMediaType"
           },
           "429": {
             "$ref": "#/components/responses/rateLimit"
@@ -2195,6 +2202,25 @@
           "description": "Content type response.",
           "schema": {
             "type": "string"
+          }
+        }
+      },
+      "unsupportedMediaType" : {
+        "description": "The HTTP 415 Unsupported Media Type client error response code indicates that the origin server refuses a particular request because the resource is in a format not supported by the server for HTTP method used.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
           }
         }
       },

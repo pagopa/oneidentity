@@ -4,6 +4,7 @@ package it.pagopa.oneid.exception.mapper;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
@@ -16,6 +17,7 @@ import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -29,6 +31,15 @@ public class ExceptionMapper {
         exception));
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapNotSupportedException(
+      NotSupportedException notSupportedException) {
+    Log.error(ExceptionUtils.getStackTrace(notSupportedException));
+    Response.Status status = UNSUPPORTED_MEDIA_TYPE;
+    String message = "Not valid content-type header. Expected application/json.";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
