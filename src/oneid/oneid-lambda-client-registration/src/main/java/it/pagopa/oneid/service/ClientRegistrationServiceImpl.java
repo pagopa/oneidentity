@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 @CustomLogging
@@ -48,16 +49,31 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // Validate policyUri
     String policyUri = clientRegistrationRequestDTO.getPolicyUri();
     try {
-      CustomURIUtils.validateURI(policyUri);
+      if (!StringUtils.isBlank(policyUri)) {
+        CustomURIUtils.validateURI(policyUri);
+      }
 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid Policy URI");
     }
 
+    // Validate logoUri
+    String logoUri = clientRegistrationRequestDTO.getLogoUri();
+    try {
+      if (!StringUtils.isBlank(logoUri)) {
+        CustomURIUtils.validateURI(logoUri);
+      }
+
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid Logo URI");
+    }
+
     // Validate tosUri
     String tosUri = clientRegistrationRequestDTO.getTosUri();
     try {
-      CustomURIUtils.validateURI(tosUri);
+      if (!StringUtils.isBlank(tosUri)) {
+        CustomURIUtils.validateURI(tosUri);
+      }
 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid TOS URI");
