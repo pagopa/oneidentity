@@ -81,7 +81,7 @@ export const createOrUpdateClient = async (
     // mock:
     // return Promise.resolve({
     //   ...data,
-    //   client_id: clientId || 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
+    //   client_id: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
     //   client_secret: 'xxx',
     //   client_id_issued_at: 1234567890,
     //   client_secret_expires_at: 1234567890,

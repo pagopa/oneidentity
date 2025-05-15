@@ -22,6 +22,8 @@ import { FormArrayTextField } from './FormArrayTextField';
 import { Notify } from './Notify';
 import Layout from './Layout';
 import { useClient } from '../hooks/useClient';
+import { SecretModal } from './SecretModal';
+import { useModalManager } from '../hooks/useModal';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -29,12 +31,14 @@ export const Dashboard = () => {
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const { isModalOpen, openModal, closeModal } = useModalManager();
 
   const {
     clientQuery: {
       data: fetchedClientData,
       isLoading: isLoadingClient,
       error: fetchError,
+      isSuccess: isUpdatePhase,
     },
     createOrUpdateClientMutation: {
       data: clientUpdated,
@@ -82,22 +86,34 @@ export const Dashboard = () => {
       });
     }
     if (clientUpdated) {
-      console.log('Client updated successfully:', clientUpdated);
       setErrorUi(null);
       setNotify({
         open: true,
         message: 'Client updated successfully, id: ' + clientUpdated.client_id,
         severity: 'success',
       });
-      // Associate the client with the user in Cognito
-      updateCognitoMapping();
+
+      // Associate the client with the user in Cognito if not in update phase
+      if (!isUpdatePhase) {
+        updateCognitoMapping();
+      }
+      // before redirecting we need to show a modal with client_id and client_secret
+      // open only if it is in creation phase, not an update
+      if (!isUpdatePhase) {
+        openModal('secretViewer');
+      }
     }
-  }, [updateError, clientUpdated, updateCognitoMapping]);
+  }, [
+    updateError,
+    clientUpdated,
+    updateCognitoMapping,
+    isUpdatePhase,
+    openModal,
+  ]);
 
   useEffect(() => {
     // If everything is ok, redirect to the dashboard's client in edit mode
     if (cognitoUpdated) {
-      console.log('Cognito updated successfully:', cognitoUpdated);
       setErrorUi(null);
       setNotify({
         open: true,
@@ -105,11 +121,8 @@ export const Dashboard = () => {
           'Cognito updated successfully, id: ' + clientUpdated?.client_id,
         severity: 'success',
       });
-      setTimeout(
-        () => window.location.assign(`/dashboard/${clientUpdated?.client_id}`),
-        3000
-      );
     }
+
     if (cognitoError) {
       setNotify({
         open: true,
@@ -117,7 +130,7 @@ export const Dashboard = () => {
         severity: 'error',
       });
     }
-  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated]);
+  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated, openModal]);
 
   const isFormValid = () => {
     return (
@@ -128,9 +141,14 @@ export const Dashboard = () => {
     );
   };
 
+  const handleCloseSecretModal = () => {
+    // TODO check cognito status before redirecting
+    closeModal(() => {
+      window.location.assign(`/dashboard/${clientUpdated?.client_id}`);
+    });
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted', formData);
 
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
@@ -166,6 +184,23 @@ export const Dashboard = () => {
           </Alert>
         </Box>
       )}
+
+      <SecretModal
+        title="Secret Viewer"
+        onClose={handleCloseSecretModal}
+        open={isModalOpen('secretViewer')}
+        data={{
+          client_id:
+            typeof clientUpdated?.client_id === 'string'
+              ? clientUpdated.client_id
+              : 'error',
+          client_secret:
+            typeof clientUpdated?.client_secret === 'string'
+              ? clientUpdated.client_secret
+              : 'error',
+        }}
+      />
+
       <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
         User: {user?.profile?.email}
       </Typography>
@@ -179,6 +214,7 @@ export const Dashboard = () => {
         </Typography>
 
         <TextField
+          hidden
           fullWidth
           label="Client ID"
           value={formData?.client_id || ''}
@@ -342,6 +378,16 @@ export const Dashboard = () => {
           disabled={isUpdating || !isFormValid()}
         >
           {isUpdating ? 'Saving...' : 'Save Changes'}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            openModal('secretViewer');
+          }}
+          sx={{ mt: 2, ml: 3 }}
+          data-testid="open-signup-modal"
+        >
+          Open Secret Viewer Modal
         </Button>
       </Box>
 
