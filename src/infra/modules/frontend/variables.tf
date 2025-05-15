@@ -16,7 +16,18 @@ variable "domain_name" {
 
 variable "create_custom_domain_name" {
   type        = bool
-  description = "ApiGw create custom domain name."
+  description = "ApiGw create custom domain admin name."
+  default     = true
+}
+
+variable "domain_admin_name" {
+  type        = string
+  description = "DNS domain name."
+}
+
+variable "create_custom_domain_admin_name" {
+  type        = bool
+  description = "ApiGw create custom domain admin name."
   default     = true
 }
 
@@ -75,6 +86,15 @@ variable "api_gateway_plan" {
   description = "Name of the plan associated to the set of apis."
 }
 
+variable "api_gateway_admin_plan" {
+  type = object({
+    name                 = string
+    throttle_burst_limit = number
+    throttle_rate_limit  = number
+  })
+  description = "Name of the plan associated to the set of apis."
+}
+
 variable "api_cache_cluster_enabled" {
   type        = bool
   description = "Enablr cache cluster is enabled for the stage."
@@ -85,6 +105,22 @@ variable "api_cache_cluster_size" {
   type        = number
   description = "Size of the cache cluster for the stage, if enabled."
   default     = 0.5
+}
+
+variable "rest_api_admin_name" {
+  type        = string
+  description = "Rest api admin name"
+}
+
+variable "openapi_admin_template_file" {
+  type        = string
+  description = "Openapi admin template file path."
+}
+
+variable "rest_api_admin_stage" {
+  type        = string
+  description = "Rest api admin stage name"
+  default     = "v1"
 }
 
 variable "cors_allow_origins" {
@@ -135,6 +171,11 @@ variable "client_registration_lambda_arn" {
   description = "lambda client registration arn"
 }
 
+variable "client_manager_lambda_arn" {
+  type        = string
+  description = "lambda client manager arn"
+}
+
 ## Lambda retrieve status
 variable "retrieve_status_lambda_arn" {
   type        = string
@@ -173,6 +214,11 @@ variable "user_pool_arn" {
 }
 
 variable "api_authorizer_name" {
+  type    = string
+  default = null
+}
+
+variable "api_authorizer_admin_name" {
   type    = string
   default = null
 }

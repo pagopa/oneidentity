@@ -36,16 +36,19 @@ module "frontend" {
   source = "../../modules/frontend"
 
   # DNS 
-  domain_name     = module.r53_zones.dns_zone_name
-  r53_dns_zone_id = module.r53_zones.dns_zone_id
-  role_prefix     = local.project
+  domain_name       = module.r53_zones.dns_zone_name
+  domain_admin_name = module.r53_zones.dns_zone_name
+  r53_dns_zone_id   = module.r53_zones.dns_zone_id
+  role_prefix       = local.project
 
   ## API Gateway ##
   rest_api_name         = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"
+  rest_api_admin_name   = format("%s-restapi-admin", local.project)
 
-  dns_record_ttl     = var.dns_record_ttl
-  cors_allow_origins = "*"
+  openapi_admin_template_file = "../../api/oi-admin.tpl.json"
+  dns_record_ttl              = var.dns_record_ttl
+  cors_allow_origins          = "*"
 
   api_gateway_target_arns = [module.backend.nlb_arn]
   nlb_dns_name            = module.backend.nlb_dns_name
@@ -56,7 +59,12 @@ module "frontend" {
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
     api_key_name         = "client-registration"
   }
-
+  api_gateway_admin_plan = {
+    name                 = format("%s-restapi-admin_plan", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+  }
+  client_manager_lambda_arn      = ""
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
   aws_region                     = var.aws_region
@@ -73,9 +81,10 @@ module "frontend" {
   web_acl = {
     name = format("%s-webacl", local.project)
   }
-  user_pool_arn       = module.cognito.user_pool_arn
-  api_authorizer_name = format("%s-restapi-authorizer", local.project)
-  provider_arn        = module.cognito.user_pool_arn
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
+  provider_arn              = module.cognito.user_pool_arn
 }
 
 
