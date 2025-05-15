@@ -379,16 +379,6 @@ export const Dashboard = () => {
         >
           {isUpdating ? 'Saving...' : 'Save Changes'}
         </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            openModal('secretViewer');
-          }}
-          sx={{ mt: 2, ml: 3 }}
-          data-testid="open-signup-modal"
-        >
-          Open Secret Viewer Modal
-        </Button>
       </Box>
 
       <Notify
