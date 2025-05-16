@@ -409,7 +409,7 @@ module "frontend" {
     sampled_requests_enabled   = true
     sns_topic_arn              = module.sns.sns_topic_arn
   }
-  domain_admin_name           = null
+  domain_admin_name           = "admin"
   api_gateway_admin_plan      = null
   rest_api_admin_name         = null
   openapi_admin_template_file = null
