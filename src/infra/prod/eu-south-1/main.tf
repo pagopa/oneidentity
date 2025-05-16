@@ -413,9 +413,9 @@ module "frontend" {
   source = "../../modules/frontend"
 
   ## DNS
-  domain_name     = module.r53_zones.dns_zone_name
+  domain_name       = module.r53_zones.dns_zone_name
   domain_admin_name = module.r53_zones.dns_zone_name
-  r53_dns_zone_id = module.r53_zones.dns_zone_id
+  r53_dns_zone_id   = module.r53_zones.dns_zone_id
 
   role_prefix = local.project
 
@@ -443,7 +443,7 @@ module "frontend" {
     throttle_burst_limit = 10
     throttle_rate_limit  = 20
   }
-  client_manager_lambda_arn      = "" //set arn client manager lambda
+  client_manager_lambda_arn = "" //set arn client manager lambda
 
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn

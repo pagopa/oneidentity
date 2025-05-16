@@ -111,6 +111,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
+| <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../modules/cognito | n/a |
 | <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
 | <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
