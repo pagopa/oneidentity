@@ -61,8 +61,8 @@ module "frontend" {
   }
   api_gateway_admin_plan = {
     name                 = format("%s-restapi-admin_plan", local.project)
-    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
-    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+    throttle_burst_limit = 10
+    throttle_rate_limit  = 20
   }
   client_manager_lambda_arn      = ""
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn

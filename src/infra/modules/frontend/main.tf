@@ -51,7 +51,7 @@ module "acm_admin" {
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
-  domain_name = var.domain_admin_name
+  domain_name = format("admin.%s",var.domain_admin_name)
 
   zone_id = var.r53_dns_zone_id
 
@@ -59,7 +59,7 @@ module "acm_admin" {
   create_route53_records = true
 
   tags = {
-    Name = var.domain_admin_name
+    Name = format("admin.%s",var.domain_admin_name)
   }
 }
 
@@ -313,17 +313,14 @@ module "rest_api_admin" {
   body = templatefile(var.openapi_admin_template_file,
     {
       server_url                   = var.domain_name
-      uri                          = format("http://%s:%s", var.nlb_dns_name, "8080"),
-      connection_id                = aws_api_gateway_vpc_link.apigw.id
       aws_region                   = var.aws_region
       client_manager_lambda_arn    = var.client_manager_lambda_arn
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
       authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
       provider_arn                 = var.provider_arn
-      cors_allow_origins           = var.cors_allow_origins != null ? var.cors_allow_origins : format("https://admin.%s", var.domain_name)
   })
 
-  custom_domain_name        = var.domain_admin_name
+  custom_domain_name        = format("admin.%s",var.domain_admin_name)
   create_custom_domain_name = var.create_custom_domain_name
   certificate_arn           = module.acm_admin.acm_certificate_arn
 

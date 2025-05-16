@@ -456,11 +456,6 @@
                 "type": "apiKey",
                 "name": "x-api-key",
                 "in": "header"
-            }
-        %{
-    if
-    authorizer
-    !="api_key"
             },
             "${ authorizer }": {
                 "type": "apiKey",
@@ -473,92 +468,90 @@
                         "${ provider_arn }"
                     ]
                 }
-            }
-  %{endif
-            }
-        },
-        "schemas": {
-            "UserAttributes": {
-                "type": "object",
-                "properties": {
-                    "user_id": {
-                        "type": "string",
-                        "description": "The user id"
-                    },
-                    "client_id": {
-                        "type": "string",
-                        "description": "The client id"
-                    }
-                }
             },
-            "ClientAdditional": {
-                "type": "object",
-                "properties": {
-                    "a11y_uri": {
-                        "type": "string",
-                        "description": "The accessibility URI"
-                    },
-                    "back_button_enabled": {
-                        "type": "string",
-                        "description": "The back button enabled flag"
-                    },
-                    "localizedContentMap": {
-                        "type": "object",
-                        "properties": {
-                            "en": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Theme"
-                                }
-                            },
-                            "it": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Theme"
-                                }
-                            },
-                            "fr": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Theme"
-                                }
-                            },
-                            "de": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Theme"
-                                }
-                            },
-                            "sl": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Theme"
+            "schemas": {
+                "UserAttributes": {
+                    "type": "object",
+                    "properties": {
+                        "user_id": {
+                            "type": "string",
+                            "description": "The user id"
+                        },
+                        "client_id": {
+                            "type": "string",
+                            "description": "The client id"
+                        }
+                    }
+                },
+                "ClientAdditional": {
+                    "type": "object",
+                    "properties": {
+                        "a11y_uri": {
+                            "type": "string",
+                            "description": "The accessibility URI"
+                        },
+                        "back_button_enabled": {
+                            "type": "string",
+                            "description": "The back button enabled flag"
+                        },
+                        "localizedContentMap": {
+                            "type": "object",
+                            "properties": {
+                                "en": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Theme"
+                                    }
+                                },
+                                "it": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Theme"
+                                    }
+                                },
+                                "fr": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Theme"
+                                    }
+                                },
+                                "de": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Theme"
+                                    }
+                                },
+                                "sl": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/Theme"
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            },
-            "Theme": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "description": "The displayed title"
-                    },
-                    "desc": {
-                        "type": "string",
-                        "description": "The displayed description"
-                    },
-                    "doc_uri": {
-                        "type": "string",
-                        "description": "The doc uri"
-                    },
-                    "support_address": {
-                        "type": "string",
-                        "description": "The support address"
-                    },
-                    "cookie_uri": {
-                        "type": "string",
-                        "description": "The cookie_uri"
+                },
+                "Theme": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "The displayed title"
+                        },
+                        "desc": {
+                            "type": "string",
+                            "description": "The displayed description"
+                        },
+                        "doc_uri": {
+                            "type": "string",
+                            "description": "The doc uri"
+                        },
+                        "support_address": {
+                            "type": "string",
+                            "description": "The support address"
+                        },
+                        "cookie_uri": {
+                            "type": "string",
+                            "description": "The cookie_uri"
+                        }
                     }
                 }
             }
         }
     }
-}
+}    
