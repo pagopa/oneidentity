@@ -48,6 +48,7 @@ module "acm" {
 }
 
 module "acm_admin" {
+  count   = var.aws_region != "eu-south-1" ? 0 : 1
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
@@ -323,7 +324,7 @@ module "rest_api_admin" {
 
   custom_domain_name        = format("admin.%s", var.domain_admin_name)
   create_custom_domain_name = var.create_custom_domain_name
-  certificate_arn           = module.acm_admin.acm_certificate_arn
+  certificate_arn           = module.acm_admin[0].acm_certificate_arn
 
   plan = var.api_gateway_admin_plan
 
