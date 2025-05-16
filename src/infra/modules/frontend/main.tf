@@ -306,25 +306,25 @@ module "webacl_count_alarm" {
 module "rest_api_admin" {
   source               = "../rest-api"
   count                = var.aws_region != "eu-south-1" ? 0 : 1
-  name                 = try(var.rest_api_admin_name, null)
-  stage_name           = try(var.rest_api_admin_stage, null)
+  name                 = var.rest_api_admin_name
+  stage_name           = var.rest_api_admin_stage
   xray_tracing_enabled = var.xray_tracing_enabled
 
-  body = templatefile(try(var.openapi_admin_template_file, null),
+  body = templatefile(var.openapi_admin_template_file,
     {
       server_url                   = var.domain_name
       aws_region                   = var.aws_region
-      client_manager_lambda_arn    = try(var.client_manager_lambda_arn, null)
+      client_manager_lambda_arn    = var.client_manager_lambda_arn
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
       authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
       provider_arn                 = var.provider_arn
   })
 
-  custom_domain_name        = format("admin.%s", try(var.domain_admin_name, null))
+  custom_domain_name        = format("admin.%s", var.domain_admin_name)
   create_custom_domain_name = var.create_custom_domain_name
   certificate_arn           = module.acm_admin.acm_certificate_arn
 
-  plan = try(var.api_gateway_admin_plan, null)
+  plan = var.api_gateway_admin_plan
 
   api_authorizer = {
     name          = var.api_authorizer_admin_name == "" ? null : var.api_authorizer_admin_name
