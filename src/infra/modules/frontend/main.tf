@@ -11,7 +11,7 @@ module "records" {
       type = "A"
       alias = {
         name                   = module.rest_api[0].regional_domain_name
-        zone_id                = module.rest_api.regional_zone_id
+        zone_id                = module.rest_api[0].regional_zone_id
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
@@ -21,7 +21,7 @@ module "records" {
       type = "A"
       alias = {
         name                   = module.rest_api_admin[0].regional_domain_name
-        zone_id                = module.rest_api_admin.regional_zone_id
+        zone_id                = module.rest_api_admin[0].regional_zone_id
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
