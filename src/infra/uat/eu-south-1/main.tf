@@ -64,7 +64,7 @@ module "frontend" {
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
-  client_manager_lambda_arn      = ""
+  client_manager_lambda_arn      = "" //set arn client manager lambda
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
   aws_region                     = var.aws_region
@@ -449,4 +449,20 @@ module "monitoring" {
   create_ce_budget = true
 
   alarm_subscribers = var.alarm_subscribers
+}
+
+module "cognito" {
+  source = "../../modules/cognito"
+  cognito = {
+    logout_url       = "https://dev.oneid.pagopa.it/logout",
+    user_pool_client = format("%s-user_pool_client", local.project),
+    user_pool_name   = format("%s-user_pool", local.project),
+    user_pool_domain = format("%s-user-pool-domain", local.project),
+    callback_url     = "https://dev.oneid.pagopa.it/"
+  }
+  cognito_presignup_lambda = {
+    name                              = format("%s-cognito-presignup", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+  }
 }

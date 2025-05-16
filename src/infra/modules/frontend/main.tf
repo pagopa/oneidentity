@@ -305,7 +305,7 @@ module "webacl_count_alarm" {
 
 module "rest_api_admin" {
   source = "../rest-api"
-
+  count = var.aws_region != "eu-south-1" ? 0 : 1
   name                 = var.rest_api_admin_name
   stage_name           = var.rest_api_admin_stage
   xray_tracing_enabled = var.xray_tracing_enabled
