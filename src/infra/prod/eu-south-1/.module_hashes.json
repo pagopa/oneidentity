@@ -28,6 +28,7 @@
   "database.kms_sessions_table": "0300a2172e1d11c751d952d738a323c5c92512fad921eeb44ee3f60f76bb1de8",
   "dev_ns_record": "b9cc6a0642b387ae48a8f5e32bde93c9349336950acf5c71ff30f96dd0f6c40b",
   "frontend.acm": "869a0b2e61803f1126318dce9a8c60568414570a29d45219a57b026b555a45e2",
+  "frontend.acm_admin": "24507e8557465e3546873ed022e5dc5428817a00f87e5cc25de6ea8e97e38a29",
   "frontend.records": "6800a3878cebdc1cae49571a6310ef579ca3a53ee9f2765e45732dd42f964a82",
   "frontend.webacl_count_alarm": "a0697fb97c23898ba31e4c465b8bdc662cd07e1f065d4f479a53867dabf8fbf5",
   "network.vpc": "91d26d3bb3646e74bc6b812e97ef8ec65b53661296563081aae8726b3b7a7aa4",

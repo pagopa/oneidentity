@@ -15,6 +15,16 @@ module "records" {
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
+    },
+    {
+      name = "admin"
+      type = "A"
+      alias = {
+        name                   = module.rest_api_admin[0].regional_domain_name
+        zone_id                = module.rest_api_admin[0].regional_zone_id
+        evaluate_target_health = true
+        ttl                    = var.dns_record_ttl
+      }
     }
     ]
   )
@@ -34,6 +44,24 @@ module "acm" {
 
   tags = {
     Name = var.domain_name
+  }
+}
+
+module "acm_admin" {
+  count   = var.aws_region != "eu-south-1" ? 0 : 1
+  source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.0"
+
+  #domain_name = format("admin.%s", var.domain_admin_name)
+  domain_name = var.domain_admin_name != null ? format("admin.%s", var.domain_admin_name) : null
+
+  zone_id = var.r53_dns_zone_id
+
+  validation_method      = "DNS"
+  create_route53_records = true
+
+  tags = {
+    Name = var.domain_admin_name != null ? format("admin.%s", var.domain_admin_name) : null
   }
 }
 
@@ -111,8 +139,7 @@ resource "aws_iam_role_policy_attachment" "lambda_apigw_proxy" {
 module "rest_api" {
   source = "../rest-api"
 
-  name = var.rest_api_name
-
+  name                 = var.rest_api_name
   stage_name           = var.rest_api_stage
   xray_tracing_enabled = var.xray_tracing_enabled
 
@@ -277,6 +304,42 @@ module "webacl_count_alarm" {
 
   alarm_actions = [var.web_acl.sns_topic_arn]
 }
+
+module "rest_api_admin" {
+  source               = "../rest-api"
+  count                = var.aws_region != "eu-south-1" ? 0 : 1
+  name                 = var.rest_api_admin_name
+  stage_name           = var.rest_api_admin_stage
+  xray_tracing_enabled = var.xray_tracing_enabled
+
+  body = templatefile(var.openapi_admin_template_file,
+    {
+      server_url                   = var.domain_name
+      aws_region                   = var.aws_region
+      client_manager_lambda_arn    = var.client_manager_lambda_arn
+      lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
+      authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
+      provider_arn                 = var.provider_arn
+  })
+
+  custom_domain_name        = format("admin.%s", var.domain_admin_name)
+  create_custom_domain_name = var.create_custom_domain_name
+  certificate_arn           = module.acm_admin[0].acm_certificate_arn
+
+  plan = var.api_gateway_admin_plan
+
+  api_authorizer = {
+    name          = var.api_authorizer_admin_name == "" ? null : var.api_authorizer_admin_name
+    user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
+  }
+
+  endpoint_configuration = {
+    #TODO: is this the best endpoint type we need?
+    types = ["REGIONAL"]
+  }
+
+}
+
 
 /*
 ## REST API Gateway ##

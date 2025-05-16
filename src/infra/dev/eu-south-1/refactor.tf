@@ -203,3 +203,13 @@ moved {
   from = module.storage.module.s3_idp_metadata_bucket
   to   = module.storage.module.s3_idp_metadata_bucket[0]
 }
+
+moved {
+  from = module.frontend.module.rest_api_admin
+  to   = module.frontend.module.rest_api_admin[0]
+}
+
+moved {
+  from = module.frontend.module.acm_admin
+  to   = module.frontend.module.acm_admin[0]
+}
