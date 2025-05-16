@@ -30,8 +30,8 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cognito"></a> [cognito](#input\_cognito) | n/a | <pre>object({<br/>    user_pool_name   = string,<br/>    user_pool_domain = string,<br/>    user_pool_client = string,<br/>    logout_url       = string, #https://dev.oneid.pagopa.it/logout<br/>    callback_url     = string<br/>  })</pre> | n/a | yes |
-| <a name="input_cognito_presignup_lambda"></a> [cognito\_presignup\_lambda](#input\_cognito\_presignup\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    cloudwatch_logs_retention_in_days = number<br/>  })</pre> | n/a | yes |
+| <a name="input_cognito"></a> [cognito](#input\_cognito) | n/a | <pre>object({<br>    user_pool_name   = string,<br>    user_pool_domain = string,<br>    user_pool_client = string,<br>    logout_url       = string, #https://dev.oneid.pagopa.it/logout<br>    callback_url     = string<br>  })</pre> | n/a | yes |
+| <a name="input_cognito_presignup_lambda"></a> [cognito\_presignup\_lambda](#input\_cognito\_presignup\_lambda) | n/a | <pre>object({<br>    name                              = string<br>    filename                          = string<br>    cloudwatch_logs_retention_in_days = number<br>  })</pre> | n/a | yes |
 
 ## Outputs
 
