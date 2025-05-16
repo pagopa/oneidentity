@@ -122,6 +122,17 @@
                 ],
                 "description": "This endpoint expose backend function for Client Onboarding Portal.",
                 "operationId": "Put_admin_client_manager_client_additional",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "client_id",
+                        "description": "client_id that was returned in the client registration response",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "x-amazon-apigateway-integration": {
                     "credentials": "${lambda_apigateway_proxy_role}",
                     "passthroughBehavior": "when_no_match",
@@ -396,6 +407,31 @@
                     }
                 }
             },
+            "invalidParameters": {
+                "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
+                "headers": {
+                    "Pragma": {
+                        "description": "Pragma browser directive",
+                        "schema": {
+                            "type": "string",
+                            "default": "no-cache"
+                        }
+                    },
+                    "Cache-Control": {
+                        "description": "Cache-Control browser directive",
+                        "schema": {
+                            "type": "string",
+                            "default": "no-store"
+                        }
+                    },
+                    "content-type": {
+                        "description": "Content type response.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "notFound": {
                 "description": "Not Found.",
                 "headers": {
@@ -447,6 +483,89 @@
                 }
             }
         },
+        "schemas": {
+            "UserAttributes": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "The user id"
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "description": "The client id"
+                    }
+                }
+            },
+            "ClientAdditional": {
+                "type": "object",
+                "properties": {
+                    "a11y_uri": {
+                        "type": "string",
+                        "description": "The accessibility URI"
+                    },
+                    "back_button_enabled": {
+                        "type": "string",
+                        "description": "The back button enabled flag"
+                    },
+                    "localizedContentMap": {
+                        "type": "object",
+                        "properties": {
+                            "en": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Theme"
+                                }
+                            },
+                            "it": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Theme"
+                                }
+                            },
+                            "fr": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Theme"
+                                }
+                            },
+                            "de": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Theme"
+                                }
+                            },
+                            "sl": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Theme"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Theme": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "The displayed title"
+                    },
+                    "desc": {
+                        "type": "string",
+                        "description": "The displayed description"
+                    },
+                    "doc_uri": {
+                        "type": "string",
+                        "description": "The doc uri"
+                    },
+                    "support_address": {
+                        "type": "string",
+                        "description": "The support address"
+                    },
+                    "cookie_uri": {
+                        "type": "string",
+                        "description": "The cookie_uri"
+                    }
+                }
+            }
+        },
         "securitySchemes": {
             "openId": {
                 "type": "openIdConnect",
@@ -468,90 +587,7 @@
                         "${ provider_arn }"
                     ]
                 }
-            },
-            "schemas": {
-                "UserAttributes": {
-                    "type": "object",
-                    "properties": {
-                        "user_id": {
-                            "type": "string",
-                            "description": "The user id"
-                        },
-                        "client_id": {
-                            "type": "string",
-                            "description": "The client id"
-                        }
-                    }
-                },
-                "ClientAdditional": {
-                    "type": "object",
-                    "properties": {
-                        "a11y_uri": {
-                            "type": "string",
-                            "description": "The accessibility URI"
-                        },
-                        "back_button_enabled": {
-                            "type": "string",
-                            "description": "The back button enabled flag"
-                        },
-                        "localizedContentMap": {
-                            "type": "object",
-                            "properties": {
-                                "en": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/Theme"
-                                    }
-                                },
-                                "it": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/Theme"
-                                    }
-                                },
-                                "fr": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/Theme"
-                                    }
-                                },
-                                "de": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/Theme"
-                                    }
-                                },
-                                "sl": {
-                                    "schema": {
-                                        "$ref": "#/components/schemas/Theme"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "Theme": {
-                    "type": "object",
-                    "properties": {
-                        "title": {
-                            "type": "string",
-                            "description": "The displayed title"
-                        },
-                        "desc": {
-                            "type": "string",
-                            "description": "The displayed description"
-                        },
-                        "doc_uri": {
-                            "type": "string",
-                            "description": "The doc uri"
-                        },
-                        "support_address": {
-                            "type": "string",
-                            "description": "The support address"
-                        },
-                        "cookie_uri": {
-                            "type": "string",
-                            "description": "The cookie_uri"
-                        }
-                    }
-                }
             }
         }
     }
-}    
+}
