@@ -51,7 +51,7 @@ module "acm_admin" {
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
-  domain_name = format("admin.%s",var.domain_admin_name)
+  domain_name = format("admin.%s", var.domain_admin_name)
 
   zone_id = var.r53_dns_zone_id
 
@@ -59,7 +59,7 @@ module "acm_admin" {
   create_route53_records = true
 
   tags = {
-    Name = format("admin.%s",var.domain_admin_name)
+    Name = format("admin.%s", var.domain_admin_name)
   }
 }
 
@@ -320,7 +320,7 @@ module "rest_api_admin" {
       provider_arn                 = var.provider_arn
   })
 
-  custom_domain_name        = format("admin.%s",var.domain_admin_name)
+  custom_domain_name        = format("admin.%s", var.domain_admin_name)
   create_custom_domain_name = var.create_custom_domain_name
   certificate_arn           = module.acm_admin.acm_certificate_arn
 
