@@ -872,16 +872,16 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 
 # }
 
-resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
-  depends_on = [
-    module.invalidate_cache_lambda.lambda_function_name,
-    var.table_client_registrations_arn
-  ]
-  event_source_arn  = var.dynamodb_clients_table_stream_arn
-  function_name     = module.invalidate_cache_lambda.lambda_function_arn
-  starting_position = "LATEST"
-  enabled           = true
-}
+# resource "aws_lambda_event_source_mapping" "invalidate_cache_trigger" {
+#   depends_on = [
+#     module.invalidate_cache_lambda.lambda_function_name,
+#     var.table_client_registrations_arn
+#   ]
+#   event_source_arn  = var.dynamodb_clients_table_stream_arn
+#   function_name     = module.invalidate_cache_lambda.lambda_function_arn
+#   starting_position = "LATEST"
+#   enabled           = true
+# }
 
 # Lambda client manager
 
