@@ -907,27 +907,11 @@ module "client_manager_lambda" {
 
   environment_variables = var.client_manager_lambda.environment_variables
 
-  attach_network_policy = true
-
-  vpc_security_group_ids = [module.security_group_client_manager_lambda.security_group_id]
-
   # lambda powertools layer
   layers = ["arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"]
 
   memory_size = 256
   timeout     = 30
-
-}
-
-module "security_group_client_manager_lambda" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "4.17.2"
-
-  name        = "${var.client_manager_lambda.name}-sg"
-  description = "Security Group for Lambda Client Manager"
-
-  egress_cidr_blocks      = []
-  egress_ipv6_cidr_blocks = []
 
 }
 
