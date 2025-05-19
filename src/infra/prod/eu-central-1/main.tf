@@ -406,7 +406,6 @@ module "frontend" {
   }
 
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
-  client_manager_lambda_arn      = module.backend.client_manager_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
   aws_region                     = var.aws_region
   assets_bucket_arn              = module.storage.assets_bucket_arn
