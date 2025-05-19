@@ -95,6 +95,8 @@ data "aws_iam_policy_document" "s3_apigw_proxy" {
     resources = [
       "${var.assets_bucket_arn}/*",
       "${var.assets_bucket_arn}",
+      "${var.assets_control_panel_bucket_arn}/*",
+      "${var.assets_control_panel_bucket_arn}",
     ]
   }
 }
@@ -321,6 +323,9 @@ module "rest_api_admin" {
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
       authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
       provider_arn                 = var.provider_arn
+      s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
+      assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
+      var.assets_control_panel_bucket_name)
   })
 
   custom_domain_name        = format("admin.%s", var.domain_admin_name)

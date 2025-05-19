@@ -192,6 +192,15 @@ variable "assets_bucket_name" {
   description = "Assets bucket name."
 }
 
+variable "assets_control_panel_bucket_arn" {
+  type        = string
+  description = "Assets bucket arn."
+}
+variable "assets_control_panel_bucket_name" {
+  type        = string
+  description = "Assets bucket control panel name."
+}
+
 
 variable "api_alarms" {
   type = map(object({

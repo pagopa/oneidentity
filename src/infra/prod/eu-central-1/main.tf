@@ -38,11 +38,12 @@ module "storage" {
   create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
-  idp_metadata_bucket_prefix      = "idp-metadata"
-  assets_bucket_prefix            = "assets"
-  github_repository               = "pagopa/oneidentity"
-  account_id                      = data.aws_caller_identity.current.account_id
-  assertion_accesslogs_expiration = 180
+  idp_metadata_bucket_prefix         = "idp-metadata"
+  assets_bucket_prefix               = "assets"
+  assets_bucket_control_panel_prefix = "assets-control-panel"
+  github_repository                  = "pagopa/oneidentity"
+  account_id                         = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration    = 180
 }
 
 ## Database ##  
@@ -412,6 +413,9 @@ module "frontend" {
   assets_bucket_name             = module.storage.assets_bucket_name
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
+
+  assets_control_panel_bucket_name = module.storage.assets_control_panel_bucket_name
+  assets_control_panel_bucket_arn  = module.storage.assets_control_panel_bucket_arn
 
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns

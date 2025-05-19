@@ -24,6 +24,12 @@ output "assets_bucket_arn" {
 output "assets_bucket_name" {
   value = try(module.s3_assets_bucket[0].s3_bucket_id, null)
 }
+output "assets_control_panel_bucket_arn" {
+  value = try(module.s3_assets_control_panel_bucket[0].s3_bucket_arn, null)
+}
+output "assets_control_panel_bucket_name" {
+  value = try(module.s3_assets_control_panel_bucket[0].s3_bucket_id, null)
+}
 
 output "deploy_assets_role" {
   value = aws_iam_role.githubS3deploy.arn

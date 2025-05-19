@@ -24,11 +24,6 @@ export const ENV = {
         .VITE_URL_API_CLIENT_USER_ATTRIBUTES as string,
     },
   },
-
-  API: {
-    CORS_ORIGINS: (import.meta.env.VITE_API_CORS_ORIGINS || '').split(','),
-    CREDENTIALS: import.meta.env.VITE_API_CREDENTIALS === 'true',
-  },
   OIDC: {
     API: import.meta.env.VITE_COGNITO_API as string,
     TOKEN: (import.meta.env.VITE_COGNITO_API as string) + '/oauth2/token',

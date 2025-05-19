@@ -35,10 +35,21 @@ variable "create_assets_bucket" {
   description = "Create assets bucket."
   default     = true
 }
+variable "create_assets_control_panel_bucket" {
+  type        = bool
+  description = "Create assets control panel bucket."
+  default     = true
+}
 
 variable "assets_bucket_prefix" {
   type        = string
   description = "Assets bucket prefix"
+  default     = ""
+}
+
+variable "assets_bucket_control_panel_prefix" {
+  type        = string
+  description = "Assets bucket control panel prefix"
   default     = ""
 }
 
