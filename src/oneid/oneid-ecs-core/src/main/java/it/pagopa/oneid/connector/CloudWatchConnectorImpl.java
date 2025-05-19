@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private final String tagIDP = "IDP";
+  private final String tagDynamoDB = "DynamoDBAttempts";
   private final String tagSAMLStatus = "SAMLStatus";
   private final String tagClient = "Client";
   private final String tagAggregated = "Aggregated";
@@ -101,6 +102,18 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagIDP + tagSuccess, dimensions));
+  }
+
+  @Override
+  public void sendOIDynamoDBErrorMetricData(int numAttempts) {
+
+    List<Dimension> dimensions = List.of(Dimension.builder()
+        .name(tagDynamoDB)
+        .value(String.valueOf(numAttempts))
+        .build());
+
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest(tagDynamoDB, dimensions));
   }
 
   @Override

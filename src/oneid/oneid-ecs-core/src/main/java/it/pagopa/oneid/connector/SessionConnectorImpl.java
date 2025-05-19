@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -38,6 +39,11 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @CustomLogging
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
+  private static final int MAX_RETRIES = 3;
+  private static final long RETRY_DELAY_MS = 500;
+  private static final long EXPONENTIAL_BACKOFF_FACTOR = 2;
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
   private DynamoDbTable<SAMLSession> samlSessionMapper;
   private DynamoDbTable<OIDCSession> oidcSessionMapper;
   private DynamoDbTable<AccessTokenSession> accessTokenSessionMapper;
@@ -96,6 +102,37 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
     }
 
     return true;
+  }
+
+  private <R> Optional<R> executeWithRetry(Supplier<Optional<R>> operation)
+      throws SessionException {
+    int attempts = 0;
+    long delay = SessionConnectorImpl.RETRY_DELAY_MS;
+
+    while (attempts < SessionConnectorImpl.MAX_RETRIES) {
+      Optional<R> result = operation.get();
+      if (result.isPresent()) {
+        if (attempts > 0) {
+          cloudWatchConnectorImpl.sendOIDynamoDBErrorMetricData(attempts + 1);
+        }
+        return result;
+      }
+
+      Log.error("Session not found in DynamoDB at " + (attempts + 1) + "th attempt, retrying...");
+
+      attempts++;
+      if (attempts < SessionConnectorImpl.MAX_RETRIES) {
+        try {
+          Thread.sleep(delay);
+          delay *= EXPONENTIAL_BACKOFF_FACTOR;
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new SessionException();
+        }
+      }
+    }
+
+    return Optional.empty();
   }
 
   @Override
@@ -175,30 +212,33 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
 
       }
       case RecordType.OIDC -> {
+        return executeWithRetry(() -> {
+          QueryConditional queryConditional = QueryConditional.keyEqualTo(
+              Key.builder().partitionValue(identifier).build()
+          );
 
-        QueryConditional queryConditional = QueryConditional.keyEqualTo(
-            Key.builder().partitionValue(identifier)
-                .build());
+          final SdkIterable<Page<OIDCSession>> pagedResult = oidcSessionDynamoDbIndex.query(q -> q
+              .queryConditional(queryConditional)
+              .limit(1)
+          );
 
-        final SdkIterable<Page<OIDCSession>> pagedResult = oidcSessionDynamoDbIndex.query(q -> q
-            .queryConditional(queryConditional)
-            .limit(1)
-        );
+          List<OIDCSession> collectedItems = new ArrayList<>();
+          pagedResult.stream().forEach(page -> collectedItems.addAll(page.items()));
 
-        List<OIDCSession> collectedItems = new ArrayList<>();
-        pagedResult.stream().forEach(page -> collectedItems.addAll(page.items()));
-        OIDCSession oidcSession;
-        try {
-          oidcSession = collectedItems.getFirst();
-        } catch (NoSuchElementException e) {
+          if (!collectedItems.isEmpty()) {
+            OIDCSession oidcSession = collectedItems.getFirst();
+            try {
+              if (checkSessionValidity(oidcSession)) {
+                Log.debug("session successfully found");
+                return Optional.of((T) oidcSession);
+              }
+            } catch (SessionException e) {
+              throw new RuntimeException(e);
+            }
+          }
           Log.debug("oidc session not found");
           return Optional.empty();
-        }
-        if (checkSessionValidity(oidcSession)) {
-          Log.debug("session successfully found");
-          return (Optional<T>) Optional.ofNullable(oidcSession);
-        }
-        return Optional.empty();
+        });
       }
       case RecordType.ACCESS_TOKEN -> {
 
