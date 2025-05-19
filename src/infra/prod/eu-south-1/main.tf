@@ -456,7 +456,6 @@ module "frontend" {
     throttle_burst_limit = 10
     throttle_rate_limit  = 20
   }
-  client_manager_lambda_arn = "" //set arn client manager lambda
 
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   client_manager_lambda_arn      = module.backend.client_manager_lambda_arn

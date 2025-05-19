@@ -64,7 +64,6 @@ module "frontend" {
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
-  client_manager_lambda_arn      = "" //set arn client manager lambda
   client_registration_lambda_arn = module.backend.client_registration_lambda_arn
   client_manager_lambda_arn      = module.backend.client_manager_lambda_arn
   retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
