@@ -76,7 +76,7 @@ cognito_client = get_cognito_client(aws_region)
 dynamodb_client = get_dynamodb_client(aws_region)
 
 
-@app.put("/admin/client-manager/user-attributes")
+@app.put("/client-manager/user-attributes")
 def update_user_attributes_with_client_id():
     """
     Inserts 'client_id' inside Cognito User Attributes
@@ -123,7 +123,7 @@ def update_user_attributes_with_client_id():
     return None
 
 
-@app.put("/admin/client-manager/client-additional/<client_id>")
+@app.put("/client-manager/client-additional/<client_id>")
 def update_optional_attributes(client_id):
     """
     Updates optional fields on 'ClientRegistrations' Table
