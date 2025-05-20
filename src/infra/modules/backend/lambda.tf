@@ -908,7 +908,9 @@ module "client_manager_lambda" {
   environment_variables = var.client_manager_lambda.environment_variables
 
   # lambda powertools layer
-  layers = ["arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"]
+  layers = [
+    "arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"
+  ]
 
   memory_size = 256
   timeout     = 30
@@ -936,4 +938,11 @@ data "aws_iam_policy_document" "client_manager_lambda" {
       var.client_manager_lambda.cognito_user_pool_arn
     ]
   }
+}
+
+resource "aws_lambda_permission" "apigateway_lambda_manager_res_policy" {
+  action        = "lambda:InvokeFunction"
+  function_name = module.client_manager_lambda.lambda_function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = var.client_manager_lambda.rest_api_admin_arn
 }

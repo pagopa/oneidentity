@@ -326,6 +326,7 @@ variable "client_manager_lambda" {
     environment_variables             = map(string)
     table_client_registrations_arn    = string
     cognito_user_pool_arn             = string
+    rest_api_admin_arn                = string
     # TODO: move client_manager_lambda to VPC
     # vpc_endpoint_apigw_prefix_id      = string
     # vpc_endpoint_dynamodb_prefix_id   = string
