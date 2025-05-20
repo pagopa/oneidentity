@@ -18,7 +18,7 @@ module "r53_zones" {
 }
 
 module "network" {
-  source = "../../modules/network"
+  source   = "../../modules/network"
   vpc_name = format("%s-vpc", local.project)
 
   azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
@@ -39,28 +39,28 @@ module "frontend" {
   domain_name       = module.r53_zones.dns_zone_name
   domain_admin_name = module.r53_zones.dns_zone_name
   r53_dns_zone_id   = module.r53_zones.dns_zone_id
-  role_prefix = local.project
+  role_prefix       = local.project
 
   ## API Gateway ##
-  rest_api_name = format("%s-restapi", local.project)
+  rest_api_name         = format("%s-restapi", local.project)
   openapi_template_file = "../../api/oi.tpl.json"
-  rest_api_admin_name = format("%s-restapi-admin", local.project)
+  rest_api_admin_name   = format("%s-restapi-admin", local.project)
 
   openapi_admin_template_file = "../../api/oi-admin.tpl.json"
   dns_record_ttl              = var.dns_record_ttl
   cors_allow_origins          = "*"
 
   api_gateway_target_arns = [module.backend.nlb_arn]
-  nlb_dns_name = module.backend.nlb_dns_name
+  nlb_dns_name            = module.backend.nlb_dns_name
 
   api_gateway_plan = {
-    name = format("%s-restapi-plan", local.project)
+    name                 = format("%s-restapi-plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
     api_key_name         = "client-registration"
   }
   api_gateway_admin_plan = {
-    name = format("%s-restapi-admin_plan", local.project)
+    name                 = format("%s-restapi-admin_plan", local.project)
     throttle_burst_limit = 10
     throttle_rate_limit  = 20
   }
@@ -81,10 +81,10 @@ module "frontend" {
   web_acl = {
     name = format("%s-webacl", local.project)
   }
-  user_pool_arn = module.cognito.user_pool_arn
-  api_authorizer_name = format("%s-restapi-authorizer", local.project)
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
   api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
-  provider_arn  = module.cognito.user_pool_arn
+  provider_arn              = module.cognito.user_pool_arn
 }
 
 
@@ -109,7 +109,7 @@ module "storage" {
 
 module "sns" {
   source            = "../../modules/sns"
-  sns_topic_name = format("%s-sns", local.project)
+  sns_topic_name    = format("%s-sns", local.project)
   alarm_subscribers = var.alarm_subscribers
 }
 
@@ -129,7 +129,7 @@ module "backend" {
     }
   ]
 
-  ecs_cluster_name = format("%s-ecs", local.project)
+  ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = var.ecs_enable_container_insights
   sns_topic_arn             = module.sns.sns_topic_arn
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
@@ -208,7 +208,7 @@ module "backend" {
         value = var.app_log_level
       },
       {
-        name = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
+        name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
@@ -230,7 +230,7 @@ module "backend" {
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
   client_registration_lambda = {
-    name = format("%s-client-registration", local.project)
+    name                               = format("%s-client-registration", local.project)
     filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn     = module.database.table_client_registrations_arn
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
@@ -246,7 +246,7 @@ module "backend" {
   }
 
   metadata_lambda = {
-    name = format("%s-metadata", local.project)
+    name                           = format("%s-metadata", local.project)
     filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     assets_bucket_arn              = module.storage.assets_bucket_arn
     table_client_registrations_arn = module.database.table_client_registrations_arn
@@ -268,7 +268,7 @@ module "backend" {
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
-    vpc_endpoint_ssm_nsg_ids = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
+    vpc_endpoint_ssm_nsg_ids          = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 
@@ -277,14 +277,14 @@ module "backend" {
   dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn               = module.database.dynamodb_table_stream_arn
   eventbridge_pipe_sessions = {
-    pipe_name = format("%s-sessions-pipe", local.project)
+    pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   assertion_lambda = {
-    name = format("%s-assertion", local.project)
+    name                    = format("%s-assertion", local.project)
     filename                = "${path.module}/../../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
@@ -300,7 +300,7 @@ module "backend" {
   }
 
   idp_metadata_lambda = {
-    name = format("%s-update-idp-metadata", local.project)
+    name                              = format("%s-update-idp-metadata", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
@@ -332,15 +332,15 @@ module "backend" {
   }
 
   is_gh_integration_lambda = {
-    name = format("%s-is-gh-integration-lambda", local.project)
+    name                              = format("%s-is-gh-integration-lambda", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     sns_topic_arn                     = var.is_gh_sns_arn
-    environment_variables = { LOG_LEVEL = var.app_log_level }
+    environment_variables             = { LOG_LEVEL = var.app_log_level }
   }
 
   update_status_lambda = {
-    name = format("%s-update-status", local.project)
+    name                              = format("%s-update-status", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     vpc_id                            = module.network.vpc_id
@@ -361,7 +361,7 @@ module "backend" {
   }
 
   retrieve_status_lambda = {
-    name = format("%s-retrieve-status", local.project)
+    name                              = format("%s-retrieve-status", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     vpc_id                            = module.network.vpc_id
@@ -388,13 +388,13 @@ module "backend" {
   ssm_cert_key = {}
 
   eventbridge_pipe_invalidate_cache = {
-    pipe_name = format("%s-invalidate-cache-pipe", local.project)
+    pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   invalidate_cache_lambda = {
-    name = format("%s-invalidate-cache", local.project)
+    name     = format("%s-invalidate-cache", local.project)
     filename = "${path.module}/../../hello-python/lambda.zip"
     #vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
@@ -407,7 +407,7 @@ module "backend" {
   }
 
   client_manager_lambda = {
-    name = format("%s-client-manager", local.project)
+    name                              = format("%s-client-manager", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
@@ -428,17 +428,17 @@ module "spid_validator" {
   ecr_repository_name = format("%s-spid-validator", local.project)
 
   spid_validator = {
-    cluster_arn = module.backend.ecs_cluster_arn
+    cluster_arn  = module.backend.ecs_cluster_arn
     service_name = format("%s-spid-validator", local.project)
     container = {
       name          = "validator"
-      image_name = format("%s-spid-validator", local.project)
+      image_name    = format("%s-spid-validator", local.project)
       image_version = "2.1.6"
       environment = [
         {
           name  = "NODE_USE_HTTPS"
           value = "false"
-        }, {
+          }, {
           name  = "NODE_HTTPS_PORT"
           value = "8080"
         },
@@ -463,7 +463,7 @@ module "spid_validator" {
   private_subnets_ids = module.network.private_subnet_ids
 
   alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
-  vpc_cidr_block = module.network.vpc_cidr_block
+  vpc_cidr_block          = module.network.vpc_cidr_block
 
   zone_id   = module.r53_zones.dns_zone_id
   zone_name = module.r53_zones.dns_zone_name
@@ -484,18 +484,18 @@ module "database" {
 ## Monitoring 
 
 module "monitoring" {
-  env_short                  = var.env_short
-  region_short               = var.aws_region_short
-  source                     = "../../modules/monitoring"
-  main_dashboard_name = format("%s-overall-dashboard", local.project)
-  api_methods_dashboard_name = format("%s-api-methods-dashboard", local.project)
+  env_short                       = var.env_short
+  region_short                    = var.aws_region_short
+  source                          = "../../modules/monitoring"
+  main_dashboard_name             = format("%s-overall-dashboard", local.project)
+  api_methods_dashboard_name      = format("%s-api-methods-dashboard", local.project)
   detailed_metrics_dashboard_name = format("%s-detailed-metrics-dashboard", local.project)
-  idp_entity_ids             = local.idp_entity_ids
-  clients                    = local.clients
-  aws_region                 = var.aws_region
-  api_name                   = module.frontend.api_name
-  sessions_table             = module.database.table_sessions_name
-  client_registrations_table = module.database.table_client_registrations_name
+  idp_entity_ids                  = local.idp_entity_ids
+  clients                         = local.clients
+  aws_region                      = var.aws_region
+  api_name                        = module.frontend.api_name
+  sessions_table                  = module.database.table_sessions_name
+  client_registrations_table      = module.database.table_client_registrations_name
 
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
@@ -542,14 +542,14 @@ module "backup" {
 module "cognito" {
   source = "../../modules/cognito"
   cognito = {
-    logout_url   = "https://dev.oneid.pagopa.it/logout",
+    logout_url       = "https://dev.oneid.pagopa.it/logout",
     user_pool_client = format("%s-user_pool_client", local.project),
-    user_pool_name = format("%s-user_pool", local.project),
+    user_pool_name   = format("%s-user_pool", local.project),
     user_pool_domain = format("%s-user-pool-domain", local.project),
-    callback_url = "https://dev.oneid.pagopa.it/"
+    callback_url     = "https://dev.oneid.pagopa.it/"
   }
   cognito_presignup_lambda = {
-    name = format("%s-cognito-presignup", local.project)
+    name                              = format("%s-cognito-presignup", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
