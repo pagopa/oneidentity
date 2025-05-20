@@ -475,6 +475,11 @@ module "frontend" {
     sampled_requests_enabled   = true
     sns_topic_arn              = module.sns.sns_topic_arn
   }
+
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
+  provider_arn              = module.cognito.user_pool_arn
 }
 
 ## Monitoring / Dashboard ##
@@ -513,4 +518,20 @@ module "monitoring" {
   create_ce_budget = true
 
   alarm_subscribers = var.alarm_subscribers
+}
+
+module "cognito" {
+  source = "../../modules/cognito"
+  cognito = {
+    logout_url       = "https://oneid.pagopa.it/logout", #TBD
+    user_pool_client = format("%s-user_pool_client", local.project),
+    user_pool_name   = format("%s-user_pool", local.project),
+    user_pool_domain = format("%s-user-pool-domain", local.project),
+    callback_url     = "https://oneid.pagopa.it/" #TBD
+  }
+  cognito_presignup_lambda = {
+    name                              = format("%s-cognito-presignup", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+  }
 }
