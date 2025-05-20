@@ -7,7 +7,7 @@ resource "aws_iam_role_policy_attachment" "deploy_lambda" {
 
 ## Deploy with github action
 resource "aws_iam_role" "githubecsdeploy" {
-  name        = format("%s-deploy", var.service_core.service_name)
+  name = format("%s-deploy", var.service_core.service_name)
   description = "Role to assume to deploy ECS tasks"
 
 
@@ -15,13 +15,13 @@ resource "aws_iam_role" "githubecsdeploy" {
 }
 
 resource "aws_iam_role" "github_lambda_deploy" {
-  name               = format("%s-deploy-lambda", var.role_prefix)
+  name = format("%s-deploy-lambda", var.role_prefix)
   description        = "Role to deploy lambda functions with github actions."
   assume_role_policy = local.assume_role_policy_github
 }
 
 resource "aws_iam_policy" "deploy_lambda" {
-  name        = format("%s-deploy-lambda", var.role_prefix)
+  name = format("%s-deploy-lambda", var.role_prefix)
   description = "Policy to deploy Lambda functions"
 
   policy = jsonencode({
@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "client_registration_lambda" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = ["sns:Publish"]
     resources = [
       var.sns_topic_arn
@@ -104,7 +104,7 @@ module "security_group_lambda_client_registration" {
 
   vpc_id = var.client_registration_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -132,7 +132,7 @@ module "client_registration_lambda" {
   description             = "Lambda function OIDC Dynamic Client Registration."
   runtime                 = "provided.al2023"
   handler                 = "not.used.in.provided.runtime"
-  architectures           = ["x86_64"]
+  architectures = ["x86_64"]
   create_package          = false
   local_existing_package  = var.client_registration_lambda.filename
   ignore_source_code_hash = true
@@ -143,7 +143,7 @@ module "client_registration_lambda" {
   policy_json           = data.aws_iam_policy_document.client_registration_lambda.json
   attach_network_policy = true
 
-  vpc_subnet_ids         = var.client_registration_lambda.vpc_subnet_ids
+  vpc_subnet_ids = var.client_registration_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_client_registration.security_group_id]
 
   environment_variables = var.client_registration_lambda.environment_variables
@@ -211,7 +211,7 @@ module "security_group_lambda_metadata" {
 
   vpc_id = var.metadata_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -229,7 +229,7 @@ resource "aws_security_group_rule" "metadata_vpc_tls" {
   protocol                 = "tcp"
   security_group_id        = module.security_group_lambda_metadata.security_group_id
   source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
-  prefix_list_ids          = [var.metadata_lambda.vpc_s3_prefix_id]
+  prefix_list_ids = [var.metadata_lambda.vpc_s3_prefix_id]
 
 }
 
@@ -258,8 +258,8 @@ module "metadata_lambda" {
     }
   }
 
-  environment_variables  = var.metadata_lambda.environment_variables
-  vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids
+  environment_variables = var.metadata_lambda.environment_variables
+  vpc_subnet_ids        = var.metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_metadata.security_group_id]
 
   cloudwatch_logs_retention_in_days = var.metadata_lambda.cloudwatch_logs_retention_in_days
@@ -306,7 +306,7 @@ resource "aws_cloudwatch_event_rule" "cert_key_changes" {
           "LabelParameterVersion"
         ]
       }
-  })
+    })
 }
 
 resource "aws_cloudwatch_event_target" "metadata_lambda" {
@@ -325,8 +325,8 @@ resource "aws_lambda_permission" "cert_key_changes" {
 
 data "aws_iam_policy_document" "idp_metadata_lambda" {
   statement {
-    effect    = "Allow"
-    actions   = ["s3:GetObject"]
+    effect = "Allow"
+    actions = ["s3:GetObject"]
     resources = ["${var.idp_metadata_lambda.s3_idp_metadata_bucket_arn}/*"]
   }
 
@@ -355,7 +355,7 @@ module "security_group_lambda_idp_metadata" {
 
   vpc_id = var.idp_metadata_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -385,8 +385,8 @@ module "idp_metadata_lambda" {
   policy_json           = data.aws_iam_policy_document.idp_metadata_lambda.json
   attach_network_policy = true
 
-  environment_variables  = var.idp_metadata_lambda.environment_variables
-  vpc_subnet_ids         = var.idp_metadata_lambda.vpc_subnet_ids
+  environment_variables = var.idp_metadata_lambda.environment_variables
+  vpc_subnet_ids        = var.idp_metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_idp_metadata.security_group_id]
 
   cloudwatch_logs_retention_in_days = var.idp_metadata_lambda.cloudwatch_logs_retention_in_days
@@ -406,11 +406,11 @@ module "idp_metadata_lambda" {
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [module.idp_metadata_lambda.lambda_function_name]
-  bucket     = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
+  bucket = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
 
   lambda_function {
     lambda_function_arn = module.idp_metadata_lambda.lambda_function_arn
-    events              = ["s3:ObjectCreated:Put"]
+    events = ["s3:ObjectCreated:Put"]
   }
 }
 
@@ -460,7 +460,7 @@ module "is_gh_integration_lambda" {
         source_arn = var.is_gh_integration_lambda.sns_topic_arn
       }
     }, {}
-    ][
+  ][
     var.is_gh_integration_lambda.sns_topic_arn != null ? 0 : 1
   ]
 
@@ -471,30 +471,30 @@ module "is_gh_integration_lambda" {
 }
 
 resource "aws_sns_topic_subscription" "is-gh-integration" {
-  count      = var.is_gh_integration_lambda.sns_topic_arn != null ? 1 : 0
-  topic_arn  = var.is_gh_integration_lambda.sns_topic_arn
-  protocol   = "lambda"
-  endpoint   = module.is_gh_integration_lambda.lambda_function_arn
+  count     = var.is_gh_integration_lambda.sns_topic_arn != null ? 1 : 0
+  topic_arn = var.is_gh_integration_lambda.sns_topic_arn
+  protocol  = "lambda"
+  endpoint  = module.is_gh_integration_lambda.lambda_function_arn
   depends_on = [module.is_gh_integration_lambda.lambda_function_arn]
 }
 
 ## Assertion Lambda ##
 data "aws_iam_policy_document" "assertion_lambda" {
   statement {
-    effect    = "Allow"
-    actions   = ["s3:PutObject"]
+    effect = "Allow"
+    actions = ["s3:PutObject"]
     resources = ["${var.assertion_lambda.s3_assertion_bucket_arn}/*"]
   }
 
   statement {
-    effect    = "Allow"
-    actions   = ["cloudwatch:PutMetricData"]
+    effect = "Allow"
+    actions = ["cloudwatch:PutMetricData"]
     resources = ["*"]
   }
 
   statement {
-    effect    = "Allow"
-    actions   = ["kms:GenerateDataKey"]
+    effect = "Allow"
+    actions = ["kms:GenerateDataKey"]
     resources = [var.assertion_lambda.kms_assertion_key_arn]
   }
 }
@@ -509,7 +509,7 @@ module "security_group_lambda_assertion" {
 
   vpc_id = var.assertion_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -554,7 +554,7 @@ module "assertion_lambda" {
 
   attach_network_policy = true
 
-  vpc_subnet_ids         = var.assertion_lambda.vpc_subnet_ids
+  vpc_subnet_ids = var.assertion_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_assertion.security_group_id]
 
   ### DLQ ###
@@ -578,7 +578,7 @@ module "assertion_lambda" {
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   for_each = var.lambda_alarms
   alarm_name = lower(format("%s-%s-lambda-%s", each.key, each.value.metric_name,
-  each.value.threshold))
+    each.value.threshold))
   comparison_operator = each.value.comparison_operator
   evaluation_periods  = each.value.evaluation_periods
   metric_name         = each.value.metric_name
@@ -597,7 +597,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
 resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
   alarm_name = format("%s-%s-Dlq-%s", module.assertion_lambda.lambda_function_name, var.dlq_alarms.metric_name,
-  var.dlq_alarms.threshold)
+    var.dlq_alarms.threshold)
   comparison_operator = var.dlq_alarms.comparison_operator
   evaluation_periods  = var.dlq_alarms.evaluation_periods
   metric_name         = var.dlq_alarms.metric_name
@@ -619,8 +619,8 @@ resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
 
 data "aws_iam_policy_document" "update_status_lambda" {
   statement {
-    effect    = "Allow"
-    actions   = ["s3:PutObject", "s3:GetObject"]
+    effect = "Allow"
+    actions = ["s3:PutObject", "s3:GetObject"]
     resources = ["${var.update_status_lambda.assets_bucket_arn}/*"]
   }
   statement {
@@ -650,7 +650,7 @@ module "security_group_update_status_lambda" {
 
   vpc_id = var.update_status_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -686,7 +686,7 @@ module "update_status_lambda" {
 
   attach_network_policy = true
 
-  vpc_subnet_ids         = var.update_status_lambda.vpc_subnet_ids
+  vpc_subnet_ids = var.update_status_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_update_status_lambda.security_group_id]
 
   allowed_triggers = {
@@ -732,7 +732,7 @@ module "security_group_retrieve_status_lambda" {
 
   vpc_id = var.retrieve_status_lambda.vpc_id
 
-  egress_cidr_blocks      = []
+  egress_cidr_blocks = []
   egress_ipv6_cidr_blocks = []
 
   # Prefix list ids to use in all egress rules in this module
@@ -766,7 +766,7 @@ module "retrieve_status_lambda" {
 
   attach_network_policy = true
 
-  vpc_subnet_ids         = var.retrieve_status_lambda.vpc_subnet_ids
+  vpc_subnet_ids = var.retrieve_status_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_retrieve_status_lambda.security_group_id]
 
   memory_size = 256
@@ -938,11 +938,4 @@ data "aws_iam_policy_document" "client_manager_lambda" {
       var.client_manager_lambda.cognito_user_pool_arn
     ]
   }
-}
-
-resource "aws_lambda_permission" "apigateway_lambda_manager_res_policy" {
-  action        = "lambda:InvokeFunction"
-  function_name = module.client_manager_lambda.lambda_function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = var.client_manager_lambda.rest_api_admin_arn
 }
