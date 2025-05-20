@@ -62,15 +62,13 @@ public class Client {
 
   private String tosUri;
   // Fields related to FE
-  private String docUri;
   private String a11yUri;
-  private String cookieUri;
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
-  private Map<String, LocalizedContent> localizedContentMap;
-  private String supportAddress;
+  private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
-  public record LocalizedContent(String title, String description) {
+  public record LocalizedContent(String title, String description, String docUri,
+                                 String supportAddress, String cookieUri) {
 
   }
 }

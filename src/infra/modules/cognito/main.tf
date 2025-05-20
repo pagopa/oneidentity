@@ -61,6 +61,14 @@ resource "aws_cognito_user_pool" "main" {
   lambda_config {
     pre_sign_up = module.cognito_presignup_lambda.lambda_function_arn
   }
+
+  lifecycle {
+
+    ignore_changes = [
+      password_policy,
+      schema
+    ]
+  }
   deletion_protection = "INACTIVE"
 
   email_configuration {

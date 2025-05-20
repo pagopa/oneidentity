@@ -65,6 +65,11 @@ output "client_registration_lambda_arn" {
   value = module.client_registration_lambda.lambda_function_arn
 }
 
+## Client manager lambda
+output "client_manager_lambda_arn" {
+  value = module.client_manager_lambda.lambda_function_arn
+}
+
 output "client_registration_log_group_name" {
   value = module.client_registration_lambda.lambda_cloudwatch_log_group_name
 }
