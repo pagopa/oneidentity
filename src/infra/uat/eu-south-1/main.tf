@@ -396,6 +396,7 @@ module "backend" {
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
+    rest_api_admin_arn                = module.frontend.rest_api_admin_arn
     environment_variables = {
       LOG_LEVEL                       = "DEBUG"
       USER_POOL_ID                    = module.cognito.user_pool_id
