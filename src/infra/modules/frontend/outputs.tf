@@ -30,7 +30,3 @@ output "rest_api_stage_name" {
 output "rest_api_arn" {
   value = module.rest_api.rest_api_arn
 }
-
-output "rest_api_admin_arn" {
-  value = module.rest_api_admin.rest_api_arn
-}
