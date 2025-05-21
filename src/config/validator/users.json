@@ -19641,6 +19641,32 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+  {
+    "username": "f.castle",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-768",
+    "familyName": "Castle",
+    "name": "Frank",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-CSTFNK80A01F205L",
+    "mobilePhone": "",
+    "email": "f.castle@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
   
 ]
