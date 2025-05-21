@@ -6,6 +6,7 @@ import {
   UserAction,
   ProductSwitchItem,
   ProductEntity,
+  LangCode,
 } from '@pagopa/mui-italia';
 import { PartySwitchItem } from '@pagopa/mui-italia/dist/components/PartySwitch';
 import { ENV } from '../utils/env';
@@ -18,6 +19,7 @@ import {
   ROUTE_LOGIN,
   ROUTE_LOGOUT,
 } from '../utils/constants';
+import i18n from '../locale';
 
 type PartyEntity = PartySwitchItem;
 type HeaderProps = {
@@ -71,6 +73,13 @@ const Header = ({
   maxCharactersNumberMultiLineItem,
 }: HeaderProps) => {
   const { clientQuery } = useLoginData();
+  const lang: LangCode = i18n.language as LangCode;
+  const themeParam = encodeURIComponent(
+    new URLSearchParams(window.location.search).get('theme') || 'default'
+  );
+  const localizedContent =
+    clientQuery.data?.localizedContentMap?.[themeParam]?.[lang];
+
   const getClientLogo = () => (
     <>
       {clientQuery.isFetched && (
@@ -95,8 +104,8 @@ const Header = ({
   const product = mapClientToProduct(clientQuery.data, getClientLogo());
 
   // Enable documentation button if docUri is present
-  const onDocumentationClick = clientQuery.data?.docUri
-    ? () => window.open(clientQuery.data?.docUri, '_blank')
+  const onDocumentationClick = localizedContent?.docUri
+    ? () => window.open(localizedContent?.docUri, '_blank')
     : undefined;
 
   // The string wich could represent a valid email address or URL to help users to get assistance
@@ -106,7 +115,7 @@ const Header = ({
   if (ENV.FALLBACK_ASSISTANCE.ENABLE && ENV.FALLBACK_ASSISTANCE.EMAIL) {
     assistanceString = ENV.FALLBACK_ASSISTANCE.EMAIL;
   }
-  assistanceString = clientQuery.data?.supportAddress || assistanceString;
+  assistanceString = localizedContent?.supportAddress || assistanceString;
 
   return (
     <Fragment>

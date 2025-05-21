@@ -8,22 +8,27 @@ export type BannerContent = {
   description: string;
 };
 
+type Theme = Record<
+  LangCode,
+  {
+    title: string;
+    description: string;
+    docUri: string;
+    cookieUri: string;
+    supportAddress: string;
+  }
+>;
+
 export type Client = {
   clientID: string;
   friendlyName: string;
   logoUri: string;
   policyUri: string;
   tosUri: string;
-  docUri: string;
   a11yUri: string;
-  cookieUri: string;
   callbackURI: Array<string>;
-  supportAddress: string;
   backButtonEnabled: boolean;
-  localizedContentMap: Record<
-    LangCode,
-    Record<'title' | 'description', string>
-  >;
+  localizedContentMap: Record<'default' | string, Theme>;
 };
 
 export type IDPList = {

@@ -49,6 +49,11 @@ const Login = () => {
   const { bannerQuery, clientQuery, idpQuery } = useLoginData();
   const { t } = useTranslation();
   const lang: LangCode = i18n.language as LangCode;
+  const themeParam = encodeURIComponent(
+    new URLSearchParams(window.location.search).get('theme') || 'default'
+  );
+  const localizedContent =
+    clientQuery.data?.localizedContentMap?.[themeParam]?.[lang];
 
   const columnsOccupiedByAlert = 5;
   useEffect(() => {
@@ -132,8 +137,7 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {clientQuery.data?.localizedContentMap?.[lang]?.title ||
-                t('loginPage.title')}
+              {localizedContent?.title || t('loginPage.title')}
             </Typography>
           </Grid>
         </Grid>
@@ -147,8 +151,7 @@ const Login = () => {
                 textAlign: 'center',
               }}
             >
-              {clientQuery.data?.localizedContentMap?.[lang]?.description ||
-                t('loginPage.description')}
+              {localizedContent?.description || t('loginPage.description')}
             </Typography>
           </Grid>
         </Grid>
