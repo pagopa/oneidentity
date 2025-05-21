@@ -1,5 +1,6 @@
 package it.pagopa.oneid.common.model.converters;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,15 @@ public class HashMapAttributeConverter implements
 
   @Override
   public Map<String, Map<String, LocalizedContent>> transformTo(AttributeValue attributeValue) {
-    return mapConverter.transformTo(attributeValue);
+    Map<String, Map<String, LocalizedContent>> map;
+    try {
+      map = mapConverter.transformTo(attributeValue);
+    } catch (RuntimeException e) {
+      Log.error("Failed to convert attribute value to map", e);
+      map = new HashMap<>();
+    }
+
+    return map;
   }
 
   @Override

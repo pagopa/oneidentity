@@ -25,11 +25,11 @@ public class LocalizedContentAttributeConverter implements AttributeConverter<Lo
   public LocalizedContent transformTo(AttributeValue attributeValue) {
     Map<String, AttributeValue> map = attributeValue.m();
     return new LocalizedContent(
-        map.get("title").s(),
-        map.get("description").s(),
-        map.get("cookieUri").s(),
-        map.get("docUri").s(),
-        map.get("supportAddress").s()
+        map.containsKey("title") ? map.get("title").s() : "",
+        map.containsKey("description") ? map.get("description").s() : "",
+        map.containsKey("cookieUri") ? map.get("cookieUri").s() : "",
+        map.containsKey("docUri") ? map.get("docUri").s() : "",
+        map.containsKey("supportAddress") ? map.get("supportAddress").s() : ""
     );
   }
 
