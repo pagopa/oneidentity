@@ -36,8 +36,13 @@ export default function Footer({
     'lang'
   ) as LangCode;
   const lang = (
-    currentLangByUrl ? currentLangByUrl : i18n.language
+    currentLangByUrl ? encodeURIComponent(currentLangByUrl) : i18n.language
   ) as LangCode;
+  const themeParam = encodeURIComponent(
+    new URLSearchParams(window.location.search).get('theme') || 'default'
+  );
+  const localizedContent =
+    clientQuery.data?.localizedContentMap?.[themeParam]?.[lang];
 
   useEffect(() => {
     if (lang) {
@@ -108,7 +113,7 @@ export default function Footer({
         {
           label: t('common.footer.preLoginLinks.resources.links.cookies'),
           // onClick: () => window.OneTrust.ToggleInfoDisplay(),
-          href: clientQuery.data?.cookieUri || ENV.FOOTER.LINK.COOKIE,
+          href: localizedContent?.cookieUri || ENV.FOOTER.LINK.COOKIE,
           ariaLabel: 'Vai al link: Preferenze Cookie',
           linkType: 'internal',
         },
