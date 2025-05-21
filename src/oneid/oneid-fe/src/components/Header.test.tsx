@@ -44,11 +44,36 @@ describe('Header Component', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
-  it('renders docUri correctly', () => {
+  it('not renders docUri correctly', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
         docUri: 'https://example.com/doc',
+      },
+    };
+
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: mockClientQuery,
+    });
+
+    render(<Header withSecondHeader />);
+
+    expect(screen.queryByText(/Manuale operativo/)).toBeNull();
+
+    vi.clearAllMocks();
+  });
+
+  it('renders docUri correctly', () => {
+    const mockClientQuery = {
+      isFetched: true,
+      data: {
+        localizedContentMap: {
+          default: {
+            en: {
+              docUri: 'https://example.com/doc',
+            },
+          },
+        },
       },
     };
 
@@ -101,7 +126,13 @@ describe('Header Component', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
-        supportAddress,
+        localizedContentMap: {
+          default: {
+            en: {
+              supportAddress,
+            },
+          },
+        },
       },
     };
 
@@ -183,7 +214,13 @@ describe('Header Component', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
-        supportAddress,
+        localizedContentMap: {
+          default: {
+            en: {
+              supportAddress,
+            },
+          },
+        },
       },
     };
 
@@ -236,7 +273,13 @@ describe('Header Component', () => {
     const mockClientQuery = {
       isFetched: true,
       data: {
-        supportAddress: 'https://example.com/support',
+        localizedContentMap: {
+          default: {
+            en: {
+              supportAddress: 'https://example.com/support',
+            },
+          },
+        },
       },
     };
 
