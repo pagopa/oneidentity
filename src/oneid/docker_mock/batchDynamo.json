@@ -10,10 +10,10 @@
             "BOOL": true
           },
           "hashed_client_secret": {
-            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
+            "S": "eQCAH3sO2CiN+6MYx/BdfMOH8vhMUN5ySTp0n6vG3Qk"
           },
           "salt": {
-            "S": "YP1cYg+39af5jm2ZKpnLJw"
+            "S": "wnPIm5bGfbSX5W5LcyScBQ"
           },
           "callbackURI": {
             "SS": ["http://localhost:8084/client/cb"]
@@ -45,37 +45,53 @@
           "tosUri": {
             "S": "https://io.italia.it/note-legali/"
           },
-          "docUri": {
-            "S": "https://docs.pagopa.it/home/tutti-i-prodotti/io-lapp-dei-servizi-pubblici"
-          },
           "a11yUri": {
             "S": "https://form.agid.gov.it/view/cf4a7360-df2d-11ef-8637-9f856ac3da10"
-          },
-          "cookieUri": {
-            "S": "https://io.italia.it"
           },
           "backButtonEnabled": {
             "BOOL": true
           },
           "localizedContentMap": {
             "M": {
-              "it": {
+              "default": {
                 "M": {
-                  "title": {
-                    "S": "Entra nella tua area pagoPA"
+                  "it": {
+                    "M": {
+                      "title": {
+                        "S": "Entra nella tua area pagoPA"
+                      },
+                      "description": {
+                        "S": "Lo spazio dedicato ai pagamenti e le tue ricevute pagoPA"
+                      },
+                      "cookieUri": {
+                        "S": "https://io.italia.it"
+                      },
+                      "docUri": {
+                        "S": "https://docs.pagopa.it/home/tutti-i-prodotti/io-lapp-dei-servizi-pubblici"
+                      },
+                      "supportAddress": {
+                        "S": "support@example.com"
+                      }
+                    }
                   },
-                  "description": {
-                    "S": "Lo spazio dedicato ai pagamenti e le tue ricevute pagoPA"
-                  }
-                }
-              },
-              "en": {
-                "M": {
-                  "title": {
-                    "S": "Sign in to your pagoPA account."
-                  },
-                  "description": {
-                    "S": "This is your personal area where you can manage your payments and view your pagoPA receipts."
+                  "en": {
+                    "M": {
+                      "title": {
+                        "S": "Sign in to your pagoPA account."
+                      },
+                      "description": {
+                        "S": "This is your personal area where you can manage your payments and view your pagoPA receipts."
+                      },
+                      "cookieUri": {
+                        "S": "https://io.italia.it"
+                      },
+                      "docUri": {
+                        "S": "https://docs.pagopa.it/home/tutti-i-prodotti/io-lapp-dei-servizi-pubblici"
+                      },
+                      "supportAddress": {
+                        "S": "support@example.com"
+                      }
+                    }
                   }
                 }
               }
@@ -129,14 +145,8 @@
           "tosUri": {
             "S": ""
           },
-          "docUri": {
-            "S": ""
-          },
           "a11yUri": {
             "S": ""
-          },
-          "cookieUri": {
-            "S": "na"
           },
           "backButtonEnabled": {
             "BOOL": false
@@ -191,6 +201,9 @@
           },
           "tosUri": {
             "S": ""
+          },
+          "supportAddress": {
+            "S": "https://example.com/support"
           }
         }
       }
@@ -205,7 +218,7 @@
           },
           "certificates": {
             "SS": [
-              "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="
+              "MIIEATCCAumgAwIBAgIUWvV6Ls+Ez/jKVoIJuhRhKabPugAwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAklUMQ0wCwYDVQQIDARSb21lMQ0wCwYDVQQHDARSb21lMQ0wCwYDVQQKDARBZ0lEMQ0wCwYDVQQLDARBZ0lEMR4wHAYDVQQDDBV2YWxpZGF0b3Iuc3BpZC5nb3YuaXQxJDAiBgkqhkiG9w0BCQEWFXNwaWQudGVjaEBhZ2lkLmdvdi5pdDAeFw0yNTAzMTMxMjE0MDZaFw0yNzAzMTMxMjE0MDZaMIGPMQswCQYDVQQGEwJJVDENMAsGA1UECAwEUm9tZTENMAsGA1UEBwwEUm9tZTENMAsGA1UECgwEQWdJRDENMAsGA1UECwwEQWdJRDEeMBwGA1UEAwwVdmFsaWRhdG9yLnNwaWQuZ292Lml0MSQwIgYJKoZIhvcNAQkBFhVzcGlkLnRlY2hAYWdpZC5nb3YuaXQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCXI6XbIIWneL5d42b5tMI+OqfpSvYzymQuCkkTtjw0I9Yg2iGfJumGXizZHDc3Oo4rSsZhLn7JkS3TUDIDS8ftS3Igc6gO5Pe0aGDn7aYRChL51N2Nc6CaBWd2e/yMY0RNVzMxpxYEO5mAireduqIRm/eHboL5Bx3fId1Ym7FbPjj+l2fYHn2xY58emJNp1vmwmyQhrDnj/XDOIngcqdmQX5EDPv8zsvX8h1/6AzMngMH+qyuKUikTZm4N16LRVXGGtRYUk1ZhfVUMS90jWcNXBIs634ErHPonj/7VFwso0XmkJF6rBZz7anXhnqPavvGhbja+oskjsvQAiqwnQ66vAgMBAAGjUzBRMB0GA1UdDgQWBBStSe+G3htq/uYFKHHQ+mxyG8IQEzAfBgNVHSMEGDAWgBStSe+G3htq/uYFKHHQ+mxyG8IQEzAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBxsAeL/6cXIePCWa2cw7xDGOqab7X2dl93IQRCM1EKkkwiYDs7AaFhoxTdL4peFiQows2VNmU4mpYRnqW4PVerz6Juq6hIPctIibDuh3p88XWFtpXF8jHqcBOGr0YOhOua9uvy43sKogJts1xsikK5u3AWf0VNssraLN7eR+EDcLwIiFS1+imQiHRlFPPx6ZoSeJtCAVDTbQ4SrVRA5nHEZbBYkY7dIZX6dc1YZTsXub8BLZDI2BK1aGOysxjZ1mjFNH4LX/0mCDOvXTchzKttC3r8wZTEy1DGJopVn0BUZTAkKHZZt9fwpJqHiTpwqbRuo2gCM52yo9AZRdVFWMw/"
             ]
           },
           "entityID": {
