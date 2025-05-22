@@ -33,11 +33,11 @@ public class ClientExtended extends Client {
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
-      String tosURi, String a11yUri, boolean backButtonEnabled,
-      Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean requiredSameIdp) {
+      String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
+      Map<String, Map<String, LocalizedContent>> localizedContentMap) {
     super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi,
-        a11yUri, backButtonEnabled, localizedContentMap, requiredSameIdp);
+        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
+        a11yUri, backButtonEnabled, localizedContentMap);
     this.secret = secret;
     this.salt = salt;
   }
@@ -47,8 +47,8 @@ public class ClientExtended extends Client {
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
-        client.getTosUri(), client.getA11yUri(),
-        client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isRequiredSameIdp());
+        client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
+        client.isBackButtonEnabled(), client.getLocalizedContentMap());
     this.secret = secret;
     this.salt = salt;
   }
