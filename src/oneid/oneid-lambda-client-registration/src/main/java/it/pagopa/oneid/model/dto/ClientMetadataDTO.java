@@ -51,7 +51,6 @@ public class ClientMetadataDTO {
   private Set<Identifier> samlRequestedAttributes;
 
   @JsonProperty("required_same_idp")
-  @RestForm("required_same_idp")
   private boolean requiredSameIdp;
 
 
