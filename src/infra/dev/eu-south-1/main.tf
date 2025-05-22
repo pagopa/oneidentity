@@ -242,6 +242,7 @@ module "backend" {
       "LOG_LEVEL"                          = var.app_log_level
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
       "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
+      "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.dev.oneid.pagopa.it"
     }
   }
 
