@@ -73,6 +73,9 @@ module "frontend" {
   api_cache_cluster_enabled      = var.api_cache_cluster_enabled
   api_method_settings            = var.api_method_settings
 
+  assets_control_panel_bucket_name = module.storage.assets_control_panel_bucket_name
+  assets_control_panel_bucket_arn  = module.storage.assets_control_panel_bucket_arn
+
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns
   web_acl = {
@@ -96,12 +99,13 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
-  assertions_crawler_schedule     = var.assertions_crawler_schedule
-  idp_metadata_bucket_prefix      = "idp-metadata"
-  assets_bucket_prefix            = "assets"
-  github_repository               = "pagopa/oneidentity"
-  account_id                      = data.aws_caller_identity.current.account_id
-  assertion_accesslogs_expiration = 2
+  assertions_crawler_schedule        = var.assertions_crawler_schedule
+  idp_metadata_bucket_prefix         = "idp-metadata"
+  assets_bucket_prefix               = "assets"
+  assets_bucket_control_panel_prefix = "assets-control-panel"
+  github_repository                  = "pagopa/oneidentity"
+  account_id                         = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration    = 2
 }
 
 module "sns" {
@@ -473,11 +477,11 @@ module "monitoring" {
 module "cognito" {
   source = "../../modules/cognito"
   cognito = {
-    logout_url       = "https://dev.oneid.pagopa.it/logout",
+    logout_url       = "https://admin.uat.oneid.pagopa.it/logout",
     user_pool_client = format("%s-user_pool_client", local.project),
     user_pool_name   = format("%s-user_pool", local.project),
     user_pool_domain = format("%s-user-pool-domain", local.project),
-    callback_url     = "https://dev.oneid.pagopa.it/"
+    callback_url     = "https://admin.uat.oneid.pagopa.it"
   }
   cognito_presignup_lambda = {
     name                              = format("%s-cognito-presignup", local.project)

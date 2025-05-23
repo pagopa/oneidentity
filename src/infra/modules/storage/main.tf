@@ -2,6 +2,10 @@ resource "random_integer" "asset_bucket_suffix" {
   min = 1000
   max = 9999
 }
+resource "random_integer" "asset_bucket_control_panel_suffix" {
+  min = 1000
+  max = 9999
+}
 
 resource "random_integer" "idp_metadata_bucket_suffix" {
   min = 1000
@@ -26,6 +30,24 @@ module "s3_assets_bucket" {
   }
 }
 
+module "s3_assets_control_panel_bucket" {
+
+  count = var.create_assets_control_panel_bucket ? 1 : 0
+
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.assets_control_panel_bucket
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  tags = {
+    Name = local.assets_control_panel_bucket
+  }
+}
+
 module "s3_idp_metadata_bucket" {
   count   = var.create_idp_metadata_bucket ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
@@ -44,6 +66,12 @@ module "s3_idp_metadata_bucket" {
 
 resource "aws_iam_role_policy_attachment" "deploy_s3" {
   count      = var.create_assets_bucket ? 1 : 0
+  role       = aws_iam_role.githubS3deploy.name
+  policy_arn = aws_iam_policy.github_s3_policy[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "deploy_cp_s3" {
+  count      = var.create_assets_control_panel_bucket ? 1 : 0
   role       = aws_iam_role.githubS3deploy.name
   policy_arn = aws_iam_policy.github_s3_policy[0].arn
 }
@@ -93,7 +121,9 @@ resource "aws_iam_policy" "github_s3_policy" {
         ],
         Resource = [
           module.s3_assets_bucket[0].s3_bucket_arn,
-          "${module.s3_assets_bucket[0].s3_bucket_arn}/*"
+          "${module.s3_assets_bucket[0].s3_bucket_arn}/*",
+          module.s3_assets_control_panel_bucket[0].s3_bucket_arn,
+          "${module.s3_assets_control_panel_bucket[0].s3_bucket_arn}/*"
         ]
       }
     ]

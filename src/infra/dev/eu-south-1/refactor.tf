@@ -195,6 +195,11 @@ moved {
 }
 
 moved {
+  from = module.storage.module.s3_assets_control_panel_bucket
+  to   = module.storage.module.s3_assets_control_panel_bucket[0]
+}
+
+moved {
   from = module.storage.aws_iam_policy.github_s3_policy
   to   = module.storage.aws_iam_policy.github_s3_policy[0]
 }
