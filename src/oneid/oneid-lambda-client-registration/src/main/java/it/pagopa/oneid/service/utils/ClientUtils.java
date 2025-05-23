@@ -44,7 +44,7 @@ public class ClientUtils {
         .attributeIndex(maxAttributeIndex + 1)
         .isActive(true)
         .clientIdIssuedAt(clientIdIssuedAt)
-        .logoUri(Optional.ofNullable(clientRegistrationRequestDTO.getLogoUri()).orElse(""))
+        .logoUri(clientRegistrationRequestDTO.getLogoUri())
         .policyUri(clientRegistrationRequestDTO.getPolicyUri())
         .tosUri(clientRegistrationRequestDTO.getTosUri())
         .build();
