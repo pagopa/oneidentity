@@ -91,10 +91,10 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   MarshallerFactory marshallerFactory;
 
-  private String getIdFromAttributeDTOList(List<AttributeDTO> attributes) {
+  private String getHashedIdFromAttributeDTOList(List<AttributeDTO> attributes) {
     for (AttributeDTO attribute : attributes) {
       if (fiscalNumber.name().equals(attribute.getAttributeName())) {
-        return attribute.getAttributeValue();
+        return HASHUtils.generateIDHash(attribute.getAttributeValue());
       }
     }
     return null;
@@ -230,10 +230,10 @@ public class OIDCServiceImpl implements OIDCService {
     } else {
       // if client needs the "sameIdp" claim
 
-      // Get fiscalNumber from attribute list
-      id = getIdFromAttributeDTOList(attributeDTOList);
+      // Get hashed fiscalNumber from attribute list
+      id = getHashedIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
-        // if fiscalNumber is present, use it as id for the findLastIDPUsed
+        // if hashed fiscalNumber is present, use it as id for the findLastIDPUsed
         boolean sameIdp = false;
         Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
         if (lastIDPUsed.isPresent()) {
@@ -254,7 +254,7 @@ public class OIDCServiceImpl implements OIDCService {
         signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
             nonce, sameIdp);
       } else {
-        // if fiscalNumber is not present we can't check last login information
+        // if hashed fiscalNumber is not present we can't check last login information
         signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
             nonce);
       }
