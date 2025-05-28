@@ -71,6 +71,8 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 @Startup
 public class OIDCServiceImpl implements OIDCService {
 
+  private static final long LAST_IDP_USED_TTL = 730; // days
+
   @Inject
   @ConfigProperty(name = "kms_key_id")
   String KMS_KEY_ID;
@@ -243,7 +245,7 @@ public class OIDCServiceImpl implements OIDCService {
         }
         if (!sameIdp) {
           // if the IDP has changed we need to update the lastIDP record
-          long ttl = Instant.now().plus(365, ChronoUnit.DAYS).getEpochSecond();
+          long ttl = Instant.now().plus(LAST_IDP_USED_TTL, ChronoUnit.DAYS).getEpochSecond();
           lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
               .id(id)
               .clientId(clientId)
