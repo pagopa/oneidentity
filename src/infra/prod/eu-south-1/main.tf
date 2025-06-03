@@ -103,6 +103,7 @@ module "database" {
   idp_metadata_table          = var.idp_metadata_table
   idp_status_history_table    = var.idp_status_history_table
   client_status_history_table = var.client_status_history_table
+  last_idp_used_table         = var.last_idp_used_table
   idp_entity_ids              = local.idp_entity_ids
   clients                     = local.clients
 }
@@ -222,8 +223,8 @@ module "backend" {
   }
 
   table_client_registrations_arn = module.database.table_client_registrations_arn
-
-  kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+  kms_sessions_table_alias_arn   = module.database.kms_sessions_table_alias_arn
+  table_last_idp_used_arn        = module.database.table_last_idp_used_arn
 
   client_registration_lambda = {
     name                               = format("%s-client-registration", local.project)

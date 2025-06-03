@@ -33,6 +33,23 @@ public class OIDCUtils {
   KMSConnectorImpl kmsConnectorImpl;
 
   private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList, String nonce, String basePath, boolean sameIdp) {
+    JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
+        .subject(requestId)
+        .issuer(basePath)
+        .audience(clientId)
+        .issueTime(new Date())
+        .claim("nonce", nonce)
+        .claim("sameIdp", sameIdp)
+        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
+
+    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
+        attributeDTO.getAttributeValue()));
+
+    return jwtClaimsSet.build();
+  }
+
+  private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
       List<AttributeDTO> attributeDTOList, String nonce, String basePath) {
     JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
         .subject(requestId)
@@ -46,6 +63,32 @@ public class OIDCUtils {
         attributeDTO.getAttributeValue()));
 
     return jwtClaimsSet.build();
+  }
+
+  public String createSignedJWT(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
+      String nonce, boolean sameIdp) {
+    // Prepare header for JWT
+    JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
+        .type(JOSEObjectType.JWT)
+        .build();
+    byte[] headerBytes = jwsHeader.toString().getBytes();
+    byte[] encodedHeader = base64UrlEncoder.encodeToString(headerBytes).getBytes();
+
+    // Prepare claims set for JWT
+
+    byte[] payloadBytes = buildJWTClaimsSet(requestId, clientId, attributeDTOList,
+        nonce, BASE_PATH, sameIdp).toPayload()
+        .toBytes();
+    byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
+
+    // Create a signature with base64 encoded header and payload
+    SignResponse signResponse = kmsConnectorImpl.sign(KMS_KEY_ID, encodedHeader, encodedPayload);
+    String base64Sign = base64UrlEncoder.encodeToString(signResponse.signature().asByteArray());
+
+    // Concatenation of JWT parts to obtain the pattern header.payload.signature
+    byte[] headerPayloadBytes = concatenateArrays(encodedHeader, (byte) '.', encodedPayload);
+    return new String(concatenateArrays(headerPayloadBytes, (byte) '.', base64Sign.getBytes()));
   }
 
   public String createSignedJWT(String requestId, String clientId,

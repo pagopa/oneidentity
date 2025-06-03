@@ -142,6 +142,18 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid    = "DynamoDBLastIDPUsedRW"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+        ]
+        Resource = [
+          "${var.table_last_idp_used_arn}"
+        ]
+      },
+      {
         Sid    = "KSMSign"
         Effect = "Allow"
         Action = [

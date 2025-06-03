@@ -4,10 +4,14 @@ package it.pagopa.oneid.common.utils;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.validation.constraints.NotBlank;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
 import org.bouncycastle.crypto.params.Argon2Parameters;
+import org.bouncycastle.util.encoders.Hex;
 
 @CustomLogging
 public class HASHUtils {
@@ -67,5 +71,17 @@ public class HASHUtils {
 
   }
 
+  public static String generateIDHash(String id) {
+    MessageDigest digest;
+    try {
+      digest = MessageDigest.getInstance("SHA-512");
+    } catch (NoSuchAlgorithmException e) {
+      Log.error("Error during hashId creation: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+    byte[] hash = digest.digest(
+        id.getBytes(StandardCharsets.UTF_8));
+    return new String(Hex.encode(hash));
+  }
 
 }

@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.common.model.enums.Identifier.fiscalNumber;
 import static it.pagopa.oneid.connector.utils.ConnectorConstants.VALID_TIME_ACCESS_TOKEN_MIN;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
@@ -21,7 +22,9 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.connector.LastIDPUsedConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -45,8 +48,12 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -64,6 +71,8 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 @Startup
 public class OIDCServiceImpl implements OIDCService {
 
+  private static final long LAST_IDP_USED_TTL = 730; // days
+
   @Inject
   @ConfigProperty(name = "kms_key_id")
   String KMS_KEY_ID;
@@ -78,9 +87,20 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   ClientConnectorImpl clientConnectorImpl;
   @Inject
+  LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
+  @Inject
   Map<String, Client> clientsMap;
   @Inject
   MarshallerFactory marshallerFactory;
+
+  private String getHashedIdFromAttributeDTOList(List<AttributeDTO> attributes) {
+    for (AttributeDTO attribute : attributes) {
+      if (fiscalNumber.name().equals(attribute.getAttributeName())) {
+        return HASHUtils.generateIDHash(attribute.getAttributeValue());
+      }
+    }
+    return null;
+  }
 
   @Override
   public JWKSSetDTO getJWKSPublicKey() {
@@ -196,15 +216,51 @@ public class OIDCServiceImpl implements OIDCService {
   @Override
   public TokenDataDTO getOIDCTokens(String requestId, String clientId,
       List<AttributeDTO> attributeDTOList,
-      String nonce) {
+      String nonce, String entityId) {
 
     // Create access token
     // TODO is it ok for the 'scope' to be null?
     AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
+    String id = null;
 
     //Create signed JWT ID token
-    String signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-        nonce);
+    String signedJWTString;
+    if (!clientsMap.get(clientId).isRequiredSameIdp()) {
+      // if client does not need the "sameIdp" claim
+      signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+          nonce);
+    } else {
+      // if client needs the "sameIdp" claim
+
+      // Get hashed fiscalNumber from attribute list
+      id = getHashedIdFromAttributeDTOList(attributeDTOList);
+      if (id != null) {
+        // if hashed fiscalNumber is present, use it as id for the findLastIDPUsed
+        boolean sameIdp = false;
+        Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
+        if (lastIDPUsed.isPresent()) {
+          // if there are last login information available for the id and clientId, check if tha lastIdp matches the current one
+          // TODO do we need to check the 'ttl' parameter to avoid DynamoDB delayed deletion issues?
+          sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
+        }
+        if (!sameIdp) {
+          // if the IDP has changed we need to update the lastIDP record
+          long ttl = Instant.now().plus(LAST_IDP_USED_TTL, ChronoUnit.DAYS).getEpochSecond();
+          lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
+              .id(id)
+              .clientId(clientId)
+              .entityId(entityId)
+              .ttl(ttl)
+              .build());
+        }
+        signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+            nonce, sameIdp);
+      } else {
+        // if hashed fiscalNumber is not present we can't check last login information
+        signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+            nonce);
+      }
+    }
     SignedJWT signedJWTIDToken;
     try {
       signedJWTIDToken = SignedJWT.parse(signedJWTString);

@@ -266,6 +266,16 @@ variable "cie_entity_id" {
   default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
 }
 
+variable "last_idp_used_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Last IDP used table configurations."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 ## Metadata Info variables##
 variable "metadata_info" {
   type = object({

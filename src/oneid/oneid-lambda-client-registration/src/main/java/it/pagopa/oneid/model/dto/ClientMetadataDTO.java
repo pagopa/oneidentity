@@ -50,6 +50,9 @@ public class ClientMetadataDTO {
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private Set<Identifier> samlRequestedAttributes;
 
+  @JsonProperty("required_same_idp")
+  private boolean requiredSameIdp;
+
 
   public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {
     this.redirectUris = clientMetadataDTO.getRedirectUris();
@@ -59,5 +62,6 @@ public class ClientMetadataDTO {
     this.tosUri = clientMetadataDTO.getTosUri();
     this.defaultAcrValues = clientMetadataDTO.getDefaultAcrValues();
     this.samlRequestedAttributes = clientMetadataDTO.getSamlRequestedAttributes();
+    this.requiredSameIdp = clientMetadataDTO.isRequiredSameIdp();
   }
 }

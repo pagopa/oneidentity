@@ -2754,6 +2754,11 @@
               "familyName",
               "fiscalNumber"
             ]
+          },
+          "required_same_idp": {
+            "type": "boolean",
+            "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
+            "default": false
           }
         }
       },
