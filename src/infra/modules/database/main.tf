@@ -2,6 +2,7 @@ locals {
   kms_sessions_table_alias = "/dynamodb/sessions"
   gsi_code                 = "gsi_code_idx"
   gsi_pointer              = "gsi_pointer_idx"
+  gsi_namespace            = "gsi_namespace_idx"
 }
 
 
@@ -60,7 +61,8 @@ module "dynamodb_sessions_table" {
 
   server_side_encryption_enabled = true
   server_side_encryption_kms_key_arn = module.kms_sessions_table.aliases[
-  local.kms_sessions_table_alias].target_key_arn
+    local.kms_sessions_table_alias
+  ].target_key_arn
 
   stream_enabled              = var.sessions_table.stream_enabled
   stream_view_type            = var.sessions_table.stream_view_type
@@ -327,6 +329,48 @@ module "dynamodb_table_last_idp_used" {
   deletion_protection_enabled    = var.last_idp_used_table.deletion_protection_enabled
   tags = {
     Name = "LastIDPUsed"
+  }
+
+}
+
+# Internal IDP Mock Users Table
+
+module "dynamodb_table_internal_idp_users" {
+  count   = var.internal_idp_users_table != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "InternalIDPUsers"
+
+  hash_key  = "username"
+  range_key = "namespace"
+
+  attributes = [
+    {
+      name = "username"
+      type = "S"
+    },
+    {
+      name = "namespace"
+      type = "S"
+    }
+  ]
+
+  global_secondary_indexes = [
+    {
+      name            = local.gsi_namespace
+      hash_key        = "namespace"
+      projection_type = "ALL"
+    }
+  ]
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.internal_idp_users_table.point_in_time_recovery_enabled
+  stream_enabled                 = var.internal_idp_users_table.stream_enabled
+  stream_view_type               = var.internal_idp_users_table.stream_view_type
+  deletion_protection_enabled    = var.internal_idp_users_table.deletion_protection_enabled
+  tags = {
+    Name = "InternalIDPUsers"
   }
 
 }

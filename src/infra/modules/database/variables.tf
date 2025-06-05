@@ -1,4 +1,3 @@
-
 variable "sessions_table" {
   type = object({
     ttl_enabled                    = optional(bool, true)
@@ -108,4 +107,14 @@ variable "last_idp_used_table" {
     })), [])
   })
   description = "Last IDP used table configurations."
+}
+
+variable "internal_idp_users_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
+    deletion_protection_enabled    = optional(bool, false)
+  })
+  description = "Internal IDP users table."
 }
