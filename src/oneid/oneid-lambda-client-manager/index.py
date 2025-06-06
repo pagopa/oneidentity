@@ -256,7 +256,7 @@ def create_idp_internal_user():
     """
     Creates a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users route invoked")
+    logger.info("/admin/client-manager/client-users POST route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -333,12 +333,75 @@ def create_idp_internal_user():
     except Exception as e:
         logger.error("Error creating user: %s", repr(e))
         return {"message": "Internal server error"}, 500
-    return None
 
-# TODO implement
+
 @app.put("/client-manager/client-users/<user_id>/<username>")
 def update_idp_internal_user(user_id: str, username: str):
-    return True
+    """
+    Updates a user in the Internal IDP
+    """
+    logger.info("/admin/client-manager/client-users PUT route invoked")
+    try:
+        # Parse the JSON body of the request
+        body = app.current_event.json_body
+
+        # Validate the body (optional)
+        if not body:
+            logger.error("[update_idp_internal_user]: Request body is required")
+            return {"message": "Request body is required"}, 400
+
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
+
+        if not client_id:
+            logger.error("[update_idp_internal_user]: client_id not found in user attributes")
+            return {"message": "client_id not found in user attributes"}, 400
+
+        # Extract the samlAttributes from the request body
+        saml_attributes = body.get("samlAttributes", {})
+
+        if not saml_attributes:
+            logger.error("[update_idp_internal_user]: samlAttributes are required")
+            return {"message": "samlAttributes are required"}, 400
+
+        # Ensure that samlAttributes only contains valid keys
+        invalid_keys = set(saml_attributes) - valid_saml_attributes
+        if invalid_keys:
+            logger.error("[update_idp_internal_user]: Invalid saml attributes: %s", invalid_keys)
+            return {
+                "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
+            }, 400
+
+        # Update user in Internal IDP
+        response = dynamodb_client.update_item(
+            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            Key={
+                "clientId": {"S": client_id},
+                "username": {"S": username},
+            },
+            UpdateExpression="SET samlAttributes = :samlAttributes",
+            ExpressionAttributeValues={
+                ":samlAttributes": {
+                    "M": {
+                        k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
+                        for k, v in saml_attributes.items()
+                    }
+                }
+            },
+        )
+        logger.debug("[update_idp_internal_user]: %s", response)
+
+        # Check if the response indicates success
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[update_idp_internal_user]: %s", response)
+            return {"message": "Failed to update user"}, 500
+
+        # Return success response
+        return {"message": "User update successfully"}, 200
+
+    except Exception as e:
+        logger.error("Error updating user: %s", repr(e))
+        return {"message": "Internal server error"}, 500
 
 # TODO implement
 @app.delete("/client-manager/client-users/<user_id>/<username>")
