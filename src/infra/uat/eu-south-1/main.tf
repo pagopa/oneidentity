@@ -407,6 +407,8 @@ module "backend" {
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
+    table_idp_internal_users_arn      = module.database.internal_idp_users_arn
+    table_idp_internal_users_gsi_arn  = module.database.internal_idp_users_gsi_namespace_arn
     environment_variables = {
       LOG_LEVEL                       = "DEBUG"
       USER_POOL_ID                    = module.cognito.user_pool_id
