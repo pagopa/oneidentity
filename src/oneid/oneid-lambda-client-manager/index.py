@@ -16,6 +16,7 @@ from localized_content_map import LocalizedContentMap
 # USER_POOL_ID
 # LOG_LEVEL
 # CLIENT_REGISTRATIONS_TABLE_NAME
+# IDP_INTERNAL_USERS_TABLE_NAME
 
 # Get tracer
 tracer = Tracer()
@@ -28,6 +29,73 @@ logger.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 app = APIGatewayRestResolver()
 
 aws_region = os.getenv("AWS_REGION")
+
+valid_saml_attributes = set(
+    [
+        "spidCode",
+        "name",
+        "familyName",
+        "placeOfBirth",
+        "countyOfBirth",
+        "dateOfBirth",
+        "gender",
+        "companyName",
+        "registeredOffice",
+        "fiscalNumber",
+        "ivaCode",
+        "idCard",
+        "mobilePhone",
+        "email",
+        "address",
+        "expirationDate",
+        "digitalAddress",
+        "domicileAddress",
+        "domicilePlace",
+        "domicilePostalCode",
+        "domicileProvince",
+        "domicileCountry",
+        "qualification",
+        "commonName",
+        "surname",
+        "givenName",
+        "preferredUsername",
+        "title",
+        "userCertificate",
+        "employeeNumber",
+        "orgUnitName",
+        "preferredLanguage",
+        "country",
+        "stateOrProvince",
+        "city",
+        "postalCode",
+        "street",
+    ]
+)
+
+
+def extract_client_id_from_connected_user(user_id: str) -> Optional[str]:
+    """
+    Extracts the client_id from the connected user using the user_id.
+    """
+    try:
+        # Get the user attributes from Cognito
+        response = cognito_client.admin_get_user(
+            UserPoolId=os.getenv("USER_POOL_ID"),
+            Username=user_id,
+        )
+        logger.debug("[extract_client_id_from_connected_user]: %s", response)
+
+        # Find the custom:client_id attribute
+        for attr in response.get("UserAttributes", []):
+            if attr["Name"] == "custom:client_id":
+                return attr["Value"]
+
+        logger.warning("[extract_client_id_from_connected_user]: client_id not found")
+        return None
+
+    except Exception as ex:
+        logger.error("[extract_client_id_from_connected_user]: %s", repr(ex))
+        return None
 
 
 def check_client_id_exists(client_id: str) -> bool:
@@ -45,6 +113,7 @@ def check_client_id_exists(client_id: str) -> bool:
         logger.error("[check_client_id_exists]: %s", repr(ex))
         return False
 
+
 def get_cognito_client(region: str) -> Optional["boto3.client.cognito-idp"]:
     """
     Retrieve cognito client
@@ -56,6 +125,7 @@ def get_cognito_client(region: str) -> Optional["boto3.client.cognito-idp"]:
     except Exception as ex:
         logger.error("[get_cognito_client]: %s", repr(ex))
         return None
+
 
 def get_dynamodb_client(region: str) -> Optional["boto3.client.DynamoDB"]:
     """
@@ -97,7 +167,7 @@ def update_user_attributes_with_client_id():
 
         if not client_id or not user_id:
             return {"message": "client_id and user_id are required"}, 400
-        
+
         # Check if client_id exists in ClientRegistrations table
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
@@ -136,7 +206,7 @@ def update_optional_attributes(client_id):
         # Validate the body (optional)
         if not body:
             return {"message": "Request body is required"}, 400
-        
+
         # Check if client_id exists in ClientRegistrations table
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
@@ -151,7 +221,9 @@ def update_optional_attributes(client_id):
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
         logger.debug("[update_optional_attributes]: %s", localized_content_map_object)
         localized_content_map_object_value = localized_content_map_object.to_dynamodb()
-        logger.debug("[update_optional_attributes]: %s", localized_content_map_object_value)
+        logger.debug(
+            "[update_optional_attributes]: %s", localized_content_map_object_value
+        )
         # Update the optional attributes in DynamoDB in ClientRegistrations table
         response = dynamodb_client.update_item(
             TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
@@ -178,6 +250,105 @@ def update_optional_attributes(client_id):
         return {"message": "Internal server error"}, 500
     return None
 
+
+@app.post("/client-manager/client-users")
+def create_idp_internal_user():
+    """
+    Creates a user in the Internal IDP
+    """
+    logger.info("/admin/client-manager/client-users route invoked")
+    try:
+        # Parse the JSON body of the request
+        body = app.current_event.json_body
+
+        # Validate the body (optional)
+        if not body:
+            logger.error("[create_idp_internal_user]: Request body is required")
+            return {"message": "Request body is required"}, 400
+
+        user_id = body.get("user_id")
+
+        if not user_id:
+            logger.error("[create_idp_internal_user]: user_id is required")
+            return {"message": "user_id is required"}, 400
+
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
+
+        if not client_id:
+            logger.error("[create_idp_internal_user]: client_id not found in user attributes")
+            return {"message": "client_id not found in user attributes"}, 400
+
+        # Extract the username from the request body
+        username = body.get("username")
+
+        # Extract the password from the request body
+        password = body.get("password")
+
+        # Extract the samlAttributes from the request body
+        saml_attributes = body.get("samlAttributes", {})
+
+        if not username or not password or not saml_attributes:
+            logger.error("[create_idp_internal_user]: Missing required fields")
+            # Return an error response indicating the missing fields
+            return {"message": "username, password and saml_attributes are required"}, 400
+
+        # Ensure that samlAttributes only contains valid keys
+
+        invalid_keys = set(saml_attributes) - valid_saml_attributes
+        if invalid_keys:
+            logger.error("[create_idp_internal_user]: Invalid saml attributes: %s", invalid_keys)
+            # Return an error response with the invalid keys and valid attributes
+            return {
+            "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
+            }, 400
+
+
+
+        # Create user in Internal IDP
+        response = dynamodb_client.put_item(
+            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            Item={
+                "clientId": {"S": client_id},
+                "username": {"S": username},
+                "password": {"S": password},
+                "samlAttributes": {
+                    "M": {
+                        k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
+                        for k, v in saml_attributes.items()
+                    }
+                },
+            },
+        )
+        logger.debug("[create_idp_internal_user]: %s", response)
+
+        # Check if the response indicates success
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[create_idp_internal_user]: %s", response)
+            return {"message": "Failed to create user"}, 500
+
+        # Return success response
+        return {"message": "User created successfully"}, 201
+
+    except Exception as e:
+        logger.error("Error creating user: %s", repr(e))
+        return {"message": "Internal server error"}, 500
+    return None
+
+# TODO implement
+@app.put("/client-manager/client-users/<user_id>/<username>")
+def update_idp_internal_user(user_id: str, username: str):
+    return True
+
+# TODO implement
+@app.delete("/client-manager/client-users/<user_id>/<username>")
+def delete_idp_internal_user(user_id: str, username: str):
+    return True
+
+# TODO implement
+@app.get("/client-manager/client-users/<user_id>")
+def get_idp_internal_users(user_id: str):
+    return True
 
 @tracer.capture_lambda_handler
 def handler(event: dict, context: LambdaContext) -> dict:
