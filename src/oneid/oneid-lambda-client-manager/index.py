@@ -438,10 +438,43 @@ def delete_idp_internal_user(user_id: str, username: str):
         logger.error("Error deleting user: %s", repr(e))
         return {"message": "Internal server error"}, 500
 
-# TODO implement
+
 @app.get("/client-manager/client-users/<user_id>")
 def get_idp_internal_users(user_id: str):
-    return True
+    """
+    Retrieves all users of a client in the Internal IDP
+    """
+    logger.info("/admin/client-manager/client-users GET route invoked")
+    try:
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
+
+        if not client_id:
+            logger.error("[get_idp_internal_users]: client_id not found in user attributes")
+            return {"message": "client_id not found in user attributes"}, 400
+
+        # Retrieve users in Internal IDP using a GSI on 'namespace'
+        response = dynamodb_client.query(
+            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            IndexName=os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
+            KeyConditionExpression="namespace = :namespace",
+            ExpressionAttributeValues={":namespace": {"S": client_id}},
+        )
+
+        logger.debug("[get_idp_internal_users]: %s", response)
+
+        # Check if the response indicates success
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[get_idp_internal_users]: %s", response)
+            return {"message": "Failed to retrieve users"}, 500
+
+        # Return success response with users
+        users = response.get("Items", [])
+        return {"users": users}, 200
+
+    except Exception as e:
+        logger.error("Error retrieving users: %s", repr(e))
+        return {"message": "Internal server error"}, 500
 
 @tracer.capture_lambda_handler
 def handler(event: dict, context: LambdaContext) -> dict:
