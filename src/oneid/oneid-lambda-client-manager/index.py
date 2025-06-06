@@ -303,14 +303,12 @@ def create_idp_internal_user():
             "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
             }, 400
 
-
-
         # Create user in Internal IDP
         response = dynamodb_client.put_item(
             TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
             Item={
-                "clientId": {"S": client_id},
                 "username": {"S": username},
+                "namespace": {"S": client_id},
                 "password": {"S": password},
                 "samlAttributes": {
                     "M": {
@@ -376,8 +374,8 @@ def update_idp_internal_user(user_id: str, username: str):
         response = dynamodb_client.update_item(
             TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
             Key={
-                "clientId": {"S": client_id},
                 "username": {"S": username},
+                "namespace": {"S": client_id},
             },
             UpdateExpression="SET samlAttributes = :samlAttributes",
             ExpressionAttributeValues={
@@ -403,10 +401,42 @@ def update_idp_internal_user(user_id: str, username: str):
         logger.error("Error updating user: %s", repr(e))
         return {"message": "Internal server error"}, 500
 
-# TODO implement
+
 @app.delete("/client-manager/client-users/<user_id>/<username>")
 def delete_idp_internal_user(user_id: str, username: str):
-    return True
+    """
+    Deletes a user in the Internal IDP
+    """
+    logger.info("/admin/client-manager/client-users DELETE route invoked")
+    try:
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
+
+        if not client_id:
+            logger.error("[delete_idp_internal_user]: client_id not found in user attributes")
+            return {"message": "client_id not found in user attributes"}, 400
+
+        # Delete user in Internal IDP
+        response = dynamodb_client.delete_item(
+            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            Key={
+                "username": {"S": username},
+                "namespace": {"S": client_id},
+            },
+        )
+        logger.debug("[delete_idp_internal_user]: %s", response)
+
+        # Check if the response indicates success
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[delete_idp_internal_user]: %s", response)
+            return {"message": "Failed to delete user"}, 500
+
+        # Return success response
+        return {"message": "User deleted successfully"}, 204
+
+    except Exception as e:
+        logger.error("Error deleting user: %s", repr(e))
+        return {"message": "Internal server error"}, 500
 
 # TODO implement
 @app.get("/client-manager/client-users/<user_id>")
