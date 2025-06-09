@@ -471,6 +471,18 @@ def get_idp_internal_users(user_id: str):
 
         # Return success response with users
         users = response.get("Items", [])
+        # Format users to a more readable structure
+        users = [
+            {
+                "username": user["username"]["S"],
+                "password": user["password"]["S"],
+                "samlAttributes": {
+                    k: v["S"] if "S" in v else v["N"]
+                    for k, v in user.get("samlAttributes", {}).get("M", {}).items()
+                },
+            }
+            for user in users
+        ]
         return {"users": users}, 200
 
     except Exception as e:
