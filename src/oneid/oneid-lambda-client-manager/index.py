@@ -454,35 +454,42 @@ def get_idp_internal_users(user_id: str):
             logger.error("[get_idp_internal_users]: client_id not found in user attributes")
             return {"message": "client_id not found in user attributes"}, 400
 
-        # Retrieve users in Internal IDP using a GSI on 'namespace'
-        response = dynamodb_client.query(
-            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
-            IndexName=os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
-            KeyConditionExpression="namespace = :namespace",
-            ExpressionAttributeValues={":namespace": {"S": client_id}},
-        )
-
-        logger.debug("[get_idp_internal_users]: %s", response)
-
-        # Check if the response indicates success
-        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
-            logger.error("[get_idp_internal_users]: %s", response)
-            return {"message": "Failed to retrieve users"}, 500
-
-        # Return success response with users
-        users = response.get("Items", [])
-        # Format users
-        users = [
-            {
-                "username": user["username"]["S"],
-                "password": user["password"]["S"],
-                "samlAttributes": {
-                    k: v["S"] if "S" in v else v["N"]
-                    for k, v in user.get("samlAttributes", {}).get("M", {}).items()
-                },
+        # Retrieve all users in Internal IDP using a GSI on 'namespace'
+        users = []
+        last_evaluated_key = None
+        while True:
+            query_kwargs = {
+                "TableName": os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+                "IndexName": os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
+                "KeyConditionExpression": "namespace = :namespace",
+                "ExpressionAttributeValues": {":namespace": {"S": client_id}},
             }
-            for user in users
-        ]
+            if last_evaluated_key:
+                query_kwargs["ExclusiveStartKey"] = last_evaluated_key
+
+            response = dynamodb_client.query(**query_kwargs)
+
+            if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+                logger.error("[get_idp_internal_users]: %s", response)
+                return {"message": "Failed to retrieve users"}, 500
+
+            items = response.get("Items", [])
+            users.extend([
+                {
+                    "username": user["username"]["S"],
+                    "password": user["password"]["S"],
+                    "samlAttributes": {
+                        k: v["S"] if "S" in v else v["N"]
+                        for k, v in user.get("samlAttributes", {}).get("M", {}).items()
+                    },
+                }
+                for user in items
+            ])
+
+            last_evaluated_key = response.get("LastEvaluatedKey")
+            if not last_evaluated_key:
+                break
+
         return {"users": users}, 200
 
     except Exception as e:
