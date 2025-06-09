@@ -116,4 +116,11 @@ output "internal_idp_users_gsi_namespace_arn" {
   value = try("${module.dynamodb_table_internal_idp_users[0].dynamodb_table_arn}/index/${local.gsi_namespace}", null)
 }
 
+output "internal_idp_users_table_name" {
+  value = try(module.dynamodb_table_internal_idp_users[0].dynamodb_table_id, null)
+}
+
+output "internal_idp_users_gsi_namespace_name" {
+  value = local.gsi_namespace
+}
 

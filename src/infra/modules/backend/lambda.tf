@@ -947,7 +947,8 @@ data "aws_iam_policy_document" "client_manager_lambda" {
   statement {
     effect = "Allow"
     actions = [
-      "cognito-idp:AdminUpdateUserAttributes"
+      "cognito-idp:AdminUpdateUserAttributes",
+      "cognito-idp:AdminGetUser"
     ]
     resources = [
       var.client_manager_lambda.cognito_user_pool_arn

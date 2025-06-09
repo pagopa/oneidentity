@@ -424,6 +424,8 @@ module "backend" {
       LOG_LEVEL                       = "DEBUG"
       USER_POOL_ID                    = module.cognito.user_pool_id
       CLIENT_REGISTRATIONS_TABLE_NAME = module.database.table_client_registrations_name
+      IDP_INTERNAL_USERS_TABLE_NAME   = module.database.internal_idp_users_table_name
+      IDP_INTERNAL_USERS_GSI_NAME     = module.database.internal_idp_users_gsi_namespace_name
     }
   }
 }

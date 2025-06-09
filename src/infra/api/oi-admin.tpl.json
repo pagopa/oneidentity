@@ -22,11 +22,15 @@
       "url": "${server_url}"
     }
   ],
-  "x-amazon-apigateway-binary-media-types": ["*/*"],
+  "x-amazon-apigateway-binary-media-types": [
+    "*/*"
+  ],
   "paths": {
     "/client-manager/user-attributes": {
       "put": {
-        "tags": ["Admin Client Manager APIs"],
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
         "description": "This endpoint expose backend function for Client Onboarding Portal.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
@@ -113,7 +117,9 @@
     },
     "/client-manager/client-additional/{client_id}": {
       "put": {
-        "tags": ["Admin Client Manager APIs"],
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
         "description": "This endpoint expose backend function for Client Onboarding Portal.",
         "operationId": "Put_admin_client_manager_client_additional",
         "parameters": [
@@ -209,9 +215,407 @@
         ]
       }
     },
+    "/client-manager/client-users": {
+      "post": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Post_admin_client_manager_client_users",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "201": {
+              "statusCode": "201",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ClientUserCreate"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "user_id": {
+                        "type": "string",
+                        "description": "The user_id that is associated to the currently logged in user"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/responseOkNoContentJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
+      }
+    },
+    "/client-manager/client-users/{user_id}/{username}": {
+      "put": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Put_admin_client_manager_client_users",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "description": "user_id that is associated to the currently logged in user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "username",
+            "description": "username of the test user that is being updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientUserUpdate"
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkNoContentJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Delete_admin_client_manager_client_users",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "description": "user_id that is associated to the currently logged in user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "username",
+            "description": "username of the test user that is being updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/responseOkNoContentJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
+      }
+    },
+    "/client-manager/client-users/{user_id}": {
+      "get": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Get_admin_client_manager_client_users",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "description": "user_id that is associated to the currently logged in user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkUsersJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
+      }
+    },
     "/": {
       "post": {
-        "tags": ["Admin control panel oidc callback api"],
+        "tags": [
+          "Admin control panel oidc callback api"
+        ],
         "description": "This route will serve the admin control panel oidc callback api",
         "parameters": [
           {
@@ -310,7 +714,9 @@
         }
       },
       "get": {
-        "tags": ["Admin control panel home page"],
+        "tags": [
+          "Admin control panel home page"
+        ],
         "description": "This route will serve the admin control panel home page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -346,7 +752,9 @@
     },
     "/dashboard": {
       "get": {
-        "tags": ["Admin control panel dashboard page"],
+        "tags": [
+          "Admin control panel dashboard page"
+        ],
         "description": "This route will serve the admin control panel dashboard page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -382,7 +790,9 @@
     },
     "/dashboard/{clientid+}": {
       "get": {
-        "tags": ["Admin control panel dashboard client page"],
+        "tags": [
+          "Admin control panel dashboard client page"
+        ],
         "description": "This route will serve the admin control panel dashboard client page",
         "parameters": [
           {
@@ -479,7 +889,9 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
-          "cacheKeyParameters": ["method.request.path.proxy"]
+          "cacheKeyParameters": [
+            "method.request.path.proxy"
+          ]
         }
       }
     }
@@ -501,6 +913,28 @@
           "application/json": {
             "schema": {
               "type": "string"
+            }
+          }
+        }
+      },
+      "responseOkUsersJson": {
+        "description": "Response Ok, No Content",
+        "headers": {
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ClientUserCreate"
+              }
             }
           }
         }
@@ -833,6 +1267,40 @@
           }
         }
       },
+      "ClientUserCreate": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username of the user to be created."
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user to be created."
+          },
+          "samlAttributes": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "$ref": "#/components/schemas/SamlAttributes"
+              }
+            }
+          }
+        }
+      },
+      "ClientUserUpdate": {
+        "type": "object",
+        "properties": {
+          "samlAttributes": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "$ref": "#/components/schemas/SamlAttributes"
+              }
+            }
+          }
+        }
+      },
       "Theme": {
         "type": "object",
         "properties": {
@@ -857,6 +1325,159 @@
             "description": "The cookie_uri"
           }
         }
+      },
+      "SamlAttributes": {
+        "type": "object",
+        "properties": {
+          "spidCode": {
+            "type": "string",
+            "description": "The SPID code of the user."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the user."
+          },
+          "familyName": {
+            "type": "string",
+            "description": "The family name of the user."
+          },
+          "placeOfBirth": {
+            "type": "string",
+            "description": "The place of birth of the user."
+          },
+          "countyOfBirth": {
+            "type": "string",
+            "description": "The county of birth of the user."
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "description": "The date of birth of the user."
+          },
+          "gender": {
+            "type": "string",
+            "description": "The gender of the user."
+          },
+          "companyName": {
+            "type": "string",
+            "description": "The name of the company associated with the user."
+          },
+          "registeredOffice": {
+            "type": "string",
+            "description": "The registered office of the company."
+          },
+          "fiscalNumber": {
+            "type": "string",
+            "description": "The fiscal number of the user."
+          },
+          "ivaCode": {
+            "type": "string",
+            "description": "The IVA code of the user."
+          },
+          "idCard": {
+            "type": "string",
+            "description": "The ID card number of the user."
+          },
+          "mobilePhone": {
+            "type": "string",
+            "description": "The mobile phone number of the user."
+          },
+          "email": {
+            "type": "string",
+            "description": "The email address of the user."
+          },
+          "address": {
+            "type": "string",
+            "description": "The address of the user."
+          },
+          "expirationDate": {
+            "type": "string",
+            "description": "The expiration date of the user's document or session."
+          },
+          "digitalAddress": {
+            "type": "string",
+            "description": "The digital address of the user."
+          },
+          "domicileAddress": {
+            "type": "string",
+            "description": "The domicile address of the user."
+          },
+          "domicilePlace": {
+            "type": "string",
+            "description": "The domicile place of the user."
+          },
+          "domicilePostalCode": {
+            "type": "string",
+            "description": "The domicile postal code of the user."
+          },
+          "domicileProvince": {
+            "type": "string",
+            "description": "The domicile province of the user."
+          },
+          "domicileCountry": {
+            "type": "string",
+            "description": "The domicile country of the user."
+          },
+          "qualification": {
+            "type": "string",
+            "description": "The qualification of the user."
+          },
+          "commonName": {
+            "type": "string",
+            "description": "The common name of the user."
+          },
+          "surname": {
+            "type": "string",
+            "description": "The surname of the user."
+          },
+          "givenName": {
+            "type": "string",
+            "description": "The given name of the user."
+          },
+          "preferredUsername": {
+            "type": "string",
+            "description": "The preferred username of the user."
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the user."
+          },
+          "userCertificate": {
+            "type": "string",
+            "description": "The user certificate."
+          },
+          "employeeNumber": {
+            "type": "string",
+            "description": "The employee number of the user."
+          },
+          "orgUnitName": {
+            "type": "string",
+            "description": "The organizational unit name of the user."
+          },
+          "preferredLanguage": {
+            "type": "string",
+            "description": "The preferred language of the user."
+          },
+          "country": {
+            "type": "string",
+            "description": "The country of the user."
+          },
+          "stateOrProvince": {
+            "type": "string",
+            "description": "The state or province of the user."
+          },
+          "city": {
+            "type": "string",
+            "description": "The city of the user."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the user."
+          },
+          "street": {
+            "type": "string",
+            "description": "The street address of the user."
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -876,7 +1497,9 @@
         "x-amazon-apigateway-authtype": "cognito_user_pools",
         "x-amazon-apigateway-authorizer": {
           "type": "cognito_user_pools",
-          "providerARNs": ["${ provider_arn }"]
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
         }
       }
     }
