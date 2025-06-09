@@ -17,6 +17,7 @@ from localized_content_map import LocalizedContentMap
 # LOG_LEVEL
 # CLIENT_REGISTRATIONS_TABLE_NAME
 # IDP_INTERNAL_USERS_TABLE_NAME
+# IDP_INTERNAL_USERS_GSI_NAME
 
 # Get tracer
 tracer = Tracer()
