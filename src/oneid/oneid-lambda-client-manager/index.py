@@ -471,7 +471,7 @@ def get_idp_internal_users(user_id: str):
 
         # Return success response with users
         users = response.get("Items", [])
-        # Format users to a more readable structure
+        # Format users
         users = [
             {
                 "username": user["username"]["S"],
