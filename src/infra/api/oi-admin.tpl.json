@@ -22,15 +22,11 @@
       "url": "${server_url}"
     }
   ],
-  "x-amazon-apigateway-binary-media-types": [
-    "*/*"
-  ],
+  "x-amazon-apigateway-binary-media-types": ["*/*"],
   "paths": {
     "/client-manager/user-attributes": {
       "put": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
+        "tags": ["Admin Client Manager APIs"],
         "description": "This endpoint expose backend function for Client Onboarding Portal.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
@@ -215,6 +211,8 @@
         ]
       }
     },
+    %{ if strcontains(server_url, "dev") || strcontains(server_url, "uat") 
+    }
     "/client-manager/client-users": {
       "post": {
         "tags": [
@@ -611,11 +609,11 @@
         ]
       }
     },
+    %{endif
+    }
     "/": {
       "post": {
-        "tags": [
-          "Admin control panel oidc callback api"
-        ],
+        "tags": ["Admin control panel oidc callback api"],
         "description": "This route will serve the admin control panel oidc callback api",
         "parameters": [
           {
@@ -714,9 +712,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Admin control panel home page"
-        ],
+        "tags": ["Admin control panel home page"],
         "description": "This route will serve the admin control panel home page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -752,9 +748,7 @@
     },
     "/dashboard": {
       "get": {
-        "tags": [
-          "Admin control panel dashboard page"
-        ],
+        "tags": ["Admin control panel dashboard page"],
         "description": "This route will serve the admin control panel dashboard page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -790,9 +784,7 @@
     },
     "/dashboard/{clientid+}": {
       "get": {
-        "tags": [
-          "Admin control panel dashboard client page"
-        ],
+        "tags": ["Admin control panel dashboard client page"],
         "description": "This route will serve the admin control panel dashboard client page",
         "parameters": [
           {
@@ -889,9 +881,7 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ]
+          "cacheKeyParameters": ["method.request.path.proxy"]
         }
       }
     }
@@ -1497,9 +1487,7 @@
         "x-amazon-apigateway-authtype": "cognito_user_pools",
         "x-amazon-apigateway-authorizer": {
           "type": "cognito_user_pools",
-          "providerARNs": [
-            "${ provider_arn }"
-          ]
+          "providerARNs": ["${ provider_arn }"]
         }
       }
     }
