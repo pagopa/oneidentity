@@ -364,8 +364,6 @@ module "dynamodb_table_internal_idp_users" {
     }
   ]
 
-  ttl_attribute_name = "ttl"
-
   billing_mode = "PAY_PER_REQUEST"
 
   point_in_time_recovery_enabled = var.internal_idp_users_table.point_in_time_recovery_enabled
