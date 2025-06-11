@@ -1,5 +1,5 @@
 package it.pagopa.oneid.service;
 
-public class InternalIDPService {
+public interface InternalIDPService {
 
 }

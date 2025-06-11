@@ -1,5 +1,8 @@
 package it.pagopa.oneid.service;
 
-public class SessionService {
+public interface SessionService {
+
+  void validateAuthnRequestIdCookie(String authnRequestId, String username);
+
 
 }
