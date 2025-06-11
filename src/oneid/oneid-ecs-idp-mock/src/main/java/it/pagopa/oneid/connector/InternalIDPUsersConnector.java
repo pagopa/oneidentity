@@ -1,5 +1,5 @@
 package it.pagopa.oneid.connector;
 
-public class InternalIDPUsersConnector {
+public interface InternalIDPUsersConnector {
 
 }

@@ -1,5 +1,5 @@
 package it.pagopa.oneid.connector;
 
-public class SessionConnector {
+public interface SessionConnector {
 
 }
