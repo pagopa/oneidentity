@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.pagopa.oneid</groupId>
     <artifactId>oneid</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <modules>
-        <module>oneid-ecs-idp-mock</module>
-    </modules>
 
     <properties>
         <compiler-plugin.version>3.12.1</compiler-plugin.version>
@@ -287,10 +284,10 @@
             </modules>
         </profile>
         <profile>
-            <id>oneid-ecs-idp-mock</id>
+            <id>oneid-ecs-internal-idp</id>
             <modules>
                 <module>oneid-common</module>
-                <module>oneid-ecs-idp-mock</module>
+                <module>oneid-ecs-internal-idp</module>
             </modules>
         </profile>
         <profile>
@@ -303,7 +300,7 @@
                 <module>oneid-lambda-update-idp-metadata</module>
                 <module>oneid-lambda-idp-mock</module>
                 <module>oneid-lambda-is-gh-integration</module>
-                <module>oneid-ecs-idp-mock</module>
+                <module>oneid-ecs-internal-idp</module>
             </modules>
             <activation>
                 <activeByDefault>true</activeByDefault>
