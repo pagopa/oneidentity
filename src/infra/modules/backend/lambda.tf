@@ -932,7 +932,23 @@ data "aws_iam_policy_document" "client_manager_lambda" {
   statement {
     effect = "Allow"
     actions = [
-      "cognito-idp:AdminUpdateUserAttributes"
+      "dynamodb:UpdateItem",
+      "dynamodb:GetItem",
+      "dynamodb:Query",
+      "dynamodb:DeleteItem",
+      "dynamodb:PutItem"
+    ]
+    resources = [
+      var.client_manager_lambda.table_idp_internal_users_arn,
+      var.client_manager_lambda.table_idp_internal_users_gsi_arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "cognito-idp:AdminUpdateUserAttributes",
+      "cognito-idp:AdminGetUser"
     ]
     resources = [
       var.client_manager_lambda.cognito_user_pool_arn

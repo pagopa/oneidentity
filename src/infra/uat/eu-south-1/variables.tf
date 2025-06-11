@@ -276,6 +276,16 @@ variable "last_idp_used_table" {
   }
 }
 
+variable "internal_idp_users_table" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Internal IDP users."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
 ## Metadata Info variables##
 variable "metadata_info" {
   type = object({
