@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.runtime.Startup;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.service.InternalIDPServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
@@ -8,9 +9,12 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.resteasy.reactive.RestForm;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Path(("/internal-idp"))
 @Startup
@@ -25,11 +29,22 @@ public class InternalIDPController {
   @Inject
   SessionServiceImpl sessionServiceImpl;
 
+
   @POST
   @Path("/samlsso")
-  public Response samlSso() {
-    // This method is a placeholder for the SAML SSO endpoint.
-    // In a real implementation, you would handle the SAML SSO logic here.
+  @Produces(MediaType.TEXT_HTML)
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequest)
+      throws OneIdentityException {
+
+    //from input string to AuthnRequest object
+    AuthnRequest inputAuthnRequest = internalIDPServiceImpl.getAuthnRequestFromString(authnRequest);
+
+    //todo validate AuthnRequest
+
+    //todo save on idpSessions table
+
+    //todo return response with set cookie
+
     return Response.ok("SAML SSO endpoint hit").build();
   }
 
