@@ -1,19 +1,29 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.runtime.Startup;
-import it.pagopa.oneid.service.InternalIDPService;
+import it.pagopa.oneid.service.InternalIDPServiceImpl;
+import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @Path(("/internal-idp"))
 @Startup
 public class InternalIDPController {
 
+  @ConfigProperty(name = "acs_endpoint")
+  String ACS_ENDPOINT;
+
   @Inject
-  InternalIDPService internalIDPServiceImpl;
+  InternalIDPServiceImpl internalIDPServiceImpl;
+
+  @Inject
+  SessionServiceImpl sessionServiceImpl;
 
   @POST
   @Path("/samlsso")
@@ -33,21 +43,32 @@ public class InternalIDPController {
 
   @POST
   @Path("/consent")
-  public Response consent(ConsentRequestDTO consentRequest) {
+  public Response consent(@Valid ConsentRequestDTO consentRequestDto) {
 
-    // This endpoint will receive consent requests.
-    // In particular, it will handle the consent for the internal IDP after the user has logged in.
-    // The user will be redirected to this endpoint after logging in, and will be asked to give consent or not to the internal IDP.
-    // Inside the body we find the consent boolean value, which is true if the user has given consent and false if the user has not given consent.
+    sessionServiceImpl.validateAuthnRequestIdCookie(consentRequestDto.getAuthnRequestId(),
+        consentRequestDto.getUsername());
 
-    // 1. Extract the consent value from the request body.
-    // 2. Extract the AuthnRequestID cookie value previously set by the SAML SSO endpoint
-    // 3. Validate the AuthnRequestID cookie value against the session store to ensure it is valid and not expired.
-    // 4. If the consent is given, proceed with the SAML SSO flow.
-    // 5. If the consent is not given, proceed with the appropriate SAML Response with the corresponding state value to communicate the denying.
-    // 6. The response will be a SAML Response that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
+    return consentRequestDto.isConsent() ? handleConsentGiven(consentRequestDto)
+        : handleConsentDenied(consentRequestDto);
+  }
 
-    return Response.ok("Consent endpoint hit").build();
+  private Response handleConsentGiven(ConsentRequestDTO consentRequestDto) {
+    // TODO: implement the logic to handle the case where consent is given. If the consent is given, proceed with the SAML SSO flow creating a SAML Response that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
+    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
+        .build();
+  }
+
+  private Response handleConsentDenied(ConsentRequestDTO consentRequestDto) {
+    // TODO: implement the logic to handle the case where consent is denied. If the consent is not given, proceed with the appropriate SAML Response with the corresponding state value to communicate the denying that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
+    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
+        .build();
+  }
+
+  private String getRedirectAutoSubmitPOSTForm(String url, String samlResponse) {
+    return "<form id='samlResponseForm' action='" + url + "' method='POST'>"
+        + "<input type='hidden' name='SAMLResponse' value='" + samlResponse + "'>"
+        + "</form>"
+        + "<script>document.getElementById('samlResponseForm').submit();</script>";
   }
 
 
