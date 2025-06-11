@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-ecs-idp-mock/**"
+      - "**/src/oneid/oneid-ecs-internal-idp/**"
       - "**/src/oneid/oneid-common/**"
       - ".github/workflows/deploy-internal-idp-yml"
   workflow_dispatch:
@@ -80,7 +80,7 @@ jobs:
         id: cache
         with:
           path: build-cache-internal-idp
-          key: buildx-${{ env.ENV_SHORT }}-${{ hashFiles('src/oneid/oneid-ecs-idp-mock/pom.xml', 'src/oneid/oneid-common/pom.xml', 'src/oneid/pom.xml') }}
+          key: buildx-${{ env.ENV_SHORT }}-${{ hashFiles('src/oneid/oneid-ecs-internal-idp/pom.xml', 'src/oneid/oneid-common/pom.xml', 'src/oneid/pom.xml') }}
           restore-keys: |
             buildx-${{ env.ENV_SHORT }}-
 
@@ -109,7 +109,7 @@ jobs:
           tags: |
             ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
             ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
-          file: src/oneid/oneid-ecs-idp-mock/Dockerfile
+          file: src/oneid/oneid-ecs-internal-idp/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
