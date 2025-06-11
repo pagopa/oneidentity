@@ -52,13 +52,30 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-profile-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkiverse.web-bundler</groupId>
-            <artifactId>quarkus-web-bundler</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>quarkus-config-yaml</artifactId>
+            <groupId>io.quarkus</groupId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>utils</artifactId>
         </dependency>
     </dependencies>
 
