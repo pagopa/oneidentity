@@ -2,6 +2,8 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.service.InternalIDPServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
@@ -58,17 +60,25 @@ public class InternalIDPController {
 
   @POST
   @Path("/consent")
-  public Response consent(@Valid ConsentRequestDTO consentRequestDto) {
+  public Response consent(@Valid ConsentRequestDTO consentRequestDto) throws SAMLUtilsException {
 
-    sessionServiceImpl.validateAuthnRequestIdCookie(consentRequestDto.getAuthnRequestId(),
+    IDPSession idpSession = sessionServiceImpl.validateAuthnRequestIdCookie(
+        consentRequestDto.getAuthnRequestId(),
         consentRequestDto.getUsername());
 
-    return consentRequestDto.isConsent() ? handleConsentGiven(consentRequestDto)
+    return consentRequestDto.isConsent() ? handleConsentGiven(idpSession)
         : handleConsentDenied(consentRequestDto);
   }
 
-  private Response handleConsentGiven(ConsentRequestDTO consentRequestDto) {
+  private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
     // TODO: implement the logic to handle the case where consent is given. If the consent is given, proceed with the SAML SSO flow creating a SAML Response that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
+
+    // Create a successful SAML Response based on the AuthnRequest
+
+    org.opensaml.saml.saml2.core.Response response = internalIDPServiceImpl
+        .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
+            idpSession.getUsername());
+
     return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
         .build();
   }
