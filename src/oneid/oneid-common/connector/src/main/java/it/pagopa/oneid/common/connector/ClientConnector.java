@@ -15,4 +15,6 @@ public interface ClientConnector {
   void saveClientIfNotExists(ClientExtended client);
 
   Optional<Client> getClientById(String clientId);
+
+  Optional<Client> getClientByAttributeConsumingServiceIndex(int attributeConsumingServiceIndex);
 }

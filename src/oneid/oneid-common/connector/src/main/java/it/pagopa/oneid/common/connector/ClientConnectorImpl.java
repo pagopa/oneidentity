@@ -79,4 +79,16 @@ public class ClientConnectorImpl implements ClientConnector {
         clientMapper.getItem(Key.builder().partitionValue(clientId).build()));
   }
 
+  @Override
+  public Optional<Client> getClientByAttributeConsumingServiceIndex(
+      int attributeConsumingServiceIndex) {
+    ScanEnhancedRequest request = ScanEnhancedRequest.builder().build();
+    for (Client client : clientMapper.scan(request).items()) {
+      if (client.getAttributeIndex() == attributeConsumingServiceIndex) {
+        return Optional.of(client);
+      }
+    }
+    return Optional.empty();
+  }
+
 }

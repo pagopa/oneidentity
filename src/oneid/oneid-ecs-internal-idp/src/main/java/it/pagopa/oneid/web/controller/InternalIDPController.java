@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.runtime.Startup;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.model.IDPSession;
@@ -45,7 +46,8 @@ public class InternalIDPController {
     internalIDPServiceImpl.validateAuthnRequest(inputAuthnRequest);
 
     //todo save on idpSessions table
-
+    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
+        inputAuthnRequest);
     //todo return response with set cookie
 
     return Response.ok("SAML SSO endpoint hit").build();
