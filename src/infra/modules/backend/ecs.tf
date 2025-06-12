@@ -432,7 +432,7 @@ module "ecs_internal_idp_service" {
       log_configuration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs_internal_idp.name
+          awslogs-group         = aws_cloudwatch_log_group.ecs_internal_idp[0].name
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
           mode                  = "non-blocking"
