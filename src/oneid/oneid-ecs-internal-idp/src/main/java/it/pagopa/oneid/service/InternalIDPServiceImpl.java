@@ -1,7 +1,7 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.connector.ClientConnector;
+import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -11,6 +11,9 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.SessionConnectorImpl;
+import it.pagopa.oneid.model.IDPSession;
+import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -63,7 +66,10 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   BasicX509Credential basicX509Credential;
 
   @Inject
-  ClientConnector clientConnector;
+  ClientConnectorImpl clientConnectorImpl;
+
+  @Inject
+  SessionConnectorImpl sessionConnectorImpl;
 
   @Inject
   ClientConnectorImpl clientConnectorImpl;
@@ -156,19 +162,41 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     //TODO: Add more validations as needed
   }
 
-  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
+  private Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
     try {
       Integer attributeIndex = authnRequest.getAttributeConsumingServiceIndex();
       if (attributeIndex == null) {
         return null;
       }
-      return clientConnector.getClientByAttributeConsumingServiceIndex(attributeIndex)
+      return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(attributeIndex)
           .orElse(null);
     } catch (Exception e) {
       return null;
     }
   }
 
+  @Override
+  public void saveUserSession(AuthnRequest authnRequest) throws OneIdentityException {
+    Log.info("Start saveUserSession for authnRequestId: " + authnRequest.getID());
+    Client client = getClientByAttributeConsumingServiceIndex(authnRequest);
+    if (client == null) {
+      Log.error("Client not found for AttributeConsumingServiceIndex: "
+          + authnRequest.getAttributeConsumingServiceIndex());
+      throw new OneIdentityException("Client not found for AttributeConsumingServiceIndex: "
+          + authnRequest.getAttributeConsumingServiceIndex());
+    }
+
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequest.getID())
+        .clientId(client.getClientId())
+        .status(IDPSessionStatus.PENDING)
+        .username("")
+        .timestampStart(Instant.now().toEpochMilli())
+        .timestampEnd(0)
+        .build();
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    Log.info("End saveUserSession for authnRequestId: " + authnRequest.getID());
+  }
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
       String clientId, String username) throws SAMLUtilsException {

@@ -1,7 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.runtime.Startup;
-import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.model.IDPSession;
@@ -14,6 +13,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
@@ -36,21 +36,20 @@ public class InternalIDPController {
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public Response samlSso(@RestForm("SAMLRequest") String authnRequest)
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString)
       throws OneIdentityException {
+    // Parse and validate AuthnRequest
+    AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
+        authnRequestString);
+    internalIDPServiceImpl.validateAuthnRequest(authnRequest);
+    internalIDPServiceImpl.saveUserSession(authnRequest);
 
-    //from input string to AuthnRequest object
-    AuthnRequest inputAuthnRequest = internalIDPServiceImpl.getAuthnRequestFromString(authnRequest);
-
-    //todo validate AuthnRequest
-    internalIDPServiceImpl.validateAuthnRequest(inputAuthnRequest);
-
-    //todo save on idpSessions table
-    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
-        inputAuthnRequest);
-    //todo return response with set cookie
-
-    return Response.ok("SAML SSO endpoint hit").build();
+    // Set authnRequestId as a cookie and return response
+    NewCookie cookie = new NewCookie(
+        "authnRequestId",
+        authnRequest.getID()
+    );
+    return Response.ok("SAML SSO endpoint hit").cookie(cookie).build();
   }
 
   @POST
