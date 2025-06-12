@@ -9,7 +9,7 @@ public interface InternalIDPService {
 
   AuthnRequest getAuthnRequestFromString(String authnRequest) throws OneIdentityException;
 
-  AuthnRequest validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
+  void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
 
   Response createSuccessfulSamlResponse(String authnRequestId, String clientId, String username)
       throws SAMLUtilsException;

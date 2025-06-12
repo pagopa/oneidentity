@@ -42,6 +42,7 @@ public class InternalIDPController {
     AuthnRequest inputAuthnRequest = internalIDPServiceImpl.getAuthnRequestFromString(authnRequest);
 
     //todo validate AuthnRequest
+    internalIDPServiceImpl.validateAuthnRequest(inputAuthnRequest);
 
     //todo save on idpSessions table
 

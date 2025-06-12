@@ -104,13 +104,12 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
 
   @Override
-  public AuthnRequest validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
-
-    //todo validate clientRegistration attributes of authnRequest
+  public void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
 
     //todo validate spid attributes of authnRequest
 
-    return null;
+    //todo validate clientRegistration attributes of authnRequest
+
   }
 
   @Override
