@@ -384,13 +384,15 @@ module "ecs_core_service" {
 
 ## Log group for ECS Internal IDP
 resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
-  name = format("/aws/ecs/%s/%s", var.service_internal_idp.service_name, var.service_internal_idp.container.name)
+  count = var.service_internal_idp != null ? 1 : 0
+  name  = format("/aws/ecs/%s/%s", var.service_internal_idp.service_name, var.service_internal_idp.container.name)
 
   retention_in_days = var.service_internal_idp.container.logs_retention_days
 }
 
 ## ECS Internal IDP
 module "ecs_internal_idp_service" {
+  count   = var.service_internal_idp != null ? 1 : 0
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
 
