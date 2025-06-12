@@ -130,6 +130,11 @@ module "backend" {
       name                            = local.ecr_oneid_core
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
+    },
+    {
+      name                            = local.ecr_oneid_internal_idp
+      number_of_images_to_keep        = var.number_of_images_to_keep
+      repository_image_tag_mutability = var.repository_image_tag_mutability
     }
   ]
 
@@ -216,6 +221,28 @@ module "backend" {
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       }
     ]
+  }
+
+  service_internal_idp = {
+    service_name = format("%s-internal-idp", local.project)
+
+    cpu    = var.ecs_oneid_internal_idp.cpu
+    memory = var.ecs_oneid_internal_idp.memory
+
+    container = {
+      name                = "oneid-internal-idp"
+      cpu                 = var.ecs_oneid_internal_idp.container_cpu
+      memory              = var.ecs_oneid_internal_idp.container_memory
+      image_name          = local.ecr_oneid_internal_idp
+      image_version       = var.ecs_oneid_internal_idp.image_version
+      containerPort       = 8080
+      hostPort            = 8080
+      logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
+    }
+
+    autoscaling = var.ecs_oneid_internal_idp.autoscaling
+
+    subnet_ids = module.network.private_subnet_ids
   }
 
   ## NLB ##

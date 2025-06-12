@@ -233,12 +233,14 @@ module "ecs_cluster" {
   fargate_capacity_providers = var.fargate_capacity_providers
 }
 
+## Log group for ECS Core
 resource "aws_cloudwatch_log_group" "ecs_core" {
   name = format("/aws/ecs/%s/%s", var.service_core.service_name, var.service_core.container.name)
 
   retention_in_days = var.service_core.container.logs_retention_days
 }
 
+## ECS Core
 module "ecs_core_service" {
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
@@ -365,6 +367,102 @@ module "ecs_core_service" {
       type                     = "ingress"
       from_port                = var.service_core.container.containerPort
       to_port                  = var.service_core.container.containerPort
+      protocol                 = "tcp"
+      description              = "Service port"
+      source_security_group_id = module.elb.security_group_id
+    }
+    egress_all = {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+}
+
+## Log group for ECS Internal IDP
+resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
+  name = format("/aws/ecs/%s/%s", var.service_internal_idp.service_name, var.service_internal_idp.container.name)
+
+  retention_in_days = var.service_internal_idp.container.logs_retention_days
+}
+
+## ECS Internal IDP
+module "ecs_internal_idp_service" {
+  source  = "terraform-aws-modules/ecs/aws//modules/service"
+  version = "5.9.1"
+
+  name = var.service_internal_idp.service_name
+
+  cluster_arn = module.ecs_cluster.cluster_arn
+
+  cpu    = var.service_internal_idp.cpu
+  memory = var.service_internal_idp.memory
+
+  enable_execute_command = var.service_internal_idp.enable_execute_command
+
+  tasks_iam_role_policies = {
+    ecs_internal_idp_task = aws_iam_policy.ecs_core_task.arn
+    #use the same policy as the core service
+  }
+
+
+  container_definitions = {
+    (var.service_internal_idp.container.name) = {
+      cpu                         = var.service_internal_idp.container.cpu
+      memory                      = var.service_internal_idp.memory
+      create_cloudwatch_log_group = false
+
+      essential = true
+      image     = "${module.ecr[var.service_internal_idp.container.image_name].repository_url}:${var.service_internal_idp.container.image_version}",
+
+      port_mappings = [
+        {
+          name          = var.service_internal_idp.container.name
+          containerPort = var.service_internal_idp.container.containerPort
+          hostPort      = var.service_internal_idp.container.hostPort
+          protocol      = "tcp"
+        }
+      ]
+
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_internal_idp.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = "ecs"
+          mode                  = "non-blocking"
+        }
+      }
+
+      readonly_root_filesystem = false
+    }
+  }
+
+  enable_autoscaling       = var.service_internal_idp.autoscaling.enable
+  autoscaling_min_capacity = var.service_internal_idp.autoscaling.min_capacity
+  autoscaling_max_capacity = var.service_internal_idp.autoscaling.max_capacity
+  desired_count            = var.service_internal_idp.autoscaling.desired_count
+
+
+  subnet_ids       = var.private_subnets
+  assign_public_ip = false
+
+  load_balancer = {
+    service = {
+      target_group_arn = module.elb.target_groups["ecs-oneid-internal-idp"].arn
+      container_name   = var.service_internal_idp.container.name
+      container_port   = var.service_internal_idp.container.containerPort
+    }
+  }
+
+  security_group_rules = {
+    alb_ingress_3000 = {
+      type                     = "ingress"
+      from_port                = var.service_internal_idp.container.containerPort
+      to_port                  = var.service_internal_idp.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
       source_security_group_id = module.elb.security_group_id
@@ -655,6 +753,14 @@ module "elb" {
       }
     }
 
+    ecs-oneid-internal_idp = {
+      port     = var.service_internal_idp.container.containerPort
+      protocol = "TCP"
+      forward = {
+        target_group_key = "ecs-oneid-internal-idp"
+      }
+    }
+
   }
 
   target_groups = {
@@ -671,6 +777,24 @@ module "elb" {
         interval            = 30
         path                = "/q/health/live"
         port                = var.service_core.container.containerPort
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 6
+      }
+    }
+
+    ecs-oneid-internal-idp = {
+      name_prefix          = "t1-"
+      protocol             = "TCP"
+      port                 = var.service_internal_idp.container.containerPort
+      target_type          = "ip"
+      deregistration_delay = 10
+      create_attachment    = false
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/q/health/live"
+        port                = var.service_internal_idp.container.containerPort
         healthy_threshold   = 3
         unhealthy_threshold = 3
         timeout             = 6

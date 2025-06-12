@@ -85,6 +85,32 @@ variable "service_core" {
   })
 }
 
+variable "service_internal_idp" {
+  type = object({
+    service_name           = string
+    cpu                    = number
+    memory                 = number
+    enable_execute_command = optional(bool, true)
+    container = object({
+      name                = string
+      cpu                 = number
+      memory              = number
+      image_name          = string
+      image_version       = string
+      containerPort       = number
+      hostPort            = number
+      logs_retention_days = number
+    })
+    autoscaling = object({
+      enable        = bool
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
+    })
+    # todo insert here env vars
+  })
+}
+
 variable "hosted_zone_id" {
   type        = string
   description = "Hosted zone id for IAM Role"
