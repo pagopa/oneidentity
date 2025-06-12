@@ -26,7 +26,7 @@ public class SessionConnectorImpl implements SessionConnector {
 
   @Inject
   SessionConnectorImpl(DynamoDbEnhancedClient dynamoDbEnhancedClient,
-      @ConfigProperty(name = "idp_sessions") String TABLE_NAME) {
+      @ConfigProperty(name = "idp_sessions_table_name") String TABLE_NAME) {
     idpSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
         TableSchema.fromBean(IDPSession.class));
 
