@@ -107,7 +107,10 @@ variable "service_internal_idp" {
       min_capacity  = number
       max_capacity  = number
     })
-    # todo insert here env vars
+    environment_variables = list(object({
+      name  = string
+      value = string
+    }))
   })
 }
 
