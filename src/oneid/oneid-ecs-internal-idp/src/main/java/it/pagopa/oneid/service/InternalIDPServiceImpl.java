@@ -3,19 +3,17 @@ package it.pagopa.oneid.service;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.connector.ClientConnectorImpl;
-import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
+import it.pagopa.oneid.model.IDPInternalUser;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
-import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
-import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -52,10 +50,9 @@ import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.security.x509.BasicX509Credential;
-import org.opensaml.xmlsec.signature.support.SignatureException;
-import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 
 @ApplicationScoped
@@ -71,8 +68,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @Inject
   SessionConnectorImpl sessionConnectorImpl;
 
-  @Inject
-  ClientConnectorImpl clientConnectorImpl;
   @Inject
   InternalIDPUsersConnectorImpl internalIDPUsersConnectorImpl;
 
@@ -121,11 +116,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @Override
   public void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
     // validation of AuthnRequest fields
-    validateAuthnRequestFields(authnRequest);
-
-  }
-
-  private void validateAuthnRequestFields(AuthnRequest authnRequest) throws OneIdentityException {
     if (authnRequest == null) {
       throw new OneIdentityException("AuthnRequest is null");
     }
@@ -159,10 +149,10 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
       throw new OneIdentityException("AuthnRequest Signature is invalid");
     }
 
-    //TODO: Add more validations as needed
+
   }
 
-  private Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
+  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
     try {
       Integer attributeIndex = authnRequest.getAttributeConsumingServiceIndex();
       if (attributeIndex == null) {
@@ -197,6 +187,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
     Log.info("End saveUserSession for authnRequestId: " + authnRequest.getID());
   }
+
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
       String clientId, String username) throws SAMLUtilsException {
