@@ -1,6 +1,8 @@
 package it.pagopa.oneid.service;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.ClientConnector;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
@@ -61,6 +63,9 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   BasicX509Credential basicX509Credential;
 
   @Inject
+  ClientConnector clientConnector;
+
+  @Inject
   ClientConnectorImpl clientConnectorImpl;
   @Inject
   InternalIDPUsersConnectorImpl internalIDPUsersConnectorImpl;
@@ -109,6 +114,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   @Override
   public void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
+    // validation of AuthnRequest fields
     validateAuthnRequestFields(authnRequest);
 
   }
@@ -116,6 +122,11 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   private void validateAuthnRequestFields(AuthnRequest authnRequest) throws OneIdentityException {
     if (authnRequest == null) {
       throw new OneIdentityException("AuthnRequest is null");
+    }
+    // Validate AttibuteConsumingServiceIndex
+    if (authnRequest.getAttributeConsumingServiceIndex() == null) {
+      throw new OneIdentityException(
+          "AuthnRequest AttributeConsumingServiceIndex is missing or empty");
     }
     // Validate Issuer
     if (authnRequest.getIssuer() == null || authnRequest.getIssuer().getValue() == null
@@ -139,7 +150,22 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     try {
       SignatureValidator.validate(authnRequest.getSignature(), basicX509Credential);
     } catch (SignatureException e) {
-      throw new OneIdentityException("AuthnRequest Signature is invalid", e);
+      throw new OneIdentityException("AuthnRequest Signature is invalid");
+    }
+
+    //TODO: Add more validations as needed
+  }
+
+  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
+    try {
+      Integer attributeIndex = authnRequest.getAttributeConsumingServiceIndex();
+      if (attributeIndex == null) {
+        return null;
+      }
+      return clientConnector.getClientByAttributeConsumingServiceIndex(attributeIndex)
+          .orElse(null);
+    } catch (Exception e) {
+      return null;
     }
   }
 

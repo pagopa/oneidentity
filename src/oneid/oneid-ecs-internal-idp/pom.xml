@@ -81,6 +81,10 @@
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.pagopa.oneid.common</groupId>
+            <artifactId>connector</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
