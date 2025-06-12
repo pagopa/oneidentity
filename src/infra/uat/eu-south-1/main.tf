@@ -237,6 +237,26 @@ module "backend" {
       logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
     }
 
+    environment_variables = [
+      {
+        name  = "ACS_ENDPOINT"
+        value = var.metadata_info.acs_url
+      },
+      {
+        name  = "SP_ENTITY_ID"
+        value = "https://${var.r53_dns_zone.name}/pub-op-full"
+      },
+      {
+        name  = "IDP_INTERNAL_USERS_TABLE_NAME"
+        value = module.database.internal_idp_users_table_name
+      },
+      {
+        name = "ISSUER"
+        #TODO: this should be the internal IDP URL
+        value = ""
+      }
+
+    ]
     autoscaling = var.ecs_oneid_internal_idp.autoscaling
 
     subnet_ids = module.network.private_subnet_ids
