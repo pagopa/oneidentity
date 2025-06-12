@@ -47,6 +47,8 @@ import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.Signer;
@@ -54,6 +56,9 @@ import org.opensaml.xmlsec.signature.support.Signer;
 @ApplicationScoped
 @CustomLogging
 public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPService {
+
+  @Inject
+  BasicX509Credential basicX509Credential;
 
   @Inject
   ClientConnectorImpl clientConnectorImpl;
@@ -102,14 +107,40 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
-
   @Override
   public void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
+    validateAuthnRequestFields(authnRequest);
 
-    //todo validate spid attributes of authnRequest
+  }
 
-    //todo validate clientRegistration attributes of authnRequest
-
+  private void validateAuthnRequestFields(AuthnRequest authnRequest) throws OneIdentityException {
+    if (authnRequest == null) {
+      throw new OneIdentityException("AuthnRequest is null");
+    }
+    // Validate Issuer
+    if (authnRequest.getIssuer() == null || authnRequest.getIssuer().getValue() == null
+        || authnRequest.getIssuer().getValue().isEmpty()) {
+      throw new OneIdentityException("AuthnRequest Issuer is missing or empty");
+    }
+    // Validate AssertionConsumerServiceURL
+    if (authnRequest.getAssertionConsumerServiceURL() == null
+        || authnRequest.getAssertionConsumerServiceURL().isEmpty()) {
+      throw new OneIdentityException(
+          "AuthnRequest AssertionConsumerServiceURL is missing or empty");
+    }
+    // Validate Destination
+    if (authnRequest.getDestination() == null || authnRequest.getDestination().isEmpty()) {
+      throw new OneIdentityException("AuthnRequest Destination is missing or empty");
+    }
+    // Validate Signature
+    if (authnRequest.getSignature() == null) {
+      throw new OneIdentityException("AuthnRequest Signature is missing");
+    }
+    try {
+      SignatureValidator.validate(authnRequest.getSignature(), basicX509Credential);
+    } catch (SignatureException e) {
+      throw new OneIdentityException("AuthnRequest Signature is invalid", e);
+    }
   }
 
   @Override
