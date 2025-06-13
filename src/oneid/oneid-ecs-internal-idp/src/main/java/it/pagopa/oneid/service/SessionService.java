@@ -6,5 +6,7 @@ public interface SessionService {
 
   IDPSession validateAuthnRequestIdCookie(String authnRequestId, String username);
 
+  void setSessionAsAuthenticated(IDPSession idpSession);
+
 
 }
