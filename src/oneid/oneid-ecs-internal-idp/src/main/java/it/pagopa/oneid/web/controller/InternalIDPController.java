@@ -42,7 +42,7 @@ public class InternalIDPController {
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
     internalIDPServiceImpl.validateAuthnRequest(authnRequest);
-    internalIDPServiceImpl.saveUserSession(authnRequest);
+    internalIDPServiceImpl.saveIDPSession(authnRequest);
 
     // Set authnRequestId as a cookie and return response
     NewCookie cookie = new NewCookie(
