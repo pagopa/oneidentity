@@ -1,0 +1,107 @@
+package it.pagopa.oneid.connector;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.model.IDPSession;
+import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
+
+@QuarkusTest
+class SessionConnectorImplTest {
+
+  private static DynamoDbTable<IDPSession> idpSessionMapper;
+
+  @Inject
+  SessionConnectorImpl sessionConnectorImpl;
+
+  @Inject
+  DynamoDbEnhancedClient dynamoDbEnhancedClient;
+
+  @Inject
+  @ConfigProperty(name = "idp_sessions_table_name")
+  String TABLE_NAME;
+
+  @BeforeEach
+  public void beforeEach() {
+    idpSessionMapper = dynamoDbEnhancedClient.table(TABLE_NAME,
+        TableSchema.fromBean(IDPSession.class));
+
+    CreateTableEnhancedRequest createTableEnhancedRequest = CreateTableEnhancedRequest.builder()
+        .provisionedThroughput(
+            ProvisionedThroughput.builder()
+                .readCapacityUnits(10L)
+                .writeCapacityUnits(10L)
+                .build())
+        .build();
+
+    idpSessionMapper.createTable(createTableEnhancedRequest);
+  }
+
+  @AfterEach
+  public void afterEach() {
+    idpSessionMapper.deleteTable();
+  }
+
+
+  @Test
+  void saveIDPSessionIfNotExists_success() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .build();
+    // when
+    Executable executable = () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    // then
+    assertDoesNotThrow(executable);
+  }
+
+  @Test
+  void saveIDPSessionIfNotExists_ConditionalCheckFailedException() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .build();
+    // when
+    // First insert should succeed
+    assertDoesNotThrow(() -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
+    // Second insert with same PK/RK should throw
+    assertThrows(OneIdentityException.class,
+        () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
+  }
+
+
+  @Test
+  void saveIDPSessionIfNotExists_missingPrimaryKey() {
+    // given
+    String authnRequestId = "";
+    String clientId = "";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .build();
+    // when
+    // Insert should succeed
+    assertThrows(OneIdentityException.class,
+        () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
+
+  }
+
+}
+
