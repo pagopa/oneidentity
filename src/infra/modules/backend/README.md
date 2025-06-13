@@ -176,6 +176,7 @@
 | [aws_iam_policy.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.ecs_core_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.ecs_internal_idp_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.switch_region_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.github_lambda_deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.githubecsdeploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -230,6 +231,8 @@
 | <a name="input_dynamodb_table_clientStatus"></a> [dynamodb\_table\_clientStatus](#input\_dynamodb\_table\_clientStatus) | Dynamodb table clientStatus arns | <pre>object({<br/>    table_arn       = string<br/>    gsi_pointer_arn = string<br/>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_table_idpMetadata"></a> [dynamodb\_table\_idpMetadata](#input\_dynamodb\_table\_idpMetadata) | Dynamodb table idpMetadata anrs | <pre>object({<br/>    table_arn       = string<br/>    gsi_pointer_arn = string<br/>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_table_idpStatus"></a> [dynamodb\_table\_idpStatus](#input\_dynamodb\_table\_idpStatus) | Dynamodb table idpStatus arns | <pre>object({<br/>    table_arn       = string<br/>    gsi_pointer_arn = string<br/>  })</pre> | n/a | yes |
+| <a name="input_dynamodb_table_internal_idp_session_arn"></a> [dynamodb\_table\_internal\_idp\_session\_arn](#input\_dynamodb\_table\_internal\_idp\_session\_arn) | Arn of the dynamodb table used to store internal idp sessions. | `string` | n/a | yes |
+| <a name="input_dynamodb_table_internal_idp_users_arn"></a> [dynamodb\_table\_internal\_idp\_users\_arn](#input\_dynamodb\_table\_internal\_idp\_users\_arn) | Arn of the dynamodb table used to store internal idp users. | `string` | n/a | yes |
 | <a name="input_dynamodb_table_sessions"></a> [dynamodb\_table\_sessions](#input\_dynamodb\_table\_sessions) | Dynamodb table sessions anrs | <pre>object({<br/>    table_arn    = string<br/>    gsi_code_arn = string<br/>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_table_stream_arn"></a> [dynamodb\_table\_stream\_arn](#input\_dynamodb\_table\_stream\_arn) | n/a | `string` | `null` | no |
 | <a name="input_dynamodb_table_stream_registrations_arn"></a> [dynamodb\_table\_stream\_registrations\_arn](#input\_dynamodb\_table\_stream\_registrations\_arn) | n/a | `string` | `null` | no |

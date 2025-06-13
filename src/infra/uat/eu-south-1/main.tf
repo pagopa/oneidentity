@@ -375,6 +375,9 @@ module "backend" {
     table_arn       = module.database.table_idp_status_history_arn
   }
 
+  dynamodb_table_internal_idp_session_arn = module.database.internal_idp_session_arn
+  dynamodb_table_internal_idp_users_arn   = module.database.internal_idp_users_arn
+
   dynamodb_table_clientStatus = {
     gsi_pointer_arn = module.database.table_client_status_gsi_pointer_arn
     table_arn       = module.database.table_client_status_history_arn

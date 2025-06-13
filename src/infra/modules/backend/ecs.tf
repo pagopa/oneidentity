@@ -215,6 +215,41 @@ resource "aws_iam_policy" "ecs_core_task" {
 }
 
 
+resource "aws_iam_policy" "ecs_internal_idp_task" {
+  count = var.service_internal_idp != null ? 1 : 0
+  name  = format("%s-task-policy", var.service_internal_idp.service_name)
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "DynamoDBIdPSessionRW"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+        ]
+        Resource = [
+          "${var.dynamodb_table_internal_idp_session_arn}"
+        ]
+      },
+      {
+        Sid    = "DynamoDBIdPUsersRW"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+        ]
+        Resource = [
+          "${var.dynamodb_table_internal_idp_users_arn}"
+        ]
+      }
+    ]
+  })
+
+}
+
 module "ecs_cluster" {
 
   source  = "terraform-aws-modules/ecs/aws"
@@ -406,8 +441,7 @@ module "ecs_internal_idp_service" {
   enable_execute_command = var.service_internal_idp.enable_execute_command
 
   tasks_iam_role_policies = {
-    ecs_internal_idp_task = aws_iam_policy.ecs_core_task.arn
-    #use the same policy as the core service
+    ecs_internal_idp_task = aws_iam_policy.ecs_internal_idp_task[0].arn
   }
 
 

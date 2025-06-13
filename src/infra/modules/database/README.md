@@ -100,6 +100,7 @@ No resources.
 |------|-------------|
 | <a name="output_dynamodb_clients_table_stream_arn"></a> [dynamodb\_clients\_table\_stream\_arn](#output\_dynamodb\_clients\_table\_stream\_arn) | Client |
 | <a name="output_dynamodb_table_stream_arn"></a> [dynamodb\_table\_stream\_arn](#output\_dynamodb\_table\_stream\_arn) | n/a |
+| <a name="output_internal_idp_session_arn"></a> [internal\_idp\_session\_arn](#output\_internal\_idp\_session\_arn) | Internal IDP session arn |
 | <a name="output_internal_idp_users_arn"></a> [internal\_idp\_users\_arn](#output\_internal\_idp\_users\_arn) | Internal IDP Users arn |
 | <a name="output_internal_idp_users_gsi_namespace_arn"></a> [internal\_idp\_users\_gsi\_namespace\_arn](#output\_internal\_idp\_users\_gsi\_namespace\_arn) | n/a |
 | <a name="output_internal_idp_users_gsi_namespace_name"></a> [internal\_idp\_users\_gsi\_namespace\_name](#output\_internal\_idp\_users\_gsi\_namespace\_name) | n/a |
