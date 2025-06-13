@@ -1,9 +1,9 @@
 package it.pagopa.oneid.web.controller;
 
-import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.model.IDPSession;
+import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import it.pagopa.oneid.service.InternalIDPServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
@@ -15,12 +15,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.Base64;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Path(("/internal-idp"))
-@Startup
 public class InternalIDPController {
 
   @ConfigProperty(name = "acs_endpoint")
@@ -73,7 +74,6 @@ public class InternalIDPController {
   }
 
   private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
-    // TODO: implement the logic to handle the case where consent is given. If the consent is given, proceed with the SAML SSO flow creating a SAML Response that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
 
     // Create a successful SAML Response based on the AuthnRequest
 
@@ -81,7 +81,16 @@ public class InternalIDPController {
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
             idpSession.getUsername());
 
-    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
+    String encodedSamlResponse = Base64.getEncoder()
+        .encodeToString(internalIDPServiceImpl.getStringValue(
+            internalIDPServiceImpl.getElementValueFromSamlResponse(response)).getBytes());
+
+    idpSession.setStatus(IDPSessionStatus.AUTHENTICATED);
+    idpSession.setTimestampEnd(Instant.now().getEpochSecond());
+    sessionServiceImpl.setSessionAsAuthenticated(idpSession);
+
+    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
+        .type(MediaType.TEXT_HTML)
         .build();
   }
 

@@ -17,9 +17,14 @@ import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Set;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -54,6 +59,7 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Element;
 
 @ApplicationScoped
 @CustomLogging
@@ -221,6 +227,20 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
+  @Override
+  public Element getElementValueFromSamlResponse(Response samlResponse) {
+    Marshaller out = marshallerFactory.getMarshaller(samlResponse);
+
+    Element plaintextElement = null;
+    try {
+      plaintextElement = out.marshall(samlResponse);
+    } catch (MarshallingException | NullPointerException e) {
+      throw new RuntimeException(e);
+    }
+
+    return plaintextElement;
+  }
+
   private void marshallAndSignAssertion(Assertion samlAssertion, Signature signature) {
     Marshaller out = marshallerFactory
         .getMarshaller(samlAssertion);
@@ -285,6 +305,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     NameID nameID = buildSAMLObject(NameID.class);
     nameID.setFormat(NameIDType.TRANSIENT);
     nameID.setNameQualifier(generateSecureRandomId());
+
+    // TODO: Set the NameID value to a unique identifier for the user
     nameID.setValue("test");
     subject.setNameID(nameID);
 
@@ -351,6 +373,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     //endregion
 
     //region Signature
+    // TODO: change the signature to use the correct key using the IDP mock certificate
     Signature signatureSamlResponse = buildSignature(samlResponse);
     Signature signatureSamlAssertion = buildSignature(assertion);
     samlResponse.setSignature(signatureSamlResponse);
@@ -364,6 +387,20 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     marshallAndSignResponse(samlResponse, signatureSamlResponse);
 
     return samlResponse;
+  }
+
+  @Override
+  public String getStringValue(Element element) {
+    StreamResult result = new StreamResult(new StringWriter());
+    try {
+      TransformerFactory
+          .newInstance()
+          .newTransformer()
+          .transform(new DOMSource(element), result);
+    } catch (TransformerException e) {
+      throw new RuntimeException(e);
+    }
+    return result.getWriter().toString();
   }
 
 }
