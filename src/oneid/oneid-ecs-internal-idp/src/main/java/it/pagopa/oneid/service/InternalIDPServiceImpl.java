@@ -166,8 +166,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   }
 
   @Override
-  public void saveUserSession(AuthnRequest authnRequest) throws OneIdentityException {
-    Log.info("Start saveUserSession for authnRequestId: " + authnRequest.getID());
+  public void saveIDPSession(AuthnRequest authnRequest) throws OneIdentityException {
+    Log.info("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
     Client client = getClientByAttributeConsumingServiceIndex(authnRequest);
     if (client == null) {
       Log.error("Client not found for AttributeConsumingServiceIndex: "
@@ -185,7 +185,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
         .timestampEnd(0)
         .build();
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    Log.info("End saveUserSession for authnRequestId: " + authnRequest.getID());
+    Log.info("End saveIDPSession for authnRequestId: " + authnRequest.getID());
   }
 
   @Override

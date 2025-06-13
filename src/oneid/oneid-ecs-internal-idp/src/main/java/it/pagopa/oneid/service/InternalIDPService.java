@@ -12,7 +12,7 @@ public interface InternalIDPService {
 
   void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
 
-  void saveUserSession(AuthnRequest authnRequest) throws OneIdentityException;
+  void saveIDPSession(AuthnRequest authnRequest) throws OneIdentityException;
 
   Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest);
 
