@@ -7,7 +7,6 @@ import it.pagopa.oneid.exception.InvalidIDPSessionStatusException;
 import it.pagopa.oneid.model.IDPSession;
 import jakarta.enterprise.context.Dependent;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
-import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
@@ -18,10 +17,11 @@ public class SessionServiceImpl implements SessionService {
   SessionConnectorImpl sessionConnectorImpl;
 
   @Override
-  public IDPSession validateAuthnRequestIdCookie(String authnRequestId, String username) {
+  public IDPSession validateAuthnRequestIdCookie(String authnRequestId, String clientId,
+      String username) {
 
     IDPSession idpSession = sessionConnectorImpl
-        .getIDPSessionByAuthnRequestIdAndUsername(authnRequestId, username)
+        .getIDPSessionByAuthnRequestIdClientIdAndUsername(authnRequestId, clientId, username)
         .orElseThrow(() -> new IDPSessionNotFoundException(
             "IDP session not found for authnRequestId: " + authnRequestId + " and username: "
                 + username));

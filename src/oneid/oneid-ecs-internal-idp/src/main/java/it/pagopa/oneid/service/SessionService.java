@@ -6,7 +6,7 @@ import it.pagopa.oneid.model.enums.IDPSessionStatus;
 
 public interface SessionService {
 
-  IDPSession validateAuthnRequestIdCookie(String authnRequestId, String username);
+  IDPSession validateAuthnRequestIdCookie(String authnRequestId, String clientId, String username);
 
   void setSessionAsAuthenticated(IDPSession idpSession);
 

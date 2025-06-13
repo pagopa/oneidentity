@@ -103,5 +103,28 @@ class SessionConnectorImplTest {
 
   }
 
+  @Test
+  void getIDPSessionByAuthnRequestIdAndUsername_success() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .username("user")
+        .build();
+    try {
+      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    } catch (OneIdentityException e) {
+      throw new RuntimeException(e);
+    }
+
+    // then
+    assertDoesNotThrow(
+        () -> sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(authnRequestId,
+            clientId,
+            "user"));
+  }
+
 }
 

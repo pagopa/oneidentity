@@ -17,7 +17,6 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest.Builder;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
@@ -68,29 +67,16 @@ public class SessionConnectorImpl implements SessionConnector {
   }
 
   @Override
-  public Optional<IDPSession> findIDPSessionByAuthnRequestId(String authnRequestId) {
-    return Optional.ofNullable(
-        idpSessionMapper.getItem(Key.builder().partitionValue(authnRequestId).build()));
-  }
-
-  public void updateIDPSession(IDPSession idpSession) {
-    // update session status and username field with sdk update method
-    idpSessionMapper.updateItem(
-        UpdateItemEnhancedRequest.builder(IDPSession.class)
-            .item(idpSession)
-            .conditionExpression(Expression.builder()
-                .expression("attribute_exists(authnRequestId)")
-                .build())
-            .build());
-  }
-  @Override
-  public Optional<IDPSession> getIDPSessionByAuthnRequestIdAndUsername(String authnRequestId,
+  public Optional<IDPSession> getIDPSessionByAuthnRequestIdClientIdAndUsername(
+      String authnRequestId,
+      String clientId,
       String username) {
 
     IDPSession idpSession = idpSessionMapper
         .getItem(
             GetItemEnhancedRequest.builder()
-                .key(Key.builder().partitionValue(authnRequestId).build()).build());
+                .key(Key.builder().partitionValue(authnRequestId).sortValue(clientId).build())
+                .build());
 
     return (idpSession != null && idpSession.getUsername().equals(username))
         ? Optional.of(idpSession)

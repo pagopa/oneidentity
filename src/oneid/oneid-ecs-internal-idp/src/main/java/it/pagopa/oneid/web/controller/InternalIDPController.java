@@ -122,6 +122,7 @@ public class InternalIDPController {
 
     IDPSession idpSession = sessionServiceImpl.validateAuthnRequestIdCookie(
         consentRequestDto.getAuthnRequestId(),
+        consentRequestDto.getClientId(),
         consentRequestDto.getUsername());
 
     return consentRequestDto.isConsent() ? handleConsentGiven(idpSession)

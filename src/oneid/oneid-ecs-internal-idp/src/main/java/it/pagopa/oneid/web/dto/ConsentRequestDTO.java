@@ -11,6 +11,10 @@ public class ConsentRequestDTO {
   @NotBlank
   private String authnRequestId;
 
+  @CookieParam("ClientID")
+  @NotBlank
+  private String clientId;
+
   @CookieParam("username")
   @NotBlank
   private String username;
