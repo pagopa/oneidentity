@@ -385,16 +385,16 @@ module "dynamodb_table_internal_idp_sessions" {
 
   name = "InternalIDPSessions"
 
-  hash_key  = "AuthnRequestID"
-  range_key = "ClientId"
+  hash_key  = "authnRequestId"
+  range_key = "clientId"
 
   attributes = [
     {
-      name = "AuthnRequestID"
+      name = "authnRequestId"
       type = "S"
     },
     {
-      name = "ClientId"
+      name = "clientId"
       type = "S"
     }
   ]
