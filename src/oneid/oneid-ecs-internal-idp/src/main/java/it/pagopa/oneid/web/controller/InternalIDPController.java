@@ -7,8 +7,10 @@ import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import it.pagopa.oneid.service.InternalIDPServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
+import it.pagopa.oneid.web.dto.LoginRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -54,11 +56,57 @@ public class InternalIDPController {
   }
 
   @POST
+  @Consumes(MediaType.APPLICATION_JSON)
   @Path("/login")
-  public Response login() {
-    // This method is a placeholder for the login endpoint.
-    // In a real implementation, you would handle the login logic here.
-    return Response.ok("Login endpoint hit").build();
+  public Response login(@Valid LoginRequestDTO loginRequestDTO) {
+
+    // 1. check authnRequest
+    //  a. AuthnRequestId presents in IdPSession Table
+    //  b. Status == "PENDING"
+    IDPSession idpSession;
+    try {
+      idpSession = sessionServiceImpl.validateAuthnRequestIdStatus(
+          loginRequestDTO.getAuthnRequestId(), IDPSessionStatus.PENDING);
+    } catch (OneIdentityException e) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity("Invalid AuthnRequestId or status").build();
+    }
+
+    // 2. validate login information
+    //  a. correct username and password in User Table for the retrieved ClientId
+    try {
+      internalIDPServiceImpl.validateUserInformation(
+          idpSession.getClientId(),
+          loginRequestDTO.getUsername(),
+          loginRequestDTO.getPassword());
+    } catch (OneIdentityException e) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity("Invalid username or password").build();
+    }
+
+    // 3. Update IdPSession
+    //  a. insert username
+    //  b. update status to "CREDENTIAL_VALIDATED"
+    idpSession.setStatus(IDPSessionStatus.CREDENTIALS_VALIDATED);
+    idpSession.setUsername(loginRequestDTO.getUsername());
+    sessionServiceImpl.updateIdPSession(idpSession);
+
+    // 3. Update Cookie with username
+    NewCookie authnRequestIdCookie = new NewCookie.Builder("authnRequestId")
+        .value(idpSession.getAuthnRequestId())
+        .maxAge(3600) // 1 hour
+        .httpOnly(true)
+        .secure(false)
+        .build();
+    NewCookie usernameCookie = new NewCookie.Builder("username")
+        .value(idpSession.getUsername())
+        .maxAge(3600) // 1 hour
+        .httpOnly(true)
+        .secure(false)
+        .build();
+
+    return Response.ok("Login endpoint hit").cookie(authnRequestIdCookie, usernameCookie).build();
+
   }
 
   @POST
