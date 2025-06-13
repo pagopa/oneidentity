@@ -66,7 +66,8 @@ public class InternalIDPController {
     IDPSession idpSession;
     try {
       idpSession = sessionServiceImpl.validateAuthnRequestIdStatus(
-          loginRequestDTO.getAuthnRequestId(), IDPSessionStatus.PENDING);
+          loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
+          IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity("Invalid AuthnRequestId or status").build();
@@ -92,7 +93,7 @@ public class InternalIDPController {
     sessionServiceImpl.updateIdPSession(idpSession);
 
     // 3. Update Cookie with authnRequestId, username and clientId
-    NewCookie authnRequestIdCookie = new NewCookie.Builder("authnRequestId")
+    NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")
         .value(idpSession.getAuthnRequestId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
@@ -104,7 +105,7 @@ public class InternalIDPController {
         .httpOnly(true)
         .secure(false)
         .build();
-    NewCookie clientIdCookie = new NewCookie.Builder("clientId")
+    NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
         .value(idpSession.getClientId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)

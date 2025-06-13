@@ -10,7 +10,8 @@ public interface SessionService {
 
   void setSessionAsAuthenticated(IDPSession idpSession);
 
-  IDPSession validateAuthnRequestIdStatus(String authnRequestId, IDPSessionStatus status)
+  IDPSession validateAuthnRequestIdStatus(String authnRequestId, String clientId,
+      IDPSessionStatus status)
       throws OneIdentityException;
 
   void updateIdPSession(IDPSession idpSession);
