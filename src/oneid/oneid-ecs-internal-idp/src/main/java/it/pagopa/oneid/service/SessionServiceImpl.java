@@ -5,8 +5,8 @@ import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.IDPSessionNotFoundException;
 import it.pagopa.oneid.exception.InvalidIDPSessionStatusException;
 import it.pagopa.oneid.model.IDPSession;
-import jakarta.enterprise.context.Dependent;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.util.Optional;
 
@@ -41,10 +41,11 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public IDPSession validateAuthnRequestIdStatus(String authnRequestId, IDPSessionStatus status)
+  public IDPSession validateAuthnRequestIdStatus(String authnRequestId, String clientId,
+      IDPSessionStatus status)
       throws OneIdentityException {
-    Optional<IDPSession> optionalIdpSession = sessionConnectorImpl.findIDPSessionByAuthnRequestId(
-        authnRequestId);
+    Optional<IDPSession> optionalIdpSession = sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(
+        authnRequestId, clientId);
 
     // Check if the session exists
     if (optionalIdpSession.isEmpty()) {
@@ -66,6 +67,6 @@ public class SessionServiceImpl implements SessionService {
   public void updateIdPSession(IDPSession idpSession) {
 
     // Update the session in the database
-    sessionConnectorImpl.updateIDPSession(idpSession);
+    sessionConnectorImpl.updateIDPSession(idpSession, Optional.of(IDPSessionStatus.PENDING));
   }
 }
