@@ -15,7 +15,6 @@ public interface SessionConnector {
 
   void updateIDPSession(IDPSession idpSession, Optional<IDPSessionStatus> previousStatus);
 
-  Optional<IDPSession> findIDPSessionByAuthnRequestId(String authnRequestId);
-
-  void updateIDPSession(IDPSession idpSession);
+  Optional<IDPSession> findIDPSessionByAuthnRequestIdAndClientId(String authnRequestId,
+      String clientId);
 }
