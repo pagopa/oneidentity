@@ -1,11 +1,13 @@
 package it.pagopa.oneid.connector;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.IDPSession;
 import jakarta.inject.Inject;
+import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,11 +121,28 @@ class SessionConnectorImplTest {
     }
 
     // then
-    assertDoesNotThrow(
-        () -> sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(authnRequestId,
+    assertEquals(Optional.of(idpSession),
+        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(authnRequestId,
             clientId,
             "user"));
   }
 
+  @Test
+  void getIDPSessionByAuthnRequestIdClientIdAndUsername_notFound() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    String username = "user";
+
+    assertEquals(Optional.empty(), sessionConnectorImpl
+        .getIDPSessionByAuthnRequestIdClientIdAndUsername(authnRequestId, clientId, username));
+
+  }
+
+  @Test
+  void findIDPSessionByAuthnRequestIdAndClientId_success() {
+    // given
+    String authnRequestId = "id";
+  }
 }
 

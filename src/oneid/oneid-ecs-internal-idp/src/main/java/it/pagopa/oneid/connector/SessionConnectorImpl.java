@@ -14,7 +14,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest.Builder;
@@ -72,15 +71,15 @@ public class SessionConnectorImpl implements SessionConnector {
       String clientId,
       String username) {
 
-    IDPSession idpSession = idpSessionMapper
-        .getItem(
-            GetItemEnhancedRequest.builder()
-                .key(Key.builder().partitionValue(authnRequestId).sortValue(clientId).build())
-                .build());
+    Optional<IDPSession> idpSession = findIDPSessionByAuthnRequestIdAndClientId(authnRequestId,
+        clientId);
 
-    return (idpSession != null && idpSession.getUsername().equals(username))
-        ? Optional.of(idpSession)
-        : Optional.empty();
+    // Return the IDPSession if it matches the username, otherwise return empty.
+    if (idpSession.isPresent() && idpSession.get().getUsername().equals(username)) {
+      return idpSession;
+    } else {
+      return Optional.empty();
+    }
   }
 
   @Override
