@@ -9,7 +9,8 @@ public interface SessionConnector {
 
   void saveIDPSessionIfNotExists(IDPSession idpSession) throws OneIdentityException;
 
-  Optional<IDPSession> getIDPSessionByAuthnRequestIdAndUsername(String authnRequestId,
+  Optional<IDPSession> getIDPSessionByAuthnRequestIdClientIdAndUsername(String authnRequestId,
+      String clientId,
       String username);
 
   void updateIDPSession(IDPSession idpSession, Optional<IDPSessionStatus> previousStatus);
