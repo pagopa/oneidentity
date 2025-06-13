@@ -143,6 +143,33 @@ class SessionConnectorImplTest {
   void findIDPSessionByAuthnRequestIdAndClientId_success() {
     // given
     String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .username("user")
+        .build();
+    try {
+      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    } catch (OneIdentityException e) {
+      throw new RuntimeException(e);
+    }
+
+    // then
+    assertEquals(Optional.of(idpSession),
+        sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(authnRequestId,
+            clientId));
+  }
+
+  @Test
+  void findIDPSessionByAuthnRequestIdAndClientId_notFound() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+
+    assertEquals(Optional.empty(),
+        sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(authnRequestId,
+            clientId));
   }
 }
 
