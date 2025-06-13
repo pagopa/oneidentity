@@ -12,6 +12,10 @@ public class LoginRequestDTO {
   @NotBlank
   private String authnRequestId;
 
+  @CookieParam("ClientID")
+  @NotBlank
+  private String clientId;
+
   @JsonProperty("username")
   @NotBlank
   private String username;
