@@ -385,6 +385,9 @@ module "backend" {
     table_arn       = module.database.table_client_status_history_arn
   }
 
+  dynamodb_table_internal_idp_session_arn = module.database.internal_idp_session_arn
+  dynamodb_table_internal_idp_users_arn   = module.database.internal_idp_users_arn
+
   is_gh_integration_lambda = {
     name                              = format("%s-is-gh-integration-lambda", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"

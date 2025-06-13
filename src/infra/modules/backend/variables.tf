@@ -166,6 +166,15 @@ variable "dynamodb_table_clientStatus" {
   description = "Dynamodb table clientStatus arns"
 }
 
+variable "dynamodb_table_internal_idp_session_arn" {
+  type        = string
+  description = "Arn of the dynamodb table used to store internal idp sessions."
+}
+
+variable "dynamodb_table_internal_idp_users_arn" {
+  type        = string
+  description = "Arn of the dynamodb table used to store internal idp users."
+}
 
 variable "table_client_registrations_arn" {
   type        = string
