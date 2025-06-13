@@ -6,7 +6,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.InvalidIDPSessionUpdateException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,7 +21,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest.
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
-@Dependent
+@ApplicationScoped
 @CustomLogging
 public class SessionConnectorImpl implements SessionConnector {
 

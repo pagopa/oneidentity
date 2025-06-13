@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,6 +11,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @ApplicationScoped
+@CustomLogging
 public class InternalIDPUsersConnectorImpl implements InternalIDPUsersConnector {
 
   private final DynamoDbTable<IDPInternalUser> idpInternalUserMapper;

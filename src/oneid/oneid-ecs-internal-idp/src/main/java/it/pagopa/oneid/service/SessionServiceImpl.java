@@ -3,18 +3,20 @@ package it.pagopa.oneid.service;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.IDPSessionNotFoundException;
 import it.pagopa.oneid.exception.InvalidIDPSessionStatusException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.Optional;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
-@Dependent
+@ApplicationScoped
+@CustomLogging
 public class SessionServiceImpl implements SessionService {
 
   @Inject
