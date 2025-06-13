@@ -86,7 +86,6 @@ class SessionConnectorImplTest {
         () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
   }
 
-
   @Test
   void saveIDPSessionIfNotExists_missingPrimaryKey() {
     // given
@@ -104,7 +103,7 @@ class SessionConnectorImplTest {
   }
 
   @Test
-  void getIDPSessionByAuthnRequestIdAndUsername_success() {
+  void getIDPSessionByAuthnRequestIdClientIdAndUsername_success() {
     // given
     String authnRequestId = "id";
     String clientId = "client";
