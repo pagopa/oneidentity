@@ -1,10 +1,12 @@
 package it.pagopa.oneid.service;
 
+import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.IDPSessionNotFoundException;
 import it.pagopa.oneid.exception.InvalidIDPSessionStatusException;
 import it.pagopa.oneid.model.IDPSession;
 import jakarta.enterprise.context.Dependent;
+import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.inject.Inject;
 import java.util.Optional;
@@ -38,4 +40,32 @@ public class SessionServiceImpl implements SessionService {
         Optional.of(IDPSessionStatus.CREDENTIALS_VALIDATED));
   }
 
+  @Override
+  public IDPSession validateAuthnRequestIdStatus(String authnRequestId, IDPSessionStatus status)
+      throws OneIdentityException {
+    Optional<IDPSession> optionalIdpSession = sessionConnectorImpl.findIDPSessionByAuthnRequestId(
+        authnRequestId);
+
+    // Check if the session exists
+    if (optionalIdpSession.isEmpty()) {
+      throw new OneIdentityException(
+          "No session with this authnRequestId found: " + authnRequestId); //todo check
+    }
+
+    IDPSession idpSession = optionalIdpSession.get();
+
+    // Check if the status matches the session's status
+    if (!status.equals(idpSession.getStatus())) {
+      throw new OneIdentityException("Invalid status"); //todo check
+    }
+
+    return idpSession;
+  }
+
+  @Override
+  public void updateIdPSession(IDPSession idpSession) {
+
+    // Update the session in the database
+    sessionConnectorImpl.updateIDPSession(idpSession);
+  }
 }

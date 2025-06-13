@@ -213,6 +213,18 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   }
 
+  public void validateUserInformation(String clientId, String username, String password)
+      throws OneIdentityException {
+    IDPInternalUser user = internalIDPUsersConnectorImpl
+        .getIDPInternalUserByUsernameAndNamespace(username, clientId)
+        .orElseThrow(() -> new OneIdentityException("User not found"));
+
+    if (!password.equals(user.getPassword())) {
+      throw new OneIdentityException("Invalid password for user: " + username);
+    }
+
+  }
+
   private void marshallAndSignResponse(Response samlResponse, Signature signature) {
     Marshaller out = marshallerFactory
         .getMarshaller(samlResponse);

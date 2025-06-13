@@ -24,4 +24,7 @@ public interface InternalIDPService {
 
   String getStringValue(Element element);
 
+  void validateUserInformation(String clientId, String username, String password)
+      throws OneIdentityException;
+
 }
