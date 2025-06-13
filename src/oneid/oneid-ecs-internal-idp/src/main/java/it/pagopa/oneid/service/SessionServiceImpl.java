@@ -1,5 +1,7 @@
 package it.pagopa.oneid.service;
 
+import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.IDPSessionNotFoundException;
@@ -8,13 +10,37 @@ import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
+import java.time.Instant;
 import java.util.Optional;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Dependent
 public class SessionServiceImpl implements SessionService {
 
   @Inject
   SessionConnectorImpl sessionConnectorImpl;
+
+  @Override
+  public void saveIDPSession(AuthnRequest authnRequest, Client client) throws OneIdentityException {
+    Log.info("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
+    if (client == null) {
+      Log.error("Client not found for AttributeConsumingServiceIndex: "
+          + authnRequest.getAttributeConsumingServiceIndex());
+      throw new OneIdentityException("Client not found for AttributeConsumingServiceIndex: "
+          + authnRequest.getAttributeConsumingServiceIndex());
+    }
+
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequest.getID())
+        .clientId(client.getClientId())
+        .status(IDPSessionStatus.PENDING)
+        .username("")
+        .timestampStart(Instant.now().toEpochMilli())
+        .timestampEnd(0)
+        .build();
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    Log.info("End saveIDPSession for authnRequestId: " + authnRequest.getID());
+  }
 
   @Override
   public IDPSession validateAuthnRequestIdCookie(String authnRequestId, String clientId,

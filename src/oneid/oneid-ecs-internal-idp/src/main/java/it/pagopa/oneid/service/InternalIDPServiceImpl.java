@@ -12,8 +12,6 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.model.IDPInternalUser;
-import it.pagopa.oneid.model.IDPSession;
-import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -171,28 +169,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
-  @Override
-  public void saveIDPSession(AuthnRequest authnRequest) throws OneIdentityException {
-    Log.info("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
-    Client client = getClientByAttributeConsumingServiceIndex(authnRequest);
-    if (client == null) {
-      Log.error("Client not found for AttributeConsumingServiceIndex: "
-          + authnRequest.getAttributeConsumingServiceIndex());
-      throw new OneIdentityException("Client not found for AttributeConsumingServiceIndex: "
-          + authnRequest.getAttributeConsumingServiceIndex());
-    }
-
-    IDPSession idpSession = IDPSession.builder()
-        .authnRequestId(authnRequest.getID())
-        .clientId(client.getClientId())
-        .status(IDPSessionStatus.PENDING)
-        .username("")
-        .timestampStart(Instant.now().toEpochMilli())
-        .timestampEnd(0)
-        .build();
-    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    Log.info("End saveIDPSession for authnRequestId: " + authnRequest.getID());
-  }
 
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
