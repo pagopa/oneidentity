@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.model.IDPSession;
@@ -45,14 +46,24 @@ public class InternalIDPController {
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
     internalIDPServiceImpl.validateAuthnRequest(authnRequest);
-    internalIDPServiceImpl.saveIDPSession(authnRequest);
+    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(authnRequest);
+    sessionServiceImpl.saveIDPSession(authnRequest, client);
 
-    // Set authnRequestId as a cookie and return response
-    NewCookie cookie = new NewCookie(
-        "authnRequestId",
-        authnRequest.getID()
-    );
-    return Response.ok("SAML SSO endpoint hit").cookie(cookie).build();
+    // Set authnRequestId and clientId inside cookies
+    NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")
+        .value(authnRequest.getID())
+        .maxAge(3600) // 1 hour
+        .httpOnly(true)
+        .secure(false)
+        .build();
+    NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
+        .value(client.getClientId())
+        .maxAge(3600) // 1 hour
+        .httpOnly(true)
+        .secure(false)
+        .build();
+    return Response.ok("SAML SSO endpoint hit").cookie(authnRequestIdCookie, clientIdCookie)
+        .build();
   }
 
   @POST

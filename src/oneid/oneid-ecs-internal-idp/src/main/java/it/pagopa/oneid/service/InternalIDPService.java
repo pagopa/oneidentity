@@ -13,8 +13,6 @@ public interface InternalIDPService {
 
   void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
 
-  void saveIDPSession(AuthnRequest authnRequest) throws OneIdentityException;
-
   Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest);
 
   Response createSuccessfulSamlResponse(String authnRequestId, String clientId, String username)
