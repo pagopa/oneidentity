@@ -91,7 +91,7 @@ public class InternalIDPController {
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
 
-    // 3. Update Cookie with username
+    // 3. Update Cookie with authnRequestId, username and clientId
     NewCookie authnRequestIdCookie = new NewCookie.Builder("authnRequestId")
         .value(idpSession.getAuthnRequestId())
         .maxAge(3600) // 1 hour
@@ -104,8 +104,15 @@ public class InternalIDPController {
         .httpOnly(true)
         .secure(false)
         .build();
+    NewCookie clientIdCookie = new NewCookie.Builder("clientId")
+        .value(idpSession.getClientId())
+        .maxAge(3600) // 1 hour
+        .httpOnly(true)
+        .secure(false)
+        .build();
 
-    return Response.ok("Login endpoint hit").cookie(authnRequestIdCookie, usernameCookie).build();
+    return Response.ok("Login endpoint hit")
+        .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
 
   }
 
