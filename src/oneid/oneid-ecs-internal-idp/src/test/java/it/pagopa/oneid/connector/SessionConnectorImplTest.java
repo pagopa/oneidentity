@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.exception.InvalidIDPSessionUpdateException;
 import it.pagopa.oneid.model.IDPSession;
+import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -171,15 +173,16 @@ class SessionConnectorImplTest {
         sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(authnRequestId,
             clientId));
   }
-  @Test
-  void findIDPSessionByAuthnRequestIdAndClientId() {
 
+  @Test
+  void updateIDPSession_success() {
     // given
     String authnRequestId = "id";
     String clientId = "client";
     IDPSession idpSession = IDPSession.builder()
         .authnRequestId(authnRequestId)
         .clientId(clientId)
+        .username("user")
         .build();
     try {
       sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
@@ -188,15 +191,63 @@ class SessionConnectorImplTest {
     }
 
     // when
-    Optional<IDPSession> result = sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(
-        authnRequestId, clientId);
+    idpSession.setUsername("newUser");
+    assertDoesNotThrow(() -> sessionConnectorImpl.updateIDPSession(idpSession, Optional.empty()));
 
     // then
-    assertDoesNotThrow(() -> result.orElseThrow());
-    assert result.isPresent();
-    assert result.get().getAuthnRequestId().equals(authnRequestId);
-    assert result.get().getClientId().equals(clientId);
+    assertEquals(Optional.of(idpSession),
+        sessionConnectorImpl.findIDPSessionByAuthnRequestIdAndClientId(authnRequestId,
+            clientId));
   }
 
+  @Test
+  void updateIDPSession_notMatchingPreviousStatus() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .status(
+            IDPSessionStatus.TIMEOUT) // Setting a previous status that does not match the expected one
+        .username("user")
+        .build();
+    try {
+      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
+    } catch (OneIdentityException e) {
+      throw new RuntimeException(e);
+    }
+
+    // when
+    idpSession.setUsername("newUser");
+
+    // Attempting to update with a different previous status needed, should throw exception
+    assertThrows(InvalidIDPSessionUpdateException.class,
+        () -> sessionConnectorImpl.updateIDPSession(idpSession,
+            Optional.of(
+                IDPSessionStatus.CREDENTIALS_VALIDATED))); // Attempting to update with a different previous status needed
+
+  }
+
+  @Test
+  void updateIDPSession_notFound() {
+    // given
+    String authnRequestId = "id";
+    String clientId = "client";
+    IDPSession idpSession = IDPSession.builder()
+        .authnRequestId(authnRequestId)
+        .clientId(clientId)
+        .status(
+            IDPSessionStatus.TIMEOUT)
+        .username("user")
+        .build();
+
+    // Attempting to update a non-existing session should throw an exception
+    assertThrows(InvalidIDPSessionUpdateException.class,
+        () -> sessionConnectorImpl.updateIDPSession(idpSession,
+            Optional.of(
+                IDPSessionStatus.TIMEOUT)));
+
+  }
 }
 

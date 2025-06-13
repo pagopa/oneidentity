@@ -3,6 +3,7 @@ package it.pagopa.oneid.connector;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.exception.InvalidIDPSessionUpdateException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import jakarta.enterprise.context.Dependent;
@@ -110,7 +111,14 @@ public class SessionConnectorImpl implements SessionConnector {
                     .s(ps.toString())
                     .build()).build()));
 
-    idpSessionMapper.updateItem(builder.build());
+    try {
+      idpSessionMapper.updateItem(builder.build());
+    } catch (ConditionalCheckFailedException e) {
+      throw new InvalidIDPSessionUpdateException(
+          "IDPSession update failed due to conditional check failure for authnRequestId: "
+              + idpSession.getAuthnRequestId() + ", clientId: " + idpSession.getClientId()
+              + ", previousStatus: " + previousStatus.orElse(null));
+    }
 
 
   }
