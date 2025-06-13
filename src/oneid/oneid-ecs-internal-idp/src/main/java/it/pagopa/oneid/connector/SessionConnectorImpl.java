@@ -84,6 +84,14 @@ public class SessionConnectorImpl implements SessionConnector {
   }
 
   @Override
+  public Optional<IDPSession> findIDPSessionByAuthnRequestIdAndClientId(String authnRequestId,
+      String clientId) {
+    return Optional.ofNullable(
+        idpSessionMapper.getItem(
+            Key.builder().partitionValue(authnRequestId).sortValue(clientId).build()));
+  }
+
+  @Override
   public void updateIDPSession(IDPSession idpSession,
       Optional<IDPSessionStatus> previousStatus) {
 
