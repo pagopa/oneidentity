@@ -561,6 +561,19 @@ variable "ssm_cert_key" {
 
 }
 
+variable "ssm_idp_internal_cert_key" {
+  type = object({
+    cert_pem = optional(string)
+    key_pem  = optional(string)
+  })
+
+  default = {
+    cert_pem = "idp_internal_cert.pem"
+    key_pem  = "idp_internal_cert_key.pem"
+  }
+
+}
+
 variable "api_alarms" {
   type = map(object({
     metric_name         = string

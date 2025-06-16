@@ -254,7 +254,15 @@ module "backend" {
         name = "ISSUER"
         #TODO: this should be the internal IDP URL
         value = ""
-      }
+      },
+      {
+        name  = "IDP_CERTIFICATE_NAME"
+        value = var.ssm_idp_internal_cert_key.cert_pem
+      },
+      {
+        name  = "IDP_CERTIFICATE_KEY_NAME"
+        value = var.ssm_idp_internal_cert_key.key_pem
+      },
 
     ]
     autoscaling = var.ecs_oneid_internal_idp.autoscaling
@@ -430,6 +438,8 @@ module "backend" {
 
 
   ssm_cert_key = {}
+
+  ssm_idp_internal_cert_key = {}
 
   eventbridge_pipe_invalidate_cache = {
     pipe_name                     = format("%s-invalidate-cache-pipe", local.project)

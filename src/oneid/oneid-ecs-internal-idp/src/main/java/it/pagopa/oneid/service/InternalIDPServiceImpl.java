@@ -15,7 +15,16 @@ import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Set;
@@ -25,13 +34,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.util.XMLObjectSupport;
+import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SAMLVersion;
+import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -52,12 +64,19 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.security.SecurityException;
 import org.opensaml.security.x509.BasicX509Credential;
+import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Element;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 @ApplicationScoped
 @CustomLogging
@@ -73,6 +92,9 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   SessionConnectorImpl sessionConnectorImpl;
 
   @Inject
+  SsmClient ssmClient;
+
+  @Inject
   InternalIDPUsersConnectorImpl internalIDPUsersConnectorImpl;
 
   @ConfigProperty(name = "acs_endpoint")
@@ -84,11 +106,22 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @ConfigProperty(name = "sp_entity_id")
   String SP_ENTITY_ID;
 
+  @ConfigProperty(name = "idp_internal_certificate_name")
+  String idpInternalCertName;
+
+  @ConfigProperty(name = "idp_internal_certificate_key_name")
+  String idpInternalCertKeyName;
+
+  private KeyInfoGenerator keyInfoGenerator;
+
   @Inject
   public InternalIDPServiceImpl(BasicParserPool basicParserPool,
       BasicX509Credential basicX509Credential, MarshallerFactory marshallerFactory)
       throws SAMLUtilsException {
     super(basicParserPool, basicX509Credential, marshallerFactory);
+
+    setNewKeyInfoGenerator();
+
   }
 
   @Override
@@ -361,9 +394,10 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     //endregion
 
     //region Signature
-    // TODO: change the signature to use the correct key using the IDP mock certificate
-    Signature signatureSamlResponse = buildSignature(samlResponse);
-    Signature signatureSamlAssertion = buildSignature(assertion);
+    BasicX509Credential idpX509Credential = getIdpbasicX509Credential(ssmClient);
+
+    Signature signatureSamlResponse = buildSignature(samlResponse, idpX509Credential);
+    Signature signatureSamlAssertion = buildSignature(assertion, idpX509Credential);
     samlResponse.setSignature(signatureSamlResponse);
     assertion.setSignature(signatureSamlAssertion);
     //endregion
@@ -389,6 +423,91 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
       throw new RuntimeException(e);
     }
     return result.getWriter().toString();
+  }
+
+  public Signature buildSignature(SignableSAMLObject signableSAMLObject,
+      BasicX509Credential idpX509Credential) throws SAMLUtilsException {
+    Signature signature = buildSAMLObject(Signature.class);
+    signature.setSigningCredential(idpX509Credential);
+    signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
+    signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+
+    try {
+      signature.setKeyInfo(keyInfoGenerator.generate(idpX509Credential));
+    } catch (SecurityException e) {
+      throw new SAMLUtilsException(e);
+    }
+
+    SAMLObjectContentReference contentReference = new SAMLObjectContentReference(
+        signableSAMLObject);
+    contentReference.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA512);
+    signature.getContentReferences().add(contentReference);
+
+    return signature;
+  }
+
+  private void setNewKeyInfoGenerator() {
+    X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
+    keyInfoGeneratorFactory.setEmitEntityCertificate(true);
+    keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
+  }
+
+  private BasicX509Credential getIdpbasicX509Credential(SsmClient ssmClient) {
+
+    BasicX509Credential basicX509Credential = null;
+
+    // region certificate
+    String cert = getParameter(ssmClient, idpInternalCertName);
+
+    InputStream targetStream = new ByteArrayInputStream(cert.getBytes());
+    X509Certificate x509Cert = null;
+    try {
+      x509Cert = (X509Certificate) CertificateFactory
+          .getInstance("X509")
+          .generateCertificate(targetStream);
+    } catch (CertificateException e) {
+      Log.error("failed to generate certificate: " + ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException();
+    }
+
+    // endregion
+
+    // region key
+    String key = getParameter(ssmClient, idpInternalCertKeyName);
+
+    String privateKeyPEM = key
+        .replace("-----BEGIN PRIVATE KEY-----", "")
+        .replaceAll(System.lineSeparator(), "")
+        .replace("-----END PRIVATE KEY-----", "");
+
+    byte[] byteKeyDecoded = org.apache.commons.codec.binary.Base64.decodeBase64(privateKeyPEM);
+    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(byteKeyDecoded);
+
+    RSAPrivateKey rsaPrivateKey = null;
+    try {
+      rsaPrivateKey = (RSAPrivateKey) KeyFactory
+          .getInstance("RSA")
+          .generatePrivate(keySpec);
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      Log.error("failed to generate private key: " + ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException();
+    }
+    // endregion
+
+    basicX509Credential = new BasicX509Credential(x509Cert);
+    basicX509Credential.setPrivateKey(rsaPrivateKey);
+
+    return basicX509Credential;
+  }
+
+  private String getParameter(SsmClient ssmClient, String parameterName) {
+    GetParameterRequest request = GetParameterRequest.builder()
+        .name(parameterName)
+        .withDecryption(true)  // Set to true if the parameter is encrypted
+        .build();
+
+    GetParameterResponse response = ssmClient.getParameter(request);
+    return response.parameter().value();
   }
 
 }
