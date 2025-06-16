@@ -36,10 +36,9 @@ public class SessionServiceImpl implements SessionService {
         .authnRequestId(authnRequest.getID())
         .clientId(client.getClientId())
         .status(IDPSessionStatus.PENDING)
-        .username("")
         .timestampStart(Instant.now().toEpochMilli())
-        .timestampEnd(0)
         .build();
+    
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
     Log.info("End saveIDPSession for authnRequestId: " + authnRequest.getID());
   }

@@ -45,9 +45,13 @@ public class InternalIDPController {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
-    internalIDPServiceImpl.validateAuthnRequest(authnRequest);
+    try {
+      internalIDPServiceImpl.validateAuthnRequest(authnRequest);
+    } catch (OneIdentityException e) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
     Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(authnRequest);
-    sessionServiceImpl.saveIDPSession(authnRequest, client);
+    sessionServiceImpl.saveIDPSession(authnRequest, client); //FIXME
 
     // Set authnRequestId and clientId inside cookies
     NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")

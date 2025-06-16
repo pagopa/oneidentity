@@ -27,13 +27,13 @@ public class IDPSession {
   @NotNull
   private String clientId;
 
-  @NotNull
+
   private String username;
 
   @NotNull
   private long timestampStart;
 
-  @NotNull
+  
   private long timestampEnd;
 
   @NotNull
