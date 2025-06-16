@@ -41,6 +41,14 @@ variable "ssm_cert_key" {
 
 }
 
+variable "ssm_idp_internal_cert_key" {
+  type = object({
+    cert_pem = optional(string, "idp_internal_cert.pem")
+    key_pem  = optional(string, "idp_internal_cert_key.pem")
+  })
+
+}
+
 variable "enable_container_insights" {
   type        = bool
   description = "ECS enable container insight."
