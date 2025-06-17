@@ -15,9 +15,10 @@ public class LocalizedContentAttributeConverter implements AttributeConverter<Lo
     Map<String, AttributeValue> map = new HashMap<>();
     map.put("title", AttributeValue.builder().s(localizedContent.title()).build());
     map.put("description", AttributeValue.builder().s(localizedContent.description()).build());
-    map.put("cookieUri", AttributeValue.builder().s(localizedContent.description()).build());
-    map.put("docUri", AttributeValue.builder().s(localizedContent.description()).build());
-    map.put("supportAddress", AttributeValue.builder().s(localizedContent.description()).build());
+    map.put("cookieUri", AttributeValue.builder().s(localizedContent.cookieUri()).build());
+    map.put("docUri", AttributeValue.builder().s(localizedContent.docUri()).build());
+    map.put("supportAddress",
+        AttributeValue.builder().s(localizedContent.supportAddress()).build());
     return AttributeValue.builder().m(map).build();
   }
 
