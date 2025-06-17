@@ -28,9 +28,9 @@ public class LocalizedContentAttributeConverter implements AttributeConverter<Lo
     return new LocalizedContent(
         map.containsKey("title") ? map.get("title").s() : "",
         map.containsKey("description") ? map.get("description").s() : "",
-        map.containsKey("cookieUri") ? map.get("cookieUri").s() : "",
         map.containsKey("docUri") ? map.get("docUri").s() : "",
-        map.containsKey("supportAddress") ? map.get("supportAddress").s() : ""
+        map.containsKey("supportAddress") ? map.get("supportAddress").s() : "",
+        map.containsKey("cookieUri") ? map.get("cookieUri").s() : ""
     );
   }
 
