@@ -2466,7 +2466,7 @@
         "type": "apiKey",
         "name": "x-api-key",
         "in": "header",
-        %{ if authorizer != null}
+        %{ if authorizer != "api_key"}
       },
       "${ authorizer }": {
         "type": "apiKey",
