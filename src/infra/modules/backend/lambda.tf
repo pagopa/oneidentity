@@ -901,7 +901,7 @@ module "client_manager_lambda" {
 
   attach_policy_jsons    = true
   number_of_policy_jsons = var.client_manager_lambda.table_idp_internal_users_arn != null ? 2 : 1
-  policy_jsons           = var.client_manager_lambda.table_idp_internal_users_arn != null ? [data.aws_iam_policy_document.client_manager_lambda.json, data.aws_iam_policy_document.client_manager_lambda_additional.json] : [data.aws_iam_policy_document.client_manager_lambda.json, ""]
+  policy_jsons           = var.client_manager_lambda.table_idp_internal_users_arn != null ? [data.aws_iam_policy_document.client_manager_lambda.json, data.aws_iam_policy_document.client_manager_lambda_additional.json] : [data.aws_iam_policy_document.client_manager_lambda.json, data.aws_iam_policy_document.client_manager_lambda.json]
 
 
   cloudwatch_logs_retention_in_days = var.client_manager_lambda.cloudwatch_logs_retention_in_days
