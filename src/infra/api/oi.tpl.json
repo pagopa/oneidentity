@@ -2465,7 +2465,8 @@
       "api_key": {
         "type": "apiKey",
         "name": "x-api-key",
-        "in": "header"
+        "in": "header",
+        %{ if authorizer != null}
       },
       "${ authorizer }": {
         "type": "apiKey",
@@ -2479,6 +2480,8 @@
           ]
         }
       }
+        %{ endif
+        }
     },
     "schemas": {
       "TokenData": {
