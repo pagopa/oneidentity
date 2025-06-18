@@ -484,8 +484,8 @@ module "frontend" {
     sns_topic_arn              = module.sns.sns_topic_arn
   }
 
-  user_pool_arn = module.cognito.user_pool_arn
-  # api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
   api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
   provider_arn              = module.cognito.user_pool_arn
 }

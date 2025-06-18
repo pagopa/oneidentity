@@ -2243,7 +2243,7 @@
           }
         }
       },
-      "unsupportedMediaType" : {
+      "unsupportedMediaType": {
         "description": "The HTTP 415 Unsupported Media Type client error response code indicates that the origin server refuses a particular request because the resource is in a format not supported by the server for HTTP method used.",
         "headers": {
           "Pragma": {
@@ -2466,8 +2466,6 @@
         "type": "apiKey",
         "name": "x-api-key",
         "in": "header"
-      }
-      %{ if authorizer != "api_key"
       },
       "${ authorizer }": {
         "type": "apiKey",
@@ -2480,8 +2478,6 @@
             "${ provider_arn }"
           ]
         }
-      }
-      %{ endif
       }
     },
     "schemas": {
