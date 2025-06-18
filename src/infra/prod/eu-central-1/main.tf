@@ -57,8 +57,10 @@ module "database" {
   idp_status_history_table    = var.idp_status_history_table
   client_status_history_table = var.client_status_history_table
   last_idp_used_table         = var.last_idp_used_table
-  idp_entity_ids              = local.idp_entity_ids
-  clients                     = local.clients
+  // the following table should not be created in the production environment
+  internal_idp_users_table = null
+  idp_entity_ids           = local.idp_entity_ids
+  clients                  = local.clients
 }
 
 
@@ -273,8 +275,8 @@ module "backend" {
   assertion_lambda = {
     name     = format("%s-assertion", local.project)
     filename = "${path.module}/../../hello-python/lambda.zip"
-    # ⚠️ warning: before swiching this values you need to create the resources in the account which is intended 
-    # to preserve the assertisons
+    # ⚠️ warning: before switching this values you need to create the resources in the account which is intended
+    # to preserve the assertions
     s3_assertion_bucket_arn = "arn:aws:s3:::assertions-3444"
     kms_assertion_key_arn   = "arn:aws:kms:eu-central-1:980921732883:key/3c6f6ba6-90e9-46df-872b-d5aa081940cf"
     #s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
