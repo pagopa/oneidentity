@@ -886,6 +886,7 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 # Lambda client manager
 
 module "client_manager_lambda" {
+  count   = var.client_manager_lambda_enabled ? 1 : 0
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
 

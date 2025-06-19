@@ -187,7 +187,7 @@ module "backend" {
     }
   }
 
-  client_manager_lambda = null
+  client_manager_lambda_enabled = false
 
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)

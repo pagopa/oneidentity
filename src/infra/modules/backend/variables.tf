@@ -323,6 +323,11 @@ variable "invalidate_cache_lambda" {
 
 }
 
+variable "client_manager_lambda_enabled" {
+  type    = bool
+  default = true
+}
+
 variable "client_manager_lambda" {
   type = object({
     name                              = string
