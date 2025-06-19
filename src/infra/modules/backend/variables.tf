@@ -323,7 +323,7 @@ variable "invalidate_cache_lambda" {
 
 }
 
-variable "client_manager_lambda_enabled" {
+variable "client_manager_lambda_optional_iam_policy" {
   type    = bool
   default = true
 }

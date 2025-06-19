@@ -187,7 +187,7 @@ module "backend" {
     }
   }
 
-  client_manager_lambda_enabled = false
+  client_manager_lambda_optional_iam_policy = false
 
   client_manager_lambda = {
     name                              = format("%s-client-manager", local.project)

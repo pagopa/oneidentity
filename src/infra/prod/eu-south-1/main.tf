@@ -118,7 +118,8 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
-  role_prefix = local.project
+  client_manager_lambda_optional_iam_policy = false
+  role_prefix                               = local.project
 
   ecr_registers = [
     {
