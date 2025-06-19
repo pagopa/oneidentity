@@ -189,6 +189,13 @@ module "backend" {
 
   client_manager_lambda_enabled = false
 
+  client_manager_lambda = {
+    name                              = format("%s-client-manager", local.project)
+    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    table_client_registrations_arn    = module.database.table_client_registrations_arn
+  }
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
