@@ -897,12 +897,11 @@ module "client_manager_lambda" {
   local_existing_package  = var.client_manager_lambda.filename
   ignore_source_code_hash = true
 
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.client_manager_lambda.json
+
   publish = true
-
-  attach_policy_jsons    = true
-  number_of_policy_jsons = var.client_manager_lambda.table_idp_internal_users_arn != null ? 2 : 1
-  policy_jsons           = var.client_manager_lambda.table_idp_internal_users_arn != null ? [data.aws_iam_policy_document.client_manager_lambda.json, data.aws_iam_policy_document.client_manager_lambda_additional.json] : [data.aws_iam_policy_document.client_manager_lambda.json, data.aws_iam_policy_document.client_manager_lambda.json]
-
 
   cloudwatch_logs_retention_in_days = var.client_manager_lambda.cloudwatch_logs_retention_in_days
 
@@ -940,21 +939,24 @@ data "aws_iam_policy_document" "client_manager_lambda" {
       var.client_manager_lambda.cognito_user_pool_arn
     ]
   }
-}
 
-data "aws_iam_policy_document" "client_manager_lambda_additional" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:UpdateItem",
-      "dynamodb:GetItem",
-      "dynamodb:Query",
-      "dynamodb:DeleteItem",
-      "dynamodb:PutItem"
-    ]
-    resources = [
-      var.client_manager_lambda.table_idp_internal_users_arn,
-      var.client_manager_lambda.table_idp_internal_users_gsi_arn
-    ]
+  dynamic "statement" {
+    for_each = var.client_manager_lambda.table_idp_internal_users_arn != null ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "dynamodb:UpdateItem",
+        "dynamodb:GetItem",
+        "dynamodb:Query",
+        "dynamodb:DeleteItem",
+        "dynamodb:PutItem"
+      ]
+      resources = [
+        var.client_manager_lambda.table_idp_internal_users_arn,
+        var.client_manager_lambda.table_idp_internal_users_gsi_arn
+      ]
+    }
   }
 }
+
+
