@@ -344,7 +344,6 @@ variable "client_manager_lambda" {
     # vpc_subnet_ids                    = list(string)
     # vpc_id                            = string
   })
-
 }
 
 variable "rest_api_id" {
