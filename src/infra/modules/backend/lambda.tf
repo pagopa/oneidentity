@@ -941,7 +941,7 @@ data "aws_iam_policy_document" "client_manager_lambda" {
   }
 
   dynamic "statement" {
-    for_each = var.client_manager_lambda.table_idp_internal_users_arn != null ? [1] : []
+    for_each = var.client_manager_lambda_optional_iam_policy != false ? [1] : []
     content {
       effect = "Allow"
       actions = [
