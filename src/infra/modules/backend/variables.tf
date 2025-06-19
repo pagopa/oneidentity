@@ -335,7 +335,7 @@ variable "client_manager_lambda" {
     cloudwatch_logs_retention_in_days = string
     environment_variables             = optional(map(string), {})
     table_client_registrations_arn    = optional(string, "")
-    {}                                = optional(string, "")
+    cognito_user_pool_arn             = optional(string, "")
     table_idp_internal_users_arn      = optional(string, "")
     table_idp_internal_users_gsi_arn  = optional(string, "")
     # TODO: move client_manager_lambda to VPC
