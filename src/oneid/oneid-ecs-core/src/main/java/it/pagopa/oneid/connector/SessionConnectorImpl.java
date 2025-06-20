@@ -39,7 +39,7 @@ import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedExce
 @CustomLogging
 public class SessionConnectorImpl<T extends Session> implements SessionConnector<T> {
 
-  private static final int MAX_RETRIES = 3;
+  private static final int MAX_RETRIES = 4;
   private static final long RETRY_DELAY_MS = 500;
   private static final long EXPONENTIAL_BACKOFF_FACTOR = 2;
   @Inject
@@ -118,7 +118,8 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         return result;
       }
 
-      Log.error("Session not found in DynamoDB at " + (attempts + 1) + "th attempt, retrying...");
+      Log.error(
+          "Session not found in DynamoDB at attempt number " + (attempts + 1) + ", retrying...");
 
       attempts++;
       if (attempts < SessionConnectorImpl.MAX_RETRIES) {
