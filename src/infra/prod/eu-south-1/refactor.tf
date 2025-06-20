@@ -6,7 +6,7 @@ import {
 }
 
 import {
-  to = module.frontend.module.rest_api_admin.aws_api_gateway_authorizer.main
+  to = module.frontend.module.rest_api_admin.module.rest_api.aws_api_gateway_authorizer.main[0]
   id = "o1bah5"
 }
 
