@@ -5,6 +5,11 @@ import {
   id = "key.pem"
 }
 
+import {
+  to = module.frontend.module.rest_api_admin[0].aws_api_gateway_authorizer.main[0]
+  id = "sll5rnozck/o1bah5"
+}
+
 ## Move ##
 
 moved {
