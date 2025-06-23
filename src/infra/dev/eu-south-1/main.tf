@@ -235,8 +235,8 @@ module "backend" {
       memory              = var.ecs_oneid_internal_idp.container_memory
       image_name          = local.ecr_oneid_internal_idp
       image_version       = var.ecs_oneid_internal_idp.image_version
-      containerPort       = 8080
-      hostPort            = 8080
+      containerPort       = 8082
+      hostPort            = 8082
       logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
     }
 
