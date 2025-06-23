@@ -124,6 +124,42 @@ variable "ecs_oneid_core" {
   }
 }
 
+
+variable "ecs_oneid_internal_idp" {
+  type = object({
+    image_version    = string
+    cpu              = number
+    memory           = number
+    container_cpu    = number
+    container_memory = number
+    autoscaling = object({
+      enable        = bool
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
+    })
+    logs_retention_days   = number
+    app_spid_test_enabled = optional(bool, false)
+  })
+  description = "Oneidentity Internal IdP configurations."
+
+  default = {
+    image_version    = "f763adc608cc5d6ab294ee678acbb6d2fe8762d3" #TODO change
+    cpu              = 2048
+    memory           = 4096
+    container_cpu    = 2048
+    container_memory = 4096
+    autoscaling = {
+      enable        = true
+      desired_count = 1
+      min_capacity  = 1
+      max_capacity  = 2
+    }
+    logs_retention_days   = 30
+    app_spid_test_enabled = false
+  }
+}
+
 variable "lambda_cloudwatch_logs_retention_in_days" {
   type        = number
   description = "Cloudwatch log group retention days."
@@ -165,6 +201,17 @@ variable "ssm_cert_key" {
   default = {
     cert_pem = "cert.pem"
     key_pem  = "key.pem"
+  }
+}
+
+variable "ssm_idp_internal_cert_key" {
+  type = object({
+    cert_pem = optional(string)
+    key_pem  = optional(string)
+  })
+  default = {
+    cert_pem = "idp_internal_cert.pem"
+    key_pem  = "idp_internal_cert_key.pem"
   }
 }
 
@@ -281,6 +328,16 @@ variable "internal_idp_users_table" {
     point_in_time_recovery_enabled = optional(bool, false)
   })
   description = "Internal IDP users."
+  default = {
+    point_in_time_recovery_enabled = false
+  }
+}
+
+variable "internal_idp_sessions" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+  })
+  description = "Internal IDP sessions table."
   default = {
     point_in_time_recovery_enabled = false
   }

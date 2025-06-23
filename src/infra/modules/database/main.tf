@@ -375,3 +375,38 @@ module "dynamodb_table_internal_idp_users" {
   }
 
 }
+
+# Internal IDP Session Table
+
+module "dynamodb_table_internal_idp_sessions" {
+  count   = var.internal_idp_sessions != null ? 1 : 0
+  source  = "terraform-aws-modules/dynamodb-table/aws"
+  version = "4.0.1"
+
+  name = "InternalIDPSessions"
+
+  hash_key  = "authnRequestId"
+  range_key = "clientId"
+
+  attributes = [
+    {
+      name = "authnRequestId"
+      type = "S"
+    },
+    {
+      name = "clientId"
+      type = "S"
+    }
+  ]
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  point_in_time_recovery_enabled = var.internal_idp_sessions.point_in_time_recovery_enabled
+  stream_enabled                 = var.internal_idp_sessions.stream_enabled
+  stream_view_type               = var.internal_idp_sessions.stream_view_type
+  deletion_protection_enabled    = var.internal_idp_sessions.deletion_protection_enabled
+  tags = {
+    Name = "InternalIDPSessions"
+  }
+
+}

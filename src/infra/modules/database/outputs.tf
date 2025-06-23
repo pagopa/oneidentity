@@ -124,3 +124,7 @@ output "internal_idp_users_gsi_namespace_name" {
   value = local.gsi_namespace
 }
 
+# Internal IDP session arn
+output "internal_idp_session_arn" {
+  value = try(module.dynamodb_table_internal_idp_sessions[0].dynamodb_table_arn, null)
+}

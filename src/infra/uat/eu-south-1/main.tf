@@ -127,6 +127,11 @@ module "backend" {
       name                            = local.ecr_oneid_core
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
+    },
+    {
+      name                            = local.ecr_oneid_internal_idp
+      number_of_images_to_keep        = var.number_of_images_to_keep
+      repository_image_tag_mutability = var.repository_image_tag_mutability
     }
   ]
 
@@ -215,8 +220,61 @@ module "backend" {
     ]
   }
 
+  service_internal_idp = {
+    service_name = format("%s-internal-idp", local.project)
+
+    cpu    = var.ecs_oneid_internal_idp.cpu
+    memory = var.ecs_oneid_internal_idp.memory
+
+    container = {
+      name                = "oneid-internal-idp"
+      cpu                 = var.ecs_oneid_internal_idp.container_cpu
+      memory              = var.ecs_oneid_internal_idp.container_memory
+      image_name          = local.ecr_oneid_internal_idp
+      image_version       = var.ecs_oneid_internal_idp.image_version
+      containerPort       = 8080
+      hostPort            = 8080
+      logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
+    }
+
+    environment_variables = [
+      {
+        name  = "ACS_ENDPOINT"
+        value = var.metadata_info.acs_url
+      },
+      {
+        name  = "SP_ENTITY_ID"
+        value = "https://${var.r53_dns_zone.name}/pub-op-full"
+      },
+      {
+        name  = "IDP_INTERNAL_USERS_TABLE_NAME"
+        value = module.database.internal_idp_users_table_name
+      },
+      {
+        name = "ISSUER"
+        #TODO: this should be the internal IDP URL
+        value = ""
+      },
+      {
+        name  = "IDP_CERTIFICATE_NAME"
+        value = var.ssm_idp_internal_cert_key.cert_pem
+      },
+      {
+        name  = "IDP_CERTIFICATE_KEY_NAME"
+        value = var.ssm_idp_internal_cert_key.key_pem
+      },
+
+    ]
+    autoscaling = var.ecs_oneid_internal_idp.autoscaling
+
+    subnet_ids = module.network.private_subnet_ids
+  }
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
+
+  ##Internal IDP NLB ##
+  internal_idp_nlb_name = format("%s-internal-idp-nlb", local.project)
 
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
@@ -328,6 +386,9 @@ module "backend" {
     table_arn       = module.database.table_idp_status_history_arn
   }
 
+  dynamodb_table_internal_idp_session_arn = module.database.internal_idp_session_arn
+  dynamodb_table_internal_idp_users_arn   = module.database.internal_idp_users_arn
+
   dynamodb_table_clientStatus = {
     gsi_pointer_arn = module.database.table_client_status_gsi_pointer_arn
     table_arn       = module.database.table_client_status_history_arn
@@ -380,6 +441,8 @@ module "backend" {
 
 
   ssm_cert_key = {}
+
+  ssm_idp_internal_cert_key = {}
 
   eventbridge_pipe_invalidate_cache = {
     pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
@@ -438,6 +501,7 @@ module "database" {
   client_status_history_table = var.client_status_history_table
   last_idp_used_table         = var.last_idp_used_table
   internal_idp_users_table    = var.internal_idp_users_table
+  internal_idp_sessions       = var.internal_idp_sessions
   idp_entity_ids              = local.idp_entity_ids
   clients                     = local.clients
 }

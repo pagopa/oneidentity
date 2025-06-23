@@ -118,3 +118,13 @@ variable "internal_idp_users_table" {
   })
   description = "Internal IDP users table."
 }
+
+variable "internal_idp_sessions" {
+  type = object({
+    point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
+    deletion_protection_enabled    = optional(bool, false)
+  })
+  description = "Internal IDP sessions table."
+}

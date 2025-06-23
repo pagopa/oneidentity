@@ -41,6 +41,14 @@ variable "ssm_cert_key" {
 
 }
 
+variable "ssm_idp_internal_cert_key" {
+  type = object({
+    cert_pem = optional(string, "idp_internal_cert.pem")
+    key_pem  = optional(string, "idp_internal_cert_key.pem")
+  })
+
+}
+
 variable "enable_container_insights" {
   type        = bool
   description = "ECS enable container insight."
@@ -83,6 +91,58 @@ variable "service_core" {
       value = string
     }))
   })
+}
+
+variable "service_internal_idp" {
+  type = object({
+    service_name           = optional(string, "")
+    cpu                    = optional(number, 0)
+    memory                 = optional(number, 0)
+    enable_execute_command = optional(bool, true)
+    container = object({
+      name                = optional(string, "")
+      cpu                 = optional(number, 0)
+      memory              = optional(number, 0)
+      image_name          = optional(string, "")
+      image_version       = optional(string, "")
+      containerPort       = optional(number, 0)
+      hostPort            = optional(number, 0)
+      logs_retention_days = optional(number, 0)
+    })
+    autoscaling = object({
+      enable        = optional(bool, false)
+      desired_count = optional(number, 0)
+      min_capacity  = optional(number, 0)
+      max_capacity  = optional(number, 0)
+    })
+    environment_variables = list(object({
+      name  = optional(string, "")
+      value = optional(string, "")
+    }))
+  })
+  default = {
+    service_name           = ""
+    cpu                    = 0
+    memory                 = 0
+    enable_execute_command = true
+    container = {
+      name                = ""
+      cpu                 = 0
+      memory              = 0
+      image_name          = ""
+      image_version       = ""
+      containerPort       = 8082
+      hostPort            = 8082
+      logs_retention_days = 0
+    }
+    autoscaling = {
+      enable        = false
+      desired_count = 0
+      min_capacity  = 0
+      max_capacity  = 0
+    }
+    environment_variables = []
+  }
 }
 
 variable "hosted_zone_id" {
@@ -137,6 +197,17 @@ variable "dynamodb_table_clientStatus" {
   description = "Dynamodb table clientStatus arns"
 }
 
+variable "dynamodb_table_internal_idp_session_arn" {
+  type        = string
+  description = "Arn of the dynamodb table used to store internal idp sessions."
+  default     = ""
+}
+
+variable "dynamodb_table_internal_idp_users_arn" {
+  type        = string
+  description = "Arn of the dynamodb table used to store internal idp users."
+  default     = ""
+}
 
 variable "table_client_registrations_arn" {
   type        = string
@@ -204,6 +275,12 @@ variable "metadata_lambda" {
 variable "nlb_name" {
   type        = string
   description = "Network load balancer name"
+}
+
+## Network load balancer Internal IDP ##
+variable "internal_idp_nlb_name" {
+  type        = string
+  description = "Internal IDP Network load balancer name"
 }
 
 variable "vpc_id" {

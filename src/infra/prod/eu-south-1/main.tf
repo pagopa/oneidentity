@@ -106,6 +106,7 @@ module "database" {
   last_idp_used_table         = var.last_idp_used_table
   // the following table should not be created in the production environment
   internal_idp_users_table = null
+  internal_idp_sessions    = null
   idp_entity_ids           = local.idp_entity_ids
   clients                  = local.clients
 }
@@ -214,8 +215,13 @@ module "backend" {
     ]
   }
 
+
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
+
+  ##Internal IDP NLB ##
+  internal_idp_nlb_name = null
 
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
@@ -381,6 +387,8 @@ module "backend" {
     }
   }
   rest_api_id = module.frontend.rest_api_id
+
+  ssm_idp_internal_cert_key = {}
 
   ssm_cert_key = {}
 
