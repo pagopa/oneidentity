@@ -167,6 +167,8 @@ module "backend" {
     ]
   }
 
+  service_internal_idp = null
+
   ssm_idp_internal_cert_key = {}
 
   ssm_cert_key = var.ssm_cert_key

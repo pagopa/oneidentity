@@ -790,7 +790,7 @@ module "elb" {
     }
 
     ecs-oneid-internal_idp = {
-      count    = var.service_internal_idp != ({}) ? 1 : 0
+      count    = var.service_internal_idp != null ? 1 : 0
       port     = var.service_internal_idp.container.containerPort
       protocol = "TCP"
       forward = {
@@ -821,7 +821,7 @@ module "elb" {
     }
 
     ecs-oneid-internal-idp = {
-      count                = var.service_internal_idp != ({}) ? 1 : 0
+      count                = var.service_internal_idp != null ? 1 : 0
       name_prefix          = "t1-"
       protocol             = "TCP"
       port                 = var.service_internal_idp.container.containerPort

@@ -215,6 +215,8 @@ module "backend" {
     ]
   }
 
+  service_internal_idp = null
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
