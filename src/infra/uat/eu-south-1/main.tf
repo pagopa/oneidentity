@@ -273,6 +273,9 @@ module "backend" {
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
+  ##Internal IDP NLB ##
+  internal_idp_nlb_name = format("%s-internal-idp-nlb", local.project)
+
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
 

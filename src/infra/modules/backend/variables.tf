@@ -120,6 +120,29 @@ variable "service_internal_idp" {
       value = optional(string, "")
     }))
   })
+  default = {
+    service_name           = ""
+    cpu                    = 0
+    memory                 = 0
+    enable_execute_command = true
+    container = {
+      name                = ""
+      cpu                 = 0
+      memory              = 0
+      image_name          = ""
+      image_version       = ""
+      containerPort       = 8082
+      hostPort            = 8082
+      logs_retention_days = 0
+    }
+    autoscaling = {
+      enable        = false
+      desired_count = 0
+      min_capacity  = 0
+      max_capacity  = 0
+    }
+    environment_variables = []
+  }
 }
 
 variable "hosted_zone_id" {
@@ -252,6 +275,12 @@ variable "metadata_lambda" {
 variable "nlb_name" {
   type        = string
   description = "Network load balancer name"
+}
+
+## Network load balancer Internal IDP ##
+variable "internal_idp_nlb_name" {
+  type        = string
+  description = "Internal IDP Network load balancer name"
 }
 
 variable "vpc_id" {
