@@ -216,7 +216,7 @@ resource "aws_iam_policy" "ecs_core_task" {
 
 
 resource "aws_iam_policy" "ecs_internal_idp_task" {
-  count = var.service_internal_idp != null ? 1 : 0
+  count = var.service_internal_idp != {} ? 1 : 0
   name  = format("%s-task-policy", var.service_internal_idp.service_name)
   policy = jsonencode({
     Version = "2012-10-17"
@@ -419,7 +419,7 @@ module "ecs_core_service" {
 
 ## Log group for ECS Internal IDP
 resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
-  count = var.service_internal_idp != null ? 1 : 0
+  count = var.service_internal_idp != {} ? 1 : 0
   name  = format("/aws/ecs/%s/%s", var.service_internal_idp.service_name, var.service_internal_idp.container.name)
 
   retention_in_days = var.service_internal_idp.container.logs_retention_days
@@ -427,7 +427,7 @@ resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
 
 ## ECS Internal IDP
 module "ecs_internal_idp_service" {
-  count   = var.service_internal_idp != null ? 1 : 0
+  count   = var.service_internal_idp != {} ? 1 : 0
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
 

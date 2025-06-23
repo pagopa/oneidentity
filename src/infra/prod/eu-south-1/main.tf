@@ -150,7 +150,7 @@ module "backend" {
   private_subnets = module.network.private_subnet_ids
   vpc_cidr_block  = module.network.vpc_cidr_block
 
-  service_internal_idp = null
+  service_internal_idp = {}
 
   service_core = {
     service_name = format("%s-core", local.project)
