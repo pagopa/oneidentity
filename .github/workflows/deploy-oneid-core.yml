@@ -7,7 +7,7 @@ on:
     paths:
       - "**/src/oneid/oneid-ecs-core/**"
       - "**/src/oneid/oneid-common/**"
-      - ".github/workflows/deploy-oneid-core-yml"
+      - ".github/workflows/deploy-oneid-core.yml"
   workflow_dispatch:
     inputs:
       environment:
