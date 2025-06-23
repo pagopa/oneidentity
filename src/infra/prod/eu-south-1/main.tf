@@ -149,6 +149,8 @@ module "backend" {
   private_subnets = module.network.private_subnet_ids
   vpc_cidr_block  = module.network.vpc_cidr_block
 
+  service_internal_idp = {}
+
   service_core = {
     service_name = format("%s-core", local.project)
 
@@ -381,6 +383,8 @@ module "backend" {
     }
   }
   rest_api_id = module.frontend.rest_api_id
+
+  ssm_idp_internal_cert_key = {}
 
   ssm_cert_key = {}
 
