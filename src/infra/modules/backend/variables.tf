@@ -95,29 +95,29 @@ variable "service_core" {
 
 variable "service_internal_idp" {
   type = object({
-    service_name           = string
-    cpu                    = number
-    memory                 = number
+    service_name           = optional(string, "")
+    cpu                    = optional(number, 0)
+    memory                 = optional(number, 0)
     enable_execute_command = optional(bool, true)
     container = object({
-      name                = string
-      cpu                 = number
-      memory              = number
-      image_name          = string
-      image_version       = string
-      containerPort       = number
-      hostPort            = number
-      logs_retention_days = number
+      name                = optional(string, "")
+      cpu                 = optional(number, 0)
+      memory              = optional(number, 0)
+      image_name          = optional(string, "")
+      image_version       = optional(string, "")
+      containerPort       = optional(number, 0)
+      hostPort            = optional(number, 0)
+      logs_retention_days = optional(number, 0)
     })
     autoscaling = object({
-      enable        = bool
-      desired_count = number
-      min_capacity  = number
-      max_capacity  = number
+      enable        = optional(bool, false)
+      desired_count = optional(number, 0)
+      min_capacity  = optional(number, 0)
+      max_capacity  = optional(number, 0)
     })
     environment_variables = list(object({
-      name  = string
-      value = string
+      name  = optional(string, "")
+      value = optional(string, "")
     }))
   })
 }
