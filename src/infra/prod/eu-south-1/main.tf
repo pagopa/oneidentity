@@ -106,6 +106,7 @@ module "database" {
   last_idp_used_table         = var.last_idp_used_table
   // the following table should not be created in the production environment
   internal_idp_users_table = null
+  internal_idp_sessions    = null
   idp_entity_ids           = local.idp_entity_ids
   clients                  = local.clients
 }
