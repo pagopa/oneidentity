@@ -120,6 +120,7 @@ variable "service_internal_idp" {
       value = optional(string, "")
     }))
   })
+  default = ({})
 }
 
 variable "hosted_zone_id" {
