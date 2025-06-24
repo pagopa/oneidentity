@@ -92,7 +92,7 @@ module "acm_internal_idp" {
   create_route53_records = true
 
   tags = {
-    Name = var.domain_internal_idp_name != null ? format("admin.%s", var.domain_internal_idp_name) : null
+    Name = var.domain_internal_idp_name != null ? format("internal-idp.%s", var.domain_internal_idp_name) : null
   }
 }
 
