@@ -14,6 +14,15 @@ resource "aws_iam_role" "githubecsdeploy" {
   assume_role_policy = local.assume_role_policy_github
 }
 
+resource "aws_iam_role" "githubecsdeploy_internal_idp" {
+  count       = var.internal_idp_nlb_name != null ? 1 : 0
+  name        = format("%s-deploy", var.service_internal_idp.service_name)
+  description = "Role to assume to deploy ECS internal IDP tasks"
+
+
+  assume_role_policy = local.assume_role_policy_github
+}
+
 resource "aws_iam_role" "github_lambda_deploy" {
   name               = format("%s-deploy-lambda", var.role_prefix)
   description        = "Role to deploy lambda functions with github actions."

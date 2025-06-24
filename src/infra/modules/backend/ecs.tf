@@ -740,9 +740,66 @@ resource "aws_iam_policy" "deploy_ecs" {
   })
 }
 
+resource "aws_iam_policy" "deploy_ecs_internal_idp" {
+  count       = var.internal_idp_nlb_name != null ? 1 : 0
+  name        = format("%s-policy", var.service_internal_idp.service_name)
+  description = "Policy to allow deploy internal IDP on ECS."
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+
+      {
+        Sid    = "ECRPublish"
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:BatchGetImage",
+          "ecr:CompleteLayerUpload",
+          "ecr:DescribeImages",
+          "ecr:GetAuthorizationToken",
+          "ecr:InitiateLayerUpload",
+          "ecr:ListImages",
+          "ecr:PutImage",
+          "ecr:TagResource",
+          "ecr:UploadLayerPart",
+        ]
+        Resource = ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:DescribeServices",
+          "ecs:UpdateService",
+        ]
+        Resource = "*"
+        Sid      = "ECSTaskDefinition"
+      },
+      {
+        Effect = "Allow"
+        Action = "iam:PassRole"
+        Resource = [
+          module.ecs_internal_idp_service[0].tasks_iam_role_arn,
+          module.ecs_internal_idp_service[0].task_exec_iam_role_arn,
+        ]
+
+        Sid = "PassRole"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "deploy_ecs" {
   role       = aws_iam_role.githubecsdeploy.name
   policy_arn = aws_iam_policy.deploy_ecs.arn
+}
+
+resource "aws_iam_role_policy_attachment" "deploy_ecs_internal_idp" {
+  count      = var.internal_idp_nlb_name != null ? 1 : 0
+  role       = aws_iam_role.githubecsdeploy_internal_idp[0].name
+  policy_arn = aws_iam_policy.deploy_ecs_internal_idp[0].arn
 }
 
 ## Network load balancer ##
