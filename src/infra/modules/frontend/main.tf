@@ -76,7 +76,7 @@ module "acm_admin" {
 }
 
 module "acm_internal_idp" {
-  count   = var.aws_region != "eu-south-1" ? 0 : 1
+  count   = var.deploy_internal_idp_rest_api ? 1 : 0
   source  = "terraform-aws-modules/acm/aws"
   version = "5.0.0"
 
