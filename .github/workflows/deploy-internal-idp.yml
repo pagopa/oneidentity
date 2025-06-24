@@ -51,7 +51,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
 
     continue-on-error: false
-    environment: ${{format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
+    environment: ${{ matrix.environment }}
     env:
       AWS_REGION: ${{ matrix.region }}
       ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u"}')[matrix.environment] }}
