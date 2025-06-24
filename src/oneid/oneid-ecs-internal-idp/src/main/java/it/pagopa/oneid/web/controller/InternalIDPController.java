@@ -24,7 +24,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
-@Path(("/internal-idp"))
+@Path(("/"))
 public class InternalIDPController {
 
   @ConfigProperty(name = "acs_endpoint")

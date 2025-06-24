@@ -303,6 +303,7 @@
 | <a name="output_nlb_arn"></a> [nlb\_arn](#output\_nlb\_arn) | # Network loadbalancer ## |
 | <a name="output_nlb_arn_suffix"></a> [nlb\_arn\_suffix](#output\_nlb\_arn\_suffix) | n/a |
 | <a name="output_nlb_dns_name"></a> [nlb\_dns\_name](#output\_nlb\_dns\_name) | n/a |
+| <a name="output_nlb_internal_idp_dns_name"></a> [nlb\_internal\_idp\_dns\_name](#output\_nlb\_internal\_idp\_dns\_name) | n/a |
 | <a name="output_nlb_target_group_suffix_arn"></a> [nlb\_target\_group\_suffix\_arn](#output\_nlb\_target\_group\_suffix\_arn) | n/a |
 | <a name="output_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#output\_retrieve\_status\_lambda\_arn) | # Retrieve status lambda |
 | <a name="output_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#output\_s3\_lambda\_code\_bucket) | # S3 buket for lambda code ## |

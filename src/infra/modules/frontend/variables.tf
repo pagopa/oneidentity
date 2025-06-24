@@ -25,6 +25,18 @@ variable "domain_admin_name" {
   description = "DNS domain name."
 }
 
+variable "domain_internal_idp_name" {
+  type        = string
+  description = "DNS domain name."
+  default     = null
+}
+
+variable "deploy_internal_idp_rest_api" {
+  type        = bool
+  description = "ApiGW deploy internal idp api."
+  default     = false
+}
+
 variable "create_custom_domain_admin_name" {
   type        = bool
   description = "ApiGw create custom domain admin name."
@@ -95,6 +107,20 @@ variable "api_gateway_admin_plan" {
   description = "Name of the plan associated to the set of apis."
 }
 
+variable "api_gateway_internal_idp_plan" {
+  type = object({
+    name                 = string
+    throttle_burst_limit = number
+    throttle_rate_limit  = number
+  })
+  description = "Name of the plan associated to the set of apis."
+  default = {
+    name                 = "internal-idp-plan"
+    throttle_burst_limit = 1000
+    throttle_rate_limit  = 1000
+  }
+}
+
 variable "api_cache_cluster_enabled" {
   type        = bool
   description = "Enablr cache cluster is enabled for the stage."
@@ -112,14 +138,32 @@ variable "rest_api_admin_name" {
   description = "Rest api admin name"
 }
 
+variable "rest_api_internal_idp_name" {
+  type        = string
+  description = "Rest api internal idp name"
+  default     = null
+}
+
 variable "openapi_admin_template_file" {
   type        = string
   description = "Openapi admin template file path."
 }
 
+variable "openapi_internal_idp_template_file" {
+  type        = string
+  description = "Openapi internal idp template file path."
+  default     = null
+}
+
 variable "rest_api_admin_stage" {
   type        = string
   description = "Rest api admin stage name"
+  default     = "v1"
+}
+
+variable "rest_api_internal_idp_stage" {
+  type        = string
+  description = "Rest api internal idp stage name"
   default     = "v1"
 }
 
@@ -164,6 +208,11 @@ variable "nlb_dns_name" {
   description = "NLB dns name."
 }
 
+variable "internal_idp_nlb_dns_name" {
+  type        = string
+  description = "internal idp NLB dns name."
+  default     = null
+}
 
 ## Lambda client registration
 variable "client_registration_lambda_arn" {
@@ -228,6 +277,11 @@ variable "api_authorizer_name" {
 }
 
 variable "api_authorizer_admin_name" {
+  type    = string
+  default = null
+}
+
+variable "api_authorizer_internal_idp_name" {
   type    = string
   default = null
 }
