@@ -29,7 +29,7 @@ module "records" {
     ],
     var.deploy_internal_idp_rest_api ? [
       {
-        name = "internal-idp"
+        name = "idp"
         type = "A"
         alias = {
           name                   = module.rest_api_internal_idp[0].regional_domain_name
@@ -84,7 +84,7 @@ module "acm_internal_idp" {
   version = "5.0.0"
 
   #domain_name = format("admin.%s", var.domain_admin_name)
-  domain_name = var.domain_internal_idp_name != null ? format("internal-idp.%s", var.domain_internal_idp_name) : null
+  domain_name = var.domain_internal_idp_name != null ? format("idp.%s", var.domain_internal_idp_name) : null
 
   zone_id = var.r53_dns_zone_id
 
@@ -92,7 +92,7 @@ module "acm_internal_idp" {
   create_route53_records = true
 
   tags = {
-    Name = var.domain_internal_idp_name != null ? format("internal-idp.%s", var.domain_internal_idp_name) : null
+    Name = var.domain_internal_idp_name != null ? format("idp.%s", var.domain_internal_idp_name) : null
   }
 }
 
@@ -398,7 +398,7 @@ module "rest_api_internal_idp" {
       var.assets_control_panel_bucket_name)
   })
 
-  custom_domain_name        = format("internal-idp.%s", var.domain_internal_idp_name)
+  custom_domain_name        = format("idp.%s", var.domain_internal_idp_name)
   create_custom_domain_name = var.create_custom_domain_name
   certificate_arn           = module.acm_internal_idp[0].acm_certificate_arn
 
