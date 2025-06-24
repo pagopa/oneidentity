@@ -25,6 +25,16 @@ module "records" {
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
+    },
+    {
+      name = "internal-idp"
+      type = "A"
+      alias = {
+        name                   = module.rest_api_internal_idp[0].regional_domain_name
+        zone_id                = module.rest_api_internal_idp[0].regional_zone_id
+        evaluate_target_health = true
+        ttl                    = var.dns_record_ttl
+      }
     }
     ]
   )
@@ -62,6 +72,24 @@ module "acm_admin" {
 
   tags = {
     Name = var.domain_admin_name != null ? format("admin.%s", var.domain_admin_name) : null
+  }
+}
+
+module "acm_internal_idp" {
+  count   = var.aws_region != "eu-south-1" ? 0 : 1
+  source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.0"
+
+  #domain_name = format("admin.%s", var.domain_admin_name)
+  domain_name = var.domain_internal_idp_name != null ? format("internal-idp.%s", var.domain_internal_idp_name) : null
+
+  zone_id = var.r53_dns_zone_id
+
+  validation_method      = "DNS"
+  create_route53_records = true
+
+  tags = {
+    Name = var.domain_internal_idp_name != null ? format("admin.%s", var.domain_internal_idp_name) : null
   }
 }
 
@@ -336,6 +364,45 @@ module "rest_api_admin" {
 
   api_authorizer = {
     name          = var.api_authorizer_admin_name == "" ? null : var.api_authorizer_admin_name
+    user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
+  }
+
+  endpoint_configuration = {
+    #TODO: is this the best endpoint type we need?
+    types = ["REGIONAL"]
+  }
+
+}
+
+module "rest_api_internal_idp" {
+  source               = "../rest-api"
+  count                = var.deploy_internal_idp_rest_api ? 1 : 0
+  name                 = var.rest_api_internal_idp_name
+  stage_name           = var.rest_api_internal_idp_stage
+  xray_tracing_enabled = var.xray_tracing_enabled
+
+  body = templatefile(var.openapi_internal_idp_template_file,
+    {
+      server_url                   = var.domain_name
+      uri                          = format("http://%s:%s", var.internal_idp_nlb_dns_name, "8082"),
+      connection_id                = aws_api_gateway_vpc_link.apigw.id
+      aws_region                   = var.aws_region
+      lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
+      authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
+      provider_arn                 = var.provider_arn
+      s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
+      assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
+      var.assets_control_panel_bucket_name)
+  })
+
+  custom_domain_name        = format("internal-idp.%s", var.domain_internal_idp_name)
+  create_custom_domain_name = var.create_custom_domain_name
+  certificate_arn           = module.acm_internal_idp[0].acm_certificate_arn
+
+  plan = var.api_gateway_internal_idp_plan
+
+  api_authorizer = {
+    name          = var.api_authorizer_internal_idp_name == "" ? null : var.api_authorizer_internal_idp_name
     user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
   }
 

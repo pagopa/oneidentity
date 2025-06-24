@@ -1,0 +1,683 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "OI-Internal IDP - OpenAPI 3.0",
+    "description": "OI description\n\nSome useful links:\n- [One Identity repository](https://github.com/pagopa/oneidentity)\n- [The source API definition for OI](https://github.com/pagopa/oneidentity/blob/master/src/main/resources/openapi.yaml)",
+    "termsOfService": "http://pagopa.it/terms/",
+    "contact": {
+      "email": "team-oneidentity@pagopa.it"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "0.0.1"
+  },
+  "externalDocs": {
+    "description": "Find out more about OI",
+    "url": "https://pagopa.it"
+  },
+  "servers": [
+    {
+      "url": "${server_url}"
+    }
+  ],
+  "x-amazon-apigateway-binary-media-types": [
+    "*/*"
+  ],
+  "paths": {
+    %{ if strcontains(server_url, "dev") || strcontains(server_url, "uat")
+}
+    "/samlsso": {
+      "post": {
+        "tags": [
+          "Internal IDP APIs"
+        ],
+        "description": "This route will handle all SAML AuthnRequests",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/samlsso",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses": {
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.location": "integration.response.header.Location"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "SAMLRequest": {
+                    "description": "This is the 'SAMLRequest' of the requesting AUTHnreq.",
+                    "type": "string"
+                  },
+                  "RelayState": {
+                    "description": "This is the 'RelayState' which identify the service requested. https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/trasmissione.html",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "SAMLResponse",
+                  "RelayState"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Internal IDP APIs"
+        ],
+        "description": "This route will handle login requests for the internal IDP.",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "AuthnRequestID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "ClientID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/login",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses": {
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.location": "integration.response.header.Location"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "description": "This is the username for the internal idp.",
+                    "type": "string"
+                  },
+                  "password": {
+                    "description": "This is the password for the internal idp.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    },
+    "/consent": {
+      "post": {
+        "tags": [
+          "Internal IDP APIs"
+        ],
+        "description": "This route will handle the consent request after a successful authentication.",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "AuthnRequestID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "ClientID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/consent",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'"
+          },
+          "responses": {
+            "302": {
+              "statusCode": "302",
+              "responseParameters": {
+                "method.response.header.location": "integration.response.header.Location"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "consent": {
+                    "description": "This indicates whether the user has given consent for the requested data.",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "consent"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirect user to a static html page after successful or not successfull authentication process",
+            "headers": {
+              "location": {
+                "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "default": "no-cache"
+                }
+              },
+              "Cache-Control": {
+                "description": "Cache-Control browser directive",
+                "schema": {
+                  "type": "string",
+                  "default": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      }
+    }
+%{endif
+}
+  },
+  "components": {
+    "responses": {
+      "responseOkNoContentJson": {
+        "description": "Response Ok, No Content",
+        "headers": {
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "responseOkHtml": {
+        "description": "OK",
+        "headers": {
+          "location": {
+            "description": "Response OK, serving html",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "content-type": {
+            "text/html": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "methodNotAllowed": {
+        "description": "The HTTP method is not valid",
+        "headers": {
+          "Allow": {
+            "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+            "schema": {
+              "type": "string",
+              "default": "GET"
+            }
+          },
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "unsupportedMediaType": {
+        "description": "The HTTP 415 Unsupported Media Type client error response code indicates that the origin server refuses a particular request because the resource is in a format not supported by the server for HTTP method used.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "notAcceptable": {
+        "description": "The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        }
+      },
+      "rateLimit": {
+        "description": "Too many requests",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "badRequest": {
+        "description": "Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "unauthorized": {
+        "description": "The client could not be authenticated.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "forbidden": {
+        "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "invalidParameters": {
+        "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          },
+          "content-type": {
+            "description": "Content type response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "notFound": {
+        "description": "Not Found.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "serverError": {
+        "description": "unknown error",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "/.well-known/openid-configuration"
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      },
+      "${ authorizer }": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "cognito_user_pools",
+        "x-amazon-apigateway-authorizer": {
+          "type": "cognito_user_pools",
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
+        }
+      }
+    }
+  }
+}

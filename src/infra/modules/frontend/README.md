@@ -80,9 +80,11 @@
 |------|--------|---------|
 | <a name="module_acm"></a> [acm](#module\_acm) | terraform-aws-modules/acm/aws | 5.0.0 |
 | <a name="module_acm_admin"></a> [acm\_admin](#module\_acm\_admin) | terraform-aws-modules/acm/aws | 5.0.0 |
+| <a name="module_acm_internal_idp"></a> [acm\_internal\_idp](#module\_acm\_internal\_idp) | terraform-aws-modules/acm/aws | 5.0.0 |
 | <a name="module_records"></a> [records](#module\_records) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 | <a name="module_rest_api"></a> [rest\_api](#module\_rest\_api) | ../rest-api | n/a |
 | <a name="module_rest_api_admin"></a> [rest\_api\_admin](#module\_rest\_api\_admin) | ../rest-api | n/a |
+| <a name="module_rest_api_internal_idp"></a> [rest\_api\_internal\_idp](#module\_rest\_api\_internal\_idp) | ../rest-api | n/a |
 | <a name="module_webacl_count_alarm"></a> [webacl\_count\_alarm](#module\_webacl\_count\_alarm) | terraform-aws-modules/cloudwatch/aws//modules/metric-alarms-by-multiple-dimensions | 5.6.0 |
 
 ## Resources
@@ -112,10 +114,12 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_api_alarms"></a> [api\_alarms](#input\_api\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = number<br/>    evaluation_periods  = number<br/>    period              = number<br/>    statistic           = string<br/>    comparison_operator = string<br/>    resource_name       = string<br/>    sns_topic_alarm_arn = string<br/>    method              = string<br/>  }))</pre> | n/a | yes |
 | <a name="input_api_authorizer_admin_name"></a> [api\_authorizer\_admin\_name](#input\_api\_authorizer\_admin\_name) | n/a | `string` | `null` | no |
+| <a name="input_api_authorizer_internal_idp_name"></a> [api\_authorizer\_internal\_idp\_name](#input\_api\_authorizer\_internal\_idp\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_authorizer_name"></a> [api\_authorizer\_name](#input\_api\_authorizer\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_cache_cluster_enabled"></a> [api\_cache\_cluster\_enabled](#input\_api\_cache\_cluster\_enabled) | Enablr cache cluster is enabled for the stage. | `bool` | `false` | no |
 | <a name="input_api_cache_cluster_size"></a> [api\_cache\_cluster\_size](#input\_api\_cache\_cluster\_size) | Size of the cache cluster for the stage, if enabled. | `number` | `0.5` | no |
 | <a name="input_api_gateway_admin_plan"></a> [api\_gateway\_admin\_plan](#input\_api\_gateway\_admin\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br/>    name                 = string<br/>    throttle_burst_limit = number<br/>    throttle_rate_limit  = number<br/>  })</pre> | n/a | yes |
+| <a name="input_api_gateway_internal_idp_plan"></a> [api\_gateway\_internal\_idp\_plan](#input\_api\_gateway\_internal\_idp\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br/>    name                 = string<br/>    throttle_burst_limit = number<br/>    throttle_rate_limit  = number<br/>  })</pre> | n/a | yes |
 | <a name="input_api_gateway_plan"></a> [api\_gateway\_plan](#input\_api\_gateway\_plan) | Name of the plan associated to the set of apis. | <pre>object({<br/>    name                 = string<br/>    throttle_burst_limit = number<br/>    throttle_rate_limit  = number<br/>    api_key_name         = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_api_gateway_target_arns"></a> [api\_gateway\_target\_arns](#input\_api\_gateway\_target\_arns) | List of target arn for the api gateway. | `list(string)` | n/a | yes |
 | <a name="input_api_method_settings"></a> [api\_method\_settings](#input\_api\_method\_settings) | List of Api Gateway method settings. | <pre>list(object({<br/>    method_path                             = string<br/>    metrics_enabled                         = optional(bool, false)<br/>    logging_level                           = optional(string, "OFF")<br/>    data_trace_enabled                      = optional(bool, false)<br/>    throttling_rate_limit                   = optional(number, -1)<br/>    throttling_burst_limit                  = optional(number, -1)<br/>    caching_enabled                         = optional(bool, false)<br/>    cache_ttl_in_seconds                    = optional(number, 0)<br/>    cache_data_encrypted                    = optional(bool, false)<br/>    require_authorization_for_cache_control = optional(bool, false)<br/>    cache_key_parameters                    = optional(list(string), [])<br/>  }))</pre> | `[]` | no |
@@ -130,16 +134,22 @@
 | <a name="input_create_custom_domain_admin_name"></a> [create\_custom\_domain\_admin\_name](#input\_create\_custom\_domain\_admin\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
 | <a name="input_create_custom_domain_name"></a> [create\_custom\_domain\_name](#input\_create\_custom\_domain\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
 | <a name="input_create_dns_record"></a> [create\_dns\_record](#input\_create\_dns\_record) | Create DNS record to associate the API Gateway RestApi to the hosted zone. | `bool` | `true` | no |
+| <a name="input_deploy_internal_idp_rest_api"></a> [deploy\_internal\_idp\_rest\_api](#input\_deploy\_internal\_idp\_rest\_api) | ApiGW deploy internal idp api. | `bool` | `false` | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | DNS records ttl | `number` | n/a | yes |
 | <a name="input_domain_admin_name"></a> [domain\_admin\_name](#input\_domain\_admin\_name) | DNS domain name. | `string` | n/a | yes |
+| <a name="input_domain_internal_idp_name"></a> [domain\_internal\_idp\_name](#input\_domain\_internal\_idp\_name) | DNS domain name. | `string` | n/a | yes |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
+| <a name="input_internal_idp_nlb_dns_name"></a> [internal\_idp\_nlb\_dns\_name](#input\_internal\_idp\_nlb\_dns\_name) | internal idp NLB dns name. | `string` | n/a | yes |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
 | <a name="input_openapi_admin_template_file"></a> [openapi\_admin\_template\_file](#input\_openapi\_admin\_template\_file) | Openapi admin template file path. | `string` | n/a | yes |
+| <a name="input_openapi_internal_idp_template_file"></a> [openapi\_internal\_idp\_template\_file](#input\_openapi\_internal\_idp\_template\_file) | Openapi internal idp template file path. | `string` | n/a | yes |
 | <a name="input_openapi_template_file"></a> [openapi\_template\_file](#input\_openapi\_template\_file) | Openapi template file path. | `string` | n/a | yes |
 | <a name="input_provider_arn"></a> [provider\_arn](#input\_provider\_arn) | Value of the provider arn. | `string` | `""` | no |
 | <a name="input_r53_dns_zone_id"></a> [r53\_dns\_zone\_id](#input\_r53\_dns\_zone\_id) | R53 dns zone id. | `string` | n/a | yes |
 | <a name="input_rest_api_admin_name"></a> [rest\_api\_admin\_name](#input\_rest\_api\_admin\_name) | Rest api admin name | `string` | n/a | yes |
 | <a name="input_rest_api_admin_stage"></a> [rest\_api\_admin\_stage](#input\_rest\_api\_admin\_stage) | Rest api admin stage name | `string` | `"v1"` | no |
+| <a name="input_rest_api_internal_idp_name"></a> [rest\_api\_internal\_idp\_name](#input\_rest\_api\_internal\_idp\_name) | Rest api internal idp name | `string` | n/a | yes |
+| <a name="input_rest_api_internal_idp_stage"></a> [rest\_api\_internal\_idp\_stage](#input\_rest\_api\_internal\_idp\_stage) | Rest api internal idp stage name | `string` | `"v1"` | no |
 | <a name="input_rest_api_name"></a> [rest\_api\_name](#input\_rest\_api\_name) | Rest api name | `string` | n/a | yes |
 | <a name="input_rest_api_stage"></a> [rest\_api\_stage](#input\_rest\_api\_stage) | Rest api stage name | `string` | `"v1"` | no |
 | <a name="input_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#input\_retrieve\_status\_lambda\_arn) | lambda retrieve status arn | `string` | n/a | yes |

@@ -35,22 +35,28 @@ module "network" {
 module "frontend" {
   source = "../../modules/frontend"
 
+  deploy_internal_idp_rest_api = true
+
   ## DNS
-  domain_name       = module.r53_zones.dns_zone_name
-  domain_admin_name = module.r53_zones.dns_zone_name
-  r53_dns_zone_id   = module.r53_zones.dns_zone_id
-  role_prefix       = local.project
+  domain_name              = module.r53_zones.dns_zone_name
+  domain_admin_name        = module.r53_zones.dns_zone_name
+  domain_internal_idp_name = module.r53_zones.dns_zone_name
+  r53_dns_zone_id          = module.r53_zones.dns_zone_id
+  role_prefix              = local.project
 
   ## API Gateway ##
-  rest_api_name               = format("%s-restapi", local.project)
-  rest_api_admin_name         = format("%s-restapi-admin", local.project)
-  openapi_template_file       = "../../api/oi.tpl.json"
-  openapi_admin_template_file = "../../api/oi-admin.tpl.json"
+  rest_api_name                      = format("%s-restapi", local.project)
+  rest_api_admin_name                = format("%s-restapi-admin", local.project)
+  rest_api_internal_idp_name         = format("%s-restapi-internal-idp", local.project)
+  openapi_template_file              = "../../api/oi.tpl.json"
+  openapi_admin_template_file        = "../../api/oi-admin.tpl.json"
+  openapi_internal_idp_template_file = "../../api/oi-internal-idp.tpl.json"
 
   dns_record_ttl = var.dns_record_ttl
 
-  api_gateway_target_arns = [module.backend.nlb_arn]
-  nlb_dns_name            = module.backend.nlb_dns_name
+  api_gateway_target_arns   = [module.backend.nlb_arn]
+  nlb_dns_name              = module.backend.nlb_dns_name
+  internal_idp_nlb_dns_name = module.backend.nlb_internal_idp_dns_name
 
   api_gateway_plan = {
     name                 = format("%s-restapi-plan", local.project)
@@ -61,6 +67,12 @@ module "frontend" {
 
   api_gateway_admin_plan = {
     name                 = format("%s-restapi-admin_plan", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+  }
+
+  api_gateway_internal_idp_plan = {
+    name                 = format("%s-restapi-internal-idp_plan", local.project)
     throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
     throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
   }
@@ -82,10 +94,11 @@ module "frontend" {
     name = format("%s-webacl", local.project)
   }
 
-  user_pool_arn             = module.cognito.user_pool_arn
-  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
-  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
-  provider_arn              = module.cognito.user_pool_arn
+  user_pool_arn                    = module.cognito.user_pool_arn
+  api_authorizer_name              = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name        = format("%s-restapi-admin-authorizer", local.project)
+  api_authorizer_internal_idp_name = format("%s-restapi-internal-idp-authorizer", local.project)
+  provider_arn                     = module.cognito.user_pool_arn
 }
 
 module "storage" {
