@@ -28,6 +28,7 @@ variable "domain_admin_name" {
 variable "domain_internal_idp_name" {
   type        = string
   description = "DNS domain name."
+  default     = null
 }
 
 variable "deploy_internal_idp_rest_api" {
@@ -113,6 +114,11 @@ variable "api_gateway_internal_idp_plan" {
     throttle_rate_limit  = number
   })
   description = "Name of the plan associated to the set of apis."
+  default = {
+    name                 = "internal-idp-plan"
+    throttle_burst_limit = 1000
+    throttle_rate_limit  = 1000
+  }
 }
 
 variable "api_cache_cluster_enabled" {
@@ -135,6 +141,7 @@ variable "rest_api_admin_name" {
 variable "rest_api_internal_idp_name" {
   type        = string
   description = "Rest api internal idp name"
+  default     = null
 }
 
 variable "openapi_admin_template_file" {
@@ -145,6 +152,7 @@ variable "openapi_admin_template_file" {
 variable "openapi_internal_idp_template_file" {
   type        = string
   description = "Openapi internal idp template file path."
+  default     = null
 }
 
 variable "rest_api_admin_stage" {
@@ -203,6 +211,7 @@ variable "nlb_dns_name" {
 variable "internal_idp_nlb_dns_name" {
   type        = string
   description = "internal idp NLB dns name."
+  default     = null
 }
 
 ## Lambda client registration
