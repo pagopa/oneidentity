@@ -25,19 +25,22 @@ module "records" {
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
-    },
-    {
-      name = "internal-idp"
-      type = "A"
-      alias = {
-        name                   = module.rest_api_internal_idp[0].regional_domain_name
-        zone_id                = module.rest_api_internal_idp[0].regional_zone_id
-        evaluate_target_health = true
-        ttl                    = var.dns_record_ttl
-      }
     }
-    ]
+    ],
+    var.deploy_internal_idp_rest_api ? [
+      {
+        name = "internal-idp"
+        type = "A"
+        alias = {
+          name                   = module.rest_api_internal_idp[0].regional_domain_name
+          zone_id                = module.rest_api_internal_idp[0].regional_zone_id
+          evaluate_target_health = true
+          ttl                    = var.dns_record_ttl
+        }
+      }
+    ] : []
   )
+
 }
 
 ## ACM ##
