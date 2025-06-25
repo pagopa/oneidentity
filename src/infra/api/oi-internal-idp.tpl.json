@@ -26,8 +26,6 @@
     "*/*"
   ],
   "paths": {
-    %{ if strcontains(server_url, "dev") || strcontains(server_url, "uat")
-}
     "/samlsso": {
       "post": {
         "tags": [
@@ -361,8 +359,6 @@
         }
       }
     }
-%{endif
-}
   },
   "components": {
     "responses": {
