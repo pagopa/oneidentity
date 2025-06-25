@@ -387,7 +387,7 @@ module "rest_api_internal_idp" {
   body = templatefile(var.openapi_internal_idp_template_file,
     {
       server_url                   = var.domain_name
-      uri                          = format("http://%s:%s", var.internal_idp_nlb_dns_name, "8082"),
+      uri                          = format("http://%s:%s", var.internal_idp_nlb_dns_name, "8080"),
       connection_id                = aws_api_gateway_vpc_link.apigw.id
       aws_region                   = var.aws_region
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
