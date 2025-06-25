@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "OI-Admin - OpenAPI 3.0",
-    "description": "OI description\n\nSome useful links:\n- [One Identity repository](https://github.com/pagopa/oneidentity)\n- [The source API definition for OI](https://github.com/pagopa/oneidentity/blob/master/src/main/resources/openapi.yaml)",
+    "description": "OI description\n\nSome useful links:\n- [One Identity repository](https://github.com/pagopa/oneidentity)\n- [The source API definition for OI](https://${server_url}/static/openapi/oas30.json)",
     "termsOfService": "http://pagopa.it/terms/",
     "contact": {
       "email": "team-oneidentity@pagopa.it"
