@@ -4,15 +4,17 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.MalformedAuthnRequestException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Element;
 
 public interface InternalIDPService {
 
-  AuthnRequest getAuthnRequestFromString(String authnRequest) throws OneIdentityException;
+  AuthnRequest getAuthnRequestFromString(String authnRequest) throws MalformedAuthnRequestException;
 
-  void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
+  void validateAuthnRequest(AuthnRequest authnRequest) throws SAMLValidationException;
 
   Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest)
       throws ClientNotFoundException;

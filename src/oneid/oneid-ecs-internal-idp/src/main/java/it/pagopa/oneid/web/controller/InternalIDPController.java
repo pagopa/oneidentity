@@ -42,16 +42,10 @@ public class InternalIDPController {
   @Produces(MediaType.TEXT_HTML)
   public Response samlSso(@RestForm("SAMLRequest") String authnRequestString)
       throws OneIdentityException {
-    AuthnRequest authnRequest;
-    try {
-      // Parse and validate AuthnRequest
-      authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
-          authnRequestString);
-      internalIDPServiceImpl.validateAuthnRequest(authnRequest);
-    } catch (OneIdentityException e) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Error validating the AuthnRequest").build();
-    }
+    // Parse and validate AuthnRequest
+    AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
+        authnRequestString);
+    internalIDPServiceImpl.validateAuthnRequest(authnRequest);
 
     // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
     Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
