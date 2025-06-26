@@ -42,12 +42,27 @@ public class InternalIDPController {
   @Produces(MediaType.TEXT_HTML)
   public Response samlSso(@RestForm("SAMLRequest") String authnRequestString)
       throws OneIdentityException {
-    // Parse and validate AuthnRequest
-    AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
-        authnRequestString);
-    internalIDPServiceImpl.validateAuthnRequest(authnRequest);
-    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(authnRequest);
-    sessionServiceImpl.saveIDPSession(authnRequest, client);
+    AuthnRequest authnRequest;
+    try {
+      // Parse and validate AuthnRequest
+      authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
+          authnRequestString);
+      internalIDPServiceImpl.validateAuthnRequest(authnRequest);
+    } catch (OneIdentityException e) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity("Error validating the AuthnRequest").build();
+    }
+
+    Client client;
+    try {
+      // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
+      client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
+          authnRequest);
+      sessionServiceImpl.saveIDPSession(authnRequest, client);
+    } catch (OneIdentityException e) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity("Error with requested client").build();
+    }
 
     // Set authnRequestId and clientId inside cookies
     NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")

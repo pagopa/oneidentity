@@ -189,17 +189,12 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   }
 
-  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
-    try {
-      Integer attributeIndex = authnRequest.getAttributeConsumingServiceIndex();
-      if (attributeIndex == null) {
-        return null;
-      }
-      return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(attributeIndex)
-          .orElse(null);
-    } catch (Exception e) {
-      return null;
-    }
+  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest)
+      throws OneIdentityException {
+    return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(
+            authnRequest.getAttributeConsumingServiceIndex())
+        .orElseThrow(OneIdentityException::new);
+
   }
 
 
