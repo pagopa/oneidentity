@@ -43,6 +43,16 @@ data "aws_ssm_parameter" "key" {
   name = var.ssm_cert_key.key_pem
 }
 
+data "aws_ssm_parameter" "internal_idp_certificate" {
+  count = var.internal_idp_enabled ? 1 : 0
+  name  = var.ssm_idp_internal_cert_key.cert_pem
+}
+
+data "aws_ssm_parameter" "internal_idp_key" {
+  count = var.internal_idp_enabled ? 1 : 0
+  name  = var.ssm_idp_internal_cert_key.key_pem
+}
+
 module "kms_key_pem" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
@@ -244,7 +254,31 @@ resource "aws_iam_policy" "ecs_internal_idp_task" {
         Resource = [
           "${var.dynamodb_table_internal_idp_users_arn}"
         ]
-      }
+      },
+      {
+        Sid    = "KMSDecryptEncryptParameter"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:Encrypt",
+        ]
+        Resource = [
+          "${module.kms_key_pem.aliases["keyPem/SSM"].target_key_arn}"
+        ]
+      },
+      {
+        "Sid" : "SSMGetCertParameters",
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:Describe*",
+          "ssm:Get*",
+          "ssm:List*"
+        ],
+        "Resource" : [
+          "${data.aws_ssm_parameter.certificate.arn}",
+          "${aws_ssm_parameter.key_pem.arn}"
+        ]
+      },
     ]
   })
 
