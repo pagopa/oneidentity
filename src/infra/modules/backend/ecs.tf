@@ -488,7 +488,7 @@ module "ecs_internal_idp_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.internal_idp_elb[0].target_groups["ecs-oneid-internal-idp"].arn
+      target_group_arn = module.elb.target_groups["ecs-oneid-internal-idp"].arn
       container_name   = var.service_internal_idp.container.name
       container_port   = var.service_internal_idp.container.containerPort
     }
@@ -501,7 +501,7 @@ module "ecs_internal_idp_service" {
       to_port                  = var.service_internal_idp.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.internal_idp_elb[0].security_group_id
+      source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -835,45 +835,69 @@ module "elb" {
       cidr_ipv4   = var.vpc_cidr_block
     }
   }
-
-  listeners = {
-
-    ecs-oneid-core = {
+  listeners = merge(
+    { ecs-oneid-core = {
       port     = var.service_core.container.containerPort
       protocol = "TCP"
       forward = {
         target_group_key = "ecs-oneid-core"
       }
-    }
+    } },
+    var.internal_idp_nlb_name != null ? {
+      ecs-oneid-internal-idp = {
+        port     = var.service_internal_idp.container.containerPort
+        protocol = "TCP"
+        forward = {
+          target_group_key = "ecs-oneid-internal-idp"
+        }
+    } } : {}
+  )
 
-
-  }
-
-  target_groups = {
-
-    ecs-oneid-core = {
-      name_prefix          = "t1-"
-      protocol             = "TCP"
-      port                 = var.service_core.container.containerPort
-      target_type          = "ip"
-      deregistration_delay = 10
-      create_attachment    = false
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/q/health/live"
-        port                = var.service_core.container.containerPort
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
+  target_groups = merge(
+    {
+      ecs-oneid-core = {
+        name_prefix          = "t1-"
+        protocol             = "TCP"
+        port                 = var.service_core.container.containerPort
+        target_type          = "ip"
+        deregistration_delay = 10
+        create_attachment    = false
+        health_check = {
+          enabled             = true
+          interval            = 30
+          path                = "/q/health/live"
+          port                = var.service_core.container.containerPort
+          healthy_threshold   = 3
+          unhealthy_threshold = 3
+          timeout             = 6
+        }
       }
-    }
-
-  }
+    },
+    var.internal_idp_nlb_name != null ? {
+      ecs-oneid-internal-idp = {
+        name_prefix          = "t1-"
+        protocol             = "TCP"
+        port                 = var.service_internal_idp.container.containerPort
+        target_type          = "ip"
+        deregistration_delay = 10
+        create_attachment    = false
+        health_check = {
+          enabled             = true
+          interval            = 30
+          path                = "/q/health/live"
+          port                = var.service_internal_idp.container.containerPort
+          healthy_threshold   = 3
+          unhealthy_threshold = 3
+          timeout             = 6
+        }
+      }
+    } : {}
+  )
 
 
   tags = { Name : var.nlb_name }
 }
+
 
 module "internal_idp_elb" {
   count = var.internal_idp_nlb_name != null ? 1 : 0

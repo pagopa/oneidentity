@@ -54,7 +54,7 @@ module "frontend" {
 
   dns_record_ttl = var.dns_record_ttl
 
-  api_gateway_target_arns   = [module.backend.nlb_arn, module.backend.nlb_internal_idp_arn]
+  api_gateway_target_arns   = [module.backend.nlb_arn]
   nlb_dns_name              = module.backend.nlb_dns_name
   internal_idp_nlb_dns_name = module.backend.nlb_internal_idp_dns_name
 
@@ -244,8 +244,8 @@ module "backend" {
       memory              = var.ecs_oneid_internal_idp.container_memory
       image_name          = local.ecr_oneid_internal_idp
       image_version       = var.ecs_oneid_internal_idp.image_version
-      containerPort       = 8080
-      hostPort            = 8080
+      containerPort       = 8082
+      hostPort            = 8082
       logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
     }
 

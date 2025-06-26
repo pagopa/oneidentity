@@ -131,8 +131,8 @@ variable "service_internal_idp" {
       memory              = 0
       image_name          = ""
       image_version       = ""
-      containerPort       = 8080
-      hostPort            = 8080
+      containerPort       = 8082
+      hostPort            = 8082
       logs_retention_days = 0
     }
     autoscaling = {
