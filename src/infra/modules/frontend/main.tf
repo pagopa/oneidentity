@@ -391,7 +391,6 @@ module "rest_api_internal_idp" {
       connection_id                = aws_api_gateway_vpc_link.apigw.id
       aws_region                   = var.aws_region
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
-      authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
       provider_arn                 = var.provider_arn
       s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
       assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
