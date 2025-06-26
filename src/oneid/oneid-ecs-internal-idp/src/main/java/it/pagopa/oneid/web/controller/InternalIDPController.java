@@ -40,13 +40,15 @@ public class InternalIDPController {
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString)
-      throws OneIdentityException {
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString) {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
     internalIDPServiceImpl.validateAuthnRequest(authnRequest);
-    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(authnRequest);
+
+    // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
+    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
+        authnRequest);
     sessionServiceImpl.saveIDPSession(authnRequest, client);
 
     // Set authnRequestId and clientId inside cookies

@@ -11,6 +11,9 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
+import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.MalformedAuthnRequestException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -125,81 +128,78 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   }
 
   @Override
-  public AuthnRequest getAuthnRequestFromString(String authnRequest) throws OneIdentityException {
+  public AuthnRequest getAuthnRequestFromString(String authnRequest) {
     byte[] decodedAuthnRequest = decodeBase64(authnRequest);
     return unmarshallAuthnRequest(decodedAuthnRequest);
   }
 
-  private byte[] decodeBase64(String authnRequest) throws OneIdentityException {
+  private byte[] decodeBase64(String authnRequest) {
     try {
       return Base64.getDecoder().decode(authnRequest);
     } catch (IllegalArgumentException e) {
       Log.error("Base64 decoding error: " + e.getMessage());
-      throw new OneIdentityException(e);
+      throw new MalformedAuthnRequestException(
+          "Malformed AuthnRequest: Base64 decoding failed.");
     }
   }
 
-  private AuthnRequest unmarshallAuthnRequest(byte[] decodedAuthnRequest)
-      throws OneIdentityException {
+  private AuthnRequest unmarshallAuthnRequest(byte[] decodedAuthnRequest) {
     try {
       return (AuthnRequest) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedAuthnRequest));
     } catch (XMLParserException | UnmarshallingException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
-      throw new OneIdentityException(e);
+      throw new MalformedAuthnRequestException(
+          "Malformed AuthnRequest: Unmarshalling failed. ");
     }
   }
 
   @Override
-  public void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException {
+  public void validateAuthnRequest(AuthnRequest authnRequest) {
     // validation of AuthnRequest fields
     if (authnRequest == null) {
-      throw new OneIdentityException("AuthnRequest is null");
+      throw new SAMLValidationException("AuthnRequest is null");
     }
     // Validate AttibuteConsumingServiceIndex
     if (authnRequest.getAttributeConsumingServiceIndex() == null) {
-      throw new OneIdentityException(
+      throw new SAMLValidationException(
           "AuthnRequest AttributeConsumingServiceIndex is missing or empty");
     }
     // Validate Issuer
     if (authnRequest.getIssuer() == null || authnRequest.getIssuer().getValue() == null
         || authnRequest.getIssuer().getValue().isEmpty()) {
-      throw new OneIdentityException("AuthnRequest Issuer is missing or empty");
+      throw new SAMLValidationException("AuthnRequest Issuer is missing or empty");
     }
     // Validate AssertionConsumerServiceURL
     if (authnRequest.getAssertionConsumerServiceURL() == null
         || authnRequest.getAssertionConsumerServiceURL().isEmpty()) {
-      throw new OneIdentityException(
+      throw new SAMLValidationException(
           "AuthnRequest AssertionConsumerServiceURL is missing or empty");
     }
     // Validate Destination
     if (authnRequest.getDestination() == null || authnRequest.getDestination().isEmpty()) {
-      throw new OneIdentityException("AuthnRequest Destination is missing or empty");
+      throw new SAMLValidationException("AuthnRequest Destination is missing or empty");
     }
     // Validate Signature
     if (authnRequest.getSignature() == null) {
-      throw new OneIdentityException("AuthnRequest Signature is missing");
+      throw new SAMLValidationException("AuthnRequest Signature is missing");
     }
     try {
       SignatureValidator.validate(authnRequest.getSignature(), basicX509Credential);
     } catch (SignatureException e) {
-      throw new OneIdentityException("AuthnRequest Signature is invalid");
+      throw new SAMLValidationException("AuthnRequest Signature is invalid");
     }
 
 
   }
 
   public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
-    try {
-      Integer attributeIndex = authnRequest.getAttributeConsumingServiceIndex();
-      if (attributeIndex == null) {
-        return null;
-      }
-      return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(attributeIndex)
-          .orElse(null);
-    } catch (Exception e) {
-      return null;
-    }
+    return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(
+            authnRequest.getAttributeConsumingServiceIndex())
+        .orElseThrow(() -> new ClientNotFoundException(
+            "Client not found for AttributeConsumingServiceIndex: "
+                + authnRequest.getAttributeConsumingServiceIndex()));
+
   }
 
 

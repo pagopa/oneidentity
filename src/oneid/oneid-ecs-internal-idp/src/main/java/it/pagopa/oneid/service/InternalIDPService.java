@@ -9,9 +9,9 @@ import org.w3c.dom.Element;
 
 public interface InternalIDPService {
 
-  AuthnRequest getAuthnRequestFromString(String authnRequest) throws OneIdentityException;
+  AuthnRequest getAuthnRequestFromString(String authnRequest);
 
-  void validateAuthnRequest(AuthnRequest authnRequest) throws OneIdentityException;
+  void validateAuthnRequest(AuthnRequest authnRequest);
 
   Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest);
 
