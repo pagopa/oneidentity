@@ -53,16 +53,10 @@ public class InternalIDPController {
           .entity("Error validating the AuthnRequest").build();
     }
 
-    Client client;
-    try {
-      // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
-      client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
-          authnRequest);
-      sessionServiceImpl.saveIDPSession(authnRequest, client);
-    } catch (OneIdentityException e) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Error with requested client").build();
-    }
+    // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
+    Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
+        authnRequest);
+    sessionServiceImpl.saveIDPSession(authnRequest, client);
 
     // Set authnRequestId and clientId inside cookies
     NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")

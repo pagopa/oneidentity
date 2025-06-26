@@ -11,6 +11,7 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
+import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -190,10 +191,12 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   }
 
   public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest)
-      throws OneIdentityException {
+      throws ClientNotFoundException {
     return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(
             authnRequest.getAttributeConsumingServiceIndex())
-        .orElseThrow(OneIdentityException::new);
+        .orElseThrow(() -> new ClientNotFoundException(
+            "Client not found for AttributeConsumingServiceIndex: "
+                + authnRequest.getAttributeConsumingServiceIndex()));
 
   }
 
