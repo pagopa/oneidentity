@@ -501,7 +501,7 @@ module "ecs_internal_idp_service" {
       to_port                  = var.service_internal_idp.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.elb.security_group_id
+      source_security_group_id = module.internal_idp_elb[0].security_group_id
     }
     egress_all = {
       type        = "egress"

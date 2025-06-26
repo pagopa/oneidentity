@@ -344,13 +344,6 @@
       "sha256": "f4gAdNCe-vG3RDv9n5m1KZgTkuhFrZctu2kXNEuxOBU="
     },
     {
-      "id": "jakarta.json:jakarta.json-api:jar:2.1.3",
-      "artifactId": "jakarta.json-api",
-      "groupId": "jakarta.json",
-      "version": "2.1.3",
-      "sha256": "vJNBQoBeodeU8UQFY5ZaOGGiqft0FOzT_kTyZQBzRBQ="
-    },
-    {
       "id": "io.quarkus:quarkus-virtual-threads:jar:3.11.3",
       "artifactId": "quarkus-virtual-threads",
       "groupId": "io.quarkus",
@@ -944,6 +937,48 @@
       "groupId": "io.quarkus",
       "version": "3.11.3",
       "sha256": "bS0mjb1TDPhIWMSNQ7NocLdUW1rn21TP28hhUMaU-GU="
+    },
+    {
+      "id": "io.quarkus:quarkus-smallrye-health:jar:3.11.3",
+      "artifactId": "quarkus-smallrye-health",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "VISPwB2twERIC8XOVz66KRUKqTAhAxVfrqPCnwCKxb4="
+    },
+    {
+      "id": "io.smallrye:smallrye-health:jar:4.1.0",
+      "artifactId": "smallrye-health",
+      "groupId": "io.smallrye",
+      "version": "4.1.0",
+      "sha256": "ahk1ZRigIsSj9FziM8mAPSQ11dGg4jhSYrEvPm5SWVw="
+    },
+    {
+      "id": "org.eclipse.microprofile.health:microprofile-health-api:jar:4.0.1",
+      "artifactId": "microprofile-health-api",
+      "groupId": "org.eclipse.microprofile.health",
+      "version": "4.0.1",
+      "sha256": "uJyktsT3oEQlDTHAZz9rwiHkD9Zp_Fhx261eWgdpykc="
+    },
+    {
+      "id": "io.smallrye:smallrye-health-api:jar:4.1.0",
+      "artifactId": "smallrye-health-api",
+      "groupId": "io.smallrye",
+      "version": "4.1.0",
+      "sha256": "gPcWfuQvorD1h9MIow5QJLWq8UtlFnNQrxhSz5_64Jw="
+    },
+    {
+      "id": "jakarta.json:jakarta.json-api:jar:2.1.3",
+      "artifactId": "jakarta.json-api",
+      "groupId": "jakarta.json",
+      "version": "2.1.3",
+      "sha256": "vJNBQoBeodeU8UQFY5ZaOGGiqft0FOzT_kTyZQBzRBQ="
+    },
+    {
+      "id": "io.smallrye:smallrye-health-provided-checks:jar:4.1.0",
+      "artifactId": "smallrye-health-provided-checks",
+      "groupId": "io.smallrye",
+      "version": "4.1.0",
+      "sha256": "B-W5cMNWebjKBSV7VOSb3-uKLiIKTSdTYcOgrN0TgIk="
     },
     {
       "id": "io.quarkus:quarkus-config-yaml:jar:3.11.3",

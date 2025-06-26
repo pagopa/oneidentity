@@ -94,11 +94,10 @@ module "frontend" {
     name = format("%s-webacl", local.project)
   }
 
-  user_pool_arn                    = module.cognito.user_pool_arn
-  api_authorizer_name              = format("%s-restapi-authorizer", local.project)
-  api_authorizer_admin_name        = format("%s-restapi-admin-authorizer", local.project)
-  api_authorizer_internal_idp_name = format("%s-restapi-internal-idp-authorizer", local.project)
-  provider_arn                     = module.cognito.user_pool_arn
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
+  provider_arn              = module.cognito.user_pool_arn
 }
 
 module "storage" {

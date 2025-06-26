@@ -387,11 +387,10 @@ module "rest_api_internal_idp" {
   body = templatefile(var.openapi_internal_idp_template_file,
     {
       server_url                   = var.domain_name
-      uri                          = format("http://%s:%s", var.internal_idp_nlb_dns_name, "8082"),
+      uri                          = format("http://%s:%s", var.internal_idp_nlb_dns_name, "8080"),
       connection_id                = aws_api_gateway_vpc_link.apigw.id
       aws_region                   = var.aws_region
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
-      authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
       provider_arn                 = var.provider_arn
       s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
       assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
@@ -404,16 +403,12 @@ module "rest_api_internal_idp" {
 
   plan = var.api_gateway_internal_idp_plan
 
-  api_authorizer = {
-    name          = var.api_authorizer_internal_idp_name == "" ? null : var.api_authorizer_internal_idp_name
-    user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
-  }
-
   endpoint_configuration = {
     #TODO: is this the best endpoint type we need?
     types = ["REGIONAL"]
   }
 
+  api_authorizer = {}
 }
 
 

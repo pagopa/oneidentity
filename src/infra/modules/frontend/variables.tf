@@ -281,11 +281,6 @@ variable "api_authorizer_admin_name" {
   default = null
 }
 
-variable "api_authorizer_internal_idp_name" {
-  type    = string
-  default = null
-}
-
 variable "provider_arn" {
   type        = string
   description = "Value of the provider arn."

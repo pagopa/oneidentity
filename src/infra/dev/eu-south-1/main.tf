@@ -96,11 +96,10 @@ module "frontend" {
   web_acl = {
     name = format("%s-webacl", local.project)
   }
-  user_pool_arn                    = module.cognito.user_pool_arn
-  api_authorizer_name              = format("%s-restapi-authorizer", local.project)
-  api_authorizer_admin_name        = format("%s-restapi-admin-authorizer", local.project)
-  api_authorizer_internal_idp_name = format("%s-restapi-internal-idp-authorizer", local.project)
-  provider_arn                     = module.cognito.user_pool_arn
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
+  provider_arn              = module.cognito.user_pool_arn
 }
 
 
@@ -248,8 +247,8 @@ module "backend" {
       memory              = var.ecs_oneid_internal_idp.container_memory
       image_name          = local.ecr_oneid_internal_idp
       image_version       = var.ecs_oneid_internal_idp.image_version
-      containerPort       = 8082
-      hostPort            = 8082
+      containerPort       = 8080
+      hostPort            = 8080
       logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
     }
 

@@ -114,7 +114,6 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_api_alarms"></a> [api\_alarms](#input\_api\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = number<br/>    evaluation_periods  = number<br/>    period              = number<br/>    statistic           = string<br/>    comparison_operator = string<br/>    resource_name       = string<br/>    sns_topic_alarm_arn = string<br/>    method              = string<br/>  }))</pre> | n/a | yes |
 | <a name="input_api_authorizer_admin_name"></a> [api\_authorizer\_admin\_name](#input\_api\_authorizer\_admin\_name) | n/a | `string` | `null` | no |
-| <a name="input_api_authorizer_internal_idp_name"></a> [api\_authorizer\_internal\_idp\_name](#input\_api\_authorizer\_internal\_idp\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_authorizer_name"></a> [api\_authorizer\_name](#input\_api\_authorizer\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_cache_cluster_enabled"></a> [api\_cache\_cluster\_enabled](#input\_api\_cache\_cluster\_enabled) | Enablr cache cluster is enabled for the stage. | `bool` | `false` | no |
 | <a name="input_api_cache_cluster_size"></a> [api\_cache\_cluster\_size](#input\_api\_cache\_cluster\_size) | Size of the cache cluster for the stage, if enabled. | `number` | `0.5` | no |
