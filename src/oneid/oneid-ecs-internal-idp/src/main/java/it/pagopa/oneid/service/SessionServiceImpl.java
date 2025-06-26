@@ -24,7 +24,7 @@ public class SessionServiceImpl implements SessionService {
   SessionConnectorImpl sessionConnectorImpl;
 
   @Override
-  public void saveIDPSession(AuthnRequest authnRequest, Client client) throws OneIdentityException {
+  public void saveIDPSession(AuthnRequest authnRequest, Client client) {
     Log.info("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
     if (client == null) {
       Log.error("Client not found for AttributeConsumingServiceIndex: "

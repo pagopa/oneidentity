@@ -10,7 +10,7 @@ public interface SessionService {
 
   IDPSession validateAuthnRequestIdCookie(String authnRequestId, String clientId, String username);
 
-  void saveIDPSession(AuthnRequest authnRequest, Client client) throws OneIdentityException;
+  void saveIDPSession(AuthnRequest authnRequest, Client client);
 
   void setSessionAsAuthenticated(IDPSession idpSession);
 

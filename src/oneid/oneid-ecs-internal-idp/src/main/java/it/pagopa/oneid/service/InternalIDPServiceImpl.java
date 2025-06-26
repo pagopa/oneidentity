@@ -128,13 +128,12 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   }
 
   @Override
-  public AuthnRequest getAuthnRequestFromString(String authnRequest)
-      throws MalformedAuthnRequestException {
+  public AuthnRequest getAuthnRequestFromString(String authnRequest) {
     byte[] decodedAuthnRequest = decodeBase64(authnRequest);
     return unmarshallAuthnRequest(decodedAuthnRequest);
   }
 
-  private byte[] decodeBase64(String authnRequest) throws MalformedAuthnRequestException {
+  private byte[] decodeBase64(String authnRequest) {
     try {
       return Base64.getDecoder().decode(authnRequest);
     } catch (IllegalArgumentException e) {
@@ -144,8 +143,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
-  private AuthnRequest unmarshallAuthnRequest(byte[] decodedAuthnRequest)
-      throws MalformedAuthnRequestException {
+  private AuthnRequest unmarshallAuthnRequest(byte[] decodedAuthnRequest) {
     try {
       return (AuthnRequest) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedAuthnRequest));
@@ -157,7 +155,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   }
 
   @Override
-  public void validateAuthnRequest(AuthnRequest authnRequest) throws SAMLValidationException {
+  public void validateAuthnRequest(AuthnRequest authnRequest) {
     // validation of AuthnRequest fields
     if (authnRequest == null) {
       throw new SAMLValidationException("AuthnRequest is null");
@@ -195,8 +193,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   }
 
-  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest)
-      throws ClientNotFoundException {
+  public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
     return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(
             authnRequest.getAttributeConsumingServiceIndex())
         .orElseThrow(() -> new ClientNotFoundException(
