@@ -7,6 +7,10 @@ output "acm_certificate_arn" {
   value = module.acm.acm_certificate_arn
 }
 
+output "acm_auth_certificate_arn" {
+  value = aws_acm_certificate_validation.auth.certificate_arn
+}
+
 output "rest_api_invoke_url" {
   value = module.rest_api.rest_api_invoke_url
 }

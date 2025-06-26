@@ -31,6 +31,22 @@ variable "domain_internal_idp_name" {
   default     = null
 }
 
+variable "cognito_domain_cloudfront_distribution" {
+  type    = string
+  default = null
+}
+
+variable "cognito_domain_cloudfront_distribution_zone_id" {
+  type    = string
+  default = null
+}
+
+variable "domain_auth_name" {
+  type        = string
+  description = "DNS domain name."
+  default     = null
+}
+
 variable "deploy_internal_idp_rest_api" {
   type        = bool
   description = "ApiGW deploy internal idp api."

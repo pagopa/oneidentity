@@ -25,8 +25,27 @@ module "records" {
         evaluate_target_health = true
         ttl                    = var.dns_record_ttl
       }
+    },
+    {
+      name = "auth.admin"
+      type = "A"
+      alias = {
+        name                   = var.cognito_domain_cloudfront_distribution
+        zone_id                = var.cognito_domain_cloudfront_distribution_zone_id
+        evaluate_target_health = true
+        ttl                    = var.dns_record_ttl
+      }
     }
     ],
+    try([
+      for idx, record in aws_acm_certificate.auth[0].domain_validation_options : {
+        key     = "acm-${idx}"
+        name    = record.resource_record_name
+        type    = record.resource_record_type
+        ttl     = 60
+        records = [record.resource_record_value]
+      }
+    ], []),
     var.deploy_internal_idp_rest_api ? [
       {
         name = "idp"
@@ -77,6 +96,53 @@ module "acm_admin" {
     Name = var.domain_admin_name != null ? format("admin.%s", var.domain_admin_name) : null
   }
 }
+
+# module "auth_admin" {
+#   count   = var.aws_region != "eu-south-1" ? 0 : 1
+#   source  = "terraform-aws-modules/acm/aws"
+#   version = "5.0.0"
+
+#   #domain_name = format("admin.%s", var.domain_admin_name)
+#   domain_name = var.domain_auth_name != null ? format("auth.admin.%s", var.domain_auth_name) : null
+
+#   zone_id = var.r53_dns_zone_id
+
+#   validation_method      = "DNS"
+#   create_route53_records = false
+#   wait_for_validation    = true
+#   tags = {
+#     Name = var.domain_auth_name != null ? format("auth.admin.%s", var.domain_auth_name) : null
+#   }
+
+#   providers = {
+#     aws = aws.us_east_1
+#   }
+# }
+
+resource "aws_acm_certificate" "auth" {
+  count             = var.aws_region != "eu-south-1" ? 0 : 1
+  provider          = aws.us_east_1
+  domain_name       = var.domain_auth_name != null ? format("auth.admin.%s", var.domain_auth_name) : null
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = var.domain_auth_name != null ? format("auth.admin.%s", var.domain_auth_name) : null
+  }
+}
+
+resource "aws_acm_certificate_validation" "auth" {
+  provider        = aws.us_east_1
+  certificate_arn = aws_acm_certificate.auth[0].arn
+  validation_record_fqdns = [
+  for r in aws_acm_certificate.auth[0].domain_validation_options : r.resource_record_name]
+
+
+}
+
 
 module "acm_internal_idp" {
   count   = var.deploy_internal_idp_rest_api ? 1 : 0

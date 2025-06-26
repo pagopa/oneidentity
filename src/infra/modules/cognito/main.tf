@@ -81,11 +81,16 @@ resource "aws_cognito_user_pool" "main" {
   }
 }
 
-resource "aws_cognito_user_pool_domain" "main" {
-  domain       = var.cognito.user_pool_domain
-  user_pool_id = aws_cognito_user_pool.main.id
-}
+# resource "aws_cognito_user_pool_domain" "main" {
+#   domain       = var.cognito.user_pool_domain
+#   user_pool_id = aws_cognito_user_pool.main.id
+# }
 
+resource "aws_cognito_user_pool_domain" "auth" {
+  domain          = var.cognito.user_pool_domain
+  certificate_arn = var.cognito.auth_certificate_arn
+  user_pool_id    = aws_cognito_user_pool.main.id
+}
 
 resource "aws_cognito_user_pool_client" "client" {
   name         = var.cognito.user_pool_client

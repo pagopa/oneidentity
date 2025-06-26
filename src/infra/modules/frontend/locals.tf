@@ -29,4 +29,11 @@ locals {
       metric_name             = "SQLiRuleSet"
     }
   ]
+  #  acm_records = can(module.auth_admin[0].acm_certificate_domain_validation_options) ? [for record in module.auth_admin[0].acm_certificate_domain_validation_options : {
+  #       name    = record.resource_record_name
+  #       type    = record.resource_record_type
+  #       ttl     = 60
+  #       records = [record.resource_record_value]
+  #     }]: []
+
 }
