@@ -54,7 +54,7 @@ module "frontend" {
 
   dns_record_ttl = var.dns_record_ttl
 
-  api_gateway_target_arns   = [module.backend.nlb_arn]
+  api_gateway_target_arns   = [module.backend.nlb_arn, module.backend.nlb_internal_idp_arn]
   nlb_dns_name              = module.backend.nlb_dns_name
   internal_idp_nlb_dns_name = module.backend.nlb_internal_idp_dns_name
 
