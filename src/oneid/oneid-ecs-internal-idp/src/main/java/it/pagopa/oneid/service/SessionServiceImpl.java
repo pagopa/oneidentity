@@ -5,6 +5,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.SessionConnectorImpl;
+import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.IDPSessionNotFoundException;
 import it.pagopa.oneid.exception.InvalidIDPSessionStatusException;
 import it.pagopa.oneid.model.IDPSession;
@@ -28,7 +29,7 @@ public class SessionServiceImpl implements SessionService {
     if (client == null) {
       Log.error("Client not found for AttributeConsumingServiceIndex: "
           + authnRequest.getAttributeConsumingServiceIndex());
-      throw new OneIdentityException("Client not found for AttributeConsumingServiceIndex: "
+      throw new ClientNotFoundException("Client not found for AttributeConsumingServiceIndex: "
           + authnRequest.getAttributeConsumingServiceIndex());
     }
 
