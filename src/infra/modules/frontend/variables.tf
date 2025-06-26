@@ -208,12 +208,6 @@ variable "nlb_dns_name" {
   description = "NLB dns name."
 }
 
-variable "internal_idp_nlb_dns_name" {
-  type        = string
-  description = "internal idp NLB dns name."
-  default     = null
-}
-
 ## Lambda client registration
 variable "client_registration_lambda_arn" {
   type        = string

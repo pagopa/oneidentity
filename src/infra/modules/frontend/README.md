@@ -138,7 +138,6 @@
 | <a name="input_domain_admin_name"></a> [domain\_admin\_name](#input\_domain\_admin\_name) | DNS domain name. | `string` | n/a | yes |
 | <a name="input_domain_internal_idp_name"></a> [domain\_internal\_idp\_name](#input\_domain\_internal\_idp\_name) | DNS domain name. | `string` | `null` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
-| <a name="input_internal_idp_nlb_dns_name"></a> [internal\_idp\_nlb\_dns\_name](#input\_internal\_idp\_nlb\_dns\_name) | internal idp NLB dns name. | `string` | `null` | no |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
 | <a name="input_openapi_admin_template_file"></a> [openapi\_admin\_template\_file](#input\_openapi\_admin\_template\_file) | Openapi admin template file path. | `string` | n/a | yes |
 | <a name="input_openapi_internal_idp_template_file"></a> [openapi\_internal\_idp\_template\_file](#input\_openapi\_internal\_idp\_template\_file) | Openapi internal idp template file path. | `string` | `null` | no |

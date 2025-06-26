@@ -277,10 +277,10 @@ variable "nlb_name" {
   description = "Network load balancer name"
 }
 
-## Network load balancer Internal IDP ##
-variable "internal_idp_nlb_name" {
-  type        = string
-  description = "Internal IDP Network load balancer name"
+variable "internal_idp_enabled" {
+  type        = bool
+  description = "Deploy internal idp"
+  default     = false
 }
 
 variable "vpc_id" {

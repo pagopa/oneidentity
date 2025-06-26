@@ -146,7 +146,6 @@
 | <a name="module_ecs_internal_idp_service"></a> [ecs\_internal\_idp\_service](#module\_ecs\_internal\_idp\_service) | terraform-aws-modules/ecs/aws//modules/service | 5.9.1 |
 | <a name="module_elb"></a> [elb](#module\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
 | <a name="module_idp_metadata_lambda"></a> [idp\_metadata\_lambda](#module\_idp\_metadata\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
-| <a name="module_internal_idp_elb"></a> [internal\_idp\_elb](#module\_internal\_idp\_elb) | terraform-aws-modules/alb/aws | 9.8.0 |
 | <a name="module_invalidate_cache_lambda"></a> [invalidate\_cache\_lambda](#module\_invalidate\_cache\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_is_gh_integration_lambda"></a> [is\_gh\_integration\_lambda](#module\_is\_gh\_integration\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_jwt_sign"></a> [jwt\_sign](#module\_jwt\_sign) | terraform-aws-modules/kms/aws | 2.2.1 |
@@ -254,7 +253,7 @@
 | <a name="input_hosted_zone_id"></a> [hosted\_zone\_id](#input\_hosted\_zone\_id) | Hosted zone id for IAM Role | `string` | `"Z065844519UG4CA4QH19U"` | no |
 | <a name="input_idp_alarm"></a> [idp\_alarm](#input\_idp\_alarm) | n/a | <pre>object({<br/>    namespace = string<br/>    entity_id = list(string)<br/>  })</pre> | `null` | no |
 | <a name="input_idp_metadata_lambda"></a> [idp\_metadata\_lambda](#input\_idp\_metadata\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    environment_variables             = map(string)<br/>    s3_idp_metadata_bucket_arn        = string<br/>    s3_idp_metadata_bucket_id         = string<br/>    vpc_id                            = string<br/>    vpc_subnet_ids                    = list(string)<br/>    vpc_s3_prefix_id                  = string<br/>    cloudwatch_logs_retention_in_days = number<br/>  })</pre> | n/a | yes |
-| <a name="input_internal_idp_nlb_name"></a> [internal\_idp\_nlb\_name](#input\_internal\_idp\_nlb\_name) | Internal IDP Network load balancer name | `string` | n/a | yes |
+| <a name="input_internal_idp_enabled"></a> [internal\_idp\_enabled](#input\_internal\_idp\_enabled) | Deploy internal idp | `bool` | `false` | no |
 | <a name="input_invalidate_cache_lambda"></a> [invalidate\_cache\_lambda](#input\_invalidate\_cache\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    cloudwatch_logs_retention_in_days = string<br/>    environment_variables             = map(string)<br/>    # vpc_endpoint_apigw_prefix_id      = string<br/>    # vpc_endpoint_dynamodb_prefix_id = string<br/>    # vpc_subnet_ids                    = list(string)<br/>    # vpc_id                            = string<br/>    rest_api_execution_arn = string<br/>    rest_api_arn           = string<br/>  })</pre> | n/a | yes |
 | <a name="input_is_gh_integration_lambda"></a> [is\_gh\_integration\_lambda](#input\_is\_gh\_integration\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    sns_topic_arn                     = optional(string, null)<br/>    cloudwatch_logs_retention_in_days = string<br/>    ssm_parameter_name                = optional(string, "GH_PERSONAL_ACCESS_TOKEN")<br/>    environment_variables             = map(string)<br/>  })</pre> | n/a | yes |
 | <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
@@ -303,8 +302,6 @@
 | <a name="output_nlb_arn"></a> [nlb\_arn](#output\_nlb\_arn) | # Network loadbalancer ## |
 | <a name="output_nlb_arn_suffix"></a> [nlb\_arn\_suffix](#output\_nlb\_arn\_suffix) | n/a |
 | <a name="output_nlb_dns_name"></a> [nlb\_dns\_name](#output\_nlb\_dns\_name) | n/a |
-| <a name="output_nlb_internal_idp_arn"></a> [nlb\_internal\_idp\_arn](#output\_nlb\_internal\_idp\_arn) | n/a |
-| <a name="output_nlb_internal_idp_dns_name"></a> [nlb\_internal\_idp\_dns\_name](#output\_nlb\_internal\_idp\_dns\_name) | n/a |
 | <a name="output_nlb_target_group_suffix_arn"></a> [nlb\_target\_group\_suffix\_arn](#output\_nlb\_target\_group\_suffix\_arn) | n/a |
 | <a name="output_retrieve_status_lambda_arn"></a> [retrieve\_status\_lambda\_arn](#output\_retrieve\_status\_lambda\_arn) | # Retrieve status lambda |
 | <a name="output_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#output\_s3\_lambda\_code\_bucket) | # S3 buket for lambda code ## |
