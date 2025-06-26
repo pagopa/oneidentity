@@ -408,6 +408,7 @@ module "rest_api_internal_idp" {
     types = ["REGIONAL"]
   }
 
+  api_authorizer = {}
 }
 
 
