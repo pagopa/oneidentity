@@ -403,11 +403,6 @@ module "rest_api_internal_idp" {
 
   plan = var.api_gateway_internal_idp_plan
 
-  api_authorizer = {
-    name          = var.api_authorizer_internal_idp_name == "" ? null : var.api_authorizer_internal_idp_name
-    user_pool_arn = var.user_pool_arn == "" ? null : var.user_pool_arn
-  }
-
   endpoint_configuration = {
     #TODO: is this the best endpoint type we need?
     types = ["REGIONAL"]
