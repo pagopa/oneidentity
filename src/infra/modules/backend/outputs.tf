@@ -43,10 +43,6 @@ output "nlb_dns_name" {
   value = module.elb.dns_name
 }
 
-output "nlb_internal_idp_dns_name" {
-  value = try(module.internal_idp_elb[0].dns_name, null)
-}
-
 output "elb" {
   value = module.elb
 }

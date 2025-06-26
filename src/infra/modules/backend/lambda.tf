@@ -15,7 +15,7 @@ resource "aws_iam_role" "githubecsdeploy" {
 }
 
 resource "aws_iam_role" "githubecsdeploy_internal_idp" {
-  count       = var.internal_idp_nlb_name != null ? 1 : 0
+  count       = var.internal_idp_enabled ? 1 : 0
   name        = format("%s-deploy", var.service_internal_idp.service_name)
   description = "Role to assume to deploy ECS internal IDP tasks"
 

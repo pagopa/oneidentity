@@ -56,9 +56,8 @@ module "frontend" {
   dns_record_ttl     = var.dns_record_ttl
   cors_allow_origins = "*"
 
-  api_gateway_target_arns   = [module.backend.nlb_arn]
-  nlb_dns_name              = module.backend.nlb_dns_name
-  internal_idp_nlb_dns_name = module.backend.nlb_internal_idp_dns_name
+  api_gateway_target_arns = [module.backend.nlb_arn]
+  nlb_dns_name            = module.backend.nlb_dns_name
 
   api_gateway_plan = {
     name                 = format("%s-restapi-plan", local.project)
@@ -247,8 +246,8 @@ module "backend" {
       memory              = var.ecs_oneid_internal_idp.container_memory
       image_name          = local.ecr_oneid_internal_idp
       image_version       = var.ecs_oneid_internal_idp.image_version
-      containerPort       = 8080
-      hostPort            = 8080
+      containerPort       = 8082
+      hostPort            = 8082
       logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
     }
 
@@ -289,8 +288,8 @@ module "backend" {
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
-  ##Internal IDP NLB ##
-  internal_idp_nlb_name = format("%s-internal-idp-nlb", local.project)
+  ##Internal IDP enabled ##
+  internal_idp_enabled = true
 
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id

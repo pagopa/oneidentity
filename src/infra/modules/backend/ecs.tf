@@ -216,7 +216,7 @@ resource "aws_iam_policy" "ecs_core_task" {
 
 
 resource "aws_iam_policy" "ecs_internal_idp_task" {
-  count = var.internal_idp_nlb_name != null ? 1 : 0
+  count = var.internal_idp_enabled ? 1 : 0
   name  = format("%s-task-policy", var.service_internal_idp.service_name)
   policy = jsonencode({
     Version = "2012-10-17"
@@ -419,7 +419,7 @@ module "ecs_core_service" {
 
 ## Log group for ECS Internal IDP
 resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
-  count = var.internal_idp_nlb_name != null ? 1 : 0
+  count = var.internal_idp_enabled ? 1 : 0
   name  = format("/aws/ecs/%s/%s", var.service_internal_idp.service_name, var.service_internal_idp.container.name)
 
   retention_in_days = var.service_internal_idp.container.logs_retention_days
@@ -427,7 +427,7 @@ resource "aws_cloudwatch_log_group" "ecs_internal_idp" {
 
 ## ECS Internal IDP
 module "ecs_internal_idp_service" {
-  count   = var.internal_idp_nlb_name != null ? 1 : 0
+  count   = var.internal_idp_enabled ? 1 : 0
   source  = "terraform-aws-modules/ecs/aws//modules/service"
   version = "5.9.1"
 
@@ -488,7 +488,7 @@ module "ecs_internal_idp_service" {
 
   load_balancer = {
     service = {
-      target_group_arn = module.internal_idp_elb[0].target_groups["ecs-oneid-internal-idp"].arn
+      target_group_arn = module.elb.target_groups["ecs-oneid-internal-idp"].arn
       container_name   = var.service_internal_idp.container.name
       container_port   = var.service_internal_idp.container.containerPort
     }
@@ -501,7 +501,7 @@ module "ecs_internal_idp_service" {
       to_port                  = var.service_internal_idp.container.containerPort
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.internal_idp_elb[0].security_group_id
+      source_security_group_id = module.elb.security_group_id
     }
     egress_all = {
       type        = "egress"
@@ -741,7 +741,7 @@ resource "aws_iam_policy" "deploy_ecs" {
 }
 
 resource "aws_iam_policy" "deploy_ecs_internal_idp" {
-  count       = var.internal_idp_nlb_name != null ? 1 : 0
+  count       = var.internal_idp_enabled ? 1 : 0
   name        = format("%s-policy", var.service_internal_idp.service_name)
   description = "Policy to allow deploy internal IDP on ECS."
 
@@ -797,7 +797,7 @@ resource "aws_iam_role_policy_attachment" "deploy_ecs" {
 }
 
 resource "aws_iam_role_policy_attachment" "deploy_ecs_internal_idp" {
-  count      = var.internal_idp_nlb_name != null ? 1 : 0
+  count      = var.internal_idp_enabled ? 1 : 0
   role       = aws_iam_role.githubecsdeploy_internal_idp[0].name
   policy_arn = aws_iam_policy.deploy_ecs_internal_idp[0].arn
 }
@@ -835,115 +835,67 @@ module "elb" {
       cidr_ipv4   = var.vpc_cidr_block
     }
   }
-
-  listeners = {
-
-    ecs-oneid-core = {
+  listeners = merge(
+    { ecs-oneid-core = {
       port     = var.service_core.container.containerPort
       protocol = "TCP"
       forward = {
         target_group_key = "ecs-oneid-core"
       }
-    }
+    } },
+    var.internal_idp_enabled ? {
+      ecs-oneid-internal-idp = {
+        port     = var.service_internal_idp.container.containerPort
+        protocol = "TCP"
+        forward = {
+          target_group_key = "ecs-oneid-internal-idp"
+        }
+    } } : {}
+  )
 
-
-  }
-
-  target_groups = {
-
-    ecs-oneid-core = {
-      name_prefix          = "t1-"
-      protocol             = "TCP"
-      port                 = var.service_core.container.containerPort
-      target_type          = "ip"
-      deregistration_delay = 10
-      create_attachment    = false
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/q/health/live"
-        port                = var.service_core.container.containerPort
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
+  target_groups = merge(
+    {
+      ecs-oneid-core = {
+        name_prefix          = "t1-"
+        protocol             = "TCP"
+        port                 = var.service_core.container.containerPort
+        target_type          = "ip"
+        deregistration_delay = 10
+        create_attachment    = false
+        health_check = {
+          enabled             = true
+          interval            = 30
+          path                = "/q/health/live"
+          port                = var.service_core.container.containerPort
+          healthy_threshold   = 3
+          unhealthy_threshold = 3
+          timeout             = 6
+        }
       }
-    }
-
-  }
+    },
+    var.internal_idp_enabled ? {
+      ecs-oneid-internal-idp = {
+        name_prefix          = "t1-"
+        protocol             = "TCP"
+        port                 = var.service_internal_idp.container.containerPort
+        target_type          = "ip"
+        deregistration_delay = 10
+        create_attachment    = false
+        health_check = {
+          enabled             = true
+          interval            = 30
+          path                = "/q/health/live"
+          port                = var.service_internal_idp.container.containerPort
+          healthy_threshold   = 3
+          unhealthy_threshold = 3
+          timeout             = 6
+        }
+      }
+    } : {}
+  )
 
 
   tags = { Name : var.nlb_name }
-}
-
-module "internal_idp_elb" {
-  count = var.internal_idp_nlb_name != null ? 1 : 0
-
-  source  = "terraform-aws-modules/alb/aws"
-  version = "9.8.0"
-  name    = var.internal_idp_nlb_name
-
-  load_balancer_type = "network"
-
-  vpc_id                           = var.vpc_id
-  subnets                          = var.private_subnets
-  enable_cross_zone_load_balancing = "true"
-
-  internal = true
-
-  dns_record_client_routing_policy = "availability_zone_affinity"
-
-  # For example only
-  enable_deletion_protection = false
-
-  # Security Group
-  enforce_security_group_inbound_rules_on_private_link_traffic = "off"
-
-  # No ingress rules allow only access via private link
-  security_group_ingress_rules = {
-  }
-
-  security_group_egress_rules = {
-    all = {
-      ip_protocol = "-1"
-      cidr_ipv4   = var.vpc_cidr_block
-    }
-  }
-
-  listeners = {
-
-    ecs-oneid-internal_idp = {
-      port     = var.service_internal_idp.container.containerPort
-      protocol = "TCP"
-      forward = {
-        target_group_key = "ecs-oneid-internal-idp"
-      }
-    }
-
-  }
-
-  target_groups = {
-
-    ecs-oneid-internal-idp = {
-      name_prefix          = "t1-"
-      protocol             = "TCP"
-      port                 = var.service_internal_idp.container.containerPort
-      target_type          = "ip"
-      deregistration_delay = 10
-      create_attachment    = false
-      health_check = {
-        enabled             = true
-        interval            = 30
-        path                = "/q/health/live"
-        port                = var.service_internal_idp.container.containerPort
-        healthy_threshold   = 3
-        unhealthy_threshold = 3
-        timeout             = 6
-      }
-    }
-  }
-
-
-  tags = { Name : var.internal_idp_nlb_name }
 }
 
 locals {

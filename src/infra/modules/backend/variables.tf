@@ -131,8 +131,8 @@ variable "service_internal_idp" {
       memory              = 0
       image_name          = ""
       image_version       = ""
-      containerPort       = 8080
-      hostPort            = 8080
+      containerPort       = 8082
+      hostPort            = 8082
       logs_retention_days = 0
     }
     autoscaling = {
@@ -277,10 +277,10 @@ variable "nlb_name" {
   description = "Network load balancer name"
 }
 
-## Network load balancer Internal IDP ##
-variable "internal_idp_nlb_name" {
-  type        = string
-  description = "Internal IDP Network load balancer name"
+variable "internal_idp_enabled" {
+  type        = bool
+  description = "Deploy internal idp"
+  default     = false
 }
 
 variable "vpc_id" {
