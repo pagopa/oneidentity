@@ -3,6 +3,7 @@ package it.pagopa.oneid.exception.mapper;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import it.pagopa.oneid.exception.ClientNotFoundException;
+import it.pagopa.oneid.exception.IDPSessionException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.ErrorResponse;
 import jakarta.ws.rs.core.Response;
@@ -34,6 +35,12 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapSAMLValidationException(
       SAMLValidationException samlValidationException) {
+    return ResponseBuilder.create(BAD_REQUEST).build();
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapIDPSessionException(
+      IDPSessionException idpSessionException) {
     return ResponseBuilder.create(BAD_REQUEST).build();
   }
 

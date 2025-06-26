@@ -1,13 +1,12 @@
 package it.pagopa.oneid.connector;
 
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import java.util.Optional;
 
 public interface SessionConnector {
 
-  void saveIDPSessionIfNotExists(IDPSession idpSession) throws OneIdentityException;
+  void saveIDPSessionIfNotExists(IDPSession idpSession);
 
   Optional<IDPSession> getIDPSessionByAuthnRequestIdClientIdAndUsername(String authnRequestId,
       String clientId,

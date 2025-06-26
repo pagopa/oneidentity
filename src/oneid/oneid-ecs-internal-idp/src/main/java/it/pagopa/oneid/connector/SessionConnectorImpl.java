@@ -1,8 +1,8 @@
 package it.pagopa.oneid.connector;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.exception.IDPSessionException;
 import it.pagopa.oneid.exception.InvalidIDPSessionUpdateException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
@@ -40,8 +40,7 @@ public class SessionConnectorImpl implements SessionConnector {
   }
 
   @Override
-  public void saveIDPSessionIfNotExists(IDPSession idpSession)
-      throws ConditionalCheckFailedException, OneIdentityException {
+  public void saveIDPSessionIfNotExists(IDPSession idpSession) {
     Log.debug(
         "Start saveIDPSessionIfNotExists for authnRequestId: " + idpSession.getAuthnRequestId());
     try {
@@ -58,11 +57,13 @@ public class SessionConnectorImpl implements SessionConnector {
     } catch (ConditionalCheckFailedException e) {
       Log.error("ConditionalCheckFailedException in saveIDPSessionIfNotExists for authnRequestId: "
           + idpSession.getAuthnRequestId() + ", error: " + e.getMessage());
-      throw new OneIdentityException();
+      throw new IDPSessionException("IDPSession already exists for authnRequestId: "
+          + idpSession.getAuthnRequestId());
     } catch (Exception e) {
       Log.error("Exception in saveIDPSessionIfNotExists for authnRequestId: "
           + idpSession.getAuthnRequestId() + ", error: " + e.getMessage());
-      throw new OneIdentityException();
+      throw new IDPSessionException("Error saving IDPSession for authnRequestId: "
+          + idpSession.getAuthnRequestId() + ", error: " + e.getMessage());
     }
   }
 
