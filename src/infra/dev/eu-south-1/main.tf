@@ -279,7 +279,7 @@ module "backend" {
         value = var.ssm_idp_internal_cert_key.cert_pem
       },
       {
-        name  = "IDP_CERTIFICATE_KEY_NAME"
+        name  = "IDP_KEY_NAME"
         value = var.ssm_idp_internal_cert_key.key_pem
       },
 

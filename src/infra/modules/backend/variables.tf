@@ -32,7 +32,7 @@ variable "ecs_cluster_name" {
   description = "ECS Cluster name"
 }
 
-#TODO fix name
+
 variable "ssm_cert_key" {
   type = object({
     cert_pem = optional(string, "cert.pem")
@@ -43,8 +43,8 @@ variable "ssm_cert_key" {
 
 variable "ssm_idp_internal_cert_key" {
   type = object({
-    cert_pem = optional(string, "idp_internal_cert.pem")
-    key_pem  = optional(string, "idp_internal_cert_key.pem")
+    cert_pem = optional(string, "idp_cert.pem")
+    key_pem  = optional(string, "idp_key.pem")
   })
 
 }
