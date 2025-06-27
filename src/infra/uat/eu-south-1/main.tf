@@ -266,6 +266,10 @@ module "backend" {
         value = module.database.internal_idp_users_table_name
       },
       {
+        name  = "IDP_SESSIONS_TABLE_NAME"
+        value = module.database.internal_idp_sessions_table_name
+      },
+      {
         name = "ISSUER"
         #TODO: this should be the internal IDP URL
         value = ""
