@@ -44,14 +44,14 @@ module "records" {
 }
 
 resource "aws_route53_record" "certificate" {
-  for_each = {
+  for_each = var.aws_region == "eu-south-1" ? {
     for idx, record in aws_acm_certificate.auth[0].domain_validation_options : record.domain_name => {
       name   = record.resource_record_name
       type   = record.resource_record_type
       ttl    = 60
       record = record.resource_record_value
     }
-  }
+  } : {}
   allow_overwrite = true
   name            = each.value.name
   records         = [each.value.record]

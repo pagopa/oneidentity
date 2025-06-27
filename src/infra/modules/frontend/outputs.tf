@@ -13,7 +13,7 @@ output "acm_auth_certificate_arn" {
 
 
 output "acm_domain_name" {
-  value = aws_acm_certificate.auth[0].domain_name
+  value = try(aws_acm_certificate.auth[0].domain_name, null)
 }
 
 output "rest_api_invoke_url" {
