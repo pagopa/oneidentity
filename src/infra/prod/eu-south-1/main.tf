@@ -546,11 +546,14 @@ module "cognito" {
     user_pool_name       = format("%s-user_pool", local.project),
     user_pool_domain     = format("%s-user-pool-domain", local.project),
     callback_url         = "https://admin.oneid.pagopa.it" #TBD,
-    auth_certificate_arn = module.frontend.acm_auth_certificate_arn
+    auth_certificate_arn = module.frontend.acm_auth_certificate_arn,
+    acm_domain_name      = module.frontend.acm_domain_name
   }
   cognito_presignup_lambda = {
     name                              = format("%s-cognito-presignup", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
+
+  r53_dns_zone_id = module.r53_zones.dns_zone_id
 }

@@ -8,7 +8,12 @@ output "acm_certificate_arn" {
 }
 
 output "acm_auth_certificate_arn" {
-  value = aws_acm_certificate_validation.auth.certificate_arn
+  value = try(aws_acm_certificate_validation.auth[0].certificate_arn, null)
+}
+
+
+output "acm_domain_name" {
+  value = aws_acm_certificate.auth[0].domain_name
 }
 
 output "rest_api_invoke_url" {

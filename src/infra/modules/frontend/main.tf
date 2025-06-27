@@ -26,26 +26,7 @@ module "records" {
         ttl                    = var.dns_record_ttl
       }
     },
-    {
-      name = "auth.admin"
-      type = "A"
-      alias = {
-        name                   = var.cognito_domain_cloudfront_distribution
-        zone_id                = var.cognito_domain_cloudfront_distribution_zone_id
-        evaluate_target_health = true
-        ttl                    = var.dns_record_ttl
-      }
-    }
     ],
-    try([
-      for idx, record in aws_acm_certificate.auth[0].domain_validation_options : {
-        key     = "acm-${idx}"
-        name    = record.resource_record_name
-        type    = record.resource_record_type
-        ttl     = 60
-        records = [record.resource_record_value]
-      }
-    ], []),
     var.deploy_internal_idp_rest_api ? [
       {
         name = "idp"
@@ -60,6 +41,23 @@ module "records" {
     ] : []
   )
 
+}
+
+resource "aws_route53_record" "certificate" {
+  for_each = {
+    for idx, record in aws_acm_certificate.auth[0].domain_validation_options : record.domain_name => {
+      name   = record.resource_record_name
+      type   = record.resource_record_type
+      ttl    = 60
+      record = record.resource_record_value
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 3600 # 1 hour
+  type            = each.value.type
+  zone_id         = var.r53_dns_zone_id
 }
 
 ## ACM ##
@@ -135,12 +133,11 @@ resource "aws_acm_certificate" "auth" {
 }
 
 resource "aws_acm_certificate_validation" "auth" {
+  count           = var.aws_region != "eu-south-1" ? 0 : 1
   provider        = aws.us_east_1
   certificate_arn = aws_acm_certificate.auth[0].arn
   validation_record_fqdns = [
   for r in aws_acm_certificate.auth[0].domain_validation_options : r.resource_record_name]
-
-
 }
 
 

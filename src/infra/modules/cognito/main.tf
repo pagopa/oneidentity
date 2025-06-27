@@ -86,10 +86,49 @@ resource "aws_cognito_user_pool" "main" {
 #   user_pool_id = aws_cognito_user_pool.main.id
 # }
 
+# resource "aws_route53_record" "auth_alias" {
+#   name    = "auth.admin"  
+#   type    = "A"
+#   zone_id = var.r53_dns_zone_id
+#   alias {
+#     evaluate_target_health = false
+
+#     #name    = aws_cognito_user_pool_domain.auth.cloudfront_distribution
+#     name = "d111111abcdef8.cloudfront.net"
+#     zone_id = "Z2FDTNDATAQYW2"
+#   }
+
+#   lifecycle {
+#   create_before_destroy = true
+# }
+# }
+
+# resource "null_resource" "wait_for_dns" {
+#   depends_on = [aws_route53_record.auth_alias]
+
+#   provisioner "local-exec" {
+#     command = "sleep 60"
+#   }
+# }
+
 resource "aws_cognito_user_pool_domain" "auth" {
-  domain          = var.cognito.user_pool_domain
+  domain          = var.cognito.acm_domain_name
   certificate_arn = var.cognito.auth_certificate_arn
   user_pool_id    = aws_cognito_user_pool.main.id
+}
+
+resource "aws_route53_record" "auth_admin" {
+  zone_id = var.r53_dns_zone_id
+  name    = "auth.admin"
+  type    = "A"
+
+  alias {
+    name                   = aws_cognito_user_pool_domain.auth.cloudfront_distribution
+    zone_id                = aws_cognito_user_pool_domain.auth.cloudfront_distribution_zone_id
+    evaluate_target_health = false
+  }
+
+  depends_on = [aws_cognito_user_pool_domain.auth]
 }
 
 resource "aws_cognito_user_pool_client" "client" {
