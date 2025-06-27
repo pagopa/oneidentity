@@ -206,9 +206,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
-          "${aws_ssm_parameter.key_pem.arn}",
-          "${data.aws_ssm_parameter.internal_idp_certificate[0].arn}",
-          "${data.aws_ssm_parameter.internal_idp_key[0].arn}"
+          "${aws_ssm_parameter.key_pem.arn}"
         ]
       },
       {
@@ -278,7 +276,9 @@ resource "aws_iam_policy" "ecs_internal_idp_task" {
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
-          "${aws_ssm_parameter.key_pem.arn}"
+          "${aws_ssm_parameter.key_pem.arn}",
+          "${data.aws_ssm_parameter.internal_idp_certificate[0].arn}",
+          "${data.aws_ssm_parameter.internal_idp_key[0].arn}"
         ]
       },
     ]
