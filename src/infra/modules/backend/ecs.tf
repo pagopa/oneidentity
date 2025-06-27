@@ -256,6 +256,17 @@ resource "aws_iam_policy" "ecs_internal_idp_task" {
         ]
       },
       {
+        Sid    = "DynamoDBClientRegistrationsReadOnly"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:Scan",
+        ]
+        Resource = [
+          "${var.table_client_registrations_arn}"
+        ]
+      },
+      {
         Sid    = "KMSDecryptEncryptParameter"
         Effect = "Allow"
         Action = [
