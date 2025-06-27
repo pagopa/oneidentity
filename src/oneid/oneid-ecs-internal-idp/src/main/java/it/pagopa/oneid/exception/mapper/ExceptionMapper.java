@@ -20,6 +20,8 @@ public class ExceptionMapper {
   public RestResponse<ErrorResponse> mapException(Exception exception) {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during execution.";
+    Log.error(
+        "mapException: " + ExceptionUtils.getStackTrace(exception));
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 
