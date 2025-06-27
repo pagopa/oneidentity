@@ -68,7 +68,8 @@ public class InternalIDPController {
         .build();
 
     try {
-      return Response.status(302).location(new URI("/login"))
+      // FIXME
+      return Response.status(302).location(new URI("https://idp.uat.oneid.pagopa.it/login"))
           .cookie(authnRequestIdCookie, clientIdCookie).build();
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
