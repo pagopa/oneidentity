@@ -18,6 +18,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Base64;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -64,8 +66,13 @@ public class InternalIDPController {
         .httpOnly(true)
         .secure(false)
         .build();
-    return Response.ok("SAML SSO endpoint hit").cookie(authnRequestIdCookie, clientIdCookie)
-        .build();
+
+    try {
+      return Response.status(302).location(new URI("/login"))
+          .cookie(authnRequestIdCookie, clientIdCookie).build();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @POST
