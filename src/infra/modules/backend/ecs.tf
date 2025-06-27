@@ -206,7 +206,9 @@ resource "aws_iam_policy" "ecs_core_task" {
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
-          "${aws_ssm_parameter.key_pem.arn}"
+          "${aws_ssm_parameter.key_pem.arn}",
+          "${data.aws_ssm_parameter[0].internal_idp_certificate.arn}",
+          "${data.aws_ssm_parameter[0].internal_idp_key.arn}"
         ]
       },
       {
