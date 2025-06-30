@@ -56,6 +56,9 @@ public class SessionServiceImpl implements SessionService {
                 + username));
 
     if (!IDPSessionStatus.CREDENTIALS_VALIDATED.equals(idpSession.getStatus())) {
+      Log.error("Invalid IDP session status for authnRequestId: " + authnRequestId
+          + ". Expected: " + IDPSessionStatus.CREDENTIALS_VALIDATED
+          + ", but found: " + idpSession.getStatus()); //TODO remove
       throw new InvalidIDPSessionStatusException("Invalid IDP session status: "
           + idpSession.getStatus() + ". Expected: " + IDPSessionStatus.CREDENTIALS_VALIDATED);
     }
