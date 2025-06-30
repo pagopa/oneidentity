@@ -161,25 +161,17 @@ public class InternalIDPController {
 
     // Create a successful SAML Response based on the AuthnRequest
 
-    Log.info("handleConsentGiven - start"); //TODO REMOVE
-
     org.opensaml.saml.saml2.core.Response response = internalIDPServiceImpl
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
             idpSession.getUsername());
-
-    Log.info("handleConsentGiven - createSuccessfulSamlResponse done"); //TODO REMOVE
 
     String encodedSamlResponse = Base64.getEncoder()
         .encodeToString(internalIDPServiceImpl.getStringValue(
             internalIDPServiceImpl.getElementValueFromSamlResponse(response)).getBytes());
 
-    Log.info("handleConsentGiven - encodeToString done"); //TODO REMOVE
-
     idpSession.setStatus(IDPSessionStatus.AUTHENTICATED);
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
     sessionServiceImpl.setSessionAsAuthenticated(idpSession);
-
-    Log.info("handleConsentGiven - end"); //TODO REMOVE
 
     return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
         .type(MediaType.TEXT_HTML)
