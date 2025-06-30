@@ -46,7 +46,8 @@
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
+                "method.response.header.location": "integration.response.header.Location",
+                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
               }
             },
             "400": {
@@ -92,6 +93,12 @@
             "headers": {
               "location": {
                 "description": "Location (URL)",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Set-Cookie": {
+                "description": "Cookie header",
                 "schema": {
                   "type": "string"
                 }
@@ -158,13 +165,15 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.Cookie": "method.request.header.Cookie"
           },
           "responses": {
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
+                "method.response.header.location": "integration.response.header.Location",
+                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
               }
             },
             "400": {
@@ -212,7 +221,12 @@
                 "description": "Location (URL)",
                 "schema": {
                   "type": "string"
-                }
+                },
+                "Set-Cookie": {
+                  "description": "Cookie header",
+                  "schema": {
+                    "type": "string"
+                  }
               }
             },
             "content": {
@@ -276,13 +290,15 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.Cookie": "method.request.header.Cookie"
           },
           "responses": {
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
+                "method.response.header.location": "integration.response.header.Location",
+                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
               }
             },
             "400": {
