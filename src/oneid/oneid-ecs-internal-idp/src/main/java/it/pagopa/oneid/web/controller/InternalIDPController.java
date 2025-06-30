@@ -12,7 +12,6 @@ import it.pagopa.oneid.web.dto.ConsentRequestDTO;
 import it.pagopa.oneid.web.dto.LoginRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -80,7 +79,6 @@ public class InternalIDPController {
   }
 
   @POST
-  @Consumes(MediaType.APPLICATION_JSON)
   @Path("/login")
   public Response login(@Valid LoginRequestDTO loginRequestDTO) {
 
