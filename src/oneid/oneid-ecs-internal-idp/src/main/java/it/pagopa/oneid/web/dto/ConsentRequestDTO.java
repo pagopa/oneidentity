@@ -18,8 +18,7 @@ public class ConsentRequestDTO {
   @RestCookie("username")
   @NotBlank
   private String username;
-
-  @NotBlank
+  
   private boolean consent;
 
 }

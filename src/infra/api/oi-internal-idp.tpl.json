@@ -290,6 +290,13 @@
             }
           },
           {
+            "in": "cookie",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "header",
             "name": "Cookie",
             "schema": {
