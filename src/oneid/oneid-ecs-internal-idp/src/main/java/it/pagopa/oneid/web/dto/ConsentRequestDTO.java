@@ -1,21 +1,21 @@
 package it.pagopa.oneid.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.CookieParam;
 import lombok.Data;
+import org.jboss.resteasy.reactive.RestCookie;
 
 @Data
 public class ConsentRequestDTO {
 
-  @CookieParam("AuthnRequestID")
+  @RestCookie("AuthnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @CookieParam("ClientID")
+  @RestCookie("ClientId")
   @NotBlank
   private String clientId;
 
-  @CookieParam("username")
+  @RestCookie("username")
   @NotBlank
   private String username;
 

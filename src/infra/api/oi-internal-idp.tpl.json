@@ -155,6 +155,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -221,12 +228,13 @@
                 "description": "Location (URL)",
                 "schema": {
                   "type": "string"
-                },
-                "Set-Cookie": {
-                  "description": "Cookie header",
-                  "schema": {
-                    "type": "string"
-                  }
+                }
+              },
+              "Set-Cookie": {
+                "description": "Cookie header",
+                "schema": {
+                  "type": "string"
+                }
               }
             },
             "content": {
@@ -280,6 +288,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -297,8 +312,7 @@
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location",
-                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
+                "method.response.header.location": "integration.response.header.Location"
               }
             },
             "400": {
