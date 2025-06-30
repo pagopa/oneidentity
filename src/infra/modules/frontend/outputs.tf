@@ -7,6 +7,15 @@ output "acm_certificate_arn" {
   value = module.acm.acm_certificate_arn
 }
 
+output "acm_auth_certificate_arn" {
+  value = try(aws_acm_certificate_validation.auth[0].certificate_arn, null)
+}
+
+
+output "acm_domain_name" {
+  value = try(aws_acm_certificate.auth[0].domain_name, null)
+}
+
 output "rest_api_invoke_url" {
   value = module.rest_api.rest_api_invoke_url
 }

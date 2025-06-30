@@ -41,6 +41,7 @@ module "frontend" {
   domain_name              = module.r53_zones.dns_zone_name
   domain_admin_name        = module.r53_zones.dns_zone_name
   domain_internal_idp_name = module.r53_zones.dns_zone_name
+  domain_auth_name         = module.r53_zones.dns_zone_name
   r53_dns_zone_id          = module.r53_zones.dns_zone_id
   role_prefix              = local.project
 
@@ -97,6 +98,9 @@ module "frontend" {
   api_authorizer_name       = format("%s-restapi-authorizer", local.project)
   api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
   provider_arn              = module.cognito.user_pool_arn
+
+  cognito_domain_cloudfront_distribution         = module.cognito.cloudfront_distribution
+  cognito_domain_cloudfront_distribution_zone_id = module.cognito.cloudfront_distribution_zone_id
 }
 
 module "storage" {
@@ -559,15 +563,19 @@ module "monitoring" {
 module "cognito" {
   source = "../../modules/cognito"
   cognito = {
-    logout_url       = "https://admin.uat.oneid.pagopa.it/logout",
-    user_pool_client = format("%s-user_pool_client", local.project),
-    user_pool_name   = format("%s-user_pool", local.project),
-    user_pool_domain = format("%s-user-pool-domain", local.project),
-    callback_url     = "https://admin.uat.oneid.pagopa.it"
+    logout_url           = "https://admin.uat.oneid.pagopa.it/logout",
+    user_pool_client     = format("%s-user_pool_client", local.project),
+    user_pool_name       = format("%s-user_pool", local.project),
+    user_pool_domain     = format("%s-user-pool-domain", local.project),
+    callback_url         = "https://admin.uat.oneid.pagopa.it",
+    auth_certificate_arn = module.frontend.acm_auth_certificate_arn,
+    acm_domain_name      = module.frontend.acm_domain_name
   }
   cognito_presignup_lambda = {
     name                              = format("%s-cognito-presignup", local.project)
     filename                          = "${path.module}/../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
+
+  r53_dns_zone_id = module.r53_zones.dns_zone_id
 }
