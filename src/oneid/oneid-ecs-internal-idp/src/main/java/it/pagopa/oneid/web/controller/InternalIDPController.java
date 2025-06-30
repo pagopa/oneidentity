@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -22,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Base64;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -69,9 +71,10 @@ public class InternalIDPController {
 
     try {
       // FIXME
-      return Response.status(302).location(new URI("https://idp.uat.oneid.pagopa.it/login"))
+      return Response.status(302).location(new URI("https://idp.dev.oneid.pagopa.it/login"))
           .cookie(authnRequestIdCookie, clientIdCookie).build();
     } catch (URISyntaxException e) {
+      Log.error(ExceptionUtils.getStackTrace(e));
       throw new RuntimeException(e);
     }
   }
