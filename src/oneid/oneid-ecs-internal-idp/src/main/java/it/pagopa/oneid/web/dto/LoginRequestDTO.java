@@ -7,12 +7,12 @@ import org.jboss.resteasy.reactive.RestForm;
 
 @Data
 public class LoginRequestDTO {
-
-  @RestCookie("AuthnRequestID")
+  
+  @RestCookie("AuthnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @RestCookie("ClientID")
+  @RestCookie("ClientId")
   @NotBlank
   private String clientId;
 

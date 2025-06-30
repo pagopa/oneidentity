@@ -134,8 +134,13 @@ public class InternalIDPController {
         .secure(false)
         .build();
 
-    return Response.ok("Login endpoint hit")
-        .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
+    try {
+      return Response.status(302).location(new URI("https://idp.dev.oneid.pagopa.it/consent"))
+          .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
+    } catch (URISyntaxException e) {
+      Log.error(ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException(e);
+    }
 
   }
 
