@@ -520,7 +520,7 @@ module "ecs_internal_idp_service" {
         }
       }
 
-      environment = var.service_core.environment_variables
+      environment = var.service_internal_idp.environment_variables
 
       readonly_root_filesystem = false
     }
