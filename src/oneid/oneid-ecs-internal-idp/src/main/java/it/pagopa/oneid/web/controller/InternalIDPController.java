@@ -137,7 +137,7 @@ public class InternalIDPController {
         .value(idpSession.getClientId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
 
     try {
