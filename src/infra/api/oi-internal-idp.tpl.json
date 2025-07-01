@@ -47,7 +47,7 @@
               "statusCode": "302",
               "responseParameters": {
                 "method.response.header.location": "integration.response.header.Location",
-                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
+                "method.response.multivalueheader.Set-Cookie": "integration.response.header.Set-Cookie"
               }
             },
             "400": {
@@ -180,7 +180,7 @@
               "statusCode": "302",
               "responseParameters": {
                 "method.response.header.location": "integration.response.header.Location",
-                "method.response.header.Set-Cookie": "integration.response.header.Set-Cookie"
+                "method.response.multivalueheader.Set-Cookie": "integration.response.header.Set-Cookie"
               }
             },
             "400": {
