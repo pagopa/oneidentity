@@ -77,7 +77,9 @@ public class InternalIDPController {
 
     try {
       return Response.status(302).location(new URI(IDP_LOGIN_ENDPOINT))
-          .cookie(clientIdCookie, authnRequestIdCookie).build();
+          .cookie(clientIdCookie)
+          .cookie(authnRequestIdCookie)
+          .build();
     } catch (URISyntaxException e) {
       Log.error(ExceptionUtils.getStackTrace(e));
       throw new RuntimeException(e);
@@ -142,7 +144,10 @@ public class InternalIDPController {
 
     try {
       return Response.status(302).location(new URI(IDP_CONSENT_ENDPOINT))
-          .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
+          .cookie(authnRequestIdCookie)
+          .cookie(usernameCookie)
+          .cookie(clientIdCookie)
+          .build();
     } catch (URISyntaxException e) {
       Log.error(ExceptionUtils.getStackTrace(e));
       throw new RuntimeException(e);
