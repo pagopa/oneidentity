@@ -255,7 +255,7 @@ module "backend" {
     environment_variables = [
       {
         name  = "ACS_ENDPOINT"
-        value = var.metadata_info.acs_url
+        value = "https://${var.r53_dns_zone.name}/${var.metadata_info.acs_url}"
       },
       {
         name  = "SP_ENTITY_ID"
