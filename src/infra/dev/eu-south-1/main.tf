@@ -274,9 +274,16 @@ module "backend" {
         value = module.database.internal_idp_sessions_table_name
       },
       {
-        name = "ISSUER"
-        #TODO: this should be the internal IDP URL
-        value = ""
+        name  = "ISSUER"
+        value = "https://${var.r53_dns_zone.name}/idp"
+      },
+      {
+        name  = "IDP_LOGIN_ENDPOINT"
+        value = "https://${var.r53_dns_zone.name}/idp/login"
+      },
+      {
+        name  = "IDP_CONSENT_ENDPOINT"
+        value = "https://${var.r53_dns_zone.name}/idp/consent"
       },
       {
         name  = "IDP_CERTIFICATE_NAME"
