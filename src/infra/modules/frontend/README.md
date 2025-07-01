@@ -72,6 +72,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.49 |
+| <a name="provider_aws.us_east_1"></a> [aws.us\_east\_1](#provider\_aws.us\_east\_1) | >=5.49 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
 ## Modules
@@ -91,6 +92,8 @@
 
 | Name | Type |
 |------|------|
+| [aws_acm_certificate.auth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate) | resource |
+| [aws_acm_certificate_validation.auth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_vpc_link) | resource |
 | [aws_cloudwatch_metric_alarm.api_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_iam_policy.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -99,6 +102,7 @@
 | [aws_iam_role.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_route53_record.certificate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_s3_object.openapi_exp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_wafv2_web_acl.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl) | resource |
 | [aws_wafv2_web_acl_association.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl_association) | resource |
@@ -129,6 +133,8 @@
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#input\_client\_manager\_lambda\_arn) | lambda client manager arn | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
+| <a name="input_cognito_domain_cloudfront_distribution"></a> [cognito\_domain\_cloudfront\_distribution](#input\_cognito\_domain\_cloudfront\_distribution) | n/a | `string` | `null` | no |
+| <a name="input_cognito_domain_cloudfront_distribution_zone_id"></a> [cognito\_domain\_cloudfront\_distribution\_zone\_id](#input\_cognito\_domain\_cloudfront\_distribution\_zone\_id) | n/a | `string` | `null` | no |
 | <a name="input_cors_allow_origins"></a> [cors\_allow\_origins](#input\_cors\_allow\_origins) | List of allowed origins for CORS. | `string` | `null` | no |
 | <a name="input_create_custom_domain_admin_name"></a> [create\_custom\_domain\_admin\_name](#input\_create\_custom\_domain\_admin\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
 | <a name="input_create_custom_domain_name"></a> [create\_custom\_domain\_name](#input\_create\_custom\_domain\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
@@ -136,6 +142,7 @@
 | <a name="input_deploy_internal_idp_rest_api"></a> [deploy\_internal\_idp\_rest\_api](#input\_deploy\_internal\_idp\_rest\_api) | ApiGW deploy internal idp api. | `bool` | `false` | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | DNS records ttl | `number` | n/a | yes |
 | <a name="input_domain_admin_name"></a> [domain\_admin\_name](#input\_domain\_admin\_name) | DNS domain name. | `string` | n/a | yes |
+| <a name="input_domain_auth_name"></a> [domain\_auth\_name](#input\_domain\_auth\_name) | DNS domain name. | `string` | `null` | no |
 | <a name="input_domain_internal_idp_name"></a> [domain\_internal\_idp\_name](#input\_domain\_internal\_idp\_name) | DNS domain name. | `string` | `null` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
 | <a name="input_nlb_dns_name"></a> [nlb\_dns\_name](#input\_nlb\_dns\_name) | NLB dns name. | `string` | n/a | yes |
@@ -160,7 +167,9 @@
 
 | Name | Description |
 |------|-------------|
+| <a name="output_acm_auth_certificate_arn"></a> [acm\_auth\_certificate\_arn](#output\_acm\_auth\_certificate\_arn) | n/a |
 | <a name="output_acm_certificate_arn"></a> [acm\_certificate\_arn](#output\_acm\_certificate\_arn) | n/a |
+| <a name="output_acm_domain_name"></a> [acm\_domain\_name](#output\_acm\_domain\_name) | n/a |
 | <a name="output_acm_validation_domains"></a> [acm\_validation\_domains](#output\_acm\_validation\_domains) | # ACM ## |
 | <a name="output_api_name"></a> [api\_name](#output\_api\_name) | n/a |
 | <a name="output_rest_api_arn"></a> [rest\_api\_arn](#output\_rest\_api\_arn) | n/a |

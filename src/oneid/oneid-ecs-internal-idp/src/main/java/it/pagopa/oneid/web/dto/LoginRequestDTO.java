@@ -1,26 +1,26 @@
 package it.pagopa.oneid.web.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.CookieParam;
 import lombok.Data;
+import org.jboss.resteasy.reactive.RestCookie;
+import org.jboss.resteasy.reactive.RestForm;
 
 @Data
 public class LoginRequestDTO {
-
-  @CookieParam("AuthnRequestID")
+  
+  @RestCookie("AuthnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @CookieParam("ClientID")
+  @RestCookie("ClientId")
   @NotBlank
   private String clientId;
 
-  @JsonProperty("username")
+  @RestForm("username")
   @NotBlank
   private String username;
 
-  @JsonProperty("password")
+  @RestForm("password")
   @NotBlank
   private String password;
 }

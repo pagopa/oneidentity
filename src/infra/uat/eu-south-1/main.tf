@@ -255,7 +255,7 @@ module "backend" {
     environment_variables = [
       {
         name  = "ACS_ENDPOINT"
-        value = var.metadata_info.acs_url
+        value = "https://${var.r53_dns_zone.name}/${var.metadata_info.acs_url}"
       },
       {
         name  = "SP_ENTITY_ID"
@@ -266,16 +266,27 @@ module "backend" {
         value = module.database.internal_idp_users_table_name
       },
       {
-        name = "ISSUER"
-        #TODO: this should be the internal IDP URL
-        value = ""
+        name  = "IDP_SESSIONS_TABLE_NAME"
+        value = module.database.internal_idp_sessions_table_name
+      },
+      {
+        name  = "ISSUER"
+        value = "https://idp.${var.r53_dns_zone.name}"
+      },
+      {
+        name  = "IDP_LOGIN_ENDPOINT"
+        value = "https://idp.${var.r53_dns_zone.name}/login"
+      },
+      {
+        name  = "IDP_CONSENT_ENDPOINT"
+        value = "https://idp.${var.r53_dns_zone.name}/consent"
       },
       {
         name  = "IDP_CERTIFICATE_NAME"
         value = var.ssm_idp_internal_cert_key.cert_pem
       },
       {
-        name  = "IDP_CERTIFICATE_KEY_NAME"
+        name  = "IDP_KEY_NAME"
         value = var.ssm_idp_internal_cert_key.key_pem
       },
 

@@ -46,7 +46,8 @@
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
+                "method.response.header.location": "integration.response.header.Location",
+                "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
               }
             },
             "400": {
@@ -95,6 +96,12 @@
                 "schema": {
                   "type": "string"
                 }
+              },
+              "Set-Cookie": {
+                "description": "Cookie header",
+                "schema": {
+                  "type": "string"
+                }
               }
             },
             "content": {
@@ -137,14 +144,21 @@
         "parameters": [
           {
             "in": "cookie",
-            "name": "AuthnRequestID",
+            "name": "AuthnRequestId",
             "schema": {
               "type": "string"
             }
           },
           {
             "in": "cookie",
-            "name": "ClientID",
+            "name": "ClientId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Cookie",
             "schema": {
               "type": "string"
             }
@@ -158,13 +172,15 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.Cookie": "method.request.header.Cookie"
           },
           "responses": {
             "302": {
               "statusCode": "302",
               "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
+                "method.response.header.location": "integration.response.header.Location",
+                "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
               }
             },
             "400": {
@@ -213,6 +229,12 @@
                 "schema": {
                   "type": "string"
                 }
+              },
+              "Set-Cookie": {
+                "description": "Cookie header",
+                "schema": {
+                  "type": "string"
+                }
               }
             },
             "content": {
@@ -255,14 +277,28 @@
         "parameters": [
           {
             "in": "cookie",
-            "name": "AuthnRequestID",
+            "name": "AuthnRequestId",
             "schema": {
               "type": "string"
             }
           },
           {
             "in": "cookie",
-            "name": "ClientID",
+            "name": "ClientId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "username",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Cookie",
             "schema": {
               "type": "string"
             }
@@ -276,7 +312,8 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.Cookie": "method.request.header.Cookie"
           },
           "responses": {
             "302": {

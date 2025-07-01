@@ -1,5 +1,6 @@
 package it.pagopa.oneid.web.controller;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -11,15 +12,17 @@ import it.pagopa.oneid.web.dto.ConsentRequestDTO;
 import it.pagopa.oneid.web.dto.LoginRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Base64;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -29,6 +32,13 @@ public class InternalIDPController {
 
   @ConfigProperty(name = "acs_endpoint")
   String ACS_ENDPOINT;
+
+  @ConfigProperty(name = "idp_login_endpoint")
+  String IDP_LOGIN_ENDPOINT;
+
+
+  @ConfigProperty(name = "idp_consent_endpoint")
+  String IDP_CONSENT_ENDPOINT;
 
   @Inject
   InternalIDPServiceImpl internalIDPServiceImpl;
@@ -56,20 +66,26 @@ public class InternalIDPController {
         .value(authnRequest.getID())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
         .value(client.getClientId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
-    return Response.ok("SAML SSO endpoint hit").cookie(authnRequestIdCookie, clientIdCookie)
-        .build();
+
+    try {
+      return Response.status(302).location(new URI(IDP_LOGIN_ENDPOINT))
+          .cookie(clientIdCookie, authnRequestIdCookie)
+          .build();
+    } catch (URISyntaxException e) {
+      Log.error(ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException(e);
+    }
   }
 
   @POST
-  @Consumes(MediaType.APPLICATION_JSON)
   @Path("/login")
   public Response login(@Valid LoginRequestDTO loginRequestDTO) {
 
@@ -110,23 +126,29 @@ public class InternalIDPController {
         .value(idpSession.getAuthnRequestId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie usernameCookie = new NewCookie.Builder("username")
         .value(idpSession.getUsername())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
         .value(idpSession.getClientId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
 
-    return Response.ok("Login endpoint hit")
-        .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
+    try {
+      return Response.status(302).location(new URI(IDP_CONSENT_ENDPOINT))
+          .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie)
+          .build();
+    } catch (URISyntaxException e) {
+      Log.error(ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException(e);
+    }
 
   }
 

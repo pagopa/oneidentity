@@ -170,12 +170,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
         || authnRequest.getIssuer().getValue().isEmpty()) {
       throw new SAMLValidationException("AuthnRequest Issuer is missing or empty");
     }
-    // Validate AssertionConsumerServiceURL
-    if (authnRequest.getAssertionConsumerServiceURL() == null
-        || authnRequest.getAssertionConsumerServiceURL().isEmpty()) {
-      throw new SAMLValidationException(
-          "AuthnRequest AssertionConsumerServiceURL is missing or empty");
-    }
     // Validate Destination
     if (authnRequest.getDestination() == null || authnRequest.getDestination().isEmpty()) {
       throw new SAMLValidationException("AuthnRequest Destination is missing or empty");
