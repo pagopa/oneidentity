@@ -33,6 +33,13 @@ public class InternalIDPController {
   @ConfigProperty(name = "acs_endpoint")
   String ACS_ENDPOINT;
 
+  @ConfigProperty(name = "idp_login_endpoint")
+  String IDP_LOGIN_ENDPOINT;
+
+
+  @ConfigProperty(name = "idp_consent_endpoint")
+  String IDP_CONSENT_ENDPOINT;
+
   @Inject
   InternalIDPServiceImpl internalIDPServiceImpl;
 
@@ -59,18 +66,17 @@ public class InternalIDPController {
         .value(authnRequest.getID())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
         .value(client.getClientId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
 
     try {
-      // FIXME
-      return Response.status(302).location(new URI("https://idp.dev.oneid.pagopa.it/login"))
+      return Response.status(302).location(new URI(IDP_LOGIN_ENDPOINT))
           .cookie(authnRequestIdCookie, clientIdCookie).build();
     } catch (URISyntaxException e) {
       Log.error(ExceptionUtils.getStackTrace(e));
@@ -119,13 +125,13 @@ public class InternalIDPController {
         .value(idpSession.getAuthnRequestId())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie usernameCookie = new NewCookie.Builder("username")
         .value(idpSession.getUsername())
         .maxAge(3600) // 1 hour
         .httpOnly(true)
-        .secure(false)
+        .secure(true)
         .build();
     NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
         .value(idpSession.getClientId())
@@ -135,7 +141,7 @@ public class InternalIDPController {
         .build();
 
     try {
-      return Response.status(302).location(new URI("https://idp.dev.oneid.pagopa.it/consent"))
+      return Response.status(302).location(new URI(IDP_CONSENT_ENDPOINT))
           .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie).build();
     } catch (URISyntaxException e) {
       Log.error(ExceptionUtils.getStackTrace(e));
