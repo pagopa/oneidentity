@@ -22,7 +22,7 @@
       "url": "${server_url}"
     }
   ],
-  "x-amazon-apigateway-binary-media-types": [
+  "x-amazon-apigatewxay-binary-media-types": [
     "*/*"
   ],
   "paths": {

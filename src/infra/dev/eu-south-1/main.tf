@@ -275,15 +275,15 @@ module "backend" {
       },
       {
         name  = "ISSUER"
-        value = "https://${var.r53_dns_zone.name}/idp"
+        value = "https://idp.${var.r53_dns_zone.name}"
       },
       {
         name  = "IDP_LOGIN_ENDPOINT"
-        value = "https://${var.r53_dns_zone.name}/idp/login"
+        value = "https://idp.${var.r53_dns_zone.name}/login"
       },
       {
         name  = "IDP_CONSENT_ENDPOINT"
-        value = "https://${var.r53_dns_zone.name}/idp/consent"
+        value = "https://idp.${var.r53_dns_zone.name}/consent"
       },
       {
         name  = "IDP_CERTIFICATE_NAME"
