@@ -19797,6 +19797,32 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+  {
+    "username": "p.quill",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-774",
+    "familyName": "Quill",
+    "name": "Peter",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-QLLPTR80A01F205G",
+    "mobilePhone": "",
+    "email": "p.quill@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
   
 ]
