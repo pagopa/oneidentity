@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
-import io.quarkus.logging.Log;
+import io.quarkus.qute.Template;
+import io.quarkus.qute.TemplateInstance;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -16,13 +17,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Base64;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -36,7 +34,6 @@ public class InternalIDPController {
   @ConfigProperty(name = "idp_login_endpoint")
   String IDP_LOGIN_ENDPOINT;
 
-
   @ConfigProperty(name = "idp_consent_endpoint")
   String IDP_CONSENT_ENDPOINT;
 
@@ -46,11 +43,19 @@ public class InternalIDPController {
   @Inject
   SessionServiceImpl sessionServiceImpl;
 
+  @Inject
+  Template login; // matches login.html
+
+  @Inject
+  Template consent; // matches consent.html
+
+  @Inject
+  Template error; // matches error.html
 
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString) {
+  public TemplateInstance samlSso(@RestForm("SAMLRequest") String authnRequestString) {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
@@ -61,33 +66,17 @@ public class InternalIDPController {
         authnRequest);
     sessionServiceImpl.saveIDPSession(authnRequest, client);
 
-    // Set authnRequestId and clientId inside cookies
-    NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")
-        .value(authnRequest.getID())
-        .maxAge(3600) // 1 hour
-        .httpOnly(true)
-        .secure(true)
-        .build();
-    NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
-        .value(client.getClientId())
-        .maxAge(3600) // 1 hour
-        .httpOnly(true)
-        .secure(true)
-        .build();
-
-    try {
-      return Response.status(302).location(new URI(IDP_LOGIN_ENDPOINT))
-          .cookie(clientIdCookie, authnRequestIdCookie)
-          .build();
-    } catch (URISyntaxException e) {
-      Log.error(ExceptionUtils.getStackTrace(e));
-      throw new RuntimeException(e);
-    }
+    // Set authnRequestId and clientId as hidden form fields instead of cookies
+    return login.data("loginAction", IDP_LOGIN_ENDPOINT)
+        .data("authnRequestId", authnRequest.getID())
+        .data("clientId", client.getClientId());
   }
+
 
   @POST
   @Path("/login")
-  public Response login(@Valid LoginRequestDTO loginRequestDTO) {
+  @Produces(MediaType.TEXT_HTML)
+  public TemplateInstance login(@Valid LoginRequestDTO loginRequestDTO) {
 
     // 1. check authnRequest
     //  a. AuthnRequestId presents in IdPSession Table
@@ -98,8 +87,8 @@ public class InternalIDPController {
           loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Invalid AuthnRequestId or status").build();
+      // TODO: customize error message
+      return error.instance();
     }
 
     // 2. validate login information
@@ -110,8 +99,8 @@ public class InternalIDPController {
           loginRequestDTO.getUsername(),
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity("Invalid username or password").build();
+      // TODO: customize error message
+      return error.instance();
     }
 
     // 3. Update IdPSession
@@ -121,34 +110,14 @@ public class InternalIDPController {
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
 
-    // 3. Update Cookie with authnRequestId, username and clientId
-    NewCookie authnRequestIdCookie = new NewCookie.Builder("AuthnRequestId")
-        .value(idpSession.getAuthnRequestId())
-        .maxAge(3600) // 1 hour
-        .httpOnly(true)
-        .secure(true)
-        .build();
-    NewCookie usernameCookie = new NewCookie.Builder("username")
-        .value(idpSession.getUsername())
-        .maxAge(3600) // 1 hour
-        .httpOnly(true)
-        .secure(true)
-        .build();
-    NewCookie clientIdCookie = new NewCookie.Builder("ClientId")
-        .value(idpSession.getClientId())
-        .maxAge(3600) // 1 hour
-        .httpOnly(true)
-        .secure(true)
-        .build();
-
-    try {
-      return Response.status(302).location(new URI(IDP_CONSENT_ENDPOINT))
-          .cookie(authnRequestIdCookie, usernameCookie, clientIdCookie)
-          .build();
-    } catch (URISyntaxException e) {
-      Log.error(ExceptionUtils.getStackTrace(e));
-      throw new RuntimeException(e);
-    }
+    // Pass authnRequestId, username, and clientId as hidden form fields to consent template
+    return consent
+        .data("consentAction", IDP_CONSENT_ENDPOINT)
+        .data("authnRequestId", idpSession.getAuthnRequestId())
+        .data("clientId", idpSession.getClientId())
+        .data("username", idpSession.getUsername())
+        // TODO: replace with real data from the user
+        .data("dataList", List.of("Nome", "Cognome", "Email"));
 
   }
 

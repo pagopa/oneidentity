@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="noindex" name="robots"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="no-cache" http-equiv="cache-control"/>
+  <meta content="0" http-equiv="expires"/>
+  <meta content="no-cache" http-equiv="pragma"/>
+
+  <title>Accedi · PagoPA S.p.A.</title>
+  <meta content="Modulo di Login Internal IDP One Identiy" name="description"/>
+  <meta content="#00a1b0" name="theme-color"/>
+</head>
+
+<body style="margin: 0;">
+<noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
+<div id="root">
+  <form action="{loginAction}" id="login-form" method="POST">
+    <h2>Accedi</h2>
+    <div>
+      <label for="username">Username</label>
+      <input id="username" name="username" required type="text" value="{username ?: ''}"/>
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" name="password" required type="password"/>
+    </div>
+    <input type="hidden" name="authnRequestId" value="{authnRequestId}">
+    <input type="hidden" name="clientId" value="{clientId}">
+    <button
+        style="width: 100%; padding: 10px; background: #00a1b0; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;"
+        type="submit">
+      Login
+    </button>
+  </form>
+</div>
+</body>
+</html>

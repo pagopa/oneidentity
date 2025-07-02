@@ -2,17 +2,16 @@ package it.pagopa.oneid.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.jboss.resteasy.reactive.RestCookie;
 import org.jboss.resteasy.reactive.RestForm;
 
 @Data
 public class LoginRequestDTO {
-  
-  @RestCookie("AuthnRequestId")
+
+  @RestForm("AuthnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @RestCookie("ClientId")
+  @RestForm("ClientId")
   @NotBlank
   private String clientId;
 

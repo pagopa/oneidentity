@@ -8,11 +8,11 @@ import org.jboss.resteasy.reactive.RestForm;
 @Data
 public class ConsentRequestDTO {
 
-  @RestCookie("AuthnRequestId")
+  @RestForm("AuthnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @RestCookie("ClientId")
+  @RestForm("ClientId")
   @NotBlank
   private String clientId;
 

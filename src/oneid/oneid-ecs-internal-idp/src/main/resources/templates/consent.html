@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="noindex" name="robots"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="no-cache" http-equiv="cache-control"/>
+  <meta content="0" http-equiv="expires"/>
+  <meta content="no-cache" http-equiv="pragma"/>
+  <title>Consenso · PagoPA S.p.A.</title>
+  <meta content="Pagina di Consenso Internal IDP One Identity" name="description"/>
+  <meta content="#00a1b0" name="theme-color"/>
+</head>
+<body style="margin: 0;">
+<noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
+<div id="root">
+  <form action="{consentAction}" id="consent-form" method="POST"
+        style="max-width: 400px; margin: 40px auto; padding: 24px; border: 1px solid #eee; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <input type="hidden" name="authnRequestId" value="{authnRequestId}">
+    <input type="hidden" name="clientId" value="{clientId}">
+    <input type="hidden" name="username" value="{username}">
+    <h2 style="margin-bottom: 24px;">Consenso all'invio dei dati</h2>
+    <p style="margin-bottom: 32px;">Per continuare, è necessario fornire il consenso all'invio dei
+      dati personali.</p>
+    <!-- Esempio: mostrare dinamicamente la lista dei dati -->
+    {#if dataList}
+    <ul style="margin-bottom: 32px;">
+      {#for data in dataList}
+      <li>{data}</li>
+      {/for}
+    </ul>
+    {/if}
+    <div style="display: flex; gap: 16px; justify-content: center;">
+      <button name="consent"
+              style="padding: 10px 24px; background: #00a1b0; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;"
+              type="submit"
+              value="true">
+        Do il consenso
+      </button>
+      <button name="consent"
+              style="padding: 10px 24px; background: #e74c3c; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer;"
+              type="submit"
+              value="false">
+        Nego il consenso
+      </button>
+    </div>
+  </form>
+</div>
+</body>
+</html>
