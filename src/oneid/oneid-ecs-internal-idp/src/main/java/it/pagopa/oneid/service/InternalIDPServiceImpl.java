@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
-import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.MalformedAuthnRequestException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -92,9 +91,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   ClientConnectorImpl clientConnectorImpl;
 
   @Inject
-  SessionConnectorImpl sessionConnectorImpl;
-
-  @Inject
   SsmClient ssmClient;
 
   @Inject
@@ -112,7 +108,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @ConfigProperty(name = "idp_internal_certificate_name")
   String idpInternalCertName;
 
-  @ConfigProperty(name = "idp_internal_certificate_key_name")
+  @ConfigProperty(name = "idp_internal_key_name")
   String idpInternalCertKeyName;
 
   private KeyInfoGenerator keyInfoGenerator;

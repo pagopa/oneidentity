@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.exception.IDPSessionException;
 import it.pagopa.oneid.exception.InvalidIDPSessionUpdateException;
 import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
@@ -86,7 +86,7 @@ class SessionConnectorImplTest {
     // First insert should succeed
     assertDoesNotThrow(() -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
     // Second insert with same PK/RK should throw
-    assertThrows(OneIdentityException.class,
+    assertThrows(IDPSessionException.class,
         () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
   }
 
@@ -101,7 +101,7 @@ class SessionConnectorImplTest {
         .build();
     // when
     // Insert should succeed
-    assertThrows(OneIdentityException.class,
+    assertThrows(IDPSessionException.class,
         () -> sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession));
 
   }
@@ -116,11 +116,7 @@ class SessionConnectorImplTest {
         .clientId(clientId)
         .username("user")
         .build();
-    try {
-      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    } catch (OneIdentityException e) {
-      throw new RuntimeException(e);
-    }
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
 
     // then
     assertEquals(Optional.of(idpSession),
@@ -151,11 +147,7 @@ class SessionConnectorImplTest {
         .clientId(clientId)
         .username("user")
         .build();
-    try {
-      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    } catch (OneIdentityException e) {
-      throw new RuntimeException(e);
-    }
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
 
     // then
     assertEquals(Optional.of(idpSession),
@@ -184,11 +176,7 @@ class SessionConnectorImplTest {
         .clientId(clientId)
         .username("user")
         .build();
-    try {
-      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    } catch (OneIdentityException e) {
-      throw new RuntimeException(e);
-    }
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
 
     // when
     idpSession.setUsername("newUser");
@@ -212,11 +200,8 @@ class SessionConnectorImplTest {
             IDPSessionStatus.TIMEOUT) // Setting a previous status that does not match the expected one
         .username("user")
         .build();
-    try {
-      sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    } catch (OneIdentityException e) {
-      throw new RuntimeException(e);
-    }
+
+    sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
 
     // when
     idpSession.setUsername("newUser");
