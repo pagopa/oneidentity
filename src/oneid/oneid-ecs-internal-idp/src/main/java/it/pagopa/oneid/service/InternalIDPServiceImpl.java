@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
-import it.pagopa.oneid.connector.SessionConnectorImpl;
 import it.pagopa.oneid.exception.ClientNotFoundException;
 import it.pagopa.oneid.exception.MalformedAuthnRequestException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -90,9 +89,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   @Inject
   ClientConnectorImpl clientConnectorImpl;
-
-  @Inject
-  SessionConnectorImpl sessionConnectorImpl;
 
   @Inject
   SsmClient ssmClient;
