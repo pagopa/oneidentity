@@ -862,6 +862,13 @@
       "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
     },
     {
+      "id": "io.quarkus:quarkus-rest-qute:jar:3.11.3",
+      "artifactId": "quarkus-rest-qute",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "9SIpkGHVCLzTl77KuAjzsr0U1oNnL0kZWYGrFmRBFvo="
+    },
+    {
       "id": "org.opensaml:opensaml-security-api:jar:4.3.0",
       "artifactId": "opensaml-security-api",
       "groupId": "org.opensaml",
