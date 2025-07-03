@@ -43,13 +43,6 @@
             "integration.request.header.accept": "'*/*'"
           },
           "responses": {
-            "302": {
-              "statusCode": "302",
-              "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location",
-                "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
-              }
-            },
             "200": {
               "statusCode": "200",
               "responseParameters": {
@@ -94,38 +87,6 @@
           }
         },
         "responses": {
-          "302": {
-            "description": "Redirect user to a static html page after successful or not successfull authentication process",
-            "headers": {
-              "location": {
-                "description": "Location (URL)",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Set-Cookie": {
-                "description": "Cookie header",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
-          },
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
           },
@@ -150,29 +111,6 @@
           "Internal IDP APIs"
         ],
         "description": "This route will handle login requests for the internal IDP.",
-        "parameters": [
-          {
-            "in": "cookie",
-            "name": "AuthnRequestId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "cookie",
-            "name": "ClientId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "Cookie",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
@@ -181,17 +119,9 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'",
-            "integration.request.header.Cookie": "method.request.header.Cookie"
+            "integration.request.header.accept": "'*/*'"
           },
           "responses": {
-            "302": {
-              "statusCode": "302",
-              "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location",
-                "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
-              }
-            },
             "200": {
               "statusCode": "200",
               "responseParameters": {
@@ -246,38 +176,6 @@
           }
         },
         "responses": {
-          "302": {
-            "description": "Redirect user to a static html page after successful or not successfull authentication process",
-            "headers": {
-              "location": {
-                "description": "Location (URL)",
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Set-Cookie": {
-                "description": "Cookie header",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
-          },
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
           },
@@ -302,36 +200,6 @@
           "Internal IDP APIs"
         ],
         "description": "This route will handle the consent request after a successful authentication.",
-        "parameters": [
-          {
-            "in": "cookie",
-            "name": "AuthnRequestId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "cookie",
-            "name": "ClientId",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "cookie",
-            "name": "username",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "Cookie",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
@@ -340,16 +208,9 @@
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'",
-            "integration.request.header.Cookie": "method.request.header.Cookie"
+            "integration.request.header.accept": "'*/*'"
           },
           "responses": {
-            "302": {
-              "statusCode": "302",
-              "responseParameters": {
-                "method.response.header.location": "integration.response.header.Location"
-              }
-            },
             "200": {
               "statusCode": "200",
               "responseParameters": {
@@ -404,32 +265,6 @@
           }
         },
         "responses": {
-          "302": {
-            "description": "Redirect user to a static html page after successful or not successfull authentication process",
-            "headers": {
-              "location": {
-                "description": "Location (URL)",
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "content": {
-              "text/html": {
-                "schema": {
-                  "type": "string",
-                  "default": "no-cache"
-                }
-              },
-              "Cache-Control": {
-                "description": "Cache-Control browser directive",
-                "schema": {
-                  "type": "string",
-                  "default": "no-store"
-                }
-              }
-            }
-          },
           "200": {
             "$ref": "#/components/responses/responseOkHtml"
           },
