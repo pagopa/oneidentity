@@ -18,9 +18,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
+import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -55,7 +56,7 @@ public class InternalIDPController {
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public TemplateInstance samlSso(@RestForm("SAMLRequest") String authnRequestString) {
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString) {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
@@ -67,16 +68,21 @@ public class InternalIDPController {
     sessionServiceImpl.saveIDPSession(authnRequest, client);
 
     // Set authnRequestId and clientId as hidden form fields instead of cookies
-    return login.data("loginAction", IDP_LOGIN_ENDPOINT)
+    TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
         .data("authnRequestId", authnRequest.getID())
         .data("clientId", client.getClientId());
+
+    return Response.status(Status.OK)
+        .entity(instance.render())
+        .type(MediaType.TEXT_HTML)
+        .build();
   }
 
 
   @POST
   @Path("/login")
   @Produces(MediaType.TEXT_HTML)
-  public TemplateInstance login(@Valid LoginRequestDTO loginRequestDTO) {
+  public Response login(@Valid LoginRequestDTO loginRequestDTO) {
 
     // 1. check authnRequest
     //  a. AuthnRequestId presents in IdPSession Table
@@ -87,8 +93,10 @@ public class InternalIDPController {
           loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
-      // TODO: customize error message
-      return error.instance();
+      return Response.status(Status.OK)
+          .entity(error.data("errorMessage", "Session error"))
+          .type(MediaType.TEXT_HTML)
+          .build();
     }
 
     // 2. validate login information
@@ -99,8 +107,10 @@ public class InternalIDPController {
           loginRequestDTO.getUsername(),
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
-      // TODO: customize error message
-      return error.instance();
+      return Response.status(Status.OK)
+          .entity(error.data("errorMessage", "Validation error"))
+          .type(MediaType.TEXT_HTML)
+          .build();
     }
 
     // 3. Update IdPSession
@@ -110,14 +120,21 @@ public class InternalIDPController {
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
 
+    Set<String> requestedParameters = internalIDPServiceImpl.retrieveClientRequestedParameters(
+        idpSession.getClientId());
+
     // Pass authnRequestId, username, and clientId as hidden form fields to consent template
-    return consent
+    TemplateInstance instance = consent
         .data("consentAction", IDP_CONSENT_ENDPOINT)
         .data("authnRequestId", idpSession.getAuthnRequestId())
         .data("clientId", idpSession.getClientId())
         .data("username", idpSession.getUsername())
-        // TODO: replace with real data from the user
-        .data("dataList", List.of("Nome", "Cognome", "Email"));
+        .data("dataList", requestedParameters);
+
+    return Response.status(Status.OK)
+        .entity(instance.render())
+        .type(MediaType.TEXT_HTML)
+        .build();
 
   }
 
