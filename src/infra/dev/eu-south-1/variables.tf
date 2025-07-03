@@ -569,7 +569,7 @@ variable "ssm_idp_internal_cert_key" {
 
   default = {
     cert_pem = "idp_internal_cert.pem"
-    key_pem  = "idp_internal_cert_key.pem"
+    key_pem  = "idp_internal_key.pem"
   }
 
 }
