@@ -93,7 +93,7 @@ public class InternalIDPController {
           loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
-      return Response.status(Status.BAD_REQUEST)
+      return Response.status(Status.OK)
           .entity(error.data("errorMessage", "Session error"))
           .type(MediaType.TEXT_HTML)
           .build();
@@ -107,7 +107,7 @@ public class InternalIDPController {
           loginRequestDTO.getUsername(),
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
-      return Response.status(Status.BAD_REQUEST)
+      return Response.status(Status.OK)
           .entity(error.data("errorMessage", "Validation error"))
           .type(MediaType.TEXT_HTML)
           .build();
