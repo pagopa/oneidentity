@@ -18,6 +18,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class InternalIDPController {
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public TemplateInstance samlSso(@RestForm("SAMLRequest") String authnRequestString) {
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString) {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
@@ -67,9 +68,14 @@ public class InternalIDPController {
     sessionServiceImpl.saveIDPSession(authnRequest, client);
 
     // Set authnRequestId and clientId as hidden form fields instead of cookies
-    return login.data("loginAction", IDP_LOGIN_ENDPOINT)
+    TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
         .data("authnRequestId", authnRequest.getID())
         .data("clientId", client.getClientId());
+
+    return Response.status(Status.OK)
+        .entity(instance.render())
+        .type(MediaType.TEXT_HTML)
+        .build();
   }
 
 
