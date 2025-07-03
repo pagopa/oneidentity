@@ -87,8 +87,7 @@ public class InternalIDPController {
           loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
-      // TODO: customize error message
-      return error.instance();
+      return error.data("errorMessage", "Session error");
     }
 
     // 2. validate login information
@@ -99,8 +98,7 @@ public class InternalIDPController {
           loginRequestDTO.getUsername(),
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
-      // TODO: customize error message
-      return error.instance();
+      return error.data("errorMessage", "User validation error");
     }
 
     // 3. Update IdPSession
