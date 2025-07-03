@@ -164,7 +164,7 @@ public class InternalIDPController {
   private String getRedirectAutoSubmitPOSTForm(String url, String samlResponse) {
     return "<form id='samlResponseForm' action='" + url + "' method='POST'>"
         + "<input type='hidden' name='SAMLResponse' value='" + samlResponse + "'/>"
-        + "<input type='hidden' name='RelayState' value=''/>"
+        + "<input type='hidden' name='RelayState' value='internal-idp'/>"
         + "</form>"
         + "<script>document.getElementById('samlResponseForm').submit();</script>";
   }
