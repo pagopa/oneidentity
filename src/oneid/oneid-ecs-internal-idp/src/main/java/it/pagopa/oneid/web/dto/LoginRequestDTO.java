@@ -7,11 +7,11 @@ import org.jboss.resteasy.reactive.RestForm;
 @Data
 public class LoginRequestDTO {
 
-  @RestForm("AuthnRequestId")
+  @RestForm("authnRequestId")
   @NotBlank
   private String authnRequestId;
 
-  @RestForm("ClientId")
+  @RestForm("clientId")
   @NotBlank
   private String clientId;
 
