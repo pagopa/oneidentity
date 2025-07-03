@@ -350,6 +350,12 @@
                 "method.response.header.location": "integration.response.header.Location"
               }
             },
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'text/html'"
+              }
+            },
             "400": {
               "statusCode": "400",
               "responseParameters": {}
@@ -423,6 +429,9 @@
                 }
               }
             }
+          },
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
