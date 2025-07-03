@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
+import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -110,14 +110,16 @@ public class InternalIDPController {
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
 
+    Set<String> requestedParameters = internalIDPServiceImpl.retrieveClientRequestedParameters(
+        idpSession.getClientId());
+
     // Pass authnRequestId, username, and clientId as hidden form fields to consent template
     return consent
         .data("consentAction", IDP_CONSENT_ENDPOINT)
         .data("authnRequestId", idpSession.getAuthnRequestId())
         .data("clientId", idpSession.getClientId())
         .data("username", idpSession.getUsername())
-        // TODO: replace with real data from the user
-        .data("dataList", List.of("Nome", "Cognome", "Email"));
+        .data("dataList", requestedParameters);
 
   }
 

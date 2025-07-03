@@ -224,6 +224,14 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   }
 
+  @Override
+  public Set<String> retrieveClientRequestedParameters(String clientId) {
+    Client client = clientConnectorImpl.getClientById(clientId)
+        .orElseThrow(() -> new RuntimeException(
+            "Client not found for id: " + clientId));
+    return client.getRequestedParameters();
+  }
+
   private void marshallAndSignResponse(Response samlResponse, Signature signature) {
     Marshaller out = marshallerFactory
         .getMarshaller(samlResponse);
