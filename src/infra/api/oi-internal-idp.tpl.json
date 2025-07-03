@@ -50,6 +50,12 @@
                 "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
               }
             },
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "integration.response.header.Content-Type"
+              }
+            },
             "400": {
               "statusCode": "400",
               "responseParameters": {}
@@ -120,6 +126,9 @@
               }
             }
           },
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
           },
@@ -183,6 +192,12 @@
                 "method.response.header.Set-Cookie": "integration.response.multivalueheader.Set-Cookie"
               }
             },
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "integration.response.header.Content-Type"
+              }
+            },
             "400": {
               "statusCode": "400",
               "responseParameters": {}
@@ -210,11 +225,21 @@
                   "password": {
                     "description": "This is the password for the internal idp.",
                     "type": "string"
+                  },
+                  "authnRequestId": {
+                    "description": "This is the authnRequestId which has generated the login flow.",
+                    "type": "string"
+                  },
+                  "clientId": {
+                    "description": "This is the clientId related to the login flow.",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "username",
-                  "password"
+                  "password",
+                  "authnRequestId",
+                  "clientId"
                 ]
               }
             }
@@ -252,6 +277,9 @@
                 }
               }
             }
+          },
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -345,10 +373,25 @@
                   "consent": {
                     "description": "This indicates whether the user has given consent for the requested data.",
                     "type": "boolean"
+                  },
+                  "authnRequestId": {
+                    "description": "This is the authnRequestId which has generated the login flow.",
+                    "type": "string"
+                  },
+                  "clientId": {
+                    "description": "This is the clientId related to the login flow.",
+                    "type": "string"
+                  },
+                  "username": {
+                    "description": "This is the username for the internal idp.",
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "consent"
+                  "consent",
+                  "authnRequestId",
+                  "clientId",
+                  "username"
                 ]
               }
             }
