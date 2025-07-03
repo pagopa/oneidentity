@@ -112,7 +112,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @ConfigProperty(name = "idp_internal_certificate_name")
   String idpInternalCertName;
 
-  @ConfigProperty(name = "idp_internal_certificate_key_name")
+  @ConfigProperty(name = "idp_internal_key_name")
   String idpInternalCertKeyName;
 
   private KeyInfoGenerator keyInfoGenerator;
