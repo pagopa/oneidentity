@@ -82,7 +82,7 @@ public class InternalIDPController {
   @POST
   @Path("/login")
   @Produces(MediaType.TEXT_HTML)
-  public TemplateInstance login(@Valid LoginRequestDTO loginRequestDTO) {
+  public Response login(@Valid LoginRequestDTO loginRequestDTO) {
 
     // 1. check authnRequest
     //  a. AuthnRequestId presents in IdPSession Table
@@ -93,7 +93,10 @@ public class InternalIDPController {
           loginRequestDTO.getAuthnRequestId(), loginRequestDTO.getClientId(),
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
-      return error.data("errorMessage", "Session error");
+      return Response.status(Status.BAD_REQUEST)
+          .entity(error.data("errorMessage", "Session error"))
+          .type(MediaType.TEXT_HTML)
+          .build();
     }
 
     // 2. validate login information
@@ -104,7 +107,10 @@ public class InternalIDPController {
           loginRequestDTO.getUsername(),
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
-      return error.data("errorMessage", "User validation error");
+      return Response.status(Status.BAD_REQUEST)
+          .entity(error.data("errorMessage", "Validation error"))
+          .type(MediaType.TEXT_HTML)
+          .build();
     }
 
     // 3. Update IdPSession
@@ -118,12 +124,17 @@ public class InternalIDPController {
         idpSession.getClientId());
 
     // Pass authnRequestId, username, and clientId as hidden form fields to consent template
-    return consent
+    TemplateInstance instance = consent
         .data("consentAction", IDP_CONSENT_ENDPOINT)
         .data("authnRequestId", idpSession.getAuthnRequestId())
         .data("clientId", idpSession.getClientId())
         .data("username", idpSession.getUsername())
         .data("dataList", requestedParameters);
+
+    return Response.status(Status.OK)
+        .entity(instance.render())
+        .type(MediaType.TEXT_HTML)
+        .build();
 
   }
 
