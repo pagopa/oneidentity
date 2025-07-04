@@ -4,7 +4,7 @@ Unit tests for index.py
 import unittest
 from unittest.mock import patch, Mock
 from index import check_client_id_exists, get_cognito_client, get_dynamodb_client, \
-    update_optional_attributes, update_user_attributes_with_client_id
+    update_optional_attributes, update_user_attributes_with_client_id, get_optional_attributes
 
 
 class TestCheckClientIdExists(unittest.TestCase):
@@ -431,6 +431,84 @@ class TestUpdateOptionalAttributes(unittest.TestCase):
         self.assertEqual(response["message"], "Internal server error")
         mock_check_client_id_exists.assert_called_once_with("test_client_id")
         mock_update_item.assert_not_called()
+
+
+class TestGetOptionalAttributes(unittest.TestCase):
+            """Tests for the get_optional_attributes function."""
+
+            @patch("index.dynamodb_client.get_item")
+            @patch("index.os.getenv", return_value="test_table")
+            @patch("index.LocalizedContentMap.from_dynamodb")
+            def test_successful_retrieval(
+                self, mock_from_dynamodb, mock_getenv, mock_get_item
+            ):
+                # Mock DynamoDB response
+                mock_get_item.return_value = {
+                    "ResponseMetadata": {"HTTPStatusCode": 200},
+                    "Item": {
+                        "a11yUri": {"S": "https://example.com"},
+                        "backButtonEnabled": {"BOOL": True},
+                        "localizedContentMap": {"M": {"en": {"M": {}}}},
+                    },
+                }
+                mock_from_dynamodb.return_value = {"en": {"homepage": {}}}
+
+
+                response, status_code = get_optional_attributes("test_client_id")
+                self.assertEqual(status_code, 200)
+                self.assertEqual(response["a11y_uri"], "https://example.com")
+                self.assertEqual(response["back_button_enabled"], True)
+                self.assertEqual(response["localizedContentMap"], {"en": {"homepage": {}}})
+                mock_get_item.assert_called_once_with(
+                    TableName="test_table", Key={"clientId": {"S": "test_client_id"}}
+                )
+                mock_from_dynamodb.assert_called_once_with({"en": {"M": {}}})
+
+            @patch("index.dynamodb_client.get_item")
+            @patch("index.os.getenv", return_value="test_table")
+            def test_dynamodb_failure(self, mock_getenv, mock_get_item):
+                # Simulate DynamoDB returning a non-200 status code
+                mock_get_item.return_value = {
+                    "ResponseMetadata": {"HTTPStatusCode": 500}
+                }
+
+
+                response, status_code = get_optional_attributes("test_client_id")
+                self.assertEqual(status_code, 500)
+                self.assertEqual(response["message"], "Failed to retrieve optional attributes")
+                mock_get_item.assert_called_once_with(
+                    TableName="test_table", Key={"clientId": {"S": "test_client_id"}}
+                )
+
+            @patch("index.dynamodb_client.get_item")
+            @patch("index.os.getenv", return_value="test_table")
+            def test_item_not_found(self, mock_getenv, mock_get_item):
+                # Simulate DynamoDB returning no item
+                mock_get_item.return_value = {
+                    "ResponseMetadata": {"HTTPStatusCode": 200},
+                }
+
+
+                response, status_code = get_optional_attributes("test_client_id")
+                self.assertEqual(status_code, 404)
+                self.assertEqual(response["message"], "client_id not found")
+                mock_get_item.assert_called_once_with(
+                    TableName="test_table", Key={"clientId": {"S": "test_client_id"}}
+                )
+
+            @patch("index.dynamodb_client.get_item")
+            @patch("index.os.getenv", return_value="test_table")
+            def test_exception_handling(self, mock_getenv, mock_get_item):
+                # Simulate an exception being raised
+                mock_get_item.side_effect = Exception("Unexpected error")
+
+
+                response, status_code = get_optional_attributes("test_client_id")
+                self.assertEqual(status_code, 500)
+                self.assertEqual(response["message"], "Internal server error")
+                mock_get_item.assert_called_once_with(
+                    TableName="test_table", Key={"clientId": {"S": "test_client_id"}}
+                )
 
 if __name__ == "__main__":
     unittest.main()
