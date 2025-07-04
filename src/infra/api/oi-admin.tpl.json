@@ -27,7 +27,7 @@
     "/client-manager/user-attributes": {
       "put": {
         "tags": ["Admin Client Manager APIs"],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates the Cognito user attributes by inserting the client_id value.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
@@ -116,7 +116,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates optional fields on Client related table",
         "operationId": "Put_admin_client_manager_client_additional",
         "parameters": [
           {
@@ -218,7 +218,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint creates a user in the Internal IDP",
         "operationId": "Post_admin_client_manager_client_users",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
@@ -320,7 +320,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates a user in the Internal IDP",
         "operationId": "Put_admin_client_manager_client_users",
         "parameters": [
           {
@@ -427,7 +427,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint deletes a user in the Internal IDP",
         "operationId": "Delete_admin_client_manager_client_users",
         "parameters": [
           {
@@ -1206,11 +1206,11 @@
         "properties": {
           "user_id": {
             "type": "string",
-            "description": "The user id"
+            "description": "Cognito username of the user"
           },
           "client_id": {
             "type": "string",
-            "description": "The client id"
+            "description": "Client ID to associate to the user"
           }
         }
       },
