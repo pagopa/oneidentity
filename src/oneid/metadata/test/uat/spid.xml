@@ -592,4 +592,126 @@
             </OrganizationURL>
         </Organization>
     </md:EntityDescriptor>
+    <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+                         xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                         ID="_5ffda6a72cec0a877ba32f460897b4131ad8b6e090"
+                         entityID="https://idp.uat.oneid.pagopa.it">
+        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+            <ds:SignedInfo>
+                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+                <ds:Reference URI="#_5ffda6a72cec0a877ba32f460897b4131ad8b6e090">
+                    <ds:Transforms>
+                        <ds:Transform
+                                Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                    </ds:Transforms>
+                    <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                    <ds:DigestValue>mrwttNlAcmt8NXXDFBjkEWTyNLynOx92fjywZKhpBxc=</ds:DigestValue>
+                </ds:Reference>
+            </ds:SignedInfo>
+            <ds:SignatureValue>
+                zbV3K0UJCcU7eYfAEesv9Gm+iJ55zk7cMl8qiN/efYlxxLKgAFHPzJpjmq4QKZ8dGp+AF/myUNY9qfPUL5no8ldA5RhGYKw3HNohhT8KRWoYwYc++dvFgVzyVsXo6yq12HENT1A5iNY3SL85nGfpMPvkEYGXVu34xXrjx52k9l3p4bO0MVjAxsjp5CtRRMP61QBcoLFxuwAZbMld6rW53qZeo1EJiO7KFrv737Qyfn+LqLoVEaqxfsJxO7+4jnApIM+rKRqkF3+jw25yMk0dVYt3cbUZ45nlppxGvIGhcsbpHMkFDHojXKe8ge5m1pK/9jLJJNIrdEhzDTZVlcy32A==
+            </ds:SignatureValue>
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIFNjCCA56gAwIBAgIUeg/8zG7Rgl0zS53HGUdKSyFJIQ4wDQYJKoZIhvcNAQEN
+                        BQAwgYoxDzANBgNVBAMMBlBhZ29QQTELMAkGA1UEBhMCSVQxDTALBgNVBAcMBFJv
+                        bWExFzAVBgNVBGEMDlBBOklULTVOMlRSNTU3MRYwFAYDVQQKDA1QYWdvUEEgUy5w
+                        LkEuMSowKAYDVQRTDCFodHRwczovL3VhdC5vbmVpZGVudGl0eS5wYWdvcGEuaXQw
+                        HhcNMjQxMDAzMDkwMzEyWhcNMzQxMDAxMDkwMzEyWjCBijEPMA0GA1UEAwwGUGFn
+                        b1BBMQswCQYDVQQGEwJJVDENMAsGA1UEBwwEUm9tYTEXMBUGA1UEYQwOUEE6SVQt
+                        NU4yVFI1NTcxFjAUBgNVBAoMDVBhZ29QQSBTLnAuQS4xKjAoBgNVBFMMIWh0dHBz
+                        Oi8vdWF0Lm9uZWlkZW50aXR5LnBhZ29wYS5pdDCCAaIwDQYJKoZIhvcNAQEBBQAD
+                        ggGPADCCAYoCggGBAMnL/CSHvkMrywIqibyaqGPaDPMkuGS09WJlxs0rOkby50GY
+                        oaHsTmO7WrmV9cSIKEuAvbnqRvXgO4gzxakWUV+hcMLk8vf4cETfqcYkXJNMxKKJ
+                        NnWpK42Uxl8wtWtyY+Y8aQ7D2oxK75lxd8MG/cqJQLW3UAQmJbP8fltcjzOUZcaw
+                        QIk+Hbom4CCRIL1lqrfKHq8jQuxAcFEYvp2aANAth87ZuYbgcbEmRJMq+Wr26IuL
+                        RoFM5F36y4uSBUiaylWSYWX9fff3+6bmOmnQ/xcb/ayA1CUY1hW76mT4Y/nsdQAp
+                        6fpCOqQcO8QT+R7mETsyzzqVP7cBmLF8tbjxLApTavrAKAUI+ztvn/I76fickTt1
+                        cxIlmJ9qYuKQtob/OA8McA09sNawWxhlz7G0I2ldRVqmq3D1X0w2X7NBsBY9APRh
+                        ZPMcVVjeZ4YsijIGzkkMDL43VgQ9ZjVKkMHSGN8fFo8nQ0XeFJZvJrdRz0u0RYzP
+                        k2S8sXVpQFOG0DQToQIDAQABo4GRMIGOMAkGA1UdEwQCMAAwDgYDVR0PAQH/BAQD
+                        AgbAMFIGA1UdIARLMEkwIAYEK0wQBjAYMBYGCCsGAQUFBwICMAoaCGFnSURjZXJ0
+                        MCUGBitMEAQCATAbMBkGCCsGAQUFBwICMA0aC2NlcnRfU1BfUHViMB0GA1UdDgQW
+                        BBSmU24f4vLwoQGUY90fljpUAGFsyzANBgkqhkiG9w0BAQ0FAAOCAYEAOpu7aM1U
+                        sf2FOlUnnXM8joALVJlzf+LS9ynBMgDZSBZTdDZMQAnQ1vznNr3WXe83JCs9VwHk
+                        Zn6FcDgZeqFXd9ruKzkdzkATAIeli9OsfPINQEkcHX2gM+eqcoB518jbmTXsffNI
+                        z3SuHadwzJsfOG17DIF2+BpmayG8TmkzFGLqm2Rv6n6xzpxJ7pVPv7QZ91a4/8sK
+                        bVuMjR0gU3wW7cv6QObB090r9o8xQueD14wkamO2R3d3TtpI4L0Yb2vUZ+vL+ylQ
+                        6cva16iYA9Plyc4mVAHD2etk7KAt8Ec+LttduAxsTtL+wWjmPtsFBFKZ30bFLYWK
+                        iUX5hsERhTcdAAFRyhgZKVbbNqJ+Pr/+W6rIXPONDQ42eH8KHDKdu6PvVlmeILkJ
+                        b2tczZRmailaxWxz48Tztz0Ntr67688R5W/re4cVbw4lXisytyxrZWZ/XYxsR4f7
+                        oM1OW2umeTK7dQ0HxMis3vb1EEumT2r0ZeLeaBcF4sMK5I/XBP0TVc5p
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </ds:Signature>
+        <md:IDPSSODescriptor WantAuthnRequestsSigned="true"
+                             protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <md:KeyDescriptor use="signing">
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIIFNjCCA56gAwIBAgIUeg/8zG7Rgl0zS53HGUdKSyFJIQ4wDQYJKoZIhvcNAQEN
+                            BQAwgYoxDzANBgNVBAMMBlBhZ29QQTELMAkGA1UEBhMCSVQxDTALBgNVBAcMBFJv
+                            bWExFzAVBgNVBGEMDlBBOklULTVOMlRSNTU3MRYwFAYDVQQKDA1QYWdvUEEgUy5w
+                            LkEuMSowKAYDVQRTDCFodHRwczovL3VhdC5vbmVpZGVudGl0eS5wYWdvcGEuaXQw
+                            HhcNMjQxMDAzMDkwMzEyWhcNMzQxMDAxMDkwMzEyWjCBijEPMA0GA1UEAwwGUGFn
+                            b1BBMQswCQYDVQQGEwJJVDENMAsGA1UEBwwEUm9tYTEXMBUGA1UEYQwOUEE6SVQt
+                            NU4yVFI1NTcxFjAUBgNVBAoMDVBhZ29QQSBTLnAuQS4xKjAoBgNVBFMMIWh0dHBz
+                            Oi8vdWF0Lm9uZWlkZW50aXR5LnBhZ29wYS5pdDCCAaIwDQYJKoZIhvcNAQEBBQAD
+                            ggGPADCCAYoCggGBAMnL/CSHvkMrywIqibyaqGPaDPMkuGS09WJlxs0rOkby50GY
+                            oaHsTmO7WrmV9cSIKEuAvbnqRvXgO4gzxakWUV+hcMLk8vf4cETfqcYkXJNMxKKJ
+                            NnWpK42Uxl8wtWtyY+Y8aQ7D2oxK75lxd8MG/cqJQLW3UAQmJbP8fltcjzOUZcaw
+                            QIk+Hbom4CCRIL1lqrfKHq8jQuxAcFEYvp2aANAth87ZuYbgcbEmRJMq+Wr26IuL
+                            RoFM5F36y4uSBUiaylWSYWX9fff3+6bmOmnQ/xcb/ayA1CUY1hW76mT4Y/nsdQAp
+                            6fpCOqQcO8QT+R7mETsyzzqVP7cBmLF8tbjxLApTavrAKAUI+ztvn/I76fickTt1
+                            cxIlmJ9qYuKQtob/OA8McA09sNawWxhlz7G0I2ldRVqmq3D1X0w2X7NBsBY9APRh
+                            ZPMcVVjeZ4YsijIGzkkMDL43VgQ9ZjVKkMHSGN8fFo8nQ0XeFJZvJrdRz0u0RYzP
+                            k2S8sXVpQFOG0DQToQIDAQABo4GRMIGOMAkGA1UdEwQCMAAwDgYDVR0PAQH/BAQD
+                            AgbAMFIGA1UdIARLMEkwIAYEK0wQBjAYMBYGCCsGAQUFBwICMAoaCGFnSURjZXJ0
+                            MCUGBitMEAQCATAbMBkGCCsGAQUFBwICMA0aC2NlcnRfU1BfUHViMB0GA1UdDgQW
+                            BBSmU24f4vLwoQGUY90fljpUAGFsyzANBgkqhkiG9w0BAQ0FAAOCAYEAOpu7aM1U
+                            sf2FOlUnnXM8joALVJlzf+LS9ynBMgDZSBZTdDZMQAnQ1vznNr3WXe83JCs9VwHk
+                            Zn6FcDgZeqFXd9ruKzkdzkATAIeli9OsfPINQEkcHX2gM+eqcoB518jbmTXsffNI
+                            z3SuHadwzJsfOG17DIF2+BpmayG8TmkzFGLqm2Rv6n6xzpxJ7pVPv7QZ91a4/8sK
+                            bVuMjR0gU3wW7cv6QObB090r9o8xQueD14wkamO2R3d3TtpI4L0Yb2vUZ+vL+ylQ
+                            6cva16iYA9Plyc4mVAHD2etk7KAt8Ec+LttduAxsTtL+wWjmPtsFBFKZ30bFLYWK
+                            iUX5hsERhTcdAAFRyhgZKVbbNqJ+Pr/+W6rIXPONDQ42eH8KHDKdu6PvVlmeILkJ
+                            b2tczZRmailaxWxz48Tztz0Ntr67688R5W/re4cVbw4lXisytyxrZWZ/XYxsR4f7
+                            oM1OW2umeTK7dQ0HxMis3vb1EEumT2r0ZeLeaBcF4sMK5I/XBP0TVc5p
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </md:KeyDescriptor>
+            <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                    Location="https://idp.uat.oneid.pagopa.it/samllo"
+                                    ResponseLocation="https://idp.uat.oneid.pagopa.it/samllo"/>
+            <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>
+            <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                    Location="https://idp.uat.oneid.pagopa.it/samlsso"/>
+        </md:IDPSSODescriptor>
+        <Organization>
+            <OrganizationName xml:lang="it">
+                Internal IDP Uat
+            </OrganizationName>
+            <OrganizationName xml:lang="en">
+                Internal IDP Uat
+            </OrganizationName>
+            <OrganizationDisplayName xml:lang="it">
+                Internal IDP Uat
+            </OrganizationDisplayName>
+            <OrganizationDisplayName xml:lang="en">
+                Internal IDP Uat
+            </OrganizationDisplayName>
+            <OrganizationURL xml:lang="it">
+                https://idp.uat.oneid.pagopa.it
+            </OrganizationURL>
+            <OrganizationURL xml:lang="en">
+                https://idp.uat.oneid.pagopa.it
+            </OrganizationURL>
+        </Organization>
+    </md:EntityDescriptor>
 </EntitiesDescriptor>

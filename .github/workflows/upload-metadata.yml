@@ -74,14 +74,14 @@ jobs:
       - name: Take all test-idp files
         if: ${{ matrix.environment != 'prod' }}
         id: test-files
-        working-directory: src/oneid/metadata/test
+        working-directory: src/oneid/metadata/test/${{ matrix.environment }}
         run: |
           echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) | xargs)" >> $GITHUB_OUTPUT
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
         if: ${{ matrix.environment != 'prod' }}
-        working-directory: src/oneid/metadata/test
+        working-directory: src/oneid/metadata/test/${{ matrix.environment }}
         run: |
           for file in ${{ steps.test-files.outputs.test_files }}; do
               if [[ $file == *.xml ]]; then
