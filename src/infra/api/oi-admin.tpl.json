@@ -27,7 +27,7 @@
     "/client-manager/user-attributes": {
       "put": {
         "tags": ["Admin Client Manager APIs"],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates the Cognito user attributes by inserting the client_id value.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
@@ -116,7 +116,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates optional fields of a Client",
         "operationId": "Put_admin_client_manager_client_additional",
         "parameters": [
           {
@@ -209,6 +209,94 @@
             "${authorizer}": []
           }
         ]
+      },
+
+      "get": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint retrieves optional fields of a Client",
+        "operationId": "Get_admin_client_manager_client_additional",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkClientAdditionalJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
       }
     },
     %{ if strcontains(server_url, "dev") || strcontains(server_url, "uat") 
@@ -218,7 +306,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint creates a user in the Internal IDP",
         "operationId": "Post_admin_client_manager_client_users",
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
@@ -320,7 +408,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint updates a user in the Internal IDP",
         "operationId": "Put_admin_client_manager_client_users",
         "parameters": [
           {
@@ -427,7 +515,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "description": "This endpoint deletes a user in the Internal IDP",
         "operationId": "Delete_admin_client_manager_client_users",
         "parameters": [
           {
@@ -907,8 +995,27 @@
           }
         }
       },
-      "responseOkUsersJson": {
+      "responseOkClientAdditionalJson":{
         "description": "Response Ok, No Content",
+        "headers": {
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ClientAdditional"
+            }
+          }
+        }
+      },
+      "responseOkUsersJson": {
+        "description": "Users list",
         "headers": {
           "content-type": {
             "application/json": {
@@ -1206,11 +1313,11 @@
         "properties": {
           "user_id": {
             "type": "string",
-            "description": "The user id"
+            "description": "Cognito username of the user"
           },
           "client_id": {
             "type": "string",
-            "description": "The client id"
+            "description": "Client ID to associate to the user"
           }
         }
       },

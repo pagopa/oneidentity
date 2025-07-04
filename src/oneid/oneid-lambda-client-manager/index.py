@@ -152,7 +152,7 @@ def update_user_attributes_with_client_id():
     """
     Inserts 'client_id' inside Cognito User Attributes
     """
-    logger.info("/admin/client-manager/user-attributes route invoked")
+    logger.info("/client-manager/user-attributes route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -191,15 +191,57 @@ def update_user_attributes_with_client_id():
     except Exception as e:
         logger.error("Error updating client id: %s", repr(e))
         return {"message": "Internal server error"}, 500
-    return None
+
+
+@app.get("/client-manager/client-additional/<client_id>")
+def get_optional_attributes(client_id: str):
+    """
+    Retrieves optional fields for a client from the ClientRegistrations table
+    """
+    logger.info("/client-manager/client-additional GET route invoked")
+    try:
+        # Retrieve the item from DynamoDB
+        response = dynamodb_client.get_item(
+            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
+            Key={"clientId": {"S": client_id}},
+        )
+        logger.debug("[get_optional_attributes]: %s", response)
+
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[get_optional_attributes]: %s", response)
+            return {"message": "Failed to retrieve optional attributes"}, 500
+
+        item = response.get("Item")
+        if not item:
+            return {"message": "client_id not found"}, 404
+
+        # Extract optional fields
+        a11y_uri = item.get("a11yUri", {}).get("S")
+        back_button_enabled = item.get("backButtonEnabled", {}).get("BOOL")
+        localized_content_map = item.get("localizedContentMap", {}).get("M")
+
+        # Convert localized_content_map from DynamoDB format to JSON
+        localized_content = None
+        if localized_content_map:
+            localized_content = LocalizedContentMap.from_dynamodb(localized_content_map)
+
+        return {
+            "a11y_uri": a11y_uri,
+            "back_button_enabled": back_button_enabled,
+            "localizedContentMap": localized_content,
+        }, 200
+
+    except Exception as e:
+        logger.error("Error retrieving optional attributes: %s", repr(e))
+        return {"message": "Internal server error"}, 500
 
 
 @app.put("/client-manager/client-additional/<client_id>")
-def update_optional_attributes(client_id):
+def create_or_update_optional_attributes(client_id):
     """
     Updates optional fields on 'ClientRegistrations' Table
     """
-    logger.info("/admin/client-manager/client-additional route invoked")
+    logger.info("/client-manager/client-additional route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -208,11 +250,19 @@ def update_optional_attributes(client_id):
         if not body:
             return {"message": "Request body is required"}, 400
 
+        user_id = body.get("user_id")
+        if not user_id:
+            return {"message": "user_id is required"}, 400
+
         # Check if client_id exists in ClientRegistrations table
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
 
-        # TODO: check if client_id is associated with the Cognito user_id which executed the request
+        # Check if client_id is associated with the Cognito user_id which executed the request
+        associated_client_id = extract_client_id_from_connected_user(user_id)
+        if associated_client_id != client_id:
+            logger.error("[create_or_update_optional_attributes]: client_id is not associated with the provided user_id")
+            return {"message": "client_id is not associated with the provided user_id"}, 403
 
         # Extract optional attributes from the request body
         a11y_uri = body.get("a11y_uri")
@@ -220,10 +270,10 @@ def update_optional_attributes(client_id):
         localized_content = body.get("localizedContentMap")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
-        logger.debug("[update_optional_attributes]: %s", localized_content_map_object)
+        logger.debug("[create_or_update_optional_attributes]: %s", localized_content_map_object)
         localized_content_map_object_value = localized_content_map_object.to_dynamodb()
         logger.debug(
-            "[update_optional_attributes]: %s", localized_content_map_object_value
+            "[create_or_update_optional_attributes]: %s", localized_content_map_object_value
         )
         # Update the optional attributes in DynamoDB in ClientRegistrations table
         response = dynamodb_client.update_item(
@@ -236,11 +286,11 @@ def update_optional_attributes(client_id):
                 ":localizedContentMap": localized_content_map_object_value,
             },
         )
-        logger.debug("[update_optional_attributes]: %s", response)
+        logger.debug("[create_or_update_optional_attributes]: %s", response)
 
         # Check if the response indicates success
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
-            logger.error("[update_optional_attributes]: %s", response)
+            logger.error("[create_or_update_optional_attributes]: %s", response)
             return {"message": "Failed to update optional attributes"}, 500
 
         # Return success response
@@ -249,15 +299,15 @@ def update_optional_attributes(client_id):
     except Exception as e:
         logger.error("Error updating optional attributes: %s", repr(e))
         return {"message": "Internal server error"}, 500
-    return None
 
 
+#region Internal IDP related routes
 @app.post("/client-manager/client-users")
 def create_idp_internal_user():
     """
     Creates a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users POST route invoked")
+    logger.info("/client-manager/client-users POST route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -339,7 +389,7 @@ def update_idp_internal_user(user_id: str, username: str):
     """
     Updates a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users PUT route invoked")
+    logger.info("/client-manager/client-users PUT route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -408,7 +458,7 @@ def delete_idp_internal_user(user_id: str, username: str):
     """
     Deletes a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users DELETE route invoked")
+    logger.info("/client-manager/client-users DELETE route invoked")
     try:
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
@@ -445,7 +495,7 @@ def get_idp_internal_users(user_id: str):
     """
     Retrieves all users of a client in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users GET route invoked")
+    logger.info("/client-manager/client-users GET route invoked")
     try:
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
@@ -495,6 +545,7 @@ def get_idp_internal_users(user_id: str):
     except Exception as e:
         logger.error("Error retrieving users: %s", repr(e))
         return {"message": "Internal server error"}, 500
+#endregion
 
 @tracer.capture_lambda_handler
 def handler(event: dict, context: LambdaContext) -> dict:

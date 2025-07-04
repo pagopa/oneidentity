@@ -81,3 +81,27 @@ class LocalizedContentMap:
             for language, themes in json_data.items()
         }
         return cls(content_map=content_map)
+    
+
+    @classmethod
+    def from_dynamodb(cls, dynamodb_data: Dict) -> "LocalizedContentMap":
+        """
+        Construct a LocalizedContentMap object from a DynamoDB-formatted dictionary.
+        :param dynamodb_data: The DynamoDB dictionary containing the content map.
+        :return: A LocalizedContentMap object.
+        """
+        content_map = {}
+        languages = dynamodb_data.get("M", {})
+        for language, lang_data in languages.items():
+            themes = lang_data.get("M", {})
+            content_map[language] = {}
+            for key, theme_data in themes.items():
+                theme_fields = theme_data.get("M", {})
+                content_map[language][key] = Theme(
+                    title=theme_fields.get("title", {}).get("S", ""),
+                    desc=theme_fields.get("desc", {}).get("S", ""),
+                    doc_uri=theme_fields.get("doc_uri", {}).get("S", ""),
+                    support_address=theme_fields.get("support_address", {}).get("S", ""),
+                    cookie_uri=theme_fields.get("cookie_uri", {}).get("S", "")
+                )
+        return cls(content_map=content_map)
