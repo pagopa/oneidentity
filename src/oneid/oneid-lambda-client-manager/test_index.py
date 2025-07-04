@@ -4,7 +4,7 @@ Unit tests for index.py
 import unittest
 from unittest.mock import patch, Mock
 from index import check_client_id_exists, get_cognito_client, get_dynamodb_client, \
-    update_optional_attributes, update_user_attributes_with_client_id, get_optional_attributes
+    create_or_update_optional_attributes, update_user_attributes_with_client_id, get_optional_attributes
 
 
 class TestCheckClientIdExists(unittest.TestCase):
@@ -254,7 +254,7 @@ class TestUpdateOptionalAttributes(unittest.TestCase):
         mock_update_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
         mock_getenv.return_value = "test_table"
 
-        response, status_code = update_optional_attributes("test_client_id")
+        response, status_code = create_or_update_optional_attributes("test_client_id")
 
         self.assertEqual(status_code, 200)
         self.assertEqual(response["message"], "Optional attributes updated successfully")
@@ -313,7 +313,7 @@ class TestUpdateOptionalAttributes(unittest.TestCase):
         mock_check_client_id_exists.return_value = False
         mock_getenv.return_value = "test_table"
 
-        response, status_code = update_optional_attributes("nonexistent_client_id")
+        response, status_code = create_or_update_optional_attributes("nonexistent_client_id")
 
         self.assertEqual(status_code, 404)
         self.assertEqual(response["message"], "client_id not found")
@@ -366,7 +366,7 @@ class TestUpdateOptionalAttributes(unittest.TestCase):
         mock_update_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 500}}
         mock_getenv.return_value = "test_table"
 
-        response, status_code = update_optional_attributes("test_client_id")
+        response, status_code = create_or_update_optional_attributes("test_client_id")
 
         self.assertEqual(status_code, 500)
         self.assertEqual(response["message"], "Failed to update optional attributes")
@@ -425,7 +425,7 @@ class TestUpdateOptionalAttributes(unittest.TestCase):
         mock_check_client_id_exists.side_effect = Exception("Unexpected error")
         mock_getenv.return_value = "test_table"
 
-        response, status_code = update_optional_attributes("test_client_id")
+        response, status_code = create_or_update_optional_attributes("test_client_id")
 
         self.assertEqual(status_code, 500)
         self.assertEqual(response["message"], "Internal server error")

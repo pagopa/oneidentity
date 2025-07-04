@@ -237,7 +237,7 @@ def get_optional_attributes(client_id: str):
 
 
 @app.put("/client-manager/client-additional/<client_id>")
-def update_optional_attributes(client_id):
+def create_or_update_optional_attributes(client_id):
     """
     Updates optional fields on 'ClientRegistrations' Table
     """
@@ -261,7 +261,7 @@ def update_optional_attributes(client_id):
         # Check if client_id is associated with the Cognito user_id which executed the request
         associated_client_id = extract_client_id_from_connected_user(user_id)
         if associated_client_id != client_id:
-            logger.error("[update_optional_attributes]: client_id is not associated with the provided user_id")
+            logger.error("[create_or_update_optional_attributes]: client_id is not associated with the provided user_id")
             return {"message": "client_id is not associated with the provided user_id"}, 403
 
         # Extract optional attributes from the request body
@@ -270,10 +270,10 @@ def update_optional_attributes(client_id):
         localized_content = body.get("localizedContentMap")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
-        logger.debug("[update_optional_attributes]: %s", localized_content_map_object)
+        logger.debug("[create_or_update_optional_attributes]: %s", localized_content_map_object)
         localized_content_map_object_value = localized_content_map_object.to_dynamodb()
         logger.debug(
-            "[update_optional_attributes]: %s", localized_content_map_object_value
+            "[create_or_update_optional_attributes]: %s", localized_content_map_object_value
         )
         # Update the optional attributes in DynamoDB in ClientRegistrations table
         response = dynamodb_client.update_item(
@@ -286,11 +286,11 @@ def update_optional_attributes(client_id):
                 ":localizedContentMap": localized_content_map_object_value,
             },
         )
-        logger.debug("[update_optional_attributes]: %s", response)
+        logger.debug("[create_or_update_optional_attributes]: %s", response)
 
         # Check if the response indicates success
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
-            logger.error("[update_optional_attributes]: %s", response)
+            logger.error("[create_or_update_optional_attributes]: %s", response)
             return {"message": "Failed to update optional attributes"}, 500
 
         # Return success response
