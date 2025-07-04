@@ -152,7 +152,7 @@ def update_user_attributes_with_client_id():
     """
     Inserts 'client_id' inside Cognito User Attributes
     """
-    logger.info("/admin/client-manager/user-attributes route invoked")
+    logger.info("/client-manager/user-attributes route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -199,7 +199,7 @@ def update_optional_attributes(client_id):
     """
     Updates optional fields on 'ClientRegistrations' Table
     """
-    logger.info("/admin/client-manager/client-additional route invoked")
+    logger.info("/client-manager/client-additional route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -257,7 +257,7 @@ def create_idp_internal_user():
     """
     Creates a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users POST route invoked")
+    logger.info("/client-manager/client-users POST route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -339,7 +339,7 @@ def update_idp_internal_user(user_id: str, username: str):
     """
     Updates a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users PUT route invoked")
+    logger.info("/client-manager/client-users PUT route invoked")
     try:
         # Parse the JSON body of the request
         body = app.current_event.json_body
@@ -408,7 +408,7 @@ def delete_idp_internal_user(user_id: str, username: str):
     """
     Deletes a user in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users DELETE route invoked")
+    logger.info("/client-manager/client-users DELETE route invoked")
     try:
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
@@ -445,7 +445,7 @@ def get_idp_internal_users(user_id: str):
     """
     Retrieves all users of a client in the Internal IDP
     """
-    logger.info("/admin/client-manager/client-users GET route invoked")
+    logger.info("/client-manager/client-users GET route invoked")
     try:
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
