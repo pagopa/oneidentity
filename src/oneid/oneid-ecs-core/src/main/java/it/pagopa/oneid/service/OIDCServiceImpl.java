@@ -231,35 +231,8 @@ public class OIDCServiceImpl implements OIDCService {
           nonce);
     } else {
       // if client needs the "sameIdp" claim
-
-      // Get hashed fiscalNumber from attribute list
-      id = getHashedIdFromAttributeDTOList(attributeDTOList);
-      if (id != null) {
-        // if hashed fiscalNumber is present, use it as id for the findLastIDPUsed
-        boolean sameIdp = false;
-        Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
-        if (lastIDPUsed.isPresent()) {
-          // if there are last login information available for the id and clientId, check if tha lastIdp matches the current one
-          // TODO do we need to check the 'ttl' parameter to avoid DynamoDB delayed deletion issues?
-          sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
-        }
-        if (!sameIdp) {
-          // if the IDP has changed we need to update the lastIDP record
-          long ttl = Instant.now().plus(LAST_IDP_USED_TTL, ChronoUnit.DAYS).getEpochSecond();
-          lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
-              .id(id)
-              .clientId(clientId)
-              .entityId(entityId)
-              .ttl(ttl)
-              .build());
-        }
-        signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-            nonce, sameIdp);
-      } else {
-        // if hashed fiscalNumber is not present we can't check last login information
-        signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-            nonce);
-      }
+      signedJWTString = getSignedJWTStringWithSameIdpClaim(requestId, clientId, attributeDTOList,
+          nonce, entityId);
     }
     SignedJWT signedJWTIDToken;
     try {
@@ -278,6 +251,58 @@ public class OIDCServiceImpl implements OIDCService {
         .expiresIn(accessToken.getLifetime())
         .scope("openid")
         .build();
+  }
+
+  private String getSignedJWTStringWithSameIdpClaim(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
+      String nonce, String entityId) {
+    String id;
+    String signedJWTString;
+
+    // Get hashed fiscalNumber from attribute list
+    id = getHashedIdFromAttributeDTOList(attributeDTOList);
+    if (id != null) {
+      // if hashed fiscalNumber is present, use it as id for the findLastIDPUsed
+      boolean sameIdp = false;
+      Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
+      if (lastIDPUsed.isPresent()) {
+        // if there are last login information available for the id and clientId, check the ttl parameter and check if tha lastIdp matches the current one
+        if (!(lastIDPUsed.get().getTtl() < Instant.now().getEpochSecond())) {
+          // if the ttl is not expired, check if the last IDP used matches the current one
+          sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
+          if (!sameIdp) {
+            // if the IDP has changed we need to update the lastIDP record
+            updateLastIDPUsedRecord(clientId, entityId, id);
+          }
+        }
+        // if the ttl is expired, we update the lastIDP record with the new one
+        else {
+          updateLastIDPUsedRecord(clientId, entityId, id);
+        }
+      } else {
+        // if there are no last login information available for the id and clientId, we consider it as a new user for the client
+        // we force the sameIdp to true and update the lastIDP record
+        sameIdp = true;
+        updateLastIDPUsedRecord(clientId, entityId, id);
+      }
+      signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+          nonce, sameIdp);
+    } else {
+      // if hashed fiscalNumber is not present we can't check last login information
+      signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
+          nonce);
+    }
+    return signedJWTString;
+  }
+
+  private void updateLastIDPUsedRecord(String clientId, String entityId, String id) {
+    long ttl = Instant.now().plus(LAST_IDP_USED_TTL, ChronoUnit.DAYS).getEpochSecond();
+    lastIDPUsedConnectorImpl.updateLastIDPUsed(LastIDPUsed.builder()
+        .id(id)
+        .clientId(clientId)
+        .entityId(entityId)
+        .ttl(ttl)
+        .build());
   }
 
   @Override
