@@ -274,10 +274,12 @@ variable "client_status_history_table" {
 variable "last_idp_used_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
+    ttl_enabled                    = optional(bool, false)
   })
   description = "Last IDP used table configurations."
   default = {
     point_in_time_recovery_enabled = false
+    ttl_enabled                    = false
   }
 }
 
