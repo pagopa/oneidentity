@@ -193,13 +193,17 @@ def update_user_attributes_with_client_id():
         return {"message": "Internal server error"}, 500
 
 
-@app.get("/client-manager/client-additional/<client_id>")
-def get_optional_attributes(client_id: str):
+@app.get("/client-manager/client-additional/<user_id>")
+def get_optional_attributes(user_id: str):
     """
     Retrieves optional fields for a client from the ClientRegistrations table
     """
     logger.info("/client-manager/client-additional GET route invoked")
     try:
+
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
+
         # Retrieve the item from DynamoDB
         response = dynamodb_client.get_item(
             TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
@@ -236,8 +240,8 @@ def get_optional_attributes(client_id: str):
         return {"message": "Internal server error"}, 500
 
 
-@app.put("/client-manager/client-additional/<client_id>")
-def create_or_update_optional_attributes(client_id):
+@app.put("/client-manager/client-additional/<user_id>")
+def create_or_update_optional_attributes(user_id: str):
     """
     Updates optional fields on 'ClientRegistrations' Table
     """
@@ -250,20 +254,12 @@ def create_or_update_optional_attributes(client_id):
         if not body:
             return {"message": "Request body is required"}, 400
 
-        user_id = body.get("user_id")
-        if not user_id:
-            return {"message": "user_id is required"}, 400
+        # Extract the client_id from the cognito user attributes
+        client_id = extract_client_id_from_connected_user(user_id)
 
         # Check if client_id exists in ClientRegistrations table
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
-
-        # Check if client_id is associated with the Cognito user_id which executed the request
-        associated_client_id = extract_client_id_from_connected_user(user_id)
-        if associated_client_id != client_id:
-            logger.error("[create_or_update_optional_attributes]: client_id is not associated with the provided user_id")
-            return {"message": "client_id is not associated with the provided user_id"}, 403
-
         # Extract optional attributes from the request body
         a11y_uri = body.get("a11y_uri")
         back_button_enabled = body.get("back_button_enabled")
