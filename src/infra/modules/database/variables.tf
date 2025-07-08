@@ -95,7 +95,7 @@ variable "clients" {
 
 variable "last_idp_used_table" {
   type = object({
-    ttl_enabled                    = optional(bool, true)
+    ttl_enabled                    = optional(bool, false)
     point_in_time_recovery_enabled = optional(bool, false)
     stream_enabled                 = optional(bool, false)
     stream_view_type               = optional(string, null)
