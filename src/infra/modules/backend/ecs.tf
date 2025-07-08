@@ -371,8 +371,8 @@ module "ecs_core_service" {
 
       environment = setunion(var.service_core.environment_variables, [
         {
-          name  = "KMS_KEY_ID"
-          value = module.jwt_sign.aliases.sign-jwt.target_key_id
+          name  = "SIGN_JWT_KEY_ALIAS"
+          value = module.jwt_sign.aliases.sign-jwt.name
         }
       ])
 

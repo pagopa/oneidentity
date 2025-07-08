@@ -20,11 +20,11 @@ public class KMSConnectorImpl implements KMSConnector {
   KmsClient kmsClient;
 
   @Override
-  public SignResponse sign(String kmsKeyID, byte[] headerBytes, byte[] payloadBytes) {
+  public SignResponse sign(String signJWTKeyAlias, byte[] headerBytes, byte[] payloadBytes) {
     // Sign header and payload using KMS Sign operation
     byte[] contentBytes = KMSConnector.concatenateArrays(headerBytes, (byte) '.', payloadBytes);
     SignRequest signRequest = SignRequest.builder()
-        .keyId(kmsKeyID)
+        .keyId(signJWTKeyAlias)
         .messageType(MessageType.RAW)
         .message(SdkBytes.fromByteArray(contentBytes))
         .signingAlgorithm(SigningAlgorithmSpec.RSASSA_PKCS1_V1_5_SHA_256)
@@ -33,10 +33,10 @@ public class KMSConnectorImpl implements KMSConnector {
   }
 
   @Override
-  public GetPublicKeyResponse getPublicKey(String kmsKeyID) {
+  public GetPublicKeyResponse getPublicKey(String signJWTKeyAlias) {
 
     GetPublicKeyRequest getPublicKeyRequest = GetPublicKeyRequest.builder()
-        .keyId(kmsKeyID)
+        .keyId(signJWTKeyAlias)
         .build();
     return kmsClient.getPublicKey(getPublicKeyRequest);
   }
