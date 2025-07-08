@@ -52,12 +52,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.codec.binary.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
@@ -269,7 +269,7 @@ public class OIDCServiceImpl implements OIDCService {
         // if there are last login information available for the id and clientId, check the ttl parameter and check if tha lastIdp matches the current one
         if (!(lastIDPUsed.get().getTtl() < Instant.now().getEpochSecond())) {
           // if the ttl is not expired, check if the last IDP used matches the current one
-          sameIdp = Objects.equals(lastIDPUsed.get().getEntityId(), entityId);
+          sameIdp = StringUtils.equals(lastIDPUsed.get().getEntityId(), entityId);
           if (!sameIdp) {
             // if the IDP has changed we need to update the lastIDP record
             updateLastIDPUsedRecord(clientId, entityId, id);
