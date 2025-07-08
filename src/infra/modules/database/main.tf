@@ -318,9 +318,8 @@ module "dynamodb_table_last_idp_used" {
     }
   ]
 
-  ttl_attribute_name = "ttl"
-  ttl_enabled        = var.last_idp_used_table.ttl_enabled
-  billing_mode       = "PAY_PER_REQUEST"
+  ttl_enabled  = var.last_idp_used_table.ttl_enabled
+  billing_mode = "PAY_PER_REQUEST"
 
   point_in_time_recovery_enabled = var.last_idp_used_table.point_in_time_recovery_enabled
   stream_enabled                 = var.last_idp_used_table.stream_enabled

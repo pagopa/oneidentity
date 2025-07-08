@@ -203,7 +203,7 @@ public class OIDCServiceImplTest {
 
     String fiscalNumber = (String) jo.get("fiscalNumber");
 
-    assertEquals(fiscalNumber, "test");
+    assertEquals("test", fiscalNumber);
   }
 
   @Test
@@ -239,7 +239,7 @@ public class OIDCServiceImplTest {
     String fiscalNumber = (String) jo.get("fiscalNumber");
     boolean sameIdp = (Boolean) jo.get("sameIdp");
 
-    assertEquals(fiscalNumber, "test");
+    assertEquals("test", fiscalNumber);
     assertTrue(sameIdp);
   }
 
@@ -273,7 +273,7 @@ public class OIDCServiceImplTest {
 
     String fiscalNumber = (String) jo.get("fiscalNumber");
 
-    assertEquals(fiscalNumber, "test");
+    assertEquals("test", fiscalNumber);
   }
 
   @Test
