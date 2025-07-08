@@ -111,7 +111,7 @@
         ]
       }
     },
-    "/client-manager/client-additional/{client_id}": {
+    "/client-manager/client-additional/{user_id}": {
       "put": {
         "tags": [
           "Admin Client Manager APIs"
@@ -121,8 +121,8 @@
         "parameters": [
           {
             "in": "path",
-            "name": "client_id",
-            "description": "client_id that was returned in the client registration response",
+            "name": "user_id",
+            "description": "user_id of the Cognito user",
             "required": true,
             "schema": {
               "type": "string"
@@ -220,8 +220,8 @@
         "parameters": [
           {
             "in": "path",
-            "name": "client_id",
-            "description": "client_id that was returned in the client registration response",
+            "name": "user_id",
+            "description": "user_id of the Cognito user",
             "required": true,
             "schema": {
               "type": "string"
