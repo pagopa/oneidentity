@@ -2512,8 +2512,161 @@
             "example": "oob"
           },
           "id_token": {
-            "type": "string",
-            "description": "If the requested SCOPE included 'msso' or 'openid', response includes an id_token"
+            "type": "object",
+            "description": "If the requested scope included 'msso' or 'openid', the response includes an ID token. The ID token is a JSON Web Token (JWT) that contains claims about the authenticated user. Below are the standard and optional claims typically included.",
+            "properties": {
+              "iss": {
+                "type": "string",
+                "description": "Issuer identifier"
+              },
+              "sub": {
+                "type": "string",
+                "description": "Subject identifier"
+              },
+              "aud": {
+                "type": "string",
+                "description": "Audience for which the token is intended, the client ID."
+              },
+              "exp": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Expiration time (Unix timestamp)."
+              },
+              "nonce": {
+                "type": "string",
+                "description": "A string value used to associate a Client session with an ID Token, and to mitigate replay attacks."
+              },
+              "sameIdp": {
+                "type": "boolean",
+                "description": "Indicates whether the user authenticated with the same Identity Provider as the previous session. This is useful for Single Sign-On (SSO) scenarios."
+              },
+              "iat": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Time the token was issued (Unix timestamp)."
+              },
+                "spidCode": {
+                  "type": "string",
+              },
+              "name": {
+                "type": "string",
+              },
+              "familyName": {
+                "type": "string",
+              },
+              "placeOfBirth": {
+                "type": "string",
+              },
+              "countyOfBirth": {
+                "type": "string",
+              },
+              "dateOfBirth": {
+                "type": "string",
+                "format": "date",
+              },
+              "gender": {
+                "type": "string",
+              },
+              "companyName": {
+                "type": "string",
+              },
+              "registeredOffice": {
+                "type": "string",
+              },
+              "fiscalNumber": {
+                "type": "string",
+              },
+              "ivaCode": {
+                "type": "string",
+              },
+              "idCard": {
+                "type": "string",
+              },
+              "mobilePhone": {
+                "type": "string",
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+              },
+              "address": {
+                "type": "string",
+              },
+              "expirationDate": {
+                "type": "string",
+                "format": "date",
+              },
+              "digitalAddress": {
+                "type": "string",
+              },
+              "domicileAddress": {
+                "type": "string",
+              },
+              "domicilePlace": {
+                "type": "string",
+              },
+              "domicilePostalCode": {
+                "type": "string",
+              },
+              "domicileProvince": {
+                "type": "string",
+              },
+              "domicileCountry": {
+                "type": "string",
+              },
+              "qualification": {
+                "type": "string",
+              },
+              "commonName": {
+                "type": "string",
+              },
+              "surname": {
+                "type": "string",
+              },
+              "givenName": {
+                "type": "string",
+              },
+              "preferredUsername": {
+                "type": "string",
+              },
+              "title": {
+                "type": "string",
+              },
+              "userCertificate": {
+                "type": "string",
+              },
+              "employeeNumber": {
+                "type": "string",
+              },
+              "orgUnitName": {
+                "type": "string",
+              },
+              "preferredLanguage": {
+                "type": "string",
+              },
+              "country": {
+                "type": "string",
+              },
+              "stateOrProvince": {
+                "type": "string",
+              },
+              "city": {
+                "type": "string",
+              },
+              "postalCode": {
+                "type": "string",
+              },
+              "street": {
+                "type": "string",
+              }
+              },
+              "required": [
+                "iss",
+                "sub",
+                "aud",
+                "exp",
+                "iat"
+              ]
           },
           "id_token_type": {
             "type": "string",
