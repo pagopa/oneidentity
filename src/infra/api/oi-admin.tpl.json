@@ -352,22 +352,7 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/ClientUserCreate"
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "user_id": {
-                        "type": "string",
-                        "description": "The user_id that is associated to the currently logged in user"
-                      }
-                    }
-                  }
-                ]
-              }
+              "schema": { "$ref":"#/components/schemas/ClientUserCreateRequestBody"}
             }
           },
           "description": "Request body",
@@ -1382,6 +1367,31 @@
                 "$ref": "#/components/schemas/SamlAttributes"
               }
             }
+          }
+        }
+      },
+      "ClientUserCreateRequestBody": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username of the user to be created."
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user to be created."
+          },
+          "samlAttributes": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "$ref": "#/components/schemas/SamlAttributes"
+              }
+            }
+          },
+          "user_id": {
+            "type": "string",
+            "description": "The user_id that is associated to the currently logged in user"
           }
         }
       },

@@ -332,36 +332,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/ClientRegistration"
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "client_id": {
-                          "type": "string",
-                          "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
-                          "description": "The registered client_id"
-                        },
-                        "client_secret": {
-                          "type": "string",
-                          "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
-                          "description": "The registered client_secret"
-                        },
-                        "client_id_issued_at": {
-                          "type": "integer",
-                          "example": 1497455914,
-                          "description": "The timestamp in seconds indicating the time of registration"
-                        },
-                        "client_secret_expires_at": {
-                          "type": "integer",
-                          "example": 0,
-                          "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
-                        }
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/ClientRegistrationResponse"
                 }
               }
             }
@@ -2721,20 +2692,17 @@
           "logo_uri": {
             "type": "string",
             "description": "The RP logo URI",
-            "example": "https://example.org/logo.png",
-            "format": "uri"
+            "example": "https://example.org/logo.png"
           },
           "policy_uri": {
             "type": "string",
             "description": "The privacy policy URI",
-            "example": "https://example.org/policy",
-            "format": "uri"
+            "example": "https://example.org/policy"
           },
           "tos_uri": {
             "type": "string",
             "description": "The terms of service URI",
-            "example": "https://example.org/tos",
-            "format": "uri"
+            "example": "https://example.org/tos"
           },
           "default_acr_values": {
             "type": "array",
@@ -2765,6 +2733,90 @@
             "type": "boolean",
             "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
             "default": false
+          }
+        }
+      },
+      "ClientRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "redirect_uris": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "https://client.example.org/callback",
+              "https://client.example.org/callback2"
+            ]
+          },
+          "client_name": {
+            "type": "string",
+            "example": "https://example.org"
+          },
+          "logo_uri": {
+            "type": "string",
+            "description": "The RP logo URI",
+            "example": "https://example.org/logo.png"
+          },
+          "policy_uri": {
+            "type": "string",
+            "description": "The privacy policy URI",
+            "example": "https://example.org/policy"
+          },
+          "tos_uri": {
+            "type": "string",
+            "description": "The terms of service URI",
+            "example": "https://example.org/tos"
+          },
+          "default_acr_values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of the Authentication Context Class References that this RP supports",
+            "example": [
+              "https://www.spid.gov.it/SpidL1",
+              "https://www.spid.gov.it/SpidL2",
+              "https://www.spid.gov.it/SpidL3"
+            ]
+          },
+          "saml_requested_attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
+            "example": [
+              "spidCode",
+              "name",
+              "familyName",
+              "fiscalNumber"
+            ]
+          },
+          "required_same_idp": {
+            "type": "boolean",
+            "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
+            "default": false
+          },
+          "client_id": {
+            "type": "string",
+            "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+            "description": "The registered client_id"
+          },
+          "client_secret": {
+            "type": "string",
+            "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
+            "description": "The registered client_secret"
+          },
+          "client_id_issued_at": {
+            "type": "integer",
+            "example": 1497455914,
+            "description": "The timestamp in seconds indicating the time of registration"
+          },
+          "client_secret_expires_at": {
+            "type": "integer",
+            "example": 0,
+            "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
           }
         }
       },
@@ -2958,3 +3010,4 @@
     }
   }
 }
+
