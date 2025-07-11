@@ -9,6 +9,7 @@ import it.pagopa.oneid.model.IDPSession;
 import it.pagopa.oneid.model.enums.IDPSessionStatus;
 import it.pagopa.oneid.service.InternalIDPServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.utils.RequestedParameterUtils;
 import it.pagopa.oneid.web.dto.ConsentRequestDTO;
 import it.pagopa.oneid.web.dto.LoginRequestDTO;
 import jakarta.inject.Inject;
@@ -120,8 +121,8 @@ public class InternalIDPController {
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
 
-    Set<String> requestedParameters = internalIDPServiceImpl.retrieveClientRequestedParameters(
-        idpSession.getClientId());
+    Set<String> friendlyRequestedParameters = RequestedParameterUtils.mapToFriendlyNames(
+        internalIDPServiceImpl.retrieveClientRequestedParameters(idpSession.getClientId()));
 
     // Pass authnRequestId, username, and clientId as hidden form fields to consent template
     TemplateInstance instance = consent
@@ -129,7 +130,7 @@ public class InternalIDPController {
         .data("authnRequestId", idpSession.getAuthnRequestId())
         .data("clientId", idpSession.getClientId())
         .data("username", idpSession.getUsername())
-        .data("dataList", requestedParameters);
+        .data("dataList", friendlyRequestedParameters);
 
     return Response.status(Status.OK)
         .entity(instance.render())
