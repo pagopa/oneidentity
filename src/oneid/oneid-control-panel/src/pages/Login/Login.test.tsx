@@ -2,7 +2,7 @@
 /* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { LoginForm } from './LoginForm';
+import { LoginForm } from './Login';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
