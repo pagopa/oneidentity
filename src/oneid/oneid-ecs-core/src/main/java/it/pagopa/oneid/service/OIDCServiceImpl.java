@@ -74,8 +74,8 @@ public class OIDCServiceImpl implements OIDCService {
   private static final long LAST_IDP_USED_TTL = 730; // days
 
   @Inject
-  @ConfigProperty(name = "kms_key_id")
-  String KMS_KEY_ID;
+  @ConfigProperty(name = "sign_jwt_key_alias")
+  String SIGN_JWT_KEY_ALIAS;
 
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
@@ -104,7 +104,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public JWKSSetDTO getJWKSPublicKey() {
-    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey(KMS_KEY_ID);
+    GetPublicKeyResponse getPublicKeyResponse = kmsConnectorImpl.getPublicKey(SIGN_JWT_KEY_ALIAS);
     RSAPublicKey rsaPublicKey;
     try {
       rsaPublicKey = (RSAPublicKey) KeyFactory.getInstance("RSA")
