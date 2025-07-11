@@ -645,7 +645,7 @@ resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
   for_each            = var.client_alarm != null ? { for c in var.client_alarm.clients : c.client_id => c } : {}
   alarm_name          = format("%s_%s_%s_%s", "ClientErrorRateAlarm", var.env_short, each.value.friendly_name, each.key)
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 2
   threshold           = 1
   ok_actions          = [module.update_status_lambda.lambda_function_arn]
 
