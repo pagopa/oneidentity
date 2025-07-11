@@ -1,8 +1,19 @@
 import { withAuthenticationRequired } from 'react-oidc-context';
-import { Dashboard } from './Dashboard';
+import { Dashboard } from '../pages/Dashboard/Dashboard';
+import { Customize } from '../pages/Customize/Customize';
 
-const PrivateRoute = () => <Dashboard />;
+const PrivateRouteDashboard = () => <Dashboard />;
+const PrivateRouteCustomize = () => <Customize />;
 
-export default withAuthenticationRequired(PrivateRoute, {
-  OnRedirecting: () => <div>Redirecting to the login page...</div>,
-});
+export const PrivateDashboardRoute = withAuthenticationRequired(
+  PrivateRouteDashboard,
+  {
+    OnRedirecting: () => <div>Redirecting to the login page...</div>,
+  }
+);
+export const PrivateCustomizedRoute = withAuthenticationRequired(
+  PrivateRouteCustomize,
+  {
+    OnRedirecting: () => <div>Redirecting to the login page...</div>,
+  }
+);

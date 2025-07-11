@@ -76,8 +76,33 @@ export const clientSchema = z.object({
   default_acr_values: SpidLevelArraySchema.min(1),
 });
 
+const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
+
+const ThemeSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  docUri: z.string(),
+  cookieUri: z.string(),
+  supportAddress: z.string(),
+});
+
+const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
+
+export const clientFESchema = z.object({
+  a11yUri: z.string().url().optional().nullable(),
+  backButtonEnabled: z.boolean().optional().default(false),
+  localizedContentMap: z
+    .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+    .nullable(),
+});
+
+export type Languages = z.infer<typeof LanguagesSchema>;
 export type Client = z.infer<typeof clientSchema>;
+export type ClientFE = z.infer<typeof clientFESchema>;
+export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
+export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
+export type ClientFEErrors = z.inferFormattedError<typeof clientFESchema>;
 
 export type ClientFormData = Omit<
   Client,
@@ -94,6 +119,14 @@ export type ClientRegisteredData = Pick<
   | 'client_id_issued_at'
   | 'client_secret_expires_at'
 >;
+
+export const allLanguages: Record<Languages, string> = {
+  de: 'Deutsch',
+  it: 'Italiano',
+  en: 'English',
+  sl: 'Slovenščina',
+  fr: 'Français',
+};
 
 export type RegisterClientRequest = {
   // Fields that can be submitted in the form
