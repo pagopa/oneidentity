@@ -19,7 +19,6 @@ import {
   DialogTitle,
   Divider,
 } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
 import SaveIcon from '@mui/icons-material/Save';
 import {
   allLanguages,
@@ -33,7 +32,6 @@ import { useParams } from 'react-router-dom';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
-import { theme } from '@pagopa/mui-italia';
 
 function CustomizeDashboard() {
   const { client_id: clientID } = useParams(); // Get the client_id from the URL
@@ -87,7 +85,7 @@ function CustomizeDashboard() {
   const handleTopLevelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     setClientData((prev) => {
-      if (!prev) return prev;
+      if (!prev) prev = {} as ClientFE; // Ensure prev is always defined
       // Always set backButtonEnabled explicitly and ensure it's always boolean
       return {
         ...prev,
@@ -95,7 +93,7 @@ function CustomizeDashboard() {
         backButtonEnabled:
           name === 'backButtonEnabled'
             ? checked
-            : prev.backButtonEnabled !== undefined
+            : prev?.backButtonEnabled !== undefined
               ? prev.backButtonEnabled
               : false,
       };
@@ -443,10 +441,8 @@ const LanguageSelector: React.FC<{
 
 export const Customize = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-        <CustomizeDashboard />
-      </Box>
-    </ThemeProvider>
+    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
+      <CustomizeDashboard />
+    </Box>
   );
 };

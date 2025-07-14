@@ -25,7 +25,6 @@ import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
 import { Notify } from '../../components/Notify';
-import Layout from '../../components/Layout';
 import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
@@ -179,7 +178,7 @@ export const Dashboard = () => {
   }
 
   return (
-    <Layout>
+    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
       {fetchError && (
         <Box sx={{ mt: 4 }}>
           <Alert severity="error">
@@ -392,6 +391,6 @@ export const Dashboard = () => {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </Layout>
+    </Box>
   );
 };

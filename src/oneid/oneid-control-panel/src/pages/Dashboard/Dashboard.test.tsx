@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Dashboard } from './Dashboard';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Layout from '../../components/Layout';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -77,12 +78,6 @@ describe('Dashboard UI', () => {
   it('renders the dashboard with form fields', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
-
     expect(screen.getByLabelText(/Client Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Logo URI/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Policy URI/i)).toBeInTheDocument();
@@ -95,12 +90,6 @@ describe('Dashboard UI', () => {
   it('disables the submit button when required fields are empty', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
-
     const nameInput = screen.getByLabelText(/Client Name/i);
     fireEvent.change(nameInput, { target: { value: '' } });
 
@@ -110,12 +99,6 @@ describe('Dashboard UI', () => {
 
   it('enables the submit button when required fields are filled', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
 
     // Fill the form with valid data
     const nameInput = screen.getByLabelText(/Client Name/i);
@@ -143,12 +126,6 @@ describe('Dashboard UI', () => {
 
   it('shows a success notification after saving changes', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
 
     // Fill the form with valid data
     const nameInput = screen.getByLabelText(/Client Name/i);
@@ -187,12 +164,6 @@ describe('Dashboard UI', () => {
   it('shows an error notification when saving fails', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
-
     const nameInput = screen.getByLabelText(/Client Name/i);
     fireEvent.change(nameInput, { target: { value: 'Invalid data' } });
 
@@ -221,13 +192,12 @@ describe('Dashboard UI', () => {
   });
 
   it('handles logout correctly', async () => {
-    render(<Dashboard />, { wrapper: createWrapper() });
-
-    await waitFor(() => {
-      expect(
-        screen.getByText(/OneIdentity Client Management/i)
-      ).toBeInTheDocument();
-    });
+    render(
+      <Layout>
+        <Dashboard />
+      </Layout>,
+      { wrapper: createWrapper() }
+    );
 
     const logoutButton = screen.getByTestId('logout-button');
     expect(logoutButton).toBeInTheDocument();
