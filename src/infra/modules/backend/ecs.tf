@@ -179,6 +179,18 @@ resource "aws_iam_policy" "ecs_core_task" {
           }
         }
       },
+      #TODO: remove after deploying with alias ref
+      {
+        Sid    = "KSMSign"
+        Effect = "Allow"
+        Action = [
+          "kms:Sign",
+          "kms:GetPublicKey",
+        ]
+        Resource = [
+          "${module.jwt_sign.aliases.sign-jwt.target_key_arn}"
+        ]
+      },
       {
         Sid    = "KMSDecryptEncryptSessions"
         Effect = "Allow"
@@ -378,6 +390,11 @@ module "ecs_core_service" {
         {
           name  = "SIGN_JWT_KEY_ALIAS"
           value = module.jwt_sign.aliases.sign-jwt.name
+        },
+        #TODO: remove after deploying with alias ref
+        {
+          name  = "KMS_KEY_ID"
+          value = module.jwt_sign.aliases.sign-jwt.target_key_id
         }
       ])
 
