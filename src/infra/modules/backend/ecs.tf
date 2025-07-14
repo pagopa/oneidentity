@@ -181,7 +181,7 @@ resource "aws_iam_policy" "ecs_core_task" {
       },
       #TODO: remove after deploying with alias ref
       {
-        Sid    = "KSMSign"
+        Sid    = "KSMSignKeyId"
         Effect = "Allow"
         Action = [
           "kms:Sign",
