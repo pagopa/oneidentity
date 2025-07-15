@@ -79,11 +79,15 @@ export const clientSchema = z.object({
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
 
 const ThemeSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  docUri: z.string(),
-  cookieUri: z.string(),
-  supportAddress: z.string(),
+  title: z
+    .string()
+    .min(10, 'Title is required and must be at least 10 characters'),
+  description: z
+    .string()
+    .min(20, 'Description is required and must be at least 20 characters'),
+  docUri: z.string().optional(),
+  cookieUri: z.string().optional(),
+  supportAddress: z.string().optional(),
 });
 
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
@@ -91,9 +95,10 @@ const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 export const clientFESchema = z.object({
   a11yUri: z.string().url().optional().nullable(),
   backButtonEnabled: z.boolean().optional().default(false),
-  localizedContentMap: z
-    .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
-    .nullable(),
+  localizedContentMap: z.record(
+    z.union([z.literal('default'), z.string()]),
+    ThemeLocalizedSchema
+  ),
 });
 
 export type Languages = z.infer<typeof LanguagesSchema>;

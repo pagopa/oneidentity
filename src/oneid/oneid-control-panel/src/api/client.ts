@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
-import { ClientFE } from '../types/api';
+import { ClientFE, ClientFEErrors, clientFESchema } from '../types/api';
 
 const api = axios.create({
   headers: {
@@ -93,20 +93,25 @@ export const getAdditionalClientAttributes = async (
 
 export const setAdditionalClientAttributes = async (
   userId: string | undefined,
-  attributes: Array<string>,
+  data: ClientFE,
   token: string
-): Promise<Array<string>> => {
+): Promise<ClientFE | ClientFEErrors> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_ADDITIONAL;
+  const method = userId ? 'put' : 'post';
 
+  const errors = clientFESchema.safeParse(data);
+  if (!errors.success) {
+    return Promise.reject(errors.error.format());
+  }
   if (!userId) {
     throw new Error('User ID is required');
   }
   // mock:
-  // return Promise.resolve(['id_card', 'mobile_phone', 'email']);
+  // return Promise.resolve(data);
   try {
-    const response = await api.post<Array<string>>(
+    const response = await api[method]<ClientFE>(
       `${ENDPOINT}/${userId}`,
-      { attributes },
+      data,
       {
         headers: {
           Authorization: `Bearer ${token}`,

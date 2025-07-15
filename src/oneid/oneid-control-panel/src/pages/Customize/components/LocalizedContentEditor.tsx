@@ -13,6 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   allLanguages,
+  ClientFEErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
   Languages,
@@ -31,6 +32,7 @@ type LocalizedContentEditorProps = {
   ) => void;
   onAddLanguage: () => void;
   onRemoveLanguage: (lang: string) => void;
+  errorUi: ClientFEErrors | null;
 };
 
 export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
@@ -42,6 +44,7 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
   onContentChange,
   onAddLanguage,
   onRemoveLanguage,
+  errorUi,
 }) => {
   const availableLanguages = useMemo(
     () =>
@@ -121,6 +124,16 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                       onContentChange(lang, 'title', e.target.value)
                     }
                     fullWidth
+                    error={
+                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.title?._errors
+                    }
+                    helperText={
+                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.title?._errors
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -131,6 +144,16 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                       onContentChange(lang, 'supportAddress', e.target.value)
                     }
                     fullWidth
+                    error={
+                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.supportAddress?._errors
+                    }
+                    helperText={
+                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.supportAddress?._errors
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -143,6 +166,16 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     multiline
                     rows={4}
                     fullWidth
+                    error={
+                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.description?._errors
+                    }
+                    helperText={
+                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.description?._errors
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -153,6 +186,16 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                       onContentChange(lang, 'docUri', e.target.value)
                     }
                     fullWidth
+                    error={
+                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.docUri?._errors
+                    }
+                    helperText={
+                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.docUri?._errors
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -163,6 +206,16 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                       onContentChange(lang, 'cookieUri', e.target.value)
                     }
                     fullWidth
+                    error={
+                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.cookieUri?._errors
+                    }
+                    helperText={
+                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                        activeThemeKey
+                      ]?.[lang]?.cookieUri?._errors
+                    }
                   />
                 </Grid>
               </Grid>

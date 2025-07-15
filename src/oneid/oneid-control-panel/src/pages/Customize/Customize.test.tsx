@@ -70,6 +70,12 @@ vi.mock('../../hooks/useClient', () => ({
       isSuccess: true,
       error: null,
     },
+    createOrUpdateClientAttrsMutation: {
+      mutate: vi.fn(),
+      error: null,
+      isPending: false,
+      data: mockClientData,
+    },
     setCognitoProfile: {},
   }),
 }));

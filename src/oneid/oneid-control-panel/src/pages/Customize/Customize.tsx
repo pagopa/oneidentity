@@ -23,6 +23,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import {
   allLanguages,
   ClientFE,
+  ClientFEErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
   Languages,
@@ -32,6 +33,7 @@ import { useParams } from 'react-router-dom';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
+import { Notify } from '../../components/Notify';
 
 function CustomizeDashboard() {
   const { client_id: clientID } = useParams(); // Get the client_id from the URL
@@ -41,10 +43,18 @@ function CustomizeDashboard() {
       isSuccess: isFetched,
       error: fetchError,
     },
+    createOrUpdateClientAttrsMutation: {
+      mutate: updateClientAttrs,
+      error: updateError,
+      isPending: isUpdating,
+      data: clientUpdated,
+    },
   } = useClient();
 
   const [clientData, setClientData] = useState<ClientFE | null>(null);
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
+  const [errorUi, setErrorUi] = useState<ClientFEErrors | null>(null);
+  const [notify, setNotify] = useState<Notify>({ open: false });
 
   useEffect(() => {
     if (isFetched) {
@@ -74,14 +84,74 @@ function CustomizeDashboard() {
   const [newThemeKey, setNewThemeKey] = useState('');
 
   // --- Effects ---
-  React.useEffect(() => {
+  useEffect(() => {
     const newActiveLanguages = activeTheme ? Object.keys(activeTheme) : [];
     if (!newActiveLanguages.includes(activeTab)) {
       setActiveTab(newActiveLanguages[0] || '');
     }
   }, [activeThemeKey, activeTheme, activeTab]);
 
+  useEffect(() => {
+    if (updateError) {
+      console.error('Error updating client:', updateError);
+      setErrorUi(updateError as unknown as ClientFEErrors);
+      setNotify({
+        open: true,
+        message: 'Error updating client',
+        severity: 'error',
+      });
+    }
+    if (clientUpdated) {
+      setErrorUi(null);
+      setNotify({
+        open: true,
+        message: 'Client updated successfully',
+        severity: 'success',
+      });
+    }
+  }, [updateError, clientUpdated]);
+
   // --- Handlers ---
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!clientData && !isFormValid()) {
+      console.error('Form is not valid, please check the data');
+      return;
+    }
+
+    updateClientAttrs({
+      data: clientData as ClientFE,
+    });
+  };
+
+  const isFormValid = () => {
+    if (!clientData) return false;
+    // Check if at least one theme exists
+    if (
+      !clientData.localizedContentMap ||
+      Object.keys(clientData.localizedContentMap).length === 0
+    ) {
+      console.error('At least one theme is required');
+      return false;
+    }
+    // Check if the 'default' theme exists
+    if (!clientData.localizedContentMap.default) {
+      console.error('The "default" theme is required');
+      return false;
+    }
+    // Check if each theme has at least one language with title and description
+    for (const [themeKey, themeContent] of Object.entries(
+      clientData.localizedContentMap
+    )) {
+      if (!themeContent || Object.keys(themeContent).length === 0) {
+        console.error(`Theme "${themeKey}" must have at least one language`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleTopLevelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     setClientData((prev) => {
@@ -204,16 +274,13 @@ function CustomizeDashboard() {
     setClientData((prev) => ({
       ...prev,
       backButtonEnabled: false,
-      a11yUri: '',
+      a11yUri: null,
       localizedContentMap: {
         ...prev?.localizedContentMap,
         [key]: {
           it: {
             title: '',
             description: '',
-            supportAddress: '',
-            docUri: '',
-            cookieUri: '',
           },
         },
       },
@@ -266,6 +333,7 @@ function CustomizeDashboard() {
             clientData={clientData}
             clientID={clientID}
             onClientDataChange={handleTopLevelChange}
+            errorUi={errorUi}
           />
 
           <Divider sx={{ my: 4 }} />
@@ -276,6 +344,7 @@ function CustomizeDashboard() {
             onThemeChange={(e) => setActiveThemeKey(e.target.value)}
             onAddTheme={() => setThemeModalOpen(true)}
             onRemoveTheme={() => setConfirmModalOpen(true)}
+            errorUi={errorUi}
           />
 
           {activeTheme && (
@@ -288,6 +357,7 @@ function CustomizeDashboard() {
               onContentChange={handleLocalizedContentChange}
               onAddLanguage={() => setLangModalOpen(true)}
               onRemoveLanguage={handleRemoveLanguage}
+              errorUi={errorUi}
             />
           )}
         </Box>
@@ -307,9 +377,10 @@ function CustomizeDashboard() {
           <Button
             variant="contained"
             startIcon={<SaveIcon />}
-            onClick={() => console.log('Save changes', clientData)}
+            onClick={handleSubmit}
+            disabled={isUpdating || !isFormValid()}
           >
-            Save Changes
+            {isUpdating ? 'Saving...' : 'Save Changes'}
           </Button>
         </Box>
       </Paper>
@@ -400,6 +471,12 @@ function CustomizeDashboard() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Notify
+        open={notify.open}
+        message={notify.message}
+        severity={notify.severity}
+        handleOpen={(open) => setNotify({ ...notify, open })}
+      />
     </Container>
   );
 }

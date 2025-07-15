@@ -1,7 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
-import { getAdditionalClientAttributes, setClientToUser } from '../api/client';
+import {
+  getAdditionalClientAttributes,
+  setAdditionalClientAttributes,
+  setClientToUser,
+} from '../api/client';
 import { useParams } from 'react-router-dom';
+import { ClientFE } from '../types/api';
 
 const retry = 2;
 
@@ -40,8 +45,18 @@ export const useClient = () => {
     enabled: !!userId && !!token && !!client_id,
   });
 
+  const createOrUpdateClientAttrsMutation = useMutation({
+    onError(error) {
+      console.error('Error creating or updating client:', error);
+    },
+    mutationFn: async ({ data }: { data: ClientFE }) => {
+      return setAdditionalClientAttributes(userId, data, token);
+    },
+  });
+
   return {
     setCognitoProfile,
     getAdditionalClientAttrs,
+    createOrUpdateClientAttrsMutation,
   };
 };
