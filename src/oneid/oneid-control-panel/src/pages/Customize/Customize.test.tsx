@@ -38,7 +38,7 @@ const mockClientData = {
     default: {
       it: {
         title: 'Default Title',
-        description: 'Default Description',
+        desc: 'Default Description',
         docUri: 'https://example.com/doc',
         cookieUri: 'https://example.com/cookie',
         supportAddress: 'support@example.com',
@@ -47,14 +47,14 @@ const mockClientData = {
     enterprise: {
       fr: {
         title: 'frDefault Title',
-        description: 'frDefault Description',
+        desc: 'frDefault Description',
         docUri: 'https://example.com/fr/doc',
         cookieUri: 'https://example.com/fr/cookie',
         supportAddress: '',
       },
       en: {
         title: 'enDefault Title',
-        description: 'enDefault Description',
+        desc: 'enDefault Description',
         docUri: 'https://example.com/en/doc',
         cookieUri: 'https://example.com/en/cookie',
         supportAddress: '',

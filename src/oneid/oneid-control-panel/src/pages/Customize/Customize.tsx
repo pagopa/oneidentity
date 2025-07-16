@@ -280,7 +280,7 @@ function CustomizeDashboard() {
         [key]: {
           it: {
             title: '',
-            description: '',
+            desc: '',
           },
         },
       },

@@ -82,7 +82,7 @@ const ThemeSchema = z.object({
   title: z
     .string()
     .min(10, 'Title is required and must be at least 10 characters'),
-  description: z
+  desc: z
     .string()
     .min(20, 'Description is required and must be at least 20 characters'),
   docUri: z.string().optional(),
