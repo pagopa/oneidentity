@@ -1309,11 +1309,11 @@
       "ClientAdditional": {
         "type": "object",
         "properties": {
-          "a11y_uri": {
+          "a11yUri": {
             "type": "string",
             "description": "The accessibility URI"
           },
-          "back_button_enabled": {
+          "backButtonEnabled": {
             "type": "string",
             "description": "The back button enabled flag"
           },

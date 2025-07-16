@@ -230,8 +230,8 @@ def get_optional_attributes(user_id: str):
             localized_content = LocalizedContentMap.from_dynamodb(localized_content_map)
 
         return {
-            "a11y_uri": a11y_uri,
-            "back_button_enabled": back_button_enabled,
+            "a11yUri": a11y_uri,
+            "backButtonEnabled": back_button_enabled,
             "localizedContentMap": localized_content,
         }, 200
 
@@ -261,8 +261,8 @@ def create_or_update_optional_attributes(user_id: str):
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
         # Extract optional attributes from the request body
-        a11y_uri = body.get("a11y_uri")
-        back_button_enabled = body.get("back_button_enabled")
+        a11y_uri = body.get("a11yUri")
+        back_button_enabled = body.get("backButtonEnabled")
         localized_content = body.get("localizedContentMap")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
