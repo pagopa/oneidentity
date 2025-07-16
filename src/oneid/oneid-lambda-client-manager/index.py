@@ -285,9 +285,9 @@ def create_or_update_optional_attributes(user_id: str):
             Key={"clientId": {"S": client_id}},
             UpdateExpression="SET a11yUri = :a11yUri, backButtonEnabled = :backButtonEnabled, localizedContentMap = :localizedContentMap",
             ExpressionAttributeValues={
-                ":a11yUri": {"S": a11y_uri},
-                ":backButtonEnabled": {"BOOL": back_button_enabled},
-                ":localizedContentMap": localized_content_map_object_value,
+                ":a11yUri": {"S": a11y_uri if a11y_uri else ""},
+                ":backButtonEnabled": {"BOOL": back_button_enabled if back_button_enabled is not None else False},
+                ":localizedContentMap": localized_content_map_object_value if localized_content_map_object_value else {"M": {}},
             },
         )
         logger.debug("[create_or_update_optional_attributes]: %s", response)
