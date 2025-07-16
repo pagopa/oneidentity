@@ -4,20 +4,76 @@
 {#body}
 <form action="{loginAction}" id="login-form" method="POST" class="md-card"
       style="align-items: center;">
-  <div class="md-title">Accedi</div>
-  <div class="md-field" style="width: 100%;">
-    <input id="username" name="username" required type="text" class="md-input" placeholder=" "
-           value="" autocomplete="username"/>
-    <label for="username" class="md-label">Username</label>
+
+  <div class="md-title-container">
+    <div class="md-title">
+      Richiesta di accesso
+      {#if clientName}
+      da {clientName}
+      {/if}
+    </div>
+    <div class="md-subtitle">Inserisci le credenziali</div>
   </div>
-  <div class="md-field">
-    <input id="password" name="password" required type="password" class="md-input" placeholder=" "
-           autocomplete="current-password"/>
-    <label for="password" class="md-label">Password</label>
-  </div>
+
   <input type="hidden" name="authnRequestId" value="{authnRequestId}">
   <input type="hidden" name="clientId" value="{clientId}">
-  <button class="md-btn" type="submit">Login</button>
+
+  <div class="input-container">
+    <label class="mdc-text-field extended mdc-text-field--outlined">
+          <span class="mdc-notched-outline">
+            <span class="mdc-notched-outline__leading"></span>
+            <span class="mdc-notched-outline__notch">
+              <span class="mdc-floating-label" id="username-label">Username</span>
+            </span>
+            <span class="mdc-notched-outline__trailing"></span>
+          </span>
+      <input type="text" class="mdc-text-field__input custom-validation"
+             aria-labelledby="username-label" required autocomplete="username" id="username"
+             name="username" value="">
+    </label>
+    <div class="mdc-text-field-helper-line">
+      <div class="mdc-text-field-helper-text mdc-text-field-helper-text--validation-msg"
+           aria-hidden="true">
+        Compila questo campo
+      </div>
+    </div>
+  </div>
+
+  <div class="input-container">
+    <label class="mdc-text-field extended mdc-text-field--outlined mdc-text-field--with-trailing-icon" >
+          <span class="mdc-notched-outline">
+            <span class="mdc-notched-outline__leading"></span>
+            <span class="mdc-notched-outline__notch">
+              <span class="mdc-floating-label" id="password-label">Password</span>
+            </span>
+            <span class="mdc-notched-outline__trailing"></span>
+          </span>
+      <input class="mdc-text-field__input custom-validation" type="password"
+             aria-labelledby="password-label" required autocomplete="current-password"
+             id="password" name="password" value="">
+      <i class="material-icons mdc-text-field__icon mdc-text-field__icon--trailing" tabindex="0"
+         role="button" id="toggle-password-icon">visibility_off</i>
+    </label>
+    <div class="mdc-text-field-helper-line">
+      <div class="mdc-text-field-helper-text mdc-text-field-helper-text--validation-msg"
+           aria-hidden="true">
+        Compila questo campo
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-container">
+    <button type="submit" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading">
+      <span class="mdc-button__ripple"></span>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">login</i>
+      <span class="mdc-button__label">Accedi</span>
+    </button>
+    <button class="mdc-button mdc-button--outlined btn-xl cancel-btn" id="back-button">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">Annulla</span>
+    </button>
+  </div>
+
 </form>
 {/body}
 {/include}

@@ -71,7 +71,8 @@ public class InternalIDPController {
     // Set authnRequestId and clientId as hidden form fields instead of cookies
     TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
         .data("authnRequestId", authnRequest.getID())
-        .data("clientId", client.getClientId());
+        .data("clientId", client.getClientId())
+        .data("clientName", client.getFriendlyName());;
 
     return Response.status(Status.OK)
         .entity(instance.render())

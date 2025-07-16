@@ -1,41 +1,102 @@
 :root {
-  --md-sys-color-primary: #006875;
+  --md-sys-color-primary: #0073E6;
+  --md-sys-color-primary-dark: #0062C3;
+  --md-sys-color-primary-light: #2185E9;
   --md-sys-color-on-primary: #ffffff;
-  --md-sys-color-surface: #f8fafc;
-  --md-sys-color-on-surface: #1a1c1e;
+  --md-sys-color-secondary: #00C5CA;
+  --md-sys-color-secondary-dark: #00A7AC;
+  --md-sys-color-secondary-light: #21CDD1;
+  --md-sys-text-color-primary: #17324D;
+  --md-sys-text-color-secondary: #5C6F82;
+  --md-sys-color-surface: #F2F2F2;
+  --md-sys-color-on-surface: #17324D;
+  --md-sys-color-paper: #fff;
+
   --md-sys-color-outline: #6f797b;
   --md-sys-shape-corner-medium: 12px;
   --md-sys-typescale-title-large: 22px;
   --md-sys-typescale-body-large: 16px;
 }
+
 body {
   margin: 0;
   background: var(--md-sys-color-surface);
   font-family: 'Roboto', Arial, sans-serif;
   color: var(--md-sys-color-on-surface);
 }
+
+#root {
+  height: 100vh;
+  align-content: center;
+}
+
 .md-card {
   max-width: 400px;
-  margin: 56px auto;
+  margin: 10px auto;
   padding: 32px 28px 24px 28px;
-  background: #fff;
+  background: var(--md-sys-color-paper);
   border-radius: var(--md-sys-shape-corner-medium);
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
+
 .md-title {
   font-size: var(--md-sys-typescale-title-large);
   font-weight: 500;
   margin-bottom: 8px;
   letter-spacing: 0.1px;
 }
+.md-subtitle {
+  color: var(--md-sys-text-color-secondary);
+  font-weight: 500;
+}
+.md-title-container {
+  margin-bottom: 32px;
+  align-self: start;
+}
+
+.input-container {
+  width: 100%;
+}
+.mdc-text-field.extended {
+  width: 100%!important;
+}
+
+.btn-container{
+  width: 100%;
+  margin-top: 14px;
+}
+.mdc-button {
+  text-transform: none!important;
+  border-radius: var(--md-sys-shape-corner-medium)!important;
+  font-weight: 600!important;
+  font-size: 1rem !important;
+  letter-spacing: 0.3px !important;
+}
+.mdc-button.btn-xl {
+  height: 48px !important;
+  line-height: 48px !important;
+  padding: 0 28px !important;
+  width: 100% !important;
+}
+.mdc-button:not(.mdc-button--outlined):hover {
+  background-color: var(--md-sys-color-primary-dark)!important;
+}
+.cancel-btn {
+  margin-top: 12px;
+}
+
+
+
+### consent
+
 .md-field {
   position: relative;
   margin-bottom: 16px;
   width: 100%;
-  max-width: 320px; /* Limit input width for better centering */
+  max-width: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -147,3 +208,5 @@ body {
   color: var(--md-sys-color-outline);
   font-size: 15px;
 }
+
+### end consent
