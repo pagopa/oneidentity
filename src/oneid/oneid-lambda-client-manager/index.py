@@ -229,6 +229,8 @@ def get_optional_attributes(user_id: str):
         if localized_content_map:
             localized_content = LocalizedContentMap.from_dynamodb(localized_content_map)
 
+        ## todo convert the localized_content_map keys from snake_case to camelCase
+
         return {
             "a11yUri": a11y_uri,
             "backButtonEnabled": back_button_enabled,
@@ -261,9 +263,15 @@ def create_or_update_optional_attributes(user_id: str):
         if not check_client_id_exists(client_id):
             return {"message": "client_id not found"}, 404
         # Extract optional attributes from the request body
-        a11y_uri = body.get("a11yUri")
-        back_button_enabled = body.get("backButtonEnabled")
-        localized_content = body.get("localizedContentMap")
+
+        previous_item = dynamodb_client.get_item(
+            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
+            Key={"clientId": {"S": client_id}},
+        )
+
+        a11y_uri = body.get("a11yUri") if body.get("a11yUri") else previous_item.get("Item", {}).get("a11yUri", {}).get("S")
+        back_button_enabled = body.get("backButtonEnabled") if body.get("backButtonEnabled") is not None else previous_item.get("Item", {}).get("backButtonEnabled", {}).get("BOOL")
+        localized_content = body.get("localizedContentMap") if body.get("localizedContentMap") else previous_item.get("Item", {}).get("localizedContentMap", {}).get("M")
 
         localized_content_map_object = LocalizedContentMap.from_json(localized_content)
         logger.debug("[create_or_update_optional_attributes]: %s", localized_content_map_object)
