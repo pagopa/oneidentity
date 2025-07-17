@@ -95,7 +95,7 @@ export const setAdditionalClientAttributes = async (
   userId: string | undefined,
   data: ClientFE,
   token: string
-): Promise<ClientFE | ClientFEErrors> => {
+): Promise<null | ClientFEErrors> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_ADDITIONAL;
   const method = userId ? 'put' : 'post';
 
@@ -109,15 +109,11 @@ export const setAdditionalClientAttributes = async (
   // mock:
   // return Promise.resolve(data);
   try {
-    const response = await api[method]<ClientFE>(
-      `${ENDPOINT}/${userId}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api[method]<null>(`${ENDPOINT}/${userId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);

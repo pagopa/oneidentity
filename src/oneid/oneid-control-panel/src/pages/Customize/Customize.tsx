@@ -47,7 +47,7 @@ function CustomizeDashboard() {
       mutate: updateClientAttrs,
       error: updateError,
       isPending: isUpdating,
-      data: clientUpdated,
+      isSuccess: isUpdateSuccess,
     },
   } = useClient();
 
@@ -101,7 +101,7 @@ function CustomizeDashboard() {
         severity: 'error',
       });
     }
-    if (clientUpdated) {
+    if (isUpdateSuccess) {
       setErrorUi(null);
       setNotify({
         open: true,
@@ -109,7 +109,7 @@ function CustomizeDashboard() {
         severity: 'success',
       });
     }
-  }, [updateError, clientUpdated]);
+  }, [updateError, isUpdateSuccess]);
 
   // --- Handlers ---
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,6 +117,11 @@ function CustomizeDashboard() {
 
     if (!clientData && !isFormValid()) {
       console.error('Form is not valid, please check the data');
+      setNotify({
+        open: true,
+        message: 'Form is not valid, please check the data',
+        severity: 'error',
+      });
       return;
     }
 
