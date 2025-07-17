@@ -1,23 +1,27 @@
 window.addEventListener('DOMContentLoaded', () => {
   // cancel back button
-  document.getElementById('back-button').addEventListener('click', (e) => {
-    e.preventDefault();
-    if (window.history.length > 1) {
-      history.back();
-    } else {
-      window.location.href = '/';
-    }
-  });
+  const backBtn = document.getElementById('back-button');
+  if (backBtn) {
+    backBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.history.length > 1) {
+        history.back();
+      } else {
+        window.location.href = '/';
+      }
+    });
+  }
 
   // Toggle password visibility
   const passwordInput = document.getElementById('password');
   const toggleIcon = document.getElementById('toggle-password-icon');
-
-  toggleIcon.addEventListener('click', () => {
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    toggleIcon.textContent = isPassword ? 'visibility' : 'visibility_off';
-  });
+  if (passwordInput && toggleIcon) {
+    toggleIcon.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      toggleIcon.textContent = isPassword ? 'visibility' : 'visibility_off';
+    });
+  }
 
   // custom input validation (login)
   document.querySelectorAll('.mdc-text-field__input.custom-validation').forEach((input) => {
