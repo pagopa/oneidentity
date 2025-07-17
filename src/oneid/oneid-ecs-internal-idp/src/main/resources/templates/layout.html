@@ -31,10 +31,19 @@
 </head>
 
 <body>
-<noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
-<main id="root">
-  {#insert body}{/insert}
-</main>
+  <header class="mdc-top-app-bar light">
+    <div class="mdc-top-app-bar__row">
+      <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+          <span class="mdc-top-app-bar__title">
+            <img alt="logo" class="mdc-top-app-bar-logo" src="logo.png" />
+          </span>
+      </section>
+    </div>
+  </header>
+  <noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
+  <main id="root">
+    {#insert body}{/insert}
+  </main>
 </body>
 
 </html>
