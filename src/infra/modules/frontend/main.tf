@@ -182,6 +182,11 @@ resource "aws_iam_role" "s3_apigw_proxy" {
   assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
 }
 
+resource "aws_iam_role" "s3_internal_idp_apigw_proxy" {
+  name               = "${var.rest_api_name}-s3-internal-idp-proxy-role"
+  assume_role_policy = data.aws_iam_policy_document.apigw_assume_role.json
+}
+
 data "aws_iam_policy_document" "s3_apigw_proxy" {
   statement {
     effect  = "Allow"
@@ -195,15 +200,37 @@ data "aws_iam_policy_document" "s3_apigw_proxy" {
   }
 }
 
+data "aws_iam_policy_document" "s3_internal_idp_bucket_apigw_proxy" {
+  statement {
+    effect  = "Allow"
+    actions = ["s3:GetObject", "s3:ListBucket"]
+    resources = [
+      "${var.assets_internal_idp_bucket_arn}/*",
+      "${var.assets_internal_idp_bucket_arn}",
+    ]
+  }
+}
+
 resource "aws_iam_policy" "s3_apigw_proxy" {
   name        = "${var.role_prefix}-s3-read-assets"
   description = "Get Object in S3 object."
   policy      = data.aws_iam_policy_document.s3_apigw_proxy.json
 }
 
+resource "aws_iam_policy" "s3_internal_idp_apigw_proxy" {
+  name        = "${var.role_prefix}-s3-internal-idp-read-assets"
+  description = "Get Object in S3 object."
+  policy      = data.aws_iam_policy_document.s3_internal_idp_bucket_apigw_proxy.json
+}
+
 resource "aws_iam_role_policy_attachment" "s3_apigw_proxy" {
   role       = aws_iam_role.s3_apigw_proxy.name
   policy_arn = aws_iam_policy.s3_apigw_proxy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_internal_idp_apigw_proxy" {
+  role       = aws_iam_role.s3_internal_idp_apigw_proxy.name
+  policy_arn = aws_iam_policy.s3_internal_idp_apigw_proxy.arn
 }
 
 ## Role that allows api gateway to invoke lambda functions.
@@ -455,9 +482,9 @@ module "rest_api_internal_idp" {
       aws_region                   = var.aws_region
       lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
       provider_arn                 = var.provider_arn
-      s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
-      assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
-      var.assets_control_panel_bucket_name)
+      s3_apigateway_proxy_role     = aws_iam_role.s3_internal_idp_apigw_proxy.arn
+      assets_bucket_internal_idp_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
+      var.assets_internal_idp_bucket_name)
   })
 
   custom_domain_name        = format("idp.%s", var.domain_internal_idp_name)
