@@ -18,16 +18,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- material ui design-->
-  <link href="/style/mdc.min.css" rel="stylesheet" />
-  <script src="/js/mdc.min.js" rel="stylesheet"></script>
-  <script type="module" src="/js/mdc-web.js"></script>
+  <link href="{config:idp_assets_base_url}/style/mdc.min.css" rel="stylesheet" />
+  <script src="{config:idp_assets_base_url}/js/mdc.min.js" rel="stylesheet"></script>
+  <script type="module">
+    window.addEventListener('DOMContentLoaded', () => {
+      // MDC init
+      // text-field
+      document.querySelectorAll('.mdc-text-field').forEach((el) => {
+        mdc.textField.MDCTextField.attachTo(el);
+      });
+      // btn-ripple
+      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
+      document.querySelectorAll('.mdc-text-field-helper-text').forEach((el) => {
+        mdc.textField.MDCTextFieldHelperText.attachTo(el);
+      });
+      // header-top-app-bar
+      const topAppBarElement = document.querySelector('.mdc-top-app-bar');
+      mdc.topAppBar.MDCTopAppBar.attachTo(topAppBarElement);
+    });
+  </script>
   <!--custom styles-->
-  <link rel="stylesheet" href="/style/styles.css">
+  <link rel="stylesheet" href="{config:idp_assets_base_url}/style/styles.css">
   <!-- custom scripts -->
-  <script src="/js/scripts.js"></script>
+  <script src="{config:idp_assets_base_url}/js/scripts.js"></script>
   <!-- favicon -->
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.svg">
+  <link rel="icon" href="{config:idp_assets_base_url}/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{config:idp_assets_base_url}/apple-touch-icon.svg">
 </head>
 
 <body>
@@ -35,7 +51,7 @@
     <div class="mdc-top-app-bar__row">
       <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
           <span class="mdc-top-app-bar__title">
-            <img alt="logo" class="mdc-top-app-bar-logo" src="logo.png" />
+            <img alt="logo" class="mdc-top-app-bar-logo" src="{config:idp_assets_base_url}/logo.png" />
           </span>
       </section>
     </div>
