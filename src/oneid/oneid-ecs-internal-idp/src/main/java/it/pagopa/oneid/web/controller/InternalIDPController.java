@@ -96,7 +96,7 @@ public class InternalIDPController {
           IDPSessionStatus.PENDING);
     } catch (OneIdentityException e) {
       return Response.status(Status.OK)
-          .entity(error.data("errorMessage", "Session error"))
+          .entity(error.data("errorMessage", "La sessione non è valida"))
           .type(MediaType.TEXT_HTML)
           .build();
     }
@@ -110,7 +110,7 @@ public class InternalIDPController {
           loginRequestDTO.getPassword());
     } catch (OneIdentityException e) {
       return Response.status(Status.OK)
-          .entity(error.data("errorMessage", "Validation error"))
+          .entity(error.data("errorMessage", "Credenziali non valide"))
           .type(MediaType.TEXT_HTML)
           .build();
     }
