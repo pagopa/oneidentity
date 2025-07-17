@@ -2,11 +2,17 @@
 {#title}Consenso · PagoPA S.p.A.{/title}
 {#meta-content}Modulo di Login Internal IDP One Identiy{/meta-content}
 {#body}
-<form action="{consentAction}" id="consent-form" method="POST" class="md-card">
-  <div class="md-title"><span class="md-icon-consent">fact_check</span>Consenso all'invio dei dati</div>
-  <div class="md-desc">Per continuare, è necessario fornire il consenso all'invio dei dati
-    personali.
+<form action="{consentAction}" id="consent-form" method="POST" class="md-card consent">
+
+  <div class="md-title-container">
+    <div class="md-title">
+      <span class="material-icons">admin_panel_settings</span>
+      <span>Consenso all'invio dei dati</span></div>
+    <div class="md-subtitle">Per continuare, è necessario fornire il consenso all'invio dei dati
+      personali.
+    </div>
   </div>
+
   {#if dataList}
   <ul class="md-list">
     {#for data in dataList}
@@ -14,15 +20,21 @@
     {/for}
   </ul>
   {/if}
+
   <input type="hidden" name="authnRequestId" value="{authnRequestId}">
   <input type="hidden" name="clientId" value="{clientId}">
   <input type="hidden" name="username" value="{username}">
+
   <div class="md-btn-row">
-    <button name="consent" class="md-btn-consent" type="submit" value="true"><span class="md-icon-consent">check_circle</span>Do
-      il consenso
+    <button name="consent" type="submit" value="false" class="mdc-button mdc-button--outlined btn-xl mdc-button--icon-leading deny-outlined-button">
+      <span class="mdc-button__ripple"></span>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">cancel</i>
+      <span class="mdc-button__label">Nego il consenso</span>
     </button>
-    <button name="consent" class="md-btn-consent deny" type="submit" value="false"><span class="md-icon-consent">cancel</span>Nego
-      il consenso
+    <button name="consent" type="submit" value="true" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading">
+      <span class="mdc-button__ripple"></span>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">check_circle</i>
+      <span class="mdc-button__label">Do il consenso</span>
     </button>
   </div>
 </form>

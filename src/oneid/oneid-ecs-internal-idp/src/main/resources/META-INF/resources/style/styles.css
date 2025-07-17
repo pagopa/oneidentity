@@ -78,7 +78,7 @@ body {
 .mdc-button.btn-xl {
   height: 48px !important;
   line-height: 48px !important;
-  padding: 0 28px !important;
+  padding: 0 14px !important;
   width: 100% !important;
 }
 .mdc-button:not(.mdc-button--outlined):hover {
@@ -87,126 +87,66 @@ body {
 .cancel-btn {
   margin-top: 12px;
 }
-
-
-
-### consent
-
-.md-field {
-  position: relative;
-  margin-bottom: 16px;
-  width: 100%;
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.md-input {
-  width: 100%;
-  max-width: 320px;
-  padding: 20px 12px 6px 12px;
-  border: 1.5px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: transparent;
-  font-size: var(--md-sys-typescale-body-large);
-  outline: none;
-  transition: border-color 0.2s;
-}
-.md-input:focus {
-  border-color: var(--md-sys-color-primary);
-}
-.md-label {
-  position: absolute;
-  left: 12px;
-  top: 16px;
-  font-size: 16px;
-  color: var(--md-sys-color-outline);
-  background: #fff;
-  padding: 0 4px;
-  pointer-events: none;
-  transition: 0.2s;
-}
-.md-input:focus + .md-label,
-.md-input:not(:placeholder-shown) + .md-label {
-  top: 4px;
-  left: 10px;
-  font-size: 13px;
-  color: var(--md-sys-color-primary);
-  background: #fff;
-}
-.md-btn {
-  width: 100%;
-  padding: 12px 0;
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  border: none;
-  border-radius: var(--md-sys-shape-corner-medium);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  transition: background 0.2s;
-  margin-top: 8px;
-}
-.md-btn:hover {
-  background: #005965;
-}
-.md-icon {
-  font-family: 'Material Symbols Outlined';
-  font-size: 22px;
-  vertical-align: middle;
-  margin-right: 6px;
-}
-
-.md-list {
-  margin-bottom: 24px;
-  padding-left: 20px;
-  color: var(--md-sys-color-on-surface);
-  font-size: var(--md-sys-typescale-body-large);
+.deny-outlined-button {
+  --mdc-theme-primary: #d32f2f;
+  --mdc-theme-on-primary: white;
 }
 .md-btn-row {
   display: flex;
   gap: 16px;
   justify-content: center;
 }
-.md-btn-consent {
-  flex: 1 1 0;
-  padding: 12px 0;
-  background: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
-  border: none;
-  border-radius: var(--md-sys-shape-corner-medium);
-  font-size: 17px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+
+.consent .md-title-container {
+  margin-bottom: 0px;
 }
-.md-btn-consent.deny {
-  background: #e74c3c;
-}
-.md-btn-consent:hover {
-  background: #005965;
-}
-.md-btn-consent.deny:hover {
-  background: #c0392b;
-}
-.md-icon-consent {
-  font-family: 'Material Symbols Outlined';
-  font-size: 22px;
+.consent .md-title span {
   vertical-align: middle;
-  margin-right: 4px;
-}
-.md-desc {
-  margin-bottom: 8px;
-  color: var(--md-sys-color-outline);
-  font-size: 15px;
 }
 
-### end consent
+.md-list {
+  margin-bottom: 24px;
+  margin-top: 24px;
+  padding-left: 20px;
+  font-size: var(--md-sys-typescale-body-large);
+}
+
+.error .md-title {
+  font-size: 40px !important;
+}
+.error .md-subtitle {
+  font-size: 20px !important;
+}
+.error .md-title-container{
+  margin-bottom: 24px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  background-color: #fef0f1;
+  padding: 16px 24px;
+  border-radius: 4px;
+  max-width: 600px;
+  margin: 0 auto;
+  border-left: 4px solid rgb(254, 102, 102);
+}
+.error-banner .material-icons {
+  margin-right: 12px;
+  font-size: 24px;
+}
+.error-message {
+  font-size: 16px;
+  line-height: 1.4;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.mdc-top-app-bar.light {
+  background-color: var(--md-sys-color-paper);
+  border-bottom: 1px solid rgb(227, 231, 235) !important;
+}
+.mdc-top-app-bar-logo {
+  height: 24px;
+  vertical-align: middle;
+}
