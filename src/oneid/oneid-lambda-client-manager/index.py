@@ -222,12 +222,12 @@ def get_optional_attributes(user_id: str):
         # Extract optional fields
         a11y_uri = item.get("a11yUri", {}).get("S")
         back_button_enabled = item.get("backButtonEnabled", {}).get("BOOL")
-        localized_content_map = item.get("localizedContentMap", {}).get("M")
+        localized_content_map = item.get("localizedContentMap", {})
 
         # Convert localized_content_map from DynamoDB format to JSON
         localized_content = None
         if localized_content_map:
-            localized_content = LocalizedContentMap.from_dynamodb(localized_content_map)
+            localized_content = LocalizedContentMap.from_dynamodb(localized_content_map).content_map
 
         ## todo convert the localized_content_map keys from snake_case to camelCase
 
