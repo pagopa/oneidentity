@@ -151,7 +151,8 @@ resource "aws_iam_policy" "github_s3_policy" {
         Resource = [
           module.s3_assets_bucket[0].s3_bucket_arn,
           "${module.s3_assets_bucket[0].s3_bucket_arn}/*",
-          module.s3_assets_control_panel_bucket[0].s3_bucket_arn
+          module.s3_assets_control_panel_bucket[0].s3_bucket_arn,
+          "${module.s3_assets_control_panel_bucket[0].s3_bucket_arn}/*"
         ]
       }
     ]
