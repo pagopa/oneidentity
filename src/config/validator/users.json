@@ -19875,6 +19875,32 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
-  }
+  },
+    {
+    "username": "b.banner",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-774",
+    "familyName": "Banner",
+    "name": "Bruce",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-BNNBRC80A01H501G",
+    "mobilePhone": "",
+    "email": "b.bruce@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
+  },
   
 ]
