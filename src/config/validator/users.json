@@ -19356,7 +19356,7 @@
     "domicileProvince": "",
     "domicileNation": ""
   },
-    {
+  {
     "username": "e.frost",
     "password": "test",
     "spidLevel": 2,
@@ -19382,7 +19382,7 @@
     "domicileProvince": "",
     "domicileNation": ""
   },
-      {
+  {
     "username": "s.richards",
     "password": "test",
     "spidLevel": 2,
@@ -19746,7 +19746,7 @@
     "domicileProvince": "",
     "domicileNation": ""
   },
-    {
+  {
     "username": "e.brock",
     "password": "test",
     "spidLevel": 2,
@@ -19772,7 +19772,7 @@
     "domicileProvince": "",
     "domicileNation": ""
   },
-      {
+  {
     "username": "t.stark",
     "password": "test",
     "spidLevel": 2,
@@ -19876,7 +19876,7 @@
     "domicileProvince": "",
     "domicileNation": ""
   },
-    {
+  {
     "username": "b.banner",
     "password": "test",
     "spidLevel": 2,
@@ -19901,6 +19901,5 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
-  },
-  
+  }
 ]
