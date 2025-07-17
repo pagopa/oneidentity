@@ -378,7 +378,6 @@ function CustomizeDashboard() {
             gap: 2,
           }}
         >
-          <Button variant="outlined">Cancel</Button>
           <Button
             variant="contained"
             startIcon={<SaveIcon />}
