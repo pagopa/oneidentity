@@ -8,9 +8,8 @@ resource "random_integer" "asset_bucket_control_panel_suffix" {
 }
 
 resource "random_integer" "asset_bucket_internal_idp_suffix" {
-  count = var.create_assets_internal_idp_bucket ? 1 : 0
-  min   = 1000
-  max   = 9999
+  min = 1000
+  max = 9999
 }
 
 resource "random_integer" "idp_metadata_bucket_suffix" {

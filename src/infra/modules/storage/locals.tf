@@ -14,7 +14,7 @@ locals {
   random_integer.asset_bucket_control_panel_suffix.result)
   assets_internal_idp_bucket = format("%s-%s",
     var.assets_bucket_internal_idp_prefix,
-  random_integer.asset_bucket_internal_idp_suffix[0].result)
+  random_integer.asset_bucket_internal_idp_suffix.result)
   idp_metadata_bucket = format("%s-%s", var.idp_metadata_bucket_prefix, random_integer.idp_metadata_bucket_suffix.result)
 
   replication_configuration = [
