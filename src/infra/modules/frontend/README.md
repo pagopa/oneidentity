@@ -134,8 +134,8 @@
 | <a name="input_assets_bucket_name"></a> [assets\_bucket\_name](#input\_assets\_bucket\_name) | Assets bucket name. | `string` | n/a | yes |
 | <a name="input_assets_control_panel_bucket_arn"></a> [assets\_control\_panel\_bucket\_arn](#input\_assets\_control\_panel\_bucket\_arn) | Assets bucket arn. | `string` | n/a | yes |
 | <a name="input_assets_control_panel_bucket_name"></a> [assets\_control\_panel\_bucket\_name](#input\_assets\_control\_panel\_bucket\_name) | Assets bucket control panel name. | `string` | n/a | yes |
-| <a name="input_assets_internal_idp_bucket_arn"></a> [assets\_internal\_idp\_bucket\_arn](#input\_assets\_internal\_idp\_bucket\_arn) | Assets bucket internal idp arn. | `string` | n/a | yes |
-| <a name="input_assets_internal_idp_bucket_name"></a> [assets\_internal\_idp\_bucket\_name](#input\_assets\_internal\_idp\_bucket\_name) | Assets bucket internal idp name. | `string` | n/a | yes |
+| <a name="input_assets_internal_idp_bucket_arn"></a> [assets\_internal\_idp\_bucket\_arn](#input\_assets\_internal\_idp\_bucket\_arn) | Assets bucket internal idp arn. | `string` | `""` | no |
+| <a name="input_assets_internal_idp_bucket_name"></a> [assets\_internal\_idp\_bucket\_name](#input\_assets\_internal\_idp\_bucket\_name) | Assets bucket internal idp name. | `string` | `""` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#input\_client\_manager\_lambda\_arn) | lambda client manager arn | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
