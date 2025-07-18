@@ -39,5 +39,41 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // form submit loading
+  const buttons = document.querySelectorAll("btn-loading-action");
+  buttons.forEach(button => {
+    button.addEventListener("click", function () {
+      const form = button.closest("form");
+      if (form && form.checkValidity()) {
+        // show loader
+        const loader = button.querySelector(".loader");
+        if (loader) loader.style.display = "inline-block";
+        // disable all buttons
+        const btnContainer = button.closest(".btn-loading-action-container");
+        if (btnContainer) {
+          const allButtons = btnContainer.querySelectorAll("button");
+          allButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.classList.add("btn-disabled");
+          });
+        }
+      }
+    });
+  });
+
+});
+
+function resetAllLoadingAction() {
+  document.querySelectorAll(".btn-loading-action-container button").forEach(button => {
+    const loader = button.querySelector(".loader");
+    if (loader) loader.style.display = "none";
+    button.classList.remove("btn-disabled");
+  });
+}
+
+// Event used when go back through history
+window.addEventListener("pageshow", function () {
+  resetAllLoadingAction();
 });
 

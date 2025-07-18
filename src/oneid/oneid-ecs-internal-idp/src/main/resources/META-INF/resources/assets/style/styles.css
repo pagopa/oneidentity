@@ -11,6 +11,7 @@
   --md-sys-color-surface: #F2F2F2;
   --md-sys-color-on-surface: #17324D;
   --md-sys-color-paper: #fff;
+  --md-sys-danger-color: #d32f2f;
 
   --md-sys-color-outline: #6f797b;
   --md-sys-shape-corner-medium: 12px;
@@ -88,7 +89,7 @@ body {
   margin-top: 12px;
 }
 .deny-outlined-button {
-  --mdc-theme-primary: #d32f2f;
+  --mdc-theme-primary: var(--md-sys-danger-color);
   --mdc-theme-on-primary: white;
 }
 .md-btn-row {
@@ -149,6 +150,36 @@ body {
 .mdc-top-app-bar-logo {
   height: 24px;
   vertical-align: middle;
+}
+
+button.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #FFF;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+  margin-left: 9px;
+  display: none;
+}
+.loader.danger {
+  border: 3px solid var(--md-sys-danger-color);
+  border-bottom-color: transparent;
+}
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* mobile optimization */

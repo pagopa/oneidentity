@@ -25,16 +25,18 @@
   <input type="hidden" name="clientId" value="{clientId}">
   <input type="hidden" name="username" value="{username}">
 
-  <div class="md-btn-row">
-    <button name="consent" type="submit" value="false" class="mdc-button mdc-button--outlined btn-xl mdc-button--icon-leading deny-outlined-button">
+  <div class="md-btn-row btn-loading-action-container">
+    <button name="consent" type="submit" value="false" class="mdc-button mdc-button--outlined btn-xl mdc-button--icon-leading deny-outlined-button btn-loading-action">
       <span class="mdc-button__ripple"></span>
       <i class="material-icons mdc-button__icon" aria-hidden="true">cancel</i>
       <span class="mdc-button__label">Nego il consenso</span>
+      <span class="loader danger"></span>
     </button>
-    <button name="consent" type="submit" value="true" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading">
+    <button name="consent" type="submit" value="true" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading btn-loading-action">
       <span class="mdc-button__ripple"></span>
       <i class="material-icons mdc-button__icon" aria-hidden="true">check_circle</i>
       <span class="mdc-button__label">Do il consenso</span>
+      <span class="loader"></span>
     </button>
   </div>
 </form>

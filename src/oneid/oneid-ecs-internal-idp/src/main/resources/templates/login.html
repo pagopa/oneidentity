@@ -17,6 +17,7 @@
 
   <input type="hidden" name="authnRequestId" value="{authnRequestId}">
   <input type="hidden" name="clientId" value="{clientId}">
+  <input type="hidden" name="clientId" value="{clientName}">
 
   <div class="input-container">
     <label class="mdc-text-field extended mdc-text-field--outlined">
@@ -62,11 +63,12 @@
     </div>
   </div>
 
-  <div class="btn-container">
-    <button type="submit" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading">
+  <div class="btn-container btn-loading-action-container">
+    <button type="submit" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading btn-loading-action">
       <span class="mdc-button__ripple"></span>
       <i class="material-icons mdc-button__icon" aria-hidden="true">login</i>
       <span class="mdc-button__label">Accedi</span>
+      <span class="loader"></span>
     </button>
     <button class="mdc-button mdc-button--outlined btn-xl cancel-btn" id="back-button">
       <span class="mdc-button__ripple"></span>
