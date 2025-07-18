@@ -41,7 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   // form submit loading
-  const buttons = document.querySelectorAll("btn-loading-action");
+  const buttons = document.querySelectorAll(".btn-loading-action");
   buttons.forEach(button => {
     button.addEventListener("click", function () {
       const form = button.closest("form");
@@ -54,7 +54,6 @@ window.addEventListener('DOMContentLoaded', () => {
         if (btnContainer) {
           const allButtons = btnContainer.querySelectorAll("button");
           allButtons.forEach(btn => {
-            btn.disabled = true;
             btn.classList.add("btn-disabled");
           });
         }
