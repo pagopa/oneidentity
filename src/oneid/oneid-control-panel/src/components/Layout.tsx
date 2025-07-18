@@ -1,13 +1,44 @@
-import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CssBaseline,
+  IconButton,
+  styled,
+  ThemeProvider,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import { ENV } from '../utils/env';
 import { useAuth } from 'react-oidc-context';
+import { theme } from '@pagopa/mui-italia';
+import PersistentDrawerLeft from './Drawer';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useState } from 'react';
+import { cognitoCustomAttribute } from '../utils/constants';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+
+const drawerWidth = 240;
+
+type AppBarProps = {
+  open?: boolean;
+} & MuiAppBarProps;
 
 type Props = {
   children: React.ReactNode;
 };
 
 const Layout = ({ children }: Props) => {
-  const { removeUser, signoutRedirect } = useAuth();
+  const { removeUser, signoutRedirect, user } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
   const handleLogout = () => {
     removeUser();
     return signoutRedirect({
@@ -22,37 +53,78 @@ const Layout = ({ children }: Props) => {
     });
   };
 
+  const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== 'open',
+  })<AppBarProps>(({ theme, open }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+      width: `calc(100% - ${drawerWidth}px)`,
+      marginLeft: `${drawerWidth}px`,
+      transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  }));
+
   return (
-    <Box
-      bgcolor={'#F5F5F5'}
-      margin={0}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-      }}
-    >
-      <AppBar position="static">
-        <Toolbar>
-          <Typography
-            variant="h6"
-            component="div"
-            color={'white'}
-            sx={{ flexGrow: 1 }}
-          >
-            OneIdentity Client Management
-          </Typography>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            data-testid="logout-button"
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-      {children}
-    </Box>
+    <ThemeProvider theme={theme}>
+      <Box
+        bgcolor={'#F5F5F5'}
+        margin={0}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+        }}
+      >
+        <CssBaseline />
+        <AppBar position="static" open={open}>
+          <Toolbar>
+            <IconButton
+              aria-label="open drawer"
+              color="primary"
+              onClick={handleDrawerOpen}
+              edge="start"
+              sx={[
+                {
+                  mr: 2,
+                  ':hover': { color: 'primary', backgroundColor: 'white' },
+                },
+                open && { display: 'none' },
+              ]}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h6"
+              component="div"
+              color={'white'}
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              OneIdentity Client Management
+            </Typography>
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              data-testid="logout-button"
+            >
+              Logout
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <PersistentDrawerLeft
+          handleDrawerClose={handleDrawerClose}
+          open={open}
+          clientId={user?.profile[cognitoCustomAttribute] as string}
+        />
+        {children}
+      </Box>
+    </ThemeProvider>
   );
 };
 

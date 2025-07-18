@@ -1,9 +1,13 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import { LoginForm } from './components/LoginForm';
-import ProtectedRoute from './components/ProtectedRoute';
+import { LoginForm } from './pages/Login/Login';
+import {
+  PrivateCustomizedRoute,
+  PrivateDashboardRoute,
+} from './components/ProtectedRoute';
 import { AuthProvider, AuthProviderProps } from 'react-oidc-context';
 import { ENV } from './utils/env';
 import { User } from 'oidc-client-ts';
+import Layout from './components/Layout';
 
 // remove ?code... in params after signin
 const onSigninCallback = (_user: User | undefined): void => {
@@ -30,11 +34,20 @@ function App() {
   return (
     <AuthProvider {...oidcConfig}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="/dashboard" element={<ProtectedRoute />} />
-          <Route path="/dashboard/:client_id" element={<ProtectedRoute />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<LoginForm />} />
+            <Route path="/dashboard" element={<PrivateDashboardRoute />} />
+            <Route
+              path="/dashboard/:client_id"
+              element={<PrivateDashboardRoute />}
+            />
+            <Route
+              path="/dashboard/customize/:client_id"
+              element={<PrivateCustomizedRoute />}
+            />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     </AuthProvider>
   );
