@@ -31,7 +31,7 @@ body {
 }
 
 .md-card {
-  max-width: 400px;
+  max-width: 450px;
   margin: 10px auto;
   padding: 32px 28px 24px 28px;
   background: var(--md-sys-color-paper);
@@ -149,4 +149,14 @@ body {
 .mdc-top-app-bar-logo {
   height: 24px;
   vertical-align: middle;
+}
+
+/* mobile optimization */
+@media (max-width: 550px) {
+  .md-card {
+    margin: 10px 10px;
+  }
+  .md-btn-row {
+    flex-direction: column
+  }
 }
