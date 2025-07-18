@@ -12,8 +12,6 @@
   --md-sys-color-on-surface: #17324D;
   --md-sys-color-paper: #fff;
   --md-sys-danger-color: #d32f2f;
-
-  --md-sys-color-outline: #6f797b;
   --md-sys-shape-corner-medium: 12px;
   --md-sys-typescale-title-large: 22px;
   --md-sys-typescale-body-large: 16px;
@@ -22,7 +20,7 @@
 body {
   margin: 0;
   background: var(--md-sys-color-surface);
-  font-family: 'Roboto', Arial, sans-serif;
+  font-family: 'Titillium Web', sans-serif;
   color: var(--md-sys-color-on-surface);
 }
 
@@ -46,7 +44,7 @@ body {
 .md-title {
   font-size: var(--md-sys-typescale-title-large);
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   letter-spacing: 0.1px;
 }
 .md-subtitle {
