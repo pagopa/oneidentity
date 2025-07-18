@@ -15,6 +15,10 @@ public class LoginRequestDTO {
   @NotBlank
   private String clientId;
 
+  @RestForm("clientName")
+  @NotBlank
+  private String clientName;
+
   @RestForm("username")
   @NotBlank
   private String username;

@@ -260,6 +260,16 @@ variable "assets_control_panel_bucket_name" {
   description = "Assets bucket control panel name."
 }
 
+variable "assets_internal_idp_bucket_name" {
+  type        = string
+  description = "Assets bucket internal idp name."
+  default     = ""
+}
+variable "assets_internal_idp_bucket_arn" {
+  type        = string
+  description = "Assets bucket internal idp arn."
+  default     = ""
+}
 
 variable "api_alarms" {
   type = map(object({

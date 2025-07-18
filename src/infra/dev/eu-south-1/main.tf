@@ -90,6 +90,9 @@ module "frontend" {
   assets_control_panel_bucket_name = module.storage.assets_control_panel_bucket_name
   assets_control_panel_bucket_arn  = module.storage.assets_control_panel_bucket_arn
 
+  assets_internal_idp_bucket_name = module.storage.assets_internal_idp_bucket_name
+  assets_internal_idp_bucket_arn  = module.storage.assets_internal_idp_bucket_arn
+
 
   xray_tracing_enabled = var.xray_tracing_enabled
   api_alarms           = local.cloudwatch__api_alarms_with_sns
@@ -121,6 +124,8 @@ module "storage" {
   idp_metadata_bucket_prefix         = "idp-metadata"
   assets_bucket_prefix               = "assets"
   assets_bucket_control_panel_prefix = "assets-control-panel"
+  assets_bucket_internal_idp_prefix  = "assets-internal-idp"
+  create_assets_internal_idp_bucket  = true
   github_repository                  = "pagopa/oneidentity"
   account_id                         = data.aws_caller_identity.current.account_id
   assertion_accesslogs_expiration    = 2

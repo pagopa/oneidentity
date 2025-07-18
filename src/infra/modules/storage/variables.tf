@@ -35,10 +35,17 @@ variable "create_assets_bucket" {
   description = "Create assets bucket."
   default     = true
 }
+
 variable "create_assets_control_panel_bucket" {
   type        = bool
   description = "Create assets control panel bucket."
   default     = true
+}
+
+variable "create_assets_internal_idp_bucket" {
+  type        = bool
+  description = "Create assets internal idp bucket."
+  default     = false
 }
 
 variable "assets_bucket_prefix" {
@@ -50,6 +57,12 @@ variable "assets_bucket_prefix" {
 variable "assets_bucket_control_panel_prefix" {
   type        = string
   description = "Assets bucket control panel prefix"
+  default     = ""
+}
+
+variable "assets_bucket_internal_idp_prefix" {
+  type        = string
+  description = "Assets internal idp prefix"
   default     = ""
 }
 

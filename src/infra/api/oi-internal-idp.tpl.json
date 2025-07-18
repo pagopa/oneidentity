@@ -26,6 +26,66 @@
     "*/*"
   ],
   "paths": {
+    "/assets/{proxy+}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "proxy",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {}
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_internal_idp_uri}/assets/{proxy}",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
+              }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            }
+          },
+          "requestParameters": {
+            "integration.request.path.proxy": "method.request.path.proxy"
+          },
+          "passthroughBehavior": "when_no_match",
+          "cacheKeyParameters": [
+            "method.request.path.proxy"
+          ]
+        }
+      }
+    },
     "/samlsso": {
       "post": {
         "tags": [

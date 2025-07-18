@@ -142,6 +142,17 @@ jobs:
           cluster: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-ecs
           wait-for-service-stability: true
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_FE }}
+          aws-region: ${{ matrix.region }}
+
+      - name: Copy to S3 FE assets
+        run: |
+          aws s3 sync src/main/resources/META-INF/resources s3://${{ vars.ASSETS_INTERNAL_IDP_BUCKET_NAME }}
+        working-directory: src/oneid/oneid-ecs-internal-idp
+
   # release:
   #   name: "Create Release"
   #   if: ${{ needs.build.outputs.matrix != '' }}

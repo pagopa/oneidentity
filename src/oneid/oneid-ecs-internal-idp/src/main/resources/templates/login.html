@@ -1,142 +1,81 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="utf-8"/>
-  <meta content="noindex" name="robots"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
-  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
-  <meta content="no-cache" http-equiv="cache-control"/>
-  <meta content="0" http-equiv="expires"/>
-  <meta content="no-cache" http-equiv="pragma"/>
-  <title>Accedi · PagoPA S.p.A.</title>
-  <meta content="Modulo di Login Internal IDP One Identiy" name="description"/>
-  <meta content="#00a1b0" name="theme-color"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
-        rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-  <style>
-    :root {
-      --md-sys-color-primary: #006875;
-      --md-sys-color-on-primary: #ffffff;
-      --md-sys-color-surface: #f8fafc;
-      --md-sys-color-on-surface: #1a1c1e;
-      --md-sys-color-outline: #6f797b;
-      --md-sys-shape-corner-medium: 12px;
-      --md-sys-typescale-title-large: 22px;
-      --md-sys-typescale-body-large: 16px;
-    }
-    body {
-      margin: 0;
-      background: var(--md-sys-color-surface);
-      font-family: 'Roboto', Arial, sans-serif;
-      color: var(--md-sys-color-on-surface);
-    }
-    .md-card {
-      max-width: 360px;
-      margin: 56px auto;
-      padding: 32px 28px 24px 28px;
-      background: #fff;
-      border-radius: var(--md-sys-shape-corner-medium);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-      align-items: center; /* Center children horizontally */
-    }
-    .md-title {
-      font-size: var(--md-sys-typescale-title-large);
-      font-weight: 500;
-      margin-bottom: 8px;
-      letter-spacing: 0.1px;
-    }
-    .md-field {
-      position: relative;
-      margin-bottom: 16px;
-      width: 100%;
-      max-width: 320px; /* Limit input width for better centering */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .md-input {
-      width: 100%;
-      max-width: 320px;
-      padding: 20px 12px 6px 12px;
-      border: 1.5px solid var(--md-sys-color-outline);
-      border-radius: var(--md-sys-shape-corner-medium);
-      background: transparent;
-      font-size: var(--md-sys-typescale-body-large);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .md-input:focus {
-      border-color: var(--md-sys-color-primary);
-    }
-    .md-label {
-      position: absolute;
-      left: 12px;
-      top: 16px;
-      font-size: 16px;
-      color: var(--md-sys-color-outline);
-      background: #fff;
-      padding: 0 4px;
-      pointer-events: none;
-      transition: 0.2s;
-    }
-    .md-input:focus + .md-label,
-    .md-input:not(:placeholder-shown) + .md-label {
-      top: 4px;
-      left: 10px;
-      font-size: 13px;
-      color: var(--md-sys-color-primary);
-      background: #fff;
-    }
-    .md-btn {
-      width: 100%;
-      padding: 12px 0;
-      background: var(--md-sys-color-primary);
-      color: var(--md-sys-color-on-primary);
-      border: none;
-      border-radius: var(--md-sys-shape-corner-medium);
-      font-size: 17px;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-      transition: background 0.2s;
-      margin-top: 8px;
-    }
-    .md-btn:hover {
-      background: #005965;
-    }
-    .md-icon {
-      font-family: 'Material Symbols Outlined';
-      font-size: 22px;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-  </style>
-</head>
-<body>
-<noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
-<div id="root">
-  <form action="{loginAction}" id="login-form" method="POST" class="md-card"
-        style="align-items: center;">
-    <div class="md-title">Accedi</div>
-    <div class="md-field" style="width: 100%;">
-      <input id="username" name="username" required type="text" class="md-input" placeholder=" "
-             value="" autocomplete="username"/>
-      <label for="username" class="md-label">Username</label>
+{#include layout.html}
+{#title}Accedi · PagoPA S.p.A.{/title}
+{#meta-content}Modulo di Login Internal IDP One Identiy{/meta-content}
+{#body}
+<form action="{loginAction}" id="login-form" method="POST" class="md-card"
+      style="align-items: center;">
+
+  <div class="md-title-container">
+    <div class="md-title">
+      Richiesta di accesso
+      {#if clientName}
+      da {clientName}
+      {/if}
     </div>
-    <div class="md-field">
-      <input id="password" name="password" required type="password" class="md-input" placeholder=" "
-             autocomplete="current-password"/>
-      <label for="password" class="md-label">Password</label>
+    <div class="md-subtitle">Inserisci le credenziali</div>
+  </div>
+
+  <input type="hidden" name="authnRequestId" value="{authnRequestId}">
+  <input type="hidden" name="clientId" value="{clientId}">
+  <input type="hidden" name="clientName" value="{clientName}">
+
+  <div class="input-container">
+    <label class="mdc-text-field extended mdc-text-field--outlined">
+          <span class="mdc-notched-outline">
+            <span class="mdc-notched-outline__leading"></span>
+            <span class="mdc-notched-outline__notch">
+              <span class="mdc-floating-label" id="username-label">Username</span>
+            </span>
+            <span class="mdc-notched-outline__trailing"></span>
+          </span>
+      <input type="text" class="mdc-text-field__input custom-validation"
+             aria-labelledby="username-label" required autocomplete="username" id="username"
+             name="username" value="">
+    </label>
+    <div class="mdc-text-field-helper-line">
+      <div class="mdc-text-field-helper-text mdc-text-field-helper-text--validation-msg"
+           aria-hidden="true">
+        Compila questo campo
+      </div>
     </div>
-    <input type="hidden" name="authnRequestId" value="{authnRequestId}">
-    <input type="hidden" name="clientId" value="{clientId}">
-    <button class="md-btn" type="submit">Login</button>
-  </form>
-</div>
-</body>
-</html>
+  </div>
+
+  <div class="input-container">
+    <label class="mdc-text-field extended mdc-text-field--outlined mdc-text-field--with-trailing-icon" >
+          <span class="mdc-notched-outline">
+            <span class="mdc-notched-outline__leading"></span>
+            <span class="mdc-notched-outline__notch">
+              <span class="mdc-floating-label" id="password-label">Password</span>
+            </span>
+            <span class="mdc-notched-outline__trailing"></span>
+          </span>
+      <input class="mdc-text-field__input custom-validation" type="password"
+             aria-labelledby="password-label" required autocomplete="current-password"
+             id="password" name="password" value="">
+      <i class="material-icons mdc-text-field__icon mdc-text-field__icon--trailing" tabindex="0"
+         role="button" id="toggle-password-icon">visibility_off</i>
+    </label>
+    <div class="mdc-text-field-helper-line">
+      <div class="mdc-text-field-helper-text mdc-text-field-helper-text--validation-msg"
+           aria-hidden="true">
+        Compila questo campo
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-container btn-loading-action-container">
+    <button type="submit" class="mdc-button mdc-button--unelevated btn-xl login-btn mdc-button--leading btn-loading-action">
+      <span class="mdc-button__ripple"></span>
+      <i class="material-icons mdc-button__icon" aria-hidden="true">login</i>
+      <span class="mdc-button__label">Accedi</span>
+      <span class="loader"></span>
+    </button>
+    <button class="mdc-button mdc-button--outlined btn-xl cancel-btn" id="back-button">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">Annulla</span>
+    </button>
+  </div>
+
+</form>
+{/body}
+{/include}
