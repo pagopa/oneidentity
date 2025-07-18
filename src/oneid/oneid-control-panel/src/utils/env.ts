@@ -22,6 +22,8 @@ export const ENV = {
     CLIENT: {
       USER_ATTRIBUTES: import.meta.env
         .VITE_URL_API_CLIENT_USER_ATTRIBUTES as string,
+      CLIENT_ADDITIONAL: import.meta.env
+        .VITE_URL_API_CLIENT_ADDITIONAL as string,
     },
   },
   OIDC: {
