@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta content="noindex" name="robots"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="no-cache" http-equiv="cache-control"/>
+  <meta content="0" http-equiv="expires"/>
+  <meta content="no-cache" http-equiv="pragma"/>
+  <meta content="{#insert meta-title}{/insert}" name="description"/>
+  <meta content="#00a1b0" name="theme-color"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{#insert title}{/insert}</title>
+  <!-- material fonts and icon -->
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <!-- material ui design-->
+  <link href="{config:idp_assets_base_url}/style/mdc.min.css" rel="stylesheet" />
+  <script src="{config:idp_assets_base_url}/js/mdc.min.js" rel="stylesheet"></script>
+  <script type="module">
+    window.addEventListener('DOMContentLoaded', () => {
+      // MDC init
+      // text-field
+      document.querySelectorAll('.mdc-text-field').forEach((el) => {
+        mdc.textField.MDCTextField.attachTo(el);
+      });
+      // btn-ripple
+      mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
+      document.querySelectorAll('.mdc-text-field-helper-text').forEach((el) => {
+        mdc.textField.MDCTextFieldHelperText.attachTo(el);
+      });
+      // header-top-app-bar
+      const topAppBarElement = document.querySelector('.mdc-top-app-bar');
+      mdc.topAppBar.MDCTopAppBar.attachTo(topAppBarElement);
+    });
+  </script>
+  <!--custom styles-->
+  <link rel="stylesheet" href="{config:idp_assets_base_url}/style/styles.css">
+  <!-- custom scripts -->
+  <script src="{config:idp_assets_base_url}/js/scripts.js"></script>
+  <!-- favicon -->
+  <link rel="icon" href="{config:idp_assets_base_url}/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{config:idp_assets_base_url}/apple-touch-icon.svg">
+</head>
+
+<body>
+  <header class="mdc-top-app-bar light">
+    <div class="mdc-top-app-bar__row">
+      <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+          <span class="mdc-top-app-bar__title">
+            <img alt="logo" class="mdc-top-app-bar-logo" src="{config:idp_assets_base_url}/logo.png" />
+          </span>
+      </section>
+    </div>
+  </header>
+  <noscript>Abilita JavaScript per utilizzare quest'applicazione</noscript>
+  <main id="root">
+    {#insert body}{/insert}
+  </main>
+</body>
+
+</html>

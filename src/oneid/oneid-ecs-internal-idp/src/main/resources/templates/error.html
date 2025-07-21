@@ -1,12 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Error Page</title>
-</head>
-<body>
-<div>
-  <h3>{errorMessage}</h3>
+{#include layout.html}
+{#title}Errore · PagoPA S.p.A.{/title}
+{#meta-content}Error Internal IDP One Identiy{/meta-content}
+{#body}
+
+<div class="md-card error" style="align-items: center;">
+
+  <div class="md-title-container">
+    <div class="md-title">Oops..</div>
+    <div class="md-subtitle">Qualcosa è andato storto!</div>
+  </div>
+
+  {#if errorMessage}
+  <div class="input-container">
+    <div class="error-banner">
+      <span class="material-icons">error_outline</span>
+      <div class="error-message">
+        {errorMessage}
+      </div>
+    </div>
+  </div>
+  {/if}
+
+  <div class="btn-container">
+    <button class="mdc-button mdc-button--outlined btn-xl cancel-btn" id="back-button">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">Torna indietro</span>
+    </button>
+  </div>
+
 </div>
-</body>
-</html>
+{/body}
+{/include}
