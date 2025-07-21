@@ -19901,5 +19901,31 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+    {
+    "username": "j.summers",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-778",
+    "familyName": "Summers",
+    "name": "Jean",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-SMMJNE80A01F205O",
+    "mobilePhone": "",
+    "email": "j.summers@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
 ]
