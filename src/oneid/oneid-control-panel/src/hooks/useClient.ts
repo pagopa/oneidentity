@@ -1,9 +1,14 @@
+import { UserApi } from './../types/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import {
   getAdditionalClientAttributes,
   setAdditionalClientAttributes,
   setClientToUser,
+  addClientUser,
+  updateClientUser,
+  deleteClientUser,
+  getClientUsers,
 } from '../api/client';
 import { useParams } from 'react-router-dom';
 import { ClientFE } from '../types/api';
@@ -14,6 +19,7 @@ export const useClient = () => {
   const { user } = useAuth();
   const token = user?.id_token;
   const userId = user?.profile.sub;
+
   const { client_id } = useParams(); // Get the client_id from the URL
   if (!token) {
     throw new Error('No token available');
@@ -54,9 +60,58 @@ export const useClient = () => {
     },
   });
 
+  const createClientUsersMutation = useMutation({
+    onError(error) {
+      console.error('Error creating client user:', error);
+    },
+    mutationFn: async ({ data }: { data: UserApi }) => {
+      return addClientUser(data, token);
+    },
+  });
+
+  const updateClientUsersMutation = useMutation({
+    onError(error) {
+      console.error('Error updating client user:', error);
+    },
+    mutationFn: async ({
+      data,
+      username,
+    }: {
+      data: ClientFE;
+      username: string;
+    }) => {
+      return updateClientUser(userId, username, data, token);
+    },
+  });
+
+  const deleteClientUsersMutation = useMutation({
+    onError(error) {
+      console.error('Error deleting client user:', error);
+    },
+    mutationFn: async ({ username }: { username: string }) => {
+      return deleteClientUser(userId, username, token);
+    },
+  });
+
+  const getClientUsersList = useQuery({
+    queryKey: ['client', client_id],
+    queryFn: async () => {
+      if (!userId) {
+        throw new Error('userId is required');
+      }
+      return await getClientUsers(userId, token);
+    },
+    retry,
+    enabled: !!userId && !!token && !!client_id,
+  });
+
   return {
     setCognitoProfile,
     getAdditionalClientAttrs,
     createOrUpdateClientAttrsMutation,
+    createClientUsersMutation,
+    updateClientUsersMutation,
+    deleteClientUsersMutation,
+    getClientUsersList,
   };
 };

@@ -59,8 +59,13 @@ export const SamlAttributeSchema = z.enum([
   SamlAttribute.DOMICILE_DIGITAL,
   SamlAttribute.EXPIRATION_DATE,
 ]);
+
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
+export const SamlRequestedAttributeSchema = z.object({
+  attribute: SamlAttributeSchema,
+  value: z.string().min(1, 'Il valore non può essere vuoto'),
+});
 
 export const clientSchema = z.object({
   client_id: z.string().optional(),
@@ -74,6 +79,15 @@ export const clientSchema = z.object({
   saml_requested_attributes: SamlAttributeArraySchema.min(1),
   logo_uri: z.string().url().optional().nullable(),
   default_acr_values: SpidLevelArraySchema.min(1),
+});
+
+export const userSchemaApi = z.object({
+  username: z.string().url().optional().nullable(),
+  password: z.string().url().optional().nullable(),
+  user_id: z.string().url().optional().nullable(),
+  samlAttributes: z.object({
+    schema: z.record(SamlAttributeSchema, z.string()),
+  }),
 });
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
@@ -108,6 +122,8 @@ export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
 export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type ClientFEErrors = z.inferFormattedError<typeof clientFESchema>;
+export type UserErrors = z.inferFormattedError<typeof userSchemaApi>;
+export type UserApi = z.infer<typeof userSchemaApi>;
 
 export type ClientFormData = Omit<
   Client,
