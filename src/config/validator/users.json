@@ -19927,5 +19927,31 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+      {
+    "username": "r.richards",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-779",
+    "familyName": "Richards",
+    "name": "Reed",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-RCHRDE80A01F205U",
+    "mobilePhone": "",
+    "email": "r.richards@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
 ]
