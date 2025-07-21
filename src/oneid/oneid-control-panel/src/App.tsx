@@ -1,8 +1,10 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { LoginForm } from './pages/Login/Login';
 import {
+  PrivateAddUsersRoute,
   PrivateCustomizedRoute,
   PrivateDashboardRoute,
+  PrivateGetUsersRoute,
 } from './components/ProtectedRoute';
 import { AuthProvider, AuthProviderProps } from 'react-oidc-context';
 import { ENV } from './utils/env';
@@ -45,6 +47,11 @@ function App() {
             <Route
               path="/dashboard/customize/:client_id"
               element={<PrivateCustomizedRoute />}
+            />
+            <Route path="/dashboard/users" element={<PrivateGetUsersRoute />} />
+            <Route
+              path="/dashboard/addUsers"
+              element={<PrivateAddUsersRoute />}
             />
           </Routes>
         </Layout>

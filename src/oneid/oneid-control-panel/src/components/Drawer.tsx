@@ -91,7 +91,7 @@ export default function PersistentDrawerLeft({
       </List>
       <Divider />
       <List>
-        <ListItem disablePadding component={Link} to="/">
+        <ListItem disablePadding component={Link} to="/dashboard/users">
           <ListItemButton>
             <ListItemIcon>
               <People />
