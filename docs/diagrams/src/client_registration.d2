@@ -1,0 +1,60 @@
+...@classes
+vars: {
+  d2-config: @config.config
+}
+direction: right
+explanation: |md
+  # Legend
+  <div style="color:green;font-size: 20px">&#9632; test</div>
+  <div style="color:blue;font-size: 20px">&#9632;</div>
+| {
+  near: top-left
+}
+
+title: {
+  class: title
+  label: Client Registration Flow
+}
+
+productClient: {
+  class: externalCloudService
+}
+
+aws: { 
+  class: aws
+    ApiGW: {
+      class: apigw
+    }
+  vpc: {
+    class: vpc
+    oneid-lambda-client-registration: {
+      class: lambda
+    }
+  }
+  dynamoDB :{
+    class: dynamo
+   }
+}
+
+productClient -> aws.ApiGW: 1. authenticate client via API key
+aws.ApiGW -> aws.vpc.oneid-lambda-client-registration: 2. if authenticated, get client info
+aws.vpc.oneid-lambda-client-registration -> aws.dynamoDB: 3. generate clientID and client secret and store it
+productClient <-  aws.ApiGW <- aws.vpc.oneid-lambda-client-registration: 4. return clientID, client secret and info to client
+
+productClient -> aws.ApiGW: 1. GET /OIDC/register/\{clientID\} {
+  style: {
+    font-color: green
+  }
+}
+aws.vpc.oneid-lambda-client-registration <-> aws.dynamoDB: 2. retrieve client data {
+  style: {
+    font-color: green
+  }
+}
+
+productClient <-  aws.ApiGW <- aws.vpc.oneid-lambda-client-registration: 3. return data to Client {
+  style: {
+    font-color: green
+  }
+}
+
