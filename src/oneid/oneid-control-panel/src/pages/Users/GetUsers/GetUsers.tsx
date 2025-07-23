@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Typography } from '@mui/material';
 import { UserApi } from '../../../types/api';
@@ -6,9 +6,11 @@ import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
 import { useClient } from '../../../hooks/useClient';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const GetUser = () => {
   const { user } = useAuth();
+  const userId = user?.profile.sub;
   const [users, setUsers] = useState<UserApi[]>([]);
   const navigate = useNavigate();
   const [notify, setNotify] = useState<Notify>({ open: false });
@@ -17,12 +19,12 @@ export const GetUser = () => {
 
   const {
     getClientUsersList: { data, error: getClientUsersError },
+    deleteClientUsersMutation: { mutateAsync: deleteClientUsersMutation },
   } = useClient();
 
   useEffect(() => {
     console.log(Array.isArray(data));
     if (data && 'users' in data && Array.isArray(data.users)) {
-      console.log('setUsers');
       setUsers(data.users);
     }
 
@@ -38,21 +40,26 @@ export const GetUser = () => {
   const handleEditUser = (user: UserApi) => {
     navigate('/dashboard/addUsers', { state: { userToEdit: user } });
   };
+  const queryClient = useQueryClient();
 
-  const handleDelete = async (userId: string) => {
-    try {
-      console.log('Deleting user with ID:', userId);
-      setNotify({
-        open: true,
-        message: 'Utente eliminato con successo',
-        severity: 'success',
-      });
-    } catch (err) {
-      setNotify({
-        open: true,
-        message: 'Errore durante l’eliminazione dell’utente',
-        severity: 'error',
-      });
+  // Handler delete da passare alla tabella
+  const handleDelete = async (username: string) => {
+    if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
+      try {
+        await deleteClientUsersMutation({ username: username });
+        setNotify({
+          open: true,
+          message: 'Utente eliminato con successo',
+          severity: 'success',
+        });
+        queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      } catch (err) {
+        setNotify({
+          open: true,
+          message: 'Errore durante l’eliminazione dell’utente',
+          severity: 'error',
+        });
+      }
     }
   };
 

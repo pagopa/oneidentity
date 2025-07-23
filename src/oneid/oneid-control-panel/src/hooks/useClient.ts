@@ -78,7 +78,7 @@ export const useClient = () => {
       data,
       username,
     }: {
-      data: ClientFE;
+      data: UserApi;
       username: string;
     }) => {
       return updateClientUser(userId, username, data, token);
@@ -89,13 +89,13 @@ export const useClient = () => {
     onError(error) {
       console.error('Error deleting client user:', error);
     },
-    mutationFn: async ({ username }: { username: string }) => {
-      return deleteClientUser(userId, username, token);
+    mutationFn: async ({ username }: { username: string | undefined }) => {
+      return deleteClientUser(userId, token, username);
     },
   });
 
   const getClientUsersList = useQuery({
-    queryKey: ['client', client_id],
+    queryKey: ['get_user_list', userId],
     queryFn: async () => {
       if (!userId) {
         throw new Error('userId is required');
