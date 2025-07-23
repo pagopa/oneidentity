@@ -40,6 +40,27 @@ export const GetUser = () => {
     },
   ];
 
+  const handleEditUser = (user: UserApi) => {
+    navigate('/dashboard/addUsers', { state: { userToEdit: user } });
+  };
+
+  const handleDelete = async (userId: string) => {
+    try {
+      console.log('Deleting user with ID:', userId);
+      setNotify({
+        open: true,
+        message: 'Utente eliminato con successo',
+        severity: 'success',
+      });
+    } catch (err) {
+      setNotify({
+        open: true,
+        message: 'Errore durante l’eliminazione dell’utente',
+        severity: 'error',
+      });
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
       <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
@@ -52,8 +73,8 @@ export const GetUser = () => {
 
         <UserTable
           users={mockUsers}
-          onDelete={(id) => console.log('Delete', id)}
-          onEdit={(user) => console.log('Edit', user)}
+          onDelete={(userId) => handleDelete(userId)}
+          onEdit={(user) => handleEditUser(user)}
         />
 
         <Button

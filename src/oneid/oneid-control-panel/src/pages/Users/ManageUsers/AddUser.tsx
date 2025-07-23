@@ -11,7 +11,7 @@ import {
   OutlinedInput,
   FormHelperText,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { SamlAttribute, UserApi, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
@@ -20,6 +20,8 @@ import { useClient } from '../../../hooks/useClient';
 //TODO if update user, pre-fill form with existing data
 export const AddUser = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const userToEdit = location.state?.userToEdit as UserApi | undefined;
   const [formData, setFormData] = useState<Partial<UserApi>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
@@ -31,6 +33,12 @@ export const AddUser = () => {
       error: addClientUsersError,
     },
   } = useClient();
+
+  useEffect(() => {
+    if (userToEdit) {
+      setFormData(userToEdit);
+    }
+  }, [userToEdit]);
 
   useEffect(() => {
     if (addClientUsersError) {
