@@ -169,9 +169,9 @@ export const deleteClientUser = async (
 
 export const updateClientUser = async (
   userId: string | undefined,
-  token: string,
-  data: ClientFE,
-  username: string | undefined
+  username: string | undefined,
+  data: UserApi,
+  token: string
 ): Promise<string> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
