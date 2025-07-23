@@ -25,18 +25,25 @@ export const AddUser = () => {
   const [formData, setFormData] = useState<Partial<UserApi>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
   const {
     createClientUsersMutation: {
-      data: testUserUpdated,
+      data: testUserCreated,
       mutate: createClientUsersMutation,
       error: addClientUsersError,
+    },
+    updateClientUsersMutation: {
+      data: testUserUpdated,
+      mutate: updateClientUsersMutation,
+      error: updateClientUsersError,
     },
   } = useClient();
 
   useEffect(() => {
     if (userToEdit) {
       setFormData(userToEdit);
+      setIsUpdate(true);
     }
   }, [userToEdit]);
 
@@ -50,19 +57,35 @@ export const AddUser = () => {
         severity: 'error',
       });
     }
-  }, [addClientUsersError]);
+    if (updateClientUsersError) {
+      console.error('Error update user:', updateClientUsersError);
+      setErrorUi(updateClientUsersError as unknown as UserErrors);
+      setNotify({
+        open: true,
+        message: 'Error update user',
+        severity: 'error',
+      });
+    }
+  }, [addClientUsersError, updateClientUsersError]);
 
   useEffect(() => {
-    if (testUserUpdated) {
+    if (testUserCreated) {
       setNotify({
         open: true,
         message: 'Utente creato con successo!',
         severity: 'success',
       });
-
       setFormData({});
     }
-  }, [testUserUpdated]);
+    if (testUserUpdated) {
+      setNotify({
+        open: true,
+        message: 'Utente aggiornato con successo!',
+        severity: 'success',
+      });
+      setFormData({});
+    }
+  }, [testUserUpdated, testUserCreated]);
 
   const isFormValid = () => {
     return (
@@ -75,15 +98,20 @@ export const AddUser = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
     if (!formData || !isFormValid()) {
       console.error('Form is not valid');
       return;
     }
-
-    createClientUsersMutation({
-      data: formData as UserApi,
-    });
+    if (isUpdate) {
+      updateClientUsersMutation({
+        data: formData as UserApi,
+        username: formData.username as string,
+      });
+    } else {
+      createClientUsersMutation({
+        data: formData as UserApi,
+      });
+    }
   };
 
   const handleChange =
