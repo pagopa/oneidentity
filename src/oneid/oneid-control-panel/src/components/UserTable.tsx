@@ -92,10 +92,10 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                       <Typography variant="subtitle1">
                         SAML Attributes
                       </Typography>
-                      {user.samlAttributes?.schema &&
-                      Object.keys(user.samlAttributes.schema).length > 0 ? (
+                      {user.samlAttributes &&
+                      Object.keys(user.samlAttributes).length > 0 ? (
                         <ul>
-                          {Object.entries(user.samlAttributes.schema).map(
+                          {Object.entries(user.samlAttributes).map(
                             ([key, value]) => (
                               <li key={key}>
                                 <strong>{key}:</strong> {value}

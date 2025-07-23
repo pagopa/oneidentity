@@ -26,6 +26,7 @@ export enum SamlAttribute {
   ID_CARD = 'idCard',
   MOBILE_PHONE = 'mobilePhone',
   EMAIL = 'email',
+  ADDRESS = 'address',
   DOMICILE_ADDRESS = 'domicileStreetAddress',
   DOMICILE_CAP = 'domicilePostalCode',
   DOMICILE_MUNICIPALITY = 'domicileMunicipality',
@@ -33,6 +34,25 @@ export enum SamlAttribute {
   DOMICILE_NATION = 'domicileNation',
   DOMICILE_DIGITAL = 'digitalAddress',
   EXPIRATION_DATE = 'expirationDate',
+  //TODO : check DOMICILE_ADDRESS
+  DOMICILE_ADDRESS_NEW = 'domicileAddress',
+  DOMICILE_PLACE = 'domicilePlace',
+  DOMICILE_COUNTRY = 'domicileCountry',
+  QUALIFICATION = 'qualification',
+  COMMON_NAME = 'commonName',
+  SURNAME = 'surname',
+  GIVEN_NAME = 'givenName',
+  PREFERRED_USERNAME = 'preferredUsername',
+  TITLE = 'title',
+  USER_CERTIFICATE = 'userCertificate',
+  EMPLOYEE_NUMBER = 'employeeNumber',
+  ORG_UNIT_NAME = 'orgUnitName',
+  PREFERRED_LANGUAGE = 'preferredLanguage',
+  COUNTRY = 'country',
+  STATE_OR_PROVINCE = 'stateOrProvince',
+  CITY = 'city',
+  POSTAL_CODE = 'postalCode',
+  STREET = 'street',
 }
 
 export const SpidLevelSchema = z.enum([SpidLevel.L2, SpidLevel.L3]);
@@ -58,14 +78,29 @@ export const SamlAttributeSchema = z.enum([
   SamlAttribute.DOMICILE_NATION,
   SamlAttribute.DOMICILE_DIGITAL,
   SamlAttribute.EXPIRATION_DATE,
+  SamlAttribute.ADDRESS,
+  SamlAttribute.DOMICILE_ADDRESS_NEW,
+  SamlAttribute.DOMICILE_PLACE,
+  SamlAttribute.DOMICILE_COUNTRY,
+  SamlAttribute.QUALIFICATION,
+  SamlAttribute.COMMON_NAME,
+  SamlAttribute.SURNAME,
+  SamlAttribute.GIVEN_NAME,
+  SamlAttribute.PREFERRED_USERNAME,
+  SamlAttribute.TITLE,
+  SamlAttribute.USER_CERTIFICATE,
+  SamlAttribute.EMPLOYEE_NUMBER,
+  SamlAttribute.ORG_UNIT_NAME,
+  SamlAttribute.PREFERRED_LANGUAGE,
+  SamlAttribute.COUNTRY,
+  SamlAttribute.STATE_OR_PROVINCE,
+  SamlAttribute.CITY,
+  SamlAttribute.STREET,
+  SamlAttribute.POSTAL_CODE,
 ]);
 
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
-export const SamlRequestedAttributeSchema = z.object({
-  attribute: SamlAttributeSchema,
-  value: z.string().min(1, 'Il valore non può essere vuoto'),
-});
 
 export const clientSchema = z.object({
   client_id: z.string().optional(),
@@ -85,9 +120,7 @@ export const userSchemaApi = z.object({
   username: z.string().url().optional().nullable(),
   password: z.string().url().optional().nullable(),
   user_id: z.string().url().optional().nullable(),
-  samlAttributes: z.object({
-    schema: z.record(SamlAttributeSchema, z.string()),
-  }),
+  samlAttributes: z.record(SamlAttributeSchema, z.string()),
 });
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);

@@ -20,10 +20,8 @@ export const GetUser = () => {
       password: 'password1',
       user_id: 'u1',
       samlAttributes: {
-        schema: {
-          email: 'email1',
-          name: 'name1',
-        },
+        email: 'email1',
+        name: 'name1',
       },
     },
     {
@@ -31,11 +29,9 @@ export const GetUser = () => {
       password: 'password2',
       user_id: 'u2',
       samlAttributes: {
-        schema: {
-          email: 'email2',
-          name: 'name2',
-          fiscalNumber: 'fiscalCode2',
-        },
+        email: 'email2',
+        name: 'name2',
+        fiscalNumber: 'fiscalCode2',
       },
     },
   ];

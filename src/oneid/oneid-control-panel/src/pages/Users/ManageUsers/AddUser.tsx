@@ -53,17 +53,23 @@ export const AddUser = () => {
   }, [addClientUsersError]);
 
   useEffect(() => {
-    console.log(testUserUpdated);
+    if (testUserUpdated) {
+      setNotify({
+        open: true,
+        message: 'Utente creato con successo!',
+        severity: 'success',
+      });
+
+      setFormData({});
+    }
   }, [testUserUpdated]);
 
   const isFormValid = () => {
     return (
       !!formData?.username &&
       !!formData?.password &&
-      !!formData?.samlAttributes?.schema &&
-      Object.values(formData.samlAttributes.schema).every(
-        (v) => v.trim() !== ''
-      )
+      !!formData?.samlAttributes &&
+      Object.values(formData.samlAttributes).every((v) => v.trim() !== '')
     );
   };
 
@@ -124,7 +130,7 @@ export const AddUser = () => {
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as UserErrors)?.samlAttributes?.schema?._errors}
+          error={!!(errorUi as UserErrors)?.samlAttributes?._errors}
         >
           <InputLabel id="saml-attributes-label">
             SAML Attributes Users
@@ -133,21 +139,17 @@ export const AddUser = () => {
             labelId="saml-attributes-label"
             id="saml-attributes-select"
             multiple
-            value={Object.keys(formData?.samlAttributes?.schema || {})}
+            value={Object.keys(formData?.samlAttributes || {})}
             onChange={(e) => {
               const selected = e.target.value as SamlAttribute[];
-
-              const newSchema: Record<string, string> = {};
+              const updated: Record<string, string> = {};
               selected.forEach((attr) => {
-                const oldValue = formData?.samlAttributes?.schema?.[attr] || '';
-                newSchema[attr] = oldValue;
+                updated[attr] = formData?.samlAttributes?.[attr] || '';
               });
 
               setFormData((prev) => ({
                 ...prev,
-                samlAttributes: {
-                  schema: newSchema,
-                },
+                samlAttributes: updated,
               }));
             }}
             input={<OutlinedInput label="SAML Attributes" />}
@@ -160,7 +162,7 @@ export const AddUser = () => {
             ))}
           </Select>
 
-          {Object.entries(formData?.samlAttributes?.schema || {}).map(
+          {Object.entries(formData?.samlAttributes || {}).map(
             ([attribute, value]) => (
               <TextField
                 key={attribute}
@@ -171,10 +173,8 @@ export const AddUser = () => {
                   setFormData((prev) => ({
                     ...prev,
                     samlAttributes: {
-                      schema: {
-                        ...prev?.samlAttributes?.schema,
-                        [attribute]: newValue,
-                      },
+                      ...(prev?.samlAttributes || {}),
+                      [attribute]: newValue,
                     },
                   }));
                 }}
@@ -185,7 +185,7 @@ export const AddUser = () => {
           )}
 
           <FormHelperText>
-            {(errorUi as UserErrors)?.samlAttributes?.schema?._errors}
+            {(errorUi as UserErrors)?.samlAttributes?._errors}
           </FormHelperText>
           <FormHelperText>
             Lista completa:{' '}

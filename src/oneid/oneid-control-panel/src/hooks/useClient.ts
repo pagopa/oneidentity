@@ -65,6 +65,7 @@ export const useClient = () => {
       console.error('Error creating client user:', error);
     },
     mutationFn: async ({ data }: { data: UserApi }) => {
+      data.user_id = userId;
       return addClientUser(data, token);
     },
   });
