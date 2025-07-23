@@ -1,40 +1,39 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography } from '@mui/material';
+import { Alert, Box, Button, Typography } from '@mui/material';
 import { UserApi } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
+import { useClient } from '../../../hooks/useClient';
 
 export const GetUser = () => {
   const { user } = useAuth();
+  const [users, setUsers] = useState<UserApi[]>([]);
   const navigate = useNavigate();
   const [notify, setNotify] = useState<Notify>({ open: false });
 
-  //TODO add getUser request and manage response
   //TODO onDelete & onUpdate
 
-  const mockUsers: UserApi[] = [
-    {
-      username: 'username1',
-      password: 'password1',
-      user_id: 'u1',
-      samlAttributes: {
-        email: 'email1',
-        name: 'name1',
-      },
-    },
-    {
-      username: 'username2',
-      password: 'password2',
-      user_id: 'u2',
-      samlAttributes: {
-        email: 'email2',
-        name: 'name2',
-        fiscalNumber: 'fiscalCode2',
-      },
-    },
-  ];
+  const {
+    getClientUsersList: { data, error: getClientUsersError },
+  } = useClient();
+
+  useEffect(() => {
+    console.log(Array.isArray(data));
+    if (data && 'users' in data && Array.isArray(data.users)) {
+      console.log('setUsers');
+      setUsers(data.users);
+    }
+
+    if (getClientUsersError) {
+      setNotify({
+        open: true,
+        message: 'Errore nel recupero degli utenti',
+        severity: 'error',
+      });
+    }
+  }, [data, getClientUsersError]);
 
   const handleEditUser = (user: UserApi) => {
     navigate('/dashboard/addUsers', { state: { userToEdit: user } });
@@ -57,6 +56,24 @@ export const GetUser = () => {
     }
   };
 
+  const renderUserTable = () => {
+    if (users.length !== 0) {
+      return (
+        <UserTable
+          users={users}
+          onDelete={(userId) => handleDelete(userId)}
+          onEdit={(user) => handleEditUser(user)}
+        />
+      );
+    } else {
+      return (
+        <Alert severity="info">
+          Non sono presenti utenti di test registrati.
+        </Alert>
+      );
+    }
+  };
+
   return (
     <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
       <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
@@ -66,12 +83,7 @@ export const GetUser = () => {
         <Typography variant="h5" gutterBottom>
           User TEST List
         </Typography>
-
-        <UserTable
-          users={mockUsers}
-          onDelete={(userId) => handleDelete(userId)}
-          onEdit={(user) => handleEditUser(user)}
-        />
+        {renderUserTable()}
 
         <Button
           variant="contained"

@@ -40,80 +40,71 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
           <TableRow>
             <TableCell />
             <TableCell>Username</TableCell>
-            <TableCell>User ID</TableCell>
             <TableCell>Password</TableCell>
             <TableCell align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
-          {users.map((user) => (
-            <>
-              <TableRow key={user.user_id}>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    onClick={() => toggleRow(user.user_id ?? '')}
-                  >
-                    {openRows[user.user_id ?? ''] ? (
-                      <KeyboardArrowUp />
-                    ) : (
-                      <KeyboardArrowDown />
-                    )}
-                  </IconButton>
-                </TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.user_id}</TableCell>
-                <TableCell>{user.password}</TableCell>
-                <TableCell align="right">
-                  <IconButton onClick={() => onEdit(user)} color="inherit">
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => onDelete(user.user_id ?? '')}
-                    color="inherit"
-                  >
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  style={{ paddingBottom: 0, paddingTop: 0 }}
-                >
-                  <Collapse
-                    in={openRows[user.user_id ?? '']}
-                    timeout="auto"
-                    unmountOnExit
-                  >
-                    <Box margin={2}>
-                      <Typography variant="subtitle1">
-                        SAML Attributes
-                      </Typography>
-                      {user.samlAttributes &&
-                      Object.keys(user.samlAttributes).length > 0 ? (
-                        <ul>
-                          {Object.entries(user.samlAttributes).map(
-                            ([key, value]) => (
-                              <li key={key}>
-                                <strong>{key}:</strong> {value}
-                              </li>
-                            )
-                          )}
-                        </ul>
+          {users.map((user) => {
+            const key = user.user_id ?? user.username ?? 'fallback-key';
+            return (
+              <>
+                <TableRow key={user.user_id}>
+                  <TableCell>
+                    <IconButton size="small" onClick={() => toggleRow(key)}>
+                      {openRows[key] ? (
+                        <KeyboardArrowUp />
                       ) : (
-                        <Typography variant="body2" color="textSecondary">
-                          Nessun attributo disponibile.
-                        </Typography>
+                        <KeyboardArrowDown />
                       )}
-                    </Box>
-                  </Collapse>
-                </TableCell>
-              </TableRow>
-            </>
-          ))}
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>{user.username}</TableCell>
+                  <TableCell>{user.password}</TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => onEdit(user)} color="inherit">
+                      <Edit />
+                    </IconButton>
+                    <IconButton onClick={() => onDelete(key)} color="inherit">
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    style={{ paddingBottom: 0, paddingTop: 0 }}
+                  >
+                    <Collapse in={openRows[key]} timeout="auto" unmountOnExit>
+                      <Box margin={2}>
+                        <Typography variant="subtitle1">
+                          SAML Attributes
+                        </Typography>
+                        {user.samlAttributes &&
+                        Object.keys(user.samlAttributes).length > 0 ? (
+                          <ul>
+                            {Object.entries(user.samlAttributes).map(
+                              ([attrKey, attrValue]) => (
+                                <li key={attrKey}>
+                                  <strong>{attrKey}:</strong> {attrValue}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        ) : (
+                          <Typography variant="body2" color="textSecondary">
+                            Nessun attributo disponibile.
+                          </Typography>
+                        )}
+                      </Box>
+                    </Collapse>
+                  </TableCell>
+                </TableRow>
+              </>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

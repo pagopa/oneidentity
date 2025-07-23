@@ -103,7 +103,7 @@ export const useClient = () => {
       return await getClientUsers(userId, token);
     },
     retry,
-    enabled: !!userId && !!token && !!client_id,
+    enabled: !!userId && !!token,
   });
 
   return {
