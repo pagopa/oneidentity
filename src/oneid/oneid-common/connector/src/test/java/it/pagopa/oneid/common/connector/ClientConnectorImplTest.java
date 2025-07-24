@@ -106,7 +106,8 @@ class ClientConnectorImplTest {
 
     ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
         requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-        clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
+        clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
+        false, false
     );
 
     Executable executable = () -> clientConnectorImpl.saveClientIfNotExists(clientExtended);
@@ -138,7 +139,8 @@ class ClientConnectorImplTest {
 
       ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
           requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-          clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
+          clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
+          false, false
       );
 
       clientConnectorImpl.saveClientIfNotExists(clientExtended);

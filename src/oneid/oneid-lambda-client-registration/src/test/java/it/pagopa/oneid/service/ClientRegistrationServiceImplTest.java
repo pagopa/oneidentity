@@ -15,6 +15,7 @@ import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,12 @@ class ClientRegistrationServiceImplTest {
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
@@ -116,6 +123,22 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void validateClientRegistrationInfo_invalid_a11yUri() {
+    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .a11yUri("error")
+        .build();
+
+    assertThrows(InvalidUriException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationRequestDTO));
+  }
+
+  @Test
   void saveClient() {
 
     ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
@@ -126,6 +149,12 @@ class ClientRegistrationServiceImplTest {
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
         .build();
 
     Client returnClient = Client.builder()
@@ -141,6 +170,12 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
         .build();
 
     ArrayList<Client> allClient = new ArrayList<>();
@@ -170,6 +205,12 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
         .build();
 
     //when
