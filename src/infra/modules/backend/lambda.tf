@@ -89,6 +89,7 @@ data "aws_iam_policy_document" "client_registration_lambda" {
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
       "dynamodb:Scan"
     ]
     resources = [
@@ -101,6 +102,20 @@ data "aws_iam_policy_document" "client_registration_lambda" {
     resources = [
       var.sns_topic_arn
     ]
+  }
+
+  dynamic "statement" {
+    for_each = var.client_registration_lambda.cognito_user_pool_arn != "" ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "cognito-idp:AdminUpdateUserAttributes",
+        "cognito-idp:AdminGetUser"
+      ]
+      resources = [
+        var.client_registration_lambda.cognito_user_pool_arn
+      ]
+    }
   }
 }
 
