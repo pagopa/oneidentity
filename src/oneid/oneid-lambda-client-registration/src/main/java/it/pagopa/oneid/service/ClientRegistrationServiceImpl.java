@@ -82,6 +82,16 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new InvalidUriException("Invalid TOS URI");
     }
 
+    // Validate a11yUri
+    String a11yUri = clientRegistrationRequestDTO.getA11yUri();
+    try {
+      if (!StringUtils.isBlank(a11yUri)) {
+        CustomURIUtils.validateURI(a11yUri);
+      }
+
+    } catch (InvalidUriException e) {
+      throw new InvalidUriException("Invalid a11y URI");
+    }
 
   }
 

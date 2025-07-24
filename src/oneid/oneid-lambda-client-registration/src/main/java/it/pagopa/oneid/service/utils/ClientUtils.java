@@ -47,6 +47,12 @@ public class ClientUtils {
         .logoUri(clientRegistrationRequestDTO.getLogoUri())
         .policyUri(clientRegistrationRequestDTO.getPolicyUri())
         .tosUri(clientRegistrationRequestDTO.getTosUri())
+        .a11yUri(clientRegistrationRequestDTO.getA11yUri())
+        .backButtonEnabled(clientRegistrationRequestDTO.isBackButtonEnabled())
+        .localizedContentMap(clientRegistrationRequestDTO.getLocalizedContentMap())
+        .spidMinors(clientRegistrationRequestDTO.isSpidMinors())
+        .spidProfessionals(clientRegistrationRequestDTO.isSpidProfessionals())
+        .pdvPairwise(clientRegistrationRequestDTO.isPdvPairwise())
         .build();
   }
 

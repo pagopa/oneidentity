@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -21,7 +21,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class Client {
 
 
@@ -72,6 +72,10 @@ public class Client {
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
+  //Extra fields
+  private boolean spidMinors;
+  private boolean spidProfessionals;
+  private boolean pdvPairwise;
 
   public record LocalizedContent(String title, String description, String docUri,
                                  String supportAddress, String cookieUri) {

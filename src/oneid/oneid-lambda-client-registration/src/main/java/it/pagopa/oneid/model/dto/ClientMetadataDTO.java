@@ -2,10 +2,12 @@ package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
+import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,6 +55,23 @@ public class ClientMetadataDTO {
   @JsonProperty("required_same_idp")
   private boolean requiredSameIdp;
 
+  @JsonProperty("a11y_uri")
+  private String a11yUri;
+
+  @JsonProperty("back_button_enabled")
+  private boolean backButtonEnabled;
+
+  @JsonProperty("localized_content_map")
+  private Map<String, Map<String, LocalizedContent>> localizedContentMap;
+
+  @JsonProperty("spid_minors")
+  private boolean spidMinors;
+
+  @JsonProperty("spid_professionals")
+  private boolean spidProfessionals;
+
+  @JsonProperty("pdv_pairwise")
+  private boolean pdvPairwise;
 
   public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {
     this.redirectUris = clientMetadataDTO.getRedirectUris();
@@ -63,5 +82,11 @@ public class ClientMetadataDTO {
     this.defaultAcrValues = clientMetadataDTO.getDefaultAcrValues();
     this.samlRequestedAttributes = clientMetadataDTO.getSamlRequestedAttributes();
     this.requiredSameIdp = clientMetadataDTO.isRequiredSameIdp();
+    this.a11yUri = clientMetadataDTO.getA11yUri();
+    this.backButtonEnabled = clientMetadataDTO.isBackButtonEnabled();
+    this.localizedContentMap = clientMetadataDTO.getLocalizedContentMap();
+    this.spidMinors = clientMetadataDTO.isSpidMinors();
+    this.spidProfessionals = clientMetadataDTO.isSpidProfessionals();
+    this.pdvPairwise = clientMetadataDTO.isPdvPairwise();
   }
 }
