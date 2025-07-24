@@ -93,4 +93,19 @@ class ClientRegistrationControllerTest {
         .then()
         .statusCode(200);
   }
+
+  @Test
+  void refreshClientSecret() {
+    String userId = "testUserId";
+    Mockito.when(clientRegistrationServiceImpl.refreshClientSecret(userId))
+        .thenReturn("NewSecret");
+
+    given()
+        .contentType("application/json")
+        .pathParam("user_id", userId)
+        .when()
+        .post("/clients/{user_id}/secret/refresh")
+        .then()
+        .statusCode(200);
+  }
 }
