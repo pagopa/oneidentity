@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.CognitoConnectorImpl;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
@@ -20,6 +21,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,6 +31,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Inject
   ClientConnectorImpl clientConnector;
+  @Inject
+  CognitoConnectorImpl cognitoConnector;
 
   @Override
   public void validateClientRegistrationInfo(
@@ -94,18 +98,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 3. Client.Secret & Salt
 
-    // a. Generate Salt
-    byte[] salt = HASHUtils.generateSecureRandom(16);
-
-    // b. Generate client_secret
-    byte[] secret = HASHUtils.generateSecureRandom(32);
-
-    // c. Generate Argon2 of secret using salt
-    String hashedClientSecret = HASHUtils.generateArgon2(salt, secret);
+    ClientSecretSalt clientSecretSalt = generateClientSecretSalt();
 
     // 4. Create ClientExtended
-    ClientExtended clientExtended = new ClientExtended(client, hashedClientSecret,
-        HASHUtils.b64encoder.encodeToString(salt));
+    ClientExtended clientExtended = new ClientExtended(client, clientSecretSalt.hashedSecret,
+        HASHUtils.b64encoder.encodeToString(clientSecretSalt.salt));
 
     // 5. Save on Dynamo
     clientConnector.saveClientIfNotExists(clientExtended);
@@ -117,7 +114,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 7. create and return ClientRegistrationResponseDTO
     return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        client.getClientId(), HASHUtils.b64encoder.encodeToString(secret),
+        client.getClientId(), HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret),
         client.getClientIdIssuedAt());
   }
 
@@ -143,4 +140,47 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
 
+  @Override
+  public String refreshClientSecret(String userId) {
+
+    // 1. Use the userId to get the clientId from Cognito
+    Optional<String> clientId = cognitoConnector.extractClientIdByUserId(userId);
+    if (clientId.isEmpty()) {
+      throw new RuntimeException("error"); //TODO handle this properly
+    }
+    // 2. Get the client from DynamoDB using the retrieved clientId
+    String clientIdValue = clientId.get();
+    Optional<Client> client = clientConnector.getClientById(clientIdValue);
+    if (client.isEmpty()) {
+      throw new RuntimeException("error"); //TODO handle this properly
+    }
+
+    // 3. Generate a new secret and salt
+    ClientSecretSalt newClientSecretSalt = generateClientSecretSalt();
+
+    //4. Update the client information in Dynamo
+    clientConnector.updateClientSecretSalt(client.get(),
+        HASHUtils.b64encoder.encodeToString(newClientSecretSalt.salt),
+        newClientSecretSalt.hashedSecret);
+
+    // 5. Return the new secret to the caller
+    return newClientSecretSalt.hashedSecret;
+  }
+
+  private ClientSecretSalt generateClientSecretSalt() {
+    // a. Generate Salt
+    byte[] salt = HASHUtils.generateSecureRandom(16);
+
+    // b. Generate client_secret
+    byte[] secret = HASHUtils.generateSecureRandom(32);
+
+    // c. Generate Argon2 of secret using salt
+    String hashedClientSecret = HASHUtils.generateArgon2(salt, secret);
+
+    return new ClientSecretSalt(secret, salt, hashedClientSecret);
+  }
+
+  private record ClientSecretSalt(byte[] secret, byte[] salt, String hashedSecret) {
+
+  }
 }

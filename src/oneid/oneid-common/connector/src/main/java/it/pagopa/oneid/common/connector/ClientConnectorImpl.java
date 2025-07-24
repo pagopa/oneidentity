@@ -18,6 +18,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
 
 @ApplicationScoped
 @CustomLogging
@@ -89,6 +90,19 @@ public class ClientConnectorImpl implements ClientConnector {
       }
     }
     return Optional.empty();
+  }
+
+  @Override
+  public void updateClientSecretSalt(Client client, String newSalt, String newHashedSecret) {
+    ClientExtended clientExtended = new ClientExtended(client, newHashedSecret, newSalt);
+    clientExtendedMapper.updateItem(
+        UpdateItemEnhancedRequest.builder(ClientExtended.class)
+            .item(clientExtended)
+            .conditionExpression(
+                Expression.builder().expression(
+                        "attribute_exists(clientId)")
+                    .build())
+            .build());
   }
 
 }

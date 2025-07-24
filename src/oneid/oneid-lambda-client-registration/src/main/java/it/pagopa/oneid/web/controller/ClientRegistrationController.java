@@ -41,7 +41,7 @@ public class ClientRegistrationController {
   public Response register(
       @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.info("start");
-    
+
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
 
     Log.info("client info validated successfully");
@@ -80,4 +80,11 @@ public class ClientRegistrationController {
         clientId)).build();
   }
 
+  @POST
+  @Path("/clients/{user_id}/secret/refresh")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response refreshClientSecret(@PathParam("user_id") String userId) {
+    return Response.ok(clientRegistrationService.refreshClientSecret(userId))
+        .build();
+  }
 }
