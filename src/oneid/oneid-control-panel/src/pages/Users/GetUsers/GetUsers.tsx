@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Typography } from '@mui/material';
 import { UserApi } from '../../../types/api';
@@ -7,6 +7,7 @@ import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
 import { useClient } from '../../../hooks/useClient';
 import { useQueryClient } from '@tanstack/react-query';
+import { ROUTE_PATH } from '../../../utils/constants';
 
 export const GetUser = () => {
   const { user } = useAuth();
@@ -38,7 +39,7 @@ export const GetUser = () => {
   }, [data, getClientUsersError]);
 
   const handleEditUser = (user: UserApi) => {
-    navigate(`/dashboard/user/${user.username}`, {
+    navigate(`${ROUTE_PATH.USER}/${user.username}`, {
       state: { userToEdit: user },
     });
   };
@@ -98,7 +99,7 @@ export const GetUser = () => {
           variant="contained"
           sx={{ mt: 2 }}
           data-testid="submit-button"
-          onClick={() => navigate('/dashboard/user')}
+          onClick={() => navigate(ROUTE_PATH.USER)}
           // disabled={!isFormValid()}
         >
           {'Aggiungi nuovo utente'}

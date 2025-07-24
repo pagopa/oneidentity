@@ -28,6 +28,7 @@ import { Notify } from '../../components/Notify';
 import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
+import { ROUTE_PATH } from '../../utils/constants';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -148,7 +149,9 @@ export const Dashboard = () => {
   const handleCloseSecretModal = () => {
     // TODO check cognito status before redirecting
     closeModal(() => {
-      window.location.assign(`/dashboard/${clientUpdated?.client_id}`);
+      window.location.assign(
+        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.client_id}`
+      );
     });
   };
   const handleSubmit = async (e: React.FormEvent) => {
