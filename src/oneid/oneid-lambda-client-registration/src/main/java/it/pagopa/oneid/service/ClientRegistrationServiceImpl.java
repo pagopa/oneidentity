@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
@@ -11,6 +12,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.CognitoConnectorImpl;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -146,22 +148,27 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 1. Use the userId to get the clientId from Cognito
     Optional<String> clientId = cognitoConnector.extractClientIdByUserId(userId);
     if (clientId.isEmpty()) {
-      throw new RuntimeException("error"); //TODO handle this properly
+      Log.errorf("No clientId found for userId: %s", userId);
+      throw new RefreshSecretException("No clientId associated to this user");
     }
     // 2. Get the client from DynamoDB using the retrieved clientId
     String clientIdValue = clientId.get();
     Optional<Client> client = clientConnector.getClientById(clientIdValue);
     if (client.isEmpty()) {
-      throw new RuntimeException("error"); //TODO handle this properly
+      Log.errorf("No client found for clientId: %s", clientId.get());
+      throw new RefreshSecretException("No client found for the clientId associated to this user");
     }
 
     // 3. Generate a new secret and salt
     ClientSecretSalt newClientSecretSalt = generateClientSecretSalt();
+    Log.debugf("Generated new client secret and salt for clientId: %s", clientIdValue);
 
     //4. Update the client information in Dynamo
     clientConnector.updateClientSecretSalt(client.get(),
         HASHUtils.b64encoder.encodeToString(newClientSecretSalt.salt),
         newClientSecretSalt.hashedSecret);
+
+    Log.debugf("Updated client secret and salt for clientId: %s", clientIdValue);
 
     // 5. Return the new secret to the caller
     return newClientSecretSalt.hashedSecret;
