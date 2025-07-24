@@ -22,7 +22,7 @@ const AppRoutes = () => {
       />
       <Route path={ROUTE_PATH.USER_LIST} element={<PrivateGetUsersRoute />} />
       <Route
-        path={`${ROUTE_PATH.USER}/user/:id?`}
+        path={`${ROUTE_PATH.USER}/:id?`}
         element={<PrivateAddOrUpdateUsersRoute />}
       />
     </Routes>
