@@ -141,6 +141,7 @@ export const AddOrUpdateUser = () => {
           value={formData?.username || ''}
           margin="normal"
           onChange={handleChange('username')}
+          disabled={isEditMode}
         />
 
         <TextField
@@ -152,6 +153,7 @@ export const AddOrUpdateUser = () => {
           margin="normal"
           error={!!(errorUi as UserErrors)?.password?._errors}
           helperText={(errorUi as UserErrors)?.password?._errors}
+          disabled={isEditMode}
         />
 
         <FormControl
