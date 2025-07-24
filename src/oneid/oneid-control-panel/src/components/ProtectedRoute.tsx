@@ -1,13 +1,13 @@
 import { withAuthenticationRequired } from 'react-oidc-context';
 import { Dashboard } from '../pages/Dashboard/Dashboard';
 import { Customize } from '../pages/Customize/Customize';
-import { AddUser } from '../pages/Users/ManageUsers/AddUser';
+import { AddOrUpdateUser } from '../pages/Users/ManageUsers/AddUser';
 import { GetUser } from '../pages/Users/GetUsers/GetUsers';
 
 const PrivateRouteDashboard = () => <Dashboard />;
 const PrivateRouteCustomize = () => <Customize />;
 const PrivateRouteGetUsers = () => <GetUser />;
-const PrivateRouteAddUser = () => <AddUser />;
+const PrivateRouteAddOrUpdateUser = () => <AddOrUpdateUser />;
 
 export const PrivateDashboardRoute = withAuthenticationRequired(
   PrivateRouteDashboard,
@@ -27,8 +27,8 @@ export const PrivateGetUsersRoute = withAuthenticationRequired(
     OnRedirecting: () => <div>Redirecting to the manage users page...</div>,
   }
 );
-export const PrivateAddUsersRoute = withAuthenticationRequired(
-  PrivateRouteAddUser,
+export const PrivateAddOrUpdateUsersRoute = withAuthenticationRequired(
+  PrivateRouteAddOrUpdateUser,
   {
     OnRedirecting: () => <div>Redirecting to the manage users page...</div>,
   }

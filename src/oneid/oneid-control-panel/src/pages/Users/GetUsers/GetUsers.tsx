@@ -38,7 +38,9 @@ export const GetUser = () => {
   }, [data, getClientUsersError]);
 
   const handleEditUser = (user: UserApi) => {
-    navigate('/dashboard/addUsers', { state: { userToEdit: user } });
+    navigate(`/dashboard/user/${user.username}`, {
+      state: { userToEdit: user },
+    });
   };
   const queryClient = useQueryClient();
 
@@ -96,7 +98,7 @@ export const GetUser = () => {
           variant="contained"
           sx={{ mt: 2 }}
           data-testid="submit-button"
-          onClick={() => navigate('/dashboard/addUsers')}
+          onClick={() => navigate('/dashboard/user')}
           // disabled={!isFormValid()}
         >
           {'Aggiungi nuovo utente'}

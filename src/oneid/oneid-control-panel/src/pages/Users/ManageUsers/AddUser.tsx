@@ -11,21 +11,22 @@ import {
   OutlinedInput,
   FormHelperText,
 } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { SamlAttribute, UserApi, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
 
 //TODO if update user, pre-fill form with existing data
-export const AddUser = () => {
+export const AddOrUpdateUser = () => {
   const { user } = useAuth();
   const location = useLocation();
   const userToEdit = location.state?.userToEdit as UserApi | undefined;
+  const { id: usernameQueryParam } = useParams();
+  const isEditMode = !!usernameQueryParam;
   const [formData, setFormData] = useState<Partial<UserApi>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
-  const [isUpdate, setIsUpdate] = useState<boolean>(false);
 
   const {
     createClientUsersMutation: {
@@ -41,11 +42,10 @@ export const AddUser = () => {
   } = useClient();
 
   useEffect(() => {
-    if (userToEdit) {
+    if (isEditMode && userToEdit) {
       setFormData(userToEdit);
-      setIsUpdate(true);
     }
-  }, [userToEdit]);
+  }, [isEditMode, userToEdit]);
 
   useEffect(() => {
     if (addClientUsersError) {
@@ -102,7 +102,7 @@ export const AddUser = () => {
       console.error('Form is not valid');
       return;
     }
-    if (isUpdate) {
+    if (isEditMode) {
       updateClientUsersMutation({
         data: formData as UserApi,
         username: formData.username as string,
@@ -160,9 +160,7 @@ export const AddUser = () => {
           required
           error={!!(errorUi as UserErrors)?.samlAttributes?._errors}
         >
-          <InputLabel id="saml-attributes-label">
-            SAML Attributes Users
-          </InputLabel>
+          <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
           <Select
             labelId="saml-attributes-label"
             id="saml-attributes-select"

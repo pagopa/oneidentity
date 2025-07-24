@@ -1,7 +1,7 @@
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { LoginForm } from './pages/Login/Login';
 import {
-  PrivateAddUsersRoute,
+  PrivateAddOrUpdateUsersRoute,
   PrivateCustomizedRoute,
   PrivateDashboardRoute,
   PrivateGetUsersRoute,
@@ -49,8 +49,8 @@ function App() {
             />
             <Route path="/dashboard/users" element={<PrivateGetUsersRoute />} />
             <Route
-              path="/dashboard/addUsers"
-              element={<PrivateAddUsersRoute />}
+              path="/dashboard/user/:id?"
+              element={<PrivateAddOrUpdateUsersRoute />}
             />
           </Routes>
         </Layout>
