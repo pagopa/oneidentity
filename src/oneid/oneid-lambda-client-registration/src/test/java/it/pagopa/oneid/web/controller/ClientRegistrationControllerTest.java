@@ -10,6 +10,7 @@ import it.pagopa.oneid.model.dto.ClientMetadataDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import java.util.HashMap;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,6 +34,12 @@ class ClientRegistrationControllerTest {
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
@@ -46,7 +53,16 @@ class ClientRegistrationControllerTest {
             "\"policy_uri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
             "\"tos_uri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
             "\"default_acr_values\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
-            "\"saml_requested_attributes\": [\"name\"]}")
+            "\"saml_requested_attributes\": [\"name\"]}" + "\"," +
+            "\"a11y_uri\": \"" + clientRegistrationRequestDTO.getA11yUri() + "\"," +
+            "\"back_button_enabled\": \"" + clientRegistrationRequestDTO.isBackButtonEnabled()
+            + "\"," +
+            "\"localized_content_map\": \"" + clientRegistrationRequestDTO.getLocalizedContentMap()
+            + "\"," +
+            "\"spid_minors\": \"" + clientRegistrationRequestDTO.isSpidMinors() + "\"," +
+            "\"spid_professionals\": \"" + clientRegistrationRequestDTO.isSpidProfessionals()
+            + "\"," +
+            "\"pdv_pairwise\": \"" + clientRegistrationRequestDTO.isPdvPairwise())
         .when()
         .post("/register")
         .then()
@@ -55,6 +71,26 @@ class ClientRegistrationControllerTest {
 
   @Test
   void register_differentContentType() {
+
+    // given
+    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pdvPairwise(false)
+        .build();
+
+    ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
+    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
 
     given()
         .contentType("application/xml") // Testing wrong content-type
