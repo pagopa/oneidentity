@@ -16,6 +16,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -41,7 +43,7 @@ public class ClientRegistrationController {
   public Response register(
       @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.info("start");
-    
+
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
 
     Log.info("client info validated successfully");
@@ -80,4 +82,13 @@ public class ClientRegistrationController {
         clientId)).build();
   }
 
+  @POST
+  @Path("/clients/{user_id}/secret/refresh")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response refreshClientSecret(@PathParam("user_id") String userId) {
+    String secret = clientRegistrationService.refreshClientSecret(userId);
+    Map<String, String> response = new HashMap<>();
+    response.put("newClientSecret", secret);
+    return Response.ok(response).build();
+  }
 }

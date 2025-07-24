@@ -113,6 +113,15 @@ public class ExceptionMapper {
             invalidUriException.getMessage()));
   }
 
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapRefreshSecretException(
+      ClientRegistrationServiceException clientRegistrationServiceException) {
+    Log.error(ExceptionUtils.getStackTrace(clientRegistrationServiceException));
+    return RestResponse.status(BAD_REQUEST,
+        buildErrorResponse(BAD_REQUEST, clientRegistrationServiceException.getMessage()));
+  }
+
+
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
     return ErrorResponse.builder()
         .title(status.getReasonPhrase())

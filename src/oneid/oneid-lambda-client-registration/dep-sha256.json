@@ -1072,6 +1072,27 @@
       "sha256": "8SF2Jj6iX054u0-ks20zWilzjd5qgSPhttqJplXRUP8="
     },
     {
+      "id": "io.quarkiverse.amazonservices:quarkus-amazon-cognito-user-pools:jar:2.13.1",
+      "artifactId": "quarkus-amazon-cognito-user-pools",
+      "groupId": "io.quarkiverse.amazonservices",
+      "version": "2.13.1",
+      "sha256": "9z8uBNqOEo_eU-HwwTQN56WSZpbvPvnxNu9-fkwSMCA="
+    },
+    {
+      "id": "software.amazon.awssdk:cognitoidentityprovider:jar:2.25.15",
+      "artifactId": "cognitoidentityprovider",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "pBfUopZrrDV0TUchgnWBxKHBa5s3yCaCPvoQw_025x8="
+    },
+    {
+      "id": "software.amazon.awssdk:aws-json-protocol:jar:2.25.15",
+      "artifactId": "aws-json-protocol",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "zDZZ8JMbNbSM1fRN1BaTFMQ-Xup54VbDJh2gz0oX9s8="
+    },
+    {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
       "artifactId": "quarkus-amazon-dynamodb-enhanced",
       "groupId": "io.quarkiverse.amazonservices",
@@ -1294,13 +1315,6 @@
       "groupId": "software.amazon.awssdk",
       "version": "2.25.15",
       "sha256": "rO1g_9UOrGsZsl3RFo49VVG1RgEXXkjpnvkKjTSeToY="
-    },
-    {
-      "id": "software.amazon.awssdk:aws-json-protocol:jar:2.25.15",
-      "artifactId": "aws-json-protocol",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "zDZZ8JMbNbSM1fRN1BaTFMQ-Xup54VbDJh2gz0oX9s8="
     },
     {
       "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.78.1",
