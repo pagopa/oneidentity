@@ -39,9 +39,8 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<LoginForm />} />
-            <Route path="/dashboard" element={<PrivateDashboardRoute />} />
             <Route
-              path="/dashboard/:client_id"
+              path="/dashboard/:client_id?"
               element={<PrivateDashboardRoute />}
             />
             <Route
