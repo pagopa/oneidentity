@@ -47,22 +47,22 @@ class ClientRegistrationControllerTest {
 
     given()
         .contentType("application/json")
-        .body("{\"redirect_uris\": " + "[\"http://test.com\"]" + "," +
-            "\"client_name\": \"" + clientRegistrationRequestDTO.getClientName() + "\"," +
-            "\"logo_uri\": \"" + clientRegistrationRequestDTO.getLogoUri() + "\"," +
-            "\"policy_uri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
-            "\"tos_uri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
-            "\"default_acr_values\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
-            "\"saml_requested_attributes\": [\"name\"]}" + "\"," +
-            "\"a11y_uri\": \"" + clientRegistrationRequestDTO.getA11yUri() + "\"," +
-            "\"back_button_enabled\": \"" + clientRegistrationRequestDTO.isBackButtonEnabled()
+        .body("{\"redirectUris\": " + "[\"http://test.com\"]" + "," +
+            "\"clientName\": \"" + clientRegistrationRequestDTO.getClientName() + "\"," +
+            "\"logoUri\": \"" + clientRegistrationRequestDTO.getLogoUri() + "\"," +
+            "\"policyUri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
+            "\"tosUri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
+            "\"defaultAcrValues\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
+            "\"samlRequestedAttributes\": [\"name\"]}" + "\"," +
+            "\"a11YUri\": \"" + clientRegistrationRequestDTO.getA11yUri() + "\"," +
+            "\"backButtonEnabled\": \"" + clientRegistrationRequestDTO.isBackButtonEnabled()
             + "\"," +
-            "\"localized_content_map\": \"" + clientRegistrationRequestDTO.getLocalizedContentMap()
+            "\"localizedContentMap\": \"" + clientRegistrationRequestDTO.getLocalizedContentMap()
             + "\"," +
-            "\"spid_minors\": \"" + clientRegistrationRequestDTO.isSpidMinors() + "\"," +
-            "\"spid_professionals\": \"" + clientRegistrationRequestDTO.isSpidProfessionals()
+            "\"spidMinors\": \"" + clientRegistrationRequestDTO.isSpidMinors() + "\"," +
+            "\"spidProfessionals\": \"" + clientRegistrationRequestDTO.isSpidProfessionals()
             + "\"," +
-            "\"pdv_pairwise\": \"" + clientRegistrationRequestDTO.isPdvPairwise())
+            "\"pdvPairwise\": \"" + clientRegistrationRequestDTO.isPdvPairwise())
         .when()
         .post("/register")
         .then()

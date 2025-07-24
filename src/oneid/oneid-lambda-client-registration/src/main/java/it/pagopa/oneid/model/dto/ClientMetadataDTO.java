@@ -25,52 +25,52 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 public class ClientMetadataDTO {
 
   @NotEmpty
-  @JsonProperty("redirect_uris")
+  @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private Set<String> redirectUris; //Client.callbackURI
 
   @NotBlank
-  @JsonProperty("client_name")
+  @JsonProperty("clientName")
   private String clientName; //Client.friendlyName
 
-  @JsonProperty("logo_uri")
+  @JsonProperty("logoUri")
   private String logoUri;
 
-  @JsonProperty("policy_uri")
+  @JsonProperty("policyUri")
   private String policyUri;
 
-  @JsonProperty("tos_uri")
+  @JsonProperty("tosUri")
   private String tosUri;
 
-  @JsonProperty("default_acr_values")
+  @JsonProperty("defaultAcrValues")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   @AuthLevelCheck
   private Set<String> defaultAcrValues;
 
   @NotEmpty
-  @JsonProperty("saml_requested_attributes")
+  @JsonProperty("samlRequestedAttributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private Set<Identifier> samlRequestedAttributes;
 
-  @JsonProperty("required_same_idp")
+  @JsonProperty("requiredSameIdp")
   private boolean requiredSameIdp;
 
-  @JsonProperty("a11y_uri")
+  @JsonProperty("a11yUri")
   private String a11yUri;
 
-  @JsonProperty("back_button_enabled")
+  @JsonProperty("backButtonEnabled")
   private boolean backButtonEnabled;
 
-  @JsonProperty("localized_content_map")
+  @JsonProperty("localizedContentMap")
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
-  @JsonProperty("spid_minors")
+  @JsonProperty("spidMinors")
   private boolean spidMinors;
 
-  @JsonProperty("spid_professionals")
+  @JsonProperty("spidProfessionals")
   private boolean spidProfessionals;
 
-  @JsonProperty("pdv_pairwise")
+  @JsonProperty("pdvPairwise")
   private boolean pdvPairwise;
 
   public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {

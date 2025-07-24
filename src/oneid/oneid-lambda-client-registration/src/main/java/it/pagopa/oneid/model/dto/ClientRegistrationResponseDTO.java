@@ -14,16 +14,16 @@ import lombok.EqualsAndHashCode;
 public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
 
   @NotBlank
-  @JsonProperty("client_id")
+  @JsonProperty("clientID")
   private String clientID;
 
-  @JsonProperty("client_secret")
+  @JsonProperty("clientSecret")
   private String clientSecret;
 
-  @JsonProperty("client_id_issued_at")
+  @JsonProperty("clientIdIssuedAt")
   private long clientIdIssuedAt;
 
-  @JsonProperty("client_secret_expires_at")
+  @JsonProperty("clientSecretExpiresAt")
   private int clientSecretExpiresAt;
 
 
