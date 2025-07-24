@@ -1,4 +1,8 @@
-import { UserApi } from './../types/api';
+import {
+  IdpUser,
+  IdpUserCreateOrUpdateResponse,
+  IdpUserList,
+} from './../types/api';
 import axios from 'axios';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
@@ -124,14 +128,14 @@ export const setAdditionalClientAttributes = async (
 export const getClientUsers = async (
   userId: string | undefined,
   token: string
-): Promise<UserApi> => {
+): Promise<IdpUserList> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId) {
     throw new Error('User ID is required');
   }
   try {
-    const response = await api.get<UserApi>(`${ENDPOINT}/${userId}`, {
+    const response = await api.get<IdpUserList>(`${ENDPOINT}/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -146,22 +150,18 @@ export const deleteClientUser = async (
   userId: string | undefined,
   token: string,
   username: string | undefined
-): Promise<string> => {
+): Promise<void> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId || !username) {
     throw new Error('User ID is required');
   }
   try {
-    const response = await api.delete<string>(
-      `${ENDPOINT}/${userId}/${username}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
+    await api.delete<string>(`${ENDPOINT}/${userId}/${username}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   } catch (error) {
     throw handleApiError(error);
   }
@@ -170,16 +170,16 @@ export const deleteClientUser = async (
 export const updateClientUser = async (
   userId: string | undefined,
   username: string | undefined,
-  data: UserApi,
+  data: IdpUser,
   token: string
-): Promise<string> => {
+): Promise<IdpUserCreateOrUpdateResponse> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId || !username) {
     throw new Error('User ID is required');
   }
   try {
-    const response = await api.put<string>(
+    const response = await api.put<IdpUserCreateOrUpdateResponse>(
       `${ENDPOINT}/${userId}/${username}`,
       data,
       {
@@ -195,20 +195,24 @@ export const updateClientUser = async (
 };
 
 export const addClientUser = async (
-  data: UserApi,
+  data: IdpUser,
   token: string
-): Promise<string> => {
+): Promise<IdpUserCreateOrUpdateResponse> => {
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!data) {
     throw new Error('Data is required');
   }
   try {
-    const response = await api.post<string>(`${ENDPOINT}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.post<IdpUserCreateOrUpdateResponse>(
+      `${ENDPOINT}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw handleApiError(error);

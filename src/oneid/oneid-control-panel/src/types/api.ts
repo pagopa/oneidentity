@@ -116,11 +116,19 @@ export const clientSchema = z.object({
   default_acr_values: SpidLevelArraySchema.min(1),
 });
 
-export const userSchemaApi = z.object({
+export const idpUserCreateOrUpdateResponseSchema = z.object({
+  message: z.string(),
+});
+export const idpUserSchema = z.object({
   username: z.string().url().optional().nullable(),
   password: z.string().url().optional().nullable(),
-  user_id: z.string().url().optional().nullable(),
   samlAttributes: z.record(SamlAttributeSchema, z.string()),
+});
+export const idpUserListSchema = z.object({
+  users: z.array(idpUserSchema),
+});
+export const addIdpUserSchema = idpUserSchema.extend({
+  user_id: z.string().url().optional().nullable(),
 });
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
@@ -155,8 +163,13 @@ export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
 export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type ClientFEErrors = z.inferFormattedError<typeof clientFESchema>;
-export type UserErrors = z.inferFormattedError<typeof userSchemaApi>;
-export type UserApi = z.infer<typeof userSchemaApi>;
+export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
+export type IdpUser = z.infer<typeof idpUserSchema>;
+export type IdpUserList = z.infer<typeof idpUserListSchema>;
+export type AddIdpUser = z.infer<typeof addIdpUserSchema>;
+export type IdpUserCreateOrUpdateResponse = z.infer<
+  typeof idpUserCreateOrUpdateResponseSchema
+>;
 
 export type ClientFormData = Omit<
   Client,

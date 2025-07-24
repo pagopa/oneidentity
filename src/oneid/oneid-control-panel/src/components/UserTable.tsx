@@ -17,13 +17,14 @@ import {
   Delete,
   Edit,
 } from '@mui/icons-material';
-import { useState } from 'react';
-import { UserApi } from '../types/api';
+import { Fragment, useState } from 'react';
+import { IdpUser } from '../types/api';
+import { isEmpty, map } from 'lodash';
 
 type Props = {
-  users: UserApi[];
+  users: Array<IdpUser>;
   onDelete: (userId: string) => void;
-  onEdit: (user: UserApi) => void;
+  onEdit: (user: IdpUser) => void;
 };
 
 const UserTable = ({ users, onDelete, onEdit }: Props) => {
@@ -47,10 +48,10 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
 
         <TableBody>
           {users.map((user) => {
-            const key = user.user_id ?? user.username ?? 'fallback-key';
+            const key = user.username ?? 'fallback-key';
             return (
-              <>
-                <TableRow key={user.user_id}>
+              <Fragment key={key}>
+                <TableRow>
                   <TableCell>
                     <IconButton size="small" onClick={() => toggleRow(key)}>
                       {openRows[key] ? (
@@ -83,15 +84,13 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                           SAML Attributes
                         </Typography>
                         {user.samlAttributes &&
-                        Object.keys(user.samlAttributes).length > 0 ? (
+                        !isEmpty(user.samlAttributes) ? (
                           <ul>
-                            {Object.entries(user.samlAttributes).map(
-                              ([attrKey, attrValue]) => (
-                                <li key={attrKey}>
-                                  <strong>{attrKey}:</strong> {attrValue}
-                                </li>
-                              )
-                            )}
+                            {map(user.samlAttributes, (attrValue, attrKey) => (
+                              <li key={attrKey}>
+                                <strong>{attrKey}:</strong> {attrValue}
+                              </li>
+                            ))}
                           </ul>
                         ) : (
                           <Typography variant="body2" color="textSecondary">
@@ -102,7 +101,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                     </Collapse>
                   </TableCell>
                 </TableRow>
-              </>
+              </Fragment>
             );
           })}
         </TableBody>

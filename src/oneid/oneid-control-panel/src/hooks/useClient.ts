@@ -1,4 +1,4 @@
-import { UserApi } from './../types/api';
+import { AddIdpUser, IdpUser } from './../types/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import {
@@ -60,17 +60,17 @@ export const useClient = () => {
     },
   });
 
-  const createClientUsersMutation = useMutation({
+  const createIdpUserMutation = useMutation({
     onError(error) {
-      console.error('Error creating client user:', error);
+      console.error('Error creating idp user:', error);
     },
-    mutationFn: async ({ data }: { data: UserApi }) => {
-      data.user_id = userId;
-      return addClientUser(data, token);
+    mutationFn: async ({ data }: { data: AddIdpUser }) => {
+      const newUser = { ...data, user_id: userId };
+      return addClientUser(newUser, token);
     },
   });
 
-  const updateClientUsersMutation = useMutation({
+  const updateIdpUsersMutation = useMutation({
     onError(error) {
       console.error('Error updating client user:', error);
     },
@@ -78,7 +78,7 @@ export const useClient = () => {
       data,
       username,
     }: {
-      data: UserApi;
+      data: IdpUser;
       username: string;
     }) => {
       return updateClientUser(userId, username, data, token);
@@ -110,8 +110,8 @@ export const useClient = () => {
     setCognitoProfile,
     getAdditionalClientAttrs,
     createOrUpdateClientAttrsMutation,
-    createClientUsersMutation,
-    updateClientUsersMutation,
+    createClientUsersMutation: createIdpUserMutation,
+    updateClientUsersMutation: updateIdpUsersMutation,
     deleteClientUsersMutation,
     getClientUsersList,
   };

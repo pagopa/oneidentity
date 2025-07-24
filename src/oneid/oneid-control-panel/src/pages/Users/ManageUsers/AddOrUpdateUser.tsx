@@ -12,32 +12,34 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { SamlAttribute, UserApi, UserErrors } from '../../../types/api';
+import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
+import { every, fromPairs, map } from 'lodash';
 
-//TODO if update user, pre-fill form with existing data
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const userToEdit = location.state?.userToEdit as UserApi | undefined;
+  const userToEdit = location.state?.userToEdit as IdpUser | undefined;
   const { id: usernameQueryParam } = useParams();
   const isEditMode = !!usernameQueryParam;
-  const [formData, setFormData] = useState<Partial<UserApi>>({});
+  const [formData, setFormData] = useState<Partial<IdpUser>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
 
   const {
     createClientUsersMutation: {
-      data: testUserCreated,
       mutate: createClientUsersMutation,
       error: addClientUsersError,
+      isSuccess: isUserCreated,
+      isPending: isCreatingUser,
     },
     updateClientUsersMutation: {
-      data: testUserUpdated,
       mutate: updateClientUsersMutation,
       error: updateClientUsersError,
+      isSuccess: isUserUpdated,
+      isPending: isUpdatingUser,
     },
   } = useClient();
 
@@ -69,7 +71,7 @@ export const AddOrUpdateUser = () => {
   }, [addClientUsersError, updateClientUsersError]);
 
   useEffect(() => {
-    if (testUserCreated) {
+    if (isUserCreated) {
       setNotify({
         open: true,
         message: 'Utente creato con successo!',
@@ -77,22 +79,21 @@ export const AddOrUpdateUser = () => {
       });
       setFormData({});
     }
-    if (testUserUpdated) {
+    if (isUserUpdated) {
       setNotify({
         open: true,
         message: 'Utente aggiornato con successo!',
         severity: 'success',
       });
-      setFormData({});
     }
-  }, [testUserUpdated, testUserCreated]);
+  }, [isUserCreated, isUserUpdated]);
 
   const isFormValid = () => {
     return (
       !!formData?.username &&
       !!formData?.password &&
       !!formData?.samlAttributes &&
-      Object.values(formData.samlAttributes).every((v) => v.trim() !== '')
+      every(formData.samlAttributes, (v) => v?.trim() !== '')
     );
   };
 
@@ -104,18 +105,18 @@ export const AddOrUpdateUser = () => {
     }
     if (isEditMode) {
       updateClientUsersMutation({
-        data: formData as UserApi,
+        data: formData as IdpUser,
         username: formData.username as string,
       });
     } else {
       createClientUsersMutation({
-        data: formData as UserApi,
+        data: formData as IdpUser,
       });
     }
   };
 
   const handleChange =
-    (field: keyof UserApi) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof IdpUser) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
 
@@ -169,11 +170,14 @@ export const AddOrUpdateUser = () => {
             multiple
             value={Object.keys(formData?.samlAttributes || {})}
             onChange={(e) => {
-              const selected = e.target.value as SamlAttribute[];
-              const updated: Record<string, string> = {};
-              selected.forEach((attr) => {
-                updated[attr] = formData?.samlAttributes?.[attr] || '';
-              });
+              const selected = e.target.value as Array<SamlAttribute>;
+              // Record<String, String>
+              const updated = fromPairs(
+                selected.map((attr) => [
+                  attr,
+                  formData?.samlAttributes?.[attr] || '',
+                ])
+              );
 
               setFormData((prev) => ({
                 ...prev,
@@ -183,7 +187,7 @@ export const AddOrUpdateUser = () => {
             input={<OutlinedInput label="SAML Attributes" />}
             data-testid="saml-attributes-select"
           >
-            {Object.values(SamlAttribute).map((attr) => (
+            {map(SamlAttribute, (attr) => (
               <MenuItem key={attr} value={attr}>
                 {attr}
               </MenuItem>
