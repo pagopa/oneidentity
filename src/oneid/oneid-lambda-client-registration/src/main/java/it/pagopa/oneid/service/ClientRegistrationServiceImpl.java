@@ -171,7 +171,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Log.debugf("Updated client secret and salt for clientId: %s", clientIdValue);
 
     // 5. Return the new secret to the caller
-    return newClientSecretSalt.hashedSecret;
+    return HASHUtils.b64encoder.encodeToString(newClientSecretSalt.secret);
   }
 
   private ClientSecretSalt generateClientSecretSalt() {
