@@ -26,6 +26,7 @@ export const CieButton = ({ onClick }: CieButtonProps) => {
       variant="contained"
       startIcon={<CieIconWrapper />}
       onClick={onClick}
+      aria-label="CIE Login"
     >
       {t('loginPage.loginBox.cieLogin')}
     </Button>

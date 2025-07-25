@@ -12,7 +12,7 @@ export const getSPID = (IDP: IdentityProvider) => {
   trackEvent(
     'LOGIN_IDP_SELECTED',
     {
-      SPID_IDP_NAME: IDP.name,
+      SPID_IDP_NAME: IDP.friendlyName,
       SPID_IDP_ID: IDP.entityID,
       FORWARD_PARAMETERS: params,
     },
@@ -42,7 +42,7 @@ export const SpidSelection = ({
               backgroundColor: 'background.default',
               alignItems: 'center',
             }}
-            aria-label={IDP.name}
+            aria-label={IDP.friendlyName}
             id={IDP.entityID}
             data-testid={`idp-button-${IDP.entityID}`}
           >
@@ -57,7 +57,7 @@ export const SpidSelection = ({
               <ImageWithFallback
                 width="100px"
                 src={IDP.imageUrl}
-                alt={IDP.name}
+                alt={IDP.friendlyName}
                 placeholder={IDP_PLACEHOLDER_IMG}
               />
             </Icon>

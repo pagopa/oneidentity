@@ -1,7 +1,7 @@
 export type IdentityProvider = {
-  identifier: string;
+  active: boolean;
   entityID: string;
-  name: string;
+  friendlyName: string;
   imageUrl: string;
 };
 

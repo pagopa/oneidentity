@@ -12,8 +12,18 @@ vi.mock('../../../../utils/utils', () => ({
 
 const mockIdpList = {
   identityProviders: [
-    { entityID: 'idp1', name: 'IDP 1', imageUrl: 'image1.png' },
-    { entityID: 'idp2', name: 'IDP 2', imageUrl: 'image2.png' },
+    {
+      active: true,
+      entityID: 'idp1',
+      friendlyName: 'IDP 1',
+      imageUrl: 'image1.png',
+    },
+    {
+      active: true,
+      entityID: 'idp2',
+      friendlyName: 'IDP 2',
+      imageUrl: 'image2.png',
+    },
   ],
 } as IdentityProviders;
 
