@@ -75,7 +75,7 @@ public class Client {
   //Extra fields
   private boolean spidMinors;
   private boolean spidProfessionals;
-  private boolean pdvPairwise;
+  private boolean pairwise;
 
   public record LocalizedContent(String title, String description, String docUri,
                                  String supportAddress, String cookieUri) {

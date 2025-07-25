@@ -2879,7 +2879,7 @@
             "description": " Whether the client supports spid for professionals",
             "example": "https://example.org/tos"
           },
-          "pdvPairwise": {
+          "pairwise": {
             "type": "boolean",
             "description": "If true, the client will use pairwise subject identifier",
             "example": "https://example.org/tos"
@@ -2993,7 +2993,7 @@
             "description": " Whether the client supports spid for professionals",
             "example": "https://example.org/tos"
           },
-          "pdvPairwise": {
+          "pairwise": {
             "type": "boolean",
             "description": "If true, the client will use pairwise subject identifier",
             "example": "https://example.org/tos"
