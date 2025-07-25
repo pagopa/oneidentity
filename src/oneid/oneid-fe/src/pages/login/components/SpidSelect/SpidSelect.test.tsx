@@ -14,7 +14,12 @@ afterAll(() => {
 });
 const idpList = {
   identityProviders: [
-    { identifier: 'test', entityID: 'testID', name: 'test', imageUrl: 'test' },
+    {
+      active: true,
+      entityID: 'testID',
+      friendlyName: 'test',
+      imageUrl: 'test',
+    },
   ],
   richiediSpid: '',
 };
@@ -22,7 +27,7 @@ test('go to the spid url', () => {
   render(<SpidSelect onBack={() => null} idpList={idpList} />);
 
   idpList.identityProviders.forEach((element) => {
-    const spidImg = screen.getByAltText(element.name);
+    const spidImg = screen.getByAltText(element.friendlyName);
     const spidSpan = spidImg.parentNode;
     const spidButton = spidSpan?.parentNode;
     fireEvent.click(spidButton as Element);

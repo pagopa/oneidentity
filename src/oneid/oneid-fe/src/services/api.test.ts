@@ -18,8 +18,16 @@ describe('Utils functions', () => {
 
   describe('getIdpList', () => {
     const mockIDPList: Array<Omit<IdentityProvider, 'imageUrl'>> = [
-      { entityID: 'idp1', name: 'IDP 1', identifier: 'idp-identifier-1' },
-      { entityID: 'idp2', name: 'IDP 2', identifier: 'idp-identifier-2' },
+      {
+        active: true,
+        entityID: 'idp1',
+        friendlyName: 'IDP 1',
+      },
+      {
+        active: true,
+        entityID: 'idp2',
+        friendlyName: 'IDP 2',
+      },
     ];
 
     it('returns a enhanced IDP list', async () => {
