@@ -15,6 +15,8 @@ import { useClient } from '../../../hooks/useClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { ROUTE_PATH } from '../../../utils/constants';
 import { isEmpty, isNil } from 'lodash';
+import ConfirmDialog from '../../../components/ConfirmDialog';
+import { useModalManager } from '../../../hooks/useModal';
 
 export const GetUserList = () => {
   const { user } = useAuth();
@@ -24,6 +26,8 @@ export const GetUserList = () => {
   const location = useLocation();
   const [notify, setNotify] = useState<Notify>({ open: false });
   const queryClient = useQueryClient();
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const { isModalOpen, openModal, closeModal } = useModalManager();
 
   const {
     getClientUsersList: { data, error: getIdpUsersError, isLoading, isSuccess },
@@ -82,10 +86,16 @@ export const GetUserList = () => {
   }, [location.state]);
 
   // Handler delete da passare alla tabella
-  const handleDelete = async (username: string) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
-      deleteClientUsersMutation({ username: username });
+  const handleDelete = async () => {
+    if (userToDelete) {
+      deleteClientUsersMutation({ username: userToDelete });
     }
+    closeModal();
+  };
+
+  const handleDeleteClick = (username: string) => {
+    setUserToDelete(username);
+    openModal('confirm');
   };
 
   const renderUserTable = () => {
@@ -93,7 +103,7 @@ export const GetUserList = () => {
       return (
         <UserTable
           users={users}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
           onEdit={handleEditUser}
         />
       );
@@ -131,7 +141,15 @@ export const GetUserList = () => {
               User List
             </Typography>
             {renderUserTable()}
-
+            <ConfirmDialog
+              open={isModalOpen('confirm')}
+              title="Confirm deletion"
+              content="Are you sure you want to delete this user?"
+              onCancel={() => closeModal()}
+              onConfirm={handleDelete}
+              confirmText="Delete"
+              cancelText="Cancel"
+            />
             <Button
               variant="contained"
               sx={{ mt: 2 }}
