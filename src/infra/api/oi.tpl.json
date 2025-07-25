@@ -2795,7 +2795,7 @@
       "ClientRegistration": {
         "type": "object",
         "properties": {
-          "redirect_uris": {
+          "redirectUris": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2805,26 +2805,26 @@
               "https://client.example.org/callback2"
             ]
           },
-          "client_name": {
+          "clientName": {
             "type": "string",
             "example": "https://example.org"
           },
-          "logo_uri": {
+          "logoUri": {
             "type": "string",
             "description": "The RP logo URI",
             "example": "https://example.org/logo.png"
           },
-          "policy_uri": {
+          "policyUri": {
             "type": "string",
             "description": "The privacy policy URI",
             "example": "https://example.org/policy"
           },
-          "tos_uri": {
+          "tosUri": {
             "type": "string",
             "description": "The terms of service URI",
             "example": "https://example.org/tos"
           },
-          "default_acr_values": {
+          "defaultAcrValues": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2836,7 +2836,7 @@
               "https://www.spid.gov.it/SpidL3"
             ]
           },
-          "saml_requested_attributes": {
+          "samlRequestedAttributes": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2849,17 +2849,47 @@
               "fiscalNumber"
             ]
           },
-          "required_same_idp": {
+          "requiredSameIdp": {
             "type": "boolean",
             "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
             "default": false
+          },
+          "a11yUri": {
+            "type": "string",
+            "description": "Accessibility URI",
+            "example": "https://example.org/tos"
+          },
+          "backButtonEnabled": {
+            "type": "boolean",
+            "description": "Boolean which enables the display of the back button in the login page",
+            "example": "https://example.org/tos"
+          },
+          "localizedContentMap": {
+            "type": "object",
+            "description": "Map for localized content for each language",
+            "example": "https://example.org/tos"
+          },
+          "spidMinors": {
+            "type": "boolean",
+            "description": "Whether the client supports spid for minors",
+            "example": "https://example.org/tos"
+          },
+          "spidProfessionals": {
+            "type": "boolean",
+            "description": " Whether the client supports spid for professionals",
+            "example": "https://example.org/tos"
+          },
+          "pdvPairwise": {
+            "type": "boolean",
+            "description": "If true, the client will use pairwise subject identifier",
+            "example": "https://example.org/tos"
           }
         }
       },
       "ClientRegistrationResponse": {
         "type": "object",
         "properties": {
-          "redirect_uris": {
+          "redirectUris": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2869,26 +2899,26 @@
               "https://client.example.org/callback2"
             ]
           },
-          "client_name": {
+          "clientName": {
             "type": "string",
             "example": "https://example.org"
           },
-          "logo_uri": {
+          "logoUri": {
             "type": "string",
             "description": "The RP logo URI",
             "example": "https://example.org/logo.png"
           },
-          "policy_uri": {
+          "policyUri": {
             "type": "string",
             "description": "The privacy policy URI",
             "example": "https://example.org/policy"
           },
-          "tos_uri": {
+          "tosUri": {
             "type": "string",
             "description": "The terms of service URI",
             "example": "https://example.org/tos"
           },
-          "default_acr_values": {
+          "defaultAcrValues": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2900,7 +2930,7 @@
               "https://www.spid.gov.it/SpidL3"
             ]
           },
-          "saml_requested_attributes": {
+          "samlRequestedAttributes": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2913,30 +2943,60 @@
               "fiscalNumber"
             ]
           },
-          "required_same_idp": {
+          "requiredSameIdp": {
             "type": "boolean",
             "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
             "default": false
           },
-          "client_id": {
+          "clientId": {
             "type": "string",
             "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
             "description": "The registered client_id"
           },
-          "client_secret": {
+          "clientSecret": {
             "type": "string",
             "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
             "description": "The registered client_secret"
           },
-          "client_id_issued_at": {
+          "clientIdIssuedAt": {
             "type": "integer",
             "example": 1497455914,
             "description": "The timestamp in seconds indicating the time of registration"
           },
-          "client_secret_expires_at": {
+          "clientSecretExpiresAt": {
             "type": "integer",
             "example": 0,
             "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+          },
+          "a11yUri": {
+            "type": "string",
+            "description": "Accessibility URI",
+            "example": "https://example.org/tos"
+          },
+          "backButtonEnabled": {
+            "type": "boolean",
+            "description": "Boolean which enables the display of the back button in the login page",
+            "example": "https://example.org/tos"
+          },
+          "localizedContentMap": {
+            "type": "object",
+            "description": "Map for localized content for each language",
+            "example": "https://example.org/tos"
+          },
+          "spidMinors": {
+            "type": "boolean",
+            "description": "Whether the client supports spid for minors",
+            "example": "https://example.org/tos"
+          },
+          "spidProfessionals": {
+            "type": "boolean",
+            "description": " Whether the client supports spid for professionals",
+            "example": "https://example.org/tos"
+          },
+          "pdvPairwise": {
+            "type": "boolean",
+            "description": "If true, the client will use pairwise subject identifier",
+            "example": "https://example.org/tos"
           }
         }
       },
