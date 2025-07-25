@@ -11,15 +11,17 @@ import {
   OutlinedInput,
   FormHelperText,
 } from '@mui/material';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
 import { every, fromPairs, map } from 'lodash';
+import { ROUTE_PATH } from '../../../utils/constants';
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const userToEdit = location.state?.userToEdit as IdpUser | undefined;
   const { id: usernameQueryParam } = useParams();
@@ -74,17 +76,19 @@ export const AddOrUpdateUser = () => {
     if (isUserCreated) {
       setNotify({
         open: true,
-        message: 'Utente creato con successo!',
+        message: 'User Created!',
         severity: 'success',
       });
       setFormData({});
+      navigate(ROUTE_PATH.USER_LIST, { state: { refresh: true } });
     }
     if (isUserUpdated) {
       setNotify({
         open: true,
-        message: 'Utente aggiornato con successo!',
+        message: 'User updated!',
         severity: 'success',
       });
+      navigate(ROUTE_PATH.USER_LIST, { state: { refresh: true } });
     }
   }, [isUserCreated, isUserUpdated]);
 
@@ -238,7 +242,7 @@ export const AddOrUpdateUser = () => {
           data-testid="submit-button"
           disabled={!isFormValid()}
         >
-          {'Save Changes'}
+          {isEditMode ? 'Update User' : 'Add User'}
         </Button>
       </Box>
 
