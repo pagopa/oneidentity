@@ -10,6 +10,7 @@ import {
   Box,
   Typography,
   Paper,
+  TextField,
 } from '@mui/material';
 import {
   KeyboardArrowDown,
@@ -29,6 +30,11 @@ type Props = {
 
 const UserTable = ({ users, onDelete, onEdit }: Props) => {
   const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredUsers = users.filter((user) =>
+    user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const toggleRow = (userId: string) => {
     setOpenRows((prev) => ({ ...prev, [userId]: !prev[userId] }));
@@ -39,6 +45,19 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell colSpan={4}>
+              <Box display="flex" justifyContent="flex-end">
+                <TextField
+                  label="Cerca username"
+                  variant="outlined"
+                  size="small"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Box>
+            </TableCell>
+          </TableRow>
+          <TableRow>
             <TableCell />
             <TableCell>Username</TableCell>
             <TableCell>Password</TableCell>
@@ -47,7 +66,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
         </TableHead>
 
         <TableBody>
-          {users.map((user) => {
+          {filteredUsers.map((user) => {
             const key = user.username ?? 'fallback-key';
             return (
               <Fragment key={key}>
@@ -67,7 +86,10 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                     <IconButton onClick={() => onEdit(user)} color="inherit">
                       <Edit />
                     </IconButton>
-                    <IconButton onClick={() => onDelete(key)} color="inherit">
+                    <IconButton
+                      onClick={() => onDelete(key)}
+                      sx={{ color: 'error.main' }}
+                    >
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -94,7 +116,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                           </ul>
                         ) : (
                           <Typography variant="body2" color="textSecondary">
-                            Nessun attributo disponibile.
+                            No attributes
                           </Typography>
                         )}
                       </Box>
