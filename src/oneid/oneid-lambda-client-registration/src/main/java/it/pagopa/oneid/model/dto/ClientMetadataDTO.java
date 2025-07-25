@@ -70,8 +70,8 @@ public class ClientMetadataDTO {
   @JsonProperty("spidProfessionals")
   private boolean spidProfessionals;
 
-  @JsonProperty("pdvPairwise")
-  private boolean pdvPairwise;
+  @JsonProperty("pairwise")
+  private boolean pairwise;
 
   public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {
     this.redirectUris = clientMetadataDTO.getRedirectUris();
@@ -87,6 +87,6 @@ public class ClientMetadataDTO {
     this.localizedContentMap = clientMetadataDTO.getLocalizedContentMap();
     this.spidMinors = clientMetadataDTO.isSpidMinors();
     this.spidProfessionals = clientMetadataDTO.isSpidProfessionals();
-    this.pdvPairwise = clientMetadataDTO.isPdvPairwise();
+    this.pairwise = clientMetadataDTO.isPairwise();
   }
 }

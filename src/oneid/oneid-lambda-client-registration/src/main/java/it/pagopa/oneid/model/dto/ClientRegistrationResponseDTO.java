@@ -33,7 +33,7 @@ public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
     super(clientMetadataDTO);
     this.clientID = clientID;
     this.clientSecret = clientSecret;
-    this.clientIdIssuedAt = clientIdIssuedAt;
-    clientSecretExpiresAt = 0;
+    this.clientIdIssuedAt = clientIdIssuedAt; //Consider removing this field if not needed
+    clientSecretExpiresAt = 0; //Consider removing this field if not needed
   }
 }

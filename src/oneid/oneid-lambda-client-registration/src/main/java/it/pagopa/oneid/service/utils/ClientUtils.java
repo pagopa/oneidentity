@@ -52,7 +52,7 @@ public class ClientUtils {
         .localizedContentMap(clientRegistrationRequestDTO.getLocalizedContentMap())
         .spidMinors(clientRegistrationRequestDTO.isSpidMinors())
         .spidProfessionals(clientRegistrationRequestDTO.isSpidProfessionals())
-        .pdvPairwise(clientRegistrationRequestDTO.isPdvPairwise())
+        .pairwise(clientRegistrationRequestDTO.isPairwise())
         .build();
   }
 

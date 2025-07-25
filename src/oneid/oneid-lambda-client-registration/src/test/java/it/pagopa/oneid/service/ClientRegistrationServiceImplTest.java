@@ -46,7 +46,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
@@ -154,7 +154,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     Client returnClient = Client.builder()
@@ -175,7 +175,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     ArrayList<Client> allClient = new ArrayList<>();
@@ -210,7 +210,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     //when

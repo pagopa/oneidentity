@@ -39,7 +39,7 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
@@ -62,7 +62,7 @@ class ClientRegistrationControllerTest {
             "\"spidMinors\": \"" + clientRegistrationRequestDTO.isSpidMinors() + "\"," +
             "\"spidProfessionals\": \"" + clientRegistrationRequestDTO.isSpidProfessionals()
             + "\"," +
-            "\"pdvPairwise\": \"" + clientRegistrationRequestDTO.isPdvPairwise())
+            "\"pairwise\": \"" + clientRegistrationRequestDTO.isPairwise())
         .when()
         .post("/register")
         .then()
@@ -86,7 +86,7 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
-        .pdvPairwise(false)
+        .pairwise(false)
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);

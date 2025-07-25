@@ -35,11 +35,11 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pdvPairwise) {
+      boolean spidProfessionals, boolean pairwise) {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
         attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
         a11yUri, backButtonEnabled, localizedContentMap, spidMinors, spidProfessionals,
-        pdvPairwise);
+        pairwise);
     this.secret = secret;
     this.salt = salt;
   }
@@ -52,7 +52,7 @@ public class ClientExtended extends Client {
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
         client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isSpidMinors(),
-        client.isSpidProfessionals(), client.isPdvPairwise());
+        client.isSpidProfessionals(), client.isPairwise());
     this.secret = secret;
     this.salt = salt;
   }
