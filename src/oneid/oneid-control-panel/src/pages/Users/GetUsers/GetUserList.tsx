@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -21,6 +21,7 @@ export const GetUserList = () => {
   const userId = user?.profile.sub;
   const [users, setUsers] = useState<Array<IdpUser>>([]);
   const navigate = useNavigate();
+  const location = useLocation();
   const [notify, setNotify] = useState<Notify>({ open: false });
   const queryClient = useQueryClient();
 
@@ -35,7 +36,6 @@ export const GetUserList = () => {
   } = useClient();
 
   useEffect(() => {
-    console.log(data);
     if (!isNil(data) && 'users' in data) {
       setUsers(data.users);
     }
@@ -74,6 +74,13 @@ export const GetUserList = () => {
     }
   }, [isUserDeleted, deleteClientUsersError, queryClient, userId]);
 
+  useEffect(() => {
+    if (location.state?.refresh) {
+      queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   // Handler delete da passare alla tabella
   const handleDelete = async (username: string) => {
     if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
@@ -91,11 +98,7 @@ export const GetUserList = () => {
         />
       );
     } else {
-      return (
-        <Alert severity="info">
-          Non sono presenti utenti di test registrati.
-        </Alert>
-      );
+      return <Alert severity="info">There are no registered test users</Alert>;
     }
   };
 
@@ -125,7 +128,7 @@ export const GetUserList = () => {
         {isSuccess && (
           <>
             <Typography variant="h5" gutterBottom>
-              User TEST List
+              User List
             </Typography>
             {renderUserTable()}
 
@@ -135,7 +138,7 @@ export const GetUserList = () => {
               data-testid="submit-button"
               onClick={() => navigate(ROUTE_PATH.USER)}
             >
-              {'Aggiungi nuovo utente'}
+              {'Add new user'}
             </Button>
           </>
         )}
