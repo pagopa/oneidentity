@@ -27,7 +27,7 @@ import {
 } from '@mui/icons-material';
 import { Fragment, useState } from 'react';
 import { IdpUser } from '../types/api';
-import { isEmpty, map } from 'lodash';
+import { isEmpty, map, sortBy } from 'lodash';
 
 type Props = {
   users: Array<IdpUser>;
@@ -121,12 +121,20 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
             <TableRow>
               <TableCell />
               <TableCell>
-                <TableSortLabel active={orderBy === 'username'} direction="asc">
+                <TableSortLabel
+                  active={orderBy === 'username'}
+                  direction="asc"
+                  onClick={() => setOrderBy('username')}
+                >
                   Username
                 </TableSortLabel>
               </TableCell>
               <TableCell>
-                <TableSortLabel active={orderBy === 'password'} direction="asc">
+                <TableSortLabel
+                  active={orderBy === 'password'}
+                  direction="asc"
+                  onClick={() => setOrderBy('password')}
+                >
                   Password
                 </TableSortLabel>
               </TableCell>
