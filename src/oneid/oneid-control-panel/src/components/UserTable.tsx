@@ -12,12 +12,18 @@ import {
   Paper,
   TextField,
   TablePagination,
+  InputAdornment,
+  Stack,
+  MenuItem,
+  TableSortLabel,
 } from '@mui/material';
 import {
   KeyboardArrowDown,
   KeyboardArrowUp,
   Delete,
   Edit,
+  Search,
+  Clear,
 } from '@mui/icons-material';
 import { Fragment, useState } from 'react';
 import { IdpUser } from '../types/api';
@@ -33,7 +39,11 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
   const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(3);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+
+  const orderFields = ['username', 'password'];
+  type OrderField = 'username' | 'password';
+  const [orderBy, setOrderBy] = useState<OrderField>('username');
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -46,9 +56,11 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
     setCurrentPage(0);
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.username?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter((user) =>
+      user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => (a[orderBy] || '').localeCompare(b[orderBy] || ''));
 
   const toggleRow = (userId: string) => {
     setOpenRows((prev) => ({ ...prev, [userId]: !prev[userId] }));
@@ -56,26 +68,69 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
 
   return (
     <Paper>
-      <TableContainer>
-        <Table>
+      <Box px={3} py={4}>
+        <Typography variant="h6" gutterBottom mb={5}>
+          User List
+        </Typography>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <TextField
+            select
+            sx={{ flex: 1 }}
+            label="Order by"
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value as OrderField)}
+          >
+            {orderFields.map((field) => (
+              <MenuItem key={field} value={field}>
+                {field.charAt(0).toUpperCase() + field.slice(1)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            sx={{ flex: 1 }}
+            id="outlined-basic"
+            label={'Username'}
+            variant="outlined"
+            placeholder={'Search...'}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={() => setSearchTerm('')}
+                    edge="end"
+                  >
+                    <Clear fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+      </Box>
+      <TableContainer sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: 500 }}>
           <TableHead>
             <TableRow>
-              <TableCell colSpan={4}>
-                <Box display="flex" justifyContent="flex-end">
-                  <TextField
-                    label="Cerca username"
-                    variant="outlined"
-                    size="small"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Box>
-              </TableCell>
-            </TableRow>
-            <TableRow>
               <TableCell />
-              <TableCell>Username</TableCell>
-              <TableCell>Password</TableCell>
+              <TableCell>
+                <TableSortLabel active={orderBy === 'username'} direction="asc">
+                  Username
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel active={orderBy === 'password'} direction="asc">
+                  Password
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
 
@@ -105,12 +160,23 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                         <IconButton
                           onClick={() => onEdit(user)}
                           color="inherit"
+                          sx={{
+                            color: 'action.active',
+                            '&:hover': {
+                              backgroundColor: 'grey.100',
+                            },
+                          }}
                         >
                           <Edit />
                         </IconButton>
                         <IconButton
                           onClick={() => onDelete(key)}
-                          sx={{ color: 'error.main' }}
+                          sx={{
+                            color: 'error.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                            },
+                          }}
                         >
                           <Delete />
                         </IconButton>

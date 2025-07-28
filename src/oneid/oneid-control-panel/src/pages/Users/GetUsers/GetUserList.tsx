@@ -137,9 +137,6 @@ export const GetUserList = () => {
         )}
         {isSuccess && (
           <>
-            <Typography variant="h5" gutterBottom>
-              User List
-            </Typography>
             {renderUserTable()}
             <ConfirmDialog
               open={isModalOpen('confirm')}
@@ -152,11 +149,11 @@ export const GetUserList = () => {
             />
             <Button
               variant="contained"
-              sx={{ mt: 2 }}
+              sx={{ mt: 3 }}
               data-testid="submit-button"
               onClick={() => navigate(ROUTE_PATH.USER)}
             >
-              {'Add new user'}
+              {'Add user'}
             </Button>
           </>
         )}
