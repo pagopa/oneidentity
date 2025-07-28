@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -34,10 +33,28 @@ const ConfirmDialog = ({
         <Typography>{content}</Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} color="primary">
+        <Button
+          onClick={onCancel}
+          color="primary"
+          sx={{
+            '&:hover': {
+              backgroundColor: 'rgba(25, 118, 210, 0.08) !important',
+            },
+          }}
+        >
           {cancelText}
         </Button>
-        <Button onClick={onConfirm} color="error" autoFocus>
+        <Button
+          onClick={onConfirm}
+          color="error"
+          autoFocus
+          sx={{
+            '&:hover': {
+              color: '#D85757 !important',
+              backgroundColor: 'rgba(216, 87, 87, 0.1) !important',
+            },
+          }}
+        >
           {confirmText}
         </Button>
       </DialogActions>
