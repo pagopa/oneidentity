@@ -201,9 +201,15 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                             !isEmpty(user.samlAttributes) ? (
                               <ul>
                                 {map(
-                                  user.samlAttributes,
-                                  (attrValue, attrKey) => (
-                                    <li key={attrKey}>
+                                  sortBy(
+                                    Object.entries(user.samlAttributes || {}),
+                                    ([attrKey]) => attrKey
+                                  ),
+                                  ([attrKey, attrValue]) => (
+                                    <li
+                                      key={attrKey}
+                                      style={{ marginBottom: '6px' }}
+                                    >
                                       <strong>{attrKey}:</strong> {attrValue}
                                     </li>
                                   )
