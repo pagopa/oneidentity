@@ -28,6 +28,7 @@ import {
 import { Fragment, useState } from 'react';
 import { IdpUser } from '../types/api';
 import { isEmpty, map, sortBy } from 'lodash';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 type Props = {
   users: Array<IdpUser>;
@@ -44,6 +45,17 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
   const orderFields = ['username', 'password'];
   type OrderField = 'username' | 'password';
   const [orderBy, setOrderBy] = useState<OrderField>('username');
+
+  const [visiblePasswords, setVisiblePasswords] = useState<
+    Record<string, boolean>
+  >({});
+
+  const togglePasswordVisibility = (username: string) => {
+    setVisiblePasswords((prev) => ({
+      ...prev,
+      [username]: !prev[username],
+    }));
+  };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -163,7 +175,24 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                         </IconButton>
                       </TableCell>
                       <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.password}</TableCell>
+                      <TableCell>
+                        {visiblePasswords[user.username || '']
+                          ? user.password
+                          : '●●●●●●●'}
+                        <IconButton
+                          onClick={() =>
+                            togglePasswordVisibility(user.username || '')
+                          }
+                          size="small"
+                          sx={{ ml: 1 }}
+                        >
+                          {visiblePasswords[user.username || ''] ? (
+                            <VisibilityOff fontSize="small" />
+                          ) : (
+                            <Visibility fontSize="small" />
+                          )}
+                        </IconButton>
+                      </TableCell>
                       <TableCell align="right">
                         <IconButton
                           onClick={() => onEdit(user)}

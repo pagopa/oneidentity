@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Box, TextField, Button, Typography } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  InputAdornment,
+  IconButton,
+} from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
-import { every, fromPairs, map } from 'lodash';
+import { every, fromPairs, isEmpty } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
 import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
@@ -19,6 +27,7 @@ export const AddOrUpdateUser = () => {
   const [formData, setFormData] = useState<Partial<IdpUser>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     createClientUsersMutation: {
@@ -146,6 +155,7 @@ export const AddOrUpdateUser = () => {
         <TextField
           fullWidth
           required
+          type={showPassword ? 'text' : 'password'}
           label="Password"
           value={formData?.password || ''}
           onChange={handleChange('password')}
@@ -153,6 +163,30 @@ export const AddOrUpdateUser = () => {
           error={!!(errorUi as UserErrors)?.password?._errors}
           helperText={(errorUi as UserErrors)?.password?._errors}
           disabled={isEditMode}
+          InputProps={{
+            ...(formData.password
+              ? {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showPassword ? (
+                          <VisibilityOff
+                            fontSize="small"
+                            sx={{ color: 'grey' }}
+                          />
+                        ) : (
+                          <Visibility fontSize="small" sx={{ color: 'grey' }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              : {}),
+          }}
         />
 
         <SamlAttributesSelectInput
