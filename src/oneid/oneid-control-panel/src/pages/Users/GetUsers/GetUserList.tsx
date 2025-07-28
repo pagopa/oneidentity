@@ -47,7 +47,7 @@ export const GetUserList = () => {
     if (getIdpUsersError) {
       setNotify({
         open: true,
-        message: 'Errore nel recupero degli utenti',
+        message: 'Error retrieving users',
         severity: 'error',
       });
     }
@@ -63,7 +63,7 @@ export const GetUserList = () => {
     if (isUserDeleted) {
       setNotify({
         open: true,
-        message: 'Utente eliminato con successo',
+        message: 'User successfully deleted',
         severity: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
@@ -72,7 +72,7 @@ export const GetUserList = () => {
       console.error('Error update user:', deleteClientUsersError);
       setNotify({
         open: true,
-        message: 'Errore durante l’eliminazione dell’utente',
+        message: 'Error deleting user',
         severity: 'error',
       });
     }
