@@ -67,10 +67,10 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
   };
 
   return (
-    <Paper>
+    <Paper sx={{ borderRadius: '16px' }}>
       <Box px={3} py={4}>
         <Typography variant="h6" gutterBottom mb={5}>
-          User List
+          User list
         </Typography>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField

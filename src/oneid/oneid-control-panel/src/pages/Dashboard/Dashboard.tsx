@@ -14,7 +14,7 @@ import {
   Chip,
   FormHelperText,
 } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   SpidLevel,
   SamlAttribute,
@@ -29,6 +29,7 @@ import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
 import { ROUTE_PATH } from '../../utils/constants';
+import SamlAttributesHelperLink from '../../components/SamlAttributesFullListHelper';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -363,18 +364,7 @@ export const Dashboard = () => {
           <FormHelperText>
             {(errorUi as ClientErrors)?.saml_requested_attributes?._errors}
           </FormHelperText>
-          <FormHelperText>
-            Lista completa:{' '}
-            <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              to={
-                'https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html'
-              }
-            >
-              Qui
-            </Link>
-          </FormHelperText>
+          <SamlAttributesHelperLink />
         </FormControl>
 
         <Button

@@ -11,13 +11,14 @@ import {
   OutlinedInput,
   FormHelperText,
 } from '@mui/material';
-import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
 import { every, fromPairs, map } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
+import SamlAttributesHelperLink from '../../../components/SamlAttributesFullListHelper';
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
@@ -136,7 +137,7 @@ export const AddOrUpdateUser = () => {
         sx={{ p: 3, maxWidth: 800, mx: 'auto' }}
       >
         <Typography variant="h5" gutterBottom>
-          User Information
+          User data
         </Typography>
 
         <TextField
@@ -169,6 +170,7 @@ export const AddOrUpdateUser = () => {
         >
           <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
           <Select
+            sx={{ mt: '16px', mb: '8px' }}
             labelId="saml-attributes-label"
             id="saml-attributes-select"
             multiple
@@ -201,8 +203,9 @@ export const AddOrUpdateUser = () => {
           {Object.entries(formData?.samlAttributes || {}).map(
             ([attribute, value]) => (
               <TextField
+                sx={{ mt: '16px', mb: '8px' }}
                 key={attribute}
-                label={`Valore per ${attribute}`}
+                label={`Value for ${attribute}`}
                 value={value}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -223,16 +226,7 @@ export const AddOrUpdateUser = () => {
           <FormHelperText>
             {(errorUi as UserErrors)?.samlAttributes?._errors}
           </FormHelperText>
-          <FormHelperText>
-            Lista completa:{' '}
-            <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              to="https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html"
-            >
-              Qui
-            </Link>
-          </FormHelperText>
+          <SamlAttributesHelperLink />
         </FormControl>
 
         <Button
