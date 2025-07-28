@@ -2,13 +2,13 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   OutlinedInput,
   Select,
   SelectChangeEvent,
 } from '@mui/material';
 import { SamlAttribute } from '../types/api';
-import SamlAttributesHelperLink from './SamlAttributesFullListHelper';
 
 type SamlAttributesInputProps = {
   attributeSelectValues: Array<SamlAttribute> | undefined;
@@ -43,7 +43,16 @@ const SamlAttributesSelectInput = ({
       </Select>
       {children}
       <FormHelperText>{errorHelperText}</FormHelperText>
-      <SamlAttributesHelperLink />
+      <FormHelperText>
+        Full list:{' '}
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html"
+        >
+          here
+        </Link>
+      </FormHelperText>
     </FormControl>
   );
 };
