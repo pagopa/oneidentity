@@ -64,21 +64,25 @@ export const AddOrUpdateUser = () => {
 
   useEffect(() => {
     if (isUserCreated) {
-      setNotify({
+      const notifyCreation = {
         open: true,
         message: 'User Created!',
         severity: 'success',
-      });
+      };
       setFormData({});
-      navigate(ROUTE_PATH.USER_LIST, { state: { refresh: true } });
+      navigate(ROUTE_PATH.USER_LIST, {
+        state: { refresh: true, notify: notifyCreation },
+      });
     }
     if (isUserUpdated) {
-      setNotify({
+      const notifyUpdate = {
         open: true,
         message: 'User updated!',
         severity: 'success',
+      };
+      navigate(ROUTE_PATH.USER_LIST, {
+        state: { refresh: true, notify: notifyUpdate },
       });
-      navigate(ROUTE_PATH.USER_LIST, { state: { refresh: true } });
     }
   }, [isUserCreated, isUserUpdated]);
 

@@ -78,12 +78,17 @@ export const GetUserList = () => {
     }
   }, [isUserDeleted, deleteClientUsersError, queryClient, userId]);
 
+  // opzionalmente: resetti lo state di navigazione per evitare doppio alert su reload
   useEffect(() => {
+    const notifyFromState = location.state?.notify;
+    if (notifyFromState) {
+      setNotify(notifyFromState);
+    }
     if (location.state?.refresh) {
       queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
-      window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+    window.history.replaceState({}, document.title);
+  }, [location.state, queryClient, userId]);
 
   // Handler delete da passare alla tabella
   const handleDelete = async () => {
