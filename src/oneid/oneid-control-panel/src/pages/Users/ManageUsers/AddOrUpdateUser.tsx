@@ -6,13 +6,15 @@ import {
   Typography,
   InputAdornment,
   IconButton,
+  Backdrop,
+  CircularProgress,
 } from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
-import { every, fromPairs, isEmpty } from 'lodash';
+import { every, fromPairs } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
 import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -28,6 +30,11 @@ export const AddOrUpdateUser = () => {
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const [showPassword, setShowPassword] = useState(false);
+  const [openProgress, setOpenProgress] = useState(false);
+
+  const handleCloseProgress = () => {
+    setOpenProgress(false);
+  };
 
   const {
     createClientUsersMutation: {
@@ -110,6 +117,7 @@ export const AddOrUpdateUser = () => {
       console.error('Form is not valid');
       return;
     }
+    setOpenProgress(true);
     if (isEditMode) {
       updateClientUsersMutation({
         data: formData as IdpUser,
@@ -241,11 +249,15 @@ export const AddOrUpdateUser = () => {
           variant="contained"
           sx={{ mt: 2 }}
           data-testid="submit-button"
-          disabled={!isFormValid()}
+          disabled={!isFormValid() || isCreatingUser || isUpdatingUser}
         >
           {isEditMode ? 'Update User' : 'Add User'}
         </Button>
       </Box>
+
+      <Backdrop open={openProgress} onClick={handleCloseProgress}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
 
       <Notify
         open={notify.open}
