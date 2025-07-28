@@ -29,7 +29,7 @@ import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
 import { ROUTE_PATH } from '../../utils/constants';
-import SamlAttributesHelperLink from '../../components/SamlAttributesFullListHelper';
+import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -331,41 +331,18 @@ export const Dashboard = () => {
           </FormHelperText>
         </FormControl>
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          required
-          error={
-            !!(errorUi as ClientErrors)?.saml_requested_attributes?._errors
+        <SamlAttributesSelectInput
+          attributeSelectValues={formData?.saml_requested_attributes}
+          onChangeFunction={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              saml_requested_attributes: e.target.value as Array<SamlAttribute>,
+            }))
           }
-        >
-          <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
-          <Select
-            labelId="saml-attributes-label"
-            id="saml-attributes-select"
-            multiple
-            value={formData?.saml_requested_attributes || []}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                saml_requested_attributes: e.target
-                  .value as Array<SamlAttribute>,
-              }))
-            }
-            input={<OutlinedInput label="SAML Attributes" />}
-            data-testid="saml-attributes-select"
-          >
-            {Object.values(SamlAttribute).map((attr) => (
-              <MenuItem key={attr} value={attr}>
-                {attr}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText>
-            {(errorUi as ClientErrors)?.saml_requested_attributes?._errors}
-          </FormHelperText>
-          <SamlAttributesHelperLink />
-        </FormControl>
+          errorHelperText={
+            (errorUi as ClientErrors)?.saml_requested_attributes?._errors
+          }
+        />
 
         <Button
           type="submit"

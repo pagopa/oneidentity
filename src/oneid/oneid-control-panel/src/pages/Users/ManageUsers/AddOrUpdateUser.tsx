@@ -1,16 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  FormHelperText,
-} from '@mui/material';
+import { Box, TextField, Button, Typography } from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
@@ -18,7 +7,7 @@ import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
 import { every, fromPairs, map } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
-import SamlAttributesHelperLink from '../../../components/SamlAttributesFullListHelper';
+import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
@@ -162,72 +151,52 @@ export const AddOrUpdateUser = () => {
           disabled={isEditMode}
         />
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          required
-          error={!!(errorUi as UserErrors)?.samlAttributes?._errors}
+        <SamlAttributesSelectInput
+          attributeSelectValues={
+            Object.keys(formData?.samlAttributes || {}) as Array<SamlAttribute>
+          }
+          onChangeFunction={(e) => {
+            const selected = e.target.value as Array<SamlAttribute>;
+            // Record<String, String>
+            const updated = fromPairs(
+              selected.map((attr) => [
+                attr,
+                formData?.samlAttributes?.[attr] || '',
+              ])
+            );
+
+            setFormData((prev) => ({
+              ...prev,
+              samlAttributes: updated,
+            }));
+          }}
+          errorHelperText={(errorUi as UserErrors)?.samlAttributes?._errors}
         >
-          <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
-          <Select
-            sx={{ mt: '16px', mb: '8px' }}
-            labelId="saml-attributes-label"
-            id="saml-attributes-select"
-            multiple
-            value={Object.keys(formData?.samlAttributes || {})}
-            onChange={(e) => {
-              const selected = e.target.value as Array<SamlAttribute>;
-              // Record<String, String>
-              const updated = fromPairs(
-                selected.map((attr) => [
-                  attr,
-                  formData?.samlAttributes?.[attr] || '',
-                ])
-              );
-
-              setFormData((prev) => ({
-                ...prev,
-                samlAttributes: updated,
-              }));
-            }}
-            input={<OutlinedInput label="SAML Attributes" />}
-            data-testid="saml-attributes-select"
-          >
-            {map(SamlAttribute, (attr) => (
-              <MenuItem key={attr} value={attr}>
-                {attr}
-              </MenuItem>
-            ))}
-          </Select>
-
-          {Object.entries(formData?.samlAttributes || {}).map(
-            ([attribute, value]) => (
-              <TextField
-                sx={{ mt: '16px', mb: '8px' }}
-                key={attribute}
-                label={`Value for ${attribute}`}
-                value={value}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  setFormData((prev) => ({
-                    ...prev,
-                    samlAttributes: {
-                      ...(prev?.samlAttributes || {}),
-                      [attribute]: newValue,
-                    },
-                  }));
-                }}
-                margin="dense"
-                fullWidth
-              />
-            )
-          )}
-
-          <FormHelperText>
-            {(errorUi as UserErrors)?.samlAttributes?._errors}
-          </FormHelperText>
-          <SamlAttributesHelperLink />
-        </FormControl>
+          <Box sx={{ mt: '8px' }}>
+            {Object.entries(formData?.samlAttributes || {}).map(
+              ([attribute, value]) => (
+                <TextField
+                  sx={{ mt: '16px', mb: '8px' }}
+                  key={attribute}
+                  label={`Value for ${attribute}`}
+                  value={value}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      samlAttributes: {
+                        ...(prev?.samlAttributes || {}),
+                        [attribute]: newValue,
+                      },
+                    }));
+                  }}
+                  margin="dense"
+                  fullWidth
+                />
+              )
+            )}
+          </Box>
+        </SamlAttributesSelectInput>
 
         <Button
           type="submit"
