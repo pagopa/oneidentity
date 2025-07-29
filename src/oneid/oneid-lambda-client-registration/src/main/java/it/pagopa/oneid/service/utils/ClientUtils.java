@@ -18,7 +18,7 @@ public class ClientUtils {
 
 
   public static Client convertClientRegistrationDTOToClient(
-      ClientRegistrationDTO clientRegistrationDTO, int maxAttributeIndex) {
+      ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {
     Log.debug("start");
 
     ClientID clientID = new ClientID(32); //todo length?
@@ -41,7 +41,7 @@ public class ClientUtils {
             clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
                 .orElseThrow(ClientRegistrationServiceException::new)))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
-        .attributeIndex(maxAttributeIndex + 1)
+        .attributeIndex(attributeIndex)
         .isActive(true)
         .clientIdIssuedAt(clientIdIssuedAt)
         .logoUri(clientRegistrationDTO.getLogoUri())

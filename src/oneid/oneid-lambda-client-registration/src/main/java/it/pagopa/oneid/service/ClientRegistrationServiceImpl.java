@@ -100,9 +100,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 1. call to dynamo & set in clientRegistrationRequestDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
-    // 2. Convert ClientRegistrationRequestDto -> Client
+    // 2. Convert ClientRegistrationRequestDto -> Client and sets attributeIndex as the next available index after the max one
     Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
-        maxAttributeIndex);
+        maxAttributeIndex + 1);
 
     // 3. Client.Secret & Salt
 
