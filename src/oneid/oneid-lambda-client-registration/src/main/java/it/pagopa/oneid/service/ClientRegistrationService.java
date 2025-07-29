@@ -13,6 +13,6 @@ public interface ClientRegistrationService {
 
   ClientMetadataDTO getClientMetadataDTO(String clientId);
 
-  String refreshClientSecret(String userId);
+  String refreshClientSecret(String clientId, String userId);
 
 }

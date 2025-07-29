@@ -5,6 +5,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -83,10 +84,13 @@ public class ClientRegistrationController {
   }
 
   @POST
-  @Path("/clients/{user_id}/secret/refresh")
+  @Path("/clients/{client_id}/secret/refresh")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response refreshClientSecret(@PathParam("user_id") String userId) {
-    String secret = clientRegistrationService.refreshClientSecret(userId);
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response refreshClientSecret(
+      @PathParam("client_id") String clientId, RefreshTokenRequestDTO refreshTokenRequestDTO) {
+    String secret = clientRegistrationService.refreshClientSecret(
+        clientId, refreshTokenRequestDTO.getUserId());
     Map<String, String> response = new HashMap<>();
     response.put("newClientSecret", secret);
     return Response.ok(response).build();

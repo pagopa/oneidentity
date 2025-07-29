@@ -9,7 +9,6 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
-import it.pagopa.oneid.connector.CognitoConnectorImpl;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -33,8 +32,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Inject
   ClientConnectorImpl clientConnector;
-  @Inject
-  CognitoConnectorImpl cognitoConnector;
 
   @Override
   public void validateClientRegistrationInfo(
@@ -143,34 +140,34 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
 
   @Override
-  public String refreshClientSecret(String userId) {
+  public String refreshClientSecret(String clientId, String userId) {
 
-    // 1. Use the userId to get the clientId from Cognito
-    Optional<String> clientId = cognitoConnector.extractClientIdByUserId(userId);
-    if (clientId.isEmpty()) {
-      Log.errorf("No clientId found for userId: %s", userId);
-      throw new RefreshSecretException("No clientId associated to this user");
-    }
-    // 2. Get the client from DynamoDB using the retrieved clientId
-    String clientIdValue = clientId.get();
-    Optional<Client> client = clientConnector.getClientById(clientIdValue);
+    // 1. Get the client from DynamoDB using the retrieved clientId
+    Optional<Client> client = clientConnector.getClientById(clientId);
     if (client.isEmpty()) {
-      Log.errorf("No client found for clientId: %s", clientId.get());
+      Log.errorf("No client found for clientId: %s", clientId);
       throw new RefreshSecretException("No client found for the clientId associated to this user");
     }
 
-    // 3. Generate a new secret and salt
-    ClientSecretSalt newClientSecretSalt = generateClientSecretSalt();
-    Log.debugf("Generated new client secret and salt for clientId: %s", clientIdValue);
+    // 2. Check that the userId is the same as the one passed in the request
+    if (!userId.equals(client.get().getUserId())) {
+      Log.errorf("UserId mismatch for clientId: %s, expected: %s, found: %s", clientId, userId,
+          client.get().getUserId());
+      throw new RefreshSecretException("User ID mismatch");
+    }
 
-    //4. Update the client information in Dynamo
+    // 2. Generate a new secret and salt
+    ClientSecretSalt newClientSecretSalt = generateClientSecretSalt();
+    Log.debugf("Generated new client secret and salt for clientId: %s", clientId);
+
+    // 3. Update the client information in Dynamo
     clientConnector.updateClientSecretSalt(client.get(),
         HASHUtils.b64encoder.encodeToString(newClientSecretSalt.salt),
         newClientSecretSalt.hashedSecret);
 
-    Log.debugf("Updated client secret and salt for clientId: %s", clientIdValue);
+    Log.debugf("Updated client secret and salt for clientId: %s", clientId);
 
-    // 5. Return the new secret to the caller
+    // 4. Return the new secret to the caller
     return HASHUtils.b64encoder.encodeToString(newClientSecretSalt.secret);
   }
 
