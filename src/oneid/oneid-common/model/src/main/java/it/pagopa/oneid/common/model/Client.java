@@ -62,7 +62,7 @@ public class Client {
   @NotNull
   private long clientIdIssuedAt;
 
-  // Fields related to ClientMetadataDTO
+  // Fields related to ClientRegistrationDTO
   private String logoUri;
 
   private String policyUri;
@@ -70,11 +70,13 @@ public class Client {
   private String tosUri;
 
   private boolean requiredSameIdp;
+
   // Fields related to FE
   private String a11yUri;
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
+
   //Extra fields
   private boolean spidMinors;
   private boolean spidProfessionals;

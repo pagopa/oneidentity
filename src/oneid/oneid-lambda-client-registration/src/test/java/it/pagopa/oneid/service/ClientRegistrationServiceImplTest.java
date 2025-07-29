@@ -237,6 +237,30 @@ class ClientRegistrationServiceImplTest {
 
 
   @Test
+  void updateClient() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClient(
+        clientRegistrationDTO));
+  }
+
+  @Test
   void refreshClientSecret_noClientFound() {
     String clientId = "client-abc";
     String userId = "user-123";
