@@ -160,19 +160,21 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   public ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId) {
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
-    
+
     // Check if the userId matches the client userId on db
-    if (!userId.equals(client.getUserId())) {
+    if (!StringUtils.equals(userId, client.getUserId())) {
       throw new ClientNotFoundException();
     }
     return convertClientToClientRegistrationDTO(client);
   }
 
   @Override
-  public ClientRegistrationResponseDTO updateClient(
+  public void updateClient(
       ClientRegistrationDTO clientRegistrationDTO) {
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(
+        clientRegistrationDTO, -1);
+    clientConnector.updateClient(client);
 
-    return null;
   }
 
 

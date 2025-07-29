@@ -21,9 +21,10 @@ class ClientRegistrationControllerTest {
   @InjectMock
   ClientRegistrationServiceImpl clientRegistrationServiceImpl;
 
-  @Test
-  void register() {
+  //Register
 
+  @Test
+  void register_ok() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId("test")
@@ -56,7 +57,6 @@ class ClientRegistrationControllerTest {
 
   @Test
   void register_differentContentType() {
-
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
 
@@ -69,24 +69,48 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
-  void testGetClientInfoByClientId() {
+  void register_missingRequiredField_ko() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        //.userId("test")
+        //.redirectUris(Set.of("http://test.com"))
+        //.clientName("test")
+        //.defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        //.samlRequestedAttributes(Set.of(Identifier.name))
+        .build();
 
+    ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
+    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  //Get Client Info
+
+  @Test
+  void getClientInfoByClientId_ok() {
     String userId = "testUserId";
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId(userId)
-        .redirectUris(Set.of("http://test.com"))
-        .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
-        .a11yUri("http://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
+//        .redirectUris(Set.of("http://test.com"))
+//        .clientName("test")
+//        .logoUri("http://test.com")
+//        .policyUri("http://test.com")
+//        .tosUri("http://test.com")
+//        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+//        .samlRequestedAttributes(Set.of(Identifier.name))
+//        .a11yUri("http://test.com")
+//        .backButtonEnabled(false)
+//        .localizedContentMap(new HashMap<>())
+//        .spidMinors(false)
+//        .spidProfessionals(false)
+//        .pairwise(false)
         .build();
 
     given()
@@ -97,6 +121,76 @@ class ClientRegistrationControllerTest {
         .get("/register/{client_id}")
         .then()
         .statusCode(200);
+  }
+
+
+  @Test
+  void getClientInfoByClientId_missingUserId_ko() {
+    //String userId = "testUserId";
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        //.userId(userId)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .pathParam("client_id", "test")
+        .body(clientRegistrationDTO)
+        .when()
+        .get("/register/{client_id}")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void getClientInfoByClientId_missingClientId_ko() {
+    String userId = "testUserId";
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .pathParam("client_id", "")
+        .body(clientRegistrationDTO)
+        .when()
+        .get("/register/{client_id}")
+        .then()
+        .statusCode(500);
+  }
+
+  //Update Client
+
+  @Test
+  void updateClient_ok() {
+    // Arrange
+    String clientId = "testClientId";
+    String userId = "testUserId";
+
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .clientName("updatedName")
+        .redirectUris(Set.of("http://updated.com"))
+        .build();
+
+    ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .clientName("oldName")
+        .redirectUris(Set.of("http://old.com"))
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getClientRegistrationDTO(Mockito.eq(clientId),
+            Mockito.eq(userId)))
+        .thenReturn(existingDto);
+
+    given()
+        .contentType("application/json")
+        .pathParam("client_id", clientId)
+        .body(updatedDto)
+        .when()
+        .put("/register/{client_id}")
+        .then()
+        .statusCode(204);
+
   }
 
   @Test

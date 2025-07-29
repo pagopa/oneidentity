@@ -93,6 +93,14 @@ public class ClientConnectorImpl implements ClientConnector {
   }
 
   @Override
+  public void updateClient(Client client) {
+    clientMapper.updateItem(
+        UpdateItemEnhancedRequest.builder(Client.class)
+            .item(client)
+            .build());
+  }
+
+  @Override
   public void updateClientSecretSalt(Client client, String newSalt, String newHashedSecret) {
     ClientExtended clientExtended = new ClientExtended(client, newHashedSecret, newSalt);
     clientExtendedMapper.updateItem(
@@ -104,5 +112,4 @@ public class ClientConnectorImpl implements ClientConnector {
                     .build())
             .build());
   }
-
 }

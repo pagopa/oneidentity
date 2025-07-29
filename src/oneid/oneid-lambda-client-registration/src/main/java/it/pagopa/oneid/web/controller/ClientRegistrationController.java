@@ -98,6 +98,48 @@ public class ClientRegistrationController {
     return Response.ok(clientRegistrationDTOresponse).status(Status.OK).build();
   }
 
+  @PUT
+  @Path("/register/{client_id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateClient(
+      @Valid @ConvertGroup(to = ValidationGroups.PutClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
+      @PathParam("client_id") String clientId) {
+    Log.info("start");
+
+    //1. Validate client infos
+    clientRegistrationService.validateClientRegistrationInfo(
+        clientRegistrationDTOInput);
+    Log.info("client info validated successfully");
+
+    //2. Verify if client exists and if so retrieves it from db
+    ClientRegistrationDTO clientRegistrationDTO = clientRegistrationService.getClientRegistrationDTO(
+        clientId, clientRegistrationDTOInput.getUserId());
+    Log.info("client exists for clientId: " + clientId);
+
+    //3. Update client infos
+    clientRegistrationService.updateClient(
+        clientRegistrationDTOInput);
+    Log.info("client updated successfully for userId: " + clientId);
+
+    //4. Send SNS notification
+    String message =
+        "Name: " + clientRegistrationDTO.getClientName() + "\n" +
+            "Client ID: " + clientId + "\n";
+    String subject =
+        "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+    try {
+      sns.publish(p ->
+          p.topicArn(topicArn).subject(subject).message(message));
+    } catch (Exception e) {
+      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+          "Failed to send SNS notification: ", e);
+    }
+    Log.info("end");
+
+    return Response.ok().status(Status.NO_CONTENT).build();
+  }
+
+
   @POST
   @Path("/clients/{client_id}/secret/refresh")
   @Produces(MediaType.APPLICATION_JSON)
