@@ -160,6 +160,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   public ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId) {
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
+    
+    // Check if the userId matches the client userId on db
     if (!userId.equals(client.getUserId())) {
       throw new ClientNotFoundException();
     }
@@ -173,12 +175,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     return null;
   }
 
-  @Override
-  public void clientExists(String clientId) {
-    if (!clientConnector.getClientById(clientId).isPresent()) {
-      throw new ClientNotFoundException();
-    }
-  }
 
   @Override
   public String refreshClientSecret(String clientId, String userId) {
