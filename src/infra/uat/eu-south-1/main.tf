@@ -333,9 +333,7 @@ module "backend" {
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
       "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
       "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.uat.oneid.pagopa.it"
-      USER_POOL_ID                         = module.cognito.user_pool_id
     }
-    cognito_user_pool_arn = module.cognito.user_pool_arn
   }
 
   metadata_lambda = {

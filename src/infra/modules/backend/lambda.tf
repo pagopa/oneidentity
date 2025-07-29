@@ -103,20 +103,6 @@ data "aws_iam_policy_document" "client_registration_lambda" {
       var.sns_topic_arn
     ]
   }
-
-  dynamic "statement" {
-    for_each = var.client_registration_lambda.cognito_user_pool_arn != "" ? [1] : []
-    content {
-      effect = "Allow"
-      actions = [
-        "cognito-idp:AdminUpdateUserAttributes",
-        "cognito-idp:AdminGetUser"
-      ]
-      resources = [
-        var.client_registration_lambda.cognito_user_pool_arn
-      ]
-    }
-  }
 }
 
 module "security_group_lambda_client_registration" {

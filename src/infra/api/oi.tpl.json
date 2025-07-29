@@ -562,7 +562,7 @@
         }
       }
     },
-    "oidc/clients/{user_id}/secret/refresh": {
+    "oidc/clients/{client_id}/secret/refresh": {
       "post": {
         "tags": [
           "Authorization Server APIs"
@@ -617,8 +617,10 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientRegistration"
+              "userId": {
+                "type": "string",
+                "description": "The userId of the user who is requesting the client secret refresh. This is required to ensure that only authorized users can refresh the client secret.",
+                "example": "fake-user-id"
               }
             }
           },

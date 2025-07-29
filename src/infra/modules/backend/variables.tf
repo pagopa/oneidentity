@@ -245,7 +245,6 @@ variable "client_registration_lambda" {
     vpc_tls_security_group_endpoint_id = string
     vpc_subnet_ids                     = list(string)
     environment_variables              = map(string)
-    cognito_user_pool_arn              = optional(string, "")
   })
 
 }
