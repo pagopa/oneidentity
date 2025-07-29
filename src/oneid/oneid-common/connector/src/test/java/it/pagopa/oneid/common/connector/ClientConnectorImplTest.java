@@ -3,6 +3,7 @@ package it.pagopa.oneid.common.connector;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
@@ -11,6 +12,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.inject.Inject;
+import java.util.Optional;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.AfterAll;
@@ -115,6 +117,85 @@ class ClientConnectorImplTest {
 
     //then
     assertDoesNotThrow(executable);
+  }
+
+  @Test
+  void getClientByAttributeConsumingServiceIndex() {
+    // Insert a real Client into DynamoDB local
+    ClientExtended client = ClientExtended.builder()
+        .secret("test")
+        .salt("test")
+        .clientId("test")
+        .requiredSameIdp(true)
+        .userId("test1")
+        .friendlyName("test1")
+        .callbackURI(Set.of("test.com"))
+        .requestedParameters(Set.of("test.com"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(false)
+        .clientIdIssuedAt(0)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("test")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    clientExtendedMapper.putItem(client);
+
+    Optional<Client> result = clientConnectorImpl.getClientByAttributeConsumingServiceIndex(0);
+    assertTrue(result.isPresent());
+    assertEquals(client.getAttributeIndex(), result.get().getAttributeIndex());
+  }
+
+  @Test
+  void updateClient() {
+    //given
+    Client oldClient = Client.builder()
+        .logoUri("originalLogoUri") // This field must not be overwritten
+        .clientId("clientId") // same clientId to update
+        .userId("oldClient") // This field will be updated
+        .requiredSameIdp(true)
+        .friendlyName("test1")
+        .callbackURI(Set.of("test.com"))
+        .requestedParameters(Set.of("test.com"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(false)
+        .clientIdIssuedAt(0)
+        .build();
+    clientExtendedMapper.putItem(new ClientExtended(oldClient, "test", "test"));
+
+    Client newClient = Client.builder()
+        //.logoUri("") //Empty logoUri to check that it is not overwritten
+        .clientId("clientId") // same clientId to update
+        .userId("newClient") // new userId
+        .requiredSameIdp(true)
+        .friendlyName("test1")
+        .callbackURI(Set.of("test.com"))
+        .requestedParameters(Set.of("test.com"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(false)
+        .clientIdIssuedAt(0)
+        .build();
+
+    //then
+    Executable executable = () -> clientConnectorImpl.updateClient(newClient);
+    assertDoesNotThrow(executable);
+
+    Client updatedClient = clientExtendedMapper.getItem(
+        Key.builder().partitionValue("clientId").build());
+    assertNotNull(updatedClient);
+    assertEquals("newClient", updatedClient.getUserId()); // Updated
+    assertEquals("originalLogoUri", updatedClient.getLogoUri()); // Unchanged
   }
 
   @Nested

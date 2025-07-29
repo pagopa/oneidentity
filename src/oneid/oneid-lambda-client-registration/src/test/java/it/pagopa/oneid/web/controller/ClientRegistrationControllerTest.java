@@ -162,7 +162,6 @@ class ClientRegistrationControllerTest {
 
   @Test
   void updateClient_ok() {
-    // Arrange
     String clientId = "testClientId";
     String userId = "testUserId";
 
@@ -190,7 +189,37 @@ class ClientRegistrationControllerTest {
         .put("/register/{client_id}")
         .then()
         .statusCode(204);
+  }
 
+  @Test
+  void updateClient_missingUserId_ko() {
+    String clientId = "testClientId";
+    String userId = "testUserId";
+
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        //.userId(userId)
+        .clientName("updatedName")
+        .redirectUris(Set.of("http://updated.com"))
+        .build();
+
+    ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .clientName("oldName")
+        .redirectUris(Set.of("http://old.com"))
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getClientRegistrationDTO(Mockito.eq(clientId),
+            Mockito.eq(userId)))
+        .thenReturn(existingDto);
+
+    given()
+        .contentType("application/json")
+        .pathParam("client_id", clientId)
+        .body(updatedDto)
+        .when()
+        .put("/register/{client_id}")
+        .then()
+        .statusCode(400); // Bad Request due to missing userId in request body
   }
 
   @Test
