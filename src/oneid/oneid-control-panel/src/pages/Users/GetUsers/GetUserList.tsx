@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
@@ -53,11 +53,14 @@ export const GetUserList = () => {
     }
   }, [data, getIdpUsersError]);
 
-  const handleEditUser = (user: IdpUser) => {
-    navigate(`${ROUTE_PATH.USER}/${user.username}`, {
-      state: { userToEdit: user },
-    });
-  };
+  const handleEditUser = useCallback(
+    (user: IdpUser) => {
+      navigate(`${ROUTE_PATH.USER}/${user.username}`, {
+        state: { userToEdit: user },
+      });
+    },
+    [navigate]
+  );
 
   useEffect(() => {
     if (isUserDeleted) {
@@ -78,7 +81,9 @@ export const GetUserList = () => {
     }
   }, [isUserDeleted, deleteClientUsersError, queryClient, userId]);
 
-  // opzionalmente: resetti lo state di navigazione per evitare doppio alert su reload
+  // get from state: refresh and notify
+  // if refresh is true reload user data
+  // if notify is not null show notify
   useEffect(() => {
     const notifyFromState = location.state?.notify;
     if (notifyFromState) {
@@ -90,13 +95,12 @@ export const GetUserList = () => {
     window.history.replaceState({}, document.title);
   }, [location.state, queryClient, userId]);
 
-  // Handler delete da passare alla tabella
-  const handleDelete = async () => {
+  const handleDelete = useCallback(() => {
     if (userToDelete) {
       deleteClientUsersMutation({ username: userToDelete });
     }
     closeModal();
-  };
+  }, [userToDelete, deleteClientUsersMutation, closeModal]);
 
   const handleDeleteClick = (username: string) => {
     setUserToDelete(username);
@@ -126,7 +130,7 @@ export const GetUserList = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
+    <Box sx={{ minHeight: '100vh' }}>
       <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
         User: {user?.profile?.email}
       </Typography>
