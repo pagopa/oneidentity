@@ -28,7 +28,8 @@ public class ClientExtended extends Client {
   @NotNull
   private String salt;
 
-  public ClientExtended(@NotNull String clientId, String userId, @NotNull String friendlyName,
+  public ClientExtended(@NotNull String clientId, String userId,
+      @NotNull String friendlyName,
       @NotNull Set<String> callbackURI,
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,

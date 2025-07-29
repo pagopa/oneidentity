@@ -89,6 +89,7 @@ class ClientConnectorImplTest {
 
     //given
     String clientId = "test";
+    String userId = "test";
     String friendlyName = "test";
     Set<String> callbackURI = CollectionUtils.toSet(new String[]{"test"});
     Set<String> requestedParameters = CollectionUtils.toSet(new String[]{"test"});
@@ -104,7 +105,7 @@ class ClientConnectorImplTest {
     String tosURi = "test";
     boolean isRequiredSameIdp = false;
 
-    ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
+    ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName, callbackURI,
         requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
         clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
         false, false
@@ -122,6 +123,7 @@ class ClientConnectorImplTest {
     @BeforeEach
     void insertClient() {
       String clientId = "test";
+      String userId = "test";
       String friendlyName = "test";
       Set<String> callbackURI = CollectionUtils.toSet(new String[]{"test"});
       Set<String> requestedParameters = CollectionUtils.toSet(new String[]{"test"});
@@ -137,7 +139,8 @@ class ClientConnectorImplTest {
       String tosURi = "test";
       boolean isRequiredSameIdp = false;
 
-      ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
+      ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName,
+          callbackURI,
           requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
           clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
           false, false
