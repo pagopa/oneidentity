@@ -23,14 +23,17 @@ public class MockClientProducer extends ClientProducer {
     Map<String, Client> map = new HashMap<>();
     ArrayList<Client> clients = new ArrayList<>();
     clients.add(
-        new Client("test", "test", Set.of("foo.bar"), Set.of("test"), AuthLevel.L2, 0, 0, true, 0,
+        new Client("test", "test", "test", Set.of("foo.bar"), Set.of("test"), AuthLevel.L2, 0, 0,
+            true, 0,
             "test", "test", "test", false, "test", false, null));
-    clients.add(new Client("testIsRequiredSameIdpFalse", "test", Set.of("foo.bar"), Set.of("test"),
-        AuthLevel.L2, 0, 0, true, 0,
-        "test", "test", "test", false, "test", false, null));
-    clients.add(new Client("testIsRequiredSameIdpTrue", "test", Set.of("foo.bar"), Set.of("test"),
-        AuthLevel.L2, 0, 0, true, 0,
-        "test", "test", "test", true, "test", false, null));
+    clients.add(
+        new Client("testIsRequiredSameIdpFalse", "test", "test", Set.of("foo.bar"), Set.of("test"),
+            AuthLevel.L2, 0, 0, true, 0,
+            "test", "test", "test", false, "test", false, null));
+    clients.add(
+        new Client("testIsRequiredSameIdpTrue", "test", "test", Set.of("foo.bar"), Set.of("test"),
+            AuthLevel.L2, 0, 0, true, 0,
+            "test", "test", "test", true, "test", false, null));
     clients.forEach(client -> map.put(client.getClientId(), client));
 
     return map;
