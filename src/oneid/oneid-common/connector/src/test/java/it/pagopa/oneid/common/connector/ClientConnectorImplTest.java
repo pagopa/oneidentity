@@ -104,7 +104,7 @@ class ClientConnectorImplTest {
     String tosURi = "test";
     boolean isRequiredSameIdp = false;
 
-    ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
+    ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
         requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
         clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
     );
@@ -136,7 +136,7 @@ class ClientConnectorImplTest {
       String tosURi = "test";
       boolean isRequiredSameIdp = false;
 
-      ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
+      ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
           requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
           clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
       );
