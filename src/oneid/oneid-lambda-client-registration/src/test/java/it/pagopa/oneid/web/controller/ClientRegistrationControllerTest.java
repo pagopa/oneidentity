@@ -6,8 +6,7 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
-import it.pagopa.oneid.model.dto.ClientMetadataDTO;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import java.util.HashMap;
@@ -26,7 +25,8 @@ class ClientRegistrationControllerTest {
   void register() {
 
     // given
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -47,22 +47,7 @@ class ClientRegistrationControllerTest {
 
     given()
         .contentType("application/json")
-        .body("{\"redirectUris\": " + "[\"http://test.com\"]" + "," +
-            "\"clientName\": \"" + clientRegistrationRequestDTO.getClientName() + "\"," +
-            "\"logoUri\": \"" + clientRegistrationRequestDTO.getLogoUri() + "\"," +
-            "\"policyUri\": \"" + clientRegistrationRequestDTO.getPolicyUri() + "\"," +
-            "\"tosUri\": \"" + clientRegistrationRequestDTO.getTosUri() + "\"," +
-            "\"defaultAcrValues\": " + "[\"https://www.spid.gov.it/SpidL2\"]" + "," +
-            "\"samlRequestedAttributes\": [\"name\"]}" + "\"," +
-            "\"a11YUri\": \"" + clientRegistrationRequestDTO.getA11yUri() + "\"," +
-            "\"backButtonEnabled\": \"" + clientRegistrationRequestDTO.isBackButtonEnabled()
-            + "\"," +
-            "\"localizedContentMap\": \"" + clientRegistrationRequestDTO.getLocalizedContentMap()
-            + "\"," +
-            "\"spidMinors\": \"" + clientRegistrationRequestDTO.isSpidMinors() + "\"," +
-            "\"spidProfessionals\": \"" + clientRegistrationRequestDTO.isSpidProfessionals()
-            + "\"," +
-            "\"pairwise\": \"" + clientRegistrationRequestDTO.isPairwise())
+        .body(clientRegistrationDTO)
         .when()
         .post("/register")
         .then()
@@ -71,23 +56,6 @@ class ClientRegistrationControllerTest {
 
   @Test
   void register_differentContentType() {
-
-    // given
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
-        .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
-        .a11yUri("http://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
@@ -103,13 +71,28 @@ class ClientRegistrationControllerTest {
   @Test
   void testGetClientInfoByClientId() {
 
-    ClientMetadataDTO mockResponse = Mockito.mock(ClientMetadataDTO.class);
-    Mockito.when(clientRegistrationServiceImpl.getClientMetadataDTO(Mockito.anyString()))
-        .thenReturn(mockResponse);
+    String userId = "testUserId";
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
 
     given()
-        .contentType("application/x-www-form-urlencoded")
+        .contentType("application/json")
         .pathParam("client_id", "test")
+        .body(clientRegistrationDTO)
         .when()
         .get("/register/{client_id}")
         .then()

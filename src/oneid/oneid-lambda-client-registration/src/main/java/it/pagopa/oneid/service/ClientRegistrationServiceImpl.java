@@ -1,6 +1,6 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientMetadataDTO;
+import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientRegistrationDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -12,8 +12,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
-import it.pagopa.oneid.model.dto.ClientMetadataDTO;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
@@ -35,10 +34,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void validateClientRegistrationInfo(
-      ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
+      ClientRegistrationDTO clientRegistrationDTO) {
 
     // Validate redirectUris
-    for (String redirectUri : clientRegistrationRequestDTO.getRedirectUris()) {
+    for (String redirectUri : clientRegistrationDTO.getRedirectUris()) {
       try {
         CustomURIUtils.validateURI(redirectUri);
         RedirectURIValidator.ensureLegal(URI.create(redirectUri));
@@ -50,7 +49,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // Validate policyUri
-    String policyUri = clientRegistrationRequestDTO.getPolicyUri();
+    String policyUri = clientRegistrationDTO.getPolicyUri();
     try {
       if (!StringUtils.isBlank(policyUri)) {
         CustomURIUtils.validateURI(policyUri);
@@ -61,7 +60,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // Validate logoUri
-    String logoUri = clientRegistrationRequestDTO.getLogoUri();
+    String logoUri = clientRegistrationDTO.getLogoUri();
     try {
       if (!StringUtils.isBlank(logoUri)) {
         CustomURIUtils.validateURI(logoUri);
@@ -72,7 +71,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // Validate tosUri
-    String tosUri = clientRegistrationRequestDTO.getTosUri();
+    String tosUri = clientRegistrationDTO.getTosUri();
     try {
       if (!StringUtils.isBlank(tosUri)) {
         CustomURIUtils.validateURI(tosUri);
@@ -83,7 +82,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // Validate a11yUri
-    String a11yUri = clientRegistrationRequestDTO.getA11yUri();
+    String a11yUri = clientRegistrationDTO.getA11yUri();
     try {
       if (!StringUtils.isBlank(a11yUri)) {
         CustomURIUtils.validateURI(a11yUri);
@@ -97,12 +96,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
+      ClientRegistrationDTO clientRegistrationDTO) {
     // 1. call to dynamo & set in clientRegistrationRequestDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
     // 2. Convert ClientRegistrationRequestDto -> Client
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationRequestDTO,
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         maxAttributeIndex);
 
     // 3. Client.Secret & Salt
@@ -117,14 +116,31 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     clientConnector.saveClientIfNotExists(clientExtended);
 
     // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
-    clientRegistrationRequestDTO.setDefaultAcrValues(Set.of(
-        clientRegistrationRequestDTO.getDefaultAcrValues().stream().findFirst()
+    clientRegistrationDTO.setDefaultAcrValues(Set.of(
+        clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
             .orElseThrow(ClientRegistrationServiceException::new)));
 
     // 7. create and return ClientRegistrationResponseDTO
-    return new ClientRegistrationResponseDTO(clientRegistrationRequestDTO,
-        client.getClientId(), HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret),
-        client.getClientIdIssuedAt());
+    return ClientRegistrationResponseDTO.builder()
+        .userId(clientRegistrationDTO.getUserId())
+        .redirectUris(clientRegistrationDTO.getRedirectUris())
+        .clientName(clientRegistrationDTO.getClientName())
+        .logoUri(clientRegistrationDTO.getLogoUri())
+        .policyUri(clientRegistrationDTO.getPolicyUri())
+        .tosUri(clientRegistrationDTO.getTosUri())
+        .defaultAcrValues(clientRegistrationDTO.getDefaultAcrValues())
+        .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
+        .a11yUri(clientRegistrationDTO.getA11yUri())
+        .backButtonEnabled(clientRegistrationDTO.isBackButtonEnabled())
+        .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
+        .spidMinors(clientRegistrationDTO.isSpidMinors())
+        .spidProfessionals(clientRegistrationDTO.isSpidProfessionals())
+        .pairwise(clientRegistrationDTO.isPairwise())
+        .requiredSameIdp(clientRegistrationDTO.isRequiredSameIdp())
+        .clientID(client.getClientId())
+        .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
+        .clientIdIssuedAt(client.getClientIdIssuedAt())
+        .build();
   }
 
 
@@ -141,13 +157,28 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
 
   @Override
-  public ClientMetadataDTO getClientMetadataDTO(String clientId) {
+  public ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId) {
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
-
-    return convertClientToClientMetadataDTO(client);
+    if (!userId.equals(client.getUserId())) {
+      throw new ClientNotFoundException();
+    }
+    return convertClientToClientRegistrationDTO(client);
   }
 
+  @Override
+  public ClientRegistrationResponseDTO updateClient(
+      ClientRegistrationDTO clientRegistrationDTO) {
+
+    return null;
+  }
+
+  @Override
+  public void clientExists(String clientId) {
+    if (!clientConnector.getClientById(clientId).isPresent()) {
+      throw new ClientNotFoundException();
+    }
+  }
 
   @Override
   public String refreshClientSecret(String clientId, String userId) {

@@ -1,16 +1,19 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
+import it.pagopa.oneid.model.groups.ValidationGroups;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -42,15 +45,15 @@ public class ClientRegistrationController {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response register(
-      @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
+      @Valid @ConvertGroup(to = ValidationGroups.Registration.class) ClientRegistrationDTO clientRegistrationDTO) {
     Log.info("start");
 
-    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
+    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTO);
 
     Log.info("client info validated successfully");
 
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
-        clientRegistrationRequestDTO);
+        clientRegistrationDTO);
 
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
@@ -70,7 +73,6 @@ public class ClientRegistrationController {
     }
 
     Log.info("end");
-
     return Response.ok(clientRegistrationResponseDTO).status(Status.CREATED).build();
 
   }
@@ -78,9 +80,16 @@ public class ClientRegistrationController {
   @GET
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getClientInfoByClientId(@PathParam("client_id") String clientId) {
-    return Response.ok(clientRegistrationService.getClientMetadataDTO(
-        clientId)).build();
+  public Response getClientInfoByClientId(
+      @PathParam("client_id") String clientId,
+      @Valid @ConvertGroup(to = ValidationGroups.GetClient.class) ClientRegistrationDTO clientRegistrationDTO) {
+    Log.info("start");
+
+    ClientRegistrationDTO clientRegistrationDTOresponse = clientRegistrationService.getClientRegistrationDTO(
+        clientId, clientRegistrationDTO.getUserId());
+
+    Log.info("end");
+    return Response.ok(clientRegistrationDTOresponse).status(Status.OK).build();
   }
 
   @POST

@@ -11,8 +11,8 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.exception.RefreshSecretException;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void validateClientRegistrationInfo() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -50,12 +50,12 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-        clientRegistrationRequestDTO));
+        clientRegistrationDTO));
   }
 
   @Test
   void testValidateClientRegistrationInfo_WithMultipleUris() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://valid.com", "https://valid.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -66,23 +66,23 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-        clientRegistrationRequestDTO));
+        clientRegistrationDTO));
   }
 
   @Test
   void validateClientRegistrationInfo_invalid_redirectUri() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of(".error"))
         .build();
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationRequestDTO));
+            clientRegistrationDTO));
   }
 
   @Test
   void validateClientRegistrationInfo_invalid_logoUri() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("error")
@@ -90,12 +90,12 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationRequestDTO));
+            clientRegistrationDTO));
   }
 
   @Test
   void validateClientRegistrationInfo_invalid_policyUri() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -104,12 +104,12 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationRequestDTO));
+            clientRegistrationDTO));
   }
 
   @Test
   void validateClientRegistrationInfo_invalid_tosUri() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -119,12 +119,12 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationRequestDTO));
+            clientRegistrationDTO));
   }
 
   @Test
   void validateClientRegistrationInfo_invalid_a11yUri() {
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -135,13 +135,13 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationRequestDTO));
+            clientRegistrationDTO));
   }
 
   @Test
   void saveClient() {
 
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -184,16 +184,18 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationRequestDTO));
+        clientRegistrationDTO));
   }
 
   @Test
-  void getClientMetadataDTO() {
+  void getClientRegistrationDTO() {
 
     //given
     String clientID = "test";
+    String userId = "userId-test";
     Client returnClient = Client.builder()
         .clientId(clientID)
+        .userId(userId)
         .friendlyName("test")
         .callbackURI(Set.of("test"))
         .requestedParameters(Set.of("name"))
@@ -217,7 +219,7 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
         .thenReturn(Optional.of(returnClient));
 
-    assertNotNull(clientRegistrationServiceImpl.getClientMetadataDTO(clientID));
+    assertNotNull(clientRegistrationServiceImpl.getClientRegistrationDTO(clientID, userId));
   }
 
   @Test
