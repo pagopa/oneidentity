@@ -45,10 +45,6 @@
             <artifactId>quarkus-amazon-sns</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkiverse.amazonservices</groupId>
-            <artifactId>quarkus-amazon-cognito-user-pools</artifactId>
-        </dependency>
-        <dependency>
             <artifactId>connector</artifactId>
             <groupId>it.pagopa.oneid.common</groupId>
         </dependency>
