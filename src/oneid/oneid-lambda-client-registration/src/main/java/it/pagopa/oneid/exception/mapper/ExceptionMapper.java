@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
@@ -115,10 +116,10 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(
-      ClientRegistrationServiceException clientRegistrationServiceException) {
-    Log.error(ExceptionUtils.getStackTrace(clientRegistrationServiceException));
+      RefreshSecretException refreshSecretException) {
+    Log.error(ExceptionUtils.getStackTrace(refreshSecretException));
     return RestResponse.status(BAD_REQUEST,
-        buildErrorResponse(BAD_REQUEST, clientRegistrationServiceException.getMessage()));
+        buildErrorResponse(BAD_REQUEST, refreshSecretException.getMessage()));
   }
 
 
