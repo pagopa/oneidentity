@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
   CircularProgress,
@@ -167,6 +168,10 @@ export const GetUserList = () => {
           </>
         )}
       </Box>
+
+      <Backdrop open={isDeletingUser}>
+        <CircularProgress color="secondary" />
+      </Backdrop>
 
       <Notify
         open={notify.open}

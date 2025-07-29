@@ -30,11 +30,6 @@ export const AddOrUpdateUser = () => {
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const [showPassword, setShowPassword] = useState(false);
-  const [openProgress, setOpenProgress] = useState(false);
-
-  const handleCloseProgress = () => {
-    setOpenProgress(false);
-  };
 
   const {
     createClientUsersMutation: {
@@ -100,7 +95,7 @@ export const AddOrUpdateUser = () => {
         state: { refresh: true, notify: notifyUpdate },
       });
     }
-  }, [isUserCreated, isUserUpdated]);
+  }, [isUserCreated, isUserUpdated, navigate]);
 
   const isFormValid = () => {
     return (
@@ -117,7 +112,6 @@ export const AddOrUpdateUser = () => {
       console.error('Form is not valid');
       return;
     }
-    setOpenProgress(true);
     if (isEditMode) {
       updateClientUsersMutation({
         data: formData as IdpUser,
@@ -255,8 +249,8 @@ export const AddOrUpdateUser = () => {
         </Button>
       </Box>
 
-      <Backdrop open={openProgress} onClick={handleCloseProgress}>
-        <CircularProgress color="inherit" />
+      <Backdrop open={isCreatingUser || isUpdatingUser}>
+        <CircularProgress color="secondary" />
       </Backdrop>
 
       <Notify
