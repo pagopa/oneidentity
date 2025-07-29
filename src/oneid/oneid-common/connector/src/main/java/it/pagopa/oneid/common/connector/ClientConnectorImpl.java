@@ -97,6 +97,7 @@ public class ClientConnectorImpl implements ClientConnector {
     clientMapper.updateItem(
         UpdateItemEnhancedRequest.builder(Client.class)
             .item(client)
+            .ignoreNulls(true) // Ignore null values to avoid overwriting existing attributes
             .build());
   }
 
