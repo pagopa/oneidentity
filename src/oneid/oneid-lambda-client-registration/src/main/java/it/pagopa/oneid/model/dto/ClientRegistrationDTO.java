@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.model.groups.ValidationGroups.GetClient;
+import it.pagopa.oneid.model.groups.ValidationGroups.PutClient;
+import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -22,16 +25,35 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @AllArgsConstructor
 @RegisterForReflection
 @SuperBuilder
-public class ClientMetadataDTO {
+public class ClientRegistrationDTO {
 
-  @NotEmpty
+  @NotBlank(groups = {Registration.class, GetClient.class, PutClient.class})
+  @JsonProperty("userId")
+  @Parameter()
+  private String userId;
+
+  @NotEmpty(groups = {Registration.class})
   @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private Set<String> redirectUris; //Client.callbackURI
 
-  @NotBlank
+  @NotBlank(groups = {Registration.class})
   @JsonProperty("clientName")
   private String clientName; //Client.friendlyName
+
+  @NotEmpty(groups = {Registration.class})
+  @JsonProperty("defaultAcrValues")
+  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  @AuthLevelCheck
+  private Set<String> defaultAcrValues;
+
+  @NotEmpty(groups = {Registration.class})
+  @JsonProperty("samlRequestedAttributes")
+  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  private Set<Identifier> samlRequestedAttributes;
+
+  @JsonProperty("requiredSameIdp")
+  private boolean requiredSameIdp;
 
   @JsonProperty("logoUri")
   private String logoUri;
@@ -41,19 +63,6 @@ public class ClientMetadataDTO {
 
   @JsonProperty("tosUri")
   private String tosUri;
-
-  @JsonProperty("defaultAcrValues")
-  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @AuthLevelCheck
-  private Set<String> defaultAcrValues;
-
-  @NotEmpty
-  @JsonProperty("samlRequestedAttributes")
-  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private Set<Identifier> samlRequestedAttributes;
-
-  @JsonProperty("requiredSameIdp")
-  private boolean requiredSameIdp;
 
   @JsonProperty("a11yUri")
   private String a11yUri;
@@ -73,20 +82,4 @@ public class ClientMetadataDTO {
   @JsonProperty("pairwise")
   private boolean pairwise;
 
-  public ClientMetadataDTO(ClientMetadataDTO clientMetadataDTO) {
-    this.redirectUris = clientMetadataDTO.getRedirectUris();
-    this.clientName = clientMetadataDTO.getClientName();
-    this.logoUri = clientMetadataDTO.getLogoUri();
-    this.policyUri = clientMetadataDTO.getPolicyUri();
-    this.tosUri = clientMetadataDTO.getTosUri();
-    this.defaultAcrValues = clientMetadataDTO.getDefaultAcrValues();
-    this.samlRequestedAttributes = clientMetadataDTO.getSamlRequestedAttributes();
-    this.requiredSameIdp = clientMetadataDTO.isRequiredSameIdp();
-    this.a11yUri = clientMetadataDTO.getA11yUri();
-    this.backButtonEnabled = clientMetadataDTO.isBackButtonEnabled();
-    this.localizedContentMap = clientMetadataDTO.getLocalizedContentMap();
-    this.spidMinors = clientMetadataDTO.isSpidMinors();
-    this.spidProfessionals = clientMetadataDTO.isSpidProfessionals();
-    this.pairwise = clientMetadataDTO.isPairwise();
-  }
 }

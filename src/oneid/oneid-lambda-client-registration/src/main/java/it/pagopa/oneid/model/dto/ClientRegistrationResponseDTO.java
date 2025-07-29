@@ -6,12 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @RegisterForReflection
-public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
+@SuperBuilder
+public class ClientRegistrationResponseDTO extends ClientRegistrationDTO {
 
   @NotBlank
   @JsonProperty("clientID")
@@ -27,10 +29,9 @@ public class ClientRegistrationResponseDTO extends ClientMetadataDTO {
   private int clientSecretExpiresAt;
 
 
-  public ClientRegistrationResponseDTO(ClientMetadataDTO clientMetadataDTO, String clientID,
+  public ClientRegistrationResponseDTO(ClientRegistrationDTO clientRegistrationDTO, String clientID,
       String clientSecret,
       long clientIdIssuedAt) {
-    super(clientMetadataDTO);
     this.clientID = clientID;
     this.clientSecret = clientSecret;
     this.clientIdIssuedAt = clientIdIssuedAt; //Consider removing this field if not needed

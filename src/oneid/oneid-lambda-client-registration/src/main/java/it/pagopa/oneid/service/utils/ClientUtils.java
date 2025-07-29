@@ -8,8 +8,7 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.model.dto.ClientMetadataDTO;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,59 +18,67 @@ public class ClientUtils {
 
 
   public static Client convertClientRegistrationDTOToClient(
-      ClientRegistrationRequestDTO clientRegistrationRequestDTO, int maxAttributeIndex) {
+      ClientRegistrationDTO clientRegistrationDTO, int maxAttributeIndex) {
     Log.debug("start");
 
     ClientID clientID = new ClientID(32); //todo length?
     long clientIdIssuedAt = System.currentTimeMillis();
 
-    Set<String> requestedParameters = clientRegistrationRequestDTO.getSamlRequestedAttributes()
+    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes()
         .stream()
         .map(Identifier::name)
         .collect(Collectors.toSet());
 
-    Set<String> callbackUris = clientRegistrationRequestDTO.getRedirectUris();
+    Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
 
     return Client.builder()
+        .userId(clientRegistrationDTO.getUserId())
         .clientId(clientID.getValue())
-        .friendlyName(clientRegistrationRequestDTO.getClientName())
+        .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
         .authLevel(AuthLevel.authLevelFromValue(
-            clientRegistrationRequestDTO.getDefaultAcrValues().stream().findFirst()
+            clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
                 .orElseThrow(ClientRegistrationServiceException::new)))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .attributeIndex(maxAttributeIndex + 1)
         .isActive(true)
         .clientIdIssuedAt(clientIdIssuedAt)
-        .logoUri(clientRegistrationRequestDTO.getLogoUri())
-        .policyUri(clientRegistrationRequestDTO.getPolicyUri())
-        .tosUri(clientRegistrationRequestDTO.getTosUri())
-        .a11yUri(clientRegistrationRequestDTO.getA11yUri())
-        .backButtonEnabled(clientRegistrationRequestDTO.isBackButtonEnabled())
-        .localizedContentMap(clientRegistrationRequestDTO.getLocalizedContentMap())
-        .spidMinors(clientRegistrationRequestDTO.isSpidMinors())
-        .spidProfessionals(clientRegistrationRequestDTO.isSpidProfessionals())
-        .pairwise(clientRegistrationRequestDTO.isPairwise())
+        .logoUri(clientRegistrationDTO.getLogoUri())
+        .policyUri(clientRegistrationDTO.getPolicyUri())
+        .tosUri(clientRegistrationDTO.getTosUri())
+        .a11yUri(clientRegistrationDTO.getA11yUri())
+        .backButtonEnabled(clientRegistrationDTO.isBackButtonEnabled())
+        .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
+        .spidMinors(clientRegistrationDTO.isSpidMinors())
+        .spidProfessionals(clientRegistrationDTO.isSpidProfessionals())
+        .pairwise(clientRegistrationDTO.isPairwise())
         .build();
   }
 
-  public static ClientMetadataDTO convertClientToClientMetadataDTO(Client client) {
+  public static ClientRegistrationDTO convertClientToClientRegistrationDTO(Client client) {
     Set<Identifier> samlRequestedAttributes = client
         .getRequestedParameters()
         .stream()
         .map(Identifier::valueOf)
         .collect(Collectors.toSet());
 
-    return ClientMetadataDTO.builder()
-        .redirectUris(client
-            .getCallbackURI())
+    return ClientRegistrationDTO.builder()
+        .userId(client.getUserId())
+        .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
-        .logoUri(Optional.ofNullable(client.getLogoUri()).orElse(""))
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
         .samlRequestedAttributes(samlRequestedAttributes)
-        .policyUri(client.getPolicyUri())
+        .requiredSameIdp(client.isRequiredSameIdp())
+        .spidMinors(client.isSpidMinors())
+        .spidProfessionals(client.isSpidProfessionals())
+        .pairwise(client.isPairwise())
         .tosUri(client.getTosUri())
+        .logoUri(Optional.ofNullable(client.getLogoUri()).orElse(""))
+        .policyUri(client.getPolicyUri())
+        .a11yUri(client.getA11yUri())
+        .backButtonEnabled(client.isBackButtonEnabled())
+        .localizedContentMap(client.getLocalizedContentMap())
         .build();
 
   }
