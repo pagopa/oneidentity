@@ -34,6 +34,9 @@ public class Client {
   private String userId;
 
   @NotNull
+  private String userId;
+
+  @NotNull
   private String friendlyName;
 
   @NotNull
