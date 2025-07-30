@@ -50,6 +50,7 @@ const SamlAttributeValueFields = ({
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
+  const userId = user?.profile.sub;
   const navigate = useNavigate();
   const location = useLocation();
   const userToEdit = location.state?.userToEdit as IdpUser | undefined;
@@ -140,8 +141,12 @@ export const AddOrUpdateUser = () => {
         username: formData.username as string,
       });
     } else {
+      if (!userId) {
+        console.error('Missing user_id');
+        return;
+      }
       createClientUsersMutation({
-        data: formData as IdpUser,
+        data: { ...(formData as IdpUser), user_id: userId },
       });
     }
   };
