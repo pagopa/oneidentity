@@ -54,6 +54,8 @@ public class ClientRegistrationController {
 
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
         clientRegistrationDTOInput);
+    Log.info(
+        "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientID());
 
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
@@ -73,7 +75,7 @@ public class ClientRegistrationController {
     }
 
     Log.info("end");
-    return Response.ok(clientRegistrationResponseDTO).status(Status.CREATED).build();
+    return Response.status(Status.CREATED).entity(clientRegistrationResponseDTO).build();
 
   }
 
@@ -95,7 +97,7 @@ public class ClientRegistrationController {
         clientId, clientRegistrationDTOInput.getUserId());
 
     Log.info("end");
-    return Response.ok(clientRegistrationDTOresponse).status(Status.OK).build();
+    return Response.ok(clientRegistrationDTOresponse).build();
   }
 
   @PUT
@@ -136,7 +138,7 @@ public class ClientRegistrationController {
     }
     Log.info("end");
 
-    return Response.ok().status(Status.NO_CONTENT).build();
+    return Response.noContent().build();
   }
 
 
