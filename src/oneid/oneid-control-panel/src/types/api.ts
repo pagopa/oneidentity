@@ -120,15 +120,15 @@ export const idpUserCreateOrUpdateResponseSchema = z.object({
   message: z.string(),
 });
 export const idpUserSchema = z.object({
-  username: z.string().url().optional().nullable(),
-  password: z.string().url().optional().nullable(),
-  samlAttributes: z.record(SamlAttributeSchema, z.string()),
+  username: z.string().trim().min(1),
+  password: z.string().trim().min(1),
+  samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
 });
 export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),
 });
 export const addIdpUserSchema = idpUserSchema.extend({
-  user_id: z.string().url().optional().nullable(),
+  user_id: z.string().optional().nullable(),
 });
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);

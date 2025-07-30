@@ -10,14 +10,43 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
+import {
+  SamlAttribute,
+  IdpUser,
+  UserErrors,
+  idpUserSchema,
+} from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
-import { every, fromPairs } from 'lodash';
+import { fromPairs } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
 import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+
+const SamlAttributeValueFields = ({
+  attributes,
+  onChange,
+}: {
+  attributes: Array<[string, string]>;
+  onChange: (attribute: string, value: string) => void;
+}) => {
+  return (
+    <Box sx={{ mt: '8px' }}>
+      {attributes.map(([attribute, value]) => (
+        <TextField
+          sx={{ mt: '16px', mb: '8px' }}
+          key={attribute}
+          label={`Value for ${attribute}`}
+          value={value}
+          onChange={(e) => onChange(attribute, e.target.value)}
+          margin="dense"
+          fullWidth
+        />
+      ))}
+    </Box>
+  );
+};
 
 export const AddOrUpdateUser = () => {
   const { user } = useAuth();
@@ -97,14 +126,7 @@ export const AddOrUpdateUser = () => {
     }
   }, [isUserCreated, isUserUpdated, navigate]);
 
-  const isFormValid = () => {
-    return (
-      !!formData?.username &&
-      !!formData?.password &&
-      !!formData?.samlAttributes &&
-      every(formData.samlAttributes, (v) => v?.trim() !== '')
-    );
-  };
+  const isFormValid = () => idpUserSchema.safeParse(formData).success;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,30 +234,18 @@ export const AddOrUpdateUser = () => {
           }}
           errorHelperText={(errorUi as UserErrors)?.samlAttributes?._errors}
         >
-          <Box sx={{ mt: '8px' }}>
-            {Object.entries(formData?.samlAttributes || {}).map(
-              ([attribute, value]) => (
-                <TextField
-                  sx={{ mt: '16px', mb: '8px' }}
-                  key={attribute}
-                  label={`Value for ${attribute}`}
-                  value={value}
-                  onChange={(e) => {
-                    const newValue = e.target.value;
-                    setFormData((prev) => ({
-                      ...prev,
-                      samlAttributes: {
-                        ...(prev?.samlAttributes || {}),
-                        [attribute]: newValue,
-                      },
-                    }));
-                  }}
-                  margin="dense"
-                  fullWidth
-                />
-              )
-            )}
-          </Box>
+          <SamlAttributeValueFields
+            attributes={Object.entries(formData?.samlAttributes || {})}
+            onChange={(attribute, value) => {
+              setFormData((prev) => ({
+                ...prev,
+                samlAttributes: {
+                  ...(prev?.samlAttributes || {}),
+                  [attribute]: value,
+                },
+              }));
+            }}
+          />
         </SamlAttributesSelectInput>
 
         <Button
