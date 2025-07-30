@@ -10,11 +10,7 @@ import {
   Box,
   Typography,
   Paper,
-  TextField,
   TablePagination,
-  InputAdornment,
-  Stack,
-  MenuItem,
   TableSortLabel,
 } from '@mui/material';
 import {
@@ -22,13 +18,12 @@ import {
   KeyboardArrowUp,
   Delete,
   Edit,
-  Search,
-  Clear,
 } from '@mui/icons-material';
 import { Fragment, useState } from 'react';
 import { IdpUser } from '../types/api';
 import { isEmpty, map, sortBy } from 'lodash';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import TableFilters from './TableFilters';
 
 type Props = {
   users: Array<IdpUser>;
@@ -38,12 +33,13 @@ type Props = {
 
 const UserTable = ({ users, onDelete, onEdit }: Props) => {
   const [openRows, setOpenRows] = useState<Record<string, boolean>>({});
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
-  const orderFields = ['username', 'password'];
-  type OrderField = 'username' | 'password';
+  const [searchTerm, setSearchTerm] = useState('');
+
+  type OrderField = keyof Pick<IdpUser, 'username' | 'password'>;
+  const orderFields = ['username', 'password'] as Array<OrderField>;
   const [orderBy, setOrderBy] = useState<OrderField>('username');
 
   const [visiblePasswords, setVisiblePasswords] = useState<
@@ -84,48 +80,14 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
         <Typography variant="h6" gutterBottom mb={5}>
           User list
         </Typography>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <TextField
-            select
-            sx={{ flex: 1 }}
-            label="Order by"
-            value={orderBy}
-            onChange={(e) => setOrderBy(e.target.value as OrderField)}
-          >
-            {orderFields.map((field) => (
-              <MenuItem key={field} value={field}>
-                {field.charAt(0).toUpperCase() + field.slice(1)}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            sx={{ flex: 1 }}
-            id="outlined-basic"
-            label={'Username'}
-            variant="outlined"
-            placeholder={'Search...'}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search />
-                </InputAdornment>
-              ),
-              endAdornment: searchTerm && (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    onClick={() => setSearchTerm('')}
-                    edge="end"
-                  >
-                    <Clear fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
+        <TableFilters<OrderField>
+          search={{ value: searchTerm, onChange: setSearchTerm }}
+          order={{
+            value: orderBy,
+            onChange: setOrderBy,
+            options: orderFields,
+          }}
+        />
       </Box>
       <TableContainer>
         <Table sx={{ minWidth: 500, overflowX: 'auto' }}>
