@@ -29,6 +29,10 @@ public class Client {
   @NotNull
   private String clientId;
 
+  //TODO remove the comment below when all is ready, to activate the check
+  //@NotNull
+  private String userId;
+
   @NotNull
   private String friendlyName;
 

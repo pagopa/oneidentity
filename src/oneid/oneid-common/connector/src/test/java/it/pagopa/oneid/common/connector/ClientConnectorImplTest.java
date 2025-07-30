@@ -1,11 +1,13 @@
 package it.pagopa.oneid.common.connector;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.inject.Inject;
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.platform.commons.util.CollectionUtils;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @QuarkusTest
@@ -101,7 +104,7 @@ class ClientConnectorImplTest {
     String tosURi = "test";
     boolean isRequiredSameIdp = false;
 
-    ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
+    ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
         requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
         clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
     );
@@ -133,7 +136,7 @@ class ClientConnectorImplTest {
       String tosURi = "test";
       boolean isRequiredSameIdp = false;
 
-      ClientExtended clientExtended = new ClientExtended(clientId, friendlyName, callbackURI,
+      ClientExtended clientExtended = new ClientExtended(clientId, "", friendlyName, callbackURI,
           requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
           clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null
       );
@@ -157,6 +160,28 @@ class ClientConnectorImplTest {
     void getClientById() {
       //then
       assertFalse(clientConnectorImpl.getClientById("test").isEmpty());
+    }
+
+    @Test
+    void updateClientSecretSalt_updatesFields() {
+      // given
+      String clientId = "test";
+      String newSalt = "newSaltValue";
+      String newSecret = "newSecretValue";
+      Client client = clientConnectorImpl.getClientById(clientId).get();
+
+      // when
+      clientConnectorImpl.updateClientSecretSalt(client, newSalt, newSecret);
+
+      // then
+      ClientExtended updated = clientConnectorImpl.getClientSecret(clientId)
+          .map(secretDTO -> clientExtendedMapper.getItem(
+              Key.builder().partitionValue(clientId)
+                  .build()))
+          .orElse(null);
+      assert updated != null;
+      assertEquals(newSalt, updated.getSalt());
+      assertEquals(newSecret, updated.getSecret());
     }
   }
 }

@@ -56,20 +56,6 @@ class ClientRegistrationControllerTest {
   @Test
   void register_differentContentType() {
 
-    // given
-    ClientRegistrationRequestDTO clientRegistrationRequestDTO = ClientRegistrationRequestDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
-        .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
-        .build();
-
-    ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
-    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
-
     given()
         .contentType("application/xml") // Testing wrong content-type
         .when()
@@ -90,6 +76,23 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", "test")
         .when()
         .get("/register/{client_id}")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
+  void refreshClientSecret() {
+    String clientId = "testClientId";
+    String userId = "testUserId";
+    Mockito.when(clientRegistrationServiceImpl.refreshClientSecret(clientId, userId))
+        .thenReturn("NewSecret");
+
+    given()
+        .contentType("application/json")
+        .pathParam("client_id", clientId)
+        .body("{\"userId\": \"" + userId + "\"}")
+        .when()
+        .post("/clients/{client_id}/secret/refresh")
         .then()
         .statusCode(200);
   }
