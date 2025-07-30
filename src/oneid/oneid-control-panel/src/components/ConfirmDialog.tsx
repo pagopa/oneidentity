@@ -36,11 +36,11 @@ const ConfirmDialog = ({
         <Button
           onClick={onCancel}
           color="primary"
-          sx={{
+          sx={(theme) => ({
             '&:hover': {
-              backgroundColor: 'rgba(25, 118, 210, 0.08) !important',
+              backgroundColor: `${theme.palette.primary.dark}1A !important`,
             },
-          }}
+          })}
         >
           {cancelText}
         </Button>
@@ -48,12 +48,12 @@ const ConfirmDialog = ({
           onClick={onConfirm}
           color="error"
           autoFocus
-          sx={{
+          sx={(theme) => ({
             '&:hover': {
-              color: '#D85757 !important',
-              backgroundColor: 'rgba(216, 87, 87, 0.1) !important',
+              color: `${theme.palette.error.dark} !important`,
+              backgroundColor: `${theme.palette.error.dark}1A !important`,
             },
-          }}
+          })}
         >
           {confirmText}
         </Button>

@@ -127,8 +127,8 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
           />
         </Stack>
       </Box>
-      <TableContainer sx={{ overflowX: 'auto' }}>
-        <Table sx={{ minWidth: 500 }}>
+      <TableContainer>
+        <Table sx={{ minWidth: 500, overflowX: 'auto' }}>
           <TableHead>
             <TableRow>
               <TableCell />
@@ -150,7 +150,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                   Password
                 </TableSortLabel>
               </TableCell>
-              <TableCell align="right"></TableCell>
+              <TableCell align="right" sx={{ width: 125 }}></TableCell>
             </TableRow>
           </TableHead>
 
@@ -208,12 +208,12 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                         </IconButton>
                         <IconButton
                           onClick={() => onDelete(key)}
-                          sx={{
+                          sx={(theme) => ({
                             color: 'error.main',
                             '&:hover': {
-                              backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                              backgroundColor: `${theme.palette.error.main}1A !important`,
                             },
-                          }}
+                          })}
                         >
                           <Delete />
                         </IconButton>
