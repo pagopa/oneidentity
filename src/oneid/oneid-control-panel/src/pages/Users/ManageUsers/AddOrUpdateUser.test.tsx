@@ -10,7 +10,7 @@ import { PropsWithChildren } from 'react';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
-    user: { profile: { email: 'test@example.com' } },
+    user: { profile: { email: 'test@example.com', sub: 'mocked_user_id' } },
     isAuthenticated: true,
   }),
 }));
@@ -119,6 +119,7 @@ describe('AddOrUpdateUser', () => {
           username: 'newuser',
           password: 'password123',
           samlAttributes: { name: 'name' },
+          user_id: 'mocked_user_id',
         },
       });
     });
