@@ -510,6 +510,104 @@
         ],
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       },
+      "put": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "This endpoint updates the fields of a Client",
+        "operationId": "Put_client_registration_client_additional",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "204": {
+              "statusCode": "204",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientRegistration"
+              }
+            }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/responseOkNoContentJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
+      },
       "options": {
         "parameters": [
           {
@@ -2187,6 +2285,25 @@
   },
   "components": {
     "responses": {
+      "responseOkNoContentJson": {
+        "description": "Response Ok, No Content",
+        "headers": {
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "auth302": {
         "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received.",
         "headers": {
@@ -2795,6 +2912,10 @@
       "ClientRegistration": {
         "type": "object",
         "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The userId of the cognito user"
+          },
           "redirectUris": {
             "type": "array",
             "items": {
@@ -2889,6 +3010,10 @@
       "ClientRegistrationResponse": {
         "type": "object",
         "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The userId of the cognito user"
+          },
           "redirectUris": {
             "type": "array",
             "items": {
