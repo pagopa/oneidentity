@@ -11,6 +11,7 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -42,9 +43,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         CustomURIUtils.validateURI(redirectUri);
         RedirectURIValidator.ensureLegal(URI.create(redirectUri));
       } catch (IllegalArgumentException ex) {
-        throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
+        throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_URI);
       } catch (NullPointerException ex) {
-        throw new InvalidUriException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
+        throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
       }
     }
 
@@ -103,6 +104,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 2. Convert ClientRegistrationRequestDto -> Client and sets attributeIndex as the next available index after the max one
     Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         maxAttributeIndex + 1);
+    Log.debugf("Client converted from ClientRegistrationDTO: %s", client.getClientId());
 
     // 3. Client.Secret & Salt
 
@@ -114,6 +116,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 5. Save on Dynamo
     clientConnector.saveClientIfNotExists(clientExtended);
+    Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
     // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
@@ -163,7 +166,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // Check if the userId matches the client userId on db
     if (!StringUtils.equals(userId, client.getUserId())) {
-      throw new ClientNotFoundException();
+      Log.errorf("UserId %s does not match client userId %s for clientId %s",
+          userId, client.getUserId(), clientId);
+      throw new UserIdMismatchException();
     }
     return convertClientToClientRegistrationDTO(client);
   }

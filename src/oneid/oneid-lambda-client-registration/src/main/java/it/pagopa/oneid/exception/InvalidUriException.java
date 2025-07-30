@@ -13,7 +13,7 @@ public class InvalidUriException extends RuntimeException {
   public InvalidUriException(
       String message) {
     super();
-    this.clientRegistrationErrorCode = ClientRegistrationErrorCode.INVALID_CLIENT_METADATA;
+    this.clientRegistrationErrorCode = ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
     this.message = message;
   }
 

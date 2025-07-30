@@ -14,7 +14,7 @@ public class CustomURIUtils {
 
   public static void validateURI(String uriString) {
     if (StringUtils.isBlank(uriString)) {
-      throw new InvalidUriException(ClientRegistrationErrorCode.REDIRECT_URI_NULL);
+      throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
     }
     try {
       URI uri = new URI(uriString);
@@ -29,7 +29,7 @@ public class CustomURIUtils {
         throw new URISyntaxException(uriString, "Domain not valid");
       }
     } catch (URISyntaxException e) {
-      throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_REDIRECT_URI);
+      throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_URI);
     }
   }
 

@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -88,9 +89,9 @@ public class ExceptionMapper {
       Log.error(validationException.getMessage());
       throw validationException;
     }
-    String message = ClientRegistrationErrorCode.INVALID_CLIENT_METADATA.getErrorMessage();
+    String message = ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION.getErrorMessage();
     return RestResponse.status(BAD_REQUEST,
-        buildClientRegistrationErrorDTO(ClientRegistrationErrorCode.INVALID_CLIENT_METADATA,
+        buildClientRegistrationErrorDTO(ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION,
             message));
   }
 
@@ -100,8 +101,8 @@ public class ExceptionMapper {
     Log.error(ExceptionUtils.getStackTrace(badRequestException));
     return RestResponse.status(BAD_REQUEST,
         buildClientRegistrationErrorDTO(
-            ClientRegistrationErrorCode.INVALID_CLIENT_METADATA,
-            ClientRegistrationErrorCode.INVALID_CLIENT_METADATA.getErrorMessage()));
+            ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION,
+            ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION.getErrorMessage()));
   }
 
   @ServerExceptionMapper
@@ -115,13 +116,21 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapUserIdMismatchException(
+      UserIdMismatchException userIdMismatchException) {
+    Log.error(ExceptionUtils.getStackTrace(userIdMismatchException));
+    Response.Status status = BAD_REQUEST;
+    String message = "Error during Service execution";
+    return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(
       RefreshSecretException refreshSecretException) {
     Log.error(ExceptionUtils.getStackTrace(refreshSecretException));
     return RestResponse.status(BAD_REQUEST,
         buildErrorResponse(BAD_REQUEST, refreshSecretException.getMessage()));
   }
-
 
   private ErrorResponse buildErrorResponse(Response.Status status, String message) {
     return ErrorResponse.builder()
