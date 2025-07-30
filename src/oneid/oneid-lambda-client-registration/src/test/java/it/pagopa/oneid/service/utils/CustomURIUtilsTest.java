@@ -15,7 +15,7 @@ class CustomURIUtilsTest {
   void testValidateURI_WithNullUri() {
     Exception exception = assertThrows(InvalidUriException.class,
         () -> CustomURIUtils.validateURI(null));
-    assertEquals(ClientRegistrationErrorCode.REDIRECT_URI_NULL.getErrorMessage(),
+    assertEquals(ClientRegistrationErrorCode.EMPTY_URI.getErrorMessage(),
         exception.getMessage());
   }
 
@@ -23,7 +23,7 @@ class CustomURIUtilsTest {
   void testValidateURI_WithEmptyUri() {
     Exception exception = assertThrows(InvalidUriException.class,
         () -> CustomURIUtils.validateURI(""));
-    assertEquals(ClientRegistrationErrorCode.REDIRECT_URI_NULL.getErrorMessage(),
+    assertEquals(ClientRegistrationErrorCode.EMPTY_URI.getErrorMessage(),
         exception.getMessage());
   }
 
@@ -31,7 +31,7 @@ class CustomURIUtilsTest {
   void testValidateURI_WithInvalidScheme() {
     Exception exception = assertThrows(InvalidUriException.class,
         () -> CustomURIUtils.validateURI("ftp://example.com"));
-    assertEquals(ClientRegistrationErrorCode.INVALID_REDIRECT_URI.getErrorMessage(),
+    assertEquals(ClientRegistrationErrorCode.INVALID_URI.getErrorMessage(),
         exception.getMessage());
   }
 
@@ -39,7 +39,7 @@ class CustomURIUtilsTest {
   void testValidateURI_WithInvalidDomain() {
     Exception exception = assertThrows(InvalidUriException.class,
         () -> CustomURIUtils.validateURI("http://invalid_domain"));
-    assertEquals(ClientRegistrationErrorCode.INVALID_REDIRECT_URI.getErrorMessage(),
+    assertEquals(ClientRegistrationErrorCode.INVALID_URI.getErrorMessage(),
         exception.getMessage());
   }
 
