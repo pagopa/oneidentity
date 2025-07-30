@@ -195,6 +195,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                       </TableCell>
                       <TableCell align="right">
                         <IconButton
+                          aria-label={`update ${user.username}`}
                           onClick={() => onEdit(user)}
                           color="inherit"
                           sx={{
@@ -207,6 +208,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                           <Edit />
                         </IconButton>
                         <IconButton
+                          aria-label={`delete ${user.username}`}
                           onClick={() => onDelete(key)}
                           sx={{
                             color: 'error.main',

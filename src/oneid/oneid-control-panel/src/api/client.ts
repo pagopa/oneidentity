@@ -14,6 +14,8 @@ const api = axios.create({
   },
 });
 
+const userIdMessage = 'User ID is required';
+
 export const setClientToUser = async (
   clientId: string | undefined,
   userId: string | undefined,
@@ -50,7 +52,7 @@ export const getAdditionalClientAttributes = async (
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_ADDITIONAL;
 
   if (!userId) {
-    throw new Error('User ID is required');
+    throw new Error(userIdMessage);
   }
   // mock: no additional attributes
   // return Promise.resolve({
@@ -109,7 +111,7 @@ export const setAdditionalClientAttributes = async (
     return Promise.reject(errors.error.format());
   }
   if (!userId) {
-    throw new Error('User ID is required');
+    throw new Error(userIdMessage);
   }
   // mock:
   // return Promise.resolve(data);
@@ -132,7 +134,7 @@ export const getClientUsers = async (
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId) {
-    throw new Error('User ID is required');
+    throw new Error(userIdMessage);
   }
   try {
     const response = await api.get<IdpUserList>(`${ENDPOINT}/${userId}`, {
@@ -154,7 +156,7 @@ export const deleteClientUser = async (
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId || !username) {
-    throw new Error('User ID is required');
+    throw new Error(userIdMessage);
   }
   try {
     await api.delete<string>(`${ENDPOINT}/${userId}/${username}`, {
@@ -176,7 +178,7 @@ export const updateClientUser = async (
   const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
 
   if (!userId || !username) {
-    throw new Error('User ID is required');
+    throw new Error(userIdMessage);
   }
   try {
     const response = await api.put<IdpUserCreateOrUpdateResponse>(
