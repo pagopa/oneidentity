@@ -128,7 +128,7 @@ export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),
 });
 export const addIdpUserSchema = idpUserSchema.extend({
-  user_id: z.string().optional().nullable(),
+  user_id: z.string(),
 });
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);

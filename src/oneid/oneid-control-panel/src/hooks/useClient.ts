@@ -65,6 +65,9 @@ export const useClient = () => {
       console.error('Error creating idp user:', error);
     },
     mutationFn: async ({ data }: { data: AddIdpUser }) => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
       const newUser = { ...data, user_id: userId };
       return addClientUser(newUser, token);
     },
