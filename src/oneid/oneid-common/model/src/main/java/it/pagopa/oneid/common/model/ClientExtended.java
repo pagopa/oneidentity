@@ -28,14 +28,14 @@ public class ClientExtended extends Client {
   @NotNull
   private String salt;
 
-  public ClientExtended(@NotNull String clientId, @NotNull String friendlyName,
+  public ClientExtended(@NotNull String clientId, String userId, @NotNull String friendlyName,
       @NotNull Set<String> callbackURI,
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap) {
-    super(clientId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
+    super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
         attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
         a11yUri, backButtonEnabled, localizedContentMap);
     this.secret = secret;
@@ -43,7 +43,8 @@ public class ClientExtended extends Client {
   }
 
   public ClientExtended(Client client, String secret, String salt) {
-    super(client.getClientId(), client.getFriendlyName(), client.getCallbackURI(),
+    super(client.getClientId(), client.getUserId(), client.getFriendlyName(),
+        client.getCallbackURI(),
         client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),

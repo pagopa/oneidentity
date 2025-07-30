@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import io.quarkus.test.InjectMock;
@@ -10,6 +11,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
@@ -177,5 +179,45 @@ class ClientRegistrationServiceImplTest {
     assertNotNull(clientRegistrationServiceImpl.getClientMetadataDTO(clientID));
   }
 
+  @Test
+  void refreshClientSecret_success() {
+    String clientId = "client-abc";
+    String userId = "user-123";
+    Client mockClient = Mockito.mock(Client.class);
 
+    Mockito.when(mockClient.getUserId()).thenReturn(userId);
+    Mockito.when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(mockClient));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+  }
+
+
+  @Test
+  void refreshClientSecret_noClientFound() {
+    String clientId = "client-abc";
+    String userId = "user-123";
+
+    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.empty());
+    RefreshSecretException exception = assertThrows(RefreshSecretException.class,
+        () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+    assertNotNull(exception.getMessage());
+    assertEquals("No client found for the clientId associated to this user",
+        exception.getMessage());
+  }
+
+  @Test
+  void refreshClientSecret_userIdMismatch() {
+    String clientId = "client-abc";
+    String userId = "user-123";
+
+    Client mockClient = Mockito.mock(Client.class);
+    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(mockClient));
+
+    RefreshSecretException exception = assertThrows(RefreshSecretException.class,
+        () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+    assertNotNull(exception.getMessage());
+    assertEquals("User ID mismatch",
+        exception.getMessage());
+  }
 }

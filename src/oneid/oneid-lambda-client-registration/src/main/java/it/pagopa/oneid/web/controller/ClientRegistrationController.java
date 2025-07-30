@@ -5,6 +5,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -16,6 +17,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -41,7 +44,7 @@ public class ClientRegistrationController {
   public Response register(
       @Valid ClientRegistrationRequestDTO clientRegistrationRequestDTO) {
     Log.info("start");
-    
+
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationRequestDTO);
 
     Log.info("client info validated successfully");
@@ -80,4 +83,16 @@ public class ClientRegistrationController {
         clientId)).build();
   }
 
+  @POST
+  @Path("/clients/{client_id}/secret/refresh")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response refreshClientSecret(
+      @PathParam("client_id") String clientId, RefreshTokenRequestDTO refreshTokenRequestDTO) {
+    String secret = clientRegistrationService.refreshClientSecret(
+        clientId, refreshTokenRequestDTO.getUserId());
+    Map<String, String> response = new HashMap<>();
+    response.put("newClientSecret", secret);
+    return Response.ok(response).build();
+  }
 }

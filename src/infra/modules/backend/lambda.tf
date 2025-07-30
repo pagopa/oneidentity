@@ -89,6 +89,7 @@ data "aws_iam_policy_document" "client_registration_lambda" {
     actions = [
       "dynamodb:GetItem",
       "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
       "dynamodb:Scan"
     ]
     resources = [
