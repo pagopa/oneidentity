@@ -119,7 +119,7 @@ public class ClientRegistrationController {
     Log.info("client exists for clientId: " + clientId);
 
     //3. Update client infos
-    clientRegistrationService.updateClient(
+    clientRegistrationService.updateClientRegistrationDTO(
         clientRegistrationDTOInput);
     Log.info("client updated successfully for userId: " + clientId);
 
