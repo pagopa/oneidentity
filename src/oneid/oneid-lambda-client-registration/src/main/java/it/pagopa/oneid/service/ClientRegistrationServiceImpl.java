@@ -11,8 +11,8 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
-import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -174,7 +174,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public void updateClient(
+  public void updateClientRegistrationDTO(
       ClientRegistrationDTO clientRegistrationDTO) {
     Client client = ClientUtils.convertClientRegistrationDTOToClient(
         clientRegistrationDTO, -1);

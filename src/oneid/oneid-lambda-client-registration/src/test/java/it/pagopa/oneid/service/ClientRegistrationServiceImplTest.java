@@ -11,8 +11,8 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.exception.InvalidUriException;
-import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -256,7 +256,7 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClient(
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
         clientRegistrationDTO));
   }
 

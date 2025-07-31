@@ -12,7 +12,7 @@ public interface ClientRegistrationService {
 
   ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId);
 
-  void updateClient(ClientRegistrationDTO clientRegistrationDTO);
+  void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO);
 
   String refreshClientSecret(String clientId, String userId);
 
