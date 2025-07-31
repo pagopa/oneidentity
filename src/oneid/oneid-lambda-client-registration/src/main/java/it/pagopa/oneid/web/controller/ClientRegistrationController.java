@@ -80,21 +80,16 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register/{client_id}")
+  @Path("/register/{client_id}/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getClientInfoByClientId(
       @PathParam("client_id") String clientId,
-      @Valid @ConvertGroup(to = ValidationGroups.GetClient.class) ClientRegistrationDTO clientRegistrationDTOInput) {
+      @PathParam("user_id") String userId) {
     Log.info("start");
 
-    //1. Validate client infos
-    clientRegistrationService.validateClientRegistrationInfo(
-        clientRegistrationDTOInput);
-    Log.info("client info validated successfully");
-
-    //2. Verify if client exists and if so retrieves it from db
+    //1. Verify if client exists and if so retrieves it from db
     ClientRegistrationDTO clientRegistrationDTOresponse = clientRegistrationService.getClientRegistrationDTO(
-        clientId, clientRegistrationDTOInput.getUserId());
+        clientId, userId);
 
     Log.info("end");
     return Response.ok(clientRegistrationDTOresponse).build();
