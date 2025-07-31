@@ -152,6 +152,20 @@ public class ClientRegistrationController {
         clientId, refreshTokenRequestDTO.getUserId());
     Map<String, String> response = new HashMap<>();
     response.put("newClientSecret", secret);
+
+    String message =
+        "Client ID: " + clientId + "\n";
+    
+    String subject =
+        "Client Secret refreshed in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+    try {
+      sns.publish(p ->
+          p.topicArn(topicArn).subject(subject).message(message));
+    } catch (Exception e) {
+      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+          "Failed to send SNS notification: ", e);
+    }
+
     return Response.ok(response).build();
   }
 }
