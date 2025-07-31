@@ -413,103 +413,6 @@
       }
     },
     "/oidc/register/{client_id}": {
-      "get": {
-        "tags": [
-          "Authorization Server APIs"
-        ],
-        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
-        "operationId": "Get_oidc_register_config",
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          },
-          "cacheKeyParameters": [
-            "method.request.path.client_id"
-          ]
-        },
-        "parameters": [
-          {
-            "in": "path",
-            "name": "client_id",
-            "description": "client_id that was returned in the client registration response",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response including details about the client registration. Additional details may also be included",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientRegistration"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ],
-        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
-      },
       "put": {
         "tags": [
           "Authorization Server APIs"
@@ -660,6 +563,115 @@
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "mock"
         }
+      }
+    },
+    "/oidc/register/{client_id}/{user_id}": {
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
+        "operationId": "Get_oidc_register_config",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.client_id",
+            "method.request.path.user_id"
+          ]
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "description": "the user_id of the cognito user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response including details about the client registration. Additional details may also be included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientRegistration"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ],
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
     "oidc/clients/{client_id}/secret/refresh": {
