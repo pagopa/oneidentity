@@ -102,5 +102,5 @@ src/oneid/oneid-ecs-core/.quinoa
 src/oneid/docker_mock/.env
 
 # Dependency directories
-node_modules/
+node_modules/*
 step.txt
