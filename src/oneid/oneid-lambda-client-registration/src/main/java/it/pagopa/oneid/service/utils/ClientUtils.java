@@ -74,7 +74,7 @@ public class ClientUtils {
         .spidProfessionals(client.isSpidProfessionals())
         .pairwise(client.isPairwise())
         .tosUri(client.getTosUri())
-        .logoUri(Optional.ofNullable(client.getLogoUri()).orElse(""))
+        .logoUri(client.getLogoUri())
         .policyUri(client.getPolicyUri())
         .a11yUri(client.getA11yUri())
         .backButtonEnabled(client.isBackButtonEnabled())
