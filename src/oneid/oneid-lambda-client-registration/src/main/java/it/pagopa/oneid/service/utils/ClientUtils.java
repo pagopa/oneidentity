@@ -26,11 +26,9 @@ public class ClientUtils {
     }
   }
 
-  public static Client convertClientRegistrationDTOToClient(String clientID,
-      ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {
+  public static Client convertClientRegistrationDTOToClient(
+      ClientRegistrationDTO clientRegistrationDTO) {
     Log.debug("start");
-
-    long clientIdIssuedAt = System.currentTimeMillis();
 
     Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes()
         .stream()
@@ -39,9 +37,9 @@ public class ClientUtils {
 
     Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
 
+    //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
         .userId(clientRegistrationDTO.getUserId())
-        .clientId(clientID)
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
@@ -49,9 +47,7 @@ public class ClientUtils {
             clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
                 .orElseThrow(ClientRegistrationServiceException::new)))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
-        .attributeIndex(attributeIndex)
         .isActive(true)
-        .clientIdIssuedAt(clientIdIssuedAt)
         .logoUri(clientRegistrationDTO.getLogoUri())
         .policyUri(clientRegistrationDTO.getPolicyUri())
         .tosUri(clientRegistrationDTO.getTosUri())

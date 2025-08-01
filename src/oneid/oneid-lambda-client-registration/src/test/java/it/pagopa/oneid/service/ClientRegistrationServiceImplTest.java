@@ -260,8 +260,8 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertDoesNotThrow(
-        () -> clientRegistrationServiceImpl.updateClientRegistrationDTO(new ClientID(32).getValue(),
-            clientRegistrationDTO, 0));
+        () -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
+            clientRegistrationDTO, new ClientID(32).getValue(), 0));
   }
 
   @Test
