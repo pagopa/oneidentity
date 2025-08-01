@@ -191,7 +191,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void getClientRegistrationDTO() {
+  void getClient() {
 
     //given
     String clientID = "test";
@@ -222,7 +222,7 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
         .thenReturn(Optional.of(returnClient));
 
-    assertNotNull(clientRegistrationServiceImpl.getClientRegistrationDTO(clientID, userId));
+    assertNotNull(clientRegistrationServiceImpl.getClient(clientID, userId));
   }
 
   @Test
@@ -261,7 +261,7 @@ class ClientRegistrationServiceImplTest {
 
     assertDoesNotThrow(
         () -> clientRegistrationServiceImpl.updateClientRegistrationDTO(new ClientID(32).getValue(),
-            clientRegistrationDTO));
+            clientRegistrationDTO, 0));
   }
 
   @Test

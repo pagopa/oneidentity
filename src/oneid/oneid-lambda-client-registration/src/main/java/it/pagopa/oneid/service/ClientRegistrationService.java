@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 
@@ -10,9 +11,10 @@ public interface ClientRegistrationService {
   ClientRegistrationResponseDTO saveClient(
       ClientRegistrationDTO clientRegistrationDTO);
 
-  ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId);
+  Client getClient(String clientId, String userId);
 
-  void updateClientRegistrationDTO(String clientID, ClientRegistrationDTO clientRegistrationDTO);
+  void updateClientRegistrationDTO(String clientID, ClientRegistrationDTO clientRegistrationDTO,
+      int attributeIndex);
 
   void patchClientRegistrationDTO(ClientRegistrationDTO source,
       ClientRegistrationDTO target);

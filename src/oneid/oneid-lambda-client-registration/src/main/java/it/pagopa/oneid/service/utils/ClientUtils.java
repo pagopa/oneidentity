@@ -7,13 +7,24 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 @CustomLogging
 public class ClientUtils {
 
+
+  public static void checkUserId(String inputUserId, String existingUserId) {
+    // Check if the userId matches the client userId on db
+    if (!StringUtils.equals(inputUserId, existingUserId)) {
+      Log.errorf("userId in input %s does not match existing userId on db %s",
+          inputUserId, existingUserId);
+      throw new UserIdMismatchException();
+    }
+  }
 
   public static Client convertClientRegistrationDTOToClient(String clientID,
       ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {

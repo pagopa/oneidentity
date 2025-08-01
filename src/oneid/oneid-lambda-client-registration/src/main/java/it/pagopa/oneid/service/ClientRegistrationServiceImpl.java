@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientRegistrationDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
@@ -13,7 +12,6 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
-import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -213,24 +211,17 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public ClientRegistrationDTO getClientRegistrationDTO(String clientId, String userId) {
+  public Client getClient(String clientId, String userId) {
     Client client = clientConnector.getClientById(clientId)
         .orElseThrow(ClientNotFoundException::new);
-
-    // Check if the userId matches the client userId on db
-    if (!StringUtils.equals(userId, client.getUserId())) {
-      Log.errorf("UserId %s does not match client userId %s for clientId %s",
-          userId, client.getUserId(), clientId);
-      throw new UserIdMismatchException();
-    }
-    return convertClientToClientRegistrationDTO(client);
+    return client;
   }
 
   @Override
   public void updateClientRegistrationDTO(String clientID,
-      ClientRegistrationDTO clientRegistrationDTO) {
+      ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {
     Client client = ClientUtils.convertClientRegistrationDTOToClient(clientID,
-        clientRegistrationDTO, -1);
+        clientRegistrationDTO, attributeIndex);
     clientConnector.updateClient(client);
 
   }
