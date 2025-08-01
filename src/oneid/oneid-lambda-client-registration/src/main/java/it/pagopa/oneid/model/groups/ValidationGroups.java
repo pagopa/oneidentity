@@ -8,10 +8,6 @@ public interface ValidationGroups {
 
   }
 
-  interface GetClient extends Default {
-
-  }
-
   interface Registration extends Default {
 
   }
