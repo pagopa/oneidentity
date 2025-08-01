@@ -14,6 +14,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import { People } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATH } from '../utils/constants';
+import { ENV } from '../utils/env';
 
 const drawerWidth = 240;
 
@@ -94,21 +95,25 @@ export default function PersistentDrawerLeft({
           </ListItem>
         )}
       </List>
-      <Divider />
-      <List>
-        <ListItem
-          disablePadding
-          component={Link}
-          to={`${ROUTE_PATH.USER_LIST}`}
-        >
-          <ListItemButton>
-            <ListItemIcon>
-              <People />
-            </ListItemIcon>
-            <ListItemText primary={'Manage Users'} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      {ENV.CURRENT_ENV !== 'prod' && (
+        <>
+          <Divider />
+          <List>
+            <ListItem
+              disablePadding
+              component={Link}
+              to={`${ROUTE_PATH.USER_LIST}`}
+            >
+              <ListItemButton>
+                <ListItemIcon>
+                  <People />
+                </ListItemIcon>
+                <ListItemText primary={'Manage Users'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </>
+      )}
     </Drawer>
   );
 }

@@ -7,6 +7,7 @@ import {
   PrivateGetUsersRoute,
 } from './components/ProtectedRoute';
 import { ROUTE_PATH } from './utils/constants';
+import { ENV } from './utils/env';
 
 const AppRoutes = () => {
   return (
@@ -20,11 +21,18 @@ const AppRoutes = () => {
         path={`${ROUTE_PATH.CUSTOMIZE}/:client_id`}
         element={<PrivateCustomizedRoute />}
       />
-      <Route path={ROUTE_PATH.USER_LIST} element={<PrivateGetUsersRoute />} />
-      <Route
-        path={`${ROUTE_PATH.USER}/:id?`}
-        element={<PrivateAddOrUpdateUsersRoute />}
-      />
+      {ENV.CURRENT_ENV !== 'prod' && (
+        <>
+          <Route
+            path={ROUTE_PATH.USER_LIST}
+            element={<PrivateGetUsersRoute />}
+          />
+          <Route
+            path={`${ROUTE_PATH.USER}/:id?`}
+            element={<PrivateAddOrUpdateUsersRoute />}
+          />
+        </>
+      )}
     </Routes>
   );
 };
