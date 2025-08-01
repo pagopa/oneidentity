@@ -1,7 +1,6 @@
 package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.common.utils.ClientConstants.ACS_INDEX_DEFAULT_VALUE;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
@@ -9,7 +8,6 @@ import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,11 +15,10 @@ import java.util.stream.Collectors;
 public class ClientUtils {
 
 
-  public static Client convertClientRegistrationDTOToClient(
+  public static Client convertClientRegistrationDTOToClient(String clientID,
       ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {
     Log.debug("start");
 
-    ClientID clientID = new ClientID(32); //todo length?
     long clientIdIssuedAt = System.currentTimeMillis();
 
     Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes()
@@ -33,7 +30,7 @@ public class ClientUtils {
 
     return Client.builder()
         .userId(clientRegistrationDTO.getUserId())
-        .clientId(clientID.getValue())
+        .clientId(clientID)
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)

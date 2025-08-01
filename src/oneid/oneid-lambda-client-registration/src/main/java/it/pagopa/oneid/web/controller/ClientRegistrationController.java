@@ -114,7 +114,7 @@ public class ClientRegistrationController {
     Log.info("client exists for clientId: " + clientId);
 
     //3. Update client infos
-    clientRegistrationService.updateClientRegistrationDTO(
+    clientRegistrationService.updateClientRegistrationDTO(clientId,
         clientRegistrationDTOInput);
     Log.info("client updated successfully for userId: " + clientId);
 
@@ -150,7 +150,7 @@ public class ClientRegistrationController {
 
     String message =
         "Client ID: " + clientId + "\n";
-    
+
     String subject =
         "Client Secret refreshed in " + EnvironmentMapping.valueOf(environment).getEnvLong();
     try {

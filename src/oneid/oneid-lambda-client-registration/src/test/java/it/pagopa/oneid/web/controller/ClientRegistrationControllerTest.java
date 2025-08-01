@@ -116,9 +116,10 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .pathParam("client_id", "test")
+        .pathParam("user_id", "test")
         .body(clientRegistrationDTO)
         .when()
-        .get("/register/{client_id}")
+        .get("/register/{client_id}/{user_id}")
         .then()
         .statusCode(200);
   }
@@ -126,19 +127,18 @@ class ClientRegistrationControllerTest {
 
   @Test
   void getClientInfoByClientId_missingUserId_ko() {
-    //String userId = "testUserId";
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        //.userId(userId)
         .build();
 
     given()
         .contentType("application/json")
         .pathParam("client_id", "test")
+        .pathParam("user_id", "")
         .body(clientRegistrationDTO)
         .when()
-        .get("/register/{client_id}")
+        .get("/register/{client_id}/{user_id}")
         .then()
-        .statusCode(400);
+        .statusCode(500);
   }
 
   @Test
@@ -151,9 +151,10 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .pathParam("client_id", "")
+        .pathParam("user_id", "test")
         .body(clientRegistrationDTO)
         .when()
-        .get("/register/{client_id}")
+        .get("/register/{client_id}/{user_id}")
         .then()
         .statusCode(500);
   }

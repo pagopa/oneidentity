@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.service.utils.ClientUtils.convertClientToClientRegistrationDTO;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -102,7 +103,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     int maxAttributeIndex = findMaxAttributeIndex();
 
     // 2. Convert ClientRegistrationRequestDto -> Client and sets attributeIndex as the next available index after the max one
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(new ClientID(32).getValue(),
+        clientRegistrationDTO,
         maxAttributeIndex + 1);
     Log.debugf("Client converted from ClientRegistrationDTO: %s", client.getClientId());
 
@@ -174,9 +176,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public void updateClientRegistrationDTO(
+  public void updateClientRegistrationDTO(String clientID,
       ClientRegistrationDTO clientRegistrationDTO) {
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientID,
         clientRegistrationDTO, -1);
     clientConnector.updateClient(client);
 
