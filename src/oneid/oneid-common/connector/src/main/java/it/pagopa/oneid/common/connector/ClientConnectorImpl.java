@@ -69,7 +69,7 @@ public class ClientConnectorImpl implements ClientConnector {
             .item(client)
             .conditionExpression(
                 Expression.builder().expression(
-                        "attribute_not_exists(clientId) AND attribute_not_exists(userId)")
+                        "attribute_not_exists(clientId)") //TODO: add a condition to avoid overwriting existing userId
                     .build())
             .build());
   }
