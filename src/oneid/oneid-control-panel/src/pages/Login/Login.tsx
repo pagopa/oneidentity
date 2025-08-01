@@ -7,6 +7,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from 'react-oidc-context';
+import { ROUTE_PATH } from '../../utils/constants';
 
 const cognitoCustomAttribute = 'custom:client_id';
 
@@ -28,10 +29,10 @@ export const LoginForm = () => {
         user.profile[cognitoCustomAttribute]
       ) {
         window.location.assign(
-          `/dashboard/${user.profile[cognitoCustomAttribute]}`
+          `${ROUTE_PATH.DASHBOARD}/${user.profile[cognitoCustomAttribute]}`
         );
       } else {
-        window.location.assign('/dashboard');
+        window.location.assign(ROUTE_PATH.DASHBOARD);
       }
     }
   }, [isAuthenticated, user]);

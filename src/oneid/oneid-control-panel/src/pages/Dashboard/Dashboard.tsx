@@ -14,7 +14,7 @@ import {
   Chip,
   FormHelperText,
 } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   SpidLevel,
   SamlAttribute,
@@ -28,6 +28,8 @@ import { Notify } from '../../components/Notify';
 import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
+import { ROUTE_PATH } from '../../utils/constants';
+import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
 
 export const Dashboard = () => {
   const { user } = useAuth();
@@ -148,7 +150,9 @@ export const Dashboard = () => {
   const handleCloseSecretModal = () => {
     // TODO check cognito status before redirecting
     closeModal(() => {
-      window.location.assign(`/dashboard/${clientUpdated?.client_id}`);
+      window.location.assign(
+        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.client_id}`
+      );
     });
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -327,52 +331,18 @@ export const Dashboard = () => {
           </FormHelperText>
         </FormControl>
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          required
-          error={
-            !!(errorUi as ClientErrors)?.saml_requested_attributes?._errors
+        <SamlAttributesSelectInput
+          attributeSelectValues={formData?.saml_requested_attributes}
+          onChangeFunction={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              saml_requested_attributes: e.target.value as Array<SamlAttribute>,
+            }))
           }
-        >
-          <InputLabel id="saml-attributes-label">SAML Attributes</InputLabel>
-          <Select
-            labelId="saml-attributes-label"
-            id="saml-attributes-select"
-            multiple
-            value={formData?.saml_requested_attributes || []}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                saml_requested_attributes: e.target
-                  .value as Array<SamlAttribute>,
-              }))
-            }
-            input={<OutlinedInput label="SAML Attributes" />}
-            data-testid="saml-attributes-select"
-          >
-            {Object.values(SamlAttribute).map((attr) => (
-              <MenuItem key={attr} value={attr}>
-                {attr}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText>
-            {(errorUi as ClientErrors)?.saml_requested_attributes?._errors}
-          </FormHelperText>
-          <FormHelperText>
-            Lista completa:{' '}
-            <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              to={
-                'https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html'
-              }
-            >
-              Qui
-            </Link>
-          </FormHelperText>
-        </FormControl>
+          errorHelperText={
+            (errorUi as ClientErrors)?.saml_requested_attributes?._errors
+          }
+        />
 
         <Button
           type="submit"
