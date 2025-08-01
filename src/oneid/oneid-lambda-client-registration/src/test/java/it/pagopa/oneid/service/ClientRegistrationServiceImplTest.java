@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -256,8 +257,9 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-        clientRegistrationDTO));
+    assertDoesNotThrow(
+        () -> clientRegistrationServiceImpl.updateClientRegistrationDTO(new ClientID(32).getValue(),
+            clientRegistrationDTO));
   }
 
   @Test
