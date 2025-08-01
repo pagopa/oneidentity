@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -11,6 +12,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import java.util.HashMap;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -95,29 +97,26 @@ class ClientRegistrationControllerTest {
 
   @Test
   void getClientInfoByClientId_ok() {
-    String userId = "testUserId";
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId(userId)
-//        .redirectUris(Set.of("http://test.com"))
-//        .clientName("test")
-//        .logoUri("http://test.com")
-//        .policyUri("http://test.com")
-//        .tosUri("http://test.com")
-//        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-//        .samlRequestedAttributes(Set.of(Identifier.name))
-//        .a11yUri("http://test.com")
-//        .backButtonEnabled(false)
-//        .localizedContentMap(new HashMap<>())
-//        .spidMinors(false)
-//        .spidProfessionals(false)
-//        .pairwise(false)
+    Client mockClient = Client.builder()
+        .clientId("client_id")
+        .userId("user_id")
+        .friendlyName("test")
+        .callbackURI(Set.of("http://test.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .clientIdIssuedAt(0)
         .build();
+
+    Mockito.when(
+            clientRegistrationServiceImpl.getClient(Mockito.eq("client_id"), Mockito.eq("user_id")))
+        .thenReturn(mockClient);
 
     given()
         .contentType("application/json")
-        .pathParam("client_id", "test")
-        .pathParam("user_id", "test")
-        .body(clientRegistrationDTO)
+        .pathParam("client_id", "client_id")
+        .pathParam("user_id", "user_id")
         .when()
         .get("/register/{client_id}/{user_id}")
         .then()
@@ -166,10 +165,16 @@ class ClientRegistrationControllerTest {
     String clientId = "testClientId";
     String userId = "testUserId";
 
-    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+    Client existingClient = Client.builder()
+        .clientId("testClientId")
         .userId(userId)
-        .clientName("updatedName")
-        .redirectUris(Set.of("http://updated.com"))
+        .friendlyName("oldName")
+        .callbackURI(Set.of("http://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .clientIdIssuedAt(0)
         .build();
 
     ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
@@ -178,9 +183,15 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("http://old.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientRegistrationDTO(Mockito.eq(clientId),
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        .userId(userId)
+        .clientName("updatedName")
+        .redirectUris(Set.of("http://updated.com"))
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getClient(Mockito.eq(clientId),
             Mockito.eq(userId)))
-        .thenReturn(existingDto);
+        .thenReturn(existingClient);
 
     given()
         .contentType("application/json")
@@ -197,10 +208,16 @@ class ClientRegistrationControllerTest {
     String clientId = "testClientId";
     String userId = "testUserId";
 
-    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        //.userId(userId)
-        .clientName("updatedName")
-        .redirectUris(Set.of("http://updated.com"))
+    Client existingClient = Client.builder()
+        .clientId("testClientId")
+        .userId(userId)
+        .friendlyName("oldName")
+        .callbackURI(Set.of("http://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .clientIdIssuedAt(0)
         .build();
 
     ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
@@ -209,9 +226,17 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("http://old.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientRegistrationDTO(Mockito.eq(clientId),
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        //.userId(userId) // Intentionally missing userId to simulate error
+        .clientName("newName")
+        .redirectUris(Set.of("http://new.com"))
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getClient(Mockito.eq(clientId),
             Mockito.eq(userId)))
-        .thenReturn(existingDto);
+        .thenReturn(existingClient);
+    Assertions.assertDoesNotThrow(
+        () -> clientRegistrationServiceImpl.patchClientRegistrationDTO(existingDto, updatedDto));
 
     given()
         .contentType("application/json")

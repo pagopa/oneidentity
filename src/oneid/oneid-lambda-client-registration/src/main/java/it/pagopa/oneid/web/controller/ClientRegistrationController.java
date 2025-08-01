@@ -1,11 +1,13 @@
 package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.model.groups.ValidationGroups;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -88,8 +90,17 @@ public class ClientRegistrationController {
     Log.info("start");
 
     //1. Verify if client exists and if so retrieves it from db
-    ClientRegistrationDTO clientRegistrationDTOresponse = clientRegistrationService.getClientRegistrationDTO(
+    Client client = clientRegistrationService.getClient(
         clientId, userId);
+    Log.info("client exists for client_id: " + clientId);
+
+    // 2. Check if userId in input matches the client userId on db
+    ClientUtils.checkUserId(userId, client.getUserId());
+    Log.info("user_id in input matches the client user_id on db: " + userId);
+
+    //3. Convert client to ClientRegistrationDTO
+    ClientRegistrationDTO clientRegistrationDTOresponse = ClientUtils.convertClientToClientRegistrationDTO(
+        client);
 
     Log.info("end");
     return Response.ok(clientRegistrationDTOresponse).build();
@@ -108,21 +119,28 @@ public class ClientRegistrationController {
         clientRegistrationDTOInput);
     Log.info("client info validated successfully");
 
-    //2. Verify if client exists and if so retrieves it from db
-    ClientRegistrationDTO clientRegistrationDTO = clientRegistrationService.getClientRegistrationDTO(
+    //2. Retrieves client from db
+    Client client = clientRegistrationService.getClient(
         clientId, clientRegistrationDTOInput.getUserId());
+
+    //3. Check if userId in input matches the client userId on db
+    ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //3. update clientRegistrationDTO with new fields from clientRegistrationDTOInput
+    //4. Convert client to ClientRegistrationDTO
+    ClientRegistrationDTO clientRegistrationDTO =
+        ClientUtils.convertClientToClientRegistrationDTO(client);
+
+    //5. update clientRegistrationDTO with new fields from clientRegistrationDTOInput
     clientRegistrationService.patchClientRegistrationDTO(clientRegistrationDTOInput,
         clientRegistrationDTO);
 
-    //4. Update client infos
+    //6. Update client infos
     clientRegistrationService.updateClientRegistrationDTO(clientId,
-        clientRegistrationDTO);
+        clientRegistrationDTO, client.getAttributeIndex());
     Log.info("client updated successfully for userId: " + clientId);
 
-    //5. Send SNS notification
+    //7. Send SNS notification
     String message =
         "Name: " + clientRegistrationDTO.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
