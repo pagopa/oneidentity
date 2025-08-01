@@ -187,7 +187,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .put("/register/{client_id}")
+        .patch("/register/{client_id}")
         .then()
         .statusCode(204);
   }
@@ -218,7 +218,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .put("/register/{client_id}")
+        .patch("/register/{client_id}")
         .then()
         .statusCode(400); // Bad Request due to missing userId in request body
   }

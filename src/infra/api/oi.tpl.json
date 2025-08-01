@@ -413,12 +413,12 @@
       }
     },
     "/oidc/register/{client_id}": {
-      "put": {
+      "patch": {
         "tags": [
           "Authorization Server APIs"
         ],
         "description": "This endpoint updates the fields of a Client",
-        "operationId": "Put_client_registration_client_additional",
+        "operationId": "Patch_client_registration_client_additional",
         "parameters": [
           {
             "in": "path",
