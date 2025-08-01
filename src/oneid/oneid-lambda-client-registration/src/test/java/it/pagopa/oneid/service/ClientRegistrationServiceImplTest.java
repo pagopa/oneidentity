@@ -2,8 +2,10 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -288,5 +290,62 @@ class ClientRegistrationServiceImplTest {
     assertNotNull(exception.getMessage());
     assertEquals("User ID mismatch",
         exception.getMessage());
+  }
+
+  @Test
+  void patchClientRegistrationDTO_shouldPatchNonNullFieldsAndBooleans() {
+    ClientRegistrationDTO source = ClientRegistrationDTO.builder()
+        .userId("patchedUser")
+        .redirectUris(Set.of("http://patched.com"))
+        .clientName("patchedName")
+        .defaultAcrValues(Set.of("patchedAcr"))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .logoUri("http://patched.com/logo")
+        .policyUri("http://patched.com/policy")
+        .tosUri("http://patched.com/tos")
+        .a11yUri("http://patched.com/a11y")
+        .localizedContentMap(new HashMap<>())
+        .requiredSameIdp(false)
+        .backButtonEnabled(true)
+        .spidMinors(false)
+        .spidProfessionals(null) // not passed, should not change
+        //.pairwise() // not passed, should not change
+        .build();
+
+    ClientRegistrationDTO target = ClientRegistrationDTO.builder()
+        .userId("originalUser")
+        .redirectUris(Set.of("http://original.com"))
+        .clientName("originalName")
+        .defaultAcrValues(Set.of("originalAcr"))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .logoUri("http://original.com/logo")
+        .policyUri("http://original.com/policy")
+        .tosUri("http://original.com/tos")
+        .a11yUri("http://original.com/a11y")
+        .localizedContentMap(new HashMap<>())
+        .requiredSameIdp(false)
+        .backButtonEnabled(false)
+        .spidMinors(true)
+        .spidProfessionals(true)
+        .pairwise(false)
+        .build();
+
+    clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
+
+    assertEquals("patchedUser", target.getUserId());
+    assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
+    assertEquals("patchedName", target.getClientName());
+    assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());
+    assertEquals(Set.of(Identifier.name), target.getSamlRequestedAttributes());
+    assertEquals("http://patched.com/logo", target.getLogoUri());
+    assertEquals("http://patched.com/policy", target.getPolicyUri());
+    assertEquals("http://patched.com/tos", target.getTosUri());
+    assertEquals("http://patched.com/a11y", target.getA11yUri());
+    assertEquals(new HashMap<>(), target.getLocalizedContentMap());
+    assertFalse(target.getRequiredSameIdp());
+    assertTrue(target.getBackButtonEnabled());
+    assertFalse(target.getSpidMinors());
+    assertTrue(target.getSpidProfessionals());
+    assertFalse(target.getPairwise());
   }
 }

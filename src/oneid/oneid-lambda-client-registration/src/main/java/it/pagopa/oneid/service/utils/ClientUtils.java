@@ -45,11 +45,15 @@ public class ClientUtils {
         .policyUri(clientRegistrationDTO.getPolicyUri())
         .tosUri(clientRegistrationDTO.getTosUri())
         .a11yUri(clientRegistrationDTO.getA11yUri())
-        .backButtonEnabled(clientRegistrationDTO.isBackButtonEnabled())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
-        .spidMinors(clientRegistrationDTO.isSpidMinors())
-        .spidProfessionals(clientRegistrationDTO.isSpidProfessionals())
-        .pairwise(clientRegistrationDTO.isPairwise())
+        .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
+            ? clientRegistrationDTO.getBackButtonEnabled() : false)
+        .spidMinors(clientRegistrationDTO.getSpidMinors() != null
+            ? clientRegistrationDTO.getSpidMinors() : false)
+        .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
+            ? clientRegistrationDTO.getSpidProfessionals() : false)
+        .pairwise(clientRegistrationDTO.getPairwise() != null
+            ? clientRegistrationDTO.getPairwise() : false)
         .build();
   }
 

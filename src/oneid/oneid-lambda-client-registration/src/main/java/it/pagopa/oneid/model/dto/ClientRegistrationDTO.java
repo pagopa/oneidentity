@@ -53,7 +53,7 @@ public class ClientRegistrationDTO {
   private Set<Identifier> samlRequestedAttributes;
 
   @JsonProperty("requiredSameIdp")
-  private boolean requiredSameIdp;
+  private Boolean requiredSameIdp;
 
   @JsonProperty("logoUri")
   private String logoUri;
@@ -68,18 +68,18 @@ public class ClientRegistrationDTO {
   private String a11yUri;
 
   @JsonProperty("backButtonEnabled")
-  private boolean backButtonEnabled;
+  private Boolean backButtonEnabled;
 
   @JsonProperty("localizedContentMap")
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
   @JsonProperty("spidMinors")
-  private boolean spidMinors;
+  private Boolean spidMinors;
 
   @JsonProperty("spidProfessionals")
-  private boolean spidProfessionals;
+  private Boolean spidProfessionals;
 
   @JsonProperty("pairwise")
-  private boolean pairwise;
+  private Boolean pairwise;
 
 }

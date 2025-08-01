@@ -12,8 +12,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -95,7 +95,7 @@ public class ClientRegistrationController {
     return Response.ok(clientRegistrationDTOresponse).build();
   }
 
-  @PUT
+  @PATCH
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response updateClient(
@@ -113,12 +113,16 @@ public class ClientRegistrationController {
         clientId, clientRegistrationDTOInput.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //3. Update client infos
+    //3. update clientRegistrationDTO with new fields from clientRegistrationDTOInput
+    clientRegistrationService.patchClientRegistrationDTO(clientRegistrationDTOInput,
+        clientRegistrationDTO);
+
+    //4. Update client infos
     clientRegistrationService.updateClientRegistrationDTO(clientId,
-        clientRegistrationDTOInput);
+        clientRegistrationDTO);
     Log.info("client updated successfully for userId: " + clientId);
 
-    //4. Send SNS notification
+    //5. Send SNS notification
     String message =
         "Name: " + clientRegistrationDTO.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
