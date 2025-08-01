@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.enums.Identifier;
-import it.pagopa.oneid.model.groups.ValidationGroups.GetClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.PutClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
@@ -27,7 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @SuperBuilder
 public class ClientRegistrationDTO {
 
-  @NotBlank(groups = {Registration.class, GetClient.class, PutClient.class})
+  @NotBlank(groups = {Registration.class, PutClient.class})
   @JsonProperty("userId")
   @Parameter()
   private String userId;
