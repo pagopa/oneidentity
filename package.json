@@ -9,7 +9,7 @@
   "directories": {
     "doc": "docs"
   },
-  "workspaces": ["src/oneid/oneid-fe/","src/infra/modules/*"],
+  "workspaces": ["src/oneid/oneid-fe/*","src/infra/modules/*"],
   "dependencies": {
     "argparse": "^1.0.10",
     "ansi-colors": "^4.1.3",
