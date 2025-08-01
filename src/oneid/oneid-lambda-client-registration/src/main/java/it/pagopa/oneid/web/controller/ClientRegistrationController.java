@@ -92,11 +92,11 @@ public class ClientRegistrationController {
     //1. Verify if client exists and if so retrieves it from db
     Client client = clientRegistrationService.getClient(
         clientId, userId);
-    Log.info("client exists for client_id: " + clientId);
+    Log.info("client exists for clientId: " + clientId);
 
     // 2. Check if userId in input matches the client userId on db
     ClientUtils.checkUserId(userId, client.getUserId());
-    Log.info("user_id in input matches the client user_id on db: " + userId);
+    Log.info("userId in input matches the client userId on db: " + userId);
 
     //3. Convert client to ClientRegistrationDTO
     ClientRegistrationDTO clientRegistrationDTOresponse = ClientUtils.convertClientToClientRegistrationDTO(
@@ -127,18 +127,18 @@ public class ClientRegistrationController {
     ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //4. Convert client to ClientRegistrationDTO
+    //4. Convert client from db to ClientRegistrationDTO
     ClientRegistrationDTO clientRegistrationDTO =
         ClientUtils.convertClientToClientRegistrationDTO(client);
 
-    //5. update clientRegistrationDTO with new fields from clientRegistrationDTOInput
+    //5. update clientRegistrationDTO from db with new fields of clientRegistrationDTOInput
     clientRegistrationService.patchClientRegistrationDTO(clientRegistrationDTOInput,
         clientRegistrationDTO);
 
     //6. Update client infos
-    clientRegistrationService.updateClientRegistrationDTO(clientId,
-        clientRegistrationDTO, client.getAttributeIndex());
-    Log.info("client updated successfully for userId: " + clientId);
+    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTO, clientId,
+        client.getAttributeIndex());
+    Log.info("client updated successfully for clientId: " + clientId);
 
     //7. Send SNS notification
     String message =

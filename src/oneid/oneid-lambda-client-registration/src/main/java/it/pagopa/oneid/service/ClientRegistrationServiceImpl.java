@@ -150,14 +150,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 1. call to dynamo & set in clientRegistrationRequestDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
-    // 2. Convert ClientRegistrationRequestDto -> Client and sets attributeIndex as the next available index after the max one
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(new ClientID(32).getValue(),
-        clientRegistrationDTO,
-        maxAttributeIndex + 1);
+    // 2. Convert ClientRegistrationRequestDto to Client and sets newly generated fields
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+    client.setClientId(new ClientID(32).getValue());
+    client.setClientIdIssuedAt(System.currentTimeMillis());
+    client.setAttributeIndex(maxAttributeIndex + 1);
     Log.debugf("Client converted from ClientRegistrationDTO: %s", client.getClientId());
 
     // 3. Client.Secret & Salt
-
     ClientSecretSalt clientSecretSalt = generateClientSecretSalt();
 
     // 4. Create ClientExtended
@@ -218,10 +218,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public void updateClientRegistrationDTO(String clientID,
-      ClientRegistrationDTO clientRegistrationDTO, int attributeIndex) {
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientID,
-        clientRegistrationDTO, attributeIndex);
+  public void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO,
+      String clientID, int attributeIndex) {
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+    client.setClientId(clientID);
+    client.setAttributeIndex(attributeIndex);
+    // clientIdIssuedAt is not updated, remains the same as when the client was created
     clientConnector.updateClient(client);
 
   }
