@@ -1,5 +1,5 @@
 {
-  "name": "cognito",
+  "name": "infra-cognito",
   "version": "1.0.0",
   "description": "<!-- BEGIN_TF_DOCS -->\r ## Requirements",
   "main": "index.js",

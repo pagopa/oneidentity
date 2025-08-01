@@ -1,5 +1,5 @@
 {
-  "name": "backup",
+  "name": "infra-backup",
   "version": "1.0.0",
   "description": "<!-- BEGIN_TF_DOCS -->\r ## Requirements",
   "main": "index.js",
