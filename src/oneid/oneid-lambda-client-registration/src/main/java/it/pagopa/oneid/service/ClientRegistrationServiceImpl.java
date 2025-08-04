@@ -87,14 +87,16 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       ClientRegistrationDTO clientRegistrationDTO) {
 
     // Validate redirectUris
-    for (String redirectUri : clientRegistrationDTO.getRedirectUris()) {
-      try {
-        CustomURIUtils.validateURI(redirectUri);
-        RedirectURIValidator.ensureLegal(URI.create(redirectUri));
-      } catch (IllegalArgumentException ex) {
-        throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_URI);
-      } catch (NullPointerException ex) {
-        throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
+    if (clientRegistrationDTO.getRedirectUris() != null) {
+      for (String redirectUri : clientRegistrationDTO.getRedirectUris()) {
+        try {
+          CustomURIUtils.validateURI(redirectUri);
+          RedirectURIValidator.ensureLegal(URI.create(redirectUri));
+        } catch (IllegalArgumentException ex) {
+          throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_URI);
+        } catch (NullPointerException ex) {
+          throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
+        }
       }
     }
 
