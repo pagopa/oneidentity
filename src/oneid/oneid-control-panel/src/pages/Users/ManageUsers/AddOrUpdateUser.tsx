@@ -201,6 +201,7 @@ export const AddOrUpdateUser = () => {
                         onClick={() => setShowPassword((prev) => !prev)}
                         edge="end"
                         size="small"
+                        sx={{ backgroundColor: 'grey.50' }}
                       >
                         {showPassword ? (
                           <VisibilityOff
