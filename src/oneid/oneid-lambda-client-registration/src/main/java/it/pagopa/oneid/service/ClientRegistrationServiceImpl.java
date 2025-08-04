@@ -154,7 +154,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Set<String> defaultAcrValues = clientRegistrationDTO.getDefaultAcrValues();
     if (defaultAcrValues != null) {
       if (defaultAcrValues.isEmpty() || defaultAcrValues.stream()
-          .noneMatch(authLevel -> StringUtils.isNotBlank(authLevel)
+          .anyMatch(authLevel -> StringUtils.isBlank(authLevel)
               && AuthLevel.authLevelFromValue(authLevel) == null)) {
         throw new ValidationException("Invalid default ACR values");
       }
