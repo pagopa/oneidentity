@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -242,26 +241,78 @@ class ClientRegistrationServiceImplTest {
   @Test
   void updateClient() {
     // given
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+    String clientId = "client-123";
+    int attributeIndex = 42;
+    long originalIssuedAt = 987654321L;
+    Client existingClient = Client.builder()
+        .clientId(clientId)
         .userId("test")
-        .redirectUris(Set.of("http://test.com"))
-        .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
-        .a11yUri("http://test.com")
+        .friendlyName("Old Name")
+        .callbackURI(Set.of("http://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(attributeIndex)
+        .isActive(true)
+        .clientIdIssuedAt(originalIssuedAt)
+        .logoUri("oldLogo")
+        .policyUri("oldPolicy")
+        .tosUri("oldTos")
+        .requiredSameIdp(false)
+        .a11yUri("oldA11y")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
         .build();
+    Mockito.when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(existingClient));
 
-    assertDoesNotThrow(
-        () -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-            clientRegistrationDTO, new ClientID(32).getValue(), 0));
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("newLogo")
+        .policyUri("newPolicy")
+        .tosUri("newTos")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("newA11y")
+        .backButtonEnabled(true)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(true)
+        .pairwise(true)
+        .build();
+
+    // when
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
+        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+
+    // then
+    Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
+        updated.getClientId().equals(clientId)
+            && updated.getUserId().equals("test")
+            && updated.getFriendlyName().equals("test")
+            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getRequestedParameters().equals(Set.of("name"))
+            && updated.getAuthLevel() == AuthLevel.L2
+            && updated.getAcsIndex() == 0
+            && updated.getAttributeIndex() == attributeIndex
+            && updated.isActive()
+            && updated.getClientIdIssuedAt() == originalIssuedAt
+            && updated.getLogoUri().equals("newLogo")
+            && updated.getPolicyUri().equals("newPolicy")
+            && updated.getTosUri().equals("newTos")
+            && !updated.isRequiredSameIdp() // default false
+            && updated.getA11yUri().equals("newA11y")
+            && updated.isBackButtonEnabled()
+            && updated.getLocalizedContentMap().equals(new HashMap<>())
+            && updated.isSpidMinors()
+            && updated.isSpidProfessionals()
+            && updated.isPairwise()
+    ));
   }
 
   @Test

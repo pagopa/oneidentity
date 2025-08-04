@@ -137,7 +137,7 @@ public class ClientRegistrationController {
 
     //6. Update client infos
     clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTO, clientId,
-        client.getAttributeIndex());
+        client.getAttributeIndex(), client.getClientIdIssuedAt());
     Log.info("client updated successfully for clientId: " + clientId);
 
     //7. Send SNS notification

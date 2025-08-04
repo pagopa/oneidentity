@@ -174,7 +174,7 @@ class ClientRegistrationControllerTest {
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
         .attributeIndex(0)
-        .clientIdIssuedAt(0)
+        .clientIdIssuedAt(111)
         .build();
 
     ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()

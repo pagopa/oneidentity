@@ -14,7 +14,7 @@ public interface ClientRegistrationService {
   Client getClient(String clientId, String userId);
 
   void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO, String clientID,
-      int attributeIndex);
+      int attributeIndex, long clientIdIssuedAt);
 
   void patchClientRegistrationDTO(ClientRegistrationDTO source,
       ClientRegistrationDTO target);

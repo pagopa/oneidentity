@@ -219,11 +219,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO,
-      String clientID, int attributeIndex) {
+      String clientID, int attributeIndex, long clientIdIssuedAt) {
     Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
     client.setClientId(clientID);
     client.setAttributeIndex(attributeIndex);
-    // clientIdIssuedAt is not updated, remains the same as when the client was created
+    client.setClientIdIssuedAt(clientIdIssuedAt);
     clientConnector.updateClient(client);
 
   }
