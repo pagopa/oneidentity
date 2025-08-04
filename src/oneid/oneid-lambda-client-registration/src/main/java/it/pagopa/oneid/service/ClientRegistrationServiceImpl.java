@@ -6,6 +6,8 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -19,6 +21,7 @@ import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.ValidationException;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
@@ -147,6 +150,35 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new InvalidUriException("Invalid a11y URI");
     }
 
+    // Validate defaultAcrValues
+    Set<String> defaultAcrValues = clientRegistrationDTO.getDefaultAcrValues();
+    if (defaultAcrValues != null) {
+      if (defaultAcrValues.isEmpty() || defaultAcrValues.stream()
+          .noneMatch(authLevel -> StringUtils.isNotBlank(authLevel)
+              && AuthLevel.authLevelFromValue(authLevel) == null)) {
+        throw new ValidationException("Invalid default ACR values");
+      }
+    }
+
+    // Validate samlRequestedAttributes
+    Set<Identifier> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
+    if (samlRequestedAttributes != null) {
+      if (samlRequestedAttributes.isEmpty() || samlRequestedAttributes.stream()
+          .noneMatch(attribute -> {
+            if (attribute == null) {
+              return false;
+            }
+            try {
+              Identifier.valueOf(attribute.name());
+            } catch (IllegalArgumentException e) {
+              throw new ValidationException(
+                  "Invalid SAML requested attribute: " + attribute);
+            }
+            return true;
+          })) {
+        throw new ValidationException("Invalid default ACR values");
+      }
+    }
   }
 
   @Override
