@@ -23,11 +23,15 @@ const TableFilters = <TOrderField extends string = string>({
   search,
   order,
 }: FilterProps<TOrderField>) => (
-  <Stack direction="row" spacing={2} alignItems="center">
+  <Stack
+    direction={{ xs: 'column', md: 'row' }}
+    spacing={2}
+    alignItems="center"
+  >
     {order && (
       <TextField
         select
-        sx={{ flex: 1 }}
+        sx={{ flex: 1, width: '100%' }}
         label="Order by"
         value={order.value}
         onChange={(e) => order.onChange(e.target.value as TOrderField)}
@@ -41,7 +45,7 @@ const TableFilters = <TOrderField extends string = string>({
     )}
     {search && (
       <TextField
-        sx={{ flex: 1 }}
+        sx={{ flex: 1, width: '100%' }}
         id="outlined-basic"
         label={'Username'}
         variant="outlined"
