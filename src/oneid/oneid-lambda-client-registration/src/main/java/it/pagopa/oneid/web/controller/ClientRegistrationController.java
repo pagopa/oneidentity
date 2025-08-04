@@ -84,6 +84,7 @@ public class ClientRegistrationController {
   @GET
   @Path("/register/{client_id}/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response getClientInfoByClientId(
       @PathParam("client_id") String clientId,
       @PathParam("user_id") String userId) {
@@ -109,6 +110,7 @@ public class ClientRegistrationController {
   @PATCH
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
       @Valid @ConvertGroup(to = ValidationGroups.PatchClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId) {
