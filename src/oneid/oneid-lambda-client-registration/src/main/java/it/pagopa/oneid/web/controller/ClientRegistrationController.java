@@ -110,7 +110,7 @@ public class ClientRegistrationController {
   @Path("/register/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response updateClient(
-      @Valid @ConvertGroup(to = ValidationGroups.PutClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
+      @Valid @ConvertGroup(to = ValidationGroups.PatchClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId) {
     Log.info("start");
 
