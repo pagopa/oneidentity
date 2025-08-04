@@ -30,16 +30,12 @@ public class ClientUtils {
       ClientRegistrationDTO clientRegistrationDTO) {
     Log.debug("start");
 
-    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes() != null
-        ? clientRegistrationDTO.getSamlRequestedAttributes()
+    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes()
         .stream()
         .map(Identifier::name)
-        .collect(Collectors.toSet())
-        : Set.of();
+        .collect(Collectors.toSet());
 
-    Set<String> callbackUris = clientRegistrationDTO.getRedirectUris() != null
-        ? clientRegistrationDTO.getRedirectUris()
-        : Set.of();
+    Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
