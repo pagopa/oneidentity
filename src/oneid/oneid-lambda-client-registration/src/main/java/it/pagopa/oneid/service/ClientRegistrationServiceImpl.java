@@ -88,6 +88,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // Validate redirectUris
     if (clientRegistrationDTO.getRedirectUris() != null) {
+      if (clientRegistrationDTO.getRedirectUris().isEmpty()) {
+        throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
+      }
       for (String redirectUri : clientRegistrationDTO.getRedirectUris()) {
         try {
           CustomURIUtils.validateURI(redirectUri);
