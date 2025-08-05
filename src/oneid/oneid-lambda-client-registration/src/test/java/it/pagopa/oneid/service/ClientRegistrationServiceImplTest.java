@@ -383,7 +383,6 @@ class ClientRegistrationServiceImplTest {
 
     clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
 
-    assertEquals("patchedUser", target.getUserId());
     assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
     assertEquals("patchedName", target.getClientName());
     assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());

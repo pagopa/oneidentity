@@ -38,9 +38,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void patchClientRegistrationDTO(ClientRegistrationDTO source,
       ClientRegistrationDTO target) {
-    if (source.getUserId() != null) {
-      target.setUserId(source.getUserId());
-    }
     if (source.getRedirectUris() != null) {
       target.setRedirectUris(source.getRedirectUris());
     }
