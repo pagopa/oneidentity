@@ -21,6 +21,7 @@ import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.WebApplicationException;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -159,6 +160,20 @@ class ExceptionMapperTest {
     when(exceptionMock.getMessage()).thenReturn(message);
     // when
     RestResponse<ErrorResponse> restResponse = exceptionMapper.mapUserIdMismatchException(
+        exceptionMock);
+    // then
+    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapWebApplicationException() {
+    // given
+    String message = "Malformed JSON request";
+    WebApplicationException exceptionMock = mock(WebApplicationException.class);
+    when(exceptionMock.getMessage()).thenReturn(message);
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapWebApplicationException(
         exceptionMock);
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());

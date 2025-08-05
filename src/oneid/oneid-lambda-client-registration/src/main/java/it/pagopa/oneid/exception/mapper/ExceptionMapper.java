@@ -21,6 +21,7 @@ import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
@@ -133,6 +134,14 @@ public class ExceptionMapper {
     return RestResponse.status(status,
         buildErrorResponse(status, invalidInputSetException.getMessage()));
   }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapWebApplicationException(WebApplicationException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = Response.Status.BAD_REQUEST;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(

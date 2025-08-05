@@ -93,6 +93,19 @@ class ClientRegistrationControllerTest {
         .statusCode(400);
   }
 
+  @Test
+  void register_MalformedJson_ko() {
+    String malformedJson = "{\"someField\": \"missingEndQuote}"; // invalid JSON
+
+    given()
+        .contentType("application/json")
+        .body(malformedJson)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
   //Get Client Info
 
   @Test
@@ -137,7 +150,7 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/{client_id}/{user_id}")
         .then()
-        .statusCode(500);
+        .statusCode(400); // Bad Request due to missing userId
   }
 
   @Test
@@ -155,7 +168,7 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/{client_id}/{user_id}")
         .then()
-        .statusCode(500);
+        .statusCode(400); // Bad Request due to missing clientId
   }
 
   //Update Client
