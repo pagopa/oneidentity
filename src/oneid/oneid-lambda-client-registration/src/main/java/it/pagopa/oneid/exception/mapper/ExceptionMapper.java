@@ -11,9 +11,10 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidInputSetException;
 import it.pagopa.oneid.exception.InvalidUriException;
-import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
@@ -122,6 +123,15 @@ public class ExceptionMapper {
     Response.Status status = BAD_REQUEST;
     String message = "Error during Service execution";
     return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidInputSetException(
+      InvalidInputSetException invalidInputSetException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidInputSetException));
+    Response.Status status = BAD_REQUEST;
+    return RestResponse.status(status,
+        buildErrorResponse(status, invalidInputSetException.getMessage()));
   }
 
   @ServerExceptionMapper

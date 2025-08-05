@@ -41,7 +41,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("http://test.com")
         .policyUri("http://test.com")
         .tosUri("http://test.com")
-        .defaultAcrValues(Set.of("test"))
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of(Identifier.name))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
@@ -63,7 +63,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("http://test.com")
         .policyUri("http://test.com")
         .tosUri("http://test.com")
-        .defaultAcrValues(Set.of("test"))
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of(Identifier.name))
         .build();
 

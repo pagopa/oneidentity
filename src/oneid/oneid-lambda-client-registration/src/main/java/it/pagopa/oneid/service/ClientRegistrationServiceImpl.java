@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidInputSetException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -21,7 +22,6 @@ import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.ValidationException;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
@@ -156,7 +156,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       if (defaultAcrValues.isEmpty() || defaultAcrValues.stream()
           .anyMatch(authLevel -> StringUtils.isBlank(authLevel)
               || AuthLevel.authLevelFromValue(authLevel) == null)) {
-        throw new ValidationException("Invalid default ACR values");
+        throw new InvalidInputSetException("Invalid default ACR values");
       }
     }
 
@@ -164,16 +164,16 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Set<Identifier> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
     if (samlRequestedAttributes != null) {
       if (samlRequestedAttributes.isEmpty()) {
-        throw new ValidationException("No SAML requested attributes provided");
+        throw new InvalidInputSetException("No SAML requested attributes provided");
       }
       for (Identifier attribute : samlRequestedAttributes) {
         if (attribute == null) {
-          throw new ValidationException("SAML requested attribute cannot be null");
+          throw new InvalidInputSetException("SAML requested attribute cannot be null");
         }
         try {
           Identifier.valueOf(attribute.name());
         } catch (IllegalArgumentException e) {
-          throw new ValidationException("Invalid SAML requested attribute: " + attribute);
+          throw new InvalidInputSetException("Invalid SAML requested attribute: " + attribute);
         }
       }
     }
