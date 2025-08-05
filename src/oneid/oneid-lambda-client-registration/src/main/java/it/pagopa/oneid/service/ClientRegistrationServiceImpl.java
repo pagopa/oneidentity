@@ -155,7 +155,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     if (defaultAcrValues != null) {
       if (defaultAcrValues.isEmpty() || defaultAcrValues.stream()
           .anyMatch(authLevel -> StringUtils.isBlank(authLevel)
-              && AuthLevel.authLevelFromValue(authLevel) == null)) {
+              || AuthLevel.authLevelFromValue(authLevel) == null)) {
         throw new ValidationException("Invalid default ACR values");
       }
     }
@@ -163,20 +163,18 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // Validate samlRequestedAttributes
     Set<Identifier> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
     if (samlRequestedAttributes != null) {
-      if (samlRequestedAttributes.isEmpty() || samlRequestedAttributes.stream()
-          .noneMatch(attribute -> {
-            if (attribute == null) {
-              return false;
-            }
-            try {
-              Identifier.valueOf(attribute.name());
-            } catch (IllegalArgumentException e) {
-              throw new ValidationException(
-                  "Invalid SAML requested attribute: " + attribute);
-            }
-            return true;
-          })) {
-        throw new ValidationException("Invalid default ACR values");
+      if (samlRequestedAttributes.isEmpty()) {
+        throw new ValidationException("No SAML requested attributes provided");
+      }
+      for (Identifier attribute : samlRequestedAttributes) {
+        if (attribute == null) {
+          throw new ValidationException("SAML requested attribute cannot be null");
+        }
+        try {
+          Identifier.valueOf(attribute.name());
+        } catch (IllegalArgumentException e) {
+          throw new ValidationException("Invalid SAML requested attribute: " + attribute);
+        }
       }
     }
   }
