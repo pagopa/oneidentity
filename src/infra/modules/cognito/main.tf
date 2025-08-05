@@ -147,7 +147,7 @@ resource "aws_cognito_user_pool_client" "client" {
   allowed_oauth_flows  = ["code"]
   allowed_oauth_scopes = ["email", "openid", "profile"]
 
-  callback_urls = ["http://localhost", "${var.cognito.callback_url}"]
+  callback_urls = ["http://localhost:5173", "${var.cognito.callback_url}"]
   logout_urls   = ["${var.cognito.logout_url}"] # Update with your app's logout URL
 
   supported_identity_providers = ["COGNITO"]
