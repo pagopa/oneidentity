@@ -103,17 +103,25 @@ export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 
 export const clientSchema = z.object({
-  client_id: z.string().optional(),
-  client_secret: z.string().optional(),
-  client_id_issued_at: z.number().optional(),
-  client_secret_expires_at: z.number().optional(),
-  client_name: z.string(),
-  policy_uri: z.string().url().optional().nullable(),
-  tos_uri: z.string().url().optional().nullable(),
-  redirect_uris: z.array(z.string().url().min(1)),
-  saml_requested_attributes: SamlAttributeArraySchema.min(1),
-  logo_uri: z.string().url().optional().nullable(),
-  default_acr_values: SpidLevelArraySchema.min(1),
+  userId: z.string().optional(),
+  clientId: z.string().optional(),
+  clientSecret: z.string().optional(),
+  clientIdIssuedAt: z.number().optional(),
+  clientSecretExpiresAt: z.number().optional(),
+  clientName: z.string(),
+  policyUri: z.string().url().optional().nullable(),
+  tosUri: z.string().url().optional().nullable(),
+  redirectUris: z.array(z.string().url().min(1)),
+  samlRequestedAttributes: SamlAttributeArraySchema.min(1),
+  logoUri: z.string().url().optional().nullable(),
+  defaultAcrValues: SpidLevelArraySchema.min(1),
+  requiredSameIdp: z.boolean().optional(),
+  a11yUri: z.string().optional(),
+  backButtonEnabled: z.boolean().optional(),
+  localizedContentMap: z.string().optional(),
+  spidMinors: z.string().optional(),
+  spidProfessionals: z.string().optional(),
+  pairwise: z.string().optional(),
 });
 
 export const idpUserCreateOrUpdateResponseSchema = z.object({
@@ -171,20 +179,9 @@ export type IdpUserCreateOrUpdateResponse = z.infer<
   typeof idpUserCreateOrUpdateResponseSchema
 >;
 
-export type ClientFormData = Omit<
-  Client,
-  | 'client_id'
-  | 'client_secret'
-  | 'client_id_issued_at'
-  | 'client_secret_expires_at'
->;
-
 export type ClientRegisteredData = Pick<
   Client,
-  | 'client_id'
-  | 'client_secret'
-  | 'client_id_issued_at'
-  | 'client_secret_expires_at'
+  'clientId' | 'clientSecret' | 'clientIdIssuedAt' | 'clientSecretExpiresAt'
 >;
 
 export const allLanguages: Record<Languages, string> = {
