@@ -33,7 +33,7 @@ import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInpu
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const { client_id } = useParams(); // Get the client_id from the URL
+  const { clientId } = useParams(); // Get the clientId from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
@@ -52,7 +52,7 @@ export const Dashboard = () => {
       error: updateError,
       isPending: isUpdating,
     },
-  } = useRegister(client_id);
+  } = useRegister(clientId);
 
   const {
     setCognitoProfile: {
@@ -64,19 +64,19 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (fetchedClientData) {
-      setFormData({ ...fetchedClientData, client_id });
+      setFormData({ ...fetchedClientData, clientId });
     }
-  }, [client_id, fetchedClientData]);
+  }, [clientId, fetchedClientData]);
 
   const updateCognitoMapping = useCallback(() => {
     if (
-      clientUpdated?.client_id &&
-      typeof clientUpdated.client_id === 'string' &&
+      clientUpdated?.clientId &&
+      typeof clientUpdated.clientId === 'string' &&
       user?.profile.sub &&
       user?.id_token
     ) {
       setCognitoProfile({
-        clientId: clientUpdated.client_id,
+        clientId: clientUpdated.clientId,
       });
     }
   }, [clientUpdated, setCognitoProfile, user?.id_token, user?.profile.sub]);
@@ -95,7 +95,7 @@ export const Dashboard = () => {
       setErrorUi(null);
       setNotify({
         open: true,
-        message: 'Client updated successfully, id: ' + clientUpdated.client_id,
+        message: 'Client updated successfully, id: ' + clientUpdated.clientId,
         severity: 'success',
       });
 
@@ -103,7 +103,7 @@ export const Dashboard = () => {
       if (!isUpdatePhase) {
         updateCognitoMapping();
       }
-      // before redirecting we need to show a modal with client_id and client_secret
+      // before redirecting we need to show a modal with clientId and client_secret
       // open only if it is in creation phase, not an update
       if (!isUpdatePhase) {
         openModal('secretViewer');
@@ -123,8 +123,7 @@ export const Dashboard = () => {
       setErrorUi(null);
       setNotify({
         open: true,
-        message:
-          'Cognito updated successfully, id: ' + clientUpdated?.client_id,
+        message: 'Cognito updated successfully, id: ' + clientUpdated?.clientId,
         severity: 'success',
       });
     }
@@ -136,14 +135,14 @@ export const Dashboard = () => {
         severity: 'error',
       });
     }
-  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated, openModal]);
+  }, [clientUpdated?.clientId, cognitoError, cognitoUpdated, openModal]);
 
   const isFormValid = () => {
     return (
-      !!formData?.client_name &&
-      !!formData?.redirect_uris?.length &&
-      !!formData?.default_acr_values?.length &&
-      !!formData?.saml_requested_attributes?.length
+      !!formData?.clientName &&
+      !!formData?.redirectUris?.length &&
+      !!formData?.defaultAcrValues?.length &&
+      !!formData?.samlRequestedAttributes?.length
     );
   };
 
@@ -151,7 +150,7 @@ export const Dashboard = () => {
     // TODO check cognito status before redirecting
     closeModal(() => {
       window.location.assign(
-        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.client_id}`
+        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.clientId}`
       );
     });
   };
@@ -163,8 +162,8 @@ export const Dashboard = () => {
     }
 
     createOrUpdateClient({
-      data: formData as Omit<Client, 'client_id' | 'client_secret'>,
-      clientId: client_id,
+      data: formData as Omit<Client, 'clientId' | 'client_secret'>,
+      clientId: clientId,
     });
   };
 
@@ -198,13 +197,13 @@ export const Dashboard = () => {
         onClose={handleCloseSecretModal}
         open={isModalOpen('secretViewer')}
         data={{
-          client_id:
-            typeof clientUpdated?.client_id === 'string'
-              ? clientUpdated.client_id
+          clientId:
+            typeof clientUpdated?.clientId === 'string'
+              ? clientUpdated.clientId
               : 'error',
-          client_secret:
-            typeof clientUpdated?.client_secret === 'string'
-              ? clientUpdated.client_secret
+          clientSecret:
+            typeof clientUpdated?.clientSecret === 'string'
+              ? clientUpdated.clientSecret
               : 'error',
         }}
       />
@@ -225,7 +224,7 @@ export const Dashboard = () => {
           hidden
           fullWidth
           label="Client ID"
-          value={formData?.client_id || ''}
+          value={formData?.clientId || ''}
           disabled
           margin="normal"
         />
@@ -234,53 +233,53 @@ export const Dashboard = () => {
           fullWidth
           required
           label="Client Name"
-          value={formData?.client_name || ''}
-          onChange={handleChange('client_name')}
+          value={formData?.clientName || ''}
+          onChange={handleChange('clientName')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.client_name?._errors}
-          helperText={(errorUi as ClientErrors)?.client_name?._errors}
+          error={!!(errorUi as ClientErrors)?.clientName?._errors}
+          helperText={(errorUi as ClientErrors)?.clientName?._errors}
         />
 
         <TextField
           fullWidth
           label="Logo URI"
-          value={formData?.logo_uri || ''}
-          onChange={handleChange('logo_uri')}
+          value={formData?.logoUri || ''}
+          onChange={handleChange('logoUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.logo_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.logo_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.logoUri?._errors}
+          helperText={(errorUi as ClientErrors)?.logoUri?._errors}
         />
 
         <TextField
           fullWidth
           label="Policy URI"
-          value={formData?.policy_uri || ''}
-          onChange={handleChange('policy_uri')}
+          value={formData?.policyUri || ''}
+          onChange={handleChange('policyUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.policy_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.policy_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.policyUri?._errors}
+          helperText={(errorUi as ClientErrors)?.policyUri?._errors}
         />
 
         <TextField
           fullWidth
           label="Terms of Service URI"
-          value={formData?.tos_uri || ''}
-          onChange={handleChange('tos_uri')}
+          value={formData?.tosUri || ''}
+          onChange={handleChange('tosUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.tos_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.tos_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.tosUri?._errors}
+          helperText={(errorUi as ClientErrors)?.tosUri?._errors}
         />
 
         <FormControl
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as ClientErrors)?.redirect_uris?._errors}
+          error={!!(errorUi as ClientErrors)?.redirectUris?._errors}
         >
           <FormArrayTextField
             formData={formData}
             setFormData={setFormData}
-            fieldName="redirect_uris"
+            fieldName="redirectUris"
             label="Redirect URIs"
             errors={errorUi as ClientErrors}
           />
@@ -290,14 +289,14 @@ export const Dashboard = () => {
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as ClientErrors)?.default_acr_values?._errors}
+          error={!!(errorUi as ClientErrors)?.defaultAcrValues?._errors}
         >
           <InputLabel id="spid-level-label">SPID Level</InputLabel>
           <Select
             labelId="spid-level-label"
             id="spid-level-select"
             multiple
-            value={formData?.default_acr_values || []}
+            value={formData?.defaultAcrValues || []}
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((value) => (
@@ -327,12 +326,12 @@ export const Dashboard = () => {
             ))}
           </Select>
           <FormHelperText>
-            {(errorUi as ClientErrors)?.default_acr_values?._errors}
+            {(errorUi as ClientErrors)?.defaultAcrValues?._errors}
           </FormHelperText>
         </FormControl>
 
         <SamlAttributesSelectInput
-          attributeSelectValues={formData?.saml_requested_attributes}
+          attributeSelectValues={formData?.samlRequestedAttributes}
           onChangeFunction={(e) =>
             setFormData((prev) => ({
               ...prev,
@@ -340,7 +339,7 @@ export const Dashboard = () => {
             }))
           }
           errorHelperText={
-            (errorUi as ClientErrors)?.saml_requested_attributes?._errors
+            (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
           }
         />
 
