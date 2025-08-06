@@ -1,17 +1,23 @@
 package it.pagopa.oneid.service;
 
-import it.pagopa.oneid.model.dto.ClientMetadataDTO;
-import it.pagopa.oneid.model.dto.ClientRegistrationRequestDTO;
+import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 
 public interface ClientRegistrationService {
 
-  void validateClientRegistrationInfo(ClientRegistrationRequestDTO clientRegistrationRequestDTO);
+  void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO);
 
   ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationRequestDTO clientRegistrationRequestDTO);
+      ClientRegistrationDTO clientRegistrationDTO);
 
-  ClientMetadataDTO getClientMetadataDTO(String clientId);
+  Client getClient(String clientId, String userId);
+
+  void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO, String clientID,
+      int attributeIndex, long clientIdIssuedAt);
+
+  void patchClientRegistrationDTO(ClientRegistrationDTO source,
+      ClientRegistrationDTO target);
 
   String refreshClientSecret(String clientId, String userId);
 

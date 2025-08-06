@@ -1,6 +1,6 @@
 package it.pagopa.oneid.exception.mapper;
 
-import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_METADATA;
+import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
@@ -15,11 +15,13 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.WebApplicationException;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -106,7 +108,7 @@ class ExceptionMapperTest {
         exceptionMock);
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
-    assertEquals(INVALID_CLIENT_METADATA.getErrorMessage(),
+    assertEquals(INVALID_CLIENT_REGISTRATION.getErrorMessage(),
         restResponse.getEntity().getErrorDescription());
   }
 
@@ -131,7 +133,7 @@ class ExceptionMapperTest {
         exceptionMock);
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
-    assertEquals(INVALID_CLIENT_METADATA.getErrorMessage(),
+    assertEquals(INVALID_CLIENT_REGISTRATION.getErrorMessage(),
         restResponse.getEntity().getErrorDescription());
   }
 
@@ -147,5 +149,34 @@ class ExceptionMapperTest {
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
     assertEquals(message, restResponse.getEntity().getErrorDescription());
+  }
+
+  @Test
+  void mapUserIdMismatchException() {
+    // given
+    String message = "Error during Service execution";
+    UserIdMismatchException exceptionMock = mock(
+        UserIdMismatchException.class);
+    when(exceptionMock.getMessage()).thenReturn(message);
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapUserIdMismatchException(
+        exceptionMock);
+    // then
+    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapWebApplicationException() {
+    // given
+    String message = "Malformed JSON request";
+    WebApplicationException exceptionMock = mock(WebApplicationException.class);
+    when(exceptionMock.getMessage()).thenReturn(message);
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapWebApplicationException(
+        exceptionMock);
+    // then
+    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
   }
 }

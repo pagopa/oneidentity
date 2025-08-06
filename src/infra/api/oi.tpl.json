@@ -413,12 +413,23 @@
       }
     },
     "/oidc/register/{client_id}": {
-      "get": {
+      "patch": {
         "tags": [
           "Authorization Server APIs"
         ],
-        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
-        "operationId": "Get_oidc_register_config",
+        "description": "This endpoint updates the fields of a Client",
+        "operationId": "Patch_client_registration_client_additional",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
@@ -427,8 +438,8 @@
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
           "responses": {
-            "200": {
-              "statusCode": "200",
+            "204": {
+              "statusCode": "204",
               "responseParameters": {
                 "method.response.header.content-type": "'application/json'"
               }
@@ -457,32 +468,23 @@
               "statusCode": "500",
               "responseParameters": {}
             }
-          },
-          "cacheKeyParameters": [
-            "method.request.path.client_id"
-          ]
-        },
-        "parameters": [
-          {
-            "in": "path",
-            "name": "client_id",
-            "description": "client_id that was returned in the client registration response",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response including details about the client registration. Additional details may also be included",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientRegistration"
-                }
+        },
+        "summary": "Client Onboarding portal backend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientRegistration"
               }
             }
+          },
+          "description": "Request body",
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/responseOkNoContentJson"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -507,8 +509,7 @@
           {
             "${authorizer}": []
           }
-        ],
-        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+        ]
       },
       "options": {
         "parameters": [
@@ -562,6 +563,115 @@
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "mock"
         }
+      }
+    },
+    "/oidc/register/{client_id}/{user_id}": {
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
+        "operationId": "Get_oidc_register_config",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          },
+          "cacheKeyParameters": [
+            "method.request.path.client_id",
+            "method.request.path.user_id"
+          ]
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "client_id that was returned in the client registration response",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "description": "the user_id of the cognito user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response including details about the client registration. Additional details may also be included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientRegistration"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ],
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
     "oidc/clients/{client_id}/secret/refresh": {
@@ -2187,6 +2297,25 @@
   },
   "components": {
     "responses": {
+      "responseOkNoContentJson": {
+        "description": "Response Ok, No Content",
+        "headers": {
+          "content-type": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "auth302": {
         "description": "Will contain either: A success response including the redirect location header to the server that handles the authentication.  The redirect parameter 'sessionData's structure looks like the model schema shown OR 'invalid scope' OR 'unsupported response type' OR 'unauthorized client'. The non-successful conditions may include redirect query params as follows: 'error', string with default value:  invalid_request 'error_description', string with description of error 'state', string with no default value.  It is opaque to the server and returned as received.",
         "headers": {
@@ -2795,7 +2924,11 @@
       "ClientRegistration": {
         "type": "object",
         "properties": {
-          "redirect_uris": {
+          "userId": {
+            "type": "string",
+            "description": "The userId of the cognito user"
+          },
+          "redirectUris": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2805,26 +2938,26 @@
               "https://client.example.org/callback2"
             ]
           },
-          "client_name": {
+          "clientName": {
             "type": "string",
             "example": "https://example.org"
           },
-          "logo_uri": {
+          "logoUri": {
             "type": "string",
             "description": "The RP logo URI",
             "example": "https://example.org/logo.png"
           },
-          "policy_uri": {
+          "policyUri": {
             "type": "string",
             "description": "The privacy policy URI",
             "example": "https://example.org/policy"
           },
-          "tos_uri": {
+          "tosUri": {
             "type": "string",
             "description": "The terms of service URI",
             "example": "https://example.org/tos"
           },
-          "default_acr_values": {
+          "defaultAcrValues": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2836,7 +2969,7 @@
               "https://www.spid.gov.it/SpidL3"
             ]
           },
-          "saml_requested_attributes": {
+          "samlRequestedAttributes": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2849,17 +2982,51 @@
               "fiscalNumber"
             ]
           },
-          "required_same_idp": {
+          "requiredSameIdp": {
             "type": "boolean",
             "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
             "default": false
+          },
+          "a11yUri": {
+            "type": "string",
+            "description": "Accessibility URI",
+            "example": "https://example.org/tos"
+          },
+          "backButtonEnabled": {
+            "type": "boolean",
+            "description": "Boolean which enables the display of the back button in the login page",
+            "example": "https://example.org/tos"
+          },
+          "localizedContentMap": {
+            "type": "object",
+            "description": "Map for localized content for each language",
+            "example": "https://example.org/tos"
+          },
+          "spidMinors": {
+            "type": "boolean",
+            "description": "Whether the client supports spid for minors",
+            "example": "https://example.org/tos"
+          },
+          "spidProfessionals": {
+            "type": "boolean",
+            "description": " Whether the client supports spid for professionals",
+            "example": "https://example.org/tos"
+          },
+          "pairwise": {
+            "type": "boolean",
+            "description": "If true, the client will use pairwise subject identifier",
+            "example": "https://example.org/tos"
           }
         }
       },
       "ClientRegistrationResponse": {
         "type": "object",
         "properties": {
-          "redirect_uris": {
+          "userId": {
+            "type": "string",
+            "description": "The userId of the cognito user"
+          },
+          "redirectUris": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2869,26 +3036,26 @@
               "https://client.example.org/callback2"
             ]
           },
-          "client_name": {
+          "clientName": {
             "type": "string",
             "example": "https://example.org"
           },
-          "logo_uri": {
+          "logoUri": {
             "type": "string",
             "description": "The RP logo URI",
             "example": "https://example.org/logo.png"
           },
-          "policy_uri": {
+          "policyUri": {
             "type": "string",
             "description": "The privacy policy URI",
             "example": "https://example.org/policy"
           },
-          "tos_uri": {
+          "tosUri": {
             "type": "string",
             "description": "The terms of service URI",
             "example": "https://example.org/tos"
           },
-          "default_acr_values": {
+          "defaultAcrValues": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2900,7 +3067,7 @@
               "https://www.spid.gov.it/SpidL3"
             ]
           },
-          "saml_requested_attributes": {
+          "samlRequestedAttributes": {
             "type": "array",
             "items": {
               "type": "string"
@@ -2913,30 +3080,60 @@
               "fiscalNumber"
             ]
           },
-          "required_same_idp": {
+          "requiredSameIdp": {
             "type": "boolean",
             "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
             "default": false
           },
-          "client_id": {
+          "clientId": {
             "type": "string",
             "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
             "description": "The registered client_id"
           },
-          "client_secret": {
+          "clientSecret": {
             "type": "string",
             "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
             "description": "The registered client_secret"
           },
-          "client_id_issued_at": {
+          "clientIdIssuedAt": {
             "type": "integer",
             "example": 1497455914,
             "description": "The timestamp in seconds indicating the time of registration"
           },
-          "client_secret_expires_at": {
+          "clientSecretExpiresAt": {
             "type": "integer",
             "example": 0,
             "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+          },
+          "a11yUri": {
+            "type": "string",
+            "description": "Accessibility URI",
+            "example": "https://example.org/tos"
+          },
+          "backButtonEnabled": {
+            "type": "boolean",
+            "description": "Boolean which enables the display of the back button in the login page",
+            "example": "https://example.org/tos"
+          },
+          "localizedContentMap": {
+            "type": "object",
+            "description": "Map for localized content for each language",
+            "example": "https://example.org/tos"
+          },
+          "spidMinors": {
+            "type": "boolean",
+            "description": "Whether the client supports spid for minors",
+            "example": "https://example.org/tos"
+          },
+          "spidProfessionals": {
+            "type": "boolean",
+            "description": " Whether the client supports spid for professionals",
+            "example": "https://example.org/tos"
+          },
+          "pairwise": {
+            "type": "boolean",
+            "description": "If true, the client will use pairwise subject identifier",
+            "example": "https://example.org/tos"
           }
         }
       },

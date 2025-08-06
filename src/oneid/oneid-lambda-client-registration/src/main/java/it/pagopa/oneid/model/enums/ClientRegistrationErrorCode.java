@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum ClientRegistrationErrorCode {
 
-  INVALID_REDIRECT_URI("invalid_redirect_uri", "One or more redirect_uri values are invalid"),
-  REDIRECT_URI_NULL("invalid_redirect_uri", "One or more redirect_uri values are empty"),
-  INVALID_CLIENT_METADATA("invalid_client_metadata", "Invalid client Metadata");
+  INVALID_URI("invalid_uri", "Invalid URI provided"),
+  EMPTY_URI("invalid_uri", "Empty or null URI provided"),
+  INVALID_CLIENT_REGISTRATION("invalid_client_registration", "Invalid ClientRegistration");
 
   private final String errorCode;
   private final String errorMessage;

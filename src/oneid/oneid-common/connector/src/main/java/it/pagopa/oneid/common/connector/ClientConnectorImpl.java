@@ -69,7 +69,7 @@ public class ClientConnectorImpl implements ClientConnector {
             .item(client)
             .conditionExpression(
                 Expression.builder().expression(
-                        "attribute_not_exists(clientId)")
+                        "attribute_not_exists(clientId)") //TODO: add a condition to avoid overwriting existing userId
                     .build())
             .build());
   }
@@ -93,6 +93,15 @@ public class ClientConnectorImpl implements ClientConnector {
   }
 
   @Override
+  public void updateClient(Client client) {
+    clientMapper.updateItem(
+        UpdateItemEnhancedRequest.builder(Client.class)
+            .item(client)
+            .ignoreNulls(true) // Ignore null values to avoid overwriting existing attributes
+            .build());
+  }
+
+  @Override
   public void updateClientSecretSalt(Client client, String newSalt, String newHashedSecret) {
     ClientExtended clientExtended = new ClientExtended(client, newHashedSecret, newSalt);
     clientExtendedMapper.updateItem(
@@ -104,5 +113,4 @@ public class ClientConnectorImpl implements ClientConnector {
                     .build())
             .build());
   }
-
 }

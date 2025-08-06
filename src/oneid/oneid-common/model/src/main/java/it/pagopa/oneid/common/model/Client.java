@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -21,7 +21,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class Client {
 
 
@@ -59,7 +59,7 @@ public class Client {
   @NotNull
   private long clientIdIssuedAt;
 
-  // Fields related to ClientMetadataDTO
+  // Fields related to ClientRegistrationDTO
   private String logoUri;
 
   private String policyUri;
@@ -67,11 +67,17 @@ public class Client {
   private String tosUri;
 
   private boolean requiredSameIdp;
+
   // Fields related to FE
   private String a11yUri;
   private boolean backButtonEnabled;
   @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
+
+  //Extra fields
+  private boolean spidMinors;
+  private boolean spidProfessionals;
+  private boolean pairwise;
 
   public record LocalizedContent(String title, String description, String docUri,
                                  String supportAddress, String cookieUri) {
