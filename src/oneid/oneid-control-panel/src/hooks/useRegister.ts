@@ -30,13 +30,15 @@ const withTimeout = <T extends object>(
 export const useRegister = (clientId?: string) => {
   const { user } = useAuth();
   const token = user?.id_token;
+  const userId = user?.profile.sub;
+
   if (!token) {
     throw new Error('No token available');
   }
 
   const clientQuery = useQuery<Client, Error>({
     queryKey: ['client', clientId],
-    queryFn: () => getClientData(clientId, token),
+    queryFn: () => getClientData(clientId, userId, token),
     enabled: !!token && !!clientId,
     staleTime,
     retry,
