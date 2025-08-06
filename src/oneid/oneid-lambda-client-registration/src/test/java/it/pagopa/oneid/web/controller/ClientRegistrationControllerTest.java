@@ -5,12 +5,12 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.model.LocalizedContentMap;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import java.util.HashMap;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class ClientRegistrationControllerTest {
         .samlRequestedAttributes(Set.of(Identifier.name))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(LocalizedContentMap.builder().build())
+        .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -94,7 +94,7 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
-  void register_malformedJson_ko() {
+  void register_MalformedJson_ko() {
     String malformedJson = "{\"someField\": \"missingEndQuote}"; // invalid JSON
 
     given()

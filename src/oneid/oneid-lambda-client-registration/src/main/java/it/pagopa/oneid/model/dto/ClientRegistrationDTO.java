@@ -2,13 +2,14 @@ package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import it.pagopa.oneid.common.model.LocalizedContentMap;
+import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.model.groups.ValidationGroups.PatchClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,7 +70,7 @@ public class ClientRegistrationDTO {
   private Boolean backButtonEnabled;
 
   @JsonProperty("localizedContentMap")
-  private LocalizedContentMap localizedContentMap;
+  private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
   @JsonProperty("spidMinors")
   private Boolean spidMinors;

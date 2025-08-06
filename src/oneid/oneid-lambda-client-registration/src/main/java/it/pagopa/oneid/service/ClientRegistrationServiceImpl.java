@@ -174,9 +174,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         }
       }
     }
-
-    // Validate localizedContentMap
-    ClientUtils.validateLocalizedContentMap(clientRegistrationDTO.getLocalizedContentMap());
   }
 
   @Override
