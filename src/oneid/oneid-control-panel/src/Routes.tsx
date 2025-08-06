@@ -14,7 +14,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path={ROUTE_PATH.LOGIN} element={<LoginForm />} />
       <Route
-        path={`${ROUTE_PATH.DASHBOARD}/:client_id?`}
+        path={`${ROUTE_PATH.DASHBOARD}/:clientId?`}
         element={<PrivateDashboardRoute />}
       />
       <Route
