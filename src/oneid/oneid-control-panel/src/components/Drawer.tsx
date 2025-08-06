@@ -13,6 +13,8 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { People } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { ROUTE_PATH } from '../utils/constants';
+import { ENV } from '../utils/env';
 
 const drawerWidth = 240;
 
@@ -65,7 +67,11 @@ export default function PersistentDrawerLeft({
         <ListItem
           disablePadding
           component={Link}
-          to={clientId ? `/dashboard/${clientId}` : '/dashboard'}
+          to={
+            clientId
+              ? `${ROUTE_PATH.DASHBOARD}/${clientId}`
+              : ROUTE_PATH.DASHBOARD
+          }
         >
           <ListItemButton>
             <ListItemIcon>
@@ -78,7 +84,7 @@ export default function PersistentDrawerLeft({
           <ListItem
             disablePadding
             component={Link}
-            to={`/dashboard/customize/${clientId}`}
+            to={`${ROUTE_PATH.CUSTOMIZE}/${clientId}`}
           >
             <ListItemButton>
               <ListItemIcon>
@@ -89,17 +95,25 @@ export default function PersistentDrawerLeft({
           </ListItem>
         )}
       </List>
-      <Divider />
-      <List>
-        <ListItem disablePadding component={Link} to="/">
-          <ListItemButton>
-            <ListItemIcon>
-              <People />
-            </ListItemIcon>
-            <ListItemText primary={'Manage Users'} />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      {ENV.CURRENT_ENV !== 'prod' && (
+        <>
+          <Divider />
+          <List>
+            <ListItem
+              disablePadding
+              component={Link}
+              to={`${ROUTE_PATH.USER_LIST}`}
+            >
+              <ListItemButton>
+                <ListItemIcon>
+                  <People />
+                </ListItemIcon>
+                <ListItemText primary={'Manage Users'} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </>
+      )}
     </Drawer>
   );
 }

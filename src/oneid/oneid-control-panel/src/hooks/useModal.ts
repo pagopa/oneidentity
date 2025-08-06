@@ -1,6 +1,6 @@
 import { SetStateAction, useState } from 'react';
 
-type ModalName = 'secretViewer' | 'secretEditor';
+type ModalName = 'secretViewer' | 'secretEditor' | 'confirm';
 type ModalType = ModalName | null;
 
 export const useModalManager = () => {
