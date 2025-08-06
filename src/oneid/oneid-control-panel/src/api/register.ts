@@ -30,6 +30,7 @@ export const verifyToken = async (token: string): Promise<LoginResponse> => {
 
 export const getClientData = async (
   clientId: string | undefined,
+  userId: string | undefined,
   token: string
 ): Promise<Client> => {
   if (!clientId) {
@@ -41,7 +42,7 @@ export const getClientData = async (
   // return JSON.parse(out);
   try {
     const response = await api.get<Client>(
-      `${ENV.URL_API.REGISTER}/${clientId}`,
+      `${ENV.URL_API.REGISTER}/${clientId}/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
