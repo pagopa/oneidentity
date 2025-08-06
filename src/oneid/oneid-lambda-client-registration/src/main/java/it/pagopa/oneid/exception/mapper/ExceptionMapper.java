@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidInputSetException;
+import it.pagopa.oneid.exception.InvalidLocalizedContentMapException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
@@ -133,6 +134,15 @@ public class ExceptionMapper {
     Response.Status status = BAD_REQUEST;
     return RestResponse.status(status,
         buildErrorResponse(status, invalidInputSetException.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidLocalizedContentMapException(
+      InvalidLocalizedContentMapException invalidLocalizedContentMapException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidLocalizedContentMapException));
+    Response.Status status = BAD_REQUEST;
+    return RestResponse.status(status,
+        buildErrorResponse(status, invalidLocalizedContentMapException.getMessage()));
   }
 
   @ServerExceptionMapper

@@ -1,7 +1,7 @@
 package it.pagopa.oneid.common.model.converters;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.model.Client.LocalizedContent;
+import it.pagopa.oneid.common.model.LocalizedContent;
 import java.util.HashMap;
 import java.util.Map;
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;

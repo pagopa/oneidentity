@@ -3,12 +3,18 @@ package it.pagopa.oneid.service.utils;
 import static it.pagopa.oneid.common.utils.ClientConstants.ACS_INDEX_DEFAULT_VALUE;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.LocalizedContent;
+import it.pagopa.oneid.common.model.LocalizedContentMap;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidLocalizedContentMapException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -90,5 +96,42 @@ public class ClientUtils {
         .build();
 
   }
+
+  public static void validateLocalizedContentMap(LocalizedContentMap localizedContentMap) {
+    if (localizedContentMap != null) {
+      Map<String, Map<String, LocalizedContent>> contentMap = localizedContentMap.getContentMap();
+      
+      if (contentMap == null || contentMap.isEmpty()) {
+        throw new InvalidLocalizedContentMapException(
+            "If localizedContentMap is provided, its contentMap must not be empty");
+      }
+
+      // collect all non-null content entries into a single list
+      List<LocalizedContent> localizedContentList = contentMap.values().stream()
+          .flatMap(innerMap -> innerMap.values().stream())
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList());
+
+      // Check if any actual content was found after flattening
+      if (localizedContentList.isEmpty()) {
+        throw new InvalidLocalizedContentMapException(
+            "If localizedContentMap is provided, it must contain at least one content entry");
+      }
+
+      // Check if any of the found entries have missing fields
+      if (localizedContentList.stream().anyMatch(content ->
+          StringUtils.isBlank(content.getTitle())
+              || StringUtils.isBlank(content.getDescription())
+              || StringUtils.isBlank(content.getDocUri())
+              || StringUtils.isBlank(content.getSupportAddress())
+              || StringUtils.isBlank(content.getCookieUri())
+      )) {
+        throw new InvalidLocalizedContentMapException(
+            "All provided localized content entries must have all required fields");
+      }
+
+    }
+  }
+
 
 }

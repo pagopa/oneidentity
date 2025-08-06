@@ -3,7 +3,6 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.validation.constraints.NotNull;
-import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,7 +36,7 @@ public class ClientExtended extends Client {
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
-      Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
+      LocalizedContentMap localizedContentMap, boolean spidMinors,
       boolean spidProfessionals, boolean pairwise) {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
         attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
