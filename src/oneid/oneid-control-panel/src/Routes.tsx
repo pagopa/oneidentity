@@ -18,7 +18,7 @@ const AppRoutes = () => {
         element={<PrivateDashboardRoute />}
       />
       <Route
-        path={`${ROUTE_PATH.CUSTOMIZE}/:client_id`}
+        path={`${ROUTE_PATH.CUSTOMIZE}/:clientId`}
         element={<PrivateCustomizedRoute />}
       />
       {ENV.CURRENT_ENV !== 'prod' && (

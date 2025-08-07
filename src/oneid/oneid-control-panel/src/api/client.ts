@@ -46,10 +46,11 @@ export const setClientToUser = async (
 };
 
 export const getAdditionalClientAttributes = async (
+  clientId: string | undefined,
   userId: string | undefined,
   token: string
 ): Promise<ClientFE> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_ADDITIONAL;
+  const ENDPOINT = ENV.URL_API.REGISTER;
 
   if (!userId) {
     throw new Error(userIdMessage);
@@ -87,11 +88,14 @@ export const getAdditionalClientAttributes = async (
   //   },
   // });
   try {
-    const response = await api.get<ClientFE>(`${ENDPOINT}/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.get<ClientFE>(
+      `${ENDPOINT}/${clientId}/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -99,24 +103,23 @@ export const getAdditionalClientAttributes = async (
 };
 
 export const setAdditionalClientAttributes = async (
-  userId: string | undefined,
+  clientId: string | undefined,
   data: ClientFE,
   token: string
 ): Promise<null | ClientFEErrors> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_ADDITIONAL;
-  const method = userId ? 'put' : 'post';
+  const ENDPOINT = ENV.URL_API.REGISTER;
 
   const errors = clientFESchema.safeParse(data);
   if (!errors.success) {
     return Promise.reject(errors.error.format());
   }
-  if (!userId) {
+  if (!clientId) {
     throw new Error(userIdMessage);
   }
   // mock:
   // return Promise.resolve(data);
   try {
-    const response = await api[method]<null>(`${ENDPOINT}/${userId}`, data, {
+    const response = await api['patch']<null>(`${ENDPOINT}/${clientId}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

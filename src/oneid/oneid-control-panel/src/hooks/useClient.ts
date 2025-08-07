@@ -20,7 +20,7 @@ export const useClient = () => {
   const token = user?.id_token;
   const userId = user?.profile.sub;
 
-  const { client_id } = useParams(); // Get the client_id from the URL
+  const { clientId } = useParams(); // Get the clientId from the URL
   if (!token) {
     throw new Error('No token available');
   }
@@ -40,15 +40,15 @@ export const useClient = () => {
   });
 
   const getAdditionalClientAttrs = useQuery({
-    queryKey: ['client', 'additional', client_id],
+    queryKey: ['client', 'additional', clientId],
     queryFn: async () => {
       if (!userId) {
         throw new Error('userId is required');
       }
-      return await getAdditionalClientAttributes(userId, token);
+      return await getAdditionalClientAttributes(clientId, userId, token);
     },
     retry,
-    enabled: !!userId && !!token && !!client_id,
+    enabled: !!userId && !!token && !!clientId,
   });
 
   const createOrUpdateClientAttrsMutation = useMutation({
@@ -56,7 +56,8 @@ export const useClient = () => {
       console.error('Error creating or updating client:', error);
     },
     mutationFn: async ({ data }: { data: ClientFE }) => {
-      return setAdditionalClientAttributes(userId, data, token);
+      const dataWithUserId = { ...data, userId };
+      return setAdditionalClientAttributes(clientId, dataWithUserId, token);
     },
   });
 

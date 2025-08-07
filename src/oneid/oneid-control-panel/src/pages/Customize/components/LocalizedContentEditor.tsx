@@ -159,9 +159,9 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                 <Grid item xs={12}>
                   <TextField
                     label="Description"
-                    value={activeTheme[lang]?.desc || ''}
+                    value={activeTheme[lang]?.description || ''}
                     onChange={(e) =>
-                      onContentChange(lang, 'desc', e.target.value)
+                      onContentChange(lang, 'description', e.target.value)
                     }
                     multiline
                     rows={4}
@@ -169,12 +169,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     error={
                       !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
                         activeThemeKey
-                      ]?.[lang]?.desc?._errors
+                      ]?.[lang]?.description?._errors
                     }
                     helperText={
                       (errorUi as ClientFEErrors)?.localizedContentMap?.[
                         activeThemeKey
-                      ]?.[lang]?.desc?._errors
+                      ]?.[lang]?.description?._errors
                     }
                   />
                 </Grid>
