@@ -4,7 +4,6 @@ import { useAuth } from 'react-oidc-context';
 import {
   getAdditionalClientAttributes,
   setAdditionalClientAttributes,
-  setClientToUser,
   addClientUser,
   updateClientUser,
   deleteClientUser,
@@ -20,24 +19,11 @@ export const useClient = () => {
   const token = user?.id_token;
   const userId = user?.profile.sub;
 
+  // TODO: is this useful now? or we can retrieve clientId from sessionStorage?
   const { clientId } = useParams(); // Get the clientId from the URL
   if (!token) {
     throw new Error('No token available');
   }
-
-  const setCognitoProfile = useMutation({
-    onError(error) {
-      console.error('Error creating or updating client:', error);
-    },
-    mutationFn: async ({ clientId }: { clientId: string | undefined }) => {
-      if (!clientId && !userId) {
-        throw new Error('Client ID and User ID are required');
-      }
-
-      return await setClientToUser(clientId, userId, token);
-    },
-    retry,
-  });
 
   const getAdditionalClientAttrs = useQuery({
     queryKey: ['client', 'additional', clientId],
@@ -108,7 +94,6 @@ export const useClient = () => {
   });
 
   return {
-    setCognitoProfile,
     getAdditionalClientAttrs,
     createOrUpdateClientAttrsMutation,
     createClientUsersMutation: createIdpUserMutation,

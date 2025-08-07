@@ -16,35 +16,6 @@ const api = axios.create({
 
 const userIdMessage = 'User ID is required';
 
-export const setClientToUser = async (
-  clientId: string | undefined,
-  userId: string | undefined,
-  token: string
-) => {
-  const ENDPOINT = ENV.URL_API.CLIENT.USER_ATTRIBUTES;
-
-  if (!clientId && !userId) {
-    throw new Error('Client ID and User ID are required');
-  }
-  // mock:
-  // return Promise.resolve(true);
-  const data = {
-    client_id: clientId,
-    user_id: userId,
-  };
-
-  try {
-    const response = await api.put<string>(`${ENDPOINT}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error);
-  }
-};
-
 export const getAdditionalClientAttributes = async (
   clientId: string | undefined,
   userId: string | undefined,

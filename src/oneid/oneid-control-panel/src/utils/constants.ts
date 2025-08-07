@@ -6,4 +6,4 @@ export const ROUTE_PATH = {
   USER: '/dashboard/user',
 };
 
-export const cognitoCustomAttribute = 'custom:client_id';
+export const sessionStorageClientIdKey = 'clientId';

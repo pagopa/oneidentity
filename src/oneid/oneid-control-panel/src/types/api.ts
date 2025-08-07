@@ -102,6 +102,7 @@ export const SamlAttributeSchema = z.enum([
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 
+// TODO: check and eventually remove optional from required fields
 export const clientSchema = z.object({
   userId: z.string().optional(),
   clientId: z.string().optional(),

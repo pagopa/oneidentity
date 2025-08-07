@@ -7,9 +7,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from 'react-oidc-context';
-import { ROUTE_PATH } from '../../utils/constants';
-
-const cognitoCustomAttribute = 'custom:client_id';
+import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
+import * as Storage from '../../utils/storage';
+import { isNil } from 'lodash';
 
 export const LoginForm = () => {
   const {
@@ -23,14 +23,9 @@ export const LoginForm = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (
-        user?.profile &&
-        Object.hasOwn(user.profile, cognitoCustomAttribute) &&
-        user.profile[cognitoCustomAttribute]
-      ) {
-        window.location.assign(
-          `${ROUTE_PATH.DASHBOARD}/${user.profile[cognitoCustomAttribute]}`
-        );
+      const clientId = Storage.storageRead(sessionStorageClientIdKey, 'string');
+      if (user?.profile && !isNil(clientId)) {
+        window.location.assign(`${ROUTE_PATH.DASHBOARD}/${clientId}`);
       } else {
         window.location.assign(ROUTE_PATH.DASHBOARD);
       }
@@ -43,6 +38,12 @@ export const LoginForm = () => {
       return;
     }
     signinRedirect();
+  };
+
+  const handleLogout = async () => {
+    await removeUser();
+    // TODO: check if storageDelete works beacuse removeUser does a redirect in the end
+    Storage.storageDelete(sessionStorageClientIdKey);
   };
 
   return (
@@ -87,7 +88,7 @@ export const LoginForm = () => {
           color="primary"
           fullWidth
           sx={{ mt: 2 }}
-          onClick={removeUser}
+          onClick={handleLogout}
         >
           Logout
         </Button>

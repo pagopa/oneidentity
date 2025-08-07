@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -28,14 +28,16 @@ import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
 import { Notify } from '../../components/Notify';
-import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
-import { ROUTE_PATH } from '../../utils/constants';
+import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
+import * as Storage from '../../utils/storage';
+import { isNil } from 'lodash';
 
 export const Dashboard = () => {
   const { user } = useAuth();
+  // TODO: is this useful now? or we can retrieve clientId from sessionStorage?
   const { clientId } = useParams(); // Get the clientId from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
@@ -55,34 +57,13 @@ export const Dashboard = () => {
       error: updateError,
       isPending: isUpdating,
     },
-  } = useRegister(clientId);
-
-  const {
-    setCognitoProfile: {
-      data: cognitoUpdated,
-      mutate: setCognitoProfile,
-      error: cognitoError,
-    },
-  } = useClient();
+  } = useRegister();
 
   useEffect(() => {
     if (fetchedClientData) {
       setFormData({ ...fetchedClientData, clientId });
     }
   }, [clientId, fetchedClientData]);
-
-  const updateCognitoMapping = useCallback(() => {
-    if (
-      clientUpdated?.clientId &&
-      typeof clientUpdated.clientId === 'string' &&
-      user?.profile.sub &&
-      user?.id_token
-    ) {
-      setCognitoProfile({
-        clientId: clientUpdated.clientId,
-      });
-    }
-  }, [clientUpdated, setCognitoProfile, user?.id_token, user?.profile.sub]);
 
   useEffect(() => {
     if (updateError) {
@@ -102,9 +83,14 @@ export const Dashboard = () => {
         severity: 'success',
       });
 
-      // Associate the client with the user in Cognito if not in update phase
+      // Save client id retrieved from api to session storage
       if (!isUpdatePhase) {
-        updateCognitoMapping();
+        const clientId = clientUpdated?.clientId;
+        if (!isNil(clientId) && typeof clientId === 'string') {
+          Storage.storageWrite(sessionStorageClientIdKey, clientId, 'string');
+        } else {
+          console.error('clientId is not a valid value:', clientId);
+        }
       }
       // before redirecting we need to show a modal with clientId and clientSecret
       // open only if it is in creation phase, not an update
@@ -112,35 +98,11 @@ export const Dashboard = () => {
         openModal('secretViewer');
       }
     }
-  }, [
-    updateError,
-    clientUpdated,
-    updateCognitoMapping,
-    isUpdatePhase,
-    openModal,
-  ]);
-
-  useEffect(() => {
-    // If everything is ok, redirect to the dashboard's client in edit mode
-    if (cognitoUpdated) {
-      setErrorUi(null);
-      setNotify({
-        open: true,
-        message: 'Cognito updated successfully, id: ' + clientUpdated?.clientId,
-        severity: 'success',
-      });
-    }
-
-    if (cognitoError) {
-      setNotify({
-        open: true,
-        message: 'Error updating cognito',
-        severity: 'error',
-      });
-    }
-  }, [clientUpdated?.clientId, cognitoError, cognitoUpdated, openModal]);
+  }, [updateError, clientUpdated, isUpdatePhase, openModal]);
 
   const isFormValid = () => {
+    // TODO: if clientSchema inside api.ts is adjusted to reflect the actual optional and required fields, we can use:
+    // const isFormValid = () => clientSchema.safeParse(formData).success;
     return (
       !!formData?.clientName &&
       !!formData?.redirectUris?.length &&
@@ -162,12 +124,12 @@ export const Dashboard = () => {
 
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
+    } else {
+      createOrUpdateClient({
+        data: formData as Omit<Client, 'clientId' | 'clientSecret'>,
+        clientId: clientId,
+      });
     }
-
-    createOrUpdateClient({
-      data: formData as Omit<Client, 'clientId' | 'clientSecret'>,
-      clientId: clientId,
-    });
   };
 
   const handleChange =

@@ -29,20 +29,15 @@ export const verifyToken = async (token: string): Promise<LoginResponse> => {
 };
 
 export const getClientData = async (
-  clientId: string | undefined,
   userId: string | undefined,
   token: string
 ): Promise<Client> => {
-  if (!clientId) {
-    throw new Error('Client ID is required');
+  if (!userId) {
+    throw new Error('User ID is required');
   }
-  // mock:
-  // const out =
-  //   '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
-  // return JSON.parse(out);
   try {
     const response = await api.get<Client>(
-      `${ENV.URL_API.REGISTER}/${clientId}/${userId}`,
+      `${ENV.URL_API.REGISTER}/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,6 +82,8 @@ export const createOrUpdateClient = async (
     //   clientIdIssuedAt: 1234567890,
     //   clientSecretExpiresAt: 1234567890,
     // });
+
+    // TODO: cloud we use axios middleware to inject auth bearer token ?
 
     const response = await api[method]<Client>(url, data, {
       headers: {

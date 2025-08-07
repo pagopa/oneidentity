@@ -27,7 +27,7 @@ const withTimeout = <T extends object>(
   ]);
 };
 
-export const useRegister = (clientId?: string) => {
+export const useRegister = () => {
   const { user } = useAuth();
   const token = user?.id_token;
   const userId = user?.profile.sub;
@@ -37,9 +37,9 @@ export const useRegister = (clientId?: string) => {
   }
 
   const clientQuery = useQuery<Client, Error>({
-    queryKey: ['client', clientId],
-    queryFn: () => getClientData(clientId, userId, token),
-    enabled: !!token && !!clientId,
+    queryKey: ['user-client', userId],
+    queryFn: () => getClientData(userId, token),
+    enabled: !!token && !!userId,
     staleTime,
     retry,
     throwOnError: false, //be careful with this option, it can cause unexpected behavior
