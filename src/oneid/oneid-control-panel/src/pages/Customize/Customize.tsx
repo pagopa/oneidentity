@@ -36,7 +36,7 @@ import { ClientSettings } from './components/ClientSettings';
 import { Notify } from '../../components/Notify';
 
 function CustomizeDashboard() {
-  const { client_id: clientID } = useParams(); // Get the client_id from the URL
+  const { clientId } = useParams(); // Get the clientId from the URL
   const {
     getAdditionalClientAttrs: {
       data: fetchedAdditionalAttributes,
@@ -285,7 +285,7 @@ function CustomizeDashboard() {
         [key]: {
           it: {
             title: '',
-            desc: '',
+            description: '',
           },
         },
       },
@@ -336,7 +336,7 @@ function CustomizeDashboard() {
 
           <ClientSettings
             clientData={clientData}
-            clientID={clientID}
+            clientID={clientId}
             onClientDataChange={handleTopLevelChange}
             errorUi={errorUi}
           />
