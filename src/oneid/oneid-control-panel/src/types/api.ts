@@ -101,21 +101,6 @@ export const SamlAttributeSchema = z.enum([
 
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
-const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
-
-const ThemeSchema = z.object({
-  title: z
-    .string()
-    .min(10, 'Title is required and must be at least 10 characters'),
-  description: z
-    .string()
-    .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().optional(),
-  cookieUri: z.string().optional(),
-  supportAddress: z.string().optional(),
-});
-
-const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 export const clientSchema = z.object({
   userId: z.string().optional(),
@@ -150,6 +135,22 @@ export const idpUserListSchema = z.object({
 export const addIdpUserSchema = idpUserSchema.extend({
   user_id: z.string(),
 });
+
+const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
+
+const ThemeSchema = z.object({
+  title: z
+    .string()
+    .min(10, 'Title is required and must be at least 10 characters'),
+  description: z
+    .string()
+    .min(20, 'Description is required and must be at least 20 characters'),
+  docUri: z.string().optional(),
+  cookieUri: z.string().optional(),
+  supportAddress: z.string().optional(),
+});
+
+const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 export const clientFESchema = z.object({
   a11yUri: z.string().url().optional().nullable(),
@@ -187,10 +188,6 @@ export const allLanguages: Record<Languages, string> = {
   sl: 'Slovenščina',
   fr: 'Français',
 };
-
-export type RegisterClientRequest = {
-  // Fields that can be submitted in the form
-} & Omit<Client, 'client_id' | 'client_secret'>;
 
 export type LoginError = {
   message: string;

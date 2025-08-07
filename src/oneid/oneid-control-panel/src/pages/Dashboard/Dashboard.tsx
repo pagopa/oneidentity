@@ -106,7 +106,7 @@ export const Dashboard = () => {
       if (!isUpdatePhase) {
         updateCognitoMapping();
       }
-      // before redirecting we need to show a modal with clientId and client_secret
+      // before redirecting we need to show a modal with clientId and clientSecret
       // open only if it is in creation phase, not an update
       if (!isUpdatePhase) {
         openModal('secretViewer');

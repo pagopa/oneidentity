@@ -53,7 +53,7 @@ export const useRegister = (clientId?: string) => {
       data,
       clientId,
     }: {
-      data: Omit<Client, 'client_id' | 'client_secret'>;
+      data: Omit<Client, 'clientId' | 'clientSecret'>;
       clientId?: string;
     }) => {
       const dataWithUserId = { ...data, userId };

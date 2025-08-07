@@ -64,7 +64,7 @@ export const getClientData = async (
 };
 
 export const createOrUpdateClient = async (
-  data: Omit<Client, 'client_id' | 'client_secret'>,
+  data: Omit<Client, 'clientId' | 'clientSecret'>,
   token: string,
   clientId?: string
 ): Promise<Client | ClientErrors> => {
@@ -82,10 +82,10 @@ export const createOrUpdateClient = async (
     // mock:
     // return Promise.resolve({
     //   ...data,
-    //   client_id: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
-    //   client_secret: 'xxx',
-    //   client_id_issued_at: 1234567890,
-    //   client_secret_expires_at: 1234567890,
+    //   clientId: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
+    //   clientSecret: 'xxx',
+    //   clientIdIssuedAt: 1234567890,
+    //   clientSecretExpiresAt: 1234567890,
     // });
 
     const response = await api[method]<Client>(url, data, {
