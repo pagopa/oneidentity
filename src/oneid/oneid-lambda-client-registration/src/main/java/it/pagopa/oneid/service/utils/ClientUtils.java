@@ -61,6 +61,8 @@ public class ClientUtils {
             ? clientRegistrationDTO.getSpidProfessionals() : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise() : false)
+        .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
+            ? clientRegistrationDTO.getRequiredSameIdp() : false)
         .build();
   }
 

@@ -225,7 +225,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
             ? clientRegistrationDTO.getSpidProfessionals() : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise() : false)
-        .clientID(client.getClientId())
+        .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
         .clientIdIssuedAt(client.getClientIdIssuedAt())
         .build();
