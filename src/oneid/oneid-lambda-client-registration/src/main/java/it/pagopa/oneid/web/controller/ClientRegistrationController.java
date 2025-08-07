@@ -57,11 +57,11 @@ public class ClientRegistrationController {
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
         clientRegistrationDTOInput);
     Log.info(
-        "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientID());
+        "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
-            "Client ID: " + clientRegistrationResponseDTO.getClientID() + "\n" +
+            "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
             "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes().stream()
             .map(Enum::name).toList() + "\n" +
             "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
