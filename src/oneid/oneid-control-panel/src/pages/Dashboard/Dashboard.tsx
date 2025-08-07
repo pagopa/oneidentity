@@ -7,12 +7,15 @@ import {
   Select,
   MenuItem,
   FormControl,
+  FormGroup,
   InputLabel,
   OutlinedInput,
   CircularProgress,
   Alert,
   Chip,
   FormHelperText,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import {
@@ -162,14 +165,18 @@ export const Dashboard = () => {
     }
 
     createOrUpdateClient({
-      data: formData as Omit<Client, 'clientId' | 'client_secret'>,
+      data: formData as Omit<Client, 'clientId' | 'clientSecret'>,
       clientId: clientId,
     });
   };
 
   const handleChange =
     (field: keyof Client) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      const { value, type, checked } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: type === 'checkbox' ? checked : value,
+      }));
     };
 
   if (isLoadingClient) {
@@ -313,7 +320,7 @@ export const Dashboard = () => {
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                default_acr_values: e.target.value as Array<SpidLevel>,
+                defaultAcrValues: e.target.value as Array<SpidLevel>,
               }))
             }
             input={<OutlinedInput label={'SPID Level'} />}
@@ -335,13 +342,27 @@ export const Dashboard = () => {
           onChangeFunction={(e) =>
             setFormData((prev) => ({
               ...prev,
-              saml_requested_attributes: e.target.value as Array<SamlAttribute>,
+              samlRequestedAttributes: e.target.value as Array<SamlAttribute>,
             }))
           }
           errorHelperText={
             (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
           }
         />
+
+        <FormGroup sx={{ mt: 1 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                sx={{ mr: 2, ml: 1 }}
+                name="requiredSameIdp"
+                checked={formData?.requiredSameIdp || false}
+                onChange={handleChange('requiredSameIdp')}
+              />
+            }
+            label="Required Same IDP"
+          />
+        </FormGroup>
 
         <Button
           type="submit"
