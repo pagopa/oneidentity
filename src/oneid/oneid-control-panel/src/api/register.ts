@@ -72,7 +72,7 @@ export const createOrUpdateClient = async (
     const url = clientId
       ? `${ENV.URL_API.REGISTER}/${clientId}`
       : ENV.URL_API.REGISTER;
-    const method = clientId ? 'put' : 'post';
+    const method = clientId ? 'patch' : 'post';
 
     const errors = clientSchema.safeParse(data);
     if (!errors.success) {
