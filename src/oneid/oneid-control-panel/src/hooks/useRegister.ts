@@ -56,8 +56,9 @@ export const useRegister = (clientId?: string) => {
       data: Omit<Client, 'client_id' | 'client_secret'>;
       clientId?: string;
     }) => {
+      const dataWithUserId = { ...data, userId };
       return withTimeout(
-        createOrUpdateClient(data, token, clientId),
+        createOrUpdateClient(dataWithUserId, token, clientId),
         TIMEOUT_DURATION
       );
     },
