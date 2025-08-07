@@ -101,6 +101,21 @@ export const SamlAttributeSchema = z.enum([
 
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
+const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
+
+const ThemeSchema = z.object({
+  title: z
+    .string()
+    .min(10, 'Title is required and must be at least 10 characters'),
+  description: z
+    .string()
+    .min(20, 'Description is required and must be at least 20 characters'),
+  docUri: z.string().optional(),
+  cookieUri: z.string().optional(),
+  supportAddress: z.string().optional(),
+});
+
+const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 export const clientSchema = z.object({
   userId: z.string().optional(),
@@ -108,20 +123,17 @@ export const clientSchema = z.object({
   clientSecret: z.string().optional(),
   clientIdIssuedAt: z.number().optional(),
   clientSecretExpiresAt: z.number().optional(),
-  clientName: z.string(),
-  policyUri: z.string().url().optional().nullable(),
-  tosUri: z.string().url().optional().nullable(),
+  clientName: z.string().optional(),
+  policyUri: z.string().url().nullish(),
+  tosUri: z.string().url().nullish(),
   redirectUris: z.array(z.string().url().min(1)),
   samlRequestedAttributes: SamlAttributeArraySchema.min(1),
   logoUri: z.string().url().optional().nullable(),
   defaultAcrValues: SpidLevelArraySchema.min(1),
   requiredSameIdp: z.boolean().optional(),
-  a11yUri: z.string().optional(),
-  backButtonEnabled: z.boolean().optional(),
-  localizedContentMap: z.string().optional(),
-  spidMinors: z.string().optional(),
-  spidProfessionals: z.string().optional(),
-  pairwise: z.string().optional(),
+  spidMinors: z.boolean().optional(),
+  spidProfessionals: z.boolean().optional(),
+  pairwise: z.boolean().optional(),
 });
 
 export const idpUserCreateOrUpdateResponseSchema = z.object({
@@ -138,22 +150,6 @@ export const idpUserListSchema = z.object({
 export const addIdpUserSchema = idpUserSchema.extend({
   user_id: z.string(),
 });
-
-const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
-
-const ThemeSchema = z.object({
-  title: z
-    .string()
-    .min(10, 'Title is required and must be at least 10 characters'),
-  desc: z
-    .string()
-    .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().optional(),
-  cookieUri: z.string().optional(),
-  supportAddress: z.string().optional(),
-});
-
-const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 export const clientFESchema = z.object({
   a11yUri: z.string().url().optional().nullable(),
