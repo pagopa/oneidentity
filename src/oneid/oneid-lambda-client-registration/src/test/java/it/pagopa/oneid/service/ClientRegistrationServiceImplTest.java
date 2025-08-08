@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -187,6 +188,59 @@ class ClientRegistrationServiceImplTest {
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO));
+  }
+
+  @Test
+  void saveClient_existingUserId_ko() {
+
+    // given
+    String existingUserId = "existingUserId";
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId(existingUserId)
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of(Identifier.name))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    Client returnClient = Client.builder()
+        .userId(existingUserId)
+        .clientId("test")
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    // when
+    Mockito.when(clientConnectorImpl.getClientByUserId(existingUserId))
+        .thenReturn(Optional.of(returnClient));
+
+    // then
+    assertThrows(ExistingUserIdException.class,
+        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO));
   }
 
   @Test
