@@ -7,6 +7,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
@@ -109,7 +110,7 @@ class ClientRegistrationControllerTest {
   //Get Client Info
 
   @Test
-  void getClientInfoByClientId_ok() {
+  void getClient_ok() {
     Client mockClient = Client.builder()
         .clientId("client_id")
         .userId("user_id")
@@ -123,52 +124,43 @@ class ClientRegistrationControllerTest {
         .build();
 
     Mockito.when(
-            clientRegistrationServiceImpl.getClient(Mockito.eq("client_id"), Mockito.eq("user_id")))
+            clientRegistrationServiceImpl.getClientByUserId(Mockito.eq("user_id")))
         .thenReturn(mockClient);
 
     given()
         .contentType("application/json")
-        .pathParam("client_id", "client_id")
         .pathParam("user_id", "user_id")
         .when()
-        .get("/register/{client_id}/{user_id}")
+        .get("/register/{user_id}")
         .then()
         .statusCode(200);
   }
 
-
   @Test
-  void getClientInfoByClientId_missingUserId_ko() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .build();
+  void getClient_missingUserId_ko() {
 
     given()
         .contentType("application/json")
-        .pathParam("client_id", "test")
         .pathParam("user_id", "")
-        .body(clientRegistrationDTO)
         .when()
-        .get("/register/{client_id}/{user_id}")
+        .get("/register/{user_id}")
         .then()
         .statusCode(400); // Bad Request due to missing userId
   }
 
   @Test
-  void getClientInfoByClientId_missingClientId_ko() {
-    String userId = "testUserId";
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId(userId)
-        .build();
+  void getClient_clientNotFound_ko() {
+
+    Mockito.when(clientRegistrationServiceImpl.getClientByUserId(Mockito.eq("user_id")))
+        .thenThrow(ClientNotFoundException.class);
 
     given()
         .contentType("application/json")
-        .pathParam("client_id", "")
-        .pathParam("user_id", "test")
-        .body(clientRegistrationDTO)
+        .pathParam("user_id", "user_id")
         .when()
-        .get("/register/{client_id}/{user_id}")
+        .get("/register/{user_id}")
         .then()
-        .statusCode(400); // Bad Request due to missing clientId
+        .statusCode(401); // Unauthorized due to client not found
   }
 
   //Update Client
@@ -202,8 +194,8 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("http://updated.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClient(Mockito.eq(clientId),
-            Mockito.eq(userId)))
+    Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
+        ))
         .thenReturn(existingClient);
 
     given()
@@ -245,8 +237,8 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("http://new.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClient(Mockito.eq(clientId),
-            Mockito.eq(userId)))
+    Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
+        ))
         .thenReturn(existingClient);
     Assertions.assertDoesNotThrow(
         () -> clientRegistrationServiceImpl.patchClientRegistrationDTO(existingDto, updatedDto));

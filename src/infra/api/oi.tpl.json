@@ -565,7 +565,7 @@
         }
       }
     },
-    "/oidc/register/{client_id}/{user_id}": {
+    "/oidc/register/{user_id}": {
       "get": {
         "tags": [
           "Authorization Server APIs"
@@ -612,20 +612,10 @@
             }
           },
           "cacheKeyParameters": [
-            "method.request.path.client_id",
             "method.request.path.user_id"
           ]
         },
         "parameters": [
-          {
-            "in": "path",
-            "name": "client_id",
-            "description": "client_id that was returned in the client registration response",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "in": "path",
             "name": "user_id",
@@ -674,7 +664,7 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
-    "oidc/clients/{client_id}/secret/refresh": {
+    "/oidc/clients/{client_id}/secret/refresh": {
       "post": {
         "tags": [
           "Authorization Server APIs"
