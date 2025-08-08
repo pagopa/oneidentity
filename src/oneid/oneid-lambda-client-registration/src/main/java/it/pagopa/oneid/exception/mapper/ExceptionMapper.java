@@ -149,6 +149,13 @@ public class ExceptionMapper {
     return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
   }
 
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapExistingUserIdException(ExistingUserIdException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = UNAUTHORIZED;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(
