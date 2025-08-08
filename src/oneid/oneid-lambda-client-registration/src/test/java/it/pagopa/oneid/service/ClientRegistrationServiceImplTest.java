@@ -12,6 +12,8 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
