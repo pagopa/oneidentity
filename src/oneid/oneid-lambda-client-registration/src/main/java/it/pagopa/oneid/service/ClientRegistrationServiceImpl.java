@@ -9,6 +9,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
@@ -196,16 +197,22 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     ClientExtended clientExtended = new ClientExtended(client, clientSecretSalt.hashedSecret,
         HASHUtils.b64encoder.encodeToString(clientSecretSalt.salt));
 
-    // 5. Save on Dynamo
+    // 5. Check if userId doesn't exist
+    if (!clientConnector.getClientByUserId(clientExtended.getUserId()).isEmpty()) {
+      Log.errorf("Client with userId %s already exists", clientExtended.getUserId());
+      throw new ExistingUserIdException("UserId already exists: " + clientExtended.getUserId());
+    }
+
+    // 6. Save client on db
     clientConnector.saveClientIfNotExists(clientExtended);
     Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
-    // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
+    // 7. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
         clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
             .orElseThrow(ClientRegistrationServiceException::new)));
 
-    // 7. create and return ClientRegistrationResponseDTO
+    // 8. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
         .userId(clientRegistrationDTO.getUserId())
         .redirectUris(clientRegistrationDTO.getRedirectUris())

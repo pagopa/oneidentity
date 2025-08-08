@@ -10,6 +10,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidInputSetException;
 import it.pagopa.oneid.exception.InvalidUriException;
@@ -139,6 +140,13 @@ public class ExceptionMapper {
   public RestResponse<ErrorResponse> mapWebApplicationException(WebApplicationException exception) {
     Log.error(ExceptionUtils.getStackTrace(exception));
     Response.Status status = Response.Status.BAD_REQUEST;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapExistingUserIdException(ExistingUserIdException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = UNAUTHORIZED;
     return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
   }
 

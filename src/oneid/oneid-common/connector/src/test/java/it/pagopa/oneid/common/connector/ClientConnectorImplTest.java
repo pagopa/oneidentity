@@ -198,6 +198,40 @@ class ClientConnectorImplTest {
     assertEquals("originalLogoUri", updatedClient.getLogoUri()); // Unchanged
   }
 
+  @Test
+  void checkUniqueUserId_ok() {
+    assertTrue(clientConnectorImpl.getClientByUserId("testUserId").isEmpty());
+  }
+
+  @Test
+  void checkUniqueUserId_alreadyExistingUser() {
+    //given
+    String userId = "testUserId";
+    Client client = Client.builder()
+        .userId(userId)
+        .logoUri("logoUri")
+        .clientId("clientId")
+        .requiredSameIdp(true)
+        .friendlyName("test")
+        .callbackURI(Set.of("test.com"))
+        .requestedParameters(Set.of("test.com"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(false)
+        .clientIdIssuedAt(0)
+        .build();
+    clientExtendedMapper.putItem(new ClientExtended(client, "test", "test"));
+
+    //when
+    Optional<Client> result = clientConnectorImpl.getClientByUserId(userId);
+
+    //then
+    assertTrue(result.isPresent());
+    assertEquals(result.get().getClientId(), client.getClientId());
+    assertEquals(result.get().getUserId(), client.getUserId());
+  }
+
   @Nested
   class TestWithClientPresent {
 
