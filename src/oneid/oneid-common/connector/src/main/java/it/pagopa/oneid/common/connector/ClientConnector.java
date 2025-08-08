@@ -22,4 +22,5 @@ public interface ClientConnector {
 
   void updateClientSecretSalt(Client client, String newSalt, String newHashedSecret);
 
+  Optional<Client> getClientByUserId(String userId);
 }

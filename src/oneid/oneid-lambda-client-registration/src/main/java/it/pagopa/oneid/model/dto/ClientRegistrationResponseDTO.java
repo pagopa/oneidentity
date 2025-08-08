@@ -27,4 +27,11 @@ public class ClientRegistrationResponseDTO extends ClientRegistrationDTO {
 
   @JsonProperty("clientSecretExpiresAt")
   private int clientSecretExpiresAt;
+
+
+  public ClientRegistrationResponseDTO(ClientRegistrationDTO clientRegistrationDTO,
+      String clientId) {
+    super(clientRegistrationDTO);
+    this.clientId = clientId;
+  }
 }
