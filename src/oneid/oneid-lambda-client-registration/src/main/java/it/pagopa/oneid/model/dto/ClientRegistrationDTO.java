@@ -81,4 +81,21 @@ public class ClientRegistrationDTO {
   @JsonProperty("pairwise")
   private Boolean pairwise;
 
+  public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
+    this.userId = clientRegistrationDTO.userId;
+    this.redirectUris = clientRegistrationDTO.redirectUris;
+    this.clientName = clientRegistrationDTO.clientName;
+    this.defaultAcrValues = clientRegistrationDTO.defaultAcrValues;
+    this.samlRequestedAttributes = clientRegistrationDTO.samlRequestedAttributes;
+    this.requiredSameIdp = clientRegistrationDTO.requiredSameIdp;
+    this.logoUri = clientRegistrationDTO.logoUri;
+    this.policyUri = clientRegistrationDTO.policyUri;
+    this.tosUri = clientRegistrationDTO.tosUri;
+    this.a11yUri = clientRegistrationDTO.a11yUri;
+    this.backButtonEnabled = clientRegistrationDTO.backButtonEnabled;
+    this.localizedContentMap = clientRegistrationDTO.localizedContentMap;
+    this.spidMinors = clientRegistrationDTO.spidMinors;
+    this.spidProfessionals = clientRegistrationDTO.spidProfessionals;
+    this.pairwise = clientRegistrationDTO.pairwise;
+  }
 }
