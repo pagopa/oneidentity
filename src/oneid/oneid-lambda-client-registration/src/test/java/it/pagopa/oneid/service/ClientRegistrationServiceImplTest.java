@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -142,7 +143,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void saveClient() {
+  void saveClient_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
@@ -244,13 +245,13 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void getClient() {
+  void getClientByClientId() {
 
     //given
-    String clientID = "test";
+    String clientId = "test";
     String userId = "userId-test";
     Client returnClient = Client.builder()
-        .clientId(clientID)
+        .clientId(clientId)
         .userId(userId)
         .friendlyName("test")
         .callbackURI(Set.of("test"))
@@ -275,7 +276,64 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
         .thenReturn(Optional.of(returnClient));
 
-    assertNotNull(clientRegistrationServiceImpl.getClient(clientID, userId));
+    assertNotNull(clientRegistrationServiceImpl.getClientByClientId(clientId));
+  }
+
+  @Test
+  void getClientByClientId_ko() {
+    //when
+    Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+
+    // then
+    assertThrows(ClientNotFoundException.class,
+        () -> clientRegistrationServiceImpl.getClientByClientId("nonExistentUserId"));
+  }
+
+  @Test
+  void getClientByUserId() {
+
+    //given
+    String clientId = "test";
+    String userId = "userId-test";
+    Client returnClient = Client.builder()
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    //when
+    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+        .thenReturn(Optional.of(returnClient));
+
+    assertNotNull(clientRegistrationServiceImpl.getClientByUserId(userId));
+  }
+
+  @Test
+  void getClientByUserId_ko() {
+    //when
+    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+
+    // then
+    assertThrows(ClientNotFoundException.class,
+        () -> clientRegistrationServiceImpl.getClientByUserId("nonExistentUserId"));
   }
 
   @Test
@@ -388,7 +446,8 @@ class ClientRegistrationServiceImplTest {
     String userId = "user-123";
 
     Client mockClient = Mockito.mock(Client.class);
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(mockClient));
+    Mockito.when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(mockClient));
 
     RefreshSecretException exception = assertThrows(RefreshSecretException.class,
         () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));

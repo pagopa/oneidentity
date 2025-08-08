@@ -250,8 +250,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public Client getClient(String clientId, String userId) {
+  public Client getClientByClientId(String clientId) {
     Client client = clientConnector.getClientById(clientId)
+        .orElseThrow(ClientNotFoundException::new);
+    return client;
+  }
+
+  @Override
+  public Client getClientByUserId(String userId) {
+    Client client = clientConnector.getClientByUserId(userId)
         .orElseThrow(ClientNotFoundException::new);
     return client;
   }
