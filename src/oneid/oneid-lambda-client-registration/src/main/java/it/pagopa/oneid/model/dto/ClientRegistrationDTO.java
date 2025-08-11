@@ -43,7 +43,7 @@ public class ClientRegistrationDTO {
   @NotEmpty(groups = {Registration.class})
   @JsonProperty("defaultAcrValues")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @AuthLevelCheck(groups = {Registration.class})
+  @AuthLevelCheck(groups = {Registration.class, PatchClient.class})
   private Set<String> defaultAcrValues;
 
   @NotEmpty(groups = {Registration.class})
