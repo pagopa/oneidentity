@@ -412,7 +412,7 @@
         }
       }
     },
-    "/oidc/register/{client_id}": {
+    "/oidc/register/client_id/{client_id}": {
       "patch": {
         "tags": [
           "Authorization Server APIs"
@@ -565,7 +565,7 @@
         }
       }
     },
-    "/oidc/register/{user_id}": {
+    "/oidc/register/user_id/{user_id}": {
       "get": {
         "tags": [
           "Authorization Server APIs"

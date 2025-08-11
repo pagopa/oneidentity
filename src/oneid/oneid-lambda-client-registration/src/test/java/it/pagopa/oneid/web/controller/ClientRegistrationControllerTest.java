@@ -131,7 +131,7 @@ class ClientRegistrationControllerTest {
         .contentType("application/json")
         .pathParam("user_id", "user_id")
         .when()
-        .get("/register/{user_id}")
+        .get("/register/user_id/{user_id}")
         .then()
         .statusCode(200);
   }
@@ -143,7 +143,7 @@ class ClientRegistrationControllerTest {
         .contentType("application/json")
         .pathParam("user_id", "")
         .when()
-        .get("/register/{user_id}")
+        .get("/register/user_id/{user_id}")
         .then()
         .statusCode(400); // Bad Request due to missing userId
   }
@@ -158,7 +158,7 @@ class ClientRegistrationControllerTest {
         .contentType("application/json")
         .pathParam("user_id", "user_id")
         .when()
-        .get("/register/{user_id}")
+        .get("/register/user_id/{user_id}")
         .then()
         .statusCode(401); // Unauthorized due to client not found
   }
@@ -203,7 +203,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .patch("/register/{client_id}")
+        .patch("/register/client_id/{client_id}")
         .then()
         .statusCode(204);
   }
@@ -248,7 +248,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .patch("/register/{client_id}")
+        .patch("/register/client_id/{client_id}")
         .then()
         .statusCode(400); // Bad Request due to missing userId in request body
   }
