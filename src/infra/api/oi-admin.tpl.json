@@ -837,7 +837,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy-Report-Only": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -883,7 +883,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy-Report-Only": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -928,7 +928,7 @@
                   "type": "string"
                 }
               },
-              "Content-Security-Policy-Report-Only": {
+              "Content-Security-Policy": {
                 "type": "string"
               }
             },
@@ -948,7 +948,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.Content-Type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy-Report-Only": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -1043,7 +1043,7 @@
               }
             }
           },
-            "Content-Security-Policy-Report-Only": {
+            "Content-Security-Policy": {
             "type": "string"
             }
         },
