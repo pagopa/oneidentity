@@ -361,6 +361,7 @@ def create_idp_internal_user():
         # Create user in Internal IDP
         response = dynamodb_client.put_item(
             TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            ConditionExpression="attribute_not_exists(username) AND attribute_not_exists(namespace)",
             Item={
                 "username": {"S": username},
                 "namespace": {"S": client_id},
@@ -383,6 +384,10 @@ def create_idp_internal_user():
         # Return success response
         return {"message": "User created successfully"}, 201
 
+
+    except dynamodb_client.exceptions.ConditionalCheckFailedException:
+        logger.error("[create_idp_internal_user]: User already exists")
+        return {"message": "User already exists"}, 409
     except Exception as e:
         logger.error("Error creating user: %s", repr(e))
         return {"message": "Internal server error"}, 500
