@@ -82,7 +82,7 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register/{user_id}")
+  @Path("/register/user_id/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response getClient(@PathParam("user_id") String userId) {
@@ -100,13 +100,13 @@ public class ClientRegistrationController {
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = new ClientRegistrationResponseDTO(
         clientRegistrationDTO,
         client.getClientId());
-    
+
     Log.info("end");
     return Response.ok(clientRegistrationResponseDTO).build();
   }
 
   @PATCH
-  @Path("/register/{client_id}")
+  @Path("/register/client_id/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
