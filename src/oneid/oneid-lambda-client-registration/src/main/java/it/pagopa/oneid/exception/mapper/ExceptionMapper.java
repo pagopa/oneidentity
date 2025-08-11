@@ -156,6 +156,14 @@ public class ExceptionMapper {
     return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
   }
 
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapConstraintViolationException(
+      ConstraintViolationException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = Response.Status.BAD_REQUEST;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(
