@@ -338,6 +338,10 @@
               "statusCode": "405",
               "responseParameters": {}
             },
+            "409": {
+              "statusCode": "409",
+              "responseParameters": {}
+            },
             "429": {
               "statusCode": "405",
               "responseParameters": {}
@@ -374,6 +378,9 @@
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/rateLimit"
           },
@@ -389,12 +396,12 @@
       }
     },
     "/client-manager/client-users/{user_id}/{username}": {
-      "put": {
+      "patch": {
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint updates a user in the Internal IDP",
-        "operationId": "Put_admin_client_manager_client_users",
+        "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
+        "operationId": "Patch_admin_client_manager_client_users",
         "parameters": [
           {
             "in": "path",
@@ -441,6 +448,10 @@
               "statusCode": "403",
               "responseParameters": {}
             },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
             "405": {
               "statusCode": "405",
               "responseParameters": {}
@@ -479,6 +490,9 @@
           },
           "403": {
             "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -1202,6 +1216,31 @@
       },
       "forbidden": {
         "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "conflict": {
+        "description": "Conflict.",
         "headers": {
           "Pragma": {
             "description": "Pragma browser directive",
