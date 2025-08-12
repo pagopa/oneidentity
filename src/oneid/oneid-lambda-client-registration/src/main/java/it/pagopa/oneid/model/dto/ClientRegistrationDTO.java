@@ -3,10 +3,10 @@ package it.pagopa.oneid.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.model.groups.ValidationGroups.PatchClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
+import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Map;
@@ -49,7 +49,8 @@ public class ClientRegistrationDTO {
   @NotEmpty(groups = {Registration.class})
   @JsonProperty("samlRequestedAttributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private Set<Identifier> samlRequestedAttributes;
+  @SamlRequestedAttributeCheck(groups = {Registration.class, PatchClient.class})
+  private Set<String> samlRequestedAttributes;
 
   @JsonProperty("requiredSameIdp")
   private Boolean requiredSameIdp;

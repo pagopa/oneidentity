@@ -11,7 +11,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.InvalidUriException;
@@ -44,7 +43,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -66,7 +65,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
@@ -152,7 +151,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("test"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -204,7 +203,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("test"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -389,7 +388,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("newPolicy")
         .tosUri("newTos")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("newA11y")
         .backButtonEnabled(true)
         .localizedContentMap(new HashMap<>())
@@ -463,7 +462,7 @@ class ClientRegistrationServiceImplTest {
         .redirectUris(Set.of("http://patched.com"))
         .clientName("patchedName")
         .defaultAcrValues(Set.of("patchedAcr"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .logoUri("http://patched.com/logo")
         .policyUri("http://patched.com/policy")
         .tosUri("http://patched.com/tos")
@@ -481,7 +480,7 @@ class ClientRegistrationServiceImplTest {
         .redirectUris(Set.of("http://original.com"))
         .clientName("originalName")
         .defaultAcrValues(Set.of("originalAcr"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .logoUri("http://original.com/logo")
         .policyUri("http://original.com/policy")
         .tosUri("http://original.com/tos")
@@ -499,7 +498,7 @@ class ClientRegistrationServiceImplTest {
     assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
     assertEquals("patchedName", target.getClientName());
     assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());
-    assertEquals(Set.of(Identifier.name), target.getSamlRequestedAttributes());
+    assertEquals(Set.of("name"), target.getSamlRequestedAttributes());
     assertEquals("http://patched.com/logo", target.getLogoUri());
     assertEquals("http://patched.com/policy", target.getPolicyUri());
     assertEquals("http://patched.com/tos", target.getTosUri());

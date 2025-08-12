@@ -6,7 +6,6 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -37,7 +36,7 @@ class ClientRegistrationControllerTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -93,6 +92,51 @@ class ClientRegistrationControllerTest {
         .then()
         .statusCode(400);
   }
+
+  @Test
+  void register_withInvalidSamlAttribute_ko() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test-user")
+        .clientName("Test Client")
+        .redirectUris(Set.of("https://valid.uri/callback"))
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue())) // This must be valid
+        // The payload contains a string that cannot be mapped to the Identifier enum
+        .samlRequestedAttributes(Set.of("this_is_not_a_valid_attribute"))
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .log().body()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withInvalidAcrValues_ko() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test-user")
+        .clientName("Test Client")
+        .redirectUris(Set.of("https://valid.uri/callback"))
+        .samlRequestedAttributes(Set.of("name"))
+        // The payload contains a string that cannot be mapped to the Authlevel enum
+        .defaultAcrValues(Set.of("this_is_not_a_valid_attribute"))
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .log().body()
+        .statusCode(400);
+  }
+
 
   @Test
   void register_MalformedJson_ko() {
@@ -182,14 +226,9 @@ class ClientRegistrationControllerTest {
         .clientIdIssuedAt(111)
         .build();
 
-    ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
-        .userId(userId)
-        .clientName("oldName")
-        .redirectUris(Set.of("http://old.com"))
-        .build();
-
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
         .userId(userId)
+        .defaultAcrValues(Set.of())
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
         .build();

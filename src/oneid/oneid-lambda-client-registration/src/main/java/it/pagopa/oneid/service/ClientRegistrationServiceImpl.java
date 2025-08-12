@@ -159,17 +159,17 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // Validate samlRequestedAttributes
-    Set<Identifier> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
+    Set<String> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
     if (samlRequestedAttributes != null) {
       if (samlRequestedAttributes.isEmpty()) {
         throw new InvalidInputSetException("No SAML requested attributes provided");
       }
-      for (Identifier attribute : samlRequestedAttributes) {
+      for (String attribute : samlRequestedAttributes) {
         if (attribute == null) {
           throw new InvalidInputSetException("SAML requested attribute cannot be null");
         }
         try {
-          Identifier.valueOf(attribute.name());
+          Identifier.valueOf(attribute);
         } catch (IllegalArgumentException e) {
           throw new InvalidInputSetException("Invalid SAML requested attribute: " + attribute);
         }
