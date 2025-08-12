@@ -228,7 +228,7 @@ class ClientRegistrationControllerTest {
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
         .userId(userId)
-        .defaultAcrValues(Set.of())
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
         .build();

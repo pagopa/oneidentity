@@ -18,8 +18,11 @@ public class SamlRequestedAttributeValidator implements
   @Override
   public boolean isValid(Set<String> identifiers,
       ConstraintValidatorContext constraintValidatorContext) {
-    if (identifiers == null || identifiers.isEmpty()) {
+    if (identifiers == null) {
       return true;
+    }
+    if (identifiers.isEmpty()) {
+      return false;
     }
     for (String identifier : identifiers) {
       if (identifier == null) {
