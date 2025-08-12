@@ -68,14 +68,13 @@ public class ClientRegistrationController {
     String subject =
         "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
 
-    //TODO: Uncomment the following lines to enable SNS notifications
-//    try {
-//      sns.publish(p ->
-//          p.topicArn(topicArn).subject(subject).message(message));
-//    } catch (Exception e) {
-//      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
-//          "Failed to send SNS notification: ", e);
-//    }
+    try {
+      sns.publish(p ->
+          p.topicArn(topicArn).subject(subject).message(message));
+    } catch (Exception e) {
+      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+          "Failed to send SNS notification: ", e);
+    }
 
     Log.info("end");
     return Response.status(Status.CREATED).entity(clientRegistrationResponseDTO).build();
@@ -147,14 +146,13 @@ public class ClientRegistrationController {
     String subject =
         "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
 
-    //TODO: Uncomment the following lines to enable SNS notifications
-//    try {
-//      sns.publish(p ->
-//          p.topicArn(topicArn).subject(subject).message(message));
-//    } catch (Exception e) {
-//      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
-//          "Failed to send SNS notification: ", e);
-//    }
+    try {
+      sns.publish(p ->
+          p.topicArn(topicArn).subject(subject).message(message));
+    } catch (Exception e) {
+      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+          "Failed to send SNS notification: ", e);
+    }
     Log.info("end");
 
     return Response.noContent().build();
