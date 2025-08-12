@@ -396,12 +396,12 @@
       }
     },
     "/client-manager/client-users/{user_id}/{username}": {
-      "put": {
+      "patch": {
         "tags": [
           "Admin Client Manager APIs"
         ],
         "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
-        "operationId": "Put_admin_client_manager_client_users",
+        "operationId": "Patch_admin_client_manager_client_users",
         "parameters": [
           {
             "in": "path",

@@ -393,7 +393,7 @@ def create_idp_internal_user():
         return {"message": "Internal server error"}, 500
 
 
-@app.put("/client-manager/client-users/<user_id>/<username>")
+@app.patch("/client-manager/client-users/<user_id>/<username>")
 def update_idp_internal_user(user_id: str, username: str):
     """
     Updates a user in the Internal IDP
