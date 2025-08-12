@@ -62,12 +62,12 @@ public class ClientRegistrationController {
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
             "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
-            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes().stream()
-            .map(Enum::name).toList() + "\n" +
+            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
             "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
 
     String subject =
         "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+
     try {
       sns.publish(p ->
           p.topicArn(topicArn).subject(subject).message(message));
@@ -82,33 +82,31 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register/{client_id}/{user_id}")
+  @Path("/register/user_id/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response getClientInfoByClientId(
-      @PathParam("client_id") String clientId,
-      @PathParam("user_id") String userId) {
+  public Response getClient(@PathParam("user_id") String userId) {
     Log.info("start");
 
     //1. Verify if client exists and if so retrieves it from db
-    Client client = clientRegistrationService.getClient(
-        clientId, userId);
-    Log.info("client exists for clientId: " + clientId);
+    Client client = clientRegistrationService.getClientByUserId(userId);
+    Log.info("client exists for userId: " + userId);
 
-    // 2. Check if userId in input matches the client userId on db
-    ClientUtils.checkUserId(userId, client.getUserId());
-    Log.info("userId in input matches the client userId on db: " + userId);
-
-    //3. Convert client to ClientRegistrationDTO
-    ClientRegistrationDTO clientRegistrationDTOresponse = ClientUtils.convertClientToClientRegistrationDTO(
+    //2. Convert client to ClientRegistrationDTO
+    ClientRegistrationDTO clientRegistrationDTO = ClientUtils.convertClientToClientRegistrationDTO(
         client);
 
+    //3. Set clientId in ClientRegistrationResponseDTO
+    ClientRegistrationResponseDTO clientRegistrationResponseDTO = new ClientRegistrationResponseDTO(
+        clientRegistrationDTO,
+        client.getClientId());
+
     Log.info("end");
-    return Response.ok(clientRegistrationDTOresponse).build();
+    return Response.ok(clientRegistrationResponseDTO).build();
   }
 
   @PATCH
-  @Path("/register/{client_id}")
+  @Path("/register/client_id/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
@@ -122,8 +120,7 @@ public class ClientRegistrationController {
     Log.info("client info validated successfully");
 
     //2. Retrieves client from db
-    Client client = clientRegistrationService.getClient(
-        clientId, clientRegistrationDTOInput.getUserId());
+    Client client = clientRegistrationService.getClientByClientId(clientId);
 
     //3. Check if userId in input matches the client userId on db
     ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
@@ -148,6 +145,7 @@ public class ClientRegistrationController {
             "Client ID: " + clientId + "\n";
     String subject =
         "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+
     try {
       sns.publish(p ->
           p.topicArn(topicArn).subject(subject).message(message));
