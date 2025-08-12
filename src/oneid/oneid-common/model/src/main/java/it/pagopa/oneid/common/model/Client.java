@@ -1,6 +1,6 @@
 package it.pagopa.oneid.common.model;
 
-import it.pagopa.oneid.common.model.converters.HashMapAttributeConverter;
+import it.pagopa.oneid.common.model.converters.LocalizedContentMapAttributeConverter;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
 import jakarta.validation.constraints.NotNull;
@@ -70,7 +70,7 @@ public class Client {
   // Fields related to FE
   private String a11yUri;
   private boolean backButtonEnabled;
-  @Getter(onMethod_ = @DynamoDbConvertedBy(HashMapAttributeConverter.class))
+  @Getter(onMethod_ = @DynamoDbConvertedBy(LocalizedContentMapAttributeConverter.class))
   private LocalizedContentMap localizedContentMap;
 
   //Extra fields
