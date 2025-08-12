@@ -3,10 +3,10 @@ package it.pagopa.oneid.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.model.groups.ValidationGroups.PatchClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
+import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Map;
@@ -43,13 +43,14 @@ public class ClientRegistrationDTO {
   @NotEmpty(groups = {Registration.class})
   @JsonProperty("defaultAcrValues")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @AuthLevelCheck(groups = {Registration.class})
+  @AuthLevelCheck(groups = {Registration.class, PatchClient.class})
   private Set<String> defaultAcrValues;
 
   @NotEmpty(groups = {Registration.class})
   @JsonProperty("samlRequestedAttributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private Set<Identifier> samlRequestedAttributes;
+  @SamlRequestedAttributeCheck(groups = {Registration.class, PatchClient.class})
+  private Set<String> samlRequestedAttributes;
 
   @JsonProperty("requiredSameIdp")
   private Boolean requiredSameIdp;
@@ -81,4 +82,21 @@ public class ClientRegistrationDTO {
   @JsonProperty("pairwise")
   private Boolean pairwise;
 
+  public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
+    this.userId = clientRegistrationDTO.userId;
+    this.redirectUris = clientRegistrationDTO.redirectUris;
+    this.clientName = clientRegistrationDTO.clientName;
+    this.defaultAcrValues = clientRegistrationDTO.defaultAcrValues;
+    this.samlRequestedAttributes = clientRegistrationDTO.samlRequestedAttributes;
+    this.requiredSameIdp = clientRegistrationDTO.requiredSameIdp;
+    this.logoUri = clientRegistrationDTO.logoUri;
+    this.policyUri = clientRegistrationDTO.policyUri;
+    this.tosUri = clientRegistrationDTO.tosUri;
+    this.a11yUri = clientRegistrationDTO.a11yUri;
+    this.backButtonEnabled = clientRegistrationDTO.backButtonEnabled;
+    this.localizedContentMap = clientRegistrationDTO.localizedContentMap;
+    this.spidMinors = clientRegistrationDTO.spidMinors;
+    this.spidProfessionals = clientRegistrationDTO.spidProfessionals;
+    this.pairwise = clientRegistrationDTO.pairwise;
+  }
 }

@@ -11,7 +11,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -42,7 +43,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -64,7 +65,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
@@ -141,7 +142,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void saveClient() {
+  void saveClient_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
@@ -150,7 +151,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://test.com")
         .tosUri("http://test.com")
         .defaultAcrValues(Set.of("test"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
@@ -190,13 +191,66 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void getClient() {
+  void saveClient_existingUserId_ko() {
+
+    // given
+    String existingUserId = "existingUserId";
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId(existingUserId)
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    Client returnClient = Client.builder()
+        .userId(existingUserId)
+        .clientId("test")
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    // when
+    Mockito.when(clientConnectorImpl.getClientByUserId(existingUserId))
+        .thenReturn(Optional.of(returnClient));
+
+    // then
+    assertThrows(ExistingUserIdException.class,
+        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO));
+  }
+
+  @Test
+  void getClientByClientId() {
 
     //given
-    String clientID = "test";
+    String clientId = "test";
     String userId = "userId-test";
     Client returnClient = Client.builder()
-        .clientId(clientID)
+        .clientId(clientId)
         .userId(userId)
         .friendlyName("test")
         .callbackURI(Set.of("test"))
@@ -221,7 +275,64 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
         .thenReturn(Optional.of(returnClient));
 
-    assertNotNull(clientRegistrationServiceImpl.getClient(clientID, userId));
+    assertNotNull(clientRegistrationServiceImpl.getClientByClientId(clientId));
+  }
+
+  @Test
+  void getClientByClientId_ko() {
+    //when
+    Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+
+    // then
+    assertThrows(ClientNotFoundException.class,
+        () -> clientRegistrationServiceImpl.getClientByClientId("nonExistentUserId"));
+  }
+
+  @Test
+  void getClientByUserId() {
+
+    //given
+    String clientId = "test";
+    String userId = "userId-test";
+    Client returnClient = Client.builder()
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+
+    //when
+    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+        .thenReturn(Optional.of(returnClient));
+
+    assertNotNull(clientRegistrationServiceImpl.getClientByUserId(userId));
+  }
+
+  @Test
+  void getClientByUserId_ko() {
+    //when
+    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+
+    // then
+    assertThrows(ClientNotFoundException.class,
+        () -> clientRegistrationServiceImpl.getClientByUserId("nonExistentUserId"));
   }
 
   @Test
@@ -277,7 +388,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("newPolicy")
         .tosUri("newTos")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .a11yUri("newA11y")
         .backButtonEnabled(true)
         .localizedContentMap(new HashMap<>())
@@ -334,7 +445,8 @@ class ClientRegistrationServiceImplTest {
     String userId = "user-123";
 
     Client mockClient = Mockito.mock(Client.class);
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(mockClient));
+    Mockito.when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(mockClient));
 
     RefreshSecretException exception = assertThrows(RefreshSecretException.class,
         () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
@@ -350,7 +462,7 @@ class ClientRegistrationServiceImplTest {
         .redirectUris(Set.of("http://patched.com"))
         .clientName("patchedName")
         .defaultAcrValues(Set.of("patchedAcr"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .logoUri("http://patched.com/logo")
         .policyUri("http://patched.com/policy")
         .tosUri("http://patched.com/tos")
@@ -368,7 +480,7 @@ class ClientRegistrationServiceImplTest {
         .redirectUris(Set.of("http://original.com"))
         .clientName("originalName")
         .defaultAcrValues(Set.of("originalAcr"))
-        .samlRequestedAttributes(Set.of(Identifier.name))
+        .samlRequestedAttributes(Set.of("name"))
         .logoUri("http://original.com/logo")
         .policyUri("http://original.com/policy")
         .tosUri("http://original.com/tos")
@@ -386,7 +498,7 @@ class ClientRegistrationServiceImplTest {
     assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
     assertEquals("patchedName", target.getClientName());
     assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());
-    assertEquals(Set.of(Identifier.name), target.getSamlRequestedAttributes());
+    assertEquals(Set.of("name"), target.getSamlRequestedAttributes());
     assertEquals("http://patched.com/logo", target.getLogoUri());
     assertEquals("http://patched.com/policy", target.getPolicyUri());
     assertEquals("http://patched.com/tos", target.getTosUri());

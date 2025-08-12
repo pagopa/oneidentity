@@ -6,13 +6,11 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
-import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
+import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.exception.InvalidInputSetException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -146,34 +144,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid a11y URI");
     }
-
-    // Validate defaultAcrValues
-    Set<String> defaultAcrValues = clientRegistrationDTO.getDefaultAcrValues();
-    if (defaultAcrValues != null) {
-      if (defaultAcrValues.isEmpty() || defaultAcrValues.stream()
-          .anyMatch(authLevel -> StringUtils.isBlank(authLevel)
-              || AuthLevel.authLevelFromValue(authLevel) == null)) {
-        throw new InvalidInputSetException("Invalid default ACR values");
-      }
-    }
-
-    // Validate samlRequestedAttributes
-    Set<Identifier> samlRequestedAttributes = clientRegistrationDTO.getSamlRequestedAttributes();
-    if (samlRequestedAttributes != null) {
-      if (samlRequestedAttributes.isEmpty()) {
-        throw new InvalidInputSetException("No SAML requested attributes provided");
-      }
-      for (Identifier attribute : samlRequestedAttributes) {
-        if (attribute == null) {
-          throw new InvalidInputSetException("SAML requested attribute cannot be null");
-        }
-        try {
-          Identifier.valueOf(attribute.name());
-        } catch (IllegalArgumentException e) {
-          throw new InvalidInputSetException("Invalid SAML requested attribute: " + attribute);
-        }
-      }
-    }
   }
 
   @Override
@@ -196,16 +166,22 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     ClientExtended clientExtended = new ClientExtended(client, clientSecretSalt.hashedSecret,
         HASHUtils.b64encoder.encodeToString(clientSecretSalt.salt));
 
-    // 5. Save on Dynamo
+    // 5. Check if userId doesn't exist
+    if (!clientConnector.getClientByUserId(clientExtended.getUserId()).isEmpty()) {
+      Log.errorf("Client with userId %s already exists", clientExtended.getUserId());
+      throw new ExistingUserIdException("UserId already exists: " + clientExtended.getUserId());
+    }
+
+    // 6. Save client on db
     clientConnector.saveClientIfNotExists(clientExtended);
     Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
-    // 6. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
+    // 7. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
         clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
             .orElseThrow(ClientRegistrationServiceException::new)));
 
-    // 7. create and return ClientRegistrationResponseDTO
+    // 8. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
         .userId(clientRegistrationDTO.getUserId())
         .redirectUris(clientRegistrationDTO.getRedirectUris())
@@ -243,8 +219,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public Client getClient(String clientId, String userId) {
+  public Client getClientByClientId(String clientId) {
     Client client = clientConnector.getClientById(clientId)
+        .orElseThrow(ClientNotFoundException::new);
+    return client;
+  }
+
+  @Override
+  public Client getClientByUserId(String userId) {
+    Client client = clientConnector.getClientByUserId(userId)
         .orElseThrow(ClientNotFoundException::new);
     return client;
   }
