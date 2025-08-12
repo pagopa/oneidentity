@@ -338,6 +338,10 @@
               "statusCode": "405",
               "responseParameters": {}
             },
+            "409": {
+              "statusCode": "409",
+              "responseParameters": {}
+            },
             "429": {
               "statusCode": "405",
               "responseParameters": {}
@@ -373,6 +377,9 @@
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflict"
           },
           "429": {
             "$ref": "#/components/responses/rateLimit"
@@ -1209,6 +1216,31 @@
       },
       "forbidden": {
         "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "conflict": {
+        "description": "Conflict.",
         "headers": {
           "Pragma": {
             "description": "Pragma browser directive",
