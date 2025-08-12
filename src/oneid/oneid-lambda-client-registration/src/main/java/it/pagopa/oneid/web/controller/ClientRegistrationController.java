@@ -62,19 +62,20 @@ public class ClientRegistrationController {
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
             "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
-            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes().stream()
-            .map(Enum::name).toList() + "\n" +
+            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
             "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
 
     String subject =
         "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
-    try {
-      sns.publish(p ->
-          p.topicArn(topicArn).subject(subject).message(message));
-    } catch (Exception e) {
-      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
-          "Failed to send SNS notification: ", e);
-    }
+
+    //TODO: Uncomment the following lines to enable SNS notifications
+//    try {
+//      sns.publish(p ->
+//          p.topicArn(topicArn).subject(subject).message(message));
+//    } catch (Exception e) {
+//      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+//          "Failed to send SNS notification: ", e);
+//    }
 
     Log.info("end");
     return Response.status(Status.CREATED).entity(clientRegistrationResponseDTO).build();
@@ -145,13 +146,15 @@ public class ClientRegistrationController {
             "Client ID: " + clientId + "\n";
     String subject =
         "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
-    try {
-      sns.publish(p ->
-          p.topicArn(topicArn).subject(subject).message(message));
-    } catch (Exception e) {
-      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
-          "Failed to send SNS notification: ", e);
-    }
+
+    //TODO: Uncomment the following lines to enable SNS notifications
+//    try {
+//      sns.publish(p ->
+//          p.topicArn(topicArn).subject(subject).message(message));
+//    } catch (Exception e) {
+//      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+//          "Failed to send SNS notification: ", e);
+//    }
     Log.info("end");
 
     return Response.noContent().build();
