@@ -144,6 +144,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid a11y URI");
     }
+
+    // Validate localizedContentMap
+    ClientUtils.validateLocalizedContentMap(clientRegistrationDTO.getLocalizedContentMap());
   }
 
   @Override
