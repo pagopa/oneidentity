@@ -437,6 +437,7 @@ def update_idp_internal_user(user_id: str, username: str):
                 "username": {"S": username},
                 "namespace": {"S": client_id},
             },
+            ConditionExpression="attribute_exists(username) AND attribute_exists(namespace)",
             UpdateExpression="SET samlAttributes = :samlAttributes",
             ExpressionAttributeValues={
                 ":samlAttributes": {
@@ -456,6 +457,10 @@ def update_idp_internal_user(user_id: str, username: str):
 
         # Return success response
         return {"message": "User update successfully"}, 200
+    
+    except dynamodb_client.exceptions.ConditionalCheckFailedException:
+        logger.error("[update_idp_internal_user]: User does not exist")
+        return {"message": "User does not exist"}, 404
 
     except Exception as e:
         logger.error("Error updating user: %s", repr(e))
