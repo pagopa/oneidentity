@@ -10,16 +10,20 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.LocalizedContent;
+import it.pagopa.oneid.common.model.LocalizedContentMap;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
+import it.pagopa.oneid.exception.InvalidLocalizedContentMapException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -37,6 +41,17 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void validateClientRegistrationInfo() {
+
+    LocalizedContent localizedContent = LocalizedContent.builder()
+        .title("titolo")
+        .description("descrizione")
+        .docUri("docUri")
+        .supportAddress("supportAddress")
+        .cookieUri("cookieUri")
+        .build();
+    LocalizedContentMap localizedContentMap = LocalizedContentMap.builder()
+        .contentMap(Map.of("IT", Map.of("ciao", localizedContent))).build();
+
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
@@ -47,7 +62,7 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(localizedContentMap)
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -143,6 +158,25 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void validateClientRegistrationInfo_invalid_localizedContentMap() {
+    LocalizedContentMap emptyContentMap = new LocalizedContentMap();
+    emptyContentMap.setContentMap(new HashMap<>());
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .a11yUri("http://test.com")
+        .localizedContentMap(emptyContentMap)
+        .build();
+
+    assertThrows(InvalidLocalizedContentMapException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO));
+  }
+
+  @Test
   void saveClient_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -155,7 +189,7 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -176,7 +210,7 @@ class ClientRegistrationServiceImplTest {
         .tosUri("test")
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -207,7 +241,7 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -229,7 +263,7 @@ class ClientRegistrationServiceImplTest {
         .tosUri("test")
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -266,7 +300,7 @@ class ClientRegistrationServiceImplTest {
         .tosUri("test")
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -312,7 +346,7 @@ class ClientRegistrationServiceImplTest {
         .tosUri("test")
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -356,6 +390,17 @@ class ClientRegistrationServiceImplTest {
     String clientId = "client-123";
     int attributeIndex = 42;
     long originalIssuedAt = 987654321L;
+
+    LocalizedContent newLocalizedContent = LocalizedContent.builder()
+        .title("titolo")
+        .description("descrizione")
+        .docUri("docUri")
+        .supportAddress("supportAddress")
+        .cookieUri("cookieUri")
+        .build();
+    LocalizedContentMap newLocalizedContentMap = LocalizedContentMap.builder()
+        .contentMap(Map.of("IT", Map.of("ciao", newLocalizedContent))).build();
+
     Client existingClient = Client.builder()
         .clientId(clientId)
         .userId("test")
@@ -373,7 +418,7 @@ class ClientRegistrationServiceImplTest {
         .requiredSameIdp(false)
         .a11yUri("oldA11y")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(LocalizedContentMap.builder().build())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
@@ -392,7 +437,7 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("newA11y")
         .backButtonEnabled(true)
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(newLocalizedContentMap)
         .spidMinors(true)
         .spidProfessionals(true)
         .pairwise(true)
@@ -420,7 +465,7 @@ class ClientRegistrationServiceImplTest {
             && !updated.isRequiredSameIdp() // default false
             && updated.getA11yUri().equals("newA11y")
             && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
+            && updated.getLocalizedContentMap().equals(newLocalizedContentMap)
             && updated.isSpidMinors()
             && updated.isSpidProfessionals()
             && updated.isPairwise()
@@ -458,6 +503,17 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void patchClientRegistrationDTO_shouldPatchNonNullFieldsAndBooleans() {
+
+    LocalizedContent newLocalizedContent = LocalizedContent.builder()
+        .title("titolo")
+        .description("descrizione")
+        .docUri("docUri")
+        .supportAddress("supportAddress")
+        .cookieUri("cookieUri")
+        .build();
+    LocalizedContentMap newLocalizedContentMap = LocalizedContentMap.builder()
+        .contentMap(Map.of("IT", Map.of("ciao", newLocalizedContent))).build();
+
     ClientRegistrationDTO source = ClientRegistrationDTO.builder()
         .userId("patchedUser")
         .redirectUris(Set.of("http://patched.com"))
@@ -468,7 +524,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://patched.com/policy")
         .tosUri("http://patched.com/tos")
         .a11yUri("http://patched.com/a11y")
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(newLocalizedContentMap)
         .requiredSameIdp(false)
         .backButtonEnabled(true)
         .spidMinors(false)
@@ -486,7 +542,7 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://original.com/policy")
         .tosUri("http://original.com/tos")
         .a11yUri("http://original.com/a11y")
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(new LocalizedContentMap())
         .requiredSameIdp(false)
         .backButtonEnabled(false)
         .spidMinors(true)
@@ -496,6 +552,8 @@ class ClientRegistrationServiceImplTest {
 
     clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
 
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        source));
     assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
     assertEquals("patchedName", target.getClientName());
     assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());
@@ -504,7 +562,7 @@ class ClientRegistrationServiceImplTest {
     assertEquals("http://patched.com/policy", target.getPolicyUri());
     assertEquals("http://patched.com/tos", target.getTosUri());
     assertEquals("http://patched.com/a11y", target.getA11yUri());
-    assertEquals(new HashMap<>(), target.getLocalizedContentMap());
+    assertEquals(newLocalizedContentMap, target.getLocalizedContentMap());
     assertFalse(target.getRequiredSameIdp());
     assertTrue(target.getBackButtonEnabled());
     assertFalse(target.getSpidMinors());
