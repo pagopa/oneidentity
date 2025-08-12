@@ -2,6 +2,7 @@ package it.pagopa.oneid.common.model.converters;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.LocalizedContent;
+import it.pagopa.oneid.common.model.LocalizedContentMap;
 import java.util.HashMap;
 import java.util.Map;
 import software.amazon.awssdk.enhanced.dynamodb.AttributeConverter;
@@ -11,22 +12,24 @@ import software.amazon.awssdk.enhanced.dynamodb.internal.converter.attribute.Map
 import software.amazon.awssdk.enhanced.dynamodb.internal.converter.string.StringStringConverter;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-public class HashMapAttributeConverter implements
-    AttributeConverter<Map<String, Map<String, LocalizedContent>>> {
+public class LocalizedContentMapAttributeConverter implements
+    AttributeConverter<LocalizedContentMap> {
 
   private static AttributeConverter<Map<String, Map<String, LocalizedContent>>> mapConverter;
 
-  public HashMapAttributeConverter() {
+  public LocalizedContentMapAttributeConverter() {
     mapConverter =
         MapAttributeConverter.builder(
                 EnhancedType.mapOf(
                     EnhancedType.of(String.class),
-                    EnhancedType.mapOf(String.class, LocalizedContent.class)))
+                    EnhancedType.mapOf(EnhancedType.of(String.class),
+                        EnhancedType.of(LocalizedContent.class))))
             .mapConstructor(HashMap::new)
             .keyConverter(StringStringConverter.create())
             .valueConverter(
                 MapAttributeConverter.builder(
-                        EnhancedType.mapOf(String.class, LocalizedContent.class))
+                        EnhancedType.mapOf(EnhancedType.of(String.class),
+                            EnhancedType.of(LocalizedContent.class)))
                     .mapConstructor(HashMap::new)
                     .keyConverter(StringStringConverter.create())
                     .valueConverter(new LocalizedContentAttributeConverter())
@@ -35,26 +38,26 @@ public class HashMapAttributeConverter implements
   }
 
   @Override
-  public AttributeValue transformFrom(Map<String, Map<String, LocalizedContent>> map) {
-    return mapConverter.transformFrom(map);
+  public AttributeValue transformFrom(LocalizedContentMap map) {
+    return mapConverter.transformFrom(map.getContentMap());
   }
 
   @Override
-  public Map<String, Map<String, LocalizedContent>> transformTo(AttributeValue attributeValue) {
-    Map<String, Map<String, LocalizedContent>> map;
+  public LocalizedContentMap transformTo(AttributeValue attributeValue) {
+    LocalizedContentMap map;
     try {
-      map = mapConverter.transformTo(attributeValue);
+      map = new LocalizedContentMap(mapConverter.transformTo(attributeValue));
     } catch (RuntimeException e) {
-      Log.error("Failed to convert attribute value to map", e);
-      map = new HashMap<>();
+      Log.error("Failed to convert attribute value to LocalizedContentMap", e);
+      map = new LocalizedContentMap(new HashMap<>());
     }
 
     return map;
   }
 
   @Override
-  public EnhancedType<Map<String, Map<String, LocalizedContent>>> type() {
-    return mapConverter.type();
+  public EnhancedType<LocalizedContentMap> type() {
+    return EnhancedType.of(LocalizedContentMap.class);
   }
 
   @Override
