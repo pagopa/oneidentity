@@ -393,7 +393,7 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint updates a user in the Internal IDP",
+        "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
         "operationId": "Put_admin_client_manager_client_users",
         "parameters": [
           {
@@ -441,6 +441,10 @@
               "statusCode": "403",
               "responseParameters": {}
             },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
             "405": {
               "statusCode": "405",
               "responseParameters": {}
@@ -479,6 +483,9 @@
           },
           "403": {
             "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
