@@ -31,9 +31,6 @@
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
         "description": "This endpoint updates the Cognito user attributes by inserting the client_id value.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
@@ -1105,9 +1102,8 @@
               }
             }
           },
-          "Content-Security-Policy-Report-Only": {
+            "Content-Security-Policy-Report-Only": {
             "type": "string"
-          }
           }
         },
         "content": {
