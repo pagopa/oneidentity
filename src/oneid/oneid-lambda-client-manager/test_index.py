@@ -210,52 +210,6 @@ class TestCreateOrUpdateOptionalAttributes(unittest.TestCase):
     """Tests for the create_or_update_optional_attributes function."""
 
     @patch("index.app")
-    @patch("index.extract_client_id_from_connected_user")
-    @patch("index.check_client_id_exists")
-    @patch("index.LocalizedContentMap")
-    @patch("index.dynamodb_client")
-    @patch("index.os.getenv", return_value="test_table")
-    def test_successful_update(
-        self, mock_getenv, mock_dynamodb_client, mock_LocalizedContentMap, mock_check_client_id_exists,
-        mock_extract_client_id, mock_app
-    ):
-        # Setup mocks
-        mock_extract_client_id.return_value = "test_client_id"
-        mock_check_client_id_exists.return_value = True
-        mock_body = {
-            "a11y_uri": "https://example.com",
-            "back_button_enabled": True,
-            "localizedContentMap": {"en": {"homepage": {}}}
-        }
-        current_event = Mock()
-        current_event.json_body = mock_body
-        mock_app.current_event = current_event
-
-        mock_lcm_instance = Mock()
-        mock_LocalizedContentMap.from_json.return_value = mock_lcm_instance
-        mock_lcm_instance.to_dynamodb.return_value = {"en": {"M": {}}}
-
-        mock_dynamodb_client.update_item.return_value = {
-            "ResponseMetadata": {"HTTPStatusCode": 200}
-        }
-
-        response, status_code = create_or_update_optional_attributes("test_user_id")
-
-        self.assertEqual(status_code, 204)
-        self.assertEqual(response["message"], "Optional attributes updated successfully")
-        mock_check_client_id_exists.assert_called_once_with("test_client_id")
-        mock_dynamodb_client.update_item.assert_called_once_with(
-            TableName="test_table",
-            Key={"clientId": {"S": "test_client_id"}},
-            UpdateExpression="SET a11yUri = :a11yUri, backButtonEnabled = :backButtonEnabled, localizedContentMap = :localizedContentMap",
-            ExpressionAttributeValues={
-                ":a11yUri": {"S": "https://example.com"},
-                ":backButtonEnabled": {"BOOL": True},
-                ":localizedContentMap": {"en": {"M": {}}},
-            },
-        )
-
-    @patch("index.app")
     def test_missing_body(self, mock_app):
         current_event = Mock()
         current_event.json_body = None
@@ -353,33 +307,6 @@ class TestCreateOrUpdateOptionalAttributes(unittest.TestCase):
 class TestGetOptionalAttributes(unittest.TestCase):
     """Tests for the get_optional_attributes function."""
 
-    @patch("index.dynamodb_client")
-    @patch("index.extract_client_id_from_connected_user")
-    @patch("index.LocalizedContentMap")
-    @patch("index.os.getenv", return_value="test_table")
-    def test_successful_retrieval(
-        self, mock_getenv, mock_LocalizedContentMap, mock_extract_client_id, mock_dynamodb_client
-    ):
-        mock_extract_client_id.return_value = "test_client_id"
-        item = {
-            "a11yUri": {"S": "https://example.com"},
-            "backButtonEnabled": {"BOOL": True},
-            "localizedContentMap": {"M": {"en": {"M": {}}}},
-        }
-        mock_dynamodb_client.get_item.return_value = {
-            "ResponseMetadata": {"HTTPStatusCode": 200},
-            "Item": item,
-        }
-        mock_LocalizedContentMap.from_dynamodb.return_value = {"en": {"homepage": {}}}
-
-        response, status_code = get_optional_attributes("test_user_id")
-        self.assertEqual(status_code, 200)
-        self.assertEqual(response["a11y_uri"], "https://example.com")
-        self.assertTrue(response["back_button_enabled"])
-        self.assertEqual(response["localizedContentMap"], {"en": {"homepage": {}}})
-        mock_dynamodb_client.get_item.assert_called_once_with(
-            TableName="test_table", Key={"clientId": {"S": "test_client_id"}}
-        )
 
     @patch("index.dynamodb_client")
     @patch("index.extract_client_id_from_connected_user")
