@@ -25,6 +25,9 @@
   "x-amazon-apigateway-binary-media-types": [
     "*/*"
   ],
+  "x-amazon-apigateway-binary-media-types": [
+    "*/*"
+  ],
   "paths": {
     "/client-manager/user-attributes": {
       "put": {
@@ -362,6 +365,9 @@
               "schema": {
                 "$ref": "#/components/schemas/ClientUserCreateRequestBody"
               }
+              "schema": {
+                "$ref": "#/components/schemas/ClientUserCreateRequestBody"
+              }
             }
           },
           "description": "Request body",
@@ -649,6 +655,27 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Limit the number of results returned, max 50",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          {
+            "in": "query",
+            "name": "last_evaluated_key",
+            "description": "Last evaluated key for pagination",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -726,6 +753,9 @@
     }
     "/": {
       "post": {
+        "tags": [
+          "Admin control panel oidc callback api"
+        ],
         "tags": [
           "Admin control panel oidc callback api"
         ],
@@ -830,6 +860,9 @@
         "tags": [
           "Admin control panel home page"
         ],
+        "tags": [
+          "Admin control panel home page"
+        ],
         "description": "This route will serve the admin control panel home page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -865,6 +898,9 @@
     },
     "/dashboard": {
       "get": {
+        "tags": [
+          "Admin control panel dashboard page"
+        ],
         "tags": [
           "Admin control panel dashboard page"
         ],
@@ -904,6 +940,9 @@
     },
     "/dashboard/{clientid+}": {
       "get": {
+        "tags": [
+          "Admin control panel dashboard client page"
+        ],
         "tags": [
           "Admin control panel dashboard client page"
         ],
@@ -1011,6 +1050,9 @@
           "cacheKeyParameters": [
             "method.request.path.proxy"
           ]
+          "cacheKeyParameters": [
+            "method.request.path.proxy"
+          ]
         }
       }
     }
@@ -1036,6 +1078,7 @@
           }
         }
       },
+      "responseOkClientAdditionalJson": {
       "responseOkClientAdditionalJson": {
         "description": "Response Ok, No Content",
         "headers": {
@@ -1069,6 +1112,18 @@
         "content": {
           "application/json": {
             "schema": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientUserCreate"
+                  }
+                },
+                "last_evaluated_key": {
+                  "type": "string",
+                  "description": "Last evaluated key for pagination"
+                }
               "type": "object",
               "properties": {
                 "users": {
@@ -1697,6 +1752,9 @@
         "x-amazon-apigateway-authtype": "cognito_user_pools",
         "x-amazon-apigateway-authorizer": {
           "type": "cognito_user_pools",
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
           "providerARNs": [
             "${ provider_arn }"
           ]
