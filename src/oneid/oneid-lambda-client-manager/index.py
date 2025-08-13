@@ -2,6 +2,8 @@
 
 import logging
 import os
+import json
+import base64
 from typing import Optional
 
 import boto3
@@ -534,6 +536,14 @@ def get_idp_internal_users(user_id: str):
         users = []
         last_evaluated_key = query_params.get("last_evaluated_key", None)
 
+        if last_evaluated_key:
+            try:
+                json_bytes = base64.b64decode(last_evaluated_key.encode('utf-8'))
+                last_evaluated_key = json.loads(json_bytes.decode('utf-8'))
+            except (TypeError, ValueError) as e:
+                logger.error("[get_idp_internal_users]: Invalid last_evaluated_key: %s", repr(e))
+                return {"message": "Invalid last_evaluated_key"}, 400
+
         query_kwargs = {
             "TableName": os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
             "IndexName": os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
@@ -542,7 +552,7 @@ def get_idp_internal_users(user_id: str):
         }
         if limit:
             query_kwargs["Limit"] = limit
-            
+
         if last_evaluated_key:
             query_kwargs["ExclusiveStartKey"] = last_evaluated_key
 
@@ -566,6 +576,14 @@ def get_idp_internal_users(user_id: str):
         ])
 
         last_evaluated_key = response.get("LastEvaluatedKey", None)
+
+        if last_evaluated_key:
+            # Base 64 encode the last evaluated key for the response
+            json_string = json.dumps(last_evaluated_key, separators=(',', ':'))
+            
+            base64_bytes = base64.b64encode(json_string.encode('utf-8'))
+
+            last_evaluated_key = base64_bytes.decode('utf-8')
 
         return {"users": users, "last_evaluated_key": last_evaluated_key}, 200
 
