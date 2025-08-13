@@ -511,50 +511,60 @@ def get_idp_internal_users(user_id: str):
     """
     logger.info("/client-manager/client-users GET route invoked")
     try:
+        
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
 
         if not client_id:
             logger.error("[get_idp_internal_users]: client_id not found in user attributes")
             return {"message": "client_id not found in user attributes"}, 400
+        
+        query_params = app.current_event.query_string_parameters or {}
+        limit = query_params.get("limit", 10)
+        try:
+            limit = int(limit)
+            if limit <= 0 or limit > 50:
+                raise ValueError("Limit must be between 1 and 50")
+        except ValueError:
+            logger.error("[get_idp_internal_users]: Invalid limit value")
+            return {"message": "Invalid limit value"}, 400
+                
 
         # Retrieve all users in Internal IDP using a GSI on 'namespace'
         users = []
-        last_evaluated_key = None
-        while True:
-            query_kwargs = {
-                "TableName": os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
-                "IndexName": os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
-                "KeyConditionExpression": "namespace = :namespace",
-                "ExpressionAttributeValues": {":namespace": {"S": client_id}},
+        last_evaluated_key = query_params.get("last_evaluated_key", None)
+
+        query_kwargs = {
+            "TableName": os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            "IndexName": os.getenv("IDP_INTERNAL_USERS_GSI_NAME"),
+            "KeyConditionExpression": "namespace = :namespace",
+            "ExpressionAttributeValues": {":namespace": {"S": client_id}},
+        }
+        if last_evaluated_key:
+            query_kwargs["ExclusiveStartKey"] = last_evaluated_key
+
+        response = dynamodb_client.query(**query_kwargs)
+
+        if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+            logger.error("[get_idp_internal_users]: %s", response)
+            return {"message": "Failed to retrieve users"}, 500
+
+        items = response.get("Items", [])
+        users.extend([
+            {
+                "username": user["username"]["S"],
+                "password": user["password"]["S"],
+                "samlAttributes": {
+                    k: v["S"] if "S" in v else v["N"]
+                    for k, v in user.get("samlAttributes", {}).get("M", {}).items()
+                },
             }
-            if last_evaluated_key:
-                query_kwargs["ExclusiveStartKey"] = last_evaluated_key
+            for user in items
+        ])
 
-            response = dynamodb_client.query(**query_kwargs)
+        last_evaluated_key = response.get("LastEvaluatedKey", None)
 
-            if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
-                logger.error("[get_idp_internal_users]: %s", response)
-                return {"message": "Failed to retrieve users"}, 500
-
-            items = response.get("Items", [])
-            users.extend([
-                {
-                    "username": user["username"]["S"],
-                    "password": user["password"]["S"],
-                    "samlAttributes": {
-                        k: v["S"] if "S" in v else v["N"]
-                        for k, v in user.get("samlAttributes", {}).get("M", {}).items()
-                    },
-                }
-                for user in items
-            ])
-
-            last_evaluated_key = response.get("LastEvaluatedKey")
-            if not last_evaluated_key:
-                break
-
-        return {"users": users}, 200
+        return {"users": users, "last_evaluated_key": last_evaluated_key}, 200
 
     except Exception as e:
         logger.error("Error retrieving users: %s", repr(e))
