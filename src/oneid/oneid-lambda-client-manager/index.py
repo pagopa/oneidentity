@@ -540,6 +540,9 @@ def get_idp_internal_users(user_id: str):
             "KeyConditionExpression": "namespace = :namespace",
             "ExpressionAttributeValues": {":namespace": {"S": client_id}},
         }
+        if limit:
+            query_kwargs["Limit"] = limit
+            
         if last_evaluated_key:
             query_kwargs["ExclusiveStartKey"] = last_evaluated_key
 
