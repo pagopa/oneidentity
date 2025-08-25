@@ -60,7 +60,7 @@ export const Dashboard = () => {
   } = useRegister();
 
   useEffect(() => {
-    if (fetchedClientData) {
+    if (isUpdatePhase && fetchedClientData) {
       setFormData({ ...fetchedClientData, clientId });
     }
   }, [clientId, fetchedClientData]);
@@ -151,7 +151,7 @@ export const Dashboard = () => {
 
   return (
     <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-      {fetchError && (
+      {fetchError && fetchError.message !== 'Client not found' && (
         <Box sx={{ mt: 4 }}>
           <Alert severity="error">
             {fetchError instanceof Error
