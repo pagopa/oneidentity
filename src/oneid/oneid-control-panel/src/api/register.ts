@@ -37,7 +37,7 @@ export const getClientData = async (
   }
   try {
     const response = await api.get<Client>(
-      `${ENV.URL_API.REGISTER}/${userId}`,
+      `${ENV.URL_API.REGISTER}/user_id/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,12 +46,15 @@ export const getClientData = async (
     );
     return response.data;
   } catch (error) {
+    // TODO: CLIENT NOT FOUND 401??
     if (axios.isAxiosError(error) && error.response?.status === 404) {
       throw new Error('Client not found');
     }
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || 'Failed to fetch client data'
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          'Failed to fetch client data'
       );
     }
     throw new Error(`An unknown error occurred ${JSON.stringify(error)}`);
@@ -65,7 +68,7 @@ export const createOrUpdateClient = async (
 ): Promise<Client | ClientErrors> => {
   try {
     const url = clientId
-      ? `${ENV.URL_API.REGISTER}/${clientId}`
+      ? `${ENV.URL_API.REGISTER}/client_id/${clientId}`
       : ENV.URL_API.REGISTER;
     const method = clientId ? 'patch' : 'post';
 
