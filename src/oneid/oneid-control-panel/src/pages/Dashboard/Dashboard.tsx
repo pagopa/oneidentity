@@ -17,7 +17,6 @@ import {
   FormControlLabel,
   Switch,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
 import {
   SpidLevel,
   SamlAttribute,
@@ -37,8 +36,6 @@ import { isNil } from 'lodash';
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  // TODO: is this useful now? or we can retrieve clientId from sessionStorage?
-  const { clientId } = useParams(); // Get the clientId from the URL
   const [formData, setFormData] = useState<Partial<Client> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
@@ -56,14 +53,30 @@ export const Dashboard = () => {
       mutate: createOrUpdateClient,
       error: updateError,
       isPending: isUpdating,
+      isSuccess: isUpdated,
     },
   } = useRegister();
 
   useEffect(() => {
     if (isUpdatePhase && fetchedClientData) {
-      setFormData({ ...fetchedClientData, clientId });
+      setFormData({
+        ...fetchedClientData,
+        clientId: fetchedClientData.clientId,
+      });
+
+      if (
+        fetchedClientData.clientId &&
+        fetchedClientData.clientId !==
+          Storage.storageRead(sessionStorageClientIdKey, 'string')
+      ) {
+        Storage.storageWrite(
+          sessionStorageClientIdKey,
+          fetchedClientData.clientId,
+          'string'
+        );
+      }
     }
-  }, [clientId, fetchedClientData]);
+  }, [isUpdatePhase, fetchedClientData]);
 
   useEffect(() => {
     if (updateError) {
@@ -75,11 +88,15 @@ export const Dashboard = () => {
         severity: 'error',
       });
     }
-    if (clientUpdated) {
+    if (isUpdated) {
       setErrorUi(null);
+      const message = isUpdatePhase
+        ? 'Client updated successfully, id: ' +
+          Storage.storageRead(sessionStorageClientIdKey, 'string')
+        : 'Client created successfully, id: ' + clientUpdated.clientId;
       setNotify({
         open: true,
-        message: 'Client updated successfully, id: ' + clientUpdated.clientId,
+        message: message,
         severity: 'success',
       });
 
@@ -98,7 +115,7 @@ export const Dashboard = () => {
         openModal('secretViewer');
       }
     }
-  }, [updateError, clientUpdated, isUpdatePhase, openModal]);
+  }, [updateError, isUpdated, clientUpdated, isUpdatePhase, openModal]);
 
   const isFormValid = () => {
     // TODO: if clientSchema inside api.ts is adjusted to reflect the actual optional and required fields, we can use:
@@ -114,11 +131,10 @@ export const Dashboard = () => {
   const handleCloseSecretModal = () => {
     // TODO check cognito status before redirecting
     closeModal(() => {
-      window.location.assign(
-        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.clientId}`
-      );
+      window.location.assign(`${ROUTE_PATH.DASHBOARD}`);
     });
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -127,7 +143,7 @@ export const Dashboard = () => {
     } else {
       createOrUpdateClient({
         data: formData as Omit<Client, 'clientId' | 'clientSecret'>,
-        clientId: clientId,
+        clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
       });
     }
   };
@@ -151,6 +167,7 @@ export const Dashboard = () => {
 
   return (
     <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
+      {/* if client not found show creation page and don't show error alert */}
       {fetchError && fetchError.message !== 'Client not found' && (
         <Box sx={{ mt: 4 }}>
           <Alert severity="error">
@@ -312,7 +329,7 @@ export const Dashboard = () => {
           }
         />
 
-        <FormGroup sx={{ mt: 1 }}>
+        <FormGroup sx={{ mt: 1, mb: 1 }}>
           <FormControlLabel
             control={
               <Switch
@@ -329,7 +346,7 @@ export const Dashboard = () => {
         <Button
           type="submit"
           variant="contained"
-          sx={{ mt: 2 }}
+          sx={{ mt: 5 }}
           data-testid="submit-button"
           disabled={isUpdating || !isFormValid()}
         >

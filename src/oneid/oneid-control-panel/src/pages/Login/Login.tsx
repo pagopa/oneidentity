@@ -42,8 +42,6 @@ export const LoginForm = () => {
 
   const handleLogout = async () => {
     await removeUser();
-    // TODO: check if storageDelete works beacuse removeUser does a redirect in the end
-    Storage.storageDelete(sessionStorageClientIdKey);
   };
 
   return (

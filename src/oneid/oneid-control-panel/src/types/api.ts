@@ -106,7 +106,7 @@ export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 export const clientSchema = z.object({
   userId: z.string().optional(),
   clientId: z.string().optional(),
-  clientSecret: z.string().optional(),
+  clientSecret: z.string().nullish(),
   clientIdIssuedAt: z.number().optional(),
   clientSecretExpiresAt: z.number().optional(),
   clientName: z.string().optional(),
