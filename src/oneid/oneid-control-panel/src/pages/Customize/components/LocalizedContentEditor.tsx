@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   allLanguages,
-  ClientFEErrors,
+  ClientErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
   Languages,
@@ -32,7 +32,7 @@ type LocalizedContentEditorProps = {
   ) => void;
   onAddLanguage: () => void;
   onRemoveLanguage: (lang: string) => void;
-  errorUi: ClientFEErrors | null;
+  errorUi: ClientErrors | null;
 };
 
 export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
@@ -125,12 +125,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.title?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.title?._errors
                     }
@@ -145,12 +145,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.supportAddress?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.supportAddress?._errors
                     }
@@ -167,12 +167,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     rows={4}
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.description?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.description?._errors
                     }
@@ -187,12 +187,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.docUri?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.docUri?._errors
                     }
@@ -207,12 +207,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.cookieUri?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.cookieUri?._errors
                     }

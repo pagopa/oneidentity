@@ -22,38 +22,40 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import {
   allLanguages,
-  ClientFE,
-  ClientFEErrors,
+  Client,
+  ClientErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
   Languages,
 } from '../../types/api';
-import { useClient } from '../../hooks/useClient';
 import { useParams } from 'react-router-dom';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
 import { Notify } from '../../components/Notify';
+import { useRegister } from '../../hooks/useRegister';
 
 function CustomizeDashboard() {
   const { clientId } = useParams(); // Get the clientId from the URL
+
   const {
-    getAdditionalClientAttrs: {
+    clientQuery: {
       data: fetchedAdditionalAttributes,
-      isSuccess: isFetched,
+      // isLoading: isLoadingAdditionalAttributes,
       error: fetchError,
+      isSuccess: isFetched,
     },
-    createOrUpdateClientAttrsMutation: {
+    createOrUpdateClientMutation: {
       mutate: updateClientAttrs,
       error: updateError,
       isPending: isUpdating,
       isSuccess: isUpdateSuccess,
     },
-  } = useClient();
+  } = useRegister();
 
-  const [clientData, setClientData] = useState<ClientFE | null>(null);
+  const [clientData, setClientData] = useState<Client | null>(null);
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
-  const [errorUi, setErrorUi] = useState<ClientFEErrors | null>(null);
+  const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
 
   useEffect(() => {
@@ -94,7 +96,7 @@ function CustomizeDashboard() {
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientFEErrors);
+      setErrorUi(updateError as unknown as ClientErrors);
       setNotify({
         open: true,
         message: 'Error updating client',
@@ -126,7 +128,8 @@ function CustomizeDashboard() {
     }
 
     updateClientAttrs({
-      data: clientData as ClientFE,
+      data: clientData as Client,
+      clientId,
     });
   };
 
@@ -160,7 +163,7 @@ function CustomizeDashboard() {
   const handleTopLevelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     setClientData((prev) => {
-      if (!prev) prev = {} as ClientFE; // Ensure prev is always defined
+      if (!prev) prev = {} as Client; // Ensure prev is always defined
       // Always set backButtonEnabled explicitly and ensure it's always boolean
       return {
         ...prev,
@@ -186,7 +189,7 @@ function CustomizeDashboard() {
         return prev;
       }
 
-      const newClientData: ClientFE = {
+      const newClientData: Client = {
         ...prev,
         localizedContentMap: {
           ...prev.localizedContentMap,
@@ -276,20 +279,25 @@ function CustomizeDashboard() {
       return;
     }
 
-    setClientData((prev) => ({
-      ...prev,
-      backButtonEnabled: false,
-      a11yUri: null,
-      localizedContentMap: {
-        ...prev?.localizedContentMap,
-        [key]: {
-          it: {
-            title: '',
-            description: '',
+    setClientData((prev) => {
+      if (!prev) prev = {} as Client; // Ensure prev is always defined
+      // Always set backButtonEnabled explicitly and ensure it's always boolean
+      return {
+        ...prev,
+        backButtonEnabled: false,
+        a11yUri: null,
+        localizedContentMap: {
+          ...prev?.localizedContentMap,
+          [key]: {
+            it: {
+              title: '',
+              description: '',
+            },
           },
         },
-      },
-    }));
+      };
+    });
+
     setActiveThemeKey(key);
     setNewThemeKey('');
     setThemeModalOpen(false);

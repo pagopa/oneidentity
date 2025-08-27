@@ -2,15 +2,11 @@ import { AddIdpUser, IdpUser } from './../types/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import {
-  getAdditionalClientAttributes,
-  setAdditionalClientAttributes,
   addClientUser,
   updateClientUser,
   deleteClientUser,
   getClientUsers,
 } from '../api/client';
-import { useParams } from 'react-router-dom';
-import { ClientFE } from '../types/api';
 
 const retry = 2;
 
@@ -19,33 +15,9 @@ export const useClient = () => {
   const token = user?.id_token;
   const userId = user?.profile.sub;
 
-  // TODO: is this useful now? or we can retrieve clientId from sessionStorage?
-  const { clientId } = useParams(); // Get the clientId from the URL
   if (!token) {
     throw new Error('No token available');
   }
-
-  const getAdditionalClientAttrs = useQuery({
-    queryKey: ['client', 'additional', clientId],
-    queryFn: async () => {
-      if (!userId) {
-        throw new Error('userId is required');
-      }
-      return await getAdditionalClientAttributes(clientId, userId, token);
-    },
-    retry,
-    enabled: !!userId && !!token && !!clientId,
-  });
-
-  const createOrUpdateClientAttrsMutation = useMutation({
-    onError(error) {
-      console.error('Error creating or updating client:', error);
-    },
-    mutationFn: async ({ data }: { data: ClientFE }) => {
-      const dataWithUserId = { ...data, userId };
-      return setAdditionalClientAttributes(clientId, dataWithUserId, token);
-    },
-  });
 
   const createIdpUserMutation = useMutation({
     onError(error) {
@@ -94,8 +66,6 @@ export const useClient = () => {
   });
 
   return {
-    getAdditionalClientAttrs,
-    createOrUpdateClientAttrsMutation,
     createClientUsersMutation: createIdpUserMutation,
     updateClientUsersMutation: updateIdpUsersMutation,
     deleteClientUsersMutation,

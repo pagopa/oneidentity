@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ClientFEErrors, ClientLocalizedEntry } from '../../../types/api';
+import { ClientErrors, ClientLocalizedEntry } from '../../../types/api';
 
 type ThemeManagerProps = {
   themes: ClientLocalizedEntry | undefined | null;
@@ -21,7 +21,7 @@ type ThemeManagerProps = {
   onThemeChange: (event: SelectChangeEvent<string>) => void;
   onAddTheme: () => void;
   onRemoveTheme: () => void;
-  errorUi?: ClientFEErrors | null;
+  errorUi?: ClientErrors | null;
 };
 
 export const ThemeManager: React.FC<ThemeManagerProps> = ({
@@ -46,7 +46,7 @@ export const ThemeManager: React.FC<ThemeManagerProps> = ({
             onChange={onThemeChange}
             aria-label="active theme"
             data-testid="theme-select"
-            error={!!(errorUi as ClientFEErrors)?.localizedContentMap?._errors}
+            error={!!(errorUi as ClientErrors)?.localizedContentMap?._errors}
           >
             {Object.keys(themes || {}).map((key) => (
               <MenuItem key={key} value={key}>

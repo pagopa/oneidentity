@@ -6,13 +6,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ClientFE, ClientFEErrors } from '../../../types/api';
+import { Client, ClientErrors } from '../../../types/api';
 
 type ClientSettingsProps = {
-  clientData: ClientFE | undefined | null;
+  clientData: Client | undefined | null;
   clientID?: string;
   onClientDataChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  errorUi?: ClientFEErrors | null;
+  errorUi?: ClientErrors | null;
 };
 
 export const ClientSettings = ({
@@ -43,8 +43,8 @@ export const ClientSettings = ({
           value={clientData?.a11yUri || ''}
           onChange={onClientDataChange}
           fullWidth
-          error={!!(errorUi as ClientFEErrors)?.a11yUri?._errors}
-          helperText={(errorUi as ClientFEErrors)?.a11yUri?._errors}
+          error={!!(errorUi as ClientErrors)?.a11yUri?._errors}
+          helperText={(errorUi as ClientErrors)?.a11yUri?._errors}
         />
       </Grid>
       <Grid item xs={12}>
