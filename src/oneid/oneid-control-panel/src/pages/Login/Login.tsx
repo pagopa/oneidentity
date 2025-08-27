@@ -7,9 +7,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from 'react-oidc-context';
-import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
-import * as Storage from '../../utils/storage';
-import { isNil } from 'lodash';
+import { ROUTE_PATH } from '../../utils/constants';
 
 export const LoginForm = () => {
   const {
@@ -22,13 +20,8 @@ export const LoginForm = () => {
   } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      const clientId = Storage.storageRead(sessionStorageClientIdKey, 'string');
-      if (user?.profile && !isNil(clientId)) {
-        window.location.assign(`${ROUTE_PATH.DASHBOARD}/${clientId}`);
-      } else {
-        window.location.assign(ROUTE_PATH.DASHBOARD);
-      }
+    if (isAuthenticated && user?.profile) {
+      window.location.assign(ROUTE_PATH.DASHBOARD);
     }
   }, [isAuthenticated, user]);
 
