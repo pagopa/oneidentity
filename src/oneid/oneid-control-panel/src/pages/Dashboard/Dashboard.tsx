@@ -93,7 +93,9 @@ export const Dashboard = () => {
       const message = isUpdatePhase
         ? 'Client updated successfully, id: ' +
           Storage.storageRead(sessionStorageClientIdKey, 'string')
-        : 'Client created successfully, id: ' + clientUpdated.clientId;
+        : clientUpdated
+          ? 'Client created successfully, id: ' + clientUpdated.clientId
+          : 'Client created successfully, id: unknown';
       setNotify({
         open: true,
         message: message,

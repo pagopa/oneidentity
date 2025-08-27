@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getClientData, createOrUpdateClient } from './register';
 import { ENV } from '../utils/env';
-import { SamlAttribute, SpidLevel } from '../types/api';
+import { Client, SamlAttribute, SpidLevel } from '../types/api';
 
 vi.mock('../utils/env', () => ({
   ENV: { URL_API: { REGISTER: 'https://api.example.com/register' } },
@@ -11,6 +11,7 @@ const axiosMock = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),
+  patch: vi.fn(),
 }));
 
 vi.mock('axios', async (importActual) => {
@@ -24,6 +25,7 @@ vi.mock('axios', async (importActual) => {
         get: axiosMock.get,
         post: axiosMock.post,
         put: axiosMock.put,
+        patch: axiosMock.patch,
       })),
     },
   };
@@ -38,6 +40,7 @@ describe('getClientData', () => {
     logo_uri: 'https://example.com/logo.png',
     policy_uri: 'https://example.com/policy',
     tos_uri: 'https://example.com/tos',
+    backButtonEnabled: true,
   };
 
   beforeEach(() => {
@@ -61,7 +64,7 @@ describe('getClientData', () => {
 
   it('throws an error if client_id is invalid or missing', async () => {
     await expect(getClientData('', 'token')).rejects.toThrow(
-      'Client ID is required'
+      'User ID is required'
     );
   });
 
@@ -100,14 +103,15 @@ describe('getClientData', () => {
 });
 
 describe('createOrUpdateClient', () => {
-  const mockClientData = {
-    client_name: 'Test Client',
-    redirect_uris: ['https://example.com/callback'],
-    logo_uri: 'https://example.com/logo.png',
-    policy_uri: 'https://example.com/policy',
-    tos_uri: 'https://example.com/tos',
-    default_acr_values: [SpidLevel.L2],
-    saml_requested_attributes: [SamlAttribute.FISCAL_NUMBER],
+  const mockClientData: Omit<Client, 'clientId' | 'clientSecret'> = {
+    clientName: 'Test Client',
+    redirectUris: ['https://example.com/callback'],
+    logoUri: 'https://example.com/logo.png',
+    policyUri: 'https://example.com/policy',
+    tosUri: 'https://example.com/tos',
+    defaultAcrValues: [SpidLevel.L2],
+    samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
+    backButtonEnabled: false, // aggiungi il default manualmente
   };
 
   const token = 'test-token';
@@ -116,16 +120,12 @@ describe('createOrUpdateClient', () => {
     axiosMock.post.mockResolvedValueOnce({
       data: {
         ...mockClientData,
-        client_id: 'new-client-id',
-        client_secret: 'new-client-secret',
       },
     });
 
     const result = await createOrUpdateClient(mockClientData, token);
     expect(result).toEqual({
       ...mockClientData,
-      client_id: 'new-client-id',
-      client_secret: 'new-client-secret',
     });
     expect(axiosMock.post).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}`,
@@ -136,22 +136,15 @@ describe('createOrUpdateClient', () => {
 
   it('updates an existing client successfully', async () => {
     const clientId = 'existing-client-id';
-    axiosMock.put.mockResolvedValueOnce({
-      data: {
-        ...mockClientData,
-        client_id: clientId,
-        client_secret: 'existing-client-secret',
-      },
+    axiosMock.patch.mockResolvedValue({
+      status: 204,
+      data: null,
     });
 
     const result = await createOrUpdateClient(mockClientData, token, clientId);
-    expect(result).toEqual({
-      ...mockClientData,
-      client_id: clientId,
-      client_secret: 'existing-client-secret',
-    });
-    expect(axiosMock.put).toHaveBeenCalledWith(
-      `${ENV.URL_API.REGISTER}/${clientId}`,
+    expect(result).toBeNull();
+    expect(axiosMock.patch).toHaveBeenCalledWith(
+      `${ENV.URL_API.REGISTER}/client_id/${clientId}`,
       mockClientData,
       { headers: { Authorization: `Bearer ${token}` } }
     );

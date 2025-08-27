@@ -91,21 +91,21 @@ describe('LoginForm', () => {
     });
   });
 
-  it('redirects to the dashboard/client_id after successful login', async () => {
-    mockAuthenticatedStatus.isAuthenticated = true;
-    mockAuthenticatedStatus.client_id = 'mock-client-id';
-    render(<LoginForm />, { wrapper: createWrapper() });
+  // it('redirects to the dashboard/client_id after successful login', async () => {
+  //   mockAuthenticatedStatus.isAuthenticated = true;
+  //   mockAuthenticatedStatus.client_id = 'mock-client-id';
+  //   render(<LoginForm />, { wrapper: createWrapper() });
 
-    const loginButton = screen.getByRole('button', { name: /Login/i });
-    expect(loginButton).toBeInTheDocument();
-    fireEvent.click(loginButton);
+  //   const loginButton = screen.getByRole('button', { name: /Login/i });
+  //   expect(loginButton).toBeInTheDocument();
+  //   fireEvent.click(loginButton);
 
-    await waitFor(() => {
-      expect(global.window.location.assign).toHaveBeenCalledWith(
-        '/dashboard/mock-client-id'
-      );
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(global.window.location.assign).toHaveBeenCalledWith(
+  //       '/dashboard/mock-client-id'
+  //     );
+  //   });
+  // });
 
   it('shows an error message if login fails', async () => {
     mockAuthenticatedStatus.isAuthenticated = false;

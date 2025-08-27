@@ -63,14 +63,14 @@ const mockClientData = {
   },
 };
 
-vi.mock('../../hooks/useClient', () => ({
-  useClient: () => ({
-    getAdditionalClientAttrs: {
+vi.mock('../../hooks/useRegister', () => ({
+  useRegister: () => ({
+    clientQuery: {
       data: mockClientData,
       isSuccess: true,
       error: null,
     },
-    createOrUpdateClientAttrsMutation: {
+    createOrUpdateClientMutation: {
       mutate: vi.fn(),
       error: null,
       isPending: false,
