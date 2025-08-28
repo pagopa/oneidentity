@@ -48,7 +48,10 @@ public class LocalizedContentMapValidator implements
         if (content == null) {
           return false;
         }
-        if (StringUtils.isBlank(content.title()) || StringUtils.isBlank(content.description())) {
+        if (StringUtils.isBlank(content.title()) || StringUtils.isBlank(content.description())
+            || StringUtils.isBlank(content.docUri()) || StringUtils.isBlank(
+            content.supportAddress()) || StringUtils.isBlank(content.cookieUri())
+        ) {
           return false;
         }
 
