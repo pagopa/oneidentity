@@ -6,11 +6,13 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 public class LocalizedContentMapValidator implements
     ConstraintValidator<LocalizedContentMapCheck, Map<String, Map<String, LocalizedContent>>> {
 
+  private static final Set<String> ALLOWED_LANGS = Set.of("IT", "FR", "DE", "SL", "EN");
 
   @Override
   public void initialize(LocalizedContentMapCheck constraintAnnotation) {
@@ -28,36 +30,27 @@ public class LocalizedContentMapValidator implements
       return false;
     }
 
-    final Set<String> allowedLangs = Set.of("IT", "FR", "DE", "SL", "EN");
-
-    for (Map.Entry<String, Map<String, LocalizedContent>> langEntry : map.entrySet()) {
-      String language = langEntry.getKey();
-      Map<String, LocalizedContent> themesMap = langEntry.getValue();
-
-      if (language == null || !allowedLangs.contains(language)) {
+    return map.entrySet().stream().allMatch(langEntry -> {
+      String lang = langEntry.getKey();
+      if (lang == null || !ALLOWED_LANGS.contains(lang)) {
         return false;
       }
 
-      if (themesMap == null) {
+      Map<String, LocalizedContent> themes = langEntry.getValue();
+      if (themes == null || themes.isEmpty()) {
         return false;
       }
 
-      for (Map.Entry<String, LocalizedContent> themeEntry : themesMap.entrySet()) {
-        LocalizedContent content = themeEntry.getValue();
-
-        if (content == null) {
-          return false;
-        }
-        if (StringUtils.isBlank(content.title()) || StringUtils.isBlank(content.description())
-            || StringUtils.isBlank(content.docUri()) || StringUtils.isBlank(
-            content.supportAddress()) || StringUtils.isBlank(content.cookieUri())
-        ) {
-          return false;
-        }
-
-      }
-    }
-
-    return true;
+      return themes.values().stream().allMatch(content ->
+          content != null &&
+              Stream.of(
+                  content.title(),
+                  content.description(),
+                  content.docUri(),
+                  content.supportAddress(),
+                  content.cookieUri()
+              ).noneMatch(StringUtils::isBlank)
+      );
+    });
   }
 }
