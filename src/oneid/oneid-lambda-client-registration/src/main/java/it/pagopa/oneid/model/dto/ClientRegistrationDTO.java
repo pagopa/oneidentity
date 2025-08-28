@@ -6,6 +6,7 @@ import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.model.groups.ValidationGroups.PatchClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
+import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -71,6 +72,7 @@ public class ClientRegistrationDTO {
   private Boolean backButtonEnabled;
 
   @JsonProperty("localizedContentMap")
+  @LocalizedContentMapCheck(groups = {Registration.class, PatchClient.class})
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
   @JsonProperty("spidMinors")

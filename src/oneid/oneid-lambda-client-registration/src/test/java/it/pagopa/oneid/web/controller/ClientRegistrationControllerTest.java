@@ -11,6 +11,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,10 +40,17 @@ class ClientRegistrationControllerTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
+        .localizedContentMap(
+            Map.of("EN",
+                Map.of("default",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        "http://test.com", "http://test.com")
+                )
+            )
+        )
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
@@ -125,6 +133,28 @@ class ClientRegistrationControllerTest {
         .samlRequestedAttributes(Set.of("name"))
         // The payload contains a string that cannot be mapped to the Authlevel enum
         .defaultAcrValues(Set.of("this_is_not_a_valid_attribute"))
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .log().body()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withInvalidLocalizedContentMap_ko() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test-user")
+        .clientName("Test Client")
+        .redirectUris(Set.of("https://valid.uri/callback"))
+        .samlRequestedAttributes(Set.of("name"))
+        // The payload contains a empty map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(new HashMap<>())
         .build();
 
     given()
