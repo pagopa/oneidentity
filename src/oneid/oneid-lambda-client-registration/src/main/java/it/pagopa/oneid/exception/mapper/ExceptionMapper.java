@@ -160,22 +160,6 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapExistingUserIdException(ExistingUserIdException exception) {
-    Log.error(ExceptionUtils.getStackTrace(exception));
-    Response.Status status = UNAUTHORIZED;
-    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ErrorResponse> mapConstraintViolationException(
-      ConstraintViolationException exception) {
-    Log.error(ExceptionUtils.getStackTrace(exception));
-    Response.Status status = Response.Status.BAD_REQUEST;
-    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
-  }
-
-
-  @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapRefreshSecretException(
       RefreshSecretException refreshSecretException) {
     Log.error(ExceptionUtils.getStackTrace(refreshSecretException));
