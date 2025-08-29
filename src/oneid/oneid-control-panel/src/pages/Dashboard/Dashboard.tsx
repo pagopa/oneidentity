@@ -331,7 +331,7 @@ export const Dashboard = () => {
           }
         />
 
-        <FormGroup sx={{ mt: 1, mb: 1 }}>
+        <FormGroup sx={{ mt: 2, mb: 1 }}>
           <FormControlLabel
             control={
               <Switch

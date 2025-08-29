@@ -51,12 +51,13 @@ export const ClientSettings = ({
         <FormControlLabel
           control={
             <Switch
+              sx={{ mr: 2, ml: 1 }}
               name="backButtonEnabled"
               checked={clientData?.backButtonEnabled || false}
               onChange={onClientDataChange}
             />
           }
-          label="Back Button Enabled"
+          label="Back button enabled"
         />
       </Grid>
     </Grid>
