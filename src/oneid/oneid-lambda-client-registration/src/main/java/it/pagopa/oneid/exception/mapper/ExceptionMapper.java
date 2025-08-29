@@ -1,10 +1,6 @@
 package it.pagopa.oneid.exception.mapper;
 
 
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static jakarta.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
@@ -27,6 +23,8 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
+
+import static jakarta.ws.rs.core.Response.Status.*;
 
 public class ExceptionMapper {
 
@@ -69,7 +67,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<Object> mapClientNotFoundException(
       ClientNotFoundException clientNotFoundException) {
-    Response.Status status = UNAUTHORIZED;
+    Response.Status status = NOT_FOUND;
     String message = "Client not found";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
