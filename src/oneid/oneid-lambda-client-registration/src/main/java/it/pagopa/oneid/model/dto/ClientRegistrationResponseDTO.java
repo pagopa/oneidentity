@@ -16,8 +16,8 @@ import lombok.experimental.SuperBuilder;
 public class ClientRegistrationResponseDTO extends ClientRegistrationDTO {
 
   @NotBlank
-  @JsonProperty("clientID")
-  private String clientID;
+  @JsonProperty("clientId")
+  private String clientId;
 
   @JsonProperty("clientSecret")
   private String clientSecret;
@@ -27,5 +27,11 @@ public class ClientRegistrationResponseDTO extends ClientRegistrationDTO {
 
   @JsonProperty("clientSecretExpiresAt")
   private int clientSecretExpiresAt;
-  
+
+
+  public ClientRegistrationResponseDTO(ClientRegistrationDTO clientRegistrationDTO,
+      String clientId) {
+    super(clientRegistrationDTO);
+    this.clientId = clientId;
+  }
 }

@@ -18,10 +18,13 @@ public class AuthLevelValidator implements
   @Override
   public boolean isValid(Set<String> acr, ConstraintValidatorContext constraintValidatorContext) {
 
-    if (acr != null && !acr.isEmpty()) {
-      return acr.stream().noneMatch(authLevel -> AuthLevel.authLevelFromValue(authLevel) == null);
+    if (acr == null) {
+      return true;
     }
-    return false;
+    if (acr.isEmpty()) {
+      return false;
+    }
+    return acr.stream().noneMatch(authLevel -> AuthLevel.authLevelFromValue(authLevel) == null);
 
   }
 }

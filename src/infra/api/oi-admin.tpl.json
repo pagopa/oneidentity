@@ -22,11 +22,15 @@
       "url": "${server_url}"
     }
   ],
-  "x-amazon-apigateway-binary-media-types": ["*/*"],
+  "x-amazon-apigateway-binary-media-types": [
+    "*/*"
+  ],
   "paths": {
     "/client-manager/user-attributes": {
       "put": {
-        "tags": ["Admin Client Manager APIs"],
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
         "description": "This endpoint updates the Cognito user attributes by inserting the client_id value.",
         "operationId": "Put_admin_client_manager_user_attributes",
         "x-amazon-apigateway-integration": {
@@ -210,7 +214,6 @@
           }
         ]
       },
-
       "get": {
         "tags": [
           "Admin Client Manager APIs"
@@ -338,6 +341,10 @@
               "statusCode": "405",
               "responseParameters": {}
             },
+            "409": {
+              "statusCode": "409",
+              "responseParameters": {}
+            },
             "429": {
               "statusCode": "405",
               "responseParameters": {}
@@ -352,7 +359,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref":"#/components/schemas/ClientUserCreateRequestBody"}
+              "schema": {
+                "$ref": "#/components/schemas/ClientUserCreateRequestBody"
+              }
             }
           },
           "description": "Request body",
@@ -374,6 +383,9 @@
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
           },
+          "409": {
+            "$ref": "#/components/responses/conflict"
+          },
           "429": {
             "$ref": "#/components/responses/rateLimit"
           },
@@ -389,12 +401,12 @@
       }
     },
     "/client-manager/client-users/{user_id}/{username}": {
-      "put": {
+      "patch": {
         "tags": [
           "Admin Client Manager APIs"
         ],
-        "description": "This endpoint updates a user in the Internal IDP",
-        "operationId": "Put_admin_client_manager_client_users",
+        "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
+        "operationId": "Patch_admin_client_manager_client_users",
         "parameters": [
           {
             "in": "path",
@@ -441,6 +453,10 @@
               "statusCode": "403",
               "responseParameters": {}
             },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
             "405": {
               "statusCode": "405",
               "responseParameters": {}
@@ -479,6 +495,9 @@
           },
           "403": {
             "$ref": "#/components/responses/forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "405": {
             "$ref": "#/components/responses/methodNotAllowed"
@@ -609,6 +628,27 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Limit the number of results returned, max 50",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          {
+            "in": "query",
+            "name": "last_evaluated_key",
+            "description": "Last evaluated key for pagination",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -686,7 +726,9 @@
     }
     "/": {
       "post": {
-        "tags": ["Admin control panel oidc callback api"],
+        "tags": [
+          "Admin control panel oidc callback api"
+        ],
         "description": "This route will serve the admin control panel oidc callback api",
         "parameters": [
           {
@@ -785,7 +827,9 @@
         }
       },
       "get": {
-        "tags": ["Admin control panel home page"],
+        "tags": [
+          "Admin control panel home page"
+        ],
         "description": "This route will serve the admin control panel home page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -821,7 +865,9 @@
     },
     "/dashboard": {
       "get": {
-        "tags": ["Admin control panel dashboard page"],
+        "tags": [
+          "Admin control panel dashboard page"
+        ],
         "description": "This route will serve the admin control panel dashboard page",
         "parameters": [],
         "x-amazon-apigateway-integration": {
@@ -858,7 +904,9 @@
     },
     "/dashboard/{clientid+}": {
       "get": {
-        "tags": ["Admin control panel dashboard client page"],
+        "tags": [
+          "Admin control panel dashboard client page"
+        ],
         "description": "This route will serve the admin control panel dashboard client page",
         "parameters": [
           {
@@ -960,7 +1008,9 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
-          "cacheKeyParameters": ["method.request.path.proxy"]
+          "cacheKeyParameters": [
+            "method.request.path.proxy"
+          ]
         }
       }
     }
@@ -986,7 +1036,7 @@
           }
         }
       },
-      "responseOkClientAdditionalJson":{
+      "responseOkClientAdditionalJson": {
         "description": "Response Ok, No Content",
         "headers": {
           "content-type": {
@@ -1019,9 +1069,18 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ClientUserCreate"
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientUserCreate"
+                  }
+                },
+                "last_evaluated_key": {
+                  "type": "string",
+                  "description": "Last evaluated key for pagination"
+                }
               }
             }
           }
@@ -1043,9 +1102,9 @@
               }
             }
           },
-            "Content-Security-Policy-Report-Only": {
+          "Content-Security-Policy-Report-Only": {
             "type": "string"
-            }
+          }
         },
         "content": {
           "text/html": {
@@ -1202,6 +1261,31 @@
       },
       "forbidden": {
         "description": "Forbidden.",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      },
+      "conflict": {
+        "description": "Conflict.",
         "headers": {
           "Pragma": {
             "description": "Pragma browser directive",
@@ -1613,7 +1697,9 @@
         "x-amazon-apigateway-authtype": "cognito_user_pools",
         "x-amazon-apigateway-authorizer": {
           "type": "cognito_user_pools",
-          "providerARNs": ["${ provider_arn }"]
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
         }
       }
     }

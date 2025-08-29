@@ -11,9 +11,11 @@ public interface ClientRegistrationService {
   ClientRegistrationResponseDTO saveClient(
       ClientRegistrationDTO clientRegistrationDTO);
 
-  Client getClient(String clientId, String userId);
+  Client getClientByClientId(String clientId);
 
-  void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO, String clientID,
+  Client getClientByUserId(String userId);
+
+  void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO, String clientId,
       int attributeIndex, long clientIdIssuedAt);
 
   void patchClientRegistrationDTO(ClientRegistrationDTO source,

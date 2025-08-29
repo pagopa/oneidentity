@@ -20057,5 +20057,31 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+  {
+    "username": "d.rand",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-784",
+    "familyName": "Rand",
+    "name": "Daniel",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-DNLRND80A01F205D",
+    "mobilePhone": "",
+    "email": "d.rand@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
 ]

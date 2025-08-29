@@ -69,7 +69,7 @@ public class ClientConnectorImpl implements ClientConnector {
             .item(client)
             .conditionExpression(
                 Expression.builder().expression(
-                        "attribute_not_exists(clientId)") //TODO: add a condition to avoid overwriting existing userId
+                        "attribute_not_exists(clientId)")
                     .build())
             .build());
   }
@@ -113,4 +113,17 @@ public class ClientConnectorImpl implements ClientConnector {
                     .build())
             .build());
   }
+
+  @Override
+  public Optional<Client> getClientByUserId(String userId) {
+    ScanEnhancedRequest request = ScanEnhancedRequest.builder().build();
+    for (Client client : clientMapper.scan(request).items()) {
+      if (userId.equals(client.getUserId())) {
+        return Optional.of(client);
+      }
+    }
+    return Optional.empty();
+  }
+
+
 }

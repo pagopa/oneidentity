@@ -4,13 +4,11 @@ import static it.pagopa.oneid.common.utils.ClientConstants.ACS_INDEX_DEFAULT_VAL
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 @CustomLogging
@@ -30,10 +28,7 @@ public class ClientUtils {
       ClientRegistrationDTO clientRegistrationDTO) {
     Log.debug("start");
 
-    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes()
-        .stream()
-        .map(Identifier::name)
-        .collect(Collectors.toSet());
+    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes();
 
     Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
 
@@ -61,22 +56,19 @@ public class ClientUtils {
             ? clientRegistrationDTO.getSpidProfessionals() : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise() : false)
+        .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
+            ? clientRegistrationDTO.getRequiredSameIdp() : false)
         .build();
   }
 
   public static ClientRegistrationDTO convertClientToClientRegistrationDTO(Client client) {
-    Set<Identifier> samlRequestedAttributes = client
-        .getRequestedParameters()
-        .stream()
-        .map(Identifier::valueOf)
-        .collect(Collectors.toSet());
 
     return ClientRegistrationDTO.builder()
         .userId(client.getUserId())
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
-        .samlRequestedAttributes(samlRequestedAttributes)
+        .samlRequestedAttributes(client.getRequestedParameters())
         .requiredSameIdp(client.isRequiredSameIdp())
         .spidMinors(client.isSpidMinors())
         .spidProfessionals(client.isSpidProfessionals())
