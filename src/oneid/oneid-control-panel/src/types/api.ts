@@ -102,7 +102,7 @@ export const SamlAttributeSchema = z.enum([
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 
-const LanguagesSchema = z.enum(['IT', 'EN', 'DE', 'FR', 'SL']);
+const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
 
 const ThemeSchema = z.object({
   title: z
@@ -111,21 +111,12 @@ const ThemeSchema = z.object({
   description: z
     .string()
     .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().url(),
-  cookieUri: z.string().url(),
-  supportAddress: z.string().email(),
+  docUri: z.string().optional(),
+  cookieUri: z.string().optional(),
+  supportAddress: z.string().optional(),
 });
 
-const ThemesPerLanguageSchema = z
-  .record(z.union([z.literal('default'), z.string()]), ThemeSchema)
-  .refine((obj) => Object.prototype.hasOwnProperty.call(obj, 'default'), {
-    message: "Record must contain a 'default' key",
-  });
-
-const LocalizedContentMapSchema = z.record(
-  LanguagesSchema,
-  ThemesPerLanguageSchema
-);
+const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 // TODO: check and eventually remove optional from required fields
 export const clientSchema = z.object({
@@ -149,7 +140,9 @@ export const clientSchema = z.object({
   // customize
   a11yUri: z.string().url().optional().nullable(),
   backButtonEnabled: z.boolean().optional().default(false),
-  localizedContentMap: LocalizedContentMapSchema.nullish(),
+  localizedContentMap: z
+    .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+    .nullish(),
 });
 
 export const idpUserCreateOrUpdateResponseSchema = z.object({
@@ -170,7 +163,7 @@ export const addIdpUserSchema = idpUserSchema.extend({
 export type Languages = z.infer<typeof LanguagesSchema>;
 export type Client = z.infer<typeof clientSchema>;
 export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
-export type ClientLocalizedEntry = z.infer<typeof ThemesPerLanguageSchema>;
+export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
 export type IdpUser = z.infer<typeof idpUserSchema>;
@@ -186,11 +179,11 @@ export type ClientRegisteredData = Pick<
 >;
 
 export const allLanguages: Record<Languages, string> = {
-  DE: 'Deutsch',
-  IT: 'Italiano',
-  EN: 'English',
-  SL: 'Slovenščina',
-  FR: 'Français',
+  de: 'Deutsch',
+  it: 'Italiano',
+  en: 'English',
+  sl: 'Slovenščina',
+  fr: 'Français',
 };
 
 export type LoginError = {
