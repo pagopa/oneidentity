@@ -30,27 +30,36 @@ public class LocalizedContentMapValidator implements
       return false;
     }
 
-    return map.entrySet().stream().allMatch(langEntry -> {
-      String lang = langEntry.getKey();
-      if (lang == null || !ALLOWED_LANGS.contains(lang)) {
+    return map.entrySet().stream().allMatch(themeEntry -> {
+      String theme = themeEntry.getKey();
+      if (theme == null || theme.isEmpty()) {
         return false;
       }
 
-      Map<String, LocalizedContent> themes = langEntry.getValue();
-      if (themes == null || themes.isEmpty()) {
+      Map<String, LocalizedContent> langMap = themeEntry.getValue();
+      if (langMap == null || langMap.isEmpty()) {
         return false;
       }
 
-      return themes.values().stream().allMatch(content ->
-          content != null &&
-              Stream.of(
-                  content.title(),
-                  content.description(),
-                  content.docUri(),
-                  content.supportAddress(),
-                  content.cookieUri()
-              ).noneMatch(StringUtils::isBlank)
-      );
+      return langMap.entrySet().stream().allMatch(langEntry -> {
+        String lang = langEntry.getKey();
+        if (lang == null || !ALLOWED_LANGS.contains(lang)) {
+          return false;
+        }
+
+        LocalizedContent content = langEntry.getValue();
+        if (content == null) {
+          return false;
+        }
+
+        return Stream.of(
+            content.title(),
+            content.description(),
+            content.docUri(),
+            content.supportAddress(),
+            content.cookieUri()
+        ).noneMatch(StringUtils::isBlank);
+      });
     });
   }
 }

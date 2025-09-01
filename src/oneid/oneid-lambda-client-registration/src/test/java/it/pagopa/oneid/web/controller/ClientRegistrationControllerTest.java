@@ -44,8 +44,8 @@ class ClientRegistrationControllerTest {
         .spidProfessionals(false)
         .pairwise(false)
         .localizedContentMap(
-            Map.of("EN",
-                Map.of("default",
+            Map.of("default",
+                Map.of("EN",
                     new Client.LocalizedContent("Title", "Description", "http://test.com",
                         "http://test.com", "http://test.com")
                 )
