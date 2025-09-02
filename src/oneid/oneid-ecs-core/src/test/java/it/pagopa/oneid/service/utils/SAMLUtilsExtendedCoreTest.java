@@ -3,6 +3,7 @@ package it.pagopa.oneid.service.utils;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CORRECT_SAML_RESPONSE_01;
 import static it.pagopa.oneid.model.Base64SAMLResponses.INVALID_SIGNATURE_SAML_RESPONSE_04;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ISSUE_INSTANT_ASSERTION_UNCORRECT_FORMAT_SAML_RESPONSE_38;
+import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_SIGNATURES_SAML_RESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_ASSERTION_SAML_RESPONSE_03;
 import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_SAML_RESPONSE_02;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -150,6 +151,16 @@ public class SAMLUtilsExtendedCoreTest {
 
     OneIdentityException exception = assertThrows(OneIdentityException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
+    assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
+  }
+
+  @Test
+  @SneakyThrows
+  void getSAMLResponseFromString_MultipleSamlResponseSignature() {
+
+    // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(MULTIPLE_SIGNATURES_SAML_RESPONSE));
     assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
   }
 
