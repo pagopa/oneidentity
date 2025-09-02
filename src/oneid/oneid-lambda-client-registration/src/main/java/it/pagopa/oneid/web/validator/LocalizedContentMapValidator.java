@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 public class LocalizedContentMapValidator implements
     ConstraintValidator<LocalizedContentMapCheck, Map<String, Map<String, LocalizedContent>>> {
 
-  private static final Set<String> ALLOWED_LANGS = Set.of("IT", "FR", "DE", "SL", "EN");
+  private static final Set<String> ALLOWED_LANGS = Set.of("it", "fr", "de", "sl", "en");
 
   @Override
   public void initialize(LocalizedContentMapCheck constraintAnnotation) {
@@ -54,10 +54,7 @@ public class LocalizedContentMapValidator implements
 
         return Stream.of(
             content.title(),
-            content.description(),
-            content.docUri(),
-            content.supportAddress(),
-            content.cookieUri()
+            content.description()
         ).noneMatch(StringUtils::isBlank);
       });
     });
