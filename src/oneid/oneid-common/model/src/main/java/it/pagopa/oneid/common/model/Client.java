@@ -82,5 +82,13 @@ public class Client {
   public record LocalizedContent(String title, String description, String docUri,
                                  String supportAddress, String cookieUri) {
 
+    public LocalizedContent {
+      title = title == null ? "" : title;
+      description = description == null ? "" : description;
+      docUri = docUri == null ? "" : docUri;
+      supportAddress = supportAddress == null ? "" : supportAddress;
+      cookieUri = cookieUri == null ? "" : cookieUri;
+    }
+
   }
 }
