@@ -23,11 +23,11 @@ import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.connector.LastIDPUsedConnectorImpl;
-import it.pagopa.oneid.common.connector.SSMConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.connector.PDVApiClient;
@@ -98,7 +98,7 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
   @Inject
-  SSMConnectorImpl ssmConnectorImpl;
+  SSMConnectorUtilsUtilsImpl ssmConnectorUtilsImpl;
   @Inject
   Map<String, Client> clientsMap;
   @Inject
@@ -249,7 +249,7 @@ public class OIDCServiceImpl implements OIDCService {
         SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.builder().fiscalCode(id).build();
 
         try {
-          ssmConnectorImpl.getParameter(clientId).ifPresentOrElse(
+          ssmConnectorUtilsImpl.getParameter(clientId).ifPresentOrElse(
               apiKey -> {
                 String userId = pdvApiClient.upsertUser(
                     savePDVUserDTO, apiKey).getUserId();

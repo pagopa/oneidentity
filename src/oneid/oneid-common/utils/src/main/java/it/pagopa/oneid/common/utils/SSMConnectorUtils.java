@@ -1,8 +1,8 @@
-package it.pagopa.oneid.common.connector;
+package it.pagopa.oneid.common.utils;
 
 import java.util.Optional;
 
-public interface SSMConnector {
+public interface SSMConnectorUtils {
 
   Optional<String> getParameter(String parameterName);
 

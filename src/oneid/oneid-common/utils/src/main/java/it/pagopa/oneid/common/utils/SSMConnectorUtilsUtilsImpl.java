@@ -1,5 +1,6 @@
-package it.pagopa.oneid.common.connector;
+package it.pagopa.oneid.common.utils;
 
+import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
@@ -8,7 +9,8 @@ import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 
 @ApplicationScoped
-public class SSMConnectorImpl implements SSMConnector {
+@CustomLogging
+public class SSMConnectorUtilsUtilsImpl implements SSMConnectorUtils {
 
   @Inject
   SsmClient ssmClient;
