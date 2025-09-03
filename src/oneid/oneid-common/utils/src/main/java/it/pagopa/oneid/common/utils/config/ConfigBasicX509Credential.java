@@ -80,6 +80,7 @@ public class ConfigBasicX509Credential {
     return basicX509Credential;
   }
 
+  // TODO: remove this method and use a common utility class
   private String getParameter(SsmClient ssmClient, String parameterName) {
     GetParameterRequest request = GetParameterRequest.builder()
         .name(parameterName)
