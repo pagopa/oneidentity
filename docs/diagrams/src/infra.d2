@@ -1,0 +1,116 @@
+...@classes
+vars: {
+  d2-config: @config.config
+}
+direction: right
+
+title: {
+  class: title
+  label: Infrastructure
+}
+
+productClient: {
+  class: externalCloudService
+}
+
+user: {
+  class: user
+} 
+
+identityServices: {
+  class: identityServices
+}
+
+GitHub: {
+  class: github
+}
+
+IDP: {
+  class: idpSPID
+}
+
+aws: { 
+  class: aws
+  ApiGW: {
+    class: apigw
+  }
+
+  parameterStore: {
+    class: parameterStore
+  }
+
+  dynamoDB :{
+    class: dynamo
+  }
+
+  IDPMetadata: {
+    class: s3
+  }
+  
+  Assertions: {
+    class: s3
+  }
+
+  KMS: {
+    class: KMS
+  }
+
+  vpc: {
+    class: vpc
+
+    oneid-ecs-core: {
+      class: ECS
+    }
+
+    oneid-lambda-client-registration: {
+      class: lambda
+    }
+    oneid-service-metadata: {
+      class: lambda
+    }
+
+    oneid-lambda-is-gh-integration: {
+      class: lambda
+    }
+
+    oneid-lambda-idp-metadata: {
+      class: lambda
+    }
+
+    oneid-lambda-assertion: {
+      class: lambda
+    }
+  }
+}
+
+
+
+productClient -> aws.ApiGW -> aws.vpc.oneid-lambda-client-registration: send API Key to request clientID and clientSecret (POST)
+aws.vpc.oneid-lambda-client-registration -> aws.dynamoDB: generate and store client secret
+
+user -> aws.ApiGW -> aws.vpc.oneid-service-metadata: request metadata (GET)
+aws.vpc.oneid-service-metadata <-> aws.dynamoDB: retrieve metadata
+
+aws.vpc.oneid-lambda-assertion <-> aws.dynamoDB: get SAML assertions
+aws.Assertions <- aws.vpc.oneid-lambda-assertion: store SAML assertions
+
+
+IdentityServices <-> aws.vpc.oneid-lambda-is-gh-integration: get new IDP metadata
+github <- aws.vpc.oneid-lambda-is-gh-integration : open PR with new IDP metadata
+github -> aws.IDPMetadata: upon PR merge, store IDP metadata
+aws.IDPMetadata -> aws.vpc.oneid-lambda-idp-metadata -> aws.dynamoDB : get IDP metadata from bucket and store it on db
+
+productClient <-> aws.ApiGW <-> aws.vpc.oneid-ecs-core: client authentication
+aws.vpc.oneid-ecs-core <-> aws.dynamoDB: get IDP and clients metadata
+aws.vpc.oneid-ecs-core <-> aws.dynamoDB: handle client session
+aws.vpc.oneid-ecs-core <-> aws.parameterStore: get privateKey to sign JWT token
+
+
+
+
+
+
+
+
+
+
