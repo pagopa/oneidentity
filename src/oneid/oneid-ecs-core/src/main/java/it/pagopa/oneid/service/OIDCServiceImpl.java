@@ -42,6 +42,7 @@ import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -247,18 +248,23 @@ public class OIDCServiceImpl implements OIDCService {
 
         SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.builder().fiscalCode(id).build();
 
-        ssmConnectorImpl.getParameter(clientId).ifPresentOrElse(
-            apiKey -> {
-              String userId = pdvApiClient.upsertUser(
-                  savePDVUserDTO, apiKey).getUserId();
-              attributeDTOList.add(AttributeDTO.builder()
-                  .attributeName("pairwise")
-                  .attributeValue(userId)
-                  .build());
-            },
-            () -> Log.warn("API Key not found for clientId: " + clientId
-                + ", can't retrieve pairwise sub from PDV")
-        );
+        try {
+          ssmConnectorImpl.getParameter(clientId).ifPresentOrElse(
+              apiKey -> {
+                String userId = pdvApiClient.upsertUser(
+                    savePDVUserDTO, apiKey).getUserId();
+                attributeDTOList.add(AttributeDTO.builder()
+                    .attributeName("pairwise")
+                    .attributeValue(userId)
+                    .build());
+              },
+              () -> Log.warn("API Key not found for clientId: " + clientId
+                  + ", can't retrieve pairwise sub from PDV")
+          );
+        } catch (WebApplicationException e) {
+          // if PDV returns an error, we log it but we don't block the authentication flow
+          Log.error("error during PDV upsertUser call: " + e.getMessage());
+        }
       } else {
         // if fiscalNumber is not present, we can't generate the pairwise sub
         Log.warn("fiscalNumber not present in attribute list, can't generate pairwise sub");
