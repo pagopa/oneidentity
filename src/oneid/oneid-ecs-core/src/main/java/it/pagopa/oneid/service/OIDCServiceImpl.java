@@ -23,18 +23,21 @@ import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.connector.LastIDPUsedConnectorImpl;
+import it.pagopa.oneid.common.connector.SSMConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
+import it.pagopa.oneid.connector.PDVApiClient;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
+import it.pagopa.oneid.model.dto.SavePDVUserDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -59,6 +62,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -81,6 +85,10 @@ public class OIDCServiceImpl implements OIDCService {
   String BASE_PATH;
 
   @Inject
+  @RestClient
+  PDVApiClient pdvApiClient;
+
+  @Inject
   OIDCUtils oidcUtils;
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
@@ -89,14 +97,21 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
   @Inject
+  SSMConnectorImpl ssmConnectorImpl;
+  @Inject
   Map<String, Client> clientsMap;
   @Inject
   MarshallerFactory marshallerFactory;
 
   private String getHashedIdFromAttributeDTOList(List<AttributeDTO> attributes) {
+    String id = getIdFromAttributeDTOList(attributes);
+    return getIdFromAttributeDTOList(attributes) == null ? null : HASHUtils.generateIDHash(id);
+  }
+
+  private String getIdFromAttributeDTOList(List<AttributeDTO> attributes) {
     for (AttributeDTO attribute : attributes) {
       if (fiscalNumber.name().equals(attribute.getAttributeName())) {
-        return HASHUtils.generateIDHash(attribute.getAttributeValue());
+        return attribute.getAttributeValue();
       }
     }
     return null;
@@ -222,6 +237,33 @@ public class OIDCServiceImpl implements OIDCService {
     // TODO is it ok for the 'scope' to be null?
     AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
     String id = null;
+
+    // Check if we need to add the "pairwise" claim to the ID token
+    if (clientsMap.get(clientId).isPairwise()) {
+      // Get fiscalNumber from attribute list
+      id = getIdFromAttributeDTOList(attributeDTOList);
+      if (id != null) {
+        // if fiscalNumber is present, retrieve the token from PDV
+
+        SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.builder().fiscalCode(id).build();
+
+        ssmConnectorImpl.getParameter(clientId).ifPresentOrElse(
+            apiKey -> {
+              String userId = pdvApiClient.upsertUser(
+                  savePDVUserDTO, apiKey).getUserId();
+              attributeDTOList.add(AttributeDTO.builder()
+                  .attributeName("pairwise")
+                  .attributeValue(userId)
+                  .build());
+            },
+            () -> Log.warn("API Key not found for clientId: " + clientId
+                + ", can't retrieve pairwise sub from PDV")
+        );
+      } else {
+        // if fiscalNumber is not present, we can't generate the pairwise sub
+        Log.warn("fiscalNumber not present in attribute list, can't generate pairwise sub");
+      }
+    }
 
     //Create signed JWT ID token
     String signedJWTString;
