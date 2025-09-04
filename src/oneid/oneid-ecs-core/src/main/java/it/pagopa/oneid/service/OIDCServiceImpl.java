@@ -77,6 +77,7 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 public class OIDCServiceImpl implements OIDCService {
 
   private static final long LAST_IDP_USED_TTL = 730; // days
+  private static final String FISCAL_CODE_PREFIX = "TINIT-";
 
   @Inject
   @ConfigProperty(name = "sign_jwt_key_alias")
@@ -246,7 +247,8 @@ public class OIDCServiceImpl implements OIDCService {
       if (id != null) {
         // if fiscalNumber is present, retrieve the token from PDV
 
-        SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.builder().fiscalCode(id).build();
+        SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.builder()
+            .fiscalCode(id.replace(FISCAL_CODE_PREFIX, "")).build();
 
         try {
           ssmConnectorUtilsImpl.getParameter(clientId).ifPresentOrElse(
