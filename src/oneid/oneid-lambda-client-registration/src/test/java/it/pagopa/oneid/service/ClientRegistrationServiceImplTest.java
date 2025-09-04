@@ -478,6 +478,11 @@ class ClientRegistrationServiceImplTest {
             Map.of("default",
                 Map.of("en",
                     new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        null, null)
+                ),
+                "optional",
+                Map.of("de",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
                         null, "")
                 )
             ))
@@ -502,7 +507,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(
             Map.of("default",
                 Map.of("en",
-                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                    new Client.LocalizedContent("Title", "Description", null,
                         "test", "test")
                 )
             ))
@@ -526,7 +531,12 @@ class ClientRegistrationServiceImplTest {
     assertEquals(Map.of("default",
         Map.of("en",
             new Client.LocalizedContent("Title", "Description", "http://test.com",
-                "test", "")
+                "test", "test")
+        ),
+        "optional",
+        Map.of("de",
+            new Client.LocalizedContent("Title", "Description", "http://test.com",
+                null, "")
         )
     ), target.getLocalizedContentMap());
   }

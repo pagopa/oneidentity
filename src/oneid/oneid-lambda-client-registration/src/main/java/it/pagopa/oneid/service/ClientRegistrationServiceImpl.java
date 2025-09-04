@@ -117,11 +117,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
                     srcContent.title(),
                     srcContent.description(),
                     srcContent.docUri() != null ? srcContent.docUri()
-                        : tgtContent.docUri(),
+                        : (tgtContent.docUri() != null ? tgtContent.docUri() : null),
                     srcContent.supportAddress() != null ? srcContent.supportAddress()
-                        : tgtContent.supportAddress(),
+                        : (tgtContent != null ? tgtContent.supportAddress() : null),
                     srcContent.cookieUri() != null ? srcContent.cookieUri()
-                        : tgtContent.cookieUri()));
+                        : (tgtContent.cookieUri() != null ? tgtContent.cookieUri() : null)));
               });
         });
 
