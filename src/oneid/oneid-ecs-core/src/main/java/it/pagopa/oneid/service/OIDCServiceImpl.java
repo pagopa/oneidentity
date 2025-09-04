@@ -78,6 +78,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   private static final long LAST_IDP_USED_TTL = 730; // days
   private static final String FISCAL_CODE_PREFIX = "TINIT-";
+  private static final String PDV_API_KEY_PREFIX = "/pdv/";
 
   @Inject
   @ConfigProperty(name = "sign_jwt_key_alias")
@@ -251,7 +252,7 @@ public class OIDCServiceImpl implements OIDCService {
             .fiscalCode(id.replace(FISCAL_CODE_PREFIX, "")).build();
 
         try {
-          ssmConnectorUtilsImpl.getParameter(clientId).ifPresentOrElse(
+          ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX + clientId).ifPresentOrElse(
               apiKey -> {
                 String userId = pdvApiClient.upsertUser(
                     savePDVUserDTO, apiKey).getUserId();
