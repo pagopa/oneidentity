@@ -80,10 +80,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     if (source.getLocalizedContentMap() != null) {
-      Map<String, Map<String, LocalizedContent>> merged =
-          patchLocalizedContentMap(source.getLocalizedContentMap(),
-              target.getLocalizedContentMap());
-      target.setLocalizedContentMap(merged);
+      target.setLocalizedContentMap(patchLocalizedContentMap(source.getLocalizedContentMap(),
+          target.getLocalizedContentMap()));
     }
   }
 
@@ -92,42 +90,45 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       Map<String, Map<String, LocalizedContent>> sourceMap,
       Map<String, Map<String, LocalizedContent>> targetMap) {
 
-    Map<String, Map<String, LocalizedContent>> targetToUpdate =
-        (targetMap == null) ? new HashMap<>() : new HashMap<>(targetMap);
+    Map<String, Map<String, LocalizedContent>> resultMap =
+        targetMap == null ? new HashMap<>() : new HashMap<>(targetMap);
 
-    sourceMap.entrySet().stream()
-        .filter(e -> e.getKey() != null)
-        .filter(e -> e.getValue() != null)
-        .forEach(themeEntry -> {
-          String theme = themeEntry.getKey();
+    if (sourceMap == null || sourceMap.isEmpty()) {
+      return resultMap; // nothing to patch
+    }
 
-          Map<String, LocalizedContent> existingInner = targetToUpdate.get(theme);
-          Map<String, LocalizedContent> tgtLangMap =
-              (existingInner == null) ? new HashMap<>() : new HashMap<>(existingInner);
-          targetToUpdate.put(theme, tgtLangMap);
+    //themes loop
+    for (Map.Entry<String, Map<String, LocalizedContent>> themeEntry : sourceMap.entrySet()) {
+      String theme = themeEntry.getKey();
 
-          themeEntry.getValue().entrySet().stream()
-              .filter(le -> le.getKey() != null)
-              .filter(le -> le.getValue() != null)
-              .forEach(le -> {
-                String lang = le.getKey();
-                LocalizedContent srcContent = le.getValue();
+      //source lang map
+      Map<String, LocalizedContent> srcLangMap = themeEntry.getValue();
+      if (theme == null || srcLangMap == null) {
+        continue;
+      }
+      //creation of mutable target lang map
+      Map<String, LocalizedContent> targetLangMap = resultMap.get(theme);
+      if (!(targetLangMap instanceof HashMap)) {
+        targetLangMap = targetLangMap == null ? new HashMap<>() : new HashMap<>(targetLangMap);
+        resultMap.put(theme, targetLangMap);
+      }
 
-                tgtLangMap.compute(lang, (k, tgtContent) -> new LocalizedContent(
-                    srcContent.title(),
-                    srcContent.description(),
-                    srcContent.docUri() != null ? srcContent.docUri()
-                        : (tgtContent.docUri() != null ? tgtContent.docUri() : null),
-                    srcContent.supportAddress() != null ? srcContent.supportAddress()
-                        : (tgtContent != null ? tgtContent.supportAddress() : null),
-                    srcContent.cookieUri() != null ? srcContent.cookieUri()
-                        : (tgtContent.cookieUri() != null ? tgtContent.cookieUri() : null)));
-              });
-        });
+      //languages loop
+      for (Map.Entry<String, LocalizedContent> langEntry : srcLangMap.entrySet()) {
+        String lang = langEntry.getKey();
+        LocalizedContent sourceContent = langEntry.getValue();
+        if (lang == null || sourceContent == null) {
+          continue;
+        }
 
-    return targetToUpdate;
+        LocalizedContent updatedContent = ClientUtils.mergeContent(sourceContent,
+            targetLangMap.get(lang));
+        targetLangMap.put(lang, updatedContent);
+      }
+    }
+
+    return resultMap;
   }
-
 
   @Override
   public void validateClientRegistrationInfo(
