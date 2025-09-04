@@ -19,6 +19,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -473,6 +474,13 @@ class ClientRegistrationServiceImplTest {
         .spidMinors(false)
         .spidProfessionals(null) // not passed, should not change
         //.pairwise() // not passed, should not change
+        .localizedContentMap(
+            Map.of("default",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        null, "")
+                )
+            ))
         .build();
 
     ClientRegistrationDTO target = ClientRegistrationDTO.builder()
@@ -491,6 +499,13 @@ class ClientRegistrationServiceImplTest {
         .spidMinors(true)
         .spidProfessionals(true)
         .pairwise(false)
+        .localizedContentMap(
+            Map.of("default",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        "test", "test")
+                )
+            ))
         .build();
 
     clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
@@ -503,11 +518,16 @@ class ClientRegistrationServiceImplTest {
     assertEquals("http://patched.com/policy", target.getPolicyUri());
     assertEquals("http://patched.com/tos", target.getTosUri());
     assertEquals("http://patched.com/a11y", target.getA11yUri());
-    assertEquals(new HashMap<>(), target.getLocalizedContentMap());
     assertFalse(target.getRequiredSameIdp());
     assertTrue(target.getBackButtonEnabled());
     assertFalse(target.getSpidMinors());
     assertTrue(target.getSpidProfessionals());
     assertFalse(target.getPairwise());
+    assertEquals(Map.of("default",
+        Map.of("en",
+            new Client.LocalizedContent("Title", "Description", "http://test.com",
+                "test", "")
+        )
+    ), target.getLocalizedContentMap());
   }
 }

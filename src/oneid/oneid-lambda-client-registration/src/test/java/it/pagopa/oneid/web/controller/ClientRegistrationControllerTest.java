@@ -254,6 +254,13 @@ class ClientRegistrationControllerTest {
         .acsIndex(0)
         .attributeIndex(0)
         .clientIdIssuedAt(111)
+        .localizedContentMap(
+            Map.of("default",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        "test", "test")
+                )
+            ))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
@@ -261,6 +268,13 @@ class ClientRegistrationControllerTest {
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
+        .localizedContentMap(
+            Map.of("default",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        null, "")
+                )
+            ))
         .build();
 
     Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)

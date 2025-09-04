@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
@@ -22,6 +23,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +63,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     if (source.getA11yUri() != null) {
       target.setA11yUri(source.getA11yUri());
     }
-    if (source.getLocalizedContentMap() != null) {
-      target.setLocalizedContentMap(source.getLocalizedContentMap());
-    }
     if (source.getBackButtonEnabled() != null) {
       target.setBackButtonEnabled(source.getBackButtonEnabled());
     }
@@ -78,7 +78,56 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     if (source.getPairwise() != null) {
       target.setPairwise(source.getPairwise());
     }
+
+    if (source.getLocalizedContentMap() != null) {
+      Map<String, Map<String, LocalizedContent>> merged =
+          patchLocalizedContentMap(source.getLocalizedContentMap(),
+              target.getLocalizedContentMap());
+      target.setLocalizedContentMap(merged);
+    }
   }
+
+
+  private Map<String, Map<String, LocalizedContent>> patchLocalizedContentMap(
+      Map<String, Map<String, LocalizedContent>> sourceMap,
+      Map<String, Map<String, LocalizedContent>> targetMap) {
+
+    Map<String, Map<String, LocalizedContent>> targetToUpdate =
+        (targetMap == null) ? new HashMap<>() : new HashMap<>(targetMap);
+
+    sourceMap.entrySet().stream()
+        .filter(e -> e.getKey() != null)
+        .filter(e -> e.getValue() != null)
+        .forEach(themeEntry -> {
+          String theme = themeEntry.getKey();
+
+          Map<String, LocalizedContent> existingInner = targetToUpdate.get(theme);
+          Map<String, LocalizedContent> tgtLangMap =
+              (existingInner == null) ? new HashMap<>() : new HashMap<>(existingInner);
+          targetToUpdate.put(theme, tgtLangMap);
+
+          themeEntry.getValue().entrySet().stream()
+              .filter(le -> le.getKey() != null)
+              .filter(le -> le.getValue() != null)
+              .forEach(le -> {
+                String lang = le.getKey();
+                LocalizedContent srcContent = le.getValue();
+
+                tgtLangMap.compute(lang, (k, tgtContent) -> new LocalizedContent(
+                    srcContent.title(),
+                    srcContent.description(),
+                    srcContent.docUri() != null ? srcContent.docUri()
+                        : tgtContent.docUri(),
+                    srcContent.supportAddress() != null ? srcContent.supportAddress()
+                        : tgtContent.supportAddress(),
+                    srcContent.cookieUri() != null ? srcContent.cookieUri()
+                        : tgtContent.cookieUri()));
+              });
+        });
+
+    return targetToUpdate;
+  }
+
 
   @Override
   public void validateClientRegistrationInfo(
