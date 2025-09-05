@@ -138,12 +138,13 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Support Address"
+                    label="Support Email Address"
                     value={activeTheme[lang]?.supportAddress || ''}
                     onChange={(e) =>
                       onContentChange(lang, 'supportAddress', e.target.value)
                     }
                     fullWidth
+                    type="email"
                     error={
                       !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
