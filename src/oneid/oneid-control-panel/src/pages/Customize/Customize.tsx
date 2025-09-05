@@ -135,28 +135,40 @@ function CustomizeDashboard() {
 
   const isFormValid = () => {
     if (!clientData) return false;
-    // Check if at least one theme exists
+
+    // at least one of a11yuri, backButton, localizedContentMap must be changed
     if (
-      !clientData.localizedContentMap ||
-      Object.keys(clientData.localizedContentMap).length === 0
+      clientData.a11yUri === fetchedAdditionalAttributes?.a11yUri &&
+      clientData.backButtonEnabled ===
+        fetchedAdditionalAttributes?.backButtonEnabled &&
+      clientData.localizedContentMap ===
+        fetchedAdditionalAttributes.localizedContentMap
     ) {
-      console.error('At least one theme is required');
       return false;
     }
-    // Check if the 'default' theme exists
-    if (!clientData.localizedContentMap.default) {
-      console.error('The "default" theme is required');
-      return false;
-    }
-    // Check if each theme has at least one language with title and description
-    for (const [themeKey, themeContent] of Object.entries(
-      clientData.localizedContentMap
-    )) {
-      if (!themeContent || Object.keys(themeContent).length === 0) {
-        console.error(`Theme "${themeKey}" must have at least one language`);
+
+    // if localized content map is filled, check if the 'default' theme exists
+    if (
+      clientData.localizedContentMap &&
+      Object.keys(clientData.localizedContentMap).length !== 0
+    ) {
+      if (!clientData.localizedContentMap.default) {
+        console.error('The "default" theme is required');
         return false;
       }
+
+      // Check if each theme has at least one language with title and description
+      for (const [themeKey, themeContent] of Object.entries(
+        clientData.localizedContentMap
+      )) {
+        if (!themeContent || Object.keys(themeContent).length === 0) {
+          console.error(`Theme "${themeKey}" must have at least one language`);
+          return false;
+        }
+      }
+      return true;
     }
+
     return true;
   };
 
@@ -284,8 +296,6 @@ function CustomizeDashboard() {
       // Always set backButtonEnabled explicitly and ensure it's always boolean
       return {
         ...prev,
-        backButtonEnabled: false,
-        a11yUri: null,
         localizedContentMap: {
           ...prev?.localizedContentMap,
           [key]: {

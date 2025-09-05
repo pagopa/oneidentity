@@ -111,9 +111,9 @@ const ThemeSchema = z.object({
   description: z
     .string()
     .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().optional(),
-  cookieUri: z.string().optional(),
-  supportAddress: z.string().optional(),
+  docUri: z.string().url().nullish(),
+  cookieUri: z.string().url().nullish(),
+  supportAddress: z.string().email().nullish(),
 });
 
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
