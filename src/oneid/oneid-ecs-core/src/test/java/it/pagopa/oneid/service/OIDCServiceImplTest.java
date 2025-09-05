@@ -5,23 +5,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsUtilsImpl;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
+import it.pagopa.oneid.connector.PDVApiClient;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
+import it.pagopa.oneid.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
@@ -34,6 +41,7 @@ import java.util.Optional;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import software.amazon.awssdk.core.SdkBytes;
@@ -54,6 +62,13 @@ public class OIDCServiceImplTest {
 
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
+
+  @InjectMock
+  @RestClient
+  PDVApiClient pdvApiClientMock;
+
+  @InjectMock
+  SSMConnectorUtilsUtilsImpl ssmConnectorUtilsImplMock;
 
   private static String getPublicKeyPEM() {
     String key = """
@@ -241,6 +256,45 @@ public class OIDCServiceImplTest {
 
     assertEquals("test", fiscalNumber);
     assertTrue(sameIdp);
+  }
+
+  @Test
+  void getOIDCTokens_requiredPairwise() throws ParseException {
+    // given
+    String requestID = "dummyId";
+    String clientID = "testPairwiseTrue";
+    String entityID = "dummy";
+    String nonce = "dummyNonce";
+    String apiKey = "dummyApiKey";
+    ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
+    attributeDTOList.add(new AttributeDTO("fiscalNumber", "test"));
+
+    when(ssmConnectorUtilsImplMock.getParameter(anyString())).thenReturn(Optional.of(apiKey));
+    when(pdvApiClientMock.upsertUser(any(), any())).thenReturn(
+        PDVUserUpsertResponseDTO.builder().userId("dummy").build());
+
+    oidcUtils = Mockito.mock(OIDCUtils.class);
+    String validJWT = "\n"
+        + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
+    Mockito.when(
+            oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(validJWT);
+    QuarkusMock.installMockForType(oidcUtils, OIDCUtils.class);
+
+    // then
+    TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
+        nonce, entityID);
+
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String[] chunks = tokenDataDTO.getIdToken().split("\\.");
+    String payload = new String(decoder.decode(chunks[1]));
+
+    Object obj = new JSONParser().parse(payload);
+    JSONObject jo = (JSONObject) obj;
+
+    String fiscalNumber = (String) jo.get("fiscalNumber");
+
+    assertEquals("test", fiscalNumber);
   }
 
   @Test
