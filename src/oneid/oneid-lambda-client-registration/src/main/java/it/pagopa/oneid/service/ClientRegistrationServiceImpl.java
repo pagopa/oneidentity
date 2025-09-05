@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
@@ -22,6 +23,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.net.URI;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -60,9 +63,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     if (source.getA11yUri() != null) {
       target.setA11yUri(source.getA11yUri());
     }
-    if (source.getLocalizedContentMap() != null) {
-      target.setLocalizedContentMap(source.getLocalizedContentMap());
-    }
     if (source.getBackButtonEnabled() != null) {
       target.setBackButtonEnabled(source.getBackButtonEnabled());
     }
@@ -78,6 +78,69 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     if (source.getPairwise() != null) {
       target.setPairwise(source.getPairwise());
     }
+
+    if (source.getLocalizedContentMap() != null) {
+      target.setLocalizedContentMap(patchLocalizedContentMap(source.getLocalizedContentMap(),
+          target.getLocalizedContentMap()));
+    }
+  }
+
+
+  private Map<String, Map<String, LocalizedContent>> patchLocalizedContentMap(
+      Map<String, Map<String, LocalizedContent>> sourceMap,
+      Map<String, Map<String, LocalizedContent>> targetMap) {
+
+    Map<String, Map<String, LocalizedContent>> resultMap =
+        targetMap == null ? new HashMap<>() : new HashMap<>(targetMap);
+
+    if (sourceMap == null || sourceMap.isEmpty()) {
+      return resultMap; // nothing to patch
+    }
+
+    //themes loop
+    for (Map.Entry<String, Map<String, LocalizedContent>> themeEntry : sourceMap.entrySet()) {
+      String theme = themeEntry.getKey();
+      if (theme == null) {
+        continue;
+      }
+
+      Map<String, LocalizedContent> srcLangMap = themeEntry.getValue();
+      // If theme is null, remove it from resultMap
+      if (srcLangMap == null) {
+        resultMap.remove(theme);
+        continue;
+      }
+      //creation of mutable target lang map
+      Map<String, LocalizedContent> targetLangMap = resultMap.get(theme);
+      if (!(targetLangMap instanceof HashMap)) {
+        targetLangMap = targetLangMap == null ? new HashMap<>() : new HashMap<>(targetLangMap);
+        resultMap.put(theme, targetLangMap);
+      }
+
+      //languages loop
+      for (Map.Entry<String, LocalizedContent> langEntry : srcLangMap.entrySet()) {
+        String lang = langEntry.getKey();
+        if (lang == null) {
+          continue;
+        }
+        LocalizedContent sourceContent = langEntry.getValue();
+        // If language is null, remove it from targetLangMap
+        if (sourceContent == null) {
+          targetLangMap.remove(lang);
+          continue;
+        }
+
+        LocalizedContent updatedContent = ClientUtils.mergeContent(sourceContent,
+            targetLangMap.get(lang));
+        targetLangMap.put(lang, updatedContent);
+      }
+      // Remove theme if no languages remain
+      if (targetLangMap.isEmpty()) {
+        resultMap.remove(theme);
+      }
+    }
+
+    return resultMap;
   }
 
   @Override

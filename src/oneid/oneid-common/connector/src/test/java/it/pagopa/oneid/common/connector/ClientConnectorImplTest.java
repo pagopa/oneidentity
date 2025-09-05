@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import jakarta.inject.Inject;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -185,6 +186,14 @@ class ClientConnectorImplTest {
         .attributeIndex(0)
         .isActive(false)
         .clientIdIssuedAt(0)
+        .localizedContentMap(
+            Map.of("default",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        null, "")
+                )
+            )
+        )
         .build();
 
     //then

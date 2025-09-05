@@ -11,6 +11,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,20 @@ class ClientRegistrationControllerTest {
   @Test
   void register_ok() {
     // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("fr", null); // remove 'fr'
+    defaultLangs.put("en",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+    localizedContentMap.put("default", defaultLangs);
+    // Add new theme 'optional'
+    Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
+    optionalLangs.put("de",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+    localizedContentMap.put("optional", optionalLangs);
+    // Remove theme 'removeTheme'
+    localizedContentMap.put("removeTheme", null);
+
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId("test")
         .redirectUris(Set.of("http://test.com"))
@@ -39,10 +54,10 @@ class ClientRegistrationControllerTest {
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("http://test.com")
         .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
+        .localizedContentMap(localizedContentMap)
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
@@ -137,6 +152,28 @@ class ClientRegistrationControllerTest {
         .statusCode(400);
   }
 
+  @Test
+  void register_withInvalidLocalizedContentMap_ko() {
+    // given
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test-user")
+        .clientName("Test Client")
+        .redirectUris(Set.of("https://valid.uri/callback"))
+        .samlRequestedAttributes(Set.of("name"))
+        // The payload contains a empty map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(new HashMap<>())
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .log().body()
+        .statusCode(400);
+  }
+
 
   @Test
   void register_MalformedJson_ko() {
@@ -211,6 +248,22 @@ class ClientRegistrationControllerTest {
 
   @Test
   void updateClient_ok() {
+
+    // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("fr", null); // remove 'fr'
+    defaultLangs.put("en",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+    localizedContentMap.put("default", defaultLangs);
+    // Add new theme 'optional'
+    Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
+    optionalLangs.put("de",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+    localizedContentMap.put("optional", optionalLangs);
+    // Remove theme 'removeTheme'
+    localizedContentMap.put("removeTheme", null);
+
     String clientId = "testClientId";
     String userId = "testUserId";
 
@@ -224,6 +277,13 @@ class ClientRegistrationControllerTest {
         .acsIndex(0)
         .attributeIndex(0)
         .clientIdIssuedAt(111)
+        .localizedContentMap(
+            Map.of("removeTheme",
+                Map.of("en",
+                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                        "test", "test")
+                )
+            ))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
@@ -231,6 +291,7 @@ class ClientRegistrationControllerTest {
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
+        .localizedContentMap(localizedContentMap)
         .build();
 
     Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
