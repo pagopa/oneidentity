@@ -1,14 +1,15 @@
 package it.pagopa.oneid.model.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 @Builder
-public class AttributeDTO {
+@AllArgsConstructor
+public class SavePDVUserDTO {
 
-  String attributeName;
-  String attributeValue;
+  @NotNull
+  String fiscalCode;
 }
