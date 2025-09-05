@@ -458,6 +458,22 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void patchClientRegistrationDTO_shouldPatchNonNullFieldsAndBooleans() {
+
+    // Source localizedContentMap
+    Map<String, Map<String, Client.LocalizedContent>> sourceLocalizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("fr", null); // remove 'fr'
+    defaultLangs.put("en",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+    sourceLocalizedContentMap.put("default", defaultLangs);
+    // Add new theme 'optional'
+    Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
+    optionalLangs.put("de",
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+    sourceLocalizedContentMap.put("optional", optionalLangs);
+    // Remove theme 'removeTheme'
+    sourceLocalizedContentMap.put("removeTheme", null);
+
     ClientRegistrationDTO source = ClientRegistrationDTO.builder()
         .userId("patchedUser")
         .redirectUris(Set.of("http://patched.com"))
@@ -468,25 +484,27 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://patched.com/policy")
         .tosUri("http://patched.com/tos")
         .a11yUri("http://patched.com/a11y")
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(sourceLocalizedContentMap)
         .requiredSameIdp(false)
         .backButtonEnabled(true)
         .spidMinors(false)
-        .spidProfessionals(null) // not passed, should not change
-        //.pairwise() // not passed, should not change
-        .localizedContentMap(
-            Map.of("default",
-                Map.of("en",
-                    new Client.LocalizedContent("Title", "Description", "http://test.com",
-                        null, null)
-                ),
-                "optional",
-                Map.of("de",
-                    new Client.LocalizedContent("Title", "Description", "http://test.com",
-                        null, "")
-                )
-            ))
+        .spidProfessionals(null)
         .build();
+
+    // Target localizedContentMap
+    Map<String, Map<String, Client.LocalizedContent>> targetLocalizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> targetDefaultLangs = new HashMap<>();
+    targetDefaultLangs.put("en",
+        new Client.LocalizedContent("Title", "Description", null, "test", "test"));
+    targetDefaultLangs.put("fr",
+        new Client.LocalizedContent("FrenchTitle", "FrenchDescription", "http://fr.com",
+            "fr-support", "fr-cookie"));
+    targetLocalizedContentMap.put("default", targetDefaultLangs);
+    Map<String, Client.LocalizedContent> targetRemoveThemeLangs = new HashMap<>();
+    targetRemoveThemeLangs.put("it",
+        new Client.LocalizedContent("ItalianTitle", "ItalianDescription", "http://it.com",
+            "it-support", "it-cookie"));
+    targetLocalizedContentMap.put("removeTheme", targetRemoveThemeLangs);
 
     ClientRegistrationDTO target = ClientRegistrationDTO.builder()
         .userId("originalUser")
@@ -498,19 +516,12 @@ class ClientRegistrationServiceImplTest {
         .policyUri("http://original.com/policy")
         .tosUri("http://original.com/tos")
         .a11yUri("http://original.com/a11y")
-        .localizedContentMap(new HashMap<>())
+        .localizedContentMap(targetLocalizedContentMap)
         .requiredSameIdp(false)
         .backButtonEnabled(false)
         .spidMinors(true)
         .spidProfessionals(true)
         .pairwise(false)
-        .localizedContentMap(
-            Map.of("default",
-                Map.of("en",
-                    new Client.LocalizedContent("Title", "Description", null,
-                        "test", "test")
-                )
-            ))
         .build();
 
     clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
@@ -528,16 +539,16 @@ class ClientRegistrationServiceImplTest {
     assertFalse(target.getSpidMinors());
     assertTrue(target.getSpidProfessionals());
     assertFalse(target.getPairwise());
-    assertEquals(Map.of("default",
-        Map.of("en",
-            new Client.LocalizedContent("Title", "Description", "http://test.com",
-                "test", "test")
-        ),
-        "optional",
-        Map.of("de",
-            new Client.LocalizedContent("Title", "Description", "http://test.com",
-                null, "")
-        )
-    ), target.getLocalizedContentMap());
+    // Check theme removal
+    assertFalse(target.getLocalizedContentMap().containsKey("removeTheme"));
+    // Check language removal
+    assertFalse(target.getLocalizedContentMap().get("default").containsKey("fr"));
+    // Check patching of existing language
+    assertEquals(
+        new Client.LocalizedContent("Title", "Description", "http://test.com", "test", "test"),
+        target.getLocalizedContentMap().get("default").get("en"));
+    // Check patching of new theme/language
+    assertEquals(new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""),
+        target.getLocalizedContentMap().get("optional").get("de"));
   }
 }

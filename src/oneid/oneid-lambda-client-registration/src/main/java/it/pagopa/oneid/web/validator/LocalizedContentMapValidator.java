@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 public class LocalizedContentMapValidator implements
@@ -31,13 +30,11 @@ public class LocalizedContentMapValidator implements
     }
 
     return map.entrySet().stream().allMatch(themeEntry -> {
-      String theme = themeEntry.getKey();
-      if (theme == null || theme.isEmpty()) {
-        return false;
-      }
-
       Map<String, LocalizedContent> langMap = themeEntry.getValue();
-      if (langMap == null || langMap.isEmpty()) {
+      if (langMap == null) {
+        return true; // allow theme removal
+      }
+      if (langMap.isEmpty()) {
         return false;
       }
 
@@ -49,14 +46,27 @@ public class LocalizedContentMapValidator implements
 
         LocalizedContent content = langEntry.getValue();
         if (content == null) {
-          return false;
+          return true; // allow language removal
         }
 
-        return Stream.of(
-            content.title(),
-            content.description()
-        ).noneMatch(StringUtils::isBlank);
+        return StringUtils.isNotBlank(content.title())
+            && StringUtils.isNotBlank(content.description());
       });
     });
+
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

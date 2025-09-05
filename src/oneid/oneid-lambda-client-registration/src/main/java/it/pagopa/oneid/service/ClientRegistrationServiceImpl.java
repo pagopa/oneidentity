@@ -100,10 +100,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     //themes loop
     for (Map.Entry<String, Map<String, LocalizedContent>> themeEntry : sourceMap.entrySet()) {
       String theme = themeEntry.getKey();
+      if (theme == null) {
+        continue;
+      }
 
-      //source lang map
       Map<String, LocalizedContent> srcLangMap = themeEntry.getValue();
-      if (theme == null || srcLangMap == null) {
+      // If theme is null, remove it from resultMap
+      if (srcLangMap == null) {
+        resultMap.remove(theme);
         continue;
       }
       //creation of mutable target lang map
@@ -116,14 +120,23 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       //languages loop
       for (Map.Entry<String, LocalizedContent> langEntry : srcLangMap.entrySet()) {
         String lang = langEntry.getKey();
+        if (lang == null) {
+          continue;
+        }
         LocalizedContent sourceContent = langEntry.getValue();
-        if (lang == null || sourceContent == null) {
+        // If language is null, remove it from targetLangMap
+        if (sourceContent == null) {
+          targetLangMap.remove(lang);
           continue;
         }
 
         LocalizedContent updatedContent = ClientUtils.mergeContent(sourceContent,
             targetLangMap.get(lang));
         targetLangMap.put(lang, updatedContent);
+      }
+      // Remove theme if no languages remain
+      if (targetLangMap.isEmpty()) {
+        resultMap.remove(theme);
       }
     }
 
