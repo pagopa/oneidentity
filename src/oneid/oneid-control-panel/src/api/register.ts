@@ -46,7 +46,6 @@ export const getClientData = async (
     );
     return response.data;
   } catch (error) {
-    // TODO: CLIENT NOT FOUND 401??
     if (axios.isAxiosError(error) && error.response?.status === 404) {
       throw new Error('Client not found');
     }
