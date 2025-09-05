@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Client } from '../types/api';
 import { getClientData, createOrUpdateClient } from '../api/register';
 import { useAuth } from 'react-oidc-context';
@@ -28,6 +28,8 @@ const withTimeout = <T extends object>(
 };
 
 export const useRegister = () => {
+  const queryClient = useQueryClient();
+
   const { user } = useAuth();
   const token = user?.id_token;
   const userId = user?.profile.sub;
@@ -36,8 +38,10 @@ export const useRegister = () => {
     throw new Error('No token available');
   }
 
+  const queryKey = ['user-client', userId];
+
   const clientQuery = useQuery<Client, Error>({
-    queryKey: ['user-client', userId],
+    queryKey,
     queryFn: () => getClientData(userId, token),
     enabled: !!token && !!userId,
     staleTime,
@@ -61,6 +65,9 @@ export const useRegister = () => {
         createOrUpdateClient(dataWithUserId, token, clientId),
         TIMEOUT_DURATION
       );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey })
     },
   });
 
