@@ -42,10 +42,14 @@ export const FormArrayTextField = ({
   };
 
   const handleDeleteTextField = (index: number) => {
-    setData(data.filter((_, i) => i !== index));
+    const newData = data.filter((_, i) => i !== index);
+    setData(newData);
+
+    // remove empty string
+    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: data.filter((_, i) => i !== index),
+      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
     }));
   };
 
@@ -55,11 +59,15 @@ export const FormArrayTextField = ({
   ) => {
     const newData = data.map((uri, i) => (i === index ? e.target.value : uri));
     setData(newData);
+
+    // remove empty string
+    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: newData,
+      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
     }));
   };
+
   return (
     <Grid container sx={{ p: 5, border: '1px dashed grey' }}>
       <InputLabel>{label}</InputLabel>

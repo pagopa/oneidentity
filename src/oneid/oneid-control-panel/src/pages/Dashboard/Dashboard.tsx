@@ -155,7 +155,12 @@ export const Dashboard = () => {
       const { value, type, checked } = e.target;
       setFormData((prev) => ({
         ...prev,
-        [field]: type === 'checkbox' ? checked : value,
+        [field]:
+          type === 'checkbox'
+            ? checked
+            : value?.trim() === '' // treat empty string as undefined (user can remove a field)
+              ? undefined
+              : value,
       }));
     };
 
