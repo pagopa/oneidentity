@@ -1,5 +1,11 @@
 # infra-backend
 
+## 3.0.0
+
+### Major Changes
+
+- af3e996: other3
+
 ## 2.0.0
 
 ### Major Changes
