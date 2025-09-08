@@ -1,5 +1,0 @@
----
-"oneidentity": major
----
-
-gitignore
