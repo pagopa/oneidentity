@@ -1,6 +1,6 @@
 {
   "name": "infra-dns",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "<!-- BEGIN_TF_DOCS -->\r ## Requirements",
   "main": "index.js",
   "scripts": {
