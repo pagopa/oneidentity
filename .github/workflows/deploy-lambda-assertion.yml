@@ -3,7 +3,7 @@ name: Deploy Lambda assertion
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-assertion/**"
   workflow_dispatch:

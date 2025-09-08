@@ -1,9 +1,9 @@
 name: Test FE e2e
 on:
   push:
-    branches: [ main, master ]
+    branches: [ mains, master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ mains, master ]
 jobs:
   test:
     timeout-minutes: 60

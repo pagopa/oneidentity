@@ -2,7 +2,7 @@ name: Upload Metadata
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/metadata/**"
       - ".github/workflows/upload-metadata.yml"

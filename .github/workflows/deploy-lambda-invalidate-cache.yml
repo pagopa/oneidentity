@@ -3,7 +3,7 @@ name: Deploy Lambda invalidate-cache
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-invalidate-cache/**"
   workflow_dispatch:

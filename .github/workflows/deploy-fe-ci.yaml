@@ -3,7 +3,7 @@ name: Deploy FE
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-fe**"
   workflow_dispatch:

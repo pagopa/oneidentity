@@ -14,7 +14,7 @@ on:
         - prod
   push:
     branches:
-      - 'main'
+      - 'mains'
     paths:
       - 'src/infra/**'
 

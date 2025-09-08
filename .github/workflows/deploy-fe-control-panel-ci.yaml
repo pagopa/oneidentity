@@ -3,7 +3,7 @@ name: Deploy FE Control Panel
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-control-panel**"
   workflow_dispatch:

@@ -3,7 +3,7 @@ name: Deploy Lambda retrieve status
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-retrieve-status/**"
   workflow_dispatch:

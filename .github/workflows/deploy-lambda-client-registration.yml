@@ -3,7 +3,7 @@ name: Deploy Lambda client registration
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-client-registration/**"
       - "**/src/oneid/oneid-common/**"

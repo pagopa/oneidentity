@@ -3,7 +3,7 @@ name: Deploy Lambda client-manager
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-client-manager/**"
   workflow_dispatch:

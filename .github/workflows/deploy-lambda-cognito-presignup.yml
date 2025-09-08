@@ -3,7 +3,7 @@ name: Deploy Lambda cognito presignup
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-cognito-presignup/**"
   workflow_dispatch:

@@ -3,7 +3,7 @@ name: Deploy Lambda update status
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-update-status/**"
   workflow_dispatch:

@@ -3,7 +3,7 @@ name: Deploy Lambda idp mock
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-idp-mock/**"
       - "**/src/oneid/oneid-common/**"

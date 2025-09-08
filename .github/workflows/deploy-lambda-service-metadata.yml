@@ -3,7 +3,7 @@ name: Deploy Lambda metadata
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-service-metadata/**"
       - "**/src/oneid/oneid-common/**"

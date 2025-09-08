@@ -3,7 +3,7 @@ name: Deploy Lambda is-gh-integration
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-is-gh-integration/**"
       - "**/src/oneid/oneid-common/**"

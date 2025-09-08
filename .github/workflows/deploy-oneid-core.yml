@@ -3,7 +3,7 @@ name: Deploy Oneid Core
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-ecs-core/**"
       - "**/src/oneid/oneid-common/**"

@@ -3,7 +3,7 @@ name: Deploy Lambda update idp metadata
 on:
   push:
     branches:
-      - "main"
+      - "mains"
     paths:
       - "**/src/oneid/oneid-lambda-update-idp-metadata/**"
       - "**/src/oneid/oneid-common/**"
