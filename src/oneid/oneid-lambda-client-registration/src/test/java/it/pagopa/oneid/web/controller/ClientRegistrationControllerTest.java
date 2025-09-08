@@ -31,7 +31,6 @@ class ClientRegistrationControllerTest {
     // given
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
-    defaultLangs.put("fr", null); // remove 'fr'
     defaultLangs.put("en",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
@@ -40,8 +39,6 @@ class ClientRegistrationControllerTest {
     optionalLangs.put("de",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
     localizedContentMap.put("optional", optionalLangs);
-    // Remove theme 'removeTheme'
-    localizedContentMap.put("removeTheme", null);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId("test")
@@ -252,7 +249,6 @@ class ClientRegistrationControllerTest {
     // given
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
-    defaultLangs.put("fr", null); // remove 'fr'
     defaultLangs.put("en",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
@@ -261,8 +257,6 @@ class ClientRegistrationControllerTest {
     optionalLangs.put("de",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
     localizedContentMap.put("optional", optionalLangs);
-    // Remove theme 'removeTheme'
-    localizedContentMap.put("removeTheme", null);
 
     String clientId = "testClientId";
     String userId = "testUserId";
@@ -303,7 +297,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .patch("/register/client_id/{client_id}")
+        .put("/register/client_id/{client_id}")
         .then()
         .statusCode(204);
   }
@@ -348,7 +342,7 @@ class ClientRegistrationControllerTest {
         .pathParam("client_id", clientId)
         .body(updatedDto)
         .when()
-        .patch("/register/client_id/{client_id}")
+        .put("/register/client_id/{client_id}")
         .then()
         .statusCode(400); // Bad Request due to missing userId in request body
   }

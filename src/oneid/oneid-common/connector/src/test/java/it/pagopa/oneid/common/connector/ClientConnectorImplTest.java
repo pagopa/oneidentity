@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
 import com.amazonaws.services.dynamodbv2.local.server.DynamoDBProxyServer;
@@ -174,7 +175,7 @@ class ClientConnectorImplTest {
     clientExtendedMapper.putItem(new ClientExtended(oldClient, "test", "test"));
 
     Client newClient = Client.builder()
-        //.logoUri("") //Empty logoUri to check that it is not overwritten
+        //.logoUri("") //Empty logoUri to check that it is overwritten
         .clientId("clientId") // same clientId to update
         .userId("newClient") // new userId
         .requiredSameIdp(true)
@@ -204,7 +205,7 @@ class ClientConnectorImplTest {
         Key.builder().partitionValue("clientId").build());
     assertNotNull(updatedClient);
     assertEquals("newClient", updatedClient.getUserId()); // Updated
-    assertEquals("originalLogoUri", updatedClient.getLogoUri()); // Unchanged
+    assertNull(updatedClient.getLogoUri()); // now is null
   }
 
   @Test

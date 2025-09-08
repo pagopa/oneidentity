@@ -94,11 +94,9 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public void updateClient(Client client) {
-    clientMapper.updateItem(
-        UpdateItemEnhancedRequest.builder(Client.class)
-            .item(client)
-            .ignoreNulls(true) // Ignore null values to avoid overwriting existing attributes
-            .build());
+    clientMapper.putItem(PutItemEnhancedRequest.builder(Client.class)
+        .item(client)
+        .build());
   }
 
   @Override

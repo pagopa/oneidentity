@@ -3,7 +3,6 @@ package it.pagopa.oneid.service.utils;
 import static it.pagopa.oneid.common.utils.ClientConstants.ACS_INDEX_DEFAULT_VALUE;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
@@ -85,15 +84,4 @@ public class ClientUtils {
   }
 
 
-  public static LocalizedContent mergeContent(LocalizedContent source, LocalizedContent target) {
-    String title = source.title();
-    String description = source.description();
-    String docUri =
-        source.docUri() != null ? source.docUri() : (target != null ? target.docUri() : null);
-    String supportAddress = source.supportAddress() != null ? source.supportAddress()
-        : (target != null ? target.supportAddress() : null);
-    String cookieUri = source.cookieUri() != null ? source.cookieUri()
-        : (target != null ? target.cookieUri() : null);
-    return new LocalizedContent(title, description, docUri, supportAddress, cookieUri);
-  }
 }

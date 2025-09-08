@@ -462,7 +462,6 @@ class ClientRegistrationServiceImplTest {
     // Source localizedContentMap
     Map<String, Map<String, Client.LocalizedContent>> sourceLocalizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
-    defaultLangs.put("fr", null); // remove 'fr'
     defaultLangs.put("en",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
     sourceLocalizedContentMap.put("default", defaultLangs);
@@ -471,8 +470,6 @@ class ClientRegistrationServiceImplTest {
     optionalLangs.put("de",
         new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
     sourceLocalizedContentMap.put("optional", optionalLangs);
-    // Remove theme 'removeTheme'
-    sourceLocalizedContentMap.put("removeTheme", null);
 
     ClientRegistrationDTO source = ClientRegistrationDTO.builder()
         .userId("patchedUser")
@@ -539,13 +536,9 @@ class ClientRegistrationServiceImplTest {
     assertFalse(target.getSpidMinors());
     assertTrue(target.getSpidProfessionals());
     assertFalse(target.getPairwise());
-    // Check theme removal
-    assertFalse(target.getLocalizedContentMap().containsKey("removeTheme"));
-    // Check language removal
-    assertFalse(target.getLocalizedContentMap().get("default").containsKey("fr"));
     // Check patching of existing language
     assertEquals(
-        new Client.LocalizedContent("Title", "Description", "http://test.com", "test", "test"),
+        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null),
         target.getLocalizedContentMap().get("default").get("en"));
     // Check patching of new theme/language
     assertEquals(new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""),
