@@ -1,5 +1,11 @@
 # infra-storage
 
+## 4.0.0
+
+### Major Changes
+
+- af3e996: other3
+
 ## 3.0.0
 
 ### Major Changes
