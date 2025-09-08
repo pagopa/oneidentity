@@ -1,6 +1,6 @@
 {
   "name": "oneidentity",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "- Java 21 Runtime Environment GraalVM CE\r - [Quarkus](https://quarkus.io/)",
   "main": "index.js",
   "directories": {
