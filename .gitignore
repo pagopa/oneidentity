@@ -101,5 +101,5 @@ src/oneid/oneid-ecs-core/.quinoa
 # env mock stuff
 src/oneid/docker_mock/.env
 
-# Dependency node
+# Dependency node modules
 node_modules/
