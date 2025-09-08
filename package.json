@@ -1,0 +1,31 @@
+{
+  "name": "oneidentity",
+  "version": "1.0.0",
+  "description": "- Java 21 Runtime Environment GraalVM CE\r - [Quarkus](https://quarkus.io/)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "workspaces": ["src/oneid/oneid-ecs-core/","src/infra/modules/*","."],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "changeset version && npm i",
+    "release": "changeset publish",
+    "tag": "changeset tag",
+    "changeset": "changeset"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maurodandrea/oneidentity.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maurodandrea/oneidentity/issues"
+  },
+  "homepage": "https://github.com/maurodandrea/oneidentity#readme",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.6"
+  }
+}

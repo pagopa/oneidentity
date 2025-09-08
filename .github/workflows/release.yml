@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-tags: "true"
+          fetch-depth: 0
+
+      - name: Node Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --audit=false --fund=false
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "oneidentity-github-bot@pagopa.it"
+          git config --global user.name "oneidentity-github-bot"
+
+
+      - name: Create PR for next release
+        uses: changesets/action@f13b1baaa620fde937751f5d2c3572b9da32af23 # v1.4.5
+        with:
+          version: npm run version
+          publish: npm run tag
+          commit: "Update CHANGELOG and prepare next release"
+          createGithubReleases: true
+          setupGitUser: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
