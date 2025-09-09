@@ -2,10 +2,8 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -19,7 +17,6 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -456,92 +453,4 @@ class ClientRegistrationServiceImplTest {
         exception.getMessage());
   }
 
-  @Test
-  void patchClientRegistrationDTO_shouldPatchNonNullFieldsAndBooleans() {
-
-    // Source localizedContentMap
-    Map<String, Map<String, Client.LocalizedContent>> sourceLocalizedContentMap = new HashMap<>();
-    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
-    defaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
-    sourceLocalizedContentMap.put("default", defaultLangs);
-    // Add new theme 'optional'
-    Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
-    optionalLangs.put("de",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
-    sourceLocalizedContentMap.put("optional", optionalLangs);
-
-    ClientRegistrationDTO source = ClientRegistrationDTO.builder()
-        .userId("patchedUser")
-        .redirectUris(Set.of("http://patched.com"))
-        .clientName("patchedName")
-        .defaultAcrValues(Set.of("patchedAcr"))
-        .samlRequestedAttributes(Set.of("name"))
-        .logoUri("http://patched.com/logo")
-        .policyUri("http://patched.com/policy")
-        .tosUri("http://patched.com/tos")
-        .a11yUri("http://patched.com/a11y")
-        .localizedContentMap(sourceLocalizedContentMap)
-        .requiredSameIdp(false)
-        .backButtonEnabled(true)
-        .spidMinors(false)
-        .spidProfessionals(null)
-        .build();
-
-    // Target localizedContentMap
-    Map<String, Map<String, Client.LocalizedContent>> targetLocalizedContentMap = new HashMap<>();
-    Map<String, Client.LocalizedContent> targetDefaultLangs = new HashMap<>();
-    targetDefaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", null, "test", "test"));
-    targetDefaultLangs.put("fr",
-        new Client.LocalizedContent("FrenchTitle", "FrenchDescription", "http://fr.com",
-            "fr-support", "fr-cookie"));
-    targetLocalizedContentMap.put("default", targetDefaultLangs);
-    Map<String, Client.LocalizedContent> targetRemoveThemeLangs = new HashMap<>();
-    targetRemoveThemeLangs.put("it",
-        new Client.LocalizedContent("ItalianTitle", "ItalianDescription", "http://it.com",
-            "it-support", "it-cookie"));
-    targetLocalizedContentMap.put("removeTheme", targetRemoveThemeLangs);
-
-    ClientRegistrationDTO target = ClientRegistrationDTO.builder()
-        .userId("originalUser")
-        .redirectUris(Set.of("http://original.com"))
-        .clientName("originalName")
-        .defaultAcrValues(Set.of("originalAcr"))
-        .samlRequestedAttributes(Set.of("name"))
-        .logoUri("http://original.com/logo")
-        .policyUri("http://original.com/policy")
-        .tosUri("http://original.com/tos")
-        .a11yUri("http://original.com/a11y")
-        .localizedContentMap(targetLocalizedContentMap)
-        .requiredSameIdp(false)
-        .backButtonEnabled(false)
-        .spidMinors(true)
-        .spidProfessionals(true)
-        .pairwise(false)
-        .build();
-
-    clientRegistrationServiceImpl.patchClientRegistrationDTO(source, target);
-
-    assertEquals(Set.of("http://patched.com"), target.getRedirectUris());
-    assertEquals("patchedName", target.getClientName());
-    assertEquals(Set.of("patchedAcr"), target.getDefaultAcrValues());
-    assertEquals(Set.of("name"), target.getSamlRequestedAttributes());
-    assertEquals("http://patched.com/logo", target.getLogoUri());
-    assertEquals("http://patched.com/policy", target.getPolicyUri());
-    assertEquals("http://patched.com/tos", target.getTosUri());
-    assertEquals("http://patched.com/a11y", target.getA11yUri());
-    assertFalse(target.getRequiredSameIdp());
-    assertTrue(target.getBackButtonEnabled());
-    assertFalse(target.getSpidMinors());
-    assertTrue(target.getSpidProfessionals());
-    assertFalse(target.getPairwise());
-    // Check patching of existing language
-    assertEquals(
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null),
-        target.getLocalizedContentMap().get("default").get("en"));
-    // Check patching of new theme/language
-    assertEquals(new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""),
-        target.getLocalizedContentMap().get("optional").get("de"));
-  }
 }

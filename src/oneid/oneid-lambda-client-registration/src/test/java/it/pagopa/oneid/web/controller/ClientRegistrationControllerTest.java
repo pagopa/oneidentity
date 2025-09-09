@@ -13,7 +13,6 @@ import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -334,8 +333,6 @@ class ClientRegistrationControllerTest {
     Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
         ))
         .thenReturn(existingClient);
-    Assertions.assertDoesNotThrow(
-        () -> clientRegistrationServiceImpl.patchClientRegistrationDTO(existingDto, updatedDto));
 
     given()
         .contentType("application/json")

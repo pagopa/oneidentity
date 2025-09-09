@@ -146,22 +146,14 @@ public class ClientRegistrationController {
     ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //4. Convert client from db to ClientRegistrationDTO
-    ClientRegistrationDTO clientRegistrationDTO =
-        ClientUtils.convertClientToClientRegistrationDTO(client);
-
-    //5. update clientRegistrationDTO from db with new fields of clientRegistrationDTOInput
-    clientRegistrationService.patchClientRegistrationDTO(clientRegistrationDTOInput,
-        clientRegistrationDTO);
-
-    //6. Update client infos
-    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTO, clientId,
+    //4. Update client infos
+    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTOInput, clientId,
         client.getAttributeIndex(), client.getClientIdIssuedAt());
     Log.info("client updated successfully for clientId: " + clientId);
 
-    //7. Prepare message for sns notification
+    //5. Prepare message for sns notification
     String message =
-        "Name: " + clientRegistrationDTO.getClientName() + "\n" +
+        "Name: " + clientRegistrationDTOInput.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
     boolean sendNotification = false;
 
@@ -178,7 +170,7 @@ public class ClientRegistrationController {
       sendNotification = true;
     }
 
-    //8. Send SNS notification only if redirectUris or metadata-related fields has been updated
+    //6. Send SNS notification only if redirectUris or metadata-related fields has been updated
     if (sendNotification) {
       String subject =
           "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
