@@ -55,6 +55,9 @@ public enum ErrorCode {
       "Response signature not present"),
   IDP_ERROR_ASSERTION_SIGNATURE_NOT_PRESENT(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "Assertion signature not present"),
+  IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT(
+      FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
+      "Multiple Assertion signatures present"),
   IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "SubjectConfirmation not correctly initialized"),
   IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS(
