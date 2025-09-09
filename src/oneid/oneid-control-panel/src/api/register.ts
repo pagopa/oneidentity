@@ -4,6 +4,7 @@ import {
   Client,
   clientSchema,
   ClientErrors,
+  ClientWithoutSensitiveData,
 } from '../types/api';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
@@ -61,7 +62,7 @@ export const getClientData = async (
 };
 
 export const createOrUpdateClient = async (
-  data: Omit<Client, 'clientId' | 'clientSecret'>,
+  data: ClientWithoutSensitiveData,
   token: string,
   clientId?: string
 ): Promise<Client | ClientErrors> => {
@@ -69,7 +70,7 @@ export const createOrUpdateClient = async (
     const url = clientId
       ? `${ENV.URL_API.REGISTER}/client_id/${clientId}`
       : ENV.URL_API.REGISTER;
-    const method = clientId ? 'patch' : 'post';
+    const method = clientId ? 'put' : 'post';
 
     const errors = clientSchema.safeParse(data);
     if (!errors.success) {
@@ -86,6 +87,7 @@ export const createOrUpdateClient = async (
     // });
 
     // TODO: cloud we use axios middleware to inject auth bearer token ?
+    // TODO: and should we use an interceptor for token expired that inform user and maybe make an automatic logout
 
     const response = await api[method]<Client>(url, data, {
       headers: {

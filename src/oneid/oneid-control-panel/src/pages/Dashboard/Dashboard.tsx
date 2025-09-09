@@ -20,8 +20,8 @@ import {
 import {
   SpidLevel,
   SamlAttribute,
-  Client,
   ClientErrors,
+  ClientWithoutSensitiveData,
 } from '../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
@@ -33,10 +33,12 @@ import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
 import * as Storage from '../../utils/storage';
 import { isNil } from 'lodash';
+import { clientDataWithoutSensitiveData } from '../../utils/client';
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState<Partial<Client> | null>(null);
+  const [formData, setFormData] =
+    useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const { isModalOpen, openModal, closeModal } = useModalManager();
@@ -59,10 +61,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (isUpdatePhase && fetchedClientData) {
-      setFormData({
-        ...fetchedClientData,
-        clientId: fetchedClientData.clientId,
-      });
+      setFormData(clientDataWithoutSensitiveData(fetchedClientData));
 
       if (
         fetchedClientData.clientId &&
@@ -91,11 +90,8 @@ export const Dashboard = () => {
     if (isUpdated) {
       setErrorUi(null);
       const message = isUpdatePhase
-        ? 'Client updated successfully, id: ' +
-          Storage.storageRead(sessionStorageClientIdKey, 'string')
-        : clientUpdated
-          ? 'Client created successfully, id: ' + clientUpdated.clientId
-          : 'Client created successfully, id: unknown';
+        ? 'Client updated successfully'
+        : 'Client created successfully';
       setNotify({
         open: true,
         message: message,
@@ -144,14 +140,15 @@ export const Dashboard = () => {
       console.error('Form is not valid');
     } else {
       createOrUpdateClient({
-        data: formData as Omit<Client, 'clientId' | 'clientSecret'>,
+        data: formData as ClientWithoutSensitiveData,
         clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
       });
     }
   };
 
   const handleChange =
-    (field: keyof Client) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof ClientWithoutSensitiveData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       const { value, type, checked } = e.target;
       setFormData((prev) => ({
         ...prev,
@@ -217,7 +214,7 @@ export const Dashboard = () => {
           hidden
           fullWidth
           label="Client ID"
-          value={formData?.clientId || ''}
+          value={fetchedClientData?.clientId || ''}
           disabled
           margin="normal"
         />

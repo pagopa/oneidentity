@@ -178,6 +178,11 @@ export type ClientRegisteredData = Pick<
   'clientId' | 'clientSecret' | 'clientIdIssuedAt' | 'clientSecretExpiresAt'
 >;
 
+export type ClientWithoutSensitiveData = Omit<
+  Client,
+  'clientId' | 'clientSecret' | 'clientIdIssuedAt' | 'clientSecretExpiresAt'
+>;
+
 export const allLanguages: Record<Languages, string> = {
   de: 'Deutsch',
   it: 'Italiano',

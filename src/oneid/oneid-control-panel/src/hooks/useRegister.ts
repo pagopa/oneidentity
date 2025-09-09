@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Client } from '../types/api';
+import { Client, ClientWithoutSensitiveData } from '../types/api';
 import { getClientData, createOrUpdateClient } from '../api/register';
 import { useAuth } from 'react-oidc-context';
 
@@ -57,7 +57,7 @@ export const useRegister = () => {
       data,
       clientId,
     }: {
-      data: Omit<Client, 'clientId' | 'clientSecret'>;
+      data: ClientWithoutSensitiveData;
       clientId?: string;
     }) => {
       const dataWithUserId = { ...data, userId };
@@ -67,7 +67,7 @@ export const useRegister = () => {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey })
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 
