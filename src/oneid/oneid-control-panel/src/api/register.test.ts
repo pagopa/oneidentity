@@ -136,14 +136,17 @@ describe('createOrUpdateClient', () => {
 
   it('updates an existing client successfully', async () => {
     const clientId = 'existing-client-id';
-    axiosMock.patch.mockResolvedValue({
-      status: 204,
-      data: null,
+    axiosMock.put.mockResolvedValueOnce({
+      data: {
+        ...mockClientData,
+      },
     });
 
     const result = await createOrUpdateClient(mockClientData, token, clientId);
-    expect(result).toBeNull();
-    expect(axiosMock.patch).toHaveBeenCalledWith(
+    expect(result).toEqual({
+      ...mockClientData,
+    });
+    expect(axiosMock.put).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}/client_id/${clientId}`,
       mockClientData,
       { headers: { Authorization: `Bearer ${token}` } }
