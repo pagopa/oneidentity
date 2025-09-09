@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -105,8 +106,11 @@ public class ClientRegistrationController {
   @Path("/register/user_id/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response getClient(@PathParam("user_id") String userId) {
+  public Response getClient(@PathParam("user_id") String userId,
+      @HeaderParam("authorization") String authorization) {
     Log.info("start");
+
+    Log.info("authorization header: " + authorization);
 
     //1. Verify if client exists and if so retrieves it from db
     Client client = clientRegistrationService.getClientByUserId(userId);
