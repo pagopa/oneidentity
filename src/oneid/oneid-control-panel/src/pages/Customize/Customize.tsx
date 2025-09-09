@@ -22,10 +22,10 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import {
   allLanguages,
-  Client,
   ClientErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
+  ClientWithoutSensitiveData,
   Languages,
 } from '../../types/api';
 import { useParams } from 'react-router-dom';
@@ -34,6 +34,7 @@ import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
 import { Notify } from '../../components/Notify';
 import { useRegister } from '../../hooks/useRegister';
+import { clientDataWithoutSensitiveData } from '../../utils/client';
 
 function CustomizeDashboard() {
   const { clientId } = useParams(); // Get the clientId from the URL
@@ -53,14 +54,17 @@ function CustomizeDashboard() {
     },
   } = useRegister();
 
-  const [clientData, setClientData] = useState<Client | null>(null);
+  const [clientData, setClientData] =
+    useState<ClientWithoutSensitiveData | null>(null);
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
 
   useEffect(() => {
     if (isFetched) {
-      setClientData(fetchedAdditionalAttributes || null);
+      setClientData(
+        clientDataWithoutSensitiveData(fetchedAdditionalAttributes) || null
+      );
       setActiveThemeKey(
         Object.keys(
           fetchedAdditionalAttributes?.localizedContentMap || {}
@@ -128,7 +132,7 @@ function CustomizeDashboard() {
     }
 
     updateClientAttrs({
-      data: clientData as Client,
+      data: clientData as ClientWithoutSensitiveData,
       clientId,
     });
   };
@@ -174,12 +178,21 @@ function CustomizeDashboard() {
 
   const handleTopLevelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
+
     setClientData((prev) => {
-      if (!prev) prev = {} as Client; // Ensure prev is always defined
-      // Always set backButtonEnabled explicitly and ensure it's always boolean
+      if (!prev) prev = {} as ClientWithoutSensitiveData;
+
+      // treat empty string as undefined (user can remove a field)
+      const normalizedValue =
+        type === 'checkbox'
+          ? checked
+          : value?.trim() === ''
+            ? undefined
+            : value;
+
       return {
         ...prev,
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: normalizedValue,
         backButtonEnabled:
           name === 'backButtonEnabled'
             ? checked
@@ -201,7 +214,8 @@ function CustomizeDashboard() {
         return prev;
       }
 
-      const newClientData: Client = {
+      const normalizedValue = value.trim() === '' ? undefined : value;
+      const newClientData: ClientWithoutSensitiveData = {
         ...prev,
         localizedContentMap: {
           ...prev.localizedContentMap,
@@ -213,7 +227,7 @@ function CustomizeDashboard() {
                 title: '',
                 description: '',
               }),
-              [field]: value,
+              [field]: normalizedValue,
             },
           },
         },
@@ -292,7 +306,7 @@ function CustomizeDashboard() {
     }
 
     setClientData((prev) => {
-      if (!prev) prev = {} as Client; // Ensure prev is always defined
+      if (!prev) prev = {} as ClientWithoutSensitiveData; // Ensure prev is always defined
       // Always set backButtonEnabled explicitly and ensure it's always boolean
       return {
         ...prev,
