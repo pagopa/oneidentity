@@ -60,11 +60,9 @@ export const FormArrayTextField = ({
     const newData = data.map((uri, i) => (i === index ? e.target.value : uri));
     setData(newData);
 
-    // remove empty string
-    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
+      [fieldName]: newData,
     }));
   };
 
@@ -78,11 +76,14 @@ export const FormArrayTextField = ({
               key={index}
               label={`${label} ${index + 1}`}
               value={value}
-              sx={{ width: '100%', m: 0 }}
+              sx={{ width: '100%', m: 0, mt: index === 0 ? 0 : 1 }}
               InputProps={{
                 endAdornment: index >= 1 && (
                   <InputAdornment position="start">
-                    <Delete onClick={() => handleDeleteTextField(index)} />
+                    <Delete
+                      onClick={() => handleDeleteTextField(index)}
+                      sx={{ cursor: 'pointer' }}
+                    />
                   </InputAdornment>
                 ),
               }}
