@@ -60,9 +60,11 @@ export const FormArrayTextField = ({
     const newData = data.map((uri, i) => (i === index ? e.target.value : uri));
     setData(newData);
 
+    // remove empty string
+    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: newData,
+      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
     }));
   };
 

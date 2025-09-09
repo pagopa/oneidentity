@@ -36,6 +36,13 @@ import { Notify } from '../../components/Notify';
 import { useRegister } from '../../hooks/useRegister';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 
+function isEqualOrNullish(a: unknown, b: unknown): boolean {
+  // If one is null and one is undefined treat them as equal
+  if (!a && !b) return true;
+  // Check if equal
+  return a === b;
+}
+
 function CustomizeDashboard() {
   const { clientId } = useParams(); // Get the clientId from the URL
 
@@ -142,11 +149,18 @@ function CustomizeDashboard() {
 
     // at least one of a11yuri, backButton, localizedContentMap must be changed
     if (
-      clientData.a11yUri === fetchedAdditionalAttributes?.a11yUri &&
-      clientData.backButtonEnabled ===
-        fetchedAdditionalAttributes?.backButtonEnabled &&
-      clientData.localizedContentMap ===
-        fetchedAdditionalAttributes.localizedContentMap
+      isEqualOrNullish(
+        clientData.a11yUri,
+        fetchedAdditionalAttributes?.a11yUri
+      ) &&
+      isEqualOrNullish(
+        clientData.backButtonEnabled,
+        fetchedAdditionalAttributes?.backButtonEnabled
+      ) &&
+      isEqualOrNullish(
+        clientData.localizedContentMap,
+        fetchedAdditionalAttributes?.localizedContentMap
+      )
     ) {
       return false;
     }
