@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -53,6 +55,10 @@ import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @ApplicationScoped
 @CustomLogging
@@ -175,10 +181,55 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
     try {
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
-          new ByteArrayInputStream(decodedSamlResponse));
-    } catch (XMLParserException | UnmarshallingException e) {
+      // Parse XML
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setNamespaceAware(true);
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
+
+      // Check Response for multiple direct Signature children
+      Element responseElem = doc.getDocumentElement();
+      int responseSignatureCount = 0;
+      NodeList responseChildren = responseElem.getChildNodes();
+      for (int i = 0; i < responseChildren.getLength(); i++) {
+        Node node = responseChildren.item(i);
+        if (node.getNodeType() == Node.ELEMENT_NODE &&
+            "Signature".equals(node.getLocalName()) &&
+            "http://www.w3.org/2000/09/xmldsig#".equals(node.getNamespaceURI())) {
+          responseSignatureCount++;
+        }
+      }
+      if (responseSignatureCount > 1) {
+        throw new UnmarshallingException("Multiple Signature elements found on SAML Response");
+      }
+
+      // Check each Assertion for multiple direct Signature children
+      NodeList assertionNodes = responseElem.getElementsByTagNameNS(
+          "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
+      for (int i = 0; i < assertionNodes.getLength(); i++) {
+        Element assertionElem = (Element) assertionNodes.item(i);
+        int assertionSignatureCount = 0;
+        NodeList assertionChildren = assertionElem.getChildNodes();
+        for (int j = 0; j < assertionChildren.getLength(); j++) {
+          Node node = assertionChildren.item(j);
+          if (node.getNodeType() == Node.ELEMENT_NODE &&
+              "Signature".equals(node.getLocalName()) &&
+              "http://www.w3.org/2000/09/xmldsig#".equals(node.getNamespaceURI())) {
+            assertionSignatureCount++;
+          }
+        }
+        if (assertionSignatureCount > 1) {
+          throw new UnmarshallingException("Multiple Signature elements found on Assertion");
+        }
+      }
+
+      return (Response) XMLObjectSupport.unmarshallFromInputStream(
+          basicParserPool, new ByteArrayInputStream(decodedSamlResponse));
+    } catch (UnmarshallingException | XMLParserException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
+      throw new OneIdentityException(e);
+    } catch (Exception e) {
+      Log.error("XML parsing error: " + e.getMessage());
       throw new OneIdentityException(e);
     }
   }
