@@ -24,6 +24,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -41,6 +43,24 @@ public class ClientRegistrationController {
 
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
+
+  private static Optional<String> getUpdateMessage(ClientRegistrationDTO input) {
+    String message = "";
+    if (input.getClientName() != null) {
+      message += "ClientName; ";
+    }
+    if (input.getSamlRequestedAttributes() != null && !input.getSamlRequestedAttributes()
+        .isEmpty()) {
+      message += "SamlRequestedAttributes; ";
+    }
+    if (input.getDefaultAcrValues() != null && !input.getDefaultAcrValues().isEmpty()) {
+      message += "DefaultAcrValues; ";
+    }
+    if (StringUtils.isNotBlank(message)) {
+      return Optional.of(message);
+    }
+    return Optional.empty();
+  }
 
   @POST
   @Path("/register")
@@ -139,25 +159,43 @@ public class ClientRegistrationController {
         client.getAttributeIndex(), client.getClientIdIssuedAt());
     Log.info("client updated successfully for clientId: " + clientId);
 
-    //7. Send SNS notification
+    //7. Prepare message for sns notification
     String message =
         "Name: " + clientRegistrationDTO.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
-    String subject =
-        "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+    boolean sendNotification = false;
 
-    try {
-      sns.publish(p ->
-          p.topicArn(topicArn).subject(subject).message(message));
-    } catch (Exception e) {
-      Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
-          "Failed to send SNS notification: ", e);
+    // Add information if redirectUris or metadata-related fields are updated
+    if (clientRegistrationDTOInput.getRedirectUris() != null
+        && !clientRegistrationDTOInput.getRedirectUris()
+        .isEmpty()) {
+      message += "- Redirect URIs updated \n";
+      sendNotification = true;
+    }
+    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput);
+    if (updatedFields.isPresent()) {
+      message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
+      sendNotification = true;
+    }
+
+    //8. Send SNS notification only if redirectUris or metadata-related fields has been updated
+    if (sendNotification) {
+      String subject =
+          "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+      try {
+
+        String finalMessage = message;
+        sns.publish(p ->
+            p.topicArn(topicArn).subject(subject).message(finalMessage));
+      } catch (Exception e) {
+        Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
+            "Failed to send SNS notification: ", e);
+      }
     }
     Log.info("end");
 
     return Response.noContent().build();
   }
-
 
   @POST
   @Path("/clients/{client_id}/secret/refresh")
@@ -185,4 +223,5 @@ public class ClientRegistrationController {
 
     return Response.ok(response).build();
   }
+
 }
