@@ -4,7 +4,7 @@ import jakarta.enterprise.inject.Default;
 
 public interface ValidationGroups {
 
-  interface PatchClient extends Default {
+  interface UpdateClient extends Default {
 
   }
 

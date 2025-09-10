@@ -425,6 +425,60 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void updateClient_nullValues() {
+    // given
+    String clientId = "client-123";
+    int attributeIndex = 42;
+    long originalIssuedAt = 987654321L;
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        //.redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("newLogo")
+        .policyUri("newPolicy")
+        .tosUri("newTos")
+        .defaultAcrValues(null)
+        //.samlRequestedAttributes(Set.of())
+        .a11yUri("newA11y")
+        .backButtonEnabled(true)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(false)
+        //.pairwise() default false
+        //.requiredSameIdp() default false
+        .build();
+
+    // when
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
+        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+
+    // then
+    Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
+        updated.getClientId().equals(clientId)
+            && updated.getUserId().equals("test")
+            && updated.getFriendlyName().equals("test")
+            && updated.getCallbackURI().equals(Set.of())
+            && updated.getRequestedParameters().equals(Set.of())
+            && updated.getAuthLevel() == null
+            && updated.getAcsIndex() == 0
+            && updated.getAttributeIndex() == attributeIndex
+            && updated.isActive()
+            && updated.getClientIdIssuedAt() == originalIssuedAt
+            && updated.getLogoUri().equals("newLogo")
+            && updated.getPolicyUri().equals("newPolicy")
+            && updated.getTosUri().equals("newTos")
+            && updated.getA11yUri().equals("newA11y")
+            && updated.isBackButtonEnabled()
+            && updated.getLocalizedContentMap().equals(new HashMap<>())
+            && updated.isSpidMinors()
+            && !updated.isSpidProfessionals()
+            && !updated.isRequiredSameIdp() // default false
+            && !updated.isPairwise() // default false
+    ));
+  }
+
+  @Test
   void refreshClientSecret_noClientFound() {
     String clientId = "client-abc";
     String userId = "user-123";

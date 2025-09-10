@@ -3,8 +3,8 @@ package it.pagopa.oneid.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
-import it.pagopa.oneid.model.groups.ValidationGroups.PatchClient;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
+import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
@@ -27,30 +27,30 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @SuperBuilder
 public class ClientRegistrationDTO {
 
-  @NotBlank(groups = {Registration.class, PatchClient.class})
+  @NotBlank(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("userId")
   @Parameter()
   private String userId;
 
-  @NotEmpty(groups = {Registration.class})
+  @NotEmpty(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
   private Set<String> redirectUris; //Client.callbackURI
 
-  @NotBlank(groups = {Registration.class})
+  @NotBlank(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("clientName")
   private String clientName; //Client.friendlyName
 
-  @NotEmpty(groups = {Registration.class})
+  @NotEmpty(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("defaultAcrValues")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @AuthLevelCheck(groups = {Registration.class, PatchClient.class})
+  @AuthLevelCheck(groups = {Registration.class, UpdateClient.class})
   private Set<String> defaultAcrValues;
 
-  @NotEmpty(groups = {Registration.class})
+  @NotEmpty(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("samlRequestedAttributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @SamlRequestedAttributeCheck(groups = {Registration.class, PatchClient.class})
+  @SamlRequestedAttributeCheck(groups = {Registration.class, UpdateClient.class})
   private Set<String> samlRequestedAttributes;
 
   @JsonProperty("requiredSameIdp")
@@ -72,7 +72,7 @@ public class ClientRegistrationDTO {
   private Boolean backButtonEnabled;
 
   @JsonProperty("localizedContentMap")
-  @LocalizedContentMapCheck(groups = {Registration.class, PatchClient.class})
+  @LocalizedContentMapCheck(groups = {Registration.class, UpdateClient.class})
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
   @JsonProperty("spidMinors")

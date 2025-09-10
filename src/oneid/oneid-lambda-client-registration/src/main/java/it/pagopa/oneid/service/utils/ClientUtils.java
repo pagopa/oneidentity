@@ -5,9 +5,9 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
-import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,9 +28,20 @@ public class ClientUtils {
       ClientRegistrationDTO clientRegistrationDTO) {
     Log.debug("start");
 
-    Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes();
+    Set<String> requestedParameters =
+        clientRegistrationDTO.getSamlRequestedAttributes() != null
+            ? clientRegistrationDTO.getSamlRequestedAttributes()
+            : Collections.emptySet();
 
-    Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
+    Set<String> callbackUris =
+        clientRegistrationDTO.getRedirectUris() != null
+            ? clientRegistrationDTO.getRedirectUris()
+            : Collections.emptySet();
+
+    Set<String> acrValues = clientRegistrationDTO.getDefaultAcrValues();
+    AuthLevel authLevel = (acrValues == null || acrValues.isEmpty())
+        ? null
+        : AuthLevel.authLevelFromValue(acrValues.iterator().next());
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
@@ -38,9 +49,7 @@ public class ClientUtils {
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
-        .authLevel(AuthLevel.authLevelFromValue(
-            clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
-                .orElseThrow(ClientRegistrationServiceException::new)))
+        .authLevel(authLevel)
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .isActive(true)
         .logoUri(clientRegistrationDTO.getLogoUri())

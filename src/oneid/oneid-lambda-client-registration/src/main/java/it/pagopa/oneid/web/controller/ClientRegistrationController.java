@@ -6,6 +6,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.model.groups.ValidationGroups;
+import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
@@ -130,7 +131,7 @@ public class ClientRegistrationController {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
-      @Valid @ConvertGroup(to = ValidationGroups.PatchClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
+      @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId) {
     Log.info("start");
 

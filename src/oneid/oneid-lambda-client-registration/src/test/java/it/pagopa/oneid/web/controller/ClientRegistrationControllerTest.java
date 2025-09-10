@@ -284,6 +284,7 @@ class ClientRegistrationControllerTest {
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
+        .samlRequestedAttributes(Set.of("spidCode"))
         .localizedContentMap(localizedContentMap)
         .build();
 
