@@ -433,13 +433,13 @@ class ClientRegistrationServiceImplTest {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId("test")
-        //.redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("newLogo")
         .policyUri("newPolicy")
         .tosUri("newTos")
-        .defaultAcrValues(null)
-        //.samlRequestedAttributes(Set.of())
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("spidCode"))
         .a11yUri("newA11y")
         .backButtonEnabled(true)
         .localizedContentMap(new HashMap<>())
@@ -458,9 +458,9 @@ class ClientRegistrationServiceImplTest {
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals("test")
             && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of())
-            && updated.getRequestedParameters().equals(Set.of())
-            && updated.getAuthLevel() == null
+            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getRequestedParameters().equals(Set.of("spidCode"))
+            && updated.getAuthLevel() == AuthLevel.L2
             && updated.getAcsIndex() == 0
             && updated.getAttributeIndex() == attributeIndex
             && updated.isActive()
