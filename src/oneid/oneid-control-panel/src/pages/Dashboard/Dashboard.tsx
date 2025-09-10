@@ -59,6 +59,8 @@ export const Dashboard = () => {
     },
   } = useRegister();
 
+  const [isCreating, setIsCreating] = useState(false);
+
   useEffect(() => {
     if (isUpdatePhase && fetchedClientData) {
       setFormData(clientDataWithoutSensitiveData(fetchedClientData));
@@ -89,9 +91,9 @@ export const Dashboard = () => {
     }
     if (isUpdated) {
       setErrorUi(null);
-      const message = isUpdatePhase
-        ? 'Client updated successfully'
-        : 'Client created successfully';
+      const message = isCreating
+        ? 'Client created successfully'
+        : 'Client updated successfully';
       setNotify({
         open: true,
         message: message,
@@ -139,6 +141,10 @@ export const Dashboard = () => {
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
     } else {
+      const existingClientId =
+        fetchedClientData?.clientId ||
+        Storage.storageRead(sessionStorageClientIdKey, 'string');
+      setIsCreating(!existingClientId);
       createOrUpdateClient({
         data: formData as ClientWithoutSensitiveData,
         clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
