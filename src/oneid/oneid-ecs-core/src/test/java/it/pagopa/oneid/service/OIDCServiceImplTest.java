@@ -20,7 +20,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
-import it.pagopa.oneid.common.utils.SSMConnectorUtilsUtilsImpl;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.connector.PDVApiClient;
 import it.pagopa.oneid.exception.InvalidClientException;
@@ -68,7 +68,7 @@ public class OIDCServiceImplTest {
   PDVApiClient pdvApiClientMock;
 
   @InjectMock
-  SSMConnectorUtilsUtilsImpl ssmConnectorUtilsImplMock;
+  SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
 
   private static String getPublicKeyPEM() {
     String key = """

@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.ssm.model.SsmException;
 
 @ApplicationScoped
 @CustomLogging
-public class SSMConnectorUtilsUtilsImpl implements SSMConnectorUtils {
+public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
 
   @Inject
   SsmClient ssmClient;

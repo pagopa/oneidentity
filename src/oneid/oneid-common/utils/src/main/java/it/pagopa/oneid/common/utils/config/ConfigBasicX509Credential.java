@@ -1,7 +1,7 @@
 package it.pagopa.oneid.common.utils.config;
 
 import io.quarkus.logging.Log;
-import it.pagopa.oneid.common.utils.SSMConnectorUtilsUtilsImpl;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
@@ -30,7 +30,7 @@ public class ConfigBasicX509Credential {
   String keyName;
 
   @Inject
-  SSMConnectorUtilsUtilsImpl ssmConnectorUtilsImpl;
+  SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
 
   @Singleton
   @Produces
@@ -81,5 +81,5 @@ public class ConfigBasicX509Credential {
 
     return basicX509Credential;
   }
-  
+
 }

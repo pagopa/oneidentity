@@ -27,7 +27,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
-import it.pagopa.oneid.common.utils.SSMConnectorUtilsUtilsImpl;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.connector.PDVApiClient;
@@ -100,7 +100,7 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
   @Inject
-  SSMConnectorUtilsUtilsImpl ssmConnectorUtilsImpl;
+  SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
   @Inject
   Map<String, Client> clientsMap;
   @Inject
