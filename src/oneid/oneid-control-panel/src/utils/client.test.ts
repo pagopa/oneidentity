@@ -2,7 +2,7 @@ import { Client, SamlAttribute, SpidLevel } from '../types/api';
 import { clientDataWithoutSensitiveData } from './client';
 
 describe('clientDataWithoutSensitiveData', () => {
-  it('rimuove i campi sensibili dal clientData', () => {
+  it('should remove sensitive data from client data object', () => {
     const clientData: Client = {
       userId: 'user-123',
       clientId: 'secret-client-id',
@@ -25,14 +25,14 @@ describe('clientDataWithoutSensitiveData', () => {
       localizedContentMap: {
         default: {
           it: {
-            title: 'Titolo',
-            description: 'Descrizione',
+            title: 'title',
+            description: 'description',
           },
         },
         it: {
           it: {
-            title: 'Titolo IT',
-            description: 'Descrizione IT',
+            title: 'title',
+            description: 'description',
           },
         },
       },
@@ -45,7 +45,6 @@ describe('clientDataWithoutSensitiveData', () => {
     expect(result).not.toHaveProperty('clientIdIssuedAt');
     expect(result).not.toHaveProperty('clientSecretExpiresAt');
 
-    // Campi non sensibili devono rimanere
     expect(result).toMatchObject({
       userId: 'user-123',
       clientName: 'Test Client',
@@ -64,21 +63,21 @@ describe('clientDataWithoutSensitiveData', () => {
       localizedContentMap: {
         default: {
           it: {
-            title: 'Titolo',
-            description: 'Descrizione',
+            title: 'title',
+            description: 'description',
           },
         },
         it: {
           it: {
-            title: 'Titolo IT',
-            description: 'Descrizione IT',
+            title: 'title',
+            description: 'description',
           },
         },
       },
     });
   });
 
-  it('funziona anche se i campi sensibili non ci sono', () => {
+  it('should works even if sensitive data is missing', () => {
     const clientData: Partial<Client> = {
       clientName: 'Another Client',
       redirectUris: ['https://example.com/redirect'],
