@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
@@ -45,16 +46,18 @@ public class ClientRegistrationController {
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
 
-  private static Optional<String> getUpdateMessage(ClientRegistrationDTO input) {
+  private static Optional<String> getUpdateMessage(ClientRegistrationDTO input,
+      Client existingClient) {
     String message = "";
-    if (input.getClientName() != null) {
+    if (input.getClientName().equals(existingClient.getFriendlyName())) {
       message += "ClientName; ";
     }
-    if (input.getSamlRequestedAttributes() != null && !input.getSamlRequestedAttributes()
-        .isEmpty()) {
+    if (input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
       message += "SamlRequestedAttributes; ";
     }
-    if (input.getDefaultAcrValues() != null && !input.getDefaultAcrValues().isEmpty()) {
+    AuthLevel authLevel = AuthLevel.authLevelFromValue(
+        input.getDefaultAcrValues().stream().findFirst().get());
+    if (authLevel.equals(existingClient.getAuthLevel())) {
       message += "DefaultAcrValues; ";
     }
     if (StringUtils.isNotBlank(message)) {
@@ -159,13 +162,11 @@ public class ClientRegistrationController {
     boolean sendNotification = false;
 
     // Add information if redirectUris or metadata-related fields are updated
-    if (clientRegistrationDTOInput.getRedirectUris() != null
-        && !clientRegistrationDTOInput.getRedirectUris()
-        .isEmpty()) {
+    if (clientRegistrationDTOInput.getRedirectUris().equals(client.getCallbackURI())) {
       message += "- Redirect URIs updated \n";
       sendNotification = true;
     }
-    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput);
+    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput, client);
     if (updatedFields.isPresent()) {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;
