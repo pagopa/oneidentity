@@ -49,15 +49,15 @@ public class ClientRegistrationController {
   private static Optional<String> getUpdateMessage(ClientRegistrationDTO input,
       Client existingClient) {
     String message = "";
-    if (input.getClientName().equals(existingClient.getFriendlyName())) {
+    if (!input.getClientName().equals(existingClient.getFriendlyName())) {
       message += "ClientName; ";
     }
-    if (input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
+    if (!input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
       message += "SamlRequestedAttributes; ";
     }
     AuthLevel authLevel = AuthLevel.authLevelFromValue(
         input.getDefaultAcrValues().stream().findFirst().get());
-    if (authLevel.equals(existingClient.getAuthLevel())) {
+    if (!authLevel.equals(existingClient.getAuthLevel())) {
       message += "DefaultAcrValues; ";
     }
     if (StringUtils.isNotBlank(message)) {
@@ -162,7 +162,7 @@ public class ClientRegistrationController {
     boolean sendNotification = false;
 
     // Add information if redirectUris or metadata-related fields are updated
-    if (clientRegistrationDTOInput.getRedirectUris().equals(client.getCallbackURI())) {
+    if (!clientRegistrationDTOInput.getRedirectUris().equals(client.getCallbackURI())) {
       message += "- Redirect URIs updated \n";
       sendNotification = true;
     }
