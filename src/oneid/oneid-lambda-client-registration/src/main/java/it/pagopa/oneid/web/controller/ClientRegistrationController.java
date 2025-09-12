@@ -2,10 +2,12 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
 import it.pagopa.oneid.model.groups.ValidationGroups;
+import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
@@ -14,8 +16,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.groups.ConvertGroup;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -44,16 +46,18 @@ public class ClientRegistrationController {
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
 
-  private static Optional<String> getUpdateMessage(ClientRegistrationDTO input) {
+  private static Optional<String> getUpdateMessage(ClientRegistrationDTO input,
+      Client existingClient) {
     String message = "";
-    if (input.getClientName() != null) {
+    if (!input.getClientName().equals(existingClient.getFriendlyName())) {
       message += "ClientName; ";
     }
-    if (input.getSamlRequestedAttributes() != null && !input.getSamlRequestedAttributes()
-        .isEmpty()) {
+    if (!input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
       message += "SamlRequestedAttributes; ";
     }
-    if (input.getDefaultAcrValues() != null && !input.getDefaultAcrValues().isEmpty()) {
+    AuthLevel authLevel = AuthLevel.authLevelFromValue(
+        input.getDefaultAcrValues().stream().findFirst().get());
+    if (!authLevel.equals(existingClient.getAuthLevel())) {
       message += "DefaultAcrValues; ";
     }
     if (StringUtils.isNotBlank(message)) {
@@ -125,12 +129,12 @@ public class ClientRegistrationController {
     return Response.ok(clientRegistrationResponseDTO).build();
   }
 
-  @PATCH
+  @PUT
   @Path("/register/client_id/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
-      @Valid @ConvertGroup(to = ValidationGroups.PatchClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
+      @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId) {
     Log.info("start");
 
@@ -146,39 +150,29 @@ public class ClientRegistrationController {
     ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //4. Convert client from db to ClientRegistrationDTO
-    ClientRegistrationDTO clientRegistrationDTO =
-        ClientUtils.convertClientToClientRegistrationDTO(client);
-
-    //5. update clientRegistrationDTO from db with new fields of clientRegistrationDTOInput
-    clientRegistrationService.patchClientRegistrationDTO(clientRegistrationDTOInput,
-        clientRegistrationDTO);
-
-    //6. Update client infos
-    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTO, clientId,
+    //4. Update client infos
+    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTOInput, clientId,
         client.getAttributeIndex(), client.getClientIdIssuedAt());
     Log.info("client updated successfully for clientId: " + clientId);
 
-    //7. Prepare message for sns notification
+    //5. Prepare message for sns notification
     String message =
-        "Name: " + clientRegistrationDTO.getClientName() + "\n" +
+        "Name: " + clientRegistrationDTOInput.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
     boolean sendNotification = false;
 
     // Add information if redirectUris or metadata-related fields are updated
-    if (clientRegistrationDTOInput.getRedirectUris() != null
-        && !clientRegistrationDTOInput.getRedirectUris()
-        .isEmpty()) {
+    if (!clientRegistrationDTOInput.getRedirectUris().equals(client.getCallbackURI())) {
       message += "- Redirect URIs updated \n";
       sendNotification = true;
     }
-    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput);
+    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput, client);
     if (updatedFields.isPresent()) {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;
     }
 
-    //8. Send SNS notification only if redirectUris or metadata-related fields has been updated
+    //6. Send SNS notification only if redirectUris or metadata-related fields has been updated
     if (sendNotification) {
       String subject =
           "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
