@@ -1597,13 +1597,6 @@
       "sha256": "HnMBHvqvpDfestIjihvKA8QSFZOteOZkf8QqECPGJgo="
     },
     {
-      "id": "io.quarkus.resteasy.reactive:resteasy-reactive-jackson:jar:3.11.3",
-      "artifactId": "resteasy-reactive-jackson",
-      "groupId": "io.quarkus.resteasy.reactive",
-      "version": "3.11.3",
-      "sha256": "sdAqGmFcCPqAv56rq4jh914HtMkA2NZ7OQqHCtDWPgY="
-    },
-    {
       "id": "io.quarkus:quarkus-jackson:jar:3.11.3",
       "artifactId": "quarkus-jackson",
       "groupId": "io.quarkus",
@@ -1623,6 +1616,83 @@
       "groupId": "com.fasterxml.jackson.module",
       "version": "2.17.1",
       "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
+    },
+    {
+      "id": "io.quarkus:quarkus-rest-client-jackson:jar:3.11.3",
+      "artifactId": "quarkus-rest-client-jackson",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "b00EAeuJNeQxpzoFZTzH8HtiksFSFZguNtFel9nVsn8="
+    },
+    {
+      "id": "io.quarkus.resteasy.reactive:resteasy-reactive-jackson:jar:3.11.3",
+      "artifactId": "resteasy-reactive-jackson",
+      "groupId": "io.quarkus.resteasy.reactive",
+      "version": "3.11.3",
+      "sha256": "sdAqGmFcCPqAv56rq4jh914HtMkA2NZ7OQqHCtDWPgY="
+    },
+    {
+      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.1",
+      "artifactId": "jackson-databind",
+      "groupId": "com.fasterxml.jackson.core",
+      "version": "2.17.1",
+      "sha256": "tsovfVsaskXOxUlewzl3PS2QVUxIWSWQZz-xj0QAqUg="
+    },
+    {
+      "id": "io.quarkus:quarkus-rest-client:jar:3.11.3",
+      "artifactId": "quarkus-rest-client",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "YSfoRPWRzAq3lxsYxvEWHa_3Yzd9k7tD9djVWv9WtWU="
+    },
+    {
+      "id": "io.quarkus:quarkus-rest-client-jaxrs:jar:3.11.3",
+      "artifactId": "quarkus-rest-client-jaxrs",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "whXKwtxKvjDnhl0kRFE3I2ZoekwT9MeRarD5aDxMpKM="
+    },
+    {
+      "id": "io.quarkus.resteasy.reactive:resteasy-reactive-client:jar:3.11.3",
+      "artifactId": "resteasy-reactive-client",
+      "groupId": "io.quarkus.resteasy.reactive",
+      "version": "3.11.3",
+      "sha256": "SAXvEnLL7k2jd0HVq5OKgijMAshMIJ30zpxPMND2-qs="
+    },
+    {
+      "id": "io.quarkus:quarkus-smallrye-stork:jar:3.11.3",
+      "artifactId": "quarkus-smallrye-stork",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "pYX3_pKBMydPpY3YfFhgPq_XORcG8VGZiVxTJs0ZLj8="
+    },
+    {
+      "id": "io.quarkus:quarkus-rest-client-config:jar:3.11.3",
+      "artifactId": "quarkus-rest-client-config",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "wqV9jc3891lIu_I0PNuSkx_RrEIClMGODzpKEjlNhnc="
+    },
+    {
+      "id": "io.smallrye.stork:stork-api:jar:2.6.0",
+      "artifactId": "stork-api",
+      "groupId": "io.smallrye.stork",
+      "version": "2.6.0",
+      "sha256": "T-mRsWK7Qkln55Nk5p5aqgDhSAXHQ7r-yZWT0rD15jI="
+    },
+    {
+      "id": "io.smallrye.stork:stork-core:jar:2.6.0",
+      "artifactId": "stork-core",
+      "groupId": "io.smallrye.stork",
+      "version": "2.6.0",
+      "sha256": "T_aqyApgFPtHcDSW7xcXwslWIioP1kR1dop6mryDLIw="
+    },
+    {
+      "id": "org.eclipse.microprofile.rest.client:microprofile-rest-client-api:jar:3.0.1",
+      "artifactId": "microprofile-rest-client-api",
+      "groupId": "org.eclipse.microprofile.rest.client",
+      "version": "3.0.1",
+      "sha256": "K3Fpi5XIksxlkjX0_-ZjteLxFRzrTncmiyP_KwxjIcs="
     },
     {
       "id": "io.quarkus:quarkus-smallrye-openapi:jar:3.11.3",
@@ -1651,13 +1721,6 @@
       "groupId": "com.fasterxml.jackson.core",
       "version": "2.17.1",
       "sha256": "3bJsih8ahFNeghPEizWyUzcENOMoezzxV3eFb8TljOY="
-    },
-    {
-      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.1",
-      "artifactId": "jackson-databind",
-      "groupId": "com.fasterxml.jackson.core",
-      "version": "2.17.1",
-      "sha256": "tsovfVsaskXOxUlewzl3PS2QVUxIWSWQZz-xj0QAqUg="
     },
     {
       "id": "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.17.1",
