@@ -88,7 +88,10 @@ export const AddOrUpdateUser = () => {
       setErrorUi(addClientUsersError as unknown as UserErrors);
       setNotify({
         open: true,
-        message: 'Error adding user',
+        message:
+          addClientUsersError.message === 'User already exists'
+            ? 'User already exists'
+            : 'Error creating user',
         severity: 'error',
       });
     }
@@ -97,7 +100,7 @@ export const AddOrUpdateUser = () => {
       setErrorUi(updateClientUsersError as unknown as UserErrors);
       setNotify({
         open: true,
-        message: 'Error update user',
+        message: 'Error updating user',
         severity: 'error',
       });
     }
@@ -198,6 +201,7 @@ export const AddOrUpdateUser = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
+                        aria-label="toggle password visibility"
                         onClick={() => setShowPassword((prev) => !prev)}
                         edge="end"
                         size="small"

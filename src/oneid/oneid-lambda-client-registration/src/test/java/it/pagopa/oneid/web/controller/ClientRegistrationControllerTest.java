@@ -237,7 +237,7 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/user_id/{user_id}")
         .then()
-        .statusCode(401); // Unauthorized due to client not found
+        .statusCode(404); // Not found due to client not found
   }
 
   //Update Client

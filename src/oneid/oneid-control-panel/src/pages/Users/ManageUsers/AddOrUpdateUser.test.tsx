@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
 import { render, screen, waitFor } from '@testing-library/react';
 import type * as ReactRouterDom from 'react-router-dom';
-import { vi, describe, it, beforeEach, expect } from 'vitest';
+import { vi, describe, it, beforeEach, expect, Mock } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AddOrUpdateUser } from './AddOrUpdateUser';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
+import { ROUTE_PATH } from '../../../utils/constants';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -17,21 +18,26 @@ vi.mock('react-oidc-context', () => ({
 
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
+const mockNavigate = vi.fn();
+
+let mockCreateMutation: {
+  mutate: Mock;
+  error: Error | null;
+  isSuccess: boolean;
+  isPending: boolean;
+};
+
+let mockUpdateMutation: {
+  mutate: Mock;
+  error: Error | null;
+  isSuccess: boolean;
+  isPending: boolean;
+};
 
 vi.mock('../../../hooks/useClient', () => ({
   useClient: () => ({
-    createClientUsersMutation: {
-      mutate: mockCreate,
-      error: null,
-      isSuccess: false,
-      isPending: false,
-    },
-    updateClientUsersMutation: {
-      mutate: mockUpdate,
-      error: null,
-      isSuccess: false,
-      isPending: false,
-    },
+    createClientUsersMutation: mockCreateMutation,
+    updateClientUsersMutation: mockUpdateMutation,
   }),
 }));
 
@@ -73,6 +79,8 @@ const createWrapper = () => {
   return Wrapper;
 };
 
+const submitBtnId = 'submit-button';
+
 vi.mock('react-router-dom', async () => {
   const actual =
     await vi.importActual<typeof ReactRouterDom>('react-router-dom');
@@ -81,12 +89,24 @@ vi.mock('react-router-dom', async () => {
     ...actual,
     useParams: () => ({}),
     useLocation: () => ({ state: null }),
-    useNavigate: () => vi.fn(),
+    useNavigate: () => mockNavigate,
   };
 });
 describe('AddOrUpdateUser', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: null,
+      isSuccess: false,
+      isPending: false,
+    };
+    mockUpdateMutation = {
+      mutate: mockUpdate,
+      error: null,
+      isSuccess: false,
+      isPending: false,
+    };
   });
 
   it('renders email of logged user', () => {
@@ -108,7 +128,7 @@ describe('AddOrUpdateUser', () => {
 
     await user.type(attributeInput, 'name');
 
-    const submitBtn = screen.getByTestId('submit-button');
+    const submitBtn = screen.getByTestId(submitBtnId);
     expect(submitBtn).not.toBeDisabled();
 
     await user.click(submitBtn);
@@ -149,7 +169,7 @@ describe('AddOrUpdateUser', () => {
     await user.clear(attributeInput);
     await user.type(attributeInput, 'NewValue');
 
-    const submitBtn = screen.getByTestId('submit-button');
+    const submitBtn = screen.getByTestId(submitBtnId);
     expect(submitBtn).not.toBeDisabled();
 
     await user.click(submitBtn);
@@ -163,6 +183,113 @@ describe('AddOrUpdateUser', () => {
         },
         username: 'existing_user',
       });
+    });
+  });
+
+  it('shows an error notification when create user fails', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: new Error('User already exists'),
+      isSuccess: false,
+      isPending: false,
+    };
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+    await waitFor(() => {
+      expect(screen.getByText('User already exists')).toBeInTheDocument();
+    });
+  });
+
+  it('shows an error notification when update user fails', async () => {
+    mockUpdateMutation = {
+      mutate: mockCreate,
+      error: new Error('Error updating user'),
+      isSuccess: false,
+      isPending: false,
+    };
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+    await waitFor(() => {
+      expect(screen.getByText('Error updating user')).toBeInTheDocument();
+    });
+  });
+
+  it('navigates to user list on successful user creation', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: null,
+      isSuccess: true,
+      isPending: false,
+    };
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTE_PATH.USER_LIST, {
+        state: {
+          refresh: true,
+          notify: {
+            open: true,
+            message: 'User Created!',
+            severity: 'success',
+          },
+        },
+      });
+    });
+  });
+
+  it('navigates to user list on successful user update', async () => {
+    mockUpdateMutation = {
+      mutate: mockCreate,
+      error: null,
+      isSuccess: true,
+      isPending: false,
+    };
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(ROUTE_PATH.USER_LIST, {
+        state: {
+          refresh: true,
+          notify: {
+            open: true,
+            message: 'User updated!',
+            severity: 'success',
+          },
+        },
+      });
+    });
+  });
+
+  it('toggles password visibility', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    const passwordInput = screen.getByLabelText(/Password/i, {
+      selector: 'input',
+    });
+    await user.type(passwordInput, 'password123');
+
+    const visibilityButton = screen.getByRole('button', {
+      name: /toggle password visibility/i,
+    });
+    expect(passwordInput).toHaveAttribute('type', 'password');
+
+    await user.click(visibilityButton);
+    await waitFor(() => {
+      expect(passwordInput).toHaveAttribute('type', 'text');
+    });
+
+    await user.click(visibilityButton);
+    await waitFor(() => {
+      expect(passwordInput).toHaveAttribute('type', 'password');
+    });
+  });
+
+  it('should not submit if form is invalid', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    const submitBtn = screen.getByTestId(submitBtnId);
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockCreate).not.toHaveBeenCalled();
     });
   });
 });
