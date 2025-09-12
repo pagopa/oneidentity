@@ -137,11 +137,15 @@ export const getClientUsers = async (
     throw new Error(userIdMessage);
   }
   try {
-    const response = await api.get<IdpUserList>(`${ENDPOINT}/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    // TODO: remove 1000 and implement server pagination
+    const response = await api.get<IdpUserList>(
+      `${ENDPOINT}/${userId}?limit=1000`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw handleApiError(error);
