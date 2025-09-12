@@ -590,8 +590,8 @@
               "statusCode": "400",
               "responseParameters": {}
             },
-            "401": {
-              "statusCode": "401",
+            "404": {
+              "statusCode": "404",
               "responseParameters": {}
             },
             "403": {
@@ -640,8 +640,8 @@
           "400": {
             "$ref": "#/components/responses/invalidParameters"
           },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
+          "404": {
+            "$ref": "#/components/responses/notFound"
           },
           "403": {
             "$ref": "#/components/responses/forbidden"

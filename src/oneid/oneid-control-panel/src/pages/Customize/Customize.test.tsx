@@ -63,14 +63,14 @@ const mockClientData = {
   },
 };
 
-vi.mock('../../hooks/useClient', () => ({
-  useClient: () => ({
-    getAdditionalClientAttrs: {
+vi.mock('../../hooks/useRegister', () => ({
+  useRegister: () => ({
+    clientQuery: {
       data: mockClientData,
       isSuccess: true,
       error: null,
     },
-    createOrUpdateClientAttrsMutation: {
+    createOrUpdateClientMutation: {
       mutate: vi.fn(),
       error: null,
       isPending: false,
@@ -126,7 +126,7 @@ describe('Refactored ReservedAreaForm Component', () => {
       'true'
     );
     expect(screen.getByLabelText('Title')).toHaveValue('Default Title');
-    expect(screen.getByLabelText('Support Address')).toHaveValue(
+    expect(screen.getByLabelText('Support Email Address')).toHaveValue(
       'support@example.com'
     );
     expect(screen.getByLabelText('Documentation URI')).toHaveValue(
@@ -202,7 +202,7 @@ describe('Refactored ReservedAreaForm Component', () => {
 
     // 5. Assert the new input fields are empty
     expect(screen.getByLabelText('Title')).toHaveValue('');
-    expect(screen.getByLabelText('Support Address')).toHaveValue('');
+    expect(screen.getByLabelText('Support Email Address')).toHaveValue('');
   });
 
   it('should allow adding a new theme', async () => {

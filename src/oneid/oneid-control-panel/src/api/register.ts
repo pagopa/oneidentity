@@ -4,6 +4,7 @@ import {
   Client,
   clientSchema,
   ClientErrors,
+  ClientWithoutSensitiveData,
 } from '../types/api';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
@@ -29,19 +30,15 @@ export const verifyToken = async (token: string): Promise<LoginResponse> => {
 };
 
 export const getClientData = async (
-  clientId: string | undefined,
+  userId: string | undefined,
   token: string
 ): Promise<Client> => {
-  if (!clientId) {
-    throw new Error('Client ID is required');
+  if (!userId) {
+    throw new Error('User ID is required');
   }
-  // mock:
-  // const out =
-  //   '{"redirect_uris":["https://442zl6z6sbdqprefkazmp6dr3y0nmnby.lambda-url.eu-south-1.on.aws/client/cb"],"client_name":"cognito_METADATA_07_01_122456","logo_uri":"http://test.com/logo.png","policy_uri":null,"tos_uri":null,"default_acr_values":["https://www.spid.gov.it/SpidL2"],"saml_requested_attributes":["fiscalNumber"]}';
-  // return JSON.parse(out);
   try {
     const response = await api.get<Client>(
-      `${ENV.URL_API.REGISTER}/${clientId}`,
+      `${ENV.URL_API.REGISTER}/user_id/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -55,7 +52,9 @@ export const getClientData = async (
     }
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || 'Failed to fetch client data'
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          'Failed to fetch client data'
       );
     }
     throw new Error(`An unknown error occurred ${JSON.stringify(error)}`);
@@ -63,13 +62,13 @@ export const getClientData = async (
 };
 
 export const createOrUpdateClient = async (
-  data: Omit<Client, 'client_id' | 'client_secret'>,
+  data: ClientWithoutSensitiveData,
   token: string,
   clientId?: string
 ): Promise<Client | ClientErrors> => {
   try {
     const url = clientId
-      ? `${ENV.URL_API.REGISTER}/${clientId}`
+      ? `${ENV.URL_API.REGISTER}/client_id/${clientId}`
       : ENV.URL_API.REGISTER;
     const method = clientId ? 'put' : 'post';
 
@@ -81,11 +80,14 @@ export const createOrUpdateClient = async (
     // mock:
     // return Promise.resolve({
     //   ...data,
-    //   client_id: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
-    //   client_secret: 'xxx',
-    //   client_id_issued_at: 1234567890,
-    //   client_secret_expires_at: 1234567890,
+    //   clientId: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
+    //   clientSecret: 'xxx',
+    //   clientIdIssuedAt: 1234567890,
+    //   clientSecretExpiresAt: 1234567890,
     // });
+
+    // TODO: cloud we use axios middleware to inject auth bearer token ?
+    // TODO: and should we use an interceptor for token expired that inform user and maybe make an automatic logout
 
     const response = await api[method]<Client>(url, data, {
       headers: {

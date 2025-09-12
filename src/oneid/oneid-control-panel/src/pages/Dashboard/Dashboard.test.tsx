@@ -23,6 +23,7 @@ const axiosMock = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),
+  patch: vi.fn(),
 }));
 
 vi.mock('axios', async (importActual) => {
@@ -36,6 +37,7 @@ vi.mock('axios', async (importActual) => {
         get: axiosMock.get,
         post: axiosMock.post,
         put: axiosMock.put,
+        patch: axiosMock.patch,
       })),
     },
   };
@@ -72,6 +74,10 @@ describe('Dashboard UI', () => {
     vi.clearAllMocks();
     axiosMock.post.mockResolvedValueOnce({
       data: mockClientData,
+    });
+    axiosMock.patch.mockResolvedValue({
+      status: 204,
+      data: null,
     });
   });
 
@@ -156,7 +162,7 @@ describe('Dashboard UI', () => {
     // Wait for the success notification
     await waitFor(() => {
       expect(
-        screen.getByText(/Client updated successfully/i)
+        screen.getByText(/Client created successfully/i)
       ).toBeInTheDocument();
     });
   });

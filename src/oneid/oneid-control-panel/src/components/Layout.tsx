@@ -14,8 +14,9 @@ import { theme } from '@pagopa/mui-italia';
 import PersistentDrawerLeft from './Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
-import { cognitoCustomAttribute } from '../utils/constants';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import * as Storage from '../utils/storage';
+import { sessionStorageClientIdKey } from '../utils/constants';
 
 const drawerWidth = 240;
 
@@ -28,7 +29,7 @@ type Props = {
 };
 
 const Layout = ({ children }: Props) => {
-  const { removeUser, signoutRedirect, user } = useAuth();
+  const { removeUser, signoutRedirect } = useAuth();
   const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
@@ -120,7 +121,7 @@ const Layout = ({ children }: Props) => {
         <PersistentDrawerLeft
           handleDrawerClose={handleDrawerClose}
           open={open}
-          clientId={user?.profile[cognitoCustomAttribute] as string}
+          clientId={Storage.storageRead(sessionStorageClientIdKey, 'string')}
         />
         {children}
       </Box>

@@ -9,8 +9,6 @@ import {
 import { useAuth } from 'react-oidc-context';
 import { ROUTE_PATH } from '../../utils/constants';
 
-const cognitoCustomAttribute = 'custom:client_id';
-
 export const LoginForm = () => {
   const {
     isAuthenticated,
@@ -22,18 +20,8 @@ export const LoginForm = () => {
   } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (
-        user?.profile &&
-        Object.hasOwn(user.profile, cognitoCustomAttribute) &&
-        user.profile[cognitoCustomAttribute]
-      ) {
-        window.location.assign(
-          `${ROUTE_PATH.DASHBOARD}/${user.profile[cognitoCustomAttribute]}`
-        );
-      } else {
-        window.location.assign(ROUTE_PATH.DASHBOARD);
-      }
+    if (isAuthenticated && user?.profile) {
+      window.location.assign(ROUTE_PATH.DASHBOARD);
     }
   }, [isAuthenticated, user]);
 
@@ -43,6 +31,10 @@ export const LoginForm = () => {
       return;
     }
     signinRedirect();
+  };
+
+  const handleLogout = async () => {
+    await removeUser();
   };
 
   return (
@@ -87,7 +79,7 @@ export const LoginForm = () => {
           color="primary"
           fullWidth
           sx={{ mt: 2 }}
-          onClick={removeUser}
+          onClick={handleLogout}
         >
           Logout
         </Button>

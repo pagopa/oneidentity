@@ -59,7 +59,7 @@ export const SecretModal = ({
           <TextField
             fullWidth
             label="Client ID"
-            value={data?.client_id || ''}
+            value={data?.clientId || ''}
             disabled
             margin="normal"
           />
@@ -68,7 +68,7 @@ export const SecretModal = ({
             margin="normal"
             label="Client Secret"
             type={showPassword ? 'text' : 'password'}
-            value={data?.client_secret || ''}
+            value={data?.clientSecret || ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
