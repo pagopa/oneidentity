@@ -217,6 +217,9 @@ export const addClientUser = async (
     );
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      throw new Error('User already exists');
+    }
     throw handleApiError(error);
   }
 };
