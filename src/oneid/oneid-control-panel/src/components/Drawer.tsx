@@ -64,15 +64,7 @@ export default function PersistentDrawerLeft({
       </DrawerHeader>
       <Divider />
       <List>
-        <ListItem
-          disablePadding
-          component={Link}
-          to={
-            clientId
-              ? `${ROUTE_PATH.DASHBOARD}/${clientId}`
-              : ROUTE_PATH.DASHBOARD
-          }
-        >
+        <ListItem disablePadding component={Link} to={ROUTE_PATH.DASHBOARD}>
           <ListItemButton>
             <ListItemIcon>
               <InboxIcon />

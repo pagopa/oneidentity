@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   allLanguages,
-  ClientFEErrors,
+  ClientErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
   Languages,
@@ -32,7 +32,7 @@ type LocalizedContentEditorProps = {
   ) => void;
   onAddLanguage: () => void;
   onRemoveLanguage: (lang: string) => void;
-  errorUi: ClientFEErrors | null;
+  errorUi: ClientErrors | null;
 };
 
 export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
@@ -125,12 +125,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.title?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.title?._errors
                     }
@@ -138,19 +138,20 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Support Address"
+                    label="Support Email Address"
                     value={activeTheme[lang]?.supportAddress || ''}
                     onChange={(e) =>
                       onContentChange(lang, 'supportAddress', e.target.value)
                     }
                     fullWidth
+                    type="email"
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.supportAddress?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.supportAddress?._errors
                     }
@@ -159,22 +160,22 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                 <Grid item xs={12}>
                   <TextField
                     label="Description"
-                    value={activeTheme[lang]?.desc || ''}
+                    value={activeTheme[lang]?.description || ''}
                     onChange={(e) =>
-                      onContentChange(lang, 'desc', e.target.value)
+                      onContentChange(lang, 'description', e.target.value)
                     }
                     multiline
                     rows={4}
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
-                      ]?.[lang]?.desc?._errors
+                      ]?.[lang]?.description?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
-                      ]?.[lang]?.desc?._errors
+                      ]?.[lang]?.description?._errors
                     }
                   />
                 </Grid>
@@ -187,12 +188,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.docUri?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.docUri?._errors
                     }
@@ -207,12 +208,12 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
                     }
                     fullWidth
                     error={
-                      !!(errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      !!(errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.cookieUri?._errors
                     }
                     helperText={
-                      (errorUi as ClientFEErrors)?.localizedContentMap?.[
+                      (errorUi as ClientErrors)?.localizedContentMap?.[
                         activeThemeKey
                       ]?.[lang]?.cookieUri?._errors
                     }

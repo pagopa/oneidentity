@@ -1,9 +1,7 @@
 package it.pagopa.oneid.exception.mapper;
 
 import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -83,7 +81,7 @@ class ExceptionMapperTest {
     RestResponse<Object> restResponse = exceptionMapper.mapClientNotFoundException(
         exceptionMock);
     // then
-    assertEquals(UNAUTHORIZED.getStatusCode(), restResponse.getStatus());
+    assertEquals(NOT_FOUND.getStatusCode(), restResponse.getStatus());
   }
 
   @Test

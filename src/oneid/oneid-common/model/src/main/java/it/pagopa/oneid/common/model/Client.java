@@ -3,6 +3,7 @@ package it.pagopa.oneid.common.model;
 import it.pagopa.oneid.common.model.converters.HashMapAttributeConverter;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
@@ -79,8 +80,8 @@ public class Client {
   private boolean spidProfessionals;
   private boolean pairwise;
 
-  public record LocalizedContent(String title, String description, String docUri,
-                                 String supportAddress, String cookieUri) {
+  public record LocalizedContent(@NotEmpty String title, @NotEmpty String description,
+                                 String docUri, String supportAddress, String cookieUri) {
 
   }
 }

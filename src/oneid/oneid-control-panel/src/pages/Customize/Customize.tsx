@@ -22,43 +22,56 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import {
   allLanguages,
-  ClientFE,
-  ClientFEErrors,
+  ClientErrors,
   ClientLocalizedEntry,
   ClientThemeEntry,
+  ClientWithoutSensitiveData,
   Languages,
 } from '../../types/api';
-import { useClient } from '../../hooks/useClient';
 import { useParams } from 'react-router-dom';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
 import { Notify } from '../../components/Notify';
+import { useRegister } from '../../hooks/useRegister';
+import { clientDataWithoutSensitiveData } from '../../utils/client';
+
+function isEqualOrNullish(a: unknown, b: unknown): boolean {
+  // If one is null and one is undefined treat them as equal
+  if (!a && !b) return true;
+  // Check if equal
+  return a === b;
+}
 
 function CustomizeDashboard() {
-  const { client_id: clientID } = useParams(); // Get the client_id from the URL
+  const { clientId } = useParams(); // Get the clientId from the URL
+
   const {
-    getAdditionalClientAttrs: {
+    clientQuery: {
       data: fetchedAdditionalAttributes,
-      isSuccess: isFetched,
+      // isLoading: isLoadingAdditionalAttributes,
       error: fetchError,
+      isSuccess: isFetched,
     },
-    createOrUpdateClientAttrsMutation: {
+    createOrUpdateClientMutation: {
       mutate: updateClientAttrs,
       error: updateError,
       isPending: isUpdating,
       isSuccess: isUpdateSuccess,
     },
-  } = useClient();
+  } = useRegister();
 
-  const [clientData, setClientData] = useState<ClientFE | null>(null);
+  const [clientData, setClientData] =
+    useState<ClientWithoutSensitiveData | null>(null);
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
-  const [errorUi, setErrorUi] = useState<ClientFEErrors | null>(null);
+  const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
 
   useEffect(() => {
     if (isFetched) {
-      setClientData(fetchedAdditionalAttributes || null);
+      setClientData(
+        clientDataWithoutSensitiveData(fetchedAdditionalAttributes) || null
+      );
       setActiveThemeKey(
         Object.keys(
           fetchedAdditionalAttributes?.localizedContentMap || {}
@@ -94,7 +107,7 @@ function CustomizeDashboard() {
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientFEErrors);
+      setErrorUi(updateError as unknown as ClientErrors);
       setNotify({
         open: true,
         message: 'Error updating client',
@@ -126,45 +139,74 @@ function CustomizeDashboard() {
     }
 
     updateClientAttrs({
-      data: clientData as ClientFE,
+      data: clientData as ClientWithoutSensitiveData,
+      clientId,
     });
   };
 
   const isFormValid = () => {
     if (!clientData) return false;
-    // Check if at least one theme exists
+
+    // at least one of a11yuri, backButton, localizedContentMap must be changed
     if (
-      !clientData.localizedContentMap ||
-      Object.keys(clientData.localizedContentMap).length === 0
+      isEqualOrNullish(
+        clientData.a11yUri,
+        fetchedAdditionalAttributes?.a11yUri
+      ) &&
+      isEqualOrNullish(
+        clientData.backButtonEnabled,
+        fetchedAdditionalAttributes?.backButtonEnabled
+      ) &&
+      isEqualOrNullish(
+        clientData.localizedContentMap,
+        fetchedAdditionalAttributes?.localizedContentMap
+      )
     ) {
-      console.error('At least one theme is required');
       return false;
     }
-    // Check if the 'default' theme exists
-    if (!clientData.localizedContentMap.default) {
-      console.error('The "default" theme is required');
-      return false;
-    }
-    // Check if each theme has at least one language with title and description
-    for (const [themeKey, themeContent] of Object.entries(
-      clientData.localizedContentMap
-    )) {
-      if (!themeContent || Object.keys(themeContent).length === 0) {
-        console.error(`Theme "${themeKey}" must have at least one language`);
+
+    // if localized content map is filled, check if the 'default' theme exists
+    if (
+      clientData.localizedContentMap &&
+      Object.keys(clientData.localizedContentMap).length !== 0
+    ) {
+      if (!clientData.localizedContentMap.default) {
+        console.error('The "default" theme is required');
         return false;
       }
+
+      // Check if each theme has at least one language with title and description
+      for (const [themeKey, themeContent] of Object.entries(
+        clientData.localizedContentMap
+      )) {
+        if (!themeContent || Object.keys(themeContent).length === 0) {
+          console.error(`Theme "${themeKey}" must have at least one language`);
+          return false;
+        }
+      }
+      return true;
     }
+
     return true;
   };
 
   const handleTopLevelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
+
     setClientData((prev) => {
-      if (!prev) prev = {} as ClientFE; // Ensure prev is always defined
-      // Always set backButtonEnabled explicitly and ensure it's always boolean
+      if (!prev) prev = {} as ClientWithoutSensitiveData;
+
+      // treat empty string as undefined (user can remove a field)
+      const normalizedValue =
+        type === 'checkbox'
+          ? checked
+          : value?.trim() === ''
+            ? undefined
+            : value;
+
       return {
         ...prev,
-        [name]: type === 'checkbox' ? checked : value,
+        [name]: normalizedValue,
         backButtonEnabled:
           name === 'backButtonEnabled'
             ? checked
@@ -186,7 +228,8 @@ function CustomizeDashboard() {
         return prev;
       }
 
-      const newClientData: ClientFE = {
+      const normalizedValue = value.trim() === '' ? undefined : value;
+      const newClientData: ClientWithoutSensitiveData = {
         ...prev,
         localizedContentMap: {
           ...prev.localizedContentMap,
@@ -198,7 +241,7 @@ function CustomizeDashboard() {
                 title: '',
                 description: '',
               }),
-              [field]: value,
+              [field]: normalizedValue,
             },
           },
         },
@@ -276,20 +319,23 @@ function CustomizeDashboard() {
       return;
     }
 
-    setClientData((prev) => ({
-      ...prev,
-      backButtonEnabled: false,
-      a11yUri: null,
-      localizedContentMap: {
-        ...prev?.localizedContentMap,
-        [key]: {
-          it: {
-            title: '',
-            desc: '',
+    setClientData((prev) => {
+      if (!prev) prev = {} as ClientWithoutSensitiveData; // Ensure prev is always defined
+      // Always set backButtonEnabled explicitly and ensure it's always boolean
+      return {
+        ...prev,
+        localizedContentMap: {
+          ...prev?.localizedContentMap,
+          [key]: {
+            it: {
+              title: '',
+              description: '',
+            },
           },
         },
-      },
-    }));
+      };
+    });
+
     setActiveThemeKey(key);
     setNewThemeKey('');
     setThemeModalOpen(false);
@@ -336,7 +382,7 @@ function CustomizeDashboard() {
 
           <ClientSettings
             clientData={clientData}
-            clientID={clientID}
+            clientID={clientId}
             onClientDataChange={handleTopLevelChange}
             errorUi={errorUi}
           />

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { Client } from '../types/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Client, ClientWithoutSensitiveData } from '../types/api';
 import { getClientData, createOrUpdateClient } from '../api/register';
 import { useAuth } from 'react-oidc-context';
 
@@ -27,17 +27,23 @@ const withTimeout = <T extends object>(
   ]);
 };
 
-export const useRegister = (clientId?: string) => {
+export const useRegister = () => {
+  const queryClient = useQueryClient();
+
   const { user } = useAuth();
   const token = user?.id_token;
+  const userId = user?.profile.sub;
+
   if (!token) {
     throw new Error('No token available');
   }
 
+  const queryKey = ['user-client', userId];
+
   const clientQuery = useQuery<Client, Error>({
-    queryKey: ['client', clientId],
-    queryFn: () => getClientData(clientId, token),
-    enabled: !!token && !!clientId,
+    queryKey,
+    queryFn: () => getClientData(userId, token),
+    enabled: !!token && !!userId,
     staleTime,
     retry,
     throwOnError: false, //be careful with this option, it can cause unexpected behavior
@@ -51,13 +57,17 @@ export const useRegister = (clientId?: string) => {
       data,
       clientId,
     }: {
-      data: Omit<Client, 'client_id' | 'client_secret'>;
+      data: ClientWithoutSensitiveData;
       clientId?: string;
     }) => {
+      const dataWithUserId = { ...data, userId };
       return withTimeout(
-        createOrUpdateClient(data, token, clientId),
+        createOrUpdateClient(dataWithUserId, token, clientId),
         TIMEOUT_DURATION
       );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 

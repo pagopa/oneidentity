@@ -102,18 +102,47 @@ export const SamlAttributeSchema = z.enum([
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 
+const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
+
+const ThemeSchema = z.object({
+  title: z
+    .string()
+    .min(10, 'Title is required and must be at least 10 characters'),
+  description: z
+    .string()
+    .min(20, 'Description is required and must be at least 20 characters'),
+  docUri: z.string().url().nullish(),
+  cookieUri: z.string().url().nullish(),
+  supportAddress: z.string().email().nullish(),
+});
+
+const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
+
+// TODO: check and eventually remove optional from required fields
 export const clientSchema = z.object({
-  client_id: z.string().optional(),
-  client_secret: z.string().optional(),
-  client_id_issued_at: z.number().optional(),
-  client_secret_expires_at: z.number().optional(),
-  client_name: z.string(),
-  policy_uri: z.string().url().optional().nullable(),
-  tos_uri: z.string().url().optional().nullable(),
-  redirect_uris: z.array(z.string().url().min(1)),
-  saml_requested_attributes: SamlAttributeArraySchema.min(1),
-  logo_uri: z.string().url().optional().nullable(),
-  default_acr_values: SpidLevelArraySchema.min(1),
+  userId: z.string().optional(),
+  clientId: z.string().optional(),
+  clientSecret: z.string().nullish(),
+  clientIdIssuedAt: z.number().optional(),
+  clientSecretExpiresAt: z.number().optional(),
+  clientName: z.string().optional(),
+  policyUri: z.string().url().nullish(),
+  tosUri: z.string().url().nullish(),
+  redirectUris: z.array(z.string().url().min(1)),
+  samlRequestedAttributes: SamlAttributeArraySchema.min(1),
+  logoUri: z.string().url().optional().nullable(),
+  defaultAcrValues: SpidLevelArraySchema.min(1),
+  requiredSameIdp: z.boolean().optional(),
+  // feature flags
+  spidMinors: z.boolean().optional(),
+  spidProfessionals: z.boolean().optional(),
+  pairwise: z.boolean().optional(),
+  // customize
+  a11yUri: z.string().url().optional().nullable(),
+  backButtonEnabled: z.boolean().optional().default(false),
+  localizedContentMap: z
+    .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+    .nullish(),
 });
 
 export const idpUserCreateOrUpdateResponseSchema = z.object({
@@ -131,38 +160,11 @@ export const addIdpUserSchema = idpUserSchema.extend({
   user_id: z.string(),
 });
 
-const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
-
-const ThemeSchema = z.object({
-  title: z
-    .string()
-    .min(10, 'Title is required and must be at least 10 characters'),
-  desc: z
-    .string()
-    .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().optional(),
-  cookieUri: z.string().optional(),
-  supportAddress: z.string().optional(),
-});
-
-const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
-
-export const clientFESchema = z.object({
-  a11yUri: z.string().url().optional().nullable(),
-  backButtonEnabled: z.boolean().optional().default(false),
-  localizedContentMap: z.record(
-    z.union([z.literal('default'), z.string()]),
-    ThemeLocalizedSchema
-  ),
-});
-
 export type Languages = z.infer<typeof LanguagesSchema>;
 export type Client = z.infer<typeof clientSchema>;
-export type ClientFE = z.infer<typeof clientFESchema>;
 export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
 export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
-export type ClientFEErrors = z.inferFormattedError<typeof clientFESchema>;
 export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
 export type IdpUser = z.infer<typeof idpUserSchema>;
 export type IdpUserList = z.infer<typeof idpUserListSchema>;
@@ -171,20 +173,14 @@ export type IdpUserCreateOrUpdateResponse = z.infer<
   typeof idpUserCreateOrUpdateResponseSchema
 >;
 
-export type ClientFormData = Omit<
-  Client,
-  | 'client_id'
-  | 'client_secret'
-  | 'client_id_issued_at'
-  | 'client_secret_expires_at'
->;
-
 export type ClientRegisteredData = Pick<
   Client,
-  | 'client_id'
-  | 'client_secret'
-  | 'client_id_issued_at'
-  | 'client_secret_expires_at'
+  'clientId' | 'clientSecret' | 'clientIdIssuedAt' | 'clientSecretExpiresAt'
+>;
+
+export type ClientWithoutSensitiveData = Omit<
+  Client,
+  'clientId' | 'clientSecret' | 'clientIdIssuedAt' | 'clientSecretExpiresAt'
 >;
 
 export const allLanguages: Record<Languages, string> = {
@@ -194,10 +190,6 @@ export const allLanguages: Record<Languages, string> = {
   sl: 'Slovenščina',
   fr: 'Français',
 };
-
-export type RegisterClientRequest = {
-  // Fields that can be submitted in the form
-} & Omit<Client, 'client_id' | 'client_secret'>;
 
 export type LoginError = {
   message: string;

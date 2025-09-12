@@ -42,10 +42,14 @@ export const FormArrayTextField = ({
   };
 
   const handleDeleteTextField = (index: number) => {
-    setData(data.filter((_, i) => i !== index));
+    const newData = data.filter((_, i) => i !== index);
+    setData(newData);
+
+    // remove empty string
+    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: data.filter((_, i) => i !== index),
+      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
     }));
   };
 
@@ -55,11 +59,15 @@ export const FormArrayTextField = ({
   ) => {
     const newData = data.map((uri, i) => (i === index ? e.target.value : uri));
     setData(newData);
+
+    // remove empty string
+    const cleaned = newData.filter((v) => v.trim() !== '');
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: newData,
+      [fieldName]: cleaned.length > 0 ? cleaned : undefined,
     }));
   };
+
   return (
     <Grid container sx={{ p: 5, border: '1px dashed grey' }}>
       <InputLabel>{label}</InputLabel>
@@ -70,11 +78,14 @@ export const FormArrayTextField = ({
               key={index}
               label={`${label} ${index + 1}`}
               value={value}
-              sx={{ width: '100%', m: 0 }}
+              sx={{ width: '100%', m: 0, mt: index === 0 ? 0 : 1 }}
               InputProps={{
                 endAdornment: index >= 1 && (
                   <InputAdornment position="start">
-                    <Delete onClick={() => handleDeleteTextField(index)} />
+                    <Delete
+                      onClick={() => handleDeleteTextField(index)}
+                      sx={{ cursor: 'pointer' }}
+                    />
                   </InputAdornment>
                 ),
               }}

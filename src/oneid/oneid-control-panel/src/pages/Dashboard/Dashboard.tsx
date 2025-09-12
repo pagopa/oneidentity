@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -7,34 +7,38 @@ import {
   Select,
   MenuItem,
   FormControl,
+  FormGroup,
   InputLabel,
   OutlinedInput,
   CircularProgress,
   Alert,
   Chip,
   FormHelperText,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
 import {
   SpidLevel,
   SamlAttribute,
-  Client,
   ClientErrors,
+  ClientWithoutSensitiveData,
 } from '../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
 import { Notify } from '../../components/Notify';
-import { useClient } from '../../hooks/useClient';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
-import { ROUTE_PATH } from '../../utils/constants';
+import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
+import * as Storage from '../../utils/storage';
+import { isNil } from 'lodash';
+import { clientDataWithoutSensitiveData } from '../../utils/client';
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const { client_id } = useParams(); // Get the client_id from the URL
-  const [formData, setFormData] = useState<Partial<Client> | null>(null);
+  const [formData, setFormData] =
+    useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const { isModalOpen, openModal, closeModal } = useModalManager();
@@ -51,35 +55,29 @@ export const Dashboard = () => {
       mutate: createOrUpdateClient,
       error: updateError,
       isPending: isUpdating,
+      isSuccess: isUpdated,
     },
-  } = useRegister(client_id);
+  } = useRegister();
 
-  const {
-    setCognitoProfile: {
-      data: cognitoUpdated,
-      mutate: setCognitoProfile,
-      error: cognitoError,
-    },
-  } = useClient();
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    if (fetchedClientData) {
-      setFormData({ ...fetchedClientData, client_id });
-    }
-  }, [client_id, fetchedClientData]);
+    if (isUpdatePhase && fetchedClientData) {
+      setFormData(clientDataWithoutSensitiveData(fetchedClientData));
 
-  const updateCognitoMapping = useCallback(() => {
-    if (
-      clientUpdated?.client_id &&
-      typeof clientUpdated.client_id === 'string' &&
-      user?.profile.sub &&
-      user?.id_token
-    ) {
-      setCognitoProfile({
-        clientId: clientUpdated.client_id,
-      });
+      if (
+        fetchedClientData.clientId &&
+        fetchedClientData.clientId !==
+          Storage.storageRead(sessionStorageClientIdKey, 'string')
+      ) {
+        Storage.storageWrite(
+          sessionStorageClientIdKey,
+          fetchedClientData.clientId,
+          'string'
+        );
+      }
     }
-  }, [clientUpdated, setCognitoProfile, user?.id_token, user?.profile.sub]);
+  }, [isUpdatePhase, fetchedClientData]);
 
   useEffect(() => {
     if (updateError) {
@@ -91,86 +89,82 @@ export const Dashboard = () => {
         severity: 'error',
       });
     }
-    if (clientUpdated) {
+    if (isUpdated) {
       setErrorUi(null);
+      const message = isCreating
+        ? 'Client created successfully'
+        : 'Client updated successfully';
       setNotify({
         open: true,
-        message: 'Client updated successfully, id: ' + clientUpdated.client_id,
+        message: message,
         severity: 'success',
       });
 
-      // Associate the client with the user in Cognito if not in update phase
+      // Save client id retrieved from api to session storage
       if (!isUpdatePhase) {
-        updateCognitoMapping();
+        const clientId = clientUpdated?.clientId;
+        if (!isNil(clientId) && typeof clientId === 'string') {
+          Storage.storageWrite(sessionStorageClientIdKey, clientId, 'string');
+        } else {
+          console.error('clientId is not a valid value:', clientId);
+        }
       }
-      // before redirecting we need to show a modal with client_id and client_secret
+      // before redirecting we need to show a modal with clientId and clientSecret
       // open only if it is in creation phase, not an update
       if (!isUpdatePhase) {
         openModal('secretViewer');
       }
     }
-  }, [
-    updateError,
-    clientUpdated,
-    updateCognitoMapping,
-    isUpdatePhase,
-    openModal,
-  ]);
-
-  useEffect(() => {
-    // If everything is ok, redirect to the dashboard's client in edit mode
-    if (cognitoUpdated) {
-      setErrorUi(null);
-      setNotify({
-        open: true,
-        message:
-          'Cognito updated successfully, id: ' + clientUpdated?.client_id,
-        severity: 'success',
-      });
-    }
-
-    if (cognitoError) {
-      setNotify({
-        open: true,
-        message: 'Error updating cognito',
-        severity: 'error',
-      });
-    }
-  }, [clientUpdated?.client_id, cognitoError, cognitoUpdated, openModal]);
+  }, [updateError, isUpdated, clientUpdated, isUpdatePhase, openModal]);
 
   const isFormValid = () => {
+    // TODO: if clientSchema inside api.ts is adjusted to reflect the actual optional and required fields, we can use:
+    // const isFormValid = () => clientSchema.safeParse(formData).success;
     return (
-      !!formData?.client_name &&
-      !!formData?.redirect_uris?.length &&
-      !!formData?.default_acr_values?.length &&
-      !!formData?.saml_requested_attributes?.length
+      !!formData?.clientName &&
+      !!formData?.redirectUris?.length &&
+      !!formData?.defaultAcrValues?.length &&
+      !!formData?.samlRequestedAttributes?.length
     );
   };
 
   const handleCloseSecretModal = () => {
     // TODO check cognito status before redirecting
     closeModal(() => {
-      window.location.assign(
-        `${ROUTE_PATH.DASHBOARD}/${clientUpdated?.client_id}`
-      );
+      window.location.assign(`${ROUTE_PATH.DASHBOARD}`);
     });
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
+    } else {
+      const existingClientId =
+        fetchedClientData?.clientId ||
+        Storage.storageRead(sessionStorageClientIdKey, 'string');
+      setIsCreating(!existingClientId);
+      createOrUpdateClient({
+        data: formData as ClientWithoutSensitiveData,
+        clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
+      });
     }
-
-    createOrUpdateClient({
-      data: formData as Omit<Client, 'client_id' | 'client_secret'>,
-      clientId: client_id,
-    });
   };
 
   const handleChange =
-    (field: keyof Client) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    (field: keyof ClientWithoutSensitiveData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value, type, checked } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [field]:
+          type === 'checkbox'
+            ? checked
+            : value?.trim() === '' // treat empty string as undefined (user can remove a field)
+              ? undefined
+              : value,
+      }));
     };
 
   if (isLoadingClient) {
@@ -183,7 +177,8 @@ export const Dashboard = () => {
 
   return (
     <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-      {fetchError && (
+      {/* if client not found show creation page and don't show error alert */}
+      {fetchError && fetchError.message !== 'Client not found' && (
         <Box sx={{ mt: 4 }}>
           <Alert severity="error">
             {fetchError instanceof Error
@@ -198,13 +193,13 @@ export const Dashboard = () => {
         onClose={handleCloseSecretModal}
         open={isModalOpen('secretViewer')}
         data={{
-          client_id:
-            typeof clientUpdated?.client_id === 'string'
-              ? clientUpdated.client_id
+          clientId:
+            typeof clientUpdated?.clientId === 'string'
+              ? clientUpdated.clientId
               : 'error',
-          client_secret:
-            typeof clientUpdated?.client_secret === 'string'
-              ? clientUpdated.client_secret
+          clientSecret:
+            typeof clientUpdated?.clientSecret === 'string'
+              ? clientUpdated.clientSecret
               : 'error',
         }}
       />
@@ -225,7 +220,7 @@ export const Dashboard = () => {
           hidden
           fullWidth
           label="Client ID"
-          value={formData?.client_id || ''}
+          value={fetchedClientData?.clientId || ''}
           disabled
           margin="normal"
         />
@@ -234,53 +229,53 @@ export const Dashboard = () => {
           fullWidth
           required
           label="Client Name"
-          value={formData?.client_name || ''}
-          onChange={handleChange('client_name')}
+          value={formData?.clientName || ''}
+          onChange={handleChange('clientName')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.client_name?._errors}
-          helperText={(errorUi as ClientErrors)?.client_name?._errors}
+          error={!!(errorUi as ClientErrors)?.clientName?._errors}
+          helperText={(errorUi as ClientErrors)?.clientName?._errors}
         />
 
         <TextField
           fullWidth
           label="Logo URI"
-          value={formData?.logo_uri || ''}
-          onChange={handleChange('logo_uri')}
+          value={formData?.logoUri || ''}
+          onChange={handleChange('logoUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.logo_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.logo_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.logoUri?._errors}
+          helperText={(errorUi as ClientErrors)?.logoUri?._errors}
         />
 
         <TextField
           fullWidth
           label="Policy URI"
-          value={formData?.policy_uri || ''}
-          onChange={handleChange('policy_uri')}
+          value={formData?.policyUri || ''}
+          onChange={handleChange('policyUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.policy_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.policy_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.policyUri?._errors}
+          helperText={(errorUi as ClientErrors)?.policyUri?._errors}
         />
 
         <TextField
           fullWidth
           label="Terms of Service URI"
-          value={formData?.tos_uri || ''}
-          onChange={handleChange('tos_uri')}
+          value={formData?.tosUri || ''}
+          onChange={handleChange('tosUri')}
           margin="normal"
-          error={!!(errorUi as ClientErrors)?.tos_uri?._errors}
-          helperText={(errorUi as ClientErrors)?.tos_uri?._errors}
+          error={!!(errorUi as ClientErrors)?.tosUri?._errors}
+          helperText={(errorUi as ClientErrors)?.tosUri?._errors}
         />
 
         <FormControl
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as ClientErrors)?.redirect_uris?._errors}
+          error={!!(errorUi as ClientErrors)?.redirectUris?._errors}
         >
           <FormArrayTextField
             formData={formData}
             setFormData={setFormData}
-            fieldName="redirect_uris"
+            fieldName="redirectUris"
             label="Redirect URIs"
             errors={errorUi as ClientErrors}
           />
@@ -290,14 +285,14 @@ export const Dashboard = () => {
           fullWidth
           margin="normal"
           required
-          error={!!(errorUi as ClientErrors)?.default_acr_values?._errors}
+          error={!!(errorUi as ClientErrors)?.defaultAcrValues?._errors}
         >
           <InputLabel id="spid-level-label">SPID Level</InputLabel>
           <Select
             labelId="spid-level-label"
             id="spid-level-select"
             multiple
-            value={formData?.default_acr_values || []}
+            value={formData?.defaultAcrValues || []}
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {selected.map((value) => (
@@ -314,7 +309,7 @@ export const Dashboard = () => {
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                default_acr_values: e.target.value as Array<SpidLevel>,
+                defaultAcrValues: e.target.value as Array<SpidLevel>,
               }))
             }
             input={<OutlinedInput label={'SPID Level'} />}
@@ -327,27 +322,41 @@ export const Dashboard = () => {
             ))}
           </Select>
           <FormHelperText>
-            {(errorUi as ClientErrors)?.default_acr_values?._errors}
+            {(errorUi as ClientErrors)?.defaultAcrValues?._errors}
           </FormHelperText>
         </FormControl>
 
         <SamlAttributesSelectInput
-          attributeSelectValues={formData?.saml_requested_attributes}
+          attributeSelectValues={formData?.samlRequestedAttributes}
           onChangeFunction={(e) =>
             setFormData((prev) => ({
               ...prev,
-              saml_requested_attributes: e.target.value as Array<SamlAttribute>,
+              samlRequestedAttributes: e.target.value as Array<SamlAttribute>,
             }))
           }
           errorHelperText={
-            (errorUi as ClientErrors)?.saml_requested_attributes?._errors
+            (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
           }
         />
+
+        <FormGroup sx={{ mt: 2, mb: 1 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                sx={{ mr: 2, ml: 1 }}
+                name="requiredSameIdp"
+                checked={formData?.requiredSameIdp || false}
+                onChange={handleChange('requiredSameIdp')}
+              />
+            }
+            label="Required Same IDP"
+          />
+        </FormGroup>
 
         <Button
           type="submit"
           variant="contained"
-          sx={{ mt: 2 }}
+          sx={{ mt: 5 }}
           data-testid="submit-button"
           disabled={isUpdating || !isFormValid()}
         >

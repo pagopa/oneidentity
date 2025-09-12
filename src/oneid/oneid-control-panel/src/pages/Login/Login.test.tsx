@@ -10,7 +10,6 @@ export const mockAuthenticatedStatus = {
   isLoading: false,
   isAuthenticated: false,
   error: null as Error | null,
-  client_id: null as string | null,
 };
 
 export const getMockAuthStatus = () => {
@@ -48,8 +47,7 @@ describe('LoginForm', () => {
     Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
     vi.mock('react-oidc-context', () => ({
       useAuth: () => {
-        const { isLoading, isAuthenticated, error, client_id } =
-          getMockAuthStatus();
+        const { isLoading, isAuthenticated, error } = getMockAuthStatus();
         return {
           signinRedirect: vi.fn(),
           isLoading,
@@ -62,7 +60,6 @@ describe('LoginForm', () => {
             access_token: 'fake-token',
             profile: {
               email: 'test@example.com',
-              'custom:client_id': client_id,
             },
           },
         };
@@ -93,7 +90,6 @@ describe('LoginForm', () => {
 
   it('redirects to the dashboard/client_id after successful login', async () => {
     mockAuthenticatedStatus.isAuthenticated = true;
-    mockAuthenticatedStatus.client_id = 'mock-client-id';
     render(<LoginForm />, { wrapper: createWrapper() });
 
     const loginButton = screen.getByRole('button', { name: /Login/i });
@@ -101,9 +97,7 @@ describe('LoginForm', () => {
     fireEvent.click(loginButton);
 
     await waitFor(() => {
-      expect(global.window.location.assign).toHaveBeenCalledWith(
-        '/dashboard/mock-client-id'
-      );
+      expect(global.window.location.assign).toHaveBeenCalledWith('/dashboard');
     });
   });
 

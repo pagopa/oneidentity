@@ -33,52 +33,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Inject
   ClientConnectorImpl clientConnector;
 
-  @Override
-  public void patchClientRegistrationDTO(ClientRegistrationDTO source,
-      ClientRegistrationDTO target) {
-    if (source.getRedirectUris() != null) {
-      target.setRedirectUris(source.getRedirectUris());
-    }
-    if (source.getClientName() != null) {
-      target.setClientName(source.getClientName());
-    }
-    if (source.getDefaultAcrValues() != null) {
-      target.setDefaultAcrValues(source.getDefaultAcrValues());
-    }
-    if (source.getSamlRequestedAttributes() != null) {
-      target.setSamlRequestedAttributes(source.getSamlRequestedAttributes());
-    }
-    if (source.getLogoUri() != null) {
-      target.setLogoUri(source.getLogoUri());
-    }
-    if (source.getPolicyUri() != null) {
-      target.setPolicyUri(source.getPolicyUri());
-    }
-    if (source.getTosUri() != null) {
-      target.setTosUri(source.getTosUri());
-    }
-    if (source.getA11yUri() != null) {
-      target.setA11yUri(source.getA11yUri());
-    }
-    if (source.getLocalizedContentMap() != null) {
-      target.setLocalizedContentMap(source.getLocalizedContentMap());
-    }
-    if (source.getBackButtonEnabled() != null) {
-      target.setBackButtonEnabled(source.getBackButtonEnabled());
-    }
-    if (source.getRequiredSameIdp() != null) {
-      target.setRequiredSameIdp(source.getRequiredSameIdp());
-    }
-    if (source.getSpidMinors() != null) {
-      target.setSpidMinors(source.getSpidMinors());
-    }
-    if (source.getSpidProfessionals() != null) {
-      target.setSpidProfessionals(source.getSpidProfessionals());
-    }
-    if (source.getPairwise() != null) {
-      target.setPairwise(source.getPairwise());
-    }
-  }
 
   @Override
   public void validateClientRegistrationInfo(
