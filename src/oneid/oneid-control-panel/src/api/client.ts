@@ -181,7 +181,7 @@ export const updateClientUser = async (
     throw new Error(userIdMessage);
   }
   try {
-    const response = await api.put<IdpUserCreateOrUpdateResponse>(
+    const response = await api.patch<IdpUserCreateOrUpdateResponse>(
       `${ENDPOINT}/${userId}/${username}`,
       data,
       {
