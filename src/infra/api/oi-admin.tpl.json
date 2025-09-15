@@ -450,16 +450,7 @@
         ]
       }
     },
-    %{
-  if
-  strcontains(server_url,
-  "dev"
-  )
-  |
-  |
-  strcontains(server_url,
-  "uat"
-  )
+%{ if strcontains(server_url, "dev") || strcontains(server_url, "uat")
 }
 "/client-manager/client-users": {
 "post": {
