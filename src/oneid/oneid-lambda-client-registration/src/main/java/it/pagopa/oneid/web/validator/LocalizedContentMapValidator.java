@@ -55,7 +55,9 @@ public class LocalizedContentMapValidator implements
         return Stream.of(
             content.title(),
             content.description()
-        ).noneMatch(StringUtils::isBlank);
+        ).noneMatch(StringUtils::isBlank)
+            && content.title().length() >= 10
+            && content.description().length() >= 20;
       });
     });
   }

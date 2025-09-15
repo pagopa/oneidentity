@@ -31,12 +31,17 @@ class ClientRegistrationControllerTest {
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
     defaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null,
+            ""));
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -237,7 +242,7 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/user_id/{user_id}")
         .then()
-        .statusCode(401); // Unauthorized due to client not found
+        .statusCode(404); // NotFound due to client not found
   }
 
   //Update Client
@@ -249,12 +254,16 @@ class ClientRegistrationControllerTest {
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
     defaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint", "http://test.com", null,
+            ""));
     localizedContentMap.put("optional", optionalLangs);
 
     String clientId = "testClientId";
@@ -273,7 +282,9 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(
             Map.of("removeTheme",
                 Map.of("en",
-                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                    new Client.LocalizedContent("Title of minimum 10 characters",
+                        "Description of minimum 20 characters to pass the constraint",
+                        "http://test.com",
                         "test", "test")
                 )
             ))
