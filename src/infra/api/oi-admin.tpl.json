@@ -394,10 +394,12 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "userId": {
-                "type": "string",
-                "description": "The userId of the user who is requesting the client secret refresh. This is required to ensure that only authorized users can refresh the client secret.",
-                "example": "fake-user-id"
+              "schema": {
+                "userId": {
+                  "type": "string",
+                  "description": "The userId of the user who is requesting the client secret refresh. This is required to ensure that only authorized users can refresh the client secret.",
+                  "example": "fake-user-id"
+                }
               }
             }
           },
@@ -409,10 +411,12 @@
             "description": "Client secret refreshed successfully.",
             "content": {
               "application/json": {
-                "newClientSecret": {
-                  "type": "string",
-                  "description": "The new client secret that has been generated for the client.",
-                  "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b"
+                "schema": {
+                  "newClientSecret": {
+                    "type": "string",
+                    "description": "The new client secret that has been generated for the client.",
+                    "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b"
+                  }
                 }
               }
             }
