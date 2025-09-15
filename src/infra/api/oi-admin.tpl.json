@@ -1282,7 +1282,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/ClientAdditional"
+              "$ref": "#/components/schemas/ClientRegistration"
             }
           }
         }
@@ -1722,26 +1722,6 @@
       "Theme": {
         "type": "object",
         "minProperties": 1,
-        "properties": {
-          "it": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "en": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "de": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "sl": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "fr": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          }
-        }
-      },
-      "Language": {
-        "type": "object",
         "properties": {
           "it": {
             "$ref": "#/components/schemas/LocalizedContent"
