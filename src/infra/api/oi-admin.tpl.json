@@ -330,6 +330,17 @@
     },
     "/oidc/clients/{client_id}/secret/refresh": {
       "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "client_id",
+            "description": "the user_id of the cognito user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "tags": [
           "Authorization Server APIs"
         ],
@@ -435,1599 +446,1621 @@
         ]
       }
     },
-    %{ if strcontains(server_url,
-      "dev") || strcontains(server_url,
-      "uat")
-    }
-    "/client-manager/client-users": {
-      "post": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
-        "description": "This endpoint creates a user in the Internal IDP",
-        "operationId": "Post_admin_client_manager_client_users",
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
-          "responses": {
-            "201": {
-              "statusCode": "201",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "409": {
-              "statusCode": "409",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "summary": "Client Onboarding portal backend",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientUserCreateRequestBody"
-              }
-            }
-          },
-          "description": "Request body",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "$ref": "#/components/responses/responseOkNoContentJson"
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "409": {
-            "$ref": "#/components/responses/conflict"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ]
-      }
-    },
-    "/client-manager/client-users/{user_id}/{username}": {
-      "patch": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
-        "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
-        "operationId": "Patch_admin_client_manager_client_users",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "username",
-            "description": "username of the test user that is being updated",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "summary": "Client Onboarding portal backend",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClientUserUpdate"
-              }
-            }
-          },
-          "description": "Request body",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkNoContentJson"
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
-        "description": "This endpoint deletes a user in the Internal IDP",
-        "operationId": "Delete_admin_client_manager_client_users",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "username",
-            "description": "username of the test user that is being updated",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
-          "responses": {
-            "204": {
-              "statusCode": "204",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "summary": "Client Onboarding portal backend",
-        "responses": {
-          "204": {
-            "$ref": "#/components/responses/responseOkNoContentJson"
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ]
-      }
-    },
-    "/client-manager/client-users/{user_id}": {
-      "get": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
-        "operationId": "Get_admin_client_manager_client_users",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "description": "Limit the number of results returned, max 50",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "minimum": 1,
-              "maximum": 50
-            }
-          },
-          {
-            "in": "query",
-            "name": "last_evaluated_key",
-            "description": "Last evaluated key for pagination",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "summary": "Client Onboarding portal backend",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkUsersJson"
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ]
-      }
-    },
-    %{endif
-    }
-    "/": {
-      "post": {
-        "tags": [
-          "Admin control panel oidc callback api"
-        ],
-        "description": "This route will serve the admin control panel oidc callback api",
-        "parameters": [
-          {
-            "name": "client_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "response_type",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge_method",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "POST",
-          "uri": "${assets_bucket_control_panel_uri}/index.html",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {
-            "integration.request.querystring.client_id": "method.request.querystring.client_id",
-            "integration.request.querystring.response_type": "method.request.querystring.response_type",
-            "integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
-            "integration.request.querystring.scope": "method.request.querystring.scope",
-            "integration.request.querystring.state": "method.request.querystring.state",
-            "integration.request.querystring.code_challenge": "method.request.querystring.code_challenge",
-            "integration.request.querystring.code_challenge_method": "method.request.querystring.code_challenge_method"
-          },
-          "responseParameters": {},
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Admin control panel home page"
-        ],
-        "description": "This route will serve the admin control panel home page",
-        "parameters": [],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_control_panel_uri}/index.html",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {},
-          "responseParameters": {},
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      }
-    },
-    "/dashboard": {
-      "get": {
-        "tags": [
-          "Admin control panel dashboard page"
-        ],
-        "description": "This route will serve the admin control panel dashboard page",
-        "parameters": [],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_control_panel_uri}/index.html",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {},
-          "responseParameters": {},
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      }
-    },
-    "/dashboard/{clientid+}": {
-      "get": {
-        "tags": [
-          "Admin control panel dashboard client page"
-        ],
-        "description": "This route will serve the admin control panel dashboard client page",
-        "parameters": [
-          {
-            "name": "clientid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_control_panel_uri}/index.html",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {},
-          "responseParameters": {},
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      }
-    },
-    "/assets/{proxy+}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "proxy",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "headers": {
-              "Content-Type": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Length": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Security-Policy": {
-                "type": "string"
-              }
-            },
-            "content": {}
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        },
-        "x-amazon-apigateway-integration": {
-          "type": "aws",
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_control_panel_uri}/assets/{proxy}",
-          "responses": {
-            "default": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.Content-Type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          },
-          "requestParameters": {
-            "integration.request.path.proxy": "method.request.path.proxy"
-          },
-          "passthroughBehavior": "when_no_match",
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ]
-        }
-      }
-    }
-  },
-  "components": {
-    "responses": {
-      "responseOkNoContentJson": {
-        "description": "Response Ok, No Content",
-        "headers": {
-          "content-type": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "responseOkClientAdditionalJson": {
-        "description": "Response Ok, No Content",
-        "headers": {
-          "content-type": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ClientRegistration"
-            }
-          }
-        }
-      },
-      "responseOkUsersJson": {
-        "description": "Users list",
-        "headers": {
-          "content-type": {
-            "application/json": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          }
-        },
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "users": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClientUserCreate"
-                  }
-                },
-                "last_evaluated_key": {
-                  "type": "string",
-                  "description": "Last evaluated key for pagination"
-                }
-              }
-            }
-          }
-        }
-      },
-      "responseOkHtml": {
-        "description": "OK",
-        "headers": {
-          "location": {
-            "description": "Response OK, serving html",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "content-type": {
-            "text/html": {
-              "schema": {
-                "type": "string"
-              }
-            }
-          },
-          "Content-Security-Policy": {
-            "type": "string"
-          }
-        },
-        "content": {
-          "text/html": {
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "methodNotAllowed": {
-        "description": "The HTTP method is not valid",
-        "headers": {
-          "Allow": {
-            "description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
-            "schema": {
-              "type": "string",
-              "default": "GET"
-            }
-          },
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "unsupportedMediaType": {
-        "description": "The HTTP 415 Unsupported Media Type client error response code indicates that the origin server refuses a particular request because the resource is in a format not supported by the server for HTTP method used.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        }
-      },
-      "notAcceptable": {
-        "description": "The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        }
-      },
-      "rateLimit": {
-        "description": "Too many requests",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "badRequest": {
-        "description": "Bad request",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "unauthorized": {
-        "description": "The client could not be authenticated.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "forbidden": {
-        "description": "Forbidden.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "conflict": {
-        "description": "Conflict.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "invalidParameters": {
-        "description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          },
-          "content-type": {
-            "description": "Content type response.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "notFound": {
-        "description": "Not Found.",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      },
-      "serverError": {
-        "description": "unknown error",
-        "headers": {
-          "Pragma": {
-            "description": "Pragma browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-cache"
-            }
-          },
-          "Cache-Control": {
-            "description": "Cache-Control browser directive",
-            "schema": {
-              "type": "string",
-              "default": "no-store"
-            }
-          }
-        },
-        "content-type": {
-          "description": "Content type response.",
-          "schema": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "schemas": {
-      "ClientRegistration": {
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "description": "The userId of the cognito user"
-          },
-          "redirectUris": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "https://client.example.org/callback",
-              "https://client.example.org/callback2"
-            ]
-          },
-          "clientName": {
-            "type": "string",
-            "example": "https://example.org"
-          },
-          "logoUri": {
-            "type": "string",
-            "description": "The RP logo URI",
-            "example": "https://example.org/logo.png"
-          },
-          "policyUri": {
-            "type": "string",
-            "description": "The privacy policy URI",
-            "example": "https://example.org/policy"
-          },
-          "tosUri": {
-            "type": "string",
-            "description": "The terms of service URI",
-            "example": "https://example.org/tos"
-          },
-          "defaultAcrValues": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "list of the Authentication Context Class References that this RP supports",
-            "example": [
-              "https://www.spid.gov.it/SpidL1",
-              "https://www.spid.gov.it/SpidL2",
-              "https://www.spid.gov.it/SpidL3"
-            ]
-          },
-          "samlRequestedAttributes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-            "example": [
-              "spidCode",
-              "name",
-              "familyName",
-              "fiscalNumber"
-            ]
-          },
-          "requiredSameIdp": {
-            "type": "boolean",
-            "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
-            "default": false
-          },
-          "a11yUri": {
-            "type": "string",
-            "description": "Accessibility URI",
-            "example": "https://example.org/tos"
-          },
-          "backButtonEnabled": {
-            "type": "boolean",
-            "description": "Boolean which enables the display of the back button in the login page",
-            "example": "https://example.org/tos"
-          },
-          "localizedContentMap": {
-            "type": "object",
-            "description": "Map for localized content for each language",
-            "example": "https://example.org/tos",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Theme"
-            }
-          },
-          "spidMinors": {
-            "type": "boolean",
-            "description": "Whether the client supports spid for minors",
-            "example": "https://example.org/tos"
-          },
-          "spidProfessionals": {
-            "type": "boolean",
-            "description": " Whether the client supports spid for professionals",
-            "example": "https://example.org/tos"
-          },
-          "pairwise": {
-            "type": "boolean",
-            "description": "If true, the client will use pairwise subject identifier",
-            "example": "https://example.org/tos"
-          }
-        }
-      },
-      "Theme": {
-        "type": "object",
-        "minProperties": 1,
-        "properties": {
-          "it": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "en": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "de": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "sl": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          },
-          "fr": {
-            "$ref": "#/components/schemas/LocalizedContent"
-          }
-        }
-      },
-      "LocalizedContent": {
-        "type": "object",
-        "required": [
-          "title",
-          "description"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "The displayed title"
-          },
-          "description": {
-            "type": "string",
-            "description": "The displayed description"
-          },
-          "docUri": {
-            "type": "string",
-            "description": "The docUri"
-          },
-          "supportAddress": {
-            "type": "string",
-            "description": "The support address"
-          },
-          "cookieUri": {
-            "type": "string",
-            "description": "The cookieUri"
-          }
-        }
-      },
-      "ClientRegistrationResponse": {
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "string",
-            "description": "The userId of the cognito user"
-          },
-          "redirectUris": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "https://client.example.org/callback",
-              "https://client.example.org/callback2"
-            ]
-          },
-          "clientName": {
-            "type": "string",
-            "example": "https://example.org"
-          },
-          "logoUri": {
-            "type": "string",
-            "description": "The RP logo URI",
-            "example": "https://example.org/logo.png"
-          },
-          "policyUri": {
-            "type": "string",
-            "description": "The privacy policy URI",
-            "example": "https://example.org/policy"
-          },
-          "tosUri": {
-            "type": "string",
-            "description": "The terms of service URI",
-            "example": "https://example.org/tos"
-          },
-          "defaultAcrValues": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "list of the Authentication Context Class References that this RP supports",
-            "example": [
-              "https://www.spid.gov.it/SpidL1",
-              "https://www.spid.gov.it/SpidL2",
-              "https://www.spid.gov.it/SpidL3"
-            ]
-          },
-          "samlRequestedAttributes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
-            "example": [
-              "spidCode",
-              "name",
-              "familyName",
-              "fiscalNumber"
-            ]
-          },
-          "requiredSameIdp": {
-            "type": "boolean",
-            "description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
-            "default": false
-          },
-          "clientId": {
-            "type": "string",
-            "example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
-            "description": "The registered client_id"
-          },
-          "clientSecret": {
-            "type": "string",
-            "example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
-            "description": "The registered client_secret"
-          },
-          "clientIdIssuedAt": {
-            "type": "integer",
-            "example": 1497455914,
-            "description": "The timestamp in seconds indicating the time of registration"
-          },
-          "clientSecretExpiresAt": {
-            "type": "integer",
-            "example": 0,
-            "description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
-          },
-          "a11yUri": {
-            "type": "string",
-            "description": "Accessibility URI",
-            "example": "https://example.org/tos"
-          },
-          "backButtonEnabled": {
-            "type": "boolean",
-            "description": "Boolean which enables the display of the back button in the login page",
-            "example": "https://example.org/tos"
-          },
-          "localizedContentMap": {
-            "type": "object",
-            "description": "Map for localized content for each language",
-            "example": "https://example.org/tos",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/Theme"
-            }
-          },
-          "spidMinors": {
-            "type": "boolean",
-            "description": "Whether the client supports spid for minors",
-            "example": "https://example.org/tos"
-          },
-          "spidProfessionals": {
-            "type": "boolean",
-            "description": " Whether the client supports spid for professionals",
-            "example": "https://example.org/tos"
-          },
-          "pairwise": {
-            "type": "boolean",
-            "description": "If true, the client will use pairwise subject identifier",
-            "example": "https://example.org/tos"
-          }
-        }
-      },
-      "SamlAttributes": {
-        "type": "object",
-        "properties": {
-          "spidCode": {
-            "type": "string",
-            "description": "The SPID code of the user."
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the user."
-          },
-          "familyName": {
-            "type": "string",
-            "description": "The family name of the user."
-          },
-          "placeOfBirth": {
-            "type": "string",
-            "description": "The place of birth of the user."
-          },
-          "countyOfBirth": {
-            "type": "string",
-            "description": "The county of birth of the user."
-          },
-          "dateOfBirth": {
-            "type": "string",
-            "description": "The date of birth of the user."
-          },
-          "gender": {
-            "type": "string",
-            "description": "The gender of the user."
-          },
-          "companyName": {
-            "type": "string",
-            "description": "The name of the company associated with the user."
-          },
-          "registeredOffice": {
-            "type": "string",
-            "description": "The registered office of the company."
-          },
-          "fiscalNumber": {
-            "type": "string",
-            "description": "The fiscal number of the user."
-          },
-          "ivaCode": {
-            "type": "string",
-            "description": "The IVA code of the user."
-          },
-          "idCard": {
-            "type": "string",
-            "description": "The ID card number of the user."
-          },
-          "mobilePhone": {
-            "type": "string",
-            "description": "The mobile phone number of the user."
-          },
-          "email": {
-            "type": "string",
-            "description": "The email address of the user."
-          },
-          "address": {
-            "type": "string",
-            "description": "The address of the user."
-          },
-          "expirationDate": {
-            "type": "string",
-            "description": "The expiration date of the user's document or session."
-          },
-          "digitalAddress": {
-            "type": "string",
-            "description": "The digital address of the user."
-          },
-          "domicileAddress": {
-            "type": "string",
-            "description": "The domicile address of the user."
-          },
-          "domicilePlace": {
-            "type": "string",
-            "description": "The domicile place of the user."
-          },
-          "domicilePostalCode": {
-            "type": "string",
-            "description": "The domicile postal code of the user."
-          },
-          "domicileProvince": {
-            "type": "string",
-            "description": "The domicile province of the user."
-          },
-          "domicileCountry": {
-            "type": "string",
-            "description": "The domicile country of the user."
-          },
-          "qualification": {
-            "type": "string",
-            "description": "The qualification of the user."
-          },
-          "commonName": {
-            "type": "string",
-            "description": "The common name of the user."
-          },
-          "surname": {
-            "type": "string",
-            "description": "The surname of the user."
-          },
-          "givenName": {
-            "type": "string",
-            "description": "The given name of the user."
-          },
-          "preferredUsername": {
-            "type": "string",
-            "description": "The preferred username of the user."
-          },
-          "title": {
-            "type": "string",
-            "description": "The title of the user."
-          },
-          "userCertificate": {
-            "type": "string",
-            "description": "The user certificate."
-          },
-          "employeeNumber": {
-            "type": "string",
-            "description": "The employee number of the user."
-          },
-          "orgUnitName": {
-            "type": "string",
-            "description": "The organizational unit name of the user."
-          },
-          "preferredLanguage": {
-            "type": "string",
-            "description": "The preferred language of the user."
-          },
-          "country": {
-            "type": "string",
-            "description": "The country of the user."
-          },
-          "stateOrProvince": {
-            "type": "string",
-            "description": "The state or province of the user."
-          },
-          "city": {
-            "type": "string",
-            "description": "The city of the user."
-          },
-          "postalCode": {
-            "type": "string",
-            "description": "The postal code of the user."
-          },
-          "street": {
-            "type": "string",
-            "description": "The street address of the user."
-          }
-        }
-      },
-      "ClientUserCreate": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "description": "The username of the user to be created."
-          },
-          "password": {
-            "type": "string",
-            "description": "The password of the user to be created."
-          },
-          "samlAttributes": {
-            "type": "object",
-            "properties": {
-              "schema": {
-                "$ref": "#/components/schemas/SamlAttributes"
-              }
-            }
-          }
-        }
-      },
-      "ClientUserCreateRequestBody": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string",
-            "description": "The username of the user to be created."
-          },
-          "password": {
-            "type": "string",
-            "description": "The password of the user to be created."
-          },
-          "samlAttributes": {
-            "type": "object",
-            "properties": {
-              "schema": {
-                "$ref": "#/components/schemas/SamlAttributes"
-              }
-            }
-          },
-          "user_id": {
-            "type": "string",
-            "description": "The user_id that is associated to the currently logged in user"
-          }
-        }
-      },
-      "ClientUserUpdate": {
-        "type": "object",
-        "properties": {
-          "samlAttributes": {
-            "type": "object",
-            "properties": {
-              "schema": {
-                "$ref": "#/components/schemas/SamlAttributes"
-              }
-            }
-          }
-        }
-      },
-      "securitySchemes": {
-        "openId": {
-          "type": "openIdConnect",
-          "openIdConnectUrl": "/.well-known/openid-configuration"
-        },
-        "api_key": {
-          "type": "apiKey",
-          "name": "x-api-key",
-          "in": "header"
-        },
-        "${ authorizer }": {
-          "type": "apiKey",
-          "name": "Authorization",
-          "in": "header",
-          "x-amazon-apigateway-authtype": "cognito_user_pools",
-          "x-amazon-apigateway-authorizer": {
-            "type": "cognito_user_pools",
-            "providerARNs": [
-              "${ provider_arn }"
-            ]
-          }
-        }
-      }
-    }
-  }
+    %{
+  if
+  strcontains(server_url,
+  "dev"
+  )
+  |
+  |
+  strcontains(server_url,
+  "uat"
+  )
+}
+"/client-manager/client-users": {
+"post": {
+"tags": [
+"Admin Client Manager APIs"
+],
+"description": "This endpoint creates a user in the Internal IDP",
+"operationId": "Post_admin_client_manager_client_users",
+"x-amazon-apigateway-integration": {
+"credentials": "${lambda_apigateway_proxy_role}",
+"passthroughBehavior": "when_no_match",
+"contentHandling": "CONVERT_TO_TEXT",
+"type": "aws_proxy",
+"httpMethod": "POST",
+"uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+"responses": {
+"201": {
+"statusCode": "201",
+"responseParameters": {
+"method.response.header.content-type": "'application/json'"
+}
+},
+"400": {
+"statusCode": "400",
+"responseParameters": {}
+},
+"401": {
+"statusCode": "401",
+"responseParameters": {}
+},
+"403": {
+"statusCode": "403",
+"responseParameters": {}
+},
+"405": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"409": {
+"statusCode": "409",
+"responseParameters": {}
+},
+"429": {
+"statusCode": "405",
+"responseParameters": {}
+},
+"500": {
+"statusCode": "500",
+"responseParameters": {}
+}
+}
+},
+"summary": "Client Onboarding portal backend",
+"requestBody": {
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/ClientUserCreateRequestBody"
+}
+}
+},
+"description": "Request body",
+"required": true
+},
+"responses": {
+"201": {
+"$ref": "#/components/responses/responseOkNoContentJson"
+},
+"400": {
+"$ref": "#/components/responses/invalidParameters"
+},
+"401": {
+"$ref": "#/components/responses/unauthorized"
+},
+"403": {
+"$ref": "#/components/responses/forbidden"
+},
+"405": {
+"$ref": "#/components/responses/methodNotAllowed"
+},
+"409": {
+"$ref": "#/components/responses/conflict"
+},
+"429": {
+"$ref": "#/components/responses/rateLimit"
+},
+"500": {
+"$ref": "#/components/responses/serverError"
+}
+},
+"security": [
+{
+"${authorizer}": []
+}
+]
+}
+},
+"/client-manager/client-users/{user_id}/{username}": {
+"patch": {
+"tags": [
+"Admin Client Manager APIs"
+],
+"description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
+"operationId": "Patch_admin_client_manager_client_users",
+"parameters": [
+{
+"in": "path",
+"name": "user_id",
+"description": "user_id that is associated to the currently logged in user",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"in": "path",
+"name": "username",
+"description": "username of the test user that is being updated",
+"required": true,
+"schema": {
+"type": "string"
+}
+}
+],
+"x-amazon-apigateway-integration": {
+"credentials": "${lambda_apigateway_proxy_role}",
+"passthroughBehavior": "when_no_match",
+"contentHandling": "CONVERT_TO_TEXT",
+"type": "aws_proxy",
+"httpMethod": "POST",
+"uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "'application/json'"
+}
+},
+"400": {
+"statusCode": "400",
+"responseParameters": {}
+},
+"401": {
+"statusCode": "401",
+"responseParameters": {}
+},
+"403": {
+"statusCode": "403",
+"responseParameters": {}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {
+}
+},
+"405": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"429": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"500": {
+"statusCode": "500",
+"responseParameters": {}
+}
+}
+},
+"summary": "Client Onboarding portal backend",
+"requestBody": {
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/ClientUserUpdate"
+}
+}
+},
+"description": "Request body",
+"required": true
+},
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkNoContentJson"
+},
+"400": {
+"$ref": "#/components/responses/invalidParameters"
+},
+"401": {
+"$ref": "#/components/responses/unauthorized"
+},
+"403": {
+"$ref": "#/components/responses/forbidden"
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+},
+"405": {
+"$ref": "#/components/responses/methodNotAllowed"
+},
+"429": {
+"$ref": "#/components/responses/rateLimit"
+},
+"500": {
+"$ref": "#/components/responses/serverError"
+}
+},
+"security": [
+{
+"${authorizer}": []
+}
+]
+},
+"delete": {
+"tags": [
+"Admin Client Manager APIs"
+],
+"description": "This endpoint deletes a user in the Internal IDP",
+"operationId": "Delete_admin_client_manager_client_users",
+"parameters": [
+{
+"in": "path",
+"name": "user_id",
+"description": "user_id that is associated to the currently logged in user",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"in": "path",
+"name": "username",
+"description": "username of the test user that is being updated",
+"required": true,
+"schema": {
+"type": "string"
+}
+}
+],
+"x-amazon-apigateway-integration": {
+"credentials": "${lambda_apigateway_proxy_role}",
+"passthroughBehavior": "when_no_match",
+"contentHandling": "CONVERT_TO_TEXT",
+"type": "aws_proxy",
+"httpMethod": "POST",
+"uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+"responses": {
+"204": {
+"statusCode": "204",
+"responseParameters": {
+"method.response.header.content-type": "'application/json'"
+}
+},
+"400": {
+"statusCode": "400",
+"responseParameters": {}
+},
+"401": {
+"statusCode": "401",
+"responseParameters": {}
+},
+"403": {
+"statusCode": "403",
+"responseParameters": {}
+},
+"405": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"429": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"500": {
+"statusCode": "500",
+"responseParameters": {
+}
+}
+}
+},
+"summary": "Client Onboarding portal backend",
+"responses": {
+"204": {
+"$ref": "#/components/responses/responseOkNoContentJson"
+},
+"400": {
+"$ref": "#/components/responses/invalidParameters"
+},
+"401": {
+"$ref": "#/components/responses/unauthorized"
+},
+"403": {
+"$ref": "#/components/responses/forbidden"
+},
+"405": {
+"$ref": "#/components/responses/methodNotAllowed"
+},
+"429": {
+"$ref": "#/components/responses/rateLimit"
+},
+"500": {
+"$ref": "#/components/responses/serverError"
+}
+},
+"security": [
+{
+"${authorizer}": []
+}
+]
+}
+},
+"/client-manager/client-users/{user_id}": {
+"get": {
+"tags": [
+"Admin Client Manager APIs"
+],
+"description": "This endpoint expose backend function for Client Onboarding Portal.",
+"operationId": "Get_admin_client_manager_client_users",
+"parameters": [
+{
+"in": "path",
+"name": "user_id",
+"description": "user_id that is associated to the currently logged in user",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"in": "query",
+"name": "limit",
+"description": "Limit the number of results returned, max 50",
+"required": false,
+"schema": {
+"type": "integer",
+"default": 10,
+"minimum": 1,
+"maximum": 50
+}
+},
+{
+"in": "query",
+"name": "last_evaluated_key",
+"description": "Last evaluated key for pagination",
+"required": false,
+"schema": {
+"type": "string"
+}
+}
+],
+"x-amazon-apigateway-integration": {
+"credentials": "${lambda_apigateway_proxy_role}",
+"passthroughBehavior": "when_no_match",
+"contentHandling": "CONVERT_TO_TEXT",
+"type": "aws_proxy",
+"httpMethod": "POST",
+"uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "'application/json'"
+}
+},
+"400": {
+"statusCode": "400",
+"responseParameters": {}
+},
+"401": {
+"statusCode": "401",
+"responseParameters": {}
+},
+"403": {
+"statusCode": "403",
+"responseParameters": {}
+},
+"405": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"429": {
+"statusCode": "405",
+"responseParameters": {
+}
+},
+"500": {
+"statusCode": "500",
+"responseParameters": {
+}
+}
+}
+},
+"summary": "Client Onboarding portal backend",
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkUsersJson"
+},
+"400": {
+"$ref": "#/components/responses/invalidParameters"
+},
+"401": {
+"$ref": "#/components/responses/unauthorized"
+},
+"403": {
+"$ref": "#/components/responses/forbidden"
+},
+"405": {
+"$ref": "#/components/responses/methodNotAllowed"
+},
+"429": {
+"$ref": "#/components/responses/rateLimit"
+},
+"500": {
+"$ref": "#/components/responses/serverError"
+}
+},
+"security": [
+{
+"${authorizer}": []
+}
+]
+}
+},
+%{endif
+}
+"/": {
+"post": {
+"tags": [
+"Admin control panel oidc callback api"
+],
+"description": "This route will serve the admin control panel oidc callback api",
+"parameters": [
+{
+"name": "client_id",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "redirect_uri",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "response_type",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "scope",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "state",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "code_challenge",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+},
+{
+"name": "code_challenge_method",
+"in": "query",
+"required": true,
+"schema": {
+"type": "string"
+}
+}
+],
+"x-amazon-apigateway-integration": {
+"credentials": "${s3_apigateway_proxy_role}",
+"httpMethod": "POST",
+"uri": "${assets_bucket_control_panel_uri}/index.html",
+"type": "aws",
+"passthroughBehavior": "WHEN_NO_TEMPLATES",
+"requestParameters": {
+"integration.request.querystring.client_id": "method.request.querystring.client_id",
+"integration.request.querystring.response_type": "method.request.querystring.response_type",
+"integration.request.querystring.redirect_uri": "method.request.querystring.redirect_uri",
+"integration.request.querystring.scope": "method.request.querystring.scope",
+"integration.request.querystring.state": "method.request.querystring.state",
+"integration.request.querystring.code_challenge": "method.request.querystring.code_challenge",
+"integration.request.querystring.code_challenge_method": "method.request.querystring.code_challenge_method"
+},
+"responseParameters": {
+},
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "integration.response.header.Content-Type"
+}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {}
+}
+}
+},
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkHtml"
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+}
+}
+},
+"get": {
+"tags": [
+"Admin control panel home page"
+],
+"description": "This route will serve the admin control panel home page",
+"parameters": [],
+"x-amazon-apigateway-integration": {
+"credentials": "${s3_apigateway_proxy_role}",
+"httpMethod": "GET",
+"uri": "${assets_bucket_control_panel_uri}/index.html",
+"type": "aws",
+"passthroughBehavior": "WHEN_NO_TEMPLATES",
+"requestParameters": {},
+"responseParameters": {
+},
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "integration.response.header.Content-Type"
+}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {}
+}
+}
+},
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkHtml"
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+}
+}
+}
+},
+"/dashboard": {
+"get": {
+"tags": [
+"Admin control panel dashboard page"
+],
+"description": "This route will serve the admin control panel dashboard page",
+"parameters": [],
+"x-amazon-apigateway-integration": {
+"credentials": "${s3_apigateway_proxy_role}",
+"httpMethod": "GET",
+"uri": "${assets_bucket_control_panel_uri}/index.html",
+"type": "aws",
+"passthroughBehavior": "WHEN_NO_TEMPLATES",
+"requestParameters": {},
+"responseParameters": {
+},
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "integration.response.header.Content-Type",
+"method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {}
+}
+}
+},
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkHtml"
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+}
+}
+}
+},
+"/dashboard/{clientid+}": {
+"get": {
+"tags": [
+"Admin control panel dashboard client page"
+],
+"description": "This route will serve the admin control panel dashboard client page",
+"parameters": [
+{
+"name": "clientid",
+"in": "path",
+"required": true,
+"schema": {
+"type": "string"
+}
+}
+],
+"x-amazon-apigateway-integration": {
+"credentials": "${s3_apigateway_proxy_role}",
+"httpMethod": "GET",
+"uri": "${assets_bucket_control_panel_uri}/index.html",
+"type": "aws",
+"passthroughBehavior": "WHEN_NO_TEMPLATES",
+"requestParameters": {},
+"responseParameters": {
+},
+"responses": {
+"200": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.content-type": "integration.response.header.Content-Type",
+"method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {}
+}
+}
+},
+"responses": {
+"200": {
+"$ref": "#/components/responses/responseOkHtml"
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+}
+}
+}
+},
+"/assets/{proxy+}": {
+"get": {
+"parameters": [
+{
+"name": "proxy",
+"in": "path",
+"required": true,
+"schema": {
+"type": "string"
+}
+}
+],
+"responses": {
+"200": {
+"description": "200 response",
+"headers": {
+"Content-Type": {
+"schema": {
+"type": "string"
+}
+},
+"Content-Length": {
+"schema": {
+"type": "string"
+}
+},
+"Content-Security-Policy": {
+"type": "string"
+}
+},
+"content": {}
+},
+"404": {
+"$ref": "#/components/responses/notFound"
+}
+},
+"x-amazon-apigateway-integration": {
+"type": "aws",
+"credentials": "${s3_apigateway_proxy_role}",
+"httpMethod": "GET",
+"uri": "${assets_bucket_control_panel_uri}/assets/{proxy}",
+"responses": {
+"default": {
+"statusCode": "200",
+"responseParameters": {
+"method.response.header.Content-Type": "integration.response.header.Content-Type",
+"method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+}
+},
+"404": {
+"statusCode": "404",
+"responseParameters": {
+}
+}
+},
+"requestParameters": {
+"integration.request.path.proxy": "method.request.path.proxy"
+},
+"passthroughBehavior": "when_no_match",
+"cacheKeyParameters": [
+"method.request.path.proxy"
+]
+}
+}
+}
+},
+"components": {
+"responses": {
+"responseOkNoContentJson": {
+"description": "Response Ok, No Content",
+"headers": {
+"content-type": {
+"application/json": {
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"content": {
+"application/json": {
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"responseOkClientAdditionalJson": {
+"description": "Response Ok, No Content",
+"headers": {
+"content-type": {
+"application/json": {
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"content": {
+"application/json": {
+"schema": {
+"$ref": "#/components/schemas/ClientRegistration"
+}
+}
+}
+},
+"responseOkUsersJson": {
+"description": "Users list",
+"headers": {
+"content-type": {
+"application/json": {
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"content": {
+"application/json": {
+"schema": {
+"type": "object",
+"properties": {
+"users": {
+"type": "array",
+"items": {
+"$ref": "#/components/schemas/ClientUserCreate"
+}
+},
+"last_evaluated_key": {
+"type": "string",
+"description": "Last evaluated key for pagination"
+}
+}
+}
+}
+}
+},
+"responseOkHtml": {
+"description": "OK",
+"headers": {
+"location": {
+"description": "Response OK, serving html",
+"schema": {
+"type": "string"
+}
+},
+"content-type": {
+"text/html": {
+"schema": {
+"type": "string"
+}
+}
+},
+"Content-Security-Policy": {
+"type": "string"
+}
+},
+"content": {
+"text/html": {
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"methodNotAllowed": {
+"description": "The HTTP method is not valid",
+"headers": {
+"Allow": {
+"description": "This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.",
+"schema": {
+"type": "string",
+"default": "GET"
+}
+},
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"unsupportedMediaType": {
+"description": "The HTTP 415 Unsupported Media Type client error response code indicates that the origin server refuses a particular request because the resource is in a format not supported by the server for HTTP method used.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+}
+},
+"notAcceptable": {
+"description": "The HyperText Transfer Protocol (HTTP) 406 Not Acceptable client error response code indicates that the server cannot produce a response matching the list of acceptable values defined in the request's proactive content negotiation headers, and that the server is unwilling to supply a default representation.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+}
+},
+"rateLimit": {
+"description": "Too many requests",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"badRequest": {
+"description": "Bad request",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"unauthorized": {
+"description": "The client could not be authenticated.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"forbidden": {
+"description": "Forbidden.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"conflict": {
+"description": "Conflict.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"invalidParameters": {
+"description": "Invalid parameters | Invalid redirect_uri | invalid client type | invalid response type | invalid code_challenge/method | Bad request",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"notFound": {
+"description": "Not Found.",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+},
+"serverError": {
+"description": "unknown error",
+"headers": {
+"Pragma": {
+"description": "Pragma browser directive",
+"schema": {
+"type": "string",
+"default": "no-cache"
+}
+},
+"Cache-Control": {
+"description": "Cache-Control browser directive",
+"schema": {
+"type": "string",
+"default": "no-store"
+}
+}
+},
+"content-type": {
+"description": "Content type response.",
+"schema": {
+"type": "string"
+}
+}
+}
+},
+"schemas": {
+"ClientRegistration": {
+"type": "object",
+"properties": {
+"userId": {
+"type": "string",
+"description": "The userId of the cognito user"
+},
+"redirectUris": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"example": [
+"https://client.example.org/callback",
+"https://client.example.org/callback2"
+]
+},
+"clientName": {
+"type": "string",
+"example": "https://example.org"
+},
+"logoUri": {
+"type": "string",
+"description": "The RP logo URI",
+"example": "https://example.org/logo.png"
+},
+"policyUri": {
+"type": "string",
+"description": "The privacy policy URI",
+"example": "https://example.org/policy"
+},
+"tosUri": {
+"type": "string",
+"description": "The terms of service URI",
+"example": "https://example.org/tos"
+},
+"defaultAcrValues": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"description": "list of the Authentication Context Class References that this RP supports",
+"example": [
+"https://www.spid.gov.it/SpidL1",
+"https://www.spid.gov.it/SpidL2",
+"https://www.spid.gov.it/SpidL3"
+]
+},
+"samlRequestedAttributes": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
+"example": [
+"spidCode",
+"name",
+"familyName",
+"fiscalNumber"
+]
+},
+"requiredSameIdp": {
+"type": "boolean",
+"description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
+"default": false
+},
+"a11yUri": {
+"type": "string",
+"description": "Accessibility URI",
+"example": "https://example.org/tos"
+},
+"backButtonEnabled": {
+"type": "boolean",
+"description": "Boolean which enables the display of the back button in the login page",
+"example": "https://example.org/tos"
+},
+"localizedContentMap": {
+"type": "object",
+"description": "Map for localized content for each language",
+"example": "https://example.org/tos",
+"additionalProperties": {
+"$ref": "#/components/schemas/Theme"
+}
+},
+"spidMinors": {
+"type": "boolean",
+"description": "Whether the client supports spid for minors",
+"example": "https://example.org/tos"
+},
+"spidProfessionals": {
+"type": "boolean",
+"description": " Whether the client supports spid for professionals",
+"example": "https://example.org/tos"
+},
+"pairwise": {
+"type": "boolean",
+"description": "If true, the client will use pairwise subject identifier",
+"example": "https://example.org/tos"
+}
+}
+},
+"Theme": {
+"type": "object",
+"minProperties": 1,
+"properties": {
+"it": {
+"$ref": "#/components/schemas/LocalizedContent"
+},
+"en": {
+"$ref": "#/components/schemas/LocalizedContent"
+},
+"de": {
+"$ref": "#/components/schemas/LocalizedContent"
+},
+"sl": {
+"$ref": "#/components/schemas/LocalizedContent"
+},
+"fr": {
+"$ref": "#/components/schemas/LocalizedContent"
+}
+}
+},
+"LocalizedContent": {
+"type": "object",
+"required": [
+"title",
+"description"
+],
+"properties": {
+"title": {
+"type": "string",
+"description": "The displayed title"
+},
+"description": {
+"type": "string",
+"description": "The displayed description"
+},
+"docUri": {
+"type": "string",
+"description": "The docUri"
+},
+"supportAddress": {
+"type": "string",
+"description": "The support address"
+},
+"cookieUri": {
+"type": "string",
+"description": "The cookieUri"
+}
+}
+},
+"ClientRegistrationResponse": {
+"type": "object",
+"properties": {
+"userId": {
+"type": "string",
+"description": "The userId of the cognito user"
+},
+"redirectUris": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"example": [
+"https://client.example.org/callback",
+"https://client.example.org/callback2"
+]
+},
+"clientName": {
+"type": "string",
+"example": "https://example.org"
+},
+"logoUri": {
+"type": "string",
+"description": "The RP logo URI",
+"example": "https://example.org/logo.png"
+},
+"policyUri": {
+"type": "string",
+"description": "The privacy policy URI",
+"example": "https://example.org/policy"
+},
+"tosUri": {
+"type": "string",
+"description": "The terms of service URI",
+"example": "https://example.org/tos"
+},
+"defaultAcrValues": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"description": "list of the Authentication Context Class References that this RP supports",
+"example": [
+"https://www.spid.gov.it/SpidL1",
+"https://www.spid.gov.it/SpidL2",
+"https://www.spid.gov.it/SpidL3"
+]
+},
+"samlRequestedAttributes": {
+"type": "array",
+"items": {
+"type": "string"
+},
+"description": "Custom parameter which return all SPID attributes selected, https://docs.italia.it/italia/spid/spid-regole-tecniche/it/stabile/attributi.html",
+"example": [
+"spidCode",
+"name",
+"familyName",
+"fiscalNumber"
+]
+},
+"requiredSameIdp": {
+"type": "boolean",
+"description": "If true, the client will get a claim called 'sameIdp' which will contain true if the IDP does not change between two consecutive logins. This is useful for clients that want to know if the user has changed IDP.",
+"default": false
+},
+"clientId": {
+"type": "string",
+"example": "47231c87-74f3-4990-99ad-31e8a801e3b5",
+"description": "The registered client_id"
+},
+"clientSecret": {
+"type": "string",
+"example": "e4cccd81-1d19-41e7-b4b0-488aa28af77b",
+"description": "The registered client_secret"
+},
+"clientIdIssuedAt": {
+"type": "integer",
+"example": 1497455914,
+"description": "The timestamp in seconds indicating the time of registration"
+},
+"clientSecretExpiresAt": {
+"type": "integer",
+"example": 0,
+"description": "The timestamp in seconds indicating the time of expiration for this value. 0 indicates no expiration"
+},
+"a11yUri": {
+"type": "string",
+"description": "Accessibility URI",
+"example": "https://example.org/tos"
+},
+"backButtonEnabled": {
+"type": "boolean",
+"description": "Boolean which enables the display of the back button in the login page",
+"example": "https://example.org/tos"
+},
+"localizedContentMap": {
+"type": "object",
+"description": "Map for localized content for each language",
+"example": "https://example.org/tos",
+"additionalProperties": {
+"$ref": "#/components/schemas/Theme"
+}
+},
+"spidMinors": {
+"type": "boolean",
+"description": "Whether the client supports spid for minors",
+"example": "https://example.org/tos"
+},
+"spidProfessionals": {
+"type": "boolean",
+"description": " Whether the client supports spid for professionals",
+"example": "https://example.org/tos"
+},
+"pairwise": {
+"type": "boolean",
+"description": "If true, the client will use pairwise subject identifier",
+"example": "https://example.org/tos"
+}
+}
+},
+"SamlAttributes": {
+"type": "object",
+"properties": {
+"spidCode": {
+"type": "string",
+"description": "The SPID code of the user."
+},
+"name": {
+"type": "string",
+"description": "The name of the user."
+},
+"familyName": {
+"type": "string",
+"description": "The family name of the user."
+},
+"placeOfBirth": {
+"type": "string",
+"description": "The place of birth of the user."
+},
+"countyOfBirth": {
+"type": "string",
+"description": "The county of birth of the user."
+},
+"dateOfBirth": {
+"type": "string",
+"description": "The date of birth of the user."
+},
+"gender": {
+"type": "string",
+"description": "The gender of the user."
+},
+"companyName": {
+"type": "string",
+"description": "The name of the company associated with the user."
+},
+"registeredOffice": {
+"type": "string",
+"description": "The registered office of the company."
+},
+"fiscalNumber": {
+"type": "string",
+"description": "The fiscal number of the user."
+},
+"ivaCode": {
+"type": "string",
+"description": "The IVA code of the user."
+},
+"idCard": {
+"type": "string",
+"description": "The ID card number of the user."
+},
+"mobilePhone": {
+"type": "string",
+"description": "The mobile phone number of the user."
+},
+"email": {
+"type": "string",
+"description": "The email address of the user."
+},
+"address": {
+"type": "string",
+"description": "The address of the user."
+},
+"expirationDate": {
+"type": "string",
+"description": "The expiration date of the user's document or session."
+},
+"digitalAddress": {
+"type": "string",
+"description": "The digital address of the user."
+},
+"domicileAddress": {
+"type": "string",
+"description": "The domicile address of the user."
+},
+"domicilePlace": {
+"type": "string",
+"description": "The domicile place of the user."
+},
+"domicilePostalCode": {
+"type": "string",
+"description": "The domicile postal code of the user."
+},
+"domicileProvince": {
+"type": "string",
+"description": "The domicile province of the user."
+},
+"domicileCountry": {
+"type": "string",
+"description": "The domicile country of the user."
+},
+"qualification": {
+"type": "string",
+"description": "The qualification of the user."
+},
+"commonName": {
+"type": "string",
+"description": "The common name of the user."
+},
+"surname": {
+"type": "string",
+"description": "The surname of the user."
+},
+"givenName": {
+"type": "string",
+"description": "The given name of the user."
+},
+"preferredUsername": {
+"type": "string",
+"description": "The preferred username of the user."
+},
+"title": {
+"type": "string",
+"description": "The title of the user."
+},
+"userCertificate": {
+"type": "string",
+"description": "The user certificate."
+},
+"employeeNumber": {
+"type": "string",
+"description": "The employee number of the user."
+},
+"orgUnitName": {
+"type": "string",
+"description": "The organizational unit name of the user."
+},
+"preferredLanguage": {
+"type": "string",
+"description": "The preferred language of the user."
+},
+"country": {
+"type": "string",
+"description": "The country of the user."
+},
+"stateOrProvince": {
+"type": "string",
+"description": "The state or province of the user."
+},
+"city": {
+"type": "string",
+"description": "The city of the user."
+},
+"postalCode": {
+"type": "string",
+"description": "The postal code of the user."
+},
+"street": {
+"type": "string",
+"description": "The street address of the user."
+}
+}
+},
+"ClientUserCreate": {
+"type": "object",
+"properties": {
+"username": {
+"type": "string",
+"description": "The username of the user to be created."
+},
+"password": {
+"type": "string",
+"description": "The password of the user to be created."
+},
+"samlAttributes": {
+"type": "object",
+"properties": {
+"schema": {
+"$ref": "#/components/schemas/SamlAttributes"
+}
+}
+}
+}
+},
+"ClientUserCreateRequestBody": {
+"type": "object",
+"properties": {
+"username": {
+"type": "string",
+"description": "The username of the user to be created."
+},
+"password": {
+"type": "string",
+"description": "The password of the user to be created."
+},
+"samlAttributes": {
+"type": "object",
+"properties": {
+"schema": {
+"$ref": "#/components/schemas/SamlAttributes"
+}
+}
+},
+"user_id": {
+"type": "string",
+"description": "The user_id that is associated to the currently logged in user"
+}
+}
+},
+"ClientUserUpdate": {
+"type": "object",
+"properties": {
+"samlAttributes": {
+"type": "object",
+"properties": {
+"schema": {
+"$ref": "#/components/schemas/SamlAttributes"
+}
+}
+}
+}
+},
+"securitySchemes": {
+"openId": {
+"type": "openIdConnect",
+"openIdConnectUrl": "/.well-known/openid-configuration"
+},
+"api_key": {
+"type": "apiKey",
+"name": "x-api-key",
+"in": "header"
+},
+"${ authorizer }": {
+"type": "apiKey",
+"name": "Authorization",
+"in": "header",
+"x-amazon-apigateway-authtype": "cognito_user_pools",
+"x-amazon-apigateway-authorizer": {
+"type": "cognito_user_pools",
+"providerARNs": [
+"${ provider_arn }"
+]
+}
+}
+}
+}
+}
 }
