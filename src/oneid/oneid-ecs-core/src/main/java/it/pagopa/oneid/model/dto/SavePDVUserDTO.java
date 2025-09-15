@@ -1,5 +1,7 @@
 package it.pagopa.oneid.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class SavePDVUserDTO {
 
   private static final String FISCAL_CODE_PREFIX = "TINIT-";
