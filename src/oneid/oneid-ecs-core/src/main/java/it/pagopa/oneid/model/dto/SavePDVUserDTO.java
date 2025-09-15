@@ -94,7 +94,7 @@ public class SavePDVUserDTO {
 
     for (AttributeDTO attr : attributeDTOList) {
       switch (attr.getAttributeName()) {
-        case "fiscalCode":
+        case "fiscalNumber":
           builder.fiscalCode(
               new CertifiedField<>(attr.getAttributeValue().replace(FISCAL_CODE_PREFIX, "")));
           break;
