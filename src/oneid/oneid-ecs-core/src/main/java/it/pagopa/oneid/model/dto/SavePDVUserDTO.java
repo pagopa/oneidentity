@@ -14,81 +14,80 @@ public class SavePDVUserDTO {
 
   private static final String FISCAL_CODE_PREFIX = "TINIT-";
 
-
   @NotNull
-  String fiscalCode;
+  private CertifiedField<String> fiscalCode;
 
-  String name;
+  private CertifiedField<String> name;
 
-  String familyName;
+  private CertifiedField<String> familyName;
 
-  String email;
+  private CertifiedField<String> email;
 
-  LocalDate birthDate;
+  private CertifiedField<LocalDate> birthDate;
 
-  String spidCode;
+  private CertifiedField<String> spidCode;
 
-  String placeOfBirth;
+  private CertifiedField<String> placeOfBirth;
 
-  String countyOfBirth;
+  private CertifiedField<String> countyOfBirth;
 
-  String gender;
+  private CertifiedField<String> gender;
 
-  String companyName;
+  private CertifiedField<String> companyName;
 
-  String registeredOffice;
+  private CertifiedField<String> registeredOffice;
 
-  String ivaCode;
+  private CertifiedField<String> ivaCode;
 
-  String idCard;
+  private CertifiedField<String> idCard;
 
-  String mobilePhone;
+  private CertifiedField<String> mobilePhone;
 
-  String address;
+  private CertifiedField<String> address;
 
-  LocalDate expirationDate;
+  private CertifiedField<LocalDate> expirationDate;
 
-  String digitalAddress;
+  private CertifiedField<String> digitalAddress;
 
-  String domicileAddress;
+  private CertifiedField<String> domicileAddress;
 
-  String domicilePlace;
+  private CertifiedField<String> domicilePlace;
 
-  String domicilePostalCode;
+  private CertifiedField<String> domicilePostalCode;
 
-  String domicileProvince;
+  private CertifiedField<String> domicileProvince;
 
-  String domicileCountry;
+  private CertifiedField<String> domicileCountry;
 
-  String qualification;
+  private CertifiedField<String> qualification;
 
-  String commonName;
+  private CertifiedField<String> commonName;
 
-  String surname;
+  private CertifiedField<String> surname;
 
-  String givenName;
+  private CertifiedField<String> givenName;
 
-  String preferredUsername;
+  private CertifiedField<String> preferredUsername;
 
-  String title;
+  private CertifiedField<String> title;
 
-  String userCertificate;
+  private CertifiedField<String> userCertificate;
 
-  String employeeNumber;
+  private CertifiedField<String> employeeNumber;
 
-  String orgUnitName;
+  private CertifiedField<String> orgUnitName;
 
-  String preferredLanguage;
+  private CertifiedField<String> preferredLanguage;
 
-  String country;
+  private CertifiedField<String> country;
 
-  String stateOrProvince;
+  private CertifiedField<String> stateOrProvince;
 
-  String city;
+  private CertifiedField<String> city;
 
-  String postalCode;
+  private CertifiedField<String> postalCode;
 
-  String street;
+  private CertifiedField<String> street;
 
   public static SavePDVUserDTO fromAttributeDtoList(List<AttributeDTO> attributeDTOList) {
     SavePDVUserDTO.SavePDVUserDTOBuilder builder = SavePDVUserDTO.builder();
@@ -96,117 +95,118 @@ public class SavePDVUserDTO {
     for (AttributeDTO attr : attributeDTOList) {
       switch (attr.getAttributeName()) {
         case "fiscalCode":
-          builder.fiscalCode(attr.getAttributeValue().replace(FISCAL_CODE_PREFIX, ""));
+          builder.fiscalCode(
+              new CertifiedField<>(attr.getAttributeValue().replace(FISCAL_CODE_PREFIX, "")));
           break;
         case "name":
-          builder.name(attr.getAttributeValue());
+          builder.name(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "familyName":
-          builder.familyName(attr.getAttributeValue());
+          builder.familyName(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "email":
-          builder.email(attr.getAttributeValue());
+          builder.email(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "birthDate":
-          builder.birthDate(LocalDate.parse(attr.getAttributeValue()));
+          builder.birthDate(new CertifiedField<>(LocalDate.parse(attr.getAttributeValue())));
           break;
         case "spidCode":
-          builder.spidCode(attr.getAttributeValue());
+          builder.spidCode(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "placeOfBirth":
-          builder.placeOfBirth(attr.getAttributeValue());
+          builder.placeOfBirth(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "countyOfBirth":
-          builder.countyOfBirth(attr.getAttributeValue());
+          builder.countyOfBirth(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "gender":
-          builder.gender(attr.getAttributeValue());
+          builder.gender(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "companyName":
-          builder.companyName(attr.getAttributeValue());
+          builder.companyName(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "registeredOffice":
-          builder.registeredOffice(attr.getAttributeValue());
+          builder.registeredOffice(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "ivaCode":
-          builder.ivaCode(attr.getAttributeValue());
+          builder.ivaCode(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "idCard":
-          builder.idCard(attr.getAttributeValue());
+          builder.idCard(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "mobilePhone":
-          builder.mobilePhone(attr.getAttributeValue());
+          builder.mobilePhone(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "address":
-          builder.address(attr.getAttributeValue());
+          builder.address(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "expirationDate":
-          builder.expirationDate(LocalDate.parse(attr.getAttributeValue()));
+          builder.expirationDate(new CertifiedField<>(LocalDate.parse(attr.getAttributeValue())));
           break;
         case "digitalAddress":
-          builder.digitalAddress(attr.getAttributeValue());
+          builder.digitalAddress(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "domicileAddress":
-          builder.domicileAddress(attr.getAttributeValue());
+          builder.domicileAddress(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "domicilePlace":
-          builder.domicilePlace(attr.getAttributeValue());
+          builder.domicilePlace(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "domicilePostalCode":
-          builder.domicilePostalCode(attr.getAttributeValue());
+          builder.domicilePostalCode(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "domicileProvince":
-          builder.domicileProvince(attr.getAttributeValue());
+          builder.domicileProvince(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "domicileCountry":
-          builder.domicileCountry(attr.getAttributeValue());
+          builder.domicileCountry(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "qualification":
-          builder.qualification(attr.getAttributeValue());
+          builder.qualification(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "commonName":
-          builder.commonName(attr.getAttributeValue());
+          builder.commonName(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "surname":
-          builder.surname(attr.getAttributeValue());
+          builder.surname(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "givenName":
-          builder.givenName(attr.getAttributeValue());
+          builder.givenName(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "preferredUsername":
-          builder.preferredUsername(attr.getAttributeValue());
+          builder.preferredUsername(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "title":
-          builder.title(attr.getAttributeValue());
+          builder.title(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "userCertificate":
-          builder.userCertificate(attr.getAttributeValue());
+          builder.userCertificate(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "employeeNumber":
-          builder.employeeNumber(attr.getAttributeValue());
+          builder.employeeNumber(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "orgUnitName":
-          builder.orgUnitName(attr.getAttributeValue());
+          builder.orgUnitName(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "preferredLanguage":
-          builder.preferredLanguage(attr.getAttributeValue());
+          builder.preferredLanguage(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "country":
-          builder.country(attr.getAttributeValue());
+          builder.country(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "stateOrProvince":
-          builder.stateOrProvince(attr.getAttributeValue());
+          builder.stateOrProvince(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "city":
-          builder.city(attr.getAttributeValue());
+          builder.city(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "postalCode":
-          builder.postalCode(attr.getAttributeValue());
+          builder.postalCode(new CertifiedField<>(attr.getAttributeValue()));
           break;
         case "street":
-          builder.street(attr.getAttributeValue());
+          builder.street(new CertifiedField<>(attr.getAttributeValue()));
           break;
-        
+
       }
     }
 
