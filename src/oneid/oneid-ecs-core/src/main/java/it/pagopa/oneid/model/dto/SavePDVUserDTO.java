@@ -15,7 +15,7 @@ public class SavePDVUserDTO {
   private static final String FISCAL_CODE_PREFIX = "TINIT-";
 
   @NotNull
-  private CertifiedField<String> fiscalCode;
+  private String fiscalCode;
 
   private CertifiedField<String> name;
 
@@ -95,8 +95,7 @@ public class SavePDVUserDTO {
     for (AttributeDTO attr : attributeDTOList) {
       switch (attr.getAttributeName()) {
         case "fiscalNumber":
-          builder.fiscalCode(
-              new CertifiedField<>(attr.getAttributeValue().replace(FISCAL_CODE_PREFIX, "")));
+          builder.fiscalCode(attr.getAttributeValue().replace(FISCAL_CODE_PREFIX, ""));
           break;
         case "name":
           builder.name(new CertifiedField<>(attr.getAttributeValue()));
