@@ -1443,11 +1443,11 @@
       "sha256": "_IxKnv4d6yy-4jWDsj6UBk5PBHFf4JHTnP7JOdC-x1U="
     },
     {
-      "id": "org.apache.commons:commons-lang3:jar:3.17.0",
+      "id": "org.apache.commons:commons-lang3:jar:3.18.0",
       "artifactId": "commons-lang3",
       "groupId": "org.apache.commons",
-      "version": "3.17.0",
-      "sha256": "bucx31yOWil2ocoCO2uzIOqNNTn75kyKHVy3ZRJ8M7Q="
+      "version": "3.18.0",
+      "sha256": "Tu6ujSDAeKu2SwFewVit04OsWBVxzdxFxo8MmuAjByA="
     },
     {
       "id": "io.quarkus:quarkus-junit5-mockito:jar:3.11.3",
