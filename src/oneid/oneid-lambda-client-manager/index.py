@@ -10,7 +10,6 @@ import boto3
 from aws_lambda_powertools import Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from localized_content_map import LocalizedContentMap
 
 # ENVIRONMENT VARIABLES
 
