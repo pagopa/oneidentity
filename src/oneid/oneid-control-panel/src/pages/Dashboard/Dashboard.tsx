@@ -23,25 +23,25 @@ import {
   ClientErrors,
   ClientWithoutSensitiveData,
 } from '../../types/api';
-import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
 import { Notify } from '../../components/Notify';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
-import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
+import { ROUTE_PATH } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
-import * as Storage from '../../utils/storage';
 import { isNil } from 'lodash';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
+import { useClientId } from '../../context/ClientIdContext';
 
 export const Dashboard = () => {
-  const { user } = useAuth();
   const [formData, setFormData] =
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const { isModalOpen, openModal, closeModal } = useModalManager();
+
+  const { setClientId, clientId } = useClientId();
 
   const {
     clientQuery: {
@@ -67,17 +67,12 @@ export const Dashboard = () => {
 
       if (
         fetchedClientData.clientId &&
-        fetchedClientData.clientId !==
-          Storage.storageRead(sessionStorageClientIdKey, 'string')
+        fetchedClientData.clientId !== clientId
       ) {
-        Storage.storageWrite(
-          sessionStorageClientIdKey,
-          fetchedClientData.clientId,
-          'string'
-        );
+        setClientId(fetchedClientData.clientId);
       }
     }
-  }, [isUpdatePhase, fetchedClientData]);
+  }, [isUpdatePhase, fetchedClientData, clientId, setClientId]);
 
   useEffect(() => {
     if (updateError) {
@@ -102,11 +97,11 @@ export const Dashboard = () => {
 
       // Save client id retrieved from api to session storage
       if (!isUpdatePhase) {
-        const clientId = clientUpdated?.clientId;
-        if (!isNil(clientId) && typeof clientId === 'string') {
-          Storage.storageWrite(sessionStorageClientIdKey, clientId, 'string');
+        const newClientId = clientUpdated?.clientId;
+        if (!isNil(newClientId) && typeof newClientId === 'string') {
+          setClientId(newClientId);
         } else {
-          console.error('clientId is not a valid value:', clientId);
+          console.error('clientId is not a valid value:', newClientId);
         }
       }
       // before redirecting we need to show a modal with clientId and clientSecret
@@ -115,7 +110,15 @@ export const Dashboard = () => {
         openModal('secretViewer');
       }
     }
-  }, [updateError, isUpdated, clientUpdated, isUpdatePhase, openModal]);
+  }, [
+    updateError,
+    isUpdated,
+    clientUpdated,
+    isUpdatePhase,
+    openModal,
+    isCreating,
+    setClientId,
+  ]);
 
   const isFormValid = () => {
     // TODO: if clientSchema inside api.ts is adjusted to reflect the actual optional and required fields, we can use:
@@ -141,13 +144,11 @@ export const Dashboard = () => {
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
     } else {
-      const existingClientId =
-        fetchedClientData?.clientId ||
-        Storage.storageRead(sessionStorageClientIdKey, 'string');
+      const existingClientId = fetchedClientData?.clientId || clientId;
       setIsCreating(!existingClientId);
       createOrUpdateClient({
         data: formData as ClientWithoutSensitiveData,
-        clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
+        clientId: clientId,
       });
     }
   };

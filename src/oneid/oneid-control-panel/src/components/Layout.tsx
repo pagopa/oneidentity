@@ -15,8 +15,7 @@ import PersistentDrawerLeft from './Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from 'react';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import * as Storage from '../utils/storage';
-import { sessionStorageClientIdKey } from '../utils/constants';
+import { useClientId } from '../context/ClientIdContext';
 
 const drawerWidth = 240;
 
@@ -31,6 +30,7 @@ type Props = {
 const Layout = ({ children }: Props) => {
   const { removeUser, signoutRedirect } = useAuth();
   const [open, setOpen] = useState(false);
+  const { clientId } = useClientId();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -121,7 +121,7 @@ const Layout = ({ children }: Props) => {
         <PersistentDrawerLeft
           handleDrawerClose={handleDrawerClose}
           open={open}
-          clientId={Storage.storageRead(sessionStorageClientIdKey, 'string')}
+          clientId={clientId}
         />
         {children}
       </Box>
