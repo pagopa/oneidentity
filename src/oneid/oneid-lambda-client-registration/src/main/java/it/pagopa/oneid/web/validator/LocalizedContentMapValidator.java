@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 public class LocalizedContentMapValidator implements
@@ -32,30 +31,26 @@ public class LocalizedContentMapValidator implements
 
     return map.entrySet().stream().allMatch(themeEntry -> {
       String theme = themeEntry.getKey();
-      if (theme == null || theme.isEmpty()) {
-        return false;
-      }
-
       Map<String, LocalizedContent> langMap = themeEntry.getValue();
-      if (langMap == null || langMap.isEmpty()) {
-        return false;
-      }
 
-      return langMap.entrySet().stream().allMatch(langEntry -> {
+      boolean themeValid = theme != null && !theme.isEmpty();
+      boolean langMapValid = langMap != null && !langMap.isEmpty();
+
+      return themeValid
+          && langMapValid
+          && langMap.entrySet().stream().allMatch(langEntry -> {
+
         String lang = langEntry.getKey();
-        if (lang == null || !ALLOWED_LANGS.contains(lang)) {
-          return false;
-        }
-
         LocalizedContent content = langEntry.getValue();
-        if (content == null) {
-          return false;
-        }
 
-        return Stream.of(
-            content.title(),
-            content.description()
-        ).noneMatch(StringUtils::isBlank);
+        boolean langValid = lang != null && ALLOWED_LANGS.contains(lang);
+        boolean contentValid = content != null
+            && !StringUtils.isBlank(content.title())
+            && !StringUtils.isBlank(content.description())
+            && content.title().length() >= 10
+            && content.description().length() >= 20;
+
+        return langValid && contentValid;
       });
     });
   }

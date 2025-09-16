@@ -31,12 +31,17 @@ class ClientRegistrationControllerTest {
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
     defaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null,
+            ""));
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -149,13 +154,22 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
-  void register_withInvalidLocalizedContentMap_ko() {
+  void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a empty map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(new HashMap<>())
         .build();
@@ -166,10 +180,192 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
+  @Test
+  void register_withInvalidLanguageLocalizedContentMap_ko() {
+    // given
+    String lang = "invalid-lang"; // Invalid language code
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put(lang, // Invalid language code
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
+    localizedContentMap.put("default", defaultLangs);
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(localizedContentMap)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withEmptyLanguageMapLocalizedContentMap_ko() {
+    // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    localizedContentMap.put("default", defaultLangs);
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(localizedContentMap)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withInvalidTitleLocalizedContentMap_ko() {
+    // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("it", // Invalid language code
+        new Client.LocalizedContent("short", // Title too short
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
+    localizedContentMap.put("default", defaultLangs);
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(localizedContentMap)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withInvalidDescriptionLocalizedContentMap_ko() {
+    // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("it", // Invalid language code
+        new Client.LocalizedContent("Title that is ok",
+            "short", // Description too short
+            "http://test.com", null, null));
+    localizedContentMap.put("default", defaultLangs);
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(localizedContentMap)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withEmptyContentLocalizedContentMap_ko() {
+    // given
+    Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
+    Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
+    defaultLangs.put("it", null); // Null content
+    localizedContentMap.put("default", defaultLangs);
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        .localizedContentMap(localizedContentMap)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
 
   @Test
   void register_MalformedJson_ko() {
@@ -237,7 +433,7 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/user_id/{user_id}")
         .then()
-        .statusCode(404); // Not found due to client not found
+        .statusCode(404); // NotFound due to client not found
   }
 
   //Update Client
@@ -249,12 +445,16 @@ class ClientRegistrationControllerTest {
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
     defaultLangs.put("en",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, null));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint",
+            "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
-        new Client.LocalizedContent("Title", "Description", "http://test.com", null, ""));
+        new Client.LocalizedContent("Title of minimum 10 characters",
+            "Description of minimum 20 characters to pass the constraint", "http://test.com", null,
+            ""));
     localizedContentMap.put("optional", optionalLangs);
 
     String clientId = "testClientId";
@@ -273,7 +473,9 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(
             Map.of("removeTheme",
                 Map.of("en",
-                    new Client.LocalizedContent("Title", "Description", "http://test.com",
+                    new Client.LocalizedContent("Title of minimum 10 characters",
+                        "Description of minimum 20 characters to pass the constraint",
+                        "http://test.com",
                         "test", "test")
                 )
             ))
@@ -317,12 +519,6 @@ class ClientRegistrationControllerTest {
         .acsIndex(0)
         .attributeIndex(0)
         .clientIdIssuedAt(0)
-        .build();
-
-    ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
-        .userId(userId)
-        .clientName("oldName")
-        .redirectUris(Set.of("http://old.com"))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()

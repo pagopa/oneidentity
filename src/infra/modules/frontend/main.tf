@@ -442,13 +442,14 @@ module "rest_api_admin" {
 
   body = templatefile(var.openapi_admin_template_file,
     {
-      server_url                   = var.domain_name
-      aws_region                   = var.aws_region
-      client_manager_lambda_arn    = var.client_manager_lambda_arn
-      lambda_apigateway_proxy_role = aws_iam_role.lambda_apigw_proxy.arn
-      authorizer                   = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
-      provider_arn                 = var.provider_arn
-      s3_apigateway_proxy_role     = aws_iam_role.s3_apigw_proxy.arn
+      server_url                     = var.domain_name
+      aws_region                     = var.aws_region
+      client_registration_lambda_arn = var.client_registration_lambda_arn
+      client_manager_lambda_arn      = var.client_manager_lambda_arn
+      lambda_apigateway_proxy_role   = aws_iam_role.lambda_apigw_proxy.arn
+      authorizer                     = var.api_authorizer_admin_name != null ? var.api_authorizer_admin_name : "api_key"
+      provider_arn                   = var.provider_arn
+      s3_apigateway_proxy_role       = aws_iam_role.s3_apigw_proxy.arn
       assets_bucket_control_panel_uri = format("arn:aws:apigateway:%s:s3:path/%s", var.aws_region,
       var.assets_control_panel_bucket_name)
   })
