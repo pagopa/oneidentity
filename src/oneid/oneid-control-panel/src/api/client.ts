@@ -25,11 +25,15 @@ export const getClientUsers = async (
     throw new Error(userIdMessage);
   }
   try {
-    const response = await api.get<IdpUserList>(`${ENDPOINT}/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    // TODO: remove 1000 and implement server pagination
+    const response = await api.get<IdpUserList>(
+      `${ENDPOINT}/${userId}?limit=1000`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -69,7 +73,7 @@ export const updateClientUser = async (
     throw new Error(userIdMessage);
   }
   try {
-    const response = await api.put<IdpUserCreateOrUpdateResponse>(
+    const response = await api.patch<IdpUserCreateOrUpdateResponse>(
       `${ENDPOINT}/${userId}/${username}`,
       data,
       {
@@ -105,6 +109,9 @@ export const addClientUser = async (
     );
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      throw new Error('User already exists');
+    }
     throw handleApiError(error);
   }
 };
