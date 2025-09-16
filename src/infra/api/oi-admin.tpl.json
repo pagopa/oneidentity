@@ -450,8 +450,10 @@
         ]
       }
     },
-%{ if strcontains(server_url, "dev") || strcontains(server_url, "uat")
-}
+%{ if strcontains(server_url,
+      "dev") || strcontains(server_url,
+      "uat")
+    }
 "/client-manager/client-users": {
       "post": {
         "tags": [
@@ -871,7 +873,7 @@
       }
     },
 %{endif
-}
+    }
 "/": {
       "post": {
         "tags": [
@@ -1533,6 +1535,33 @@
         }
       }
     },
+    "securitySchemes": {
+      "openId": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "/.well-known/openid-configuration"
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+      %{ if authorizer != "api_key"
+      },
+      "${ authorizer }": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "cognito_user_pools",
+        "x-amazon-apigateway-authorizer": {
+          "type": "cognito_user_pools",
+          "providerARNs": [
+            "${ provider_arn }"
+          ]
+        }
+      }
+        %{ endif
+      }
+    },
     "schemas": {
       "ClientRegistration": {
         "type": "object",
@@ -2015,29 +2044,6 @@
                 "$ref": "#/components/schemas/SamlAttributes"
               }
             }
-          }
-        }
-      },
-      "securitySchemes": {
-        "openId": {
-          "type": "openIdConnect",
-          "openIdConnectUrl": "/.well-known/openid-configuration"
-        },
-        "api_key": {
-          "type": "apiKey",
-          "name": "x-api-key",
-          "in": "header"
-        },
-        "${ authorizer }": {
-          "type": "apiKey",
-          "name": "Authorization",
-          "in": "header",
-          "x-amazon-apigateway-authtype": "cognito_user_pools",
-          "x-amazon-apigateway-authorizer": {
-            "type": "cognito_user_pools",
-            "providerARNs": [
-              "${ provider_arn }"
-            ]
           }
         }
       }
