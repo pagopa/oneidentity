@@ -27,18 +27,22 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
+import it.pagopa.oneid.connector.PDVApiClient;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
+import it.pagopa.oneid.model.dto.SavePDVUserDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -59,6 +63,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -72,6 +77,7 @@ import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
 public class OIDCServiceImpl implements OIDCService {
 
   private static final long LAST_IDP_USED_TTL = 730; // days
+  private static final String PDV_API_KEY_PREFIX = "/pdv/";
 
   @Inject
   @ConfigProperty(name = "sign_jwt_key_alias")
@@ -79,6 +85,10 @@ public class OIDCServiceImpl implements OIDCService {
 
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
+
+  @Inject
+  @RestClient
+  PDVApiClient pdvApiClient;
 
   @Inject
   OIDCUtils oidcUtils;
@@ -89,14 +99,21 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
   @Inject
+  SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
+  @Inject
   Map<String, Client> clientsMap;
   @Inject
   MarshallerFactory marshallerFactory;
 
   private String getHashedIdFromAttributeDTOList(List<AttributeDTO> attributes) {
+    String id = getIdFromAttributeDTOList(attributes);
+    return getIdFromAttributeDTOList(attributes) == null ? null : HASHUtils.generateIDHash(id);
+  }
+
+  private String getIdFromAttributeDTOList(List<AttributeDTO> attributes) {
     for (AttributeDTO attribute : attributes) {
       if (fiscalNumber.name().equals(attribute.getAttributeName())) {
-        return HASHUtils.generateIDHash(attribute.getAttributeValue());
+        return attribute.getAttributeValue();
       }
     }
     return null;
@@ -222,6 +239,38 @@ public class OIDCServiceImpl implements OIDCService {
     // TODO is it ok for the 'scope' to be null?
     AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
     String id = null;
+
+    // Check if we need to add the "pairwise" claim to the ID token
+    if (clientsMap.get(clientId).isPairwise()) {
+      // Get fiscalNumber from attribute list
+      id = getIdFromAttributeDTOList(attributeDTOList);
+      if (id != null) {
+        // if fiscalNumber is present, retrieve the token from PDV
+
+        SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
+
+        try {
+          ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX + clientId).ifPresentOrElse(
+              apiKey -> {
+                String userId = pdvApiClient.upsertUser(
+                    savePDVUserDTO, apiKey).getUserId();
+                attributeDTOList.add(AttributeDTO.builder()
+                    .attributeName("pairwise")
+                    .attributeValue(userId)
+                    .build());
+              },
+              () -> Log.warn("API Key not found for clientId: " + clientId
+                  + ", can't retrieve pairwise sub from PDV")
+          );
+        } catch (WebApplicationException e) {
+          // if PDV returns an error, we log it but we don't block the authentication flow
+          Log.error("error during PDV upsertUser call: " + e.getMessage());
+        }
+      } else {
+        // if fiscalNumber is not present, we can't generate the pairwise sub
+        Log.warn("fiscalNumber not present in attribute list, can't generate pairwise sub");
+      }
+    }
 
     //Create signed JWT ID token
     String signedJWTString;

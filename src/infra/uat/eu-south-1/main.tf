@@ -236,6 +236,10 @@ module "backend" {
       {
         name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
+      },
+      {
+        name  = "PDV_BASE_URL"
+        value = "https://api.uat.pdv.pagopa.it"
       }
     ]
   }

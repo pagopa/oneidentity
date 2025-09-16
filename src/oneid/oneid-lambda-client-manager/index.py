@@ -366,8 +366,9 @@ def get_idp_internal_users(user_id: str):
         limit = query_params.get("limit", 10)
         try:
             limit = int(limit)
-            if limit <= 0 or limit > 50:
-                raise ValueError("Limit must be between 1 and 50")
+            # TODO Reset limit to 50 after adding fe-side pagination and input search parameters
+            if limit <= 0 or limit > 1000:
+                raise ValueError("Limit must be between 1 and 1000")
         except ValueError:
             logger.error("[get_idp_internal_users]: Invalid limit value")
             return {"message": "Invalid limit value"}, 400
