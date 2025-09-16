@@ -81,17 +81,14 @@ def extract_client_id_from_connected_user(user_id: str) -> Optional[str]:
     """
     try:
         # Get the user attributes from Cognito
-        response = cognito_client.admin_get_user(
-            UserPoolId=os.getenv("USER_POOL_ID"),
-            Username=user_id,
+        response = dynamodb_client.scan(
+            TableName=os.getenv("CLIENT_REGISTRATIONS_TABLE_NAME"),
+            FilterExpression="userId = :userId",
+            ExpressionAttributeValues={":userId": {"S": user_id}}
         )
-        logger.debug("[extract_client_id_from_connected_user]: %s", response)
-
-        # Find the custom:client_id attribute
-        for attr in response.get("UserAttributes", []):
-            if attr["Name"] == "custom:client_id":
-                return attr["Value"]
-
+        items = response.get("Items", [])
+        if items:
+            return items[0]["clientId"]["S"]
         logger.warning("[extract_client_id_from_connected_user]: client_id not found")
         return None
 
