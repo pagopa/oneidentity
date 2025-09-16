@@ -3186,6 +3186,10 @@
             "type": "boolean",
             "description": "Indicates whether the user authenticated with the same Identity Provider as the previous session. This is useful for Single Sign-On (SSO) scenarios."
           },
+          "pairwise": {
+            "type": "string",
+            "description": "PDV namespaced token. This claim is present only if the client has registered for pairwise subject identifiers."
+          },
           "iat": {
             "type": "integer",
             "format": "int64",

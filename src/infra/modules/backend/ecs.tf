@@ -211,7 +211,8 @@ resource "aws_iam_policy" "ecs_core_task" {
         ],
         "Resource" : [
           "${data.aws_ssm_parameter.certificate.arn}",
-          "${aws_ssm_parameter.key_pem.arn}"
+          "${aws_ssm_parameter.key_pem.arn}",
+          "arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter/pdv/*"
         ]
       },
       {
