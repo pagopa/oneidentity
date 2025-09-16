@@ -157,10 +157,19 @@ class ClientRegistrationControllerTest {
   void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a empty map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(new HashMap<>())
         .build();
@@ -171,26 +180,35 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
   @Test
   void register_withInvalidLanguageLocalizedContentMap_ko() {
     // given
+    String lang = "invalid-lang"; // Invalid language code
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
-    defaultLangs.put("invalid-lang", // Invalid language code
+    defaultLangs.put(lang, // Invalid language code
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
             "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(localizedContentMap)
         .build();
@@ -201,7 +219,6 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
@@ -213,10 +230,19 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(localizedContentMap)
         .build();
@@ -227,7 +253,6 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
@@ -237,16 +262,25 @@ class ClientRegistrationControllerTest {
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
     defaultLangs.put("it", // Invalid language code
-        new Client.LocalizedContent("Short", // Title too short
+        new Client.LocalizedContent("short", // Title too short
             "Description of minimum 20 characters to pass the constraint",
             "http://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(localizedContentMap)
         .build();
@@ -257,7 +291,6 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
@@ -273,10 +306,19 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(localizedContentMap)
         .build();
@@ -287,7 +329,6 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
@@ -300,10 +341,19 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
-        .clientName("Test Client")
-        .redirectUris(Set.of("https://valid.uri/callback"))
+        .userId("test")
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
         // The payload contains a map which fails the @LocalizedContentMapCheck validation
         .localizedContentMap(localizedContentMap)
         .build();
@@ -314,7 +364,6 @@ class ClientRegistrationControllerTest {
         .when()
         .post("/register")
         .then()
-        .log().body()
         .statusCode(400);
   }
 
@@ -470,12 +519,6 @@ class ClientRegistrationControllerTest {
         .acsIndex(0)
         .attributeIndex(0)
         .clientIdIssuedAt(0)
-        .build();
-
-    ClientRegistrationDTO existingDto = ClientRegistrationDTO.builder()
-        .userId(userId)
-        .clientName("oldName")
-        .redirectUris(Set.of("http://old.com"))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
