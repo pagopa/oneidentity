@@ -1031,55 +1031,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        }
-      }
-    },
-    "/dashboard/{clientid+}": {
-      "get": {
-        "tags": [
-          "Admin control panel dashboard client page"
-        ],
-        "description": "This route will serve the admin control panel dashboard client page",
-        "parameters": [
-          {
-            "name": "clientid",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_control_panel_uri}/index.html",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "requestParameters": {},
-          "responseParameters": {},
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it https://cognito-idp.eu-south-1.amazonaws.com; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -1144,7 +1096,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.Content-Type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it https://cognito-idp.eu-south-1.amazonaws.com; frame-ancestors 'none';'"
               }
             },
             "404": {
