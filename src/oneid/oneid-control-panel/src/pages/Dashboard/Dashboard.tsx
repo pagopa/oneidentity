@@ -34,6 +34,7 @@ import { isNil } from 'lodash';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { useClientId } from '../../context/ClientIdContext';
 import SaveIcon from '@mui/icons-material/Save';
+import AddIcon from '@mui/icons-material/Add';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
 
@@ -213,14 +214,16 @@ export const Dashboard = () => {
             Client Information
           </Typography>
 
-          <TextField
-            hidden
-            fullWidth
-            label="Client ID"
-            value={fetchedClientData?.clientId || ''}
-            disabled
-            margin="normal"
-          />
+          {clientId && (
+            <TextField
+              hidden
+              fullWidth
+              label="Client ID"
+              value={clientId || ''}
+              disabled
+              margin="normal"
+            />
+          )}
 
           <TextField
             fullWidth
@@ -355,12 +358,18 @@ export const Dashboard = () => {
           <Button
             type="submit"
             variant="contained"
-            startIcon={<SaveIcon />}
+            startIcon={clientId ? <SaveIcon /> : <AddIcon />}
             sx={{ mt: 3 }}
             data-testid="submit-button"
             disabled={isUpdating || !isFormValid()}
           >
-            {isUpdating ? 'Saving...' : 'Save Changes'}
+            {clientId
+              ? isUpdating
+                ? 'Saving...'
+                : 'Save Changes'
+              : isUpdating
+                ? 'Creating...'
+                : 'Create Client'}
           </Button>
         </Box>
       </Box>
