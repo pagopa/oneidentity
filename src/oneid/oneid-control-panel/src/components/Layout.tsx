@@ -15,6 +15,8 @@ import { useAuth } from 'react-oidc-context';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { ArrowDropDown, Logout } from '@mui/icons-material';
 import { useClientId } from '../context/ClientIdContext';
+import { useLocation } from 'react-router-dom';
+import { ROUTE_PATH } from '../utils/constants';
 
 const drawerWidth = 240;
 const appBarHeight = 64;
@@ -29,6 +31,12 @@ function Layout({ children }: Props) {
   const { removeUser, signoutRedirect, user, isAuthenticated } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { clientId } = useClientId();
+
+  const location = useLocation();
+  const isLoginPage = location.pathname === ROUTE_PATH.LOGIN;
+  const appBarAndMainContentWidth = isLoginPage
+    ? { sm: '100%' }
+    : { sm: `calc(100% - ${drawerWidth}px)` };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -75,7 +83,7 @@ function Layout({ children }: Props) {
         <AppBar
           position="fixed"
           sx={{
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            width: appBarAndMainContentWidth,
             ml: { sm: `${drawerWidth}px` },
             height: `${appBarHeight}px`,
             justifyContent: 'center',
@@ -176,42 +184,44 @@ function Layout({ children }: Props) {
             )}
           </Toolbar>
         </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        >
-          <Drawer
-            container={undefined}
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
+        {!isLoginPage && (
+          <Box
+            component="nav"
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
           >
-            {drawer}
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-              },
-            }}
-            open
-          >
-            {drawer}
-          </Drawer>
-        </Box>
+            <Drawer
+              container={undefined}
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true,
+              }}
+              sx={{
+                display: { xs: 'block', sm: 'none' },
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+              }}
+            >
+              {drawer}
+            </Drawer>
+            <Drawer
+              variant="permanent"
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+              }}
+              open
+            >
+              {drawer}
+            </Drawer>
+          </Box>
+        )}
         <Box
           bgcolor={'background.default'}
           component="main"
@@ -221,7 +231,7 @@ function Layout({ children }: Props) {
             flexGrow: 1,
             flexDirection: 'column',
             p: 3,
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            width: appBarAndMainContentWidth,
             height: `calc(100vh - ${appBarHeight}px)`,
             marginTop: `${appBarHeight}px`,
             overflow: 'auto',

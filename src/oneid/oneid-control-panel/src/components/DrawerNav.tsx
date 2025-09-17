@@ -78,7 +78,7 @@ function DrawerNavLeft({
           style={{ maxWidth: '120px', height: 'auto' }}
         />
       </Box>
-      <List component="nav">
+      <List component="nav" sx={{ pt: 0 }}>
         {navData(clientId, isAuthenticated).map((item) =>
           item.name === dividerKey ? (
             <Divider key={uniqueId()} />
