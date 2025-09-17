@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginForm } from './pages/Login/Login';
 import {
   PrivateAddOrUpdateUsersRoute,
@@ -33,6 +33,10 @@ const AppRoutes = () => {
           />
         </>
       )}
+      <Route
+        path="*"
+        element={<Navigate to={ROUTE_PATH.DASHBOARD} replace />}
+      />
     </Routes>
   );
 };
