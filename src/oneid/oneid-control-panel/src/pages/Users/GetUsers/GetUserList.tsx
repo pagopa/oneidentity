@@ -5,7 +5,7 @@ import { IdpUser } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
-import { useClient } from '../../../hooks/useClient';
+import { useClient, USER_LIST_QKEY } from '../../../hooks/useClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { ROUTE_PATH } from '../../../utils/constants';
 import { isEmpty, isNil } from 'lodash';
@@ -65,7 +65,7 @@ export const GetUserList = () => {
         message: 'User successfully deleted',
         severity: 'success',
       });
-      queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     if (deleteClientUsersError) {
       console.error('Error update user:', deleteClientUsersError);
@@ -86,7 +86,7 @@ export const GetUserList = () => {
       setNotify(notifyFromState);
     }
     if (location.state?.refresh) {
-      queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     window.history.replaceState({}, document.title);
   }, [location.state, queryClient, userId]);
