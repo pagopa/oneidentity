@@ -20395,5 +20395,31 @@
     "domicileMunicipality": "",
     "domicileProvince": "",
     "domicileNation": ""
+  },
+  {
+    "username": "j.grey",
+    "password": "test",
+    "spidLevel": 2,
+    "spidCode": "SPID-797",
+    "familyName": "Grey",
+    "name": "Jean",
+    "gender": "M",
+    "dateOfBirth": "1980-01-01",
+    "countyOfBirth": "",
+    "placeOfBirth": "",
+    "idCard": "",
+    "expirationDate": "",
+    "fiscalNumber": "TINIT-GRYJNE80A01F205C",
+    "mobilePhone": "",
+    "email": "j.grey@test.email.it",
+    "digitalAddress": "",
+    "ivaCode": "",
+    "companyFiscalNumber": "",
+    "address": "",
+    "domicileStreetAddress": "",
+    "domicilePostalCode": "",
+    "domicileMunicipality": "",
+    "domicileProvince": "",
+    "domicileNation": ""
   }
 ]
