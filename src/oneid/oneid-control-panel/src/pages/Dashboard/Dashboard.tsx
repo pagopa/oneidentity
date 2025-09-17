@@ -35,6 +35,7 @@ import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { useClientId } from '../../context/ClientIdContext';
 import SaveIcon from '@mui/icons-material/Save';
 import { PageContainer } from '../../components/PageContainer';
+import { ContentBox } from '../../components/ContentBox';
 
 export const Dashboard = () => {
   const [formData, setFormData] =
@@ -207,7 +208,7 @@ export const Dashboard = () => {
       />
 
       <Box component="form" onSubmit={handleSubmit}>
-        <Box bgcolor={'background.paper'} p={4} borderRadius={3}>
+        <ContentBox>
           <Typography variant="h5" gutterBottom>
             Client Information
           </Typography>
@@ -348,7 +349,7 @@ export const Dashboard = () => {
               label="Required Same IDP"
             />
           </FormGroup>
-        </Box>
+        </ContentBox>
 
         <Box>
           <Button

@@ -26,6 +26,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import { PageContainer } from '../../../components/PageContainer';
+import { ContentBox } from '../../../components/ContentBox';
 
 const SamlAttributeValueFields = ({
   attributes,
@@ -165,7 +166,7 @@ export const AddOrUpdateUser = () => {
   return (
     <PageContainer>
       <Box component="form" onSubmit={handleSubmit}>
-        <Box bgcolor={'background.paper'} p={4} borderRadius={3}>
+        <ContentBox>
           <Typography variant="h5" gutterBottom>
             User Data
           </Typography>
@@ -258,7 +259,7 @@ export const AddOrUpdateUser = () => {
               }}
             />
           </SamlAttributesSelectInput>
-        </Box>
+        </ContentBox>
 
         <Button
           type="submit"

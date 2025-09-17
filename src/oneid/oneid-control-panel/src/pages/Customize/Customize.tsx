@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Typography,
-  Paper,
   Box,
   TextField,
   Button,
@@ -35,6 +34,7 @@ import { Notify } from '../../components/Notify';
 import { useRegister } from '../../hooks/useRegister';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { PageContainer } from '../../components/PageContainer';
+import { ContentBox } from '../../components/ContentBox';
 
 function isEqualOrNullish(a: unknown, b: unknown): boolean {
   // If one is null and one is undefined treat them as equal
@@ -371,46 +371,44 @@ function CustomizeDashboard() {
 
   return (
     <PageContainer>
-      <Paper elevation={2} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Box p={{ xs: 2, sm: 3, md: 4 }}>
-          <Typography variant="h5">Client Configuration</Typography>
-          <Typography variant="body1" color="text.secondary" mb={4}>
-            Manage the client settings and localized content.
-          </Typography>
+      <ContentBox>
+        <Typography variant="h5">Client Configuration</Typography>
+        <Typography variant="body1" color="text.secondary" mb={4}>
+          Manage the client settings and localized content.
+        </Typography>
 
-          <ClientSettings
-            clientData={clientData}
-            clientID={clientId}
-            onClientDataChange={handleTopLevelChange}
-            errorUi={errorUi}
-          />
+        <ClientSettings
+          clientData={clientData}
+          clientID={clientId}
+          onClientDataChange={handleTopLevelChange}
+          errorUi={errorUi}
+        />
 
-          <Divider sx={{ my: 4 }} />
+        <Divider sx={{ my: 4 }} />
 
-          <ThemeManager
-            themes={clientData?.localizedContentMap}
+        <ThemeManager
+          themes={clientData?.localizedContentMap}
+          activeThemeKey={activeThemeKey}
+          onThemeChange={(e) => setActiveThemeKey(e.target.value)}
+          onAddTheme={() => setThemeModalOpen(true)}
+          onRemoveTheme={() => setConfirmModalOpen(true)}
+          errorUi={errorUi}
+        />
+
+        {activeTheme && (
+          <LocalizedContentEditor
+            activeLanguages={activeLanguages}
+            activeTheme={activeTheme}
             activeThemeKey={activeThemeKey}
-            onThemeChange={(e) => setActiveThemeKey(e.target.value)}
-            onAddTheme={() => setThemeModalOpen(true)}
-            onRemoveTheme={() => setConfirmModalOpen(true)}
+            activeTab={activeTab}
+            onTabChange={(_e, val) => setActiveTab(val)}
+            onContentChange={handleLocalizedContentChange}
+            onAddLanguage={() => setLangModalOpen(true)}
+            onRemoveLanguage={handleRemoveLanguage}
             errorUi={errorUi}
           />
-
-          {activeTheme && (
-            <LocalizedContentEditor
-              activeLanguages={activeLanguages}
-              activeTheme={activeTheme}
-              activeThemeKey={activeThemeKey}
-              activeTab={activeTab}
-              onTabChange={(_e, val) => setActiveTab(val)}
-              onContentChange={handleLocalizedContentChange}
-              onAddLanguage={() => setLangModalOpen(true)}
-              onRemoveLanguage={handleRemoveLanguage}
-              errorUi={errorUi}
-            />
-          )}
-        </Box>
-      </Paper>
+        )}
+      </ContentBox>
 
       <Button
         sx={{ mt: 3, mb: 4 }}

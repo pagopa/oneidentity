@@ -24,6 +24,7 @@ import { IdpUser } from '../types/api';
 import { isEmpty, map, sortBy } from 'lodash';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import TableFilters from './TableFilters';
+import { ContentBox } from './ContentBox';
 
 type Props = {
   users: Array<IdpUser>;
@@ -75,20 +76,18 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
   };
 
   return (
-    <Paper sx={{ borderRadius: 3 }}>
-      <Box p={4}>
-        <Typography variant="h5" gutterBottom mb={5}>
-          User list
-        </Typography>
-        <TableFilters<OrderField>
-          search={{ value: searchTerm, onChange: setSearchTerm }}
-          order={{
-            value: orderBy,
-            onChange: setOrderBy,
-            options: orderFields,
-          }}
-        />
-      </Box>
+    <ContentBox>
+      <Typography variant="h5" gutterBottom mb={5}>
+        User list
+      </Typography>
+      <TableFilters<OrderField>
+        search={{ value: searchTerm, onChange: setSearchTerm }}
+        order={{
+          value: orderBy,
+          onChange: setOrderBy,
+          options: orderFields,
+        }}
+      />
       <TableContainer>
         <Table sx={{ minWidth: 500, overflowX: 'auto' }}>
           <TableHead>
@@ -240,7 +239,7 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </ContentBox>
   );
 };
 

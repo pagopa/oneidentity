@@ -100,9 +100,18 @@ export const FormArrayTextField = ({
           </Fragment>
         ))}
       </Grid>
-      <Grid xs={2} mt={2} pl={2}>
-        <Fab color="primary" aria-label="add" onClick={handleAddTextField}>
-          <Add />
+      <Grid xs={2} mt={2} pl={2} alignContent={'center'}>
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={handleAddTextField}
+          sx={{
+            width: { xs: 40, sm: 56 },
+            height: { xs: 40, sm: 56 },
+            minHeight: 'unset',
+          }}
+        >
+          <Add fontSize="small" />
         </Fab>
       </Grid>
     </Grid>
