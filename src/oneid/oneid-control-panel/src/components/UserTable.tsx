@@ -75,9 +75,9 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
   };
 
   return (
-    <Paper sx={{ borderRadius: '16px' }}>
-      <Box px={3} py={4}>
-        <Typography variant="h6" gutterBottom mb={5}>
+    <Paper sx={{ borderRadius: 3 }}>
+      <Box p={4}>
+        <Typography variant="h5" gutterBottom mb={5}>
           User list
         </Typography>
         <TableFilters<OrderField>

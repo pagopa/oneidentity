@@ -63,7 +63,7 @@ export const LocalizedContentEditor: React.FC<LocalizedContentEditorProps> = ({
         pb={1}
         mb={1}
       >
-        <Typography variant="h6" component="h3">
+        <Typography variant="h6">
           Languages for &quot;{activeThemeKey}&quot;
         </Typography>
         <Button
