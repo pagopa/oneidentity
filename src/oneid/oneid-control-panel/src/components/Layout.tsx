@@ -176,7 +176,7 @@ function Layout({ children }: Props) {
                       {user?.profile.email}
                     </Typography>
                   </Box>
-                  <MenuItem onClick={handleLogout}>
+                  <MenuItem data-testid="logout-button" onClick={handleLogout}>
                     <Logout fontSize="small" sx={{ mr: 1 }} /> Logout
                   </MenuItem>
                 </Menu>

@@ -9,7 +9,6 @@ import {
   Collapse,
   Box,
   Typography,
-  Paper,
   TablePagination,
   TableSortLabel,
 } from '@mui/material';

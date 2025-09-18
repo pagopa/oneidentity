@@ -5,6 +5,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { LoginForm } from './Login';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ROUTE_PATH } from '../../utils/constants';
 
 export const mockAuthenticatedStatus = {
   isLoading: false,
@@ -83,7 +84,9 @@ describe('LoginForm', () => {
     fireEvent.click(loginButton);
 
     await waitFor(() => {
-      expect(global.window.location.assign).toHaveBeenCalledWith('/dashboard');
+      expect(global.window.location.assign).toHaveBeenCalledWith(
+        '/dashboard/client'
+      );
       // expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
   });
@@ -97,7 +100,9 @@ describe('LoginForm', () => {
     fireEvent.click(loginButton);
 
     await waitFor(() => {
-      expect(global.window.location.assign).toHaveBeenCalledWith('/dashboard');
+      expect(global.window.location.assign).toHaveBeenCalledWith(
+        ROUTE_PATH.DASHBOARD
+      );
     });
   });
 
@@ -113,7 +118,7 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(screen.getByText(/Login failed/i)).toBeInTheDocument();
       expect(global.window.location.assign).not.toHaveBeenCalledWith(
-        '/dashboard'
+        ROUTE_PATH.DASHBOARD
       );
     });
   });
@@ -129,7 +134,7 @@ describe('LoginForm', () => {
     await waitFor(() => {
       expect(screen.getByText(/Unexpected error/i)).toBeInTheDocument();
       expect(global.window.location.assign).not.toHaveBeenCalledWith(
-        '/dashboard'
+        ROUTE_PATH.DASHBOARD
       );
     });
   });
