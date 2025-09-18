@@ -1050,6 +1050,54 @@
         }
       }
     },
+    "/dashboard/{subresource+}": {
+      "get": {
+        "tags": [
+          "Admin control panel dashboard sub resource pages"
+        ],
+        "description": "This route will serve the admin control panel sub resource pages",
+        "parameters": [
+          {
+            "name": "subresource",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${s3_apigateway_proxy_role}",
+          "httpMethod": "GET",
+          "uri": "${assets_bucket_control_panel_uri}/index.html",
+          "type": "aws",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "requestParameters": {},
+          "responseParameters": {},
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "integration.response.header.Content-Type",
+                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; connect-src 'self' https://*.pagopa.it; frame-ancestors 'none';'"
+              }
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          }
+        }
+      }
+    },
     "/assets/{proxy+}": {
       "get": {
         "parameters": [
