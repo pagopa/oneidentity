@@ -2,7 +2,7 @@ export const USER_ROOT_PATH = '/dashboard/users';
 
 export const ROUTE_PATH = {
   LOGIN: '/',
-  DASHBOARD: '/dashboard/client',
+  DASHBOARD: '/dashboard',
   CUSTOMIZE: '/dashboard/customize',
   USER_LIST: `${USER_ROOT_PATH}/list`,
   USER: `${USER_ROOT_PATH}`,

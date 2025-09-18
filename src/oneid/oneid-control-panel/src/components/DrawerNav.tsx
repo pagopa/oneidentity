@@ -21,7 +21,7 @@ const navData = (clientId?: string, isAuthenticated?: boolean) => [
     icon: <MoveToInbox fontSize="inherit" />,
     to: ROUTE_PATH.DASHBOARD,
     isVisible: true,
-    matchPath: (pathname: string) => pathname.startsWith(ROUTE_PATH.DASHBOARD),
+    matchPath: (pathname: string) => pathname === ROUTE_PATH.DASHBOARD,
   },
   {
     name: 'Customize UI',

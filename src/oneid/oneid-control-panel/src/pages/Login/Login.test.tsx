@@ -84,7 +84,7 @@ describe('LoginForm', () => {
 
     await waitFor(() => {
       expect(global.window.location.assign).toHaveBeenCalledWith(
-        '/dashboard/client'
+        ROUTE_PATH.DASHBOARD
       );
       // expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
