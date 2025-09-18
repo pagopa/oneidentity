@@ -54,7 +54,10 @@ export default function PersistentDrawerLeft({
       open={open}
     >
       <DrawerHeader>
-        <IconButton onClick={handleDrawerClose} data-testid="close-drawer-button">
+        <IconButton
+          onClick={handleDrawerClose}
+          data-testid="close-drawer-button"
+        >
           {theme.direction === 'ltr' ? (
             <ChevronLeftIcon />
           ) : (

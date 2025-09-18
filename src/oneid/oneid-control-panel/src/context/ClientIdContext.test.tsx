@@ -1,4 +1,3 @@
-
 import { renderHook, act } from '@testing-library/react';
 import { ClientIdProvider, useClientId } from './ClientIdContext';
 import * as Storage from '../utils/storage';
@@ -10,11 +9,12 @@ describe('ClientIdContext', () => {
     sessionStorage.clear();
   });
 
+  const storedClientId = 'test-client-id';
+
   it('should provide initial clientId from storage', () => {
-    const storedClientId = 'test-client-id';
     Storage.storageWrite(sessionStorageClientIdKey, storedClientId, 'string');
 
-    const { result } = renderHook(() => useClientId(), {
+    const { result } = renderHook(useClientId, {
       wrapper: ClientIdProvider,
     });
 
@@ -22,7 +22,7 @@ describe('ClientIdContext', () => {
   });
 
   it('should set and update clientId', () => {
-    const { result } = renderHook(() => useClientId(), {
+    const { result } = renderHook(useClientId, {
       wrapper: ClientIdProvider,
     });
 
@@ -39,10 +39,9 @@ describe('ClientIdContext', () => {
   });
 
   it('should clear clientId', () => {
-    const storedClientId = 'test-client-id';
     Storage.storageWrite(sessionStorageClientIdKey, storedClientId, 'string');
 
-    const { result } = renderHook(() => useClientId(), {
+    const { result } = renderHook(useClientId, {
       wrapper: ClientIdProvider,
     });
 
@@ -59,10 +58,9 @@ describe('ClientIdContext', () => {
   });
 
   it('should handle setting an undefined clientId', () => {
-    const storedClientId = 'test-client-id';
     Storage.storageWrite(sessionStorageClientIdKey, storedClientId, 'string');
 
-    const { result } = renderHook(() => useClientId(), {
+    const { result } = renderHook(useClientId, {
       wrapper: ClientIdProvider,
     });
 

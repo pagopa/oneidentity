@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/no-duplicate-string */
 /* eslint-disable functional/immutable-data */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
