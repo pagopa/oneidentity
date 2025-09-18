@@ -10,8 +10,11 @@ vi.mock('../utils/env', () => ({
   },
 }));
 
+const clientIdTest = 'test-client-id';
+
 describe('DrawerNavLeft', () => {
   const CUSTOMIZE_UI_TEXT = 'Customize UI';
+  const MANAGE_USERS_TEXT = 'Manage Users';
 
   const renderComponent = (clientId?: string, isAuthenticated?: boolean) =>
     render(
@@ -30,7 +33,7 @@ describe('DrawerNavLeft', () => {
   });
 
   it('should show the "Customize UI" link when a clientId and isAuthenticated are provided', () => {
-    renderComponent('test-client-id', true);
+    renderComponent(clientIdTest, true);
     expect(screen.getByText(CUSTOMIZE_UI_TEXT)).toBeInTheDocument();
   });
 
@@ -40,13 +43,23 @@ describe('DrawerNavLeft', () => {
   });
 
   it('should not show the "Customize UI" link when not authenticated', () => {
-    renderComponent('test-client-id', false);
+    renderComponent(clientIdTest, false);
     expect(screen.queryByText(CUSTOMIZE_UI_TEXT)).not.toBeInTheDocument();
   });
 
   it('should show the "Manage Users" link when the environment is not prod', () => {
-    renderComponent();
-    expect(screen.getByText('Manage Users')).toBeInTheDocument();
+    renderComponent(clientIdTest, true);
+    expect(screen.getByText(MANAGE_USERS_TEXT)).toBeInTheDocument();
+  });
+
+  it('should not show the "Manage Users" link when no clientId is provided', () => {
+    renderComponent(undefined, true);
+    expect(screen.queryByText(MANAGE_USERS_TEXT)).not.toBeInTheDocument();
+  });
+
+  it('should not show the "Manage Users" link when not authenticated', () => {
+    renderComponent(clientIdTest, false);
+    expect(screen.queryByText(MANAGE_USERS_TEXT)).not.toBeInTheDocument();
   });
 
   it('should not show the "Manage Users" link when the environment is prod', () => {
