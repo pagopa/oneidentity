@@ -37,7 +37,7 @@ const navData = (clientId?: string, isAuthenticated?: boolean) => [
     name: 'Manage Users',
     icon: <People fontSize="inherit" />,
     to: ROUTE_PATH.USER_LIST,
-    isVisible: ENV.CURRENT_ENV !== 'prod',
+    isVisible: ENV.CURRENT_ENV !== 'prod' && !!clientId && isAuthenticated,
     matchPath: (pathname: string) => pathname.startsWith(USER_ROOT_PATH),
   },
 ];
