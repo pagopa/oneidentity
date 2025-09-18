@@ -32,6 +32,7 @@ const navData = (clientId?: string, isAuthenticated?: boolean) => [
   },
   {
     name: dividerKey,
+    isVisible: ENV.CURRENT_ENV !== 'prod' && !!clientId && isAuthenticated,
   },
   {
     name: 'Manage Users',
@@ -79,11 +80,12 @@ function DrawerNavLeft({
         />
       </Box>
       <List component="nav" sx={{ pt: 0 }}>
-        {navData(clientId, isAuthenticated).map((item) =>
-          item.name === dividerKey ? (
-            <Divider key={uniqueId()} />
-          ) : (
-            item.isVisible && (
+        {navData(clientId, isAuthenticated).map(
+          (item) =>
+            item.isVisible &&
+            (item.name === dividerKey ? (
+              <Divider key={uniqueId()} />
+            ) : (
               <ListItemButton
                 key={item.name}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,8 +96,7 @@ function DrawerNavLeft({
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.name} />
               </ListItemButton>
-            )
-          )
+            ))
         )}
       </List>
     </Box>
