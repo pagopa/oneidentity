@@ -10,7 +10,6 @@ import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
 
 const api = axios.create({
-  baseURL: ENV.PUBLIC_URL,
   headers: {
     'Content-Type': 'application/json',
   },

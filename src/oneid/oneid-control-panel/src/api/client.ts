@@ -19,7 +19,7 @@ export const getClientUsers = async (
   userId: string | undefined,
   token: string
 ): Promise<IdpUserList> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
+  const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   if (!userId) {
     throw new Error(userIdMessage);
@@ -45,7 +45,7 @@ export const deleteClientUser = async (
   token: string,
   username: string | undefined
 ): Promise<void> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
+  const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   if (!userId || !username) {
     throw new Error(userIdMessage);
@@ -67,7 +67,7 @@ export const updateClientUser = async (
   data: IdpUser,
   token: string
 ): Promise<IdpUserCreateOrUpdateResponse> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
+  const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   if (!userId || !username) {
     throw new Error(userIdMessage);
@@ -92,7 +92,7 @@ export const addClientUser = async (
   data: IdpUser,
   token: string
 ): Promise<IdpUserCreateOrUpdateResponse> => {
-  const ENDPOINT = ENV.URL_API.CLIENT.CLIENT_USERS;
+  const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   if (!data) {
     throw new Error('Data is required');

@@ -932,7 +932,8 @@ data "aws_iam_policy_document" "client_manager_lambda" {
     effect = "Allow"
     actions = [
       "dynamodb:UpdateItem",
-      "dynamodb:GetItem"
+      "dynamodb:GetItem",
+      "dynamodb:Scan"
     ]
     resources = [
       var.client_manager_lambda.table_client_registrations_arn
