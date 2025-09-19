@@ -158,7 +158,13 @@ describe('Dashboard UI', () => {
 
     // Click the submit button
     fireEvent.click(submitButton);
+    // modal dialog
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
     // Wait for the success notification
     await waitFor(() => {
       expect(
@@ -191,6 +197,14 @@ describe('Dashboard UI', () => {
     const submitButton = screen.getByTestId('submit-button');
     expect(submitButton).not.toBeDisabled();
     fireEvent.click(submitButton);
+
+    // modal dialog
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/Error updating client/i)).toBeInTheDocument();
