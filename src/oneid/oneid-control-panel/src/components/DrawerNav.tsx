@@ -88,7 +88,6 @@ function DrawerNavLeft({
             ) : (
               <ListItemButton
                 key={item.name}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 component={Link}
                 to={item?.to || '#'}
                 selected={item.matchPath?.(location.pathname) ?? false}
