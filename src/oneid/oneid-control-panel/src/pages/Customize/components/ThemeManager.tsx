@@ -33,7 +33,7 @@ export const ThemeManager: React.FC<ThemeManagerProps> = ({
   errorUi,
 }) => (
   <Box mb={3}>
-    <Typography variant="h5" component="h2" fontWeight="bold" mb={2}>
+    <Typography variant="h5" mb={2}>
       Localized Content Themes
     </Typography>
     <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>

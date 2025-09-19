@@ -109,11 +109,6 @@ describe('AddOrUpdateUser', () => {
     };
   });
 
-  it('renders email of logged user', () => {
-    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
-    expect(screen.getByText('User: test@example.com')).toBeInTheDocument();
-  });
-
   it('calls createClientUsersMutation when form is valid and submitted', async () => {
     const user = userEvent.setup();
 

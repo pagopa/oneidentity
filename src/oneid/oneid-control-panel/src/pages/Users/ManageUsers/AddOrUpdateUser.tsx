@@ -23,6 +23,10 @@ import { fromPairs } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
 import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import SaveIcon from '@mui/icons-material/Save';
+import { PageContainer } from '../../../components/PageContainer';
+import { ContentBox } from '../../../components/ContentBox';
 
 const SamlAttributeValueFields = ({
   attributes,
@@ -160,109 +164,109 @@ export const AddOrUpdateUser = () => {
     };
 
   return (
-    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-      <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
-        User: {user?.profile?.email}
-      </Typography>
+    <PageContainer>
+      <Box component="form" onSubmit={handleSubmit}>
+        <ContentBox>
+          <Typography variant="h5" gutterBottom>
+            User Data
+          </Typography>
 
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ p: 3, maxWidth: 800, mx: 'auto' }}
-      >
-        <Typography variant="h5" gutterBottom>
-          User data
-        </Typography>
+          <TextField
+            required
+            fullWidth
+            label="Username"
+            value={formData?.username || ''}
+            margin="normal"
+            onChange={handleChange('username')}
+            disabled={isEditMode}
+          />
 
-        <TextField
-          required
-          fullWidth
-          label="Username"
-          value={formData?.username || ''}
-          margin="normal"
-          onChange={handleChange('username')}
-          disabled={isEditMode}
-        />
-
-        <TextField
-          fullWidth
-          required
-          type={showPassword ? 'text' : 'password'}
-          label="Password"
-          value={formData?.password || ''}
-          onChange={handleChange('password')}
-          margin="normal"
-          error={!!(errorUi as UserErrors)?.password?._errors}
-          helperText={(errorUi as UserErrors)?.password?._errors}
-          disabled={isEditMode}
-          InputProps={{
-            ...(formData.password
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        edge="end"
-                        size="small"
-                        sx={{ backgroundColor: 'grey.50' }}
-                      >
-                        {showPassword ? (
-                          <VisibilityOff
-                            fontSize="small"
-                            sx={{ color: 'grey' }}
-                          />
-                        ) : (
-                          <Visibility fontSize="small" sx={{ color: 'grey' }} />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }
-              : {}),
-          }}
-        />
-
-        <SamlAttributesSelectInput
-          attributeSelectValues={
-            Object.keys(formData?.samlAttributes || {}) as Array<SamlAttribute>
-          }
-          onChangeFunction={(e) => {
-            const selected = e.target.value as Array<SamlAttribute>;
-            // Record<String, String>
-            const updated = fromPairs(
-              selected.map((attr) => [
-                attr,
-                formData?.samlAttributes?.[attr] || '',
-              ])
-            );
-
-            setFormData((prev) => ({
-              ...prev,
-              samlAttributes: updated,
-            }));
-          }}
-          errorHelperText={(errorUi as UserErrors)?.samlAttributes?._errors}
-        >
-          <SamlAttributeValueFields
-            attributes={Object.entries(formData?.samlAttributes || {})}
-            onChange={(attribute, value) => {
-              setFormData((prev) => ({
-                ...prev,
-                samlAttributes: {
-                  ...(prev?.samlAttributes || {}),
-                  [attribute]: value,
-                },
-              }));
+          <TextField
+            fullWidth
+            required
+            type={showPassword ? 'text' : 'password'}
+            label="Password"
+            value={formData?.password || ''}
+            onChange={handleChange('password')}
+            margin="normal"
+            error={!!(errorUi as UserErrors)?.password?._errors}
+            helperText={(errorUi as UserErrors)?.password?._errors}
+            disabled={isEditMode}
+            InputProps={{
+              ...(formData.password
+                ? {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                          size="small"
+                          sx={{ backgroundColor: 'background.default' }}
+                        >
+                          {showPassword ? (
+                            <VisibilityOff
+                              fontSize="small"
+                              sx={{ color: 'grey' }}
+                            />
+                          ) : (
+                            <Visibility
+                              fontSize="small"
+                              sx={{ color: 'grey' }}
+                            />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }
+                : {}),
             }}
           />
-        </SamlAttributesSelectInput>
+
+          <SamlAttributesSelectInput
+            attributeSelectValues={
+              Object.keys(
+                formData?.samlAttributes || {}
+              ) as Array<SamlAttribute>
+            }
+            onChangeFunction={(e) => {
+              const selected = e.target.value as Array<SamlAttribute>;
+              // Record<String, String>
+              const updated = fromPairs(
+                selected.map((attr) => [
+                  attr,
+                  formData?.samlAttributes?.[attr] || '',
+                ])
+              );
+
+              setFormData((prev) => ({
+                ...prev,
+                samlAttributes: updated,
+              }));
+            }}
+            errorHelperText={(errorUi as UserErrors)?.samlAttributes?._errors}
+          >
+            <SamlAttributeValueFields
+              attributes={Object.entries(formData?.samlAttributes || {})}
+              onChange={(attribute, value) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  samlAttributes: {
+                    ...(prev?.samlAttributes || {}),
+                    [attribute]: value,
+                  },
+                }));
+              }}
+            />
+          </SamlAttributesSelectInput>
+        </ContentBox>
 
         <Button
           type="submit"
           variant="contained"
-          sx={{ mt: 2 }}
+          sx={{ mt: 3 }}
           data-testid="submit-button"
+          startIcon={isEditMode ? <SaveIcon /> : <AddIcon />}
           disabled={!isFormValid() || isCreatingUser || isUpdatingUser}
         >
           {isEditMode ? 'Update User' : 'Add User'}
@@ -279,6 +283,6 @@ export const AddOrUpdateUser = () => {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </Box>
+    </PageContainer>
   );
 };
