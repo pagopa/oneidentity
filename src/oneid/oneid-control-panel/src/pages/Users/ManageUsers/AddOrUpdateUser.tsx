@@ -184,7 +184,7 @@ export const AddOrUpdateUser = () => {
           <TextField
             fullWidth
             required
-            type={showPassword ? 'text' : 'password'}
+            type={'text'}
             label="Password"
             value={formData?.password || ''}
             onChange={handleChange('password')}
@@ -193,6 +193,12 @@ export const AddOrUpdateUser = () => {
             helperText={(errorUi as UserErrors)?.password?._errors}
             disabled={isEditMode}
             InputProps={{
+              sx: !showPassword
+                ? {
+                    WebkitTextSecurity: 'disc',
+                    MozTextSecurity: 'disc',
+                  }
+                : {},
               ...(formData.password
                 ? {
                     endAdornment: (
@@ -202,7 +208,6 @@ export const AddOrUpdateUser = () => {
                           onClick={() => setShowPassword((prev) => !prev)}
                           edge="end"
                           size="small"
-                          sx={{ backgroundColor: 'background.default' }}
                         >
                           {showPassword ? (
                             <VisibilityOff
