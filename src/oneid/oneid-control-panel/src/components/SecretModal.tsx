@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { ClientRegisteredData } from '../types/api';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import React from 'react';
 
 const style = {
@@ -72,6 +73,14 @@ export const SecretModal = ({
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
+                  <IconButton
+                    aria-label="copy client secret"
+                    onClick={() =>
+                      navigator.clipboard.writeText(data?.clientSecret || '')
+                    }
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={handleClickShowPassword}
