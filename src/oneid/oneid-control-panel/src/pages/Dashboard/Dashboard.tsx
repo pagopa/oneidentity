@@ -16,6 +16,11 @@ import {
   FormHelperText,
   FormControlLabel,
   Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   SpidLevel,
@@ -41,6 +46,9 @@ export const Dashboard = () => {
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const openConfirm = () => setIsConfirmOpen(true);
+  const closeConfirm = () => setIsConfirmOpen(false);
   const { isModalOpen, openModal, closeModal } = useModalManager();
 
   const {
@@ -135,21 +143,45 @@ export const Dashboard = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const doSubmit = () => {
+    //old handleSubmit
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
-    } else {
-      const existingClientId =
-        fetchedClientData?.clientId ||
-        Storage.storageRead(sessionStorageClientIdKey, 'string');
-      setIsCreating(!existingClientId);
-      createOrUpdateClient({
-        data: formData as ClientWithoutSensitiveData,
-        clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
-      });
+      return;
     }
+    const existingClientId =
+      fetchedClientData?.clientId ||
+      Storage.storageRead(sessionStorageClientIdKey, 'string');
+
+    setIsCreating(!existingClientId);
+    createOrUpdateClient({
+      data: formData as ClientWithoutSensitiveData,
+      clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    // open modal
+    e.preventDefault();
+
+    // open modal only if is update stauts && spid level or saml attributes are modified
+    if (
+      !isCreating &&
+      (JSON.stringify(formData?.defaultAcrValues) !==
+        JSON.stringify(fetchedClientData?.defaultAcrValues) ||
+        JSON.stringify(formData?.samlRequestedAttributes) !==
+          JSON.stringify(fetchedClientData?.samlRequestedAttributes))
+    ) {
+      openConfirm();
+    } else {
+      doSubmit();
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    // confirm changes submit request
+    closeConfirm();
+    doSubmit();
   };
 
   const handleChange =
@@ -363,7 +395,33 @@ export const Dashboard = () => {
           {isUpdating ? 'Saving...' : 'Save Changes'}
         </Button>
       </Box>
-
+      <Dialog
+        open={isConfirmOpen}
+        onClose={closeConfirm}
+        aria-labelledby="confirm-submit-title"
+      >
+        <DialogTitle id="confirm-submit-title">Confirm changes</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Updating SPID Level and SAML Attributes fields may require
+            re-sharing them with the SPID and CIE authorities (AgID and IPZS).
+            Please confirm you want to proceed
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeConfirm} disabled={isUpdating}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmSubmit}
+            variant="contained"
+            autoFocus
+            disabled={isUpdating}
+          >
+            {isUpdating ? 'Saving...' : 'Confirm'}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Notify
         open={notify.open}
         message={notify.message}
