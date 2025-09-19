@@ -169,7 +169,7 @@ export const Dashboard = () => {
 
     // open modal only if is update stauts && spid level or saml attributes are modified
     if (
-      !isCreating &&
+      clientId &&
       (!isEqual(
         formData?.defaultAcrValues,
         fetchedClientData?.defaultAcrValues
