@@ -35,7 +35,7 @@ import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
 import { ROUTE_PATH } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
-import { isNil } from 'lodash';
+import { isEqual, isNil } from 'lodash';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { useClientId } from '../../context/ClientIdContext';
 import SaveIcon from '@mui/icons-material/Save';
@@ -170,10 +170,14 @@ export const Dashboard = () => {
     // open modal only if is update stauts && spid level or saml attributes are modified
     if (
       !isCreating &&
-      (JSON.stringify(formData?.defaultAcrValues) !==
-        JSON.stringify(fetchedClientData?.defaultAcrValues) ||
-        JSON.stringify(formData?.samlRequestedAttributes) !==
-          JSON.stringify(fetchedClientData?.samlRequestedAttributes))
+      (!isEqual(
+        formData?.defaultAcrValues,
+        fetchedClientData?.defaultAcrValues
+      ) ||
+        !isEqual(
+          formData?.samlRequestedAttributes,
+          fetchedClientData?.samlRequestedAttributes
+        ))
     ) {
       openConfirm();
     } else {
