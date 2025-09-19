@@ -99,7 +99,7 @@ describe('Dashboard UI', () => {
     const nameInput = screen.getByLabelText(/Client Name/i);
     fireEvent.change(nameInput, { target: { value: '' } });
 
-    const submitButton = screen.getByRole('button', { name: /Save Changes/i });
+    const submitButton = screen.getByRole('button', { name: /Create Client/i });
     expect(submitButton).toBeDisabled();
   });
 

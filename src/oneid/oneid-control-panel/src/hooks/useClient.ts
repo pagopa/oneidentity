@@ -8,6 +8,8 @@ import {
   getClientUsers,
 } from '../api/client';
 
+export const USER_LIST_QKEY = 'get_user_list';
+
 const retry = 2;
 
 export const useClient = () => {
@@ -54,7 +56,7 @@ export const useClient = () => {
   });
 
   const getClientUsersList = useQuery({
-    queryKey: ['get_user_list', userId],
+    queryKey: [USER_LIST_QKEY, userId],
     queryFn: async () => {
       if (!userId) {
         throw new Error('userId is required');

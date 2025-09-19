@@ -22,7 +22,7 @@ export const ClientSettings = ({
   errorUi,
 }: ClientSettingsProps) => (
   <Box mb={4}>
-    <Typography variant="h6" component="h2" gutterBottom>
+    <Typography variant="h6" gutterBottom>
       General Settings
     </Typography>
     <Grid container spacing={3} mb={3}>

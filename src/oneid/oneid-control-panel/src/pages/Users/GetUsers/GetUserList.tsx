@@ -1,23 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  Alert,
-  Backdrop,
-  Box,
-  Button,
-  CircularProgress,
-  Typography,
-} from '@mui/material';
+import { Alert, Backdrop, Box, Button, CircularProgress } from '@mui/material';
 import { IdpUser } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
-import { useClient } from '../../../hooks/useClient';
+import { useClient, USER_LIST_QKEY } from '../../../hooks/useClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { ROUTE_PATH } from '../../../utils/constants';
 import { isEmpty, isNil } from 'lodash';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import { useModalManager } from '../../../hooks/useModal';
+import AddIcon from '@mui/icons-material/Add';
+import { PageContainer } from '../../../components/PageContainer';
 
 export const GetUserList = () => {
   const { user } = useAuth();
@@ -70,7 +65,7 @@ export const GetUserList = () => {
         message: 'User successfully deleted',
         severity: 'success',
       });
-      queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     if (deleteClientUsersError) {
       console.error('Error update user:', deleteClientUsersError);
@@ -91,7 +86,7 @@ export const GetUserList = () => {
       setNotify(notifyFromState);
     }
     if (location.state?.refresh) {
-      queryClient.invalidateQueries({ queryKey: ['get_user_list', userId] });
+      queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     window.history.replaceState({}, document.title);
   }, [location.state, queryClient, userId]);
@@ -131,43 +126,39 @@ export const GetUserList = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh' }}>
-      <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
-        User: {user?.profile?.email}
-      </Typography>
-      <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
-        {getIdpUsersError && (
-          <Box sx={{ mt: 4 }}>
-            <Alert severity="error">
-              {getIdpUsersError instanceof Error
-                ? getIdpUsersError.message
-                : 'An error occurred'}
-            </Alert>
-          </Box>
-        )}
-        {isSuccess && (
-          <>
-            {renderUserTable()}
-            <ConfirmDialog
-              open={isModalOpen('confirm')}
-              title="Confirm deletion"
-              content="Are you sure you want to delete this user?"
-              onCancel={() => closeModal()}
-              onConfirm={handleDelete}
-              confirmText="Delete"
-              cancelText="Cancel"
-            />
-            <Button
-              variant="contained"
-              sx={{ mt: 3 }}
-              data-testid="submit-button"
-              onClick={() => navigate(ROUTE_PATH.USER)}
-            >
-              {'Add user'}
-            </Button>
-          </>
-        )}
-      </Box>
+    <PageContainer>
+      {getIdpUsersError && (
+        <Box sx={{ mb: 4 }}>
+          <Alert severity="error">
+            {getIdpUsersError instanceof Error
+              ? getIdpUsersError.message
+              : 'An error occurred'}
+          </Alert>
+        </Box>
+      )}
+      {isSuccess && (
+        <>
+          {renderUserTable()}
+          <ConfirmDialog
+            open={isModalOpen('confirm')}
+            title="Confirm deletion"
+            content="Are you sure you want to delete this user?"
+            onCancel={() => closeModal()}
+            onConfirm={handleDelete}
+            confirmText="Delete"
+            cancelText="Cancel"
+          />
+          <Button
+            variant="contained"
+            sx={{ mt: 3 }}
+            startIcon={<AddIcon />}
+            data-testid="submit-button"
+            onClick={() => navigate(ROUTE_PATH.USER)}
+          >
+            {'Add User'}
+          </Button>
+        </>
+      )}
 
       <Backdrop open={isDeletingUser}>
         <CircularProgress color="secondary" />
@@ -179,6 +170,6 @@ export const GetUserList = () => {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </Box>
+    </PageContainer>
   );
 };

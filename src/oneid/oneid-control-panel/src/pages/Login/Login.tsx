@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useAuth } from 'react-oidc-context';
 import { ROUTE_PATH } from '../../utils/constants';
+import { useClientId } from '../../context/ClientIdContext';
 
 export const LoginForm = () => {
   const {
@@ -19,11 +20,16 @@ export const LoginForm = () => {
     removeUser,
   } = useAuth();
 
+  const { clearClientId } = useClientId();
+
   useEffect(() => {
+    if (isAuthenticated === false) {
+      clearClientId();
+    }
     if (isAuthenticated && user?.profile) {
       window.location.assign(ROUTE_PATH.DASHBOARD);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, clearClientId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +40,14 @@ export const LoginForm = () => {
   };
 
   const handleLogout = async () => {
-    await removeUser();
+    try {
+      clearClientId();
+    } catch (err) {
+      console.error('Error clearing clientId before logout', err);
+    } finally {
+      // OIDC logout
+      await removeUser();
+    }
   };
 
   return (

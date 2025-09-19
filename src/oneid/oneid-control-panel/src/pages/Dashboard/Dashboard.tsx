@@ -28,20 +28,22 @@ import {
   ClientErrors,
   ClientWithoutSensitiveData,
 } from '../../types/api';
-import { useAuth } from 'react-oidc-context';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
 import { Notify } from '../../components/Notify';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
-import { ROUTE_PATH, sessionStorageClientIdKey } from '../../utils/constants';
+import { ROUTE_PATH } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
-import * as Storage from '../../utils/storage';
 import { isNil } from 'lodash';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
+import { useClientId } from '../../context/ClientIdContext';
+import SaveIcon from '@mui/icons-material/Save';
+import AddIcon from '@mui/icons-material/Add';
+import { PageContainer } from '../../components/PageContainer';
+import { ContentBox } from '../../components/ContentBox';
 
 export const Dashboard = () => {
-  const { user } = useAuth();
   const [formData, setFormData] =
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
@@ -50,6 +52,8 @@ export const Dashboard = () => {
   const openConfirm = () => setIsConfirmOpen(true);
   const closeConfirm = () => setIsConfirmOpen(false);
   const { isModalOpen, openModal, closeModal } = useModalManager();
+
+  const { setClientId, clientId } = useClientId();
 
   const {
     clientQuery: {
@@ -75,17 +79,12 @@ export const Dashboard = () => {
 
       if (
         fetchedClientData.clientId &&
-        fetchedClientData.clientId !==
-          Storage.storageRead(sessionStorageClientIdKey, 'string')
+        fetchedClientData.clientId !== clientId
       ) {
-        Storage.storageWrite(
-          sessionStorageClientIdKey,
-          fetchedClientData.clientId,
-          'string'
-        );
+        setClientId(fetchedClientData.clientId);
       }
     }
-  }, [isUpdatePhase, fetchedClientData]);
+  }, [isUpdatePhase, fetchedClientData, clientId, setClientId]);
 
   useEffect(() => {
     if (updateError) {
@@ -110,11 +109,11 @@ export const Dashboard = () => {
 
       // Save client id retrieved from api to session storage
       if (!isUpdatePhase) {
-        const clientId = clientUpdated?.clientId;
-        if (!isNil(clientId) && typeof clientId === 'string') {
-          Storage.storageWrite(sessionStorageClientIdKey, clientId, 'string');
+        const newClientId = clientUpdated?.clientId;
+        if (!isNil(newClientId) && typeof newClientId === 'string') {
+          setClientId(newClientId);
         } else {
-          console.error('clientId is not a valid value:', clientId);
+          console.error('clientId is not a valid value:', newClientId);
         }
       }
       // before redirecting we need to show a modal with clientId and clientSecret
@@ -123,7 +122,15 @@ export const Dashboard = () => {
         openModal('secretViewer');
       }
     }
-  }, [updateError, isUpdated, clientUpdated, isUpdatePhase, openModal]);
+  }, [
+    updateError,
+    isUpdated,
+    clientUpdated,
+    isUpdatePhase,
+    openModal,
+    isCreating,
+    setClientId,
+  ]);
 
   const isFormValid = () => {
     // TODO: if clientSchema inside api.ts is adjusted to reflect the actual optional and required fields, we can use:
@@ -144,20 +151,16 @@ export const Dashboard = () => {
   };
 
   const doSubmit = () => {
-    //old handleSubmit
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
-      return;
+    } else {
+      const existingClientId = fetchedClientData?.clientId || clientId;
+      setIsCreating(!existingClientId);
+      createOrUpdateClient({
+        data: formData as ClientWithoutSensitiveData,
+        clientId: clientId,
+      });
     }
-    const existingClientId =
-      fetchedClientData?.clientId ||
-      Storage.storageRead(sessionStorageClientIdKey, 'string');
-
-    setIsCreating(!existingClientId);
-    createOrUpdateClient({
-      data: formData as ClientWithoutSensitiveData,
-      clientId: Storage.storageRead(sessionStorageClientIdKey, 'string'),
-    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -208,10 +211,9 @@ export const Dashboard = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
-      {/* if client not found show creation page and don't show error alert */}
+    <PageContainer>
       {fetchError && fetchError.message !== 'Client not found' && (
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mb: 4 }}>
           <Alert severity="error">
             {fetchError instanceof Error
               ? fetchError.message
@@ -236,164 +238,170 @@ export const Dashboard = () => {
         }}
       />
 
-      <Typography variant="h6" sx={{ mt: 2, ml: 3 }}>
-        User: {user?.profile?.email}
-      </Typography>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ p: 3, maxWidth: 800, mx: 'auto' }}
-      >
-        <Typography variant="h5" gutterBottom>
-          Client Information
-        </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <ContentBox>
+          <Typography variant="h5" gutterBottom>
+            Client Information
+          </Typography>
 
-        <TextField
-          hidden
-          fullWidth
-          label="Client ID"
-          value={fetchedClientData?.clientId || ''}
-          disabled
-          margin="normal"
-        />
+          {clientId && (
+            <TextField
+              hidden
+              fullWidth
+              label="Client ID"
+              value={clientId || ''}
+              disabled
+              margin="normal"
+            />
+          )}
 
-        <TextField
-          fullWidth
-          required
-          label="Client Name"
-          value={formData?.clientName || ''}
-          onChange={handleChange('clientName')}
-          margin="normal"
-          error={!!(errorUi as ClientErrors)?.clientName?._errors}
-          helperText={(errorUi as ClientErrors)?.clientName?._errors}
-        />
-
-        <TextField
-          fullWidth
-          label="Logo URI"
-          value={formData?.logoUri || ''}
-          onChange={handleChange('logoUri')}
-          margin="normal"
-          error={!!(errorUi as ClientErrors)?.logoUri?._errors}
-          helperText={(errorUi as ClientErrors)?.logoUri?._errors}
-        />
-
-        <TextField
-          fullWidth
-          label="Policy URI"
-          value={formData?.policyUri || ''}
-          onChange={handleChange('policyUri')}
-          margin="normal"
-          error={!!(errorUi as ClientErrors)?.policyUri?._errors}
-          helperText={(errorUi as ClientErrors)?.policyUri?._errors}
-        />
-
-        <TextField
-          fullWidth
-          label="Terms of Service URI"
-          value={formData?.tosUri || ''}
-          onChange={handleChange('tosUri')}
-          margin="normal"
-          error={!!(errorUi as ClientErrors)?.tosUri?._errors}
-          helperText={(errorUi as ClientErrors)?.tosUri?._errors}
-        />
-
-        <FormControl
-          fullWidth
-          margin="normal"
-          required
-          error={!!(errorUi as ClientErrors)?.redirectUris?._errors}
-        >
-          <FormArrayTextField
-            formData={formData}
-            setFormData={setFormData}
-            fieldName="redirectUris"
-            label="Redirect URIs"
-            errors={errorUi as ClientErrors}
+          <TextField
+            fullWidth
+            required
+            label="Client Name"
+            value={formData?.clientName || ''}
+            onChange={handleChange('clientName')}
+            margin="normal"
+            error={!!(errorUi as ClientErrors)?.clientName?._errors}
+            helperText={(errorUi as ClientErrors)?.clientName?._errors}
           />
-        </FormControl>
 
-        <FormControl
-          fullWidth
-          margin="normal"
-          required
-          error={!!(errorUi as ClientErrors)?.defaultAcrValues?._errors}
-        >
-          <InputLabel id="spid-level-label">SPID Level</InputLabel>
-          <Select
-            labelId="spid-level-label"
-            id="spid-level-select"
-            multiple
-            value={formData?.defaultAcrValues || []}
-            renderValue={(selected) => (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip
-                    key={value}
-                    label={value.replace(
-                      'https://www.spid.gov.it/Spid',
-                      'Level '
-                    )}
-                  />
-                ))}
-              </Box>
-            )}
-            onChange={(e) =>
+          <TextField
+            fullWidth
+            label="Logo URI"
+            value={formData?.logoUri || ''}
+            onChange={handleChange('logoUri')}
+            margin="normal"
+            error={!!(errorUi as ClientErrors)?.logoUri?._errors}
+            helperText={(errorUi as ClientErrors)?.logoUri?._errors}
+          />
+
+          <TextField
+            fullWidth
+            label="Policy URI"
+            value={formData?.policyUri || ''}
+            onChange={handleChange('policyUri')}
+            margin="normal"
+            error={!!(errorUi as ClientErrors)?.policyUri?._errors}
+            helperText={(errorUi as ClientErrors)?.policyUri?._errors}
+          />
+
+          <TextField
+            fullWidth
+            label="Terms of Service URI"
+            value={formData?.tosUri || ''}
+            onChange={handleChange('tosUri')}
+            margin="normal"
+            error={!!(errorUi as ClientErrors)?.tosUri?._errors}
+            helperText={(errorUi as ClientErrors)?.tosUri?._errors}
+          />
+
+          <FormControl
+            fullWidth
+            margin="normal"
+            required
+            error={!!(errorUi as ClientErrors)?.redirectUris?._errors}
+          >
+            <FormArrayTextField
+              formData={formData}
+              setFormData={setFormData}
+              fieldName="redirectUris"
+              label="Redirect URIs"
+              errors={errorUi as ClientErrors}
+            />
+          </FormControl>
+
+          <FormControl
+            fullWidth
+            margin="normal"
+            required
+            error={!!(errorUi as ClientErrors)?.defaultAcrValues?._errors}
+          >
+            <InputLabel id="spid-level-label">SPID Level</InputLabel>
+            <Select
+              labelId="spid-level-label"
+              id="spid-level-select"
+              multiple
+              value={formData?.defaultAcrValues || []}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip
+                      key={value}
+                      label={value.replace(
+                        'https://www.spid.gov.it/Spid',
+                        'Level '
+                      )}
+                    />
+                  ))}
+                </Box>
+              )}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  defaultAcrValues: e.target.value as Array<SpidLevel>,
+                }))
+              }
+              input={<OutlinedInput label={'SPID Level'} />}
+              data-testid="spid-level-select"
+            >
+              {Object.values(SpidLevel).map((level) => (
+                <MenuItem key={level} value={level}>
+                  {level.replace('https://www.spid.gov.it/Spid', 'Level ')}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {(errorUi as ClientErrors)?.defaultAcrValues?._errors}
+            </FormHelperText>
+          </FormControl>
+
+          <SamlAttributesSelectInput
+            attributeSelectValues={formData?.samlRequestedAttributes}
+            onChangeFunction={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                defaultAcrValues: e.target.value as Array<SpidLevel>,
+                samlRequestedAttributes: e.target.value as Array<SamlAttribute>,
               }))
             }
-            input={<OutlinedInput label={'SPID Level'} />}
-            data-testid="spid-level-select"
-          >
-            {Object.values(SpidLevel).map((level) => (
-              <MenuItem key={level} value={level}>
-                {level.replace('https://www.spid.gov.it/Spid', 'Level ')}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText>
-            {(errorUi as ClientErrors)?.defaultAcrValues?._errors}
-          </FormHelperText>
-        </FormControl>
-
-        <SamlAttributesSelectInput
-          attributeSelectValues={formData?.samlRequestedAttributes}
-          onChangeFunction={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              samlRequestedAttributes: e.target.value as Array<SamlAttribute>,
-            }))
-          }
-          errorHelperText={
-            (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
-          }
-        />
-
-        <FormGroup sx={{ mt: 2, mb: 1 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                sx={{ mr: 2, ml: 1 }}
-                name="requiredSameIdp"
-                checked={formData?.requiredSameIdp || false}
-                onChange={handleChange('requiredSameIdp')}
-              />
+            errorHelperText={
+              (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
             }
-            label="Required Same IDP"
           />
-        </FormGroup>
 
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{ mt: 5 }}
-          data-testid="submit-button"
-          disabled={isUpdating || !isFormValid()}
-        >
-          {isUpdating ? 'Saving...' : 'Save Changes'}
-        </Button>
+          <FormGroup sx={{ mt: 2, mb: 1 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  sx={{ mr: 2, ml: 1 }}
+                  name="requiredSameIdp"
+                  checked={formData?.requiredSameIdp || false}
+                  onChange={handleChange('requiredSameIdp')}
+                />
+              }
+              label="Required Same IDP"
+            />
+          </FormGroup>
+        </ContentBox>
+
+        <Box>
+          <Button
+            type="submit"
+            variant="contained"
+            startIcon={clientId ? <SaveIcon /> : <AddIcon />}
+            sx={{ mt: 3 }}
+            data-testid="submit-button"
+            disabled={isUpdating || !isFormValid()}
+          >
+            {clientId
+              ? isUpdating
+                ? 'Saving...'
+                : 'Save Changes'
+              : isUpdating
+                ? 'Creating...'
+                : 'Create Client'}
+          </Button>
+        </Box>
       </Box>
       <Dialog
         open={isConfirmOpen}
@@ -428,6 +436,6 @@ export const Dashboard = () => {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </Box>
+    </PageContainer>
   );
 };

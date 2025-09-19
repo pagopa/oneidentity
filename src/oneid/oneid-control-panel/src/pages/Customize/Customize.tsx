@@ -1,8 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Container,
   Typography,
-  Paper,
   Box,
   TextField,
   Button,
@@ -35,6 +33,8 @@ import { ClientSettings } from './components/ClientSettings';
 import { Notify } from '../../components/Notify';
 import { useRegister } from '../../hooks/useRegister';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
+import { PageContainer } from '../../components/PageContainer';
+import { ContentBox } from '../../components/ContentBox';
 
 function isEqualOrNullish(a: unknown, b: unknown): boolean {
   // If one is null and one is undefined treat them as equal
@@ -370,70 +370,55 @@ function CustomizeDashboard() {
   }, [activeTheme]);
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <Box p={{ xs: 2, sm: 3, md: 4 }}>
-          <Typography variant="h4" component="h1" fontWeight="bold">
-            Client Configuration
-          </Typography>
-          <Typography variant="body1" color="text.secondary" mb={4}>
-            Manage the client settings and localized content.
-          </Typography>
+    <PageContainer>
+      <ContentBox>
+        <Typography variant="h5">Client Configuration</Typography>
+        <Typography variant="body1" color="text.secondary" mb={4}>
+          Manage the client settings and localized content.
+        </Typography>
 
-          <ClientSettings
-            clientData={clientData}
-            clientID={clientId}
-            onClientDataChange={handleTopLevelChange}
-            errorUi={errorUi}
-          />
+        <ClientSettings
+          clientData={clientData}
+          clientID={clientId}
+          onClientDataChange={handleTopLevelChange}
+          errorUi={errorUi}
+        />
 
-          <Divider sx={{ my: 4 }} />
+        <Divider sx={{ my: 4 }} />
 
-          <ThemeManager
-            themes={clientData?.localizedContentMap}
+        <ThemeManager
+          themes={clientData?.localizedContentMap}
+          activeThemeKey={activeThemeKey}
+          onThemeChange={(e) => setActiveThemeKey(e.target.value)}
+          onAddTheme={() => setThemeModalOpen(true)}
+          onRemoveTheme={() => setConfirmModalOpen(true)}
+          errorUi={errorUi}
+        />
+
+        {activeTheme && (
+          <LocalizedContentEditor
+            activeLanguages={activeLanguages}
+            activeTheme={activeTheme}
             activeThemeKey={activeThemeKey}
-            onThemeChange={(e) => setActiveThemeKey(e.target.value)}
-            onAddTheme={() => setThemeModalOpen(true)}
-            onRemoveTheme={() => setConfirmModalOpen(true)}
+            activeTab={activeTab}
+            onTabChange={(_e, val) => setActiveTab(val)}
+            onContentChange={handleLocalizedContentChange}
+            onAddLanguage={() => setLangModalOpen(true)}
+            onRemoveLanguage={handleRemoveLanguage}
             errorUi={errorUi}
           />
+        )}
+      </ContentBox>
 
-          {activeTheme && (
-            <LocalizedContentEditor
-              activeLanguages={activeLanguages}
-              activeTheme={activeTheme}
-              activeThemeKey={activeThemeKey}
-              activeTab={activeTab}
-              onTabChange={(_e, val) => setActiveTab(val)}
-              onContentChange={handleLocalizedContentChange}
-              onAddLanguage={() => setLangModalOpen(true)}
-              onRemoveLanguage={handleRemoveLanguage}
-              errorUi={errorUi}
-            />
-          )}
-        </Box>
-
-        <Box
-          sx={{
-            p: 2,
-            bgcolor: 'grey.50',
-            borderTop: 1,
-            borderColor: 'grey.200',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 2,
-          }}
-        >
-          <Button
-            variant="contained"
-            startIcon={<SaveIcon />}
-            onClick={handleSubmit}
-            disabled={isUpdating || !isFormValid()}
-          >
-            {isUpdating ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </Box>
-      </Paper>
+      <Button
+        sx={{ mt: 3, mb: 4 }}
+        variant="contained"
+        startIcon={<SaveIcon />}
+        onClick={handleSubmit}
+        disabled={isUpdating || !isFormValid()}
+      >
+        {isUpdating ? 'Saving...' : 'Save Changes'}
+      </Button>
 
       {/* TODO swith to useModal hook */}
       {/* Modals are unchanged but their handlers are updated */}
@@ -527,7 +512,7 @@ function CustomizeDashboard() {
         severity={notify.severity}
         handleOpen={(open) => setNotify({ ...notify, open })}
       />
-    </Container>
+    </PageContainer>
   );
 }
 
@@ -568,7 +553,7 @@ const LanguageSelector: React.FC<{
 
 export const Customize = () => {
   return (
-    <Box sx={{ bgcolor: 'grey.50', minHeight: '100vh' }}>
+    <Box sx={{ minHeight: '100vh' }}>
       <CustomizeDashboard />
     </Box>
   );

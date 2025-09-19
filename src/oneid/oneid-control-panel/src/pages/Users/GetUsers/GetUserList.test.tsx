@@ -94,7 +94,6 @@ describe('GetUserList', () => {
 
     render(<GetUserList />, { wrapper: createWrapper() });
 
-    expect(screen.getByText('User: test@example.com')).toBeInTheDocument();
     expect(await screen.findByText('test_uno')).toBeInTheDocument();
     expect(screen.getByText('test_due')).toBeInTheDocument();
   });
