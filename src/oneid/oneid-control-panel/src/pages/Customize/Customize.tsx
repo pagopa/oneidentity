@@ -26,7 +26,6 @@ import {
   ClientWithoutSensitiveData,
   Languages,
 } from '../../types/api';
-import { useParams } from 'react-router-dom';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
@@ -35,6 +34,7 @@ import { useRegister } from '../../hooks/useRegister';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
+import { useClientId } from '../../context/ClientIdContext';
 
 function isEqualOrNullish(a: unknown, b: unknown): boolean {
   // If one is null and one is undefined treat them as equal
@@ -44,7 +44,7 @@ function isEqualOrNullish(a: unknown, b: unknown): boolean {
 }
 
 function CustomizeDashboard() {
-  const { clientId } = useParams(); // Get the clientId from the URL
+  const { clientId } = useClientId();
 
   const {
     clientQuery: {

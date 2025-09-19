@@ -26,7 +26,7 @@ const navData = (clientId?: string, isAuthenticated?: boolean) => [
   {
     name: 'Customize UI',
     icon: <Mail fontSize="inherit" />,
-    to: `${ROUTE_PATH.CUSTOMIZE}/${clientId}`,
+    to: ROUTE_PATH.CUSTOMIZE,
     isVisible: !!clientId && isAuthenticated,
     matchPath: (pathname: string) => pathname.startsWith(ROUTE_PATH.CUSTOMIZE),
   },

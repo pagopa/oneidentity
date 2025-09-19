@@ -13,14 +13,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTE_PATH.LOGIN} element={<LoginForm />} />
-      <Route
-        path={`${ROUTE_PATH.DASHBOARD}`}
-        element={<PrivateDashboardRoute />}
-      />
-      <Route
-        path={`${ROUTE_PATH.CUSTOMIZE}/:clientId`}
-        element={<PrivateCustomizedRoute />}
-      />
+      <Route path={ROUTE_PATH.DASHBOARD} element={<PrivateDashboardRoute />} />
+      <Route path={ROUTE_PATH.CUSTOMIZE} element={<PrivateCustomizedRoute />} />
       {ENV.CURRENT_ENV !== 'prod' && (
         <>
           <Route
