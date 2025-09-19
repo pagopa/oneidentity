@@ -211,11 +211,13 @@ export const AddOrUpdateUser = () => {
                         >
                           {showPassword ? (
                             <VisibilityOff
+                              data-testid="VisibilityOffIcon"
                               fontSize="small"
                               sx={{ color: 'grey' }}
                             />
                           ) : (
                             <Visibility
+                              data-testid="VisibilityOnIcon"
                               fontSize="small"
                               sx={{ color: 'grey' }}
                             />

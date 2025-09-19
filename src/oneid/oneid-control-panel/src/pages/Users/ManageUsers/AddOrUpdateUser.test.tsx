@@ -263,16 +263,19 @@ describe('AddOrUpdateUser', () => {
     const visibilityButton = screen.getByRole('button', {
       name: /toggle password visibility/i,
     });
-    expect(passwordInput).toHaveAttribute('type', 'password');
+
+    expect(screen.getByTestId('VisibilityOnIcon')).toBeInTheDocument();
 
     await user.click(visibilityButton);
+
     await waitFor(() => {
-      expect(passwordInput).toHaveAttribute('type', 'text');
+      expect(screen.getByTestId('VisibilityOffIcon')).toBeInTheDocument();
     });
 
     await user.click(visibilityButton);
+
     await waitFor(() => {
-      expect(passwordInput).toHaveAttribute('type', 'password');
+      expect(screen.getByTestId('VisibilityOnIcon')).toBeInTheDocument();
     });
   });
 
