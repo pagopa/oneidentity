@@ -86,6 +86,9 @@ public class OIDCServiceImpl implements OIDCService {
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
 
+  @ConfigProperty(name = "pairwise_enabled")
+  boolean pairwiseEnabled;
+
   @Inject
   @RestClient
   PDVApiClient pdvApiClient;
@@ -241,7 +244,7 @@ public class OIDCServiceImpl implements OIDCService {
     String id = null;
 
     // Check if we need to add the "pairwise" claim to the ID token
-    if (clientsMap.get(clientId).isPairwise()) {
+    if (pairwiseEnabled && clientsMap.get(clientId).isPairwise()) {
       // Get fiscalNumber from attribute list
       id = getIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
