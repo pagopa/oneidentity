@@ -31,12 +31,14 @@ import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.connector.PDVApiClient;
+import it.pagopa.oneid.connector.SQSConnectorImpl;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.dto.JWKSUriMetadataDTO;
+import it.pagopa.oneid.model.dto.PDVUserRetryMessageDTO;
 import it.pagopa.oneid.model.dto.SavePDVUserDTO;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
@@ -103,6 +105,8 @@ public class OIDCServiceImpl implements OIDCService {
   LastIDPUsedConnectorImpl lastIDPUsedConnectorImpl;
   @Inject
   SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
+  @Inject
+  SQSConnectorImpl sqsConnectorImpl;
   @Inject
   Map<String, Client> clientsMap;
   @Inject
@@ -268,6 +272,8 @@ public class OIDCServiceImpl implements OIDCService {
         } catch (WebApplicationException e) {
           // if PDV returns an error, we log it but we don't block the authentication flow
           Log.error("error during PDV upsertUser call: " + e.getMessage());
+          // Send message to SQS to manage retry mechanism asynchronously
+          sendPDVErrorSQSMessage(clientId, savePDVUserDTO);
         }
       } else {
         // if fiscalNumber is not present, we can't generate the pairwise sub
@@ -355,6 +361,12 @@ public class OIDCServiceImpl implements OIDCService {
         .entityId(entityId)
         .ttl(ttl)
         .build());
+  }
+
+  private void sendPDVErrorSQSMessage(String clientId, SavePDVUserDTO savePDVUserDTO) {
+    PDVUserRetryMessageDTO pdvUserRetryMessageDTO = new PDVUserRetryMessageDTO(clientId,
+        savePDVUserDTO);
+    sqsConnectorImpl.sendMessage(pdvUserRetryMessageDTO.toJson());
   }
 
   @Override
