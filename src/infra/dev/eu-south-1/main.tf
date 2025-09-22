@@ -140,7 +140,7 @@ module "sns" {
 
 module "sqs" {
   source         = "../../modules/sqs"
-  sqs_queue_name = format("%s-sqs", local.project)
+  sqs_queue_name = format("%s-pdv-reconciler-sqs", local.project)
 }
 
 module "backend" {
