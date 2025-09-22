@@ -191,7 +191,7 @@ describe('Dashboard UI', () => {
     const submitButton = screen.getByTestId('submit-button');
     expect(submitButton).not.toBeDisabled();
 
-    // Click the submit button (in create flow NON appare la dialog)
+    // Click the submit button
     fireEvent.click(submitButton);
 
     // success notify
