@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
@@ -183,44 +184,20 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     try {
       // Parse XML
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       dbf.setNamespaceAware(true);
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
 
-      // Check Response for multiple direct Signature children
+      // Check Response doesn't have multiple Signatures
       Element responseElem = doc.getDocumentElement();
-      int responseSignatureCount = 0;
-      NodeList responseChildren = responseElem.getChildNodes();
-      for (int i = 0; i < responseChildren.getLength(); i++) {
-        Node node = responseChildren.item(i);
-        if (node.getNodeType() == Node.ELEMENT_NODE &&
-            "Signature".equals(node.getLocalName()) &&
-            "http://www.w3.org/2000/09/xmldsig#".equals(node.getNamespaceURI())) {
-          responseSignatureCount++;
-        }
-      }
-      if (responseSignatureCount > 1) {
-        throw new UnmarshallingException("Multiple Signature elements found on SAML Response");
-      }
+      checkNoMultipleSignatures(responseElem);
 
-      // Check each Assertion for multiple direct Signature children
+      // Check each Assertion doesn't have multiple Signatures
       NodeList assertionNodes = responseElem.getElementsByTagNameNS(
           "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
       for (int i = 0; i < assertionNodes.getLength(); i++) {
-        Element assertionElem = (Element) assertionNodes.item(i);
-        int assertionSignatureCount = 0;
-        NodeList assertionChildren = assertionElem.getChildNodes();
-        for (int j = 0; j < assertionChildren.getLength(); j++) {
-          Node node = assertionChildren.item(j);
-          if (node.getNodeType() == Node.ELEMENT_NODE &&
-              "Signature".equals(node.getLocalName()) &&
-              "http://www.w3.org/2000/09/xmldsig#".equals(node.getNamespaceURI())) {
-            assertionSignatureCount++;
-          }
-        }
-        if (assertionSignatureCount > 1) {
-          throw new UnmarshallingException("Multiple Signature elements found on Assertion");
-        }
+        checkNoMultipleSignatures((Element) assertionNodes.item(i));
       }
 
       return (Response) XMLObjectSupport.unmarshallFromInputStream(
@@ -233,6 +210,24 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       throw new OneIdentityException(e);
     }
   }
+
+  private void checkNoMultipleSignatures(Element elem)
+      throws UnmarshallingException {
+    int count = 0;
+    NodeList children = elem.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node n = children.item(i);
+      if (n.getNodeType() == Node.ELEMENT_NODE
+          && "Signature".equals(n.getLocalName())
+          && "http://www.w3.org/2000/09/xmldsig#".equals(n.getNamespaceURI())) {
+        count++;
+      }
+    }
+    if (count > 1) {
+      throw new UnmarshallingException("Multiple Signature elements found in Saml Response");
+    }
+  }
+
 
   private void validateResponseSignature(Response response, List<Credential> credentials)
       throws SignatureException {
