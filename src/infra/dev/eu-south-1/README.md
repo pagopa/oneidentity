@@ -124,6 +124,7 @@
 | <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../../modules/dns | n/a |
 | <a name="module_sns"></a> [sns](#module\_sns) | ../../modules/sns | n/a |
 | <a name="module_spid_validator"></a> [spid\_validator](#module\_spid\_validator) | ../../modules/spid-validator | n/a |
+| <a name="module_sqs"></a> [sqs](#module\_sqs) | ../../modules/sqs | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../../modules/storage | n/a |
 
 ## Resources

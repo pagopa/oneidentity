@@ -21,6 +21,10 @@ module "sns" {
   alarm_subscribers = var.alarm_subscribers
 }
 
+module "sqs" {
+  source         = "../../modules/sqs"
+  sqs_queue_name = format("%s-sqs", local.project)
+}
 
 module "storage" {
   source = "../../modules/storage"
@@ -205,6 +209,19 @@ module "backend" {
     table_client_registrations_arn    = module.database.table_client_registrations_arn
   }
 
+  pdv_reconciler_lambda = {
+    name                               = format("%s-pdv-reconciler", local.project)
+    filename                           = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    pdv_errors_queue_arn               = module.sqs.sqs_queue_arn
+    environment_variables = {
+      "LOG_LEVEL" = var.app_log_level
+    }
+  }
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 
@@ -219,6 +236,7 @@ module "backend" {
   table_client_registrations_arn = local.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+  kms_sqs_queue_alias_arn      = module.sqs.kms_sqs_queue_alias_arn
 
   client_registration_lambda = {
     name     = format("%s-client-registration", local.project)
