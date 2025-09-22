@@ -191,13 +191,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
       // Check Response doesn't have multiple Signatures
       Element responseElem = doc.getDocumentElement();
-      checkNoMultipleSignatures(responseElem);
-
+      checkNoMultipleSignatures(responseElem,
+          ErrorCode.IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT);
       // Check each Assertion doesn't have multiple Signatures
       NodeList assertionNodes = responseElem.getElementsByTagNameNS(
           "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
       for (int i = 0; i < assertionNodes.getLength(); i++) {
-        checkNoMultipleSignatures((Element) assertionNodes.item(i));
+        checkNoMultipleSignatures((Element) assertionNodes.item(i),
+            ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT);
       }
 
       return (Response) XMLObjectSupport.unmarshallFromInputStream(
@@ -211,8 +212,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Element elem)
-      throws UnmarshallingException {
+  private void checkNoMultipleSignatures(Element elem, ErrorCode errorCode) {
     int count = 0;
     NodeList children = elem.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
@@ -224,7 +224,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       }
     }
     if (count > 1) {
-      throw new UnmarshallingException("Multiple Signature elements found in Saml Response");
+      Log.error(errorCode.getErrorMessage());
+      throw new SAMLValidationException(errorCode);
     }
   }
 
