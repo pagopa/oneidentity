@@ -423,6 +423,19 @@ variable "client_manager_lambda" {
   })
 }
 
+variable "pdv_reconciler_lambda" {
+  type = object({
+    name                               = string
+    filename                           = string
+    cloudwatch_logs_retention_in_days  = string
+    environment_variables              = optional(map(string), {})
+    pdv_errors_queue_arn               = optional(string, "")
+    vpc_id                             = string
+    vpc_tls_security_group_endpoint_id = string
+    vpc_subnet_ids                     = list(string)
+  })
+}
+
 variable "rest_api_id" {
   type = string
 }

@@ -97,6 +97,7 @@ No outputs.
 | <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../modules/monitoring | n/a |
 | <a name="module_network"></a> [network](#module\_network) | ../../modules/network | n/a |
 | <a name="module_sns"></a> [sns](#module\_sns) | ../../modules/sns | n/a |
+| <a name="module_sqs"></a> [sqs](#module\_sqs) | ../../modules/sqs | n/a |
 | <a name="module_storage"></a> [storage](#module\_storage) | ../../modules/storage | n/a |
 
 ## Resources
