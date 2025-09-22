@@ -224,11 +224,6 @@ variable "kms_sessions_table_alias_arn" {
   description = "Kms key used to encrypt and decrypt session table."
 }
 
-variable "kms_sqs_queue_alias_arn" {
-  type        = string
-  description = "Kms key used to encrypt and decrypt sqs queue messages."
-}
-
 variable "kms_ssm_enable_rotation" {
   type    = bool
   default = true

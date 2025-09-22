@@ -239,7 +239,6 @@ module "backend" {
 
   table_client_registrations_arn = module.database.table_client_registrations_arn
   kms_sessions_table_alias_arn   = module.database.kms_sessions_table_alias_arn
-  kms_sqs_queue_alias_arn        = module.sqs.kms_sqs_queue_alias_arn
   table_last_idp_used_arn        = module.database.table_last_idp_used_arn
 
   client_registration_lambda = {

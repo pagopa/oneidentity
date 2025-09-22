@@ -333,8 +333,6 @@ module "backend" {
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
-  kms_sqs_queue_alias_arn = module.sqs.kms_sqs_queue_alias_arn
-
 
   client_registration_lambda = {
     name                               = format("%s-client-registration", local.project)

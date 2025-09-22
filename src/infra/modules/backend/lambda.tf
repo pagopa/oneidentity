@@ -1031,16 +1031,6 @@ data "aws_iam_policy_document" "pdv_reconciler_lambda" {
     ]
   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-    ]
-    resources = [
-      var.kms_sqs_queue_alias_arn
-    ]
-  }
 }
 
 module "security_group_lambda_pdv_reconciler" {
