@@ -179,6 +179,11 @@ export const AddOrUpdateUser = () => {
             margin="normal"
             onChange={handleChange('username')}
             disabled={isEditMode}
+            onKeyDown={(e) => {
+              if (e.key === ' ') {
+                e.preventDefault();
+              }
+            }}
           />
 
           <TextField
