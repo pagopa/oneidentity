@@ -1,11 +1,13 @@
 package it.pagopa.oneid.connector;
 
 import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SqsException;
 
+@ApplicationScoped
 public class SQSConnectorImpl implements SQSConnector {
 
   @Inject
