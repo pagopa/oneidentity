@@ -55,6 +55,9 @@ public enum ErrorCode {
       "Response signature not present"),
   IDP_ERROR_ASSERTION_SIGNATURE_NOT_PRESENT(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "Assertion signature not present"),
+  IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT(
+      FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
+      "Multiple Response signatures present"),
   IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT(
       FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "Multiple Assertion signatures present"),

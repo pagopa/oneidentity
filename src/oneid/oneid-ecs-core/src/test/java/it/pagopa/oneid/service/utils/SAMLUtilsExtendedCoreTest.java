@@ -1,9 +1,10 @@
 package it.pagopa.oneid.service.utils;
 
+import static it.pagopa.oneid.model.Base64SAMLResponses.ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.CORRECT_SAML_RESPONSE_01;
 import static it.pagopa.oneid.model.Base64SAMLResponses.INVALID_SIGNATURE_SAML_RESPONSE_04;
 import static it.pagopa.oneid.model.Base64SAMLResponses.ISSUE_INSTANT_ASSERTION_UNCORRECT_FORMAT_SAML_RESPONSE_38;
-import static it.pagopa.oneid.model.Base64SAMLResponses.MULTIPLE_SIGNATURES_SAMLRESPONSE;
+import static it.pagopa.oneid.model.Base64SAMLResponses.RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
 import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_ASSERTION_SAML_RESPONSE_03;
 import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_SAML_RESPONSE_02;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -19,6 +20,7 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import jakarta.inject.Inject;
@@ -153,15 +155,33 @@ public class SAMLUtilsExtendedCoreTest {
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
     assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
   }
-  
+
   @Test
   @SneakyThrows
-  void getSAMLResponseFromString_MultipleSamlResponseSignature() {
+  void getSAMLResponseFromString_ResponseWithMultipleSignatures() {
 
     // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
     OneIdentityException exception = assertThrows(OneIdentityException.class,
-        () -> samlUtilsExtendedCore.getSAMLResponseFromString(MULTIPLE_SIGNATURES_SAMLRESPONSE));
-    assertEquals(UnmarshallingException.class, exception.getCause().getClass());
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(
+            RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
+    assertEquals(SAMLValidationException.class, exception.getCause().getClass());
+    assertEquals(
+        ErrorCode.IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT.getErrorMessage(),
+        exception.getCause().getMessage());
+  }
+
+  @Test
+  @SneakyThrows
+  void getSAMLResponseFromString_AssertionWithMultipleSignatures() {
+
+    // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(
+            ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
+    assertEquals(SAMLValidationException.class, exception.getCause().getClass());
+    assertEquals(
+        ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT.getErrorMessage(),
+        exception.getCause().getMessage());
   }
 
   @Test
