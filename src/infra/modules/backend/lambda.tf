@@ -1000,6 +1000,19 @@ module "pdv_reconciler_lambda" {
 
   environment_variables = var.pdv_reconciler_lambda.environment_variables
 
+  allowed_triggers = {
+    AllowSQSTrigger = {
+      principal  = "sqs.amazonaws.com"
+      source_arn = var.pdv_reconciler_lambda.pdv_errors_queue_arn
+    }
+  }
+
+  event_source_mapping = {
+    sqs_trigger = {
+      event_source_arn = var.pdv_reconciler_lambda.pdv_errors_queue_arn
+      enabled          = true
+    }
+  }
   memory_size = 256
   timeout     = 30
 
