@@ -256,6 +256,9 @@ public class OIDCServiceImpl implements OIDCService {
 
         SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
 
+        // TODO: remove this mocked behavior, here we are always sending the message to SQS which is wrong
+        sendPDVErrorSQSMessage(clientId, savePDVUserDTO);
+
         try {
           ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX + clientId).ifPresentOrElse(
               apiKey -> {
