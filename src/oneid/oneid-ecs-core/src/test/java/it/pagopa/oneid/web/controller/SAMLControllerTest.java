@@ -11,6 +11,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.id.State;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -44,7 +45,7 @@ public class SAMLControllerTest {
   @InjectMock
   SAMLServiceImpl samlServiceImpl;
 
-  @InjectMock
+  @Inject
   CurrentAuthDTO currentAuthDTO;
 
   @InjectMock
@@ -418,12 +419,15 @@ public class SAMLControllerTest {
   @SneakyThrows
   void samlACS_ResponseWithMultipleSignatures() {
     // given
+    CurrentAuthDTO mockAuthDTO = Mockito.mock(CurrentAuthDTO.class);
+    QuarkusMock.installMockForType(mockAuthDTO, CurrentAuthDTO.class);
+
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
     samlResponseDTO.put("RelayState", "dummyRelayState");
 
     // Mock CurrentAuthDTO to simulate multiple signatures scenario
-    Mockito.when(currentAuthDTO.isResponseWithMultipleSignatures()).thenReturn(true);
+    Mockito.when(mockAuthDTO.isResponseWithMultipleSignatures()).thenReturn(true);
 
     // Setup mocks for response and samlSession as usual, but flow will stop at the multiple signatures check
     Response response = Mockito.mock(Response.class);
@@ -431,8 +435,8 @@ public class SAMLControllerTest {
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     SAMLSession samlSession = Mockito.mock(SAMLSession.class);
-    Mockito.when(currentAuthDTO.getResponse()).thenReturn(response);
-    Mockito.when(currentAuthDTO.getSamlSession()).thenReturn(samlSession);
+    Mockito.when(mockAuthDTO.getResponse()).thenReturn(response);
+    Mockito.when(mockAuthDTO.getSamlSession()).thenReturn(samlSession);
 
     // HTTP 302
     given()
