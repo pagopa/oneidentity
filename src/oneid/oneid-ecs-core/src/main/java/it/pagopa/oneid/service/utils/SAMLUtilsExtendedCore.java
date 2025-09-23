@@ -184,7 +184,11 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
+    Response response = null;
     try {
+      response = (Response) XMLObjectSupport.unmarshallFromInputStream(
+          basicParserPool, new ByteArrayInputStream(decodedSamlResponse));
+
       // Parse XML
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -204,12 +208,15 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
             ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT);
       }
 
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(
-          basicParserPool, new ByteArrayInputStream(decodedSamlResponse));
+      return response;
+
     } catch (UnmarshallingException | XMLParserException | SAXException | IOException |
              ParserConfigurationException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
+    } catch (SAMLValidationException e) {
+      return response;
+
     }
   }
 

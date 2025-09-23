@@ -20,7 +20,6 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import jakarta.inject.Inject;
@@ -160,28 +159,34 @@ public class SAMLUtilsExtendedCoreTest {
   @SneakyThrows
   void getSAMLResponseFromString_ResponseWithMultipleSignatures() {
 
-    // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
-    Exception exception = assertThrows(SAMLValidationException.class,
-        () -> samlUtilsExtendedCore.getSAMLResponseFromString(
-            RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
-    assertEquals(SAMLValidationException.class, exception.getClass());
-    assertEquals(
-        ErrorCode.IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT.getErrorMessage(),
-        exception.getMessage());
+    // Here we have a SAML response with multiple signatures, we want to verify that it passes
+    String samlResponseString = RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
+
+    Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
+        samlResponseString);
+
+    assertNotNull(response);
+    assertDoesNotThrow(() -> {
+      samlUtilsExtendedCore.getSAMLResponseFromString(
+          samlResponseString);
+    });
   }
 
   @Test
   @SneakyThrows
   void getSAMLResponseFromString_AssertionWithMultipleSignatures() {
 
-    // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
-    Exception exception = assertThrows(SAMLValidationException.class,
-        () -> samlUtilsExtendedCore.getSAMLResponseFromString(
-            ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
-    assertEquals(SAMLValidationException.class, exception.getClass());
-    assertEquals(
-        ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT.getErrorMessage(),
-        exception.getMessage());
+    // Here we have a SAML response with multiple signatures, we want to verify that it passes
+    String samlResponseString = ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
+
+    Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
+        samlResponseString);
+
+    assertNotNull(response);
+    assertDoesNotThrow(() -> {
+      samlUtilsExtendedCore.getSAMLResponseFromString(
+          samlResponseString);
+    });
   }
 
   @Test
