@@ -188,10 +188,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
-    Response response = null;
     try {
-      response = (Response) XMLObjectSupport.unmarshallFromInputStream(
-          basicParserPool, new ByteArrayInputStream(decodedSamlResponse));
 
       // Parse XML
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -212,15 +209,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
             ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT);
       }
 
-      return response;
+      // return response even if it has multiple signatures, the error will be handled inside SAMLController
+      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
+          new ByteArrayInputStream(decodedSamlResponse));
 
     } catch (UnmarshallingException | XMLParserException | SAXException | IOException |
              ParserConfigurationException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
-    } catch (SAMLValidationException e) {
-      // return response even if it has multiple signatures, the error will be handled inside SAMLController
-      return response;
     }
   }
 
@@ -229,16 +225,15 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     NodeList children = elem.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
       Node n = children.item(i);
-      if (n.getNodeType() == Node.ELEMENT_NODE
-          && "Signature".equals(n.getLocalName())
+      if (n.getNodeType() == Node.ELEMENT_NODE && "Signature".equals(n.getLocalName())
           && "http://www.w3.org/2000/09/xmldsig#".equals(n.getNamespaceURI())) {
         count++;
       }
     }
     if (count > 1) {
+      // set a flag in currentAuthDTO to handle the error in SAMLController
       Log.error(errorCode.getErrorMessage());
       currentAuthDTO.setResponseWithMultipleSignatures(true);
-      throw new SAMLValidationException(errorCode);
     }
   }
 
