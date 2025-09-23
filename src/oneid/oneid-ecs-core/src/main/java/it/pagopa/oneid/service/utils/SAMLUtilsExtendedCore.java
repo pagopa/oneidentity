@@ -14,6 +14,7 @@ import it.pagopa.oneid.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateFactory;
@@ -29,6 +30,7 @@ import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -60,6 +62,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 @ApplicationScoped
 @CustomLogging
@@ -203,11 +206,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
       return (Response) XMLObjectSupport.unmarshallFromInputStream(
           basicParserPool, new ByteArrayInputStream(decodedSamlResponse));
-    } catch (UnmarshallingException | XMLParserException e) {
+    } catch (UnmarshallingException | XMLParserException | SAXException | IOException |
+             ParserConfigurationException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
-      throw new OneIdentityException(e);
-    } catch (Exception e) {
-      Log.error("XML parsing error: " + e.getMessage());
       throw new OneIdentityException(e);
     }
   }

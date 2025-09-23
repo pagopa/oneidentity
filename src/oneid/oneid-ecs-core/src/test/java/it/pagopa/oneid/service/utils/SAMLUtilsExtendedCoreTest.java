@@ -161,13 +161,13 @@ public class SAMLUtilsExtendedCoreTest {
   void getSAMLResponseFromString_ResponseWithMultipleSignatures() {
 
     // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
-    OneIdentityException exception = assertThrows(OneIdentityException.class,
+    Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(
             RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
-    assertEquals(SAMLValidationException.class, exception.getCause().getClass());
+    assertEquals(SAMLValidationException.class, exception.getClass());
     assertEquals(
         ErrorCode.IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT.getErrorMessage(),
-        exception.getCause().getMessage());
+        exception.getMessage());
   }
 
   @Test
@@ -175,13 +175,13 @@ public class SAMLUtilsExtendedCoreTest {
   void getSAMLResponseFromString_AssertionWithMultipleSignatures() {
 
     // Here we have a SAML response with multiple signatures, we want to verify that the method throws an exception
-    OneIdentityException exception = assertThrows(OneIdentityException.class,
+    Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(
             ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE));
-    assertEquals(SAMLValidationException.class, exception.getCause().getClass());
+    assertEquals(SAMLValidationException.class, exception.getClass());
     assertEquals(
         ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT.getErrorMessage(),
-        exception.getCause().getMessage());
+        exception.getMessage());
   }
 
   @Test
