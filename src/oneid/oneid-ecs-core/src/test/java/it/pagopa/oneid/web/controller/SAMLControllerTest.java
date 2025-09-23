@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -21,6 +22,7 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.controller.mock.SAMLControllerTestProfile;
 import jakarta.inject.Inject;
 import java.net.URLEncoder;
@@ -41,6 +43,9 @@ public class SAMLControllerTest {
 
   @InjectMock
   SAMLServiceImpl samlServiceImpl;
+
+  @InjectMock
+  CurrentAuthDTO currentAuthDTO;
 
   @InjectMock
   OIDCServiceImpl oidcServiceImpl;
@@ -407,6 +412,36 @@ public class SAMLControllerTest {
         .header("location");
 
     Assertions.assertTrue(location.contains(headerLocation));
+  }
+
+  @Test
+  @SneakyThrows
+  void samlACS_ResponseWithMultipleSignatures() {
+    // given
+    Map<String, String> samlResponseDTO = new HashMap<>();
+    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+    samlResponseDTO.put("RelayState", "dummyRelayState");
+
+    // Mock CurrentAuthDTO to simulate multiple signatures scenario
+    Mockito.when(currentAuthDTO.isResponseWithMultipleSignatures()).thenReturn(true);
+
+    // Setup mocks for response and samlSession as usual, but flow will stop at the multiple signatures check
+    Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
+    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+    SAMLSession samlSession = Mockito.mock(SAMLSession.class);
+    Mockito.when(currentAuthDTO.getResponse()).thenReturn(response);
+    Mockito.when(currentAuthDTO.getSamlSession()).thenReturn(samlSession);
+
+    // HTTP 302
+    given()
+        .formParams(samlResponseDTO)
+        .when()
+        .post("/acs")
+        .then()
+        .statusCode(302)
+        .header("Location", containsString(ErrorCode.SESSION_ERROR.getErrorCode()));
   }
 
   @Test
