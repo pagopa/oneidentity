@@ -1060,4 +1060,105 @@ resource "aws_vpc_security_group_egress_rule" "pdv_reconciler_sec_group_egress_r
   referenced_security_group_id = var.pdv_reconciler_lambda.vpc_tls_security_group_endpoint_id
 }
 
+## Cert Expiration Lambda ##
+data "aws_iam_policy_document" "cert_exp_checker_lambda" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:Describe*",
+      "ssm:Get*",
+      "ssm:List*"
+    ]
+    resources = [data.aws_ssm_parameter.certificate.arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.cert_exp_checker_lambda.sns_topic_arn]
+  }
+}
+
+
+module "security_group_lambda_cert_exp_checker" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.cert_exp_checker_lambda.name}-sg"
+  description = "Security Group for Lambda Cert Expiration"
+
+  vpc_id = var.cert_exp_checker_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  # Prefix list ids to use in all egress rules in this module
+  egress_prefix_list_ids = [
+  ]
+  egress_rules = ["https-443-tcp"]
+}
+
+resource "null_resource" "install_dependencies" {
+  provisioner "local-exec" {
+    command = <<EOT
+      pip install -r ${path.module}/../../oneid-lambda-cert-exp-checker/requirements.txt -t layer/python
+    EOT
+  }
+
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+}
+
+data "archive_file" "cryptography_layer" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../oneid-lambda-cert-exp-checker"
+  output_path = "${path.module}/../../oneid-lambda-cert-exp-checker/cryptography-layer.zip"
+  depends_on  = [null_resource.install_dependencies]
+}
+
+resource "aws_lambda_layer_version" "cryptography" {
+  layer_name          = "cryptography-layer"
+  description         = "Lambda layer with cryptography"
+  compatible_runtimes = ["python3.12"]
+  filename            = data.archive_file.cryptography_layer.output_path
+}
+
+module "cert_exp_checker_lambda" {
+  source                 = "terraform-aws-modules/lambda/aws"
+  version                = "7.4.0"
+  function_name          = var.cert_exp_checker_lambda.name
+  description            = "Lambda function cert expiration checker."
+  runtime                = "python3.12"
+  handler                = "index.lambda_handler"
+  create_package         = false
+  local_existing_package = var.cert_exp_checker_lambda.filename
+  layers                 = [aws_lambda_layer_version.cryptography.arn]
+
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.cert_exp_checker_lambda.json
+
+  environment_variables = var.cert_exp_checker_lambda.environment_variables
+
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.cert_exp_checker_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_cert_exp_checker.security_group_id]
+
+  memory_size = 512
+  timeout     = 30
+
+  cloudwatch_logs_retention_in_days = var.cert_exp_checker_lambda.cloudwatch_logs_retention_in_days
+
+}
 

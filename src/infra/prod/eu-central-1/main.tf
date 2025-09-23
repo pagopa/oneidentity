@@ -234,6 +234,19 @@ module "backend" {
     }
   }
 
+  cert_exp_checker_lambda = {
+    name = format("%s-cert-exp-checker", local.project)
+    filename = "${path.module}/../../hello-python/lambda.zip"
+    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    sns_topic_arn = module.sns.sns_topic_arn
+    environment_variables = {
+      "PARAM_NAME" = var.ssm_cert_key.cert_pem
+      "SNS_TOPIC"  = module.sns.sns_topic_arn
+    }
+  }  
+
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
 

@@ -436,6 +436,18 @@ variable "pdv_reconciler_lambda" {
   })
 }
 
+variable "cert_exp_checker_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    environment_variables             = map(string)
+    cloudwatch_logs_retention_in_days = number
+    sns_topic_arn                     = string
+    vpc_subnet_ids                    = list(string)
+    vpc_id                            = string
+  })
+}
+
 variable "rest_api_id" {
   type = string
 }
