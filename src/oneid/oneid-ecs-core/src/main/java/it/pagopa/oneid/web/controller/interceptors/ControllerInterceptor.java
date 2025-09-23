@@ -8,7 +8,6 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.InvalidGrantException;
 import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
-import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -145,10 +144,6 @@ public class ControllerInterceptor {
     } catch (OneIdentityException e) {
       Log.error("error getting SAML Response");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
-    } catch (SAMLValidationException e) {
-      // Found invalid SAML Response with multiple signatures, will be handled in SamlController
-      Log.error("SAML Response contains multiple signatures");
-      currentAuthDTO.setResponseWithMultipleSignatures(true);
     }
 
     // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception

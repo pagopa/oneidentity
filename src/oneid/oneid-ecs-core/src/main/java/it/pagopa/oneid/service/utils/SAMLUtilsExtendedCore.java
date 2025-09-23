@@ -11,6 +11,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -70,6 +71,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   @ConfigProperty(name = "entity_id")
   String ENTITY_ID;
+
+  @Inject
+  CurrentAuthDTO currentAuthDTO;
 
 
   @Inject
@@ -215,7 +219,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
     } catch (SAMLValidationException e) {
-      // return response even if it has multiple signatures, the error will be handled inside ControlleInterceptor
+      // return response even if it has multiple signatures, the error will be handled inside SAMLController
       return response;
     }
   }
@@ -233,6 +237,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
     if (count > 1) {
       Log.error(errorCode.getErrorMessage());
+      currentAuthDTO.setResponseWithMultipleSignatures(true);
       throw new SAMLValidationException(errorCode);
     }
   }
