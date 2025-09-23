@@ -1968,6 +1968,20 @@
       "sha256": "7B9Thqy7LuBuWyWjK2n3mi71C5gsMTJ3oxzTn65VqMA="
     },
     {
+      "id": "io.quarkiverse.amazonservices:quarkus-amazon-sqs:jar:2.13.1",
+      "artifactId": "quarkus-amazon-sqs",
+      "groupId": "io.quarkiverse.amazonservices",
+      "version": "2.13.1",
+      "sha256": "BTfbvkKRjkIXbUUQjrvlLV5Z_CDyaA9AFhz63CQoJ3E="
+    },
+    {
+      "id": "software.amazon.awssdk:sqs:jar:2.25.15",
+      "artifactId": "sqs",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "B2siED13dDCKaM1cy4STZEHswjTXpWKCU6fNPhBd0S8="
+    },
+    {
       "id": "io.quarkus:quarkus-config-yaml:jar:3.11.3",
       "artifactId": "quarkus-config-yaml",
       "groupId": "io.quarkus",

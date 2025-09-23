@@ -766,3 +766,9 @@ variable "client_ids" {
   type    = list(string)
   default = ["bxMiPVktuZ5lBNbZYJ3ODosXL57ltrLp7BgyOkw-0v4"]
 }
+
+variable "pairwise_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable PDV pairwise feature"
+}
