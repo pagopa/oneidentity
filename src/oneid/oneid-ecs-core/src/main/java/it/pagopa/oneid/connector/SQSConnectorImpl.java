@@ -22,7 +22,7 @@ public class SQSConnectorImpl implements SQSConnector {
       sqsClient.sendMessage(builder -> builder.queueUrl(pdvErrorQueueUrl).messageBody(messageBody));
     } catch (SqsException e) {
       // Log in case of failure to send message to SQS but do not throw exception to avoid blocking the main process
-      // TODO: consider adding a custom metric to monitor failed SQS sends
+      // TODO: consider adding a custom metric to monitor failed SQS messages sending
       Log.error("Error sending message to SQS queue: " + e.getMessage());
     }
   }
