@@ -18,6 +18,8 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private final String tagIDP = "IDP";
   private final String tagDynamoDB = "DynamoDBAttempts";
+  private final String tagSQS = "SQSSendMessageFailures";
+  private final String tagOIError = "OIError";
   private final String tagSAMLStatus = "SAMLStatus";
   private final String tagClient = "Client";
   private final String tagAggregated = "Aggregated";
@@ -114,6 +116,18 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagDynamoDB, dimensions));
+  }
+
+  @Override
+  public void sendOISQSErrorMetricData() {
+
+    List<Dimension> dimensions = List.of(Dimension.builder()
+        .name(tagOIError)
+        .value(tagSQS)
+        .build());
+
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest(tagOIError, dimensions));
   }
 
   @Override
