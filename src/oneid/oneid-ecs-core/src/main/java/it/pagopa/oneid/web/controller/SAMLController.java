@@ -80,7 +80,6 @@ public class SAMLController {
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
-      //Check if the SAMLResponse contains multiple signatures, in this case we want to store the raw SAMLResponse
       samlSessionService.setSAMLResponse(response.getInResponseTo(),
           samlResponseDTO.getSAMLResponse());
     } catch (SessionException e) {
@@ -88,6 +87,8 @@ public class SAMLController {
       // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
+    
+    //Check if the SAMLResponse contains multiple signatures, in this case we want to store the raw SAMLResponse
     if (currentAuthDTO.isWithMultipleSignatures()) {
       Log.error("SAML Response contains multiple signatures");
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
