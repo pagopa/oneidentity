@@ -12,8 +12,7 @@ public class CurrentAuthDTO {
   Response response;
 
   SAMLSession samlSession;
-  
-  boolean withMultipleSignatures;
 
-  String rawSamlResponse;
+  boolean ResponseWithMultipleSignatures;
+
 }

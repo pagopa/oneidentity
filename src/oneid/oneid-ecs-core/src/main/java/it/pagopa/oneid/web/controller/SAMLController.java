@@ -87,14 +87,15 @@ public class SAMLController {
       // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
-    
-    //Check if the SAMLResponse contains multiple signatures, in this case we want to store the raw SAMLResponse
-    if (currentAuthDTO.isWithMultipleSignatures()) {
+
+    // 1c. Check if the SAMLResponse contains multiple signatures,
+    // in this case the raw SAMLResponse is stored in SAML record, but the flow is interrupted
+    if (currentAuthDTO.isResponseWithMultipleSignatures()) {
       Log.error("SAML Response contains multiple signatures");
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
-    // 1c. Check status, will raise CustomException in case of error mapped to a custom html error page
+    // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page
     try {
       samlServiceImpl.checkSAMLStatus(response,
           samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),

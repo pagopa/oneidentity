@@ -146,8 +146,9 @@ public class ControllerInterceptor {
       Log.error("error getting SAML Response");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     } catch (SAMLValidationException e) {
+      // Found invalid SAML Response with multiple signatures, will be handled in SamlController
       Log.error("SAML Response contains multiple signatures");
-      currentAuthDTO.setWithMultipleSignatures(true);
+      currentAuthDTO.setResponseWithMultipleSignatures(true);
     }
 
     // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
@@ -175,8 +176,5 @@ public class ControllerInterceptor {
     currentAuthDTO.setResponse(response);
     currentAuthDTO.setSamlSession(samlSession);
 
-    if (currentAuthDTO.isWithMultipleSignatures()) {
-      currentAuthDTO.setRawSamlResponse(samlResponseDTO.getSAMLResponse());
-    }
   }
 }

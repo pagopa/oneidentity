@@ -215,8 +215,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
     } catch (SAMLValidationException e) {
+      // return response even if it has multiple signatures, the error will be handled inside ControlleInterceptor
       return response;
-
     }
   }
 
