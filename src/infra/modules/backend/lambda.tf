@@ -1104,10 +1104,19 @@ module "security_group_lambda_cert_exp_checker" {
   egress_rules = ["https-443-tcp"]
 }
 
+resource "aws_vpc_security_group_egress_rule" "cert_checker_sec_group_egress_rule" {
+  security_group_id            = module.security_group_lambda_cert_exp_checker.security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.cert_exp_checker_lambda.vpc_tls_security_group_endpoint_id
+}
+
 resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
-      pip install -r ${path.module}/../../oneid-lambda-cert-exp-checker/requirements.txt -t layer/python
+      mkdir -p ${path.module}/../../dist/python && \
+      /usr/bin/python3 -m pip install -r ../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt -t ${path.module}/../../dist/python
     EOT
   }
 
@@ -1118,8 +1127,8 @@ resource "null_resource" "install_dependencies" {
 
 data "archive_file" "cryptography_layer" {
   type        = "zip"
-  source_dir  = "${path.module}/../../oneid-lambda-cert-exp-checker"
-  output_path = "${path.module}/../../oneid-lambda-cert-exp-checker/cryptography-layer.zip"
+  source_dir  = "${path.module}/../../dist/"
+  output_path = "${path.module}/../../dist/python.zip"
   depends_on  = [null_resource.install_dependencies]
 }
 
@@ -1128,6 +1137,7 @@ resource "aws_lambda_layer_version" "cryptography" {
   description         = "Lambda layer with cryptography"
   compatible_runtimes = ["python3.12"]
   filename            = data.archive_file.cryptography_layer.output_path
+  source_code_hash    = data.archive_file.cryptography_layer.output_base64sha256
 }
 
 module "cert_exp_checker_lambda" {
