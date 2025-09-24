@@ -224,17 +224,7 @@ resource "aws_iam_policy" "ecs_core_task" {
         "Resource" : [
           "*"
         ]
-      },
-      {
-        "Sid" : "SQSSendMessage",
-        "Effect" : "Allow",
-        "Action" : [
-          "sqs:SendMessage"
-        ],
-        "Resource" : [
-          "${var.pdv_reconciler_lambda.pdv_errors_queue_arn}"
-        ]
-      },
+      }
     ]
   })
 

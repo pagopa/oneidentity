@@ -249,14 +249,6 @@ module "backend" {
       {
         name  = "PDV_BASE_URL"
         value = "https://api.uat.pdv.pagopa.it"
-      },
-      {
-        name  = "PDV_ERROR_QUEUE_URL"
-        value = module.sqs.sqs_queue_url
-      },
-      {
-        name  = "PAIRWISE_ENABLED"
-        value = var.pairwise_enabled
       }
     ]
   }

@@ -746,9 +746,3 @@ variable "api_alarms" {
     },
   }
 }
-
-variable "pairwise_enabled" {
-  type        = bool
-  default     = true
-  description = "Enable PDV pairwise feature"
-}

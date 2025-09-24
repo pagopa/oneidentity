@@ -144,10 +144,6 @@
             <artifactId>quarkus-amazon-kms</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkiverse.amazonservices</groupId>
-            <artifactId>quarkus-amazon-sqs</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-config-yaml</artifactId>
         </dependency>
