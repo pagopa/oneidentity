@@ -1,10 +1,14 @@
 """
-Lambda function to process SQS messages and send PATCH requests to an external API.
+Lambda function to process SQS messages and send PATCH requests to external PDV API.
 """
 import os
 import json
 import boto3
 import urllib3
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 http = urllib3.PoolManager()
 
@@ -47,9 +51,12 @@ def handler(event, context):
 
             if response.status >= 300:
                 error_text = response.data.decode('utf-8')
+                logger.error(f"Error response: {error_text}")
                 raise Exception(f"Request failed: {response.status} - {error_text}")
 
         except urllib3.exceptions.MaxRetryError as e:
+            logger.error(f"Max retries exceeded: {e}")
             raise Exception(f"Connection error: {e}") from e
 
+    logger.info("All records processed successfully.")
     return {'status': 'done'}
