@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { uniqueId } from 'lodash';
-import { MoveToInbox, Mail, People } from '@mui/icons-material';
+import { MoveToInbox, People, Palette } from '@mui/icons-material';
 import { ROUTE_PATH, USER_ROOT_PATH } from '../utils/constants';
 import { ENV } from '../utils/env';
 import logoPagoPa from '../assets/logo_pagopa.png';
@@ -25,7 +25,7 @@ const navData = (clientId?: string, isAuthenticated?: boolean) => [
   },
   {
     name: 'Customize UI',
-    icon: <Mail fontSize="inherit" />,
+    icon: <Palette fontSize="inherit" />,
     to: `${ROUTE_PATH.CUSTOMIZE}/${clientId}`,
     isVisible: !!clientId && isAuthenticated,
     matchPath: (pathname: string) => pathname.startsWith(ROUTE_PATH.CUSTOMIZE),
