@@ -25,6 +25,7 @@ import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.controller.mock.SAMLControllerTestProfile;
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.inject.Inject;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -433,9 +434,12 @@ public class SAMLControllerTest {
     Response response = Mockito.mock(Response.class);
     Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    SAMLSession samlSession = Mockito.mock(SAMLSession.class);
     Mockito.when(mockAuthDTO.getResponse()).thenReturn(response);
+
+    AuthorizationRequestDTOExtended dto = Mockito.mock(AuthorizationRequestDTOExtended.class);
+    Mockito.when(dto.getIdp()).thenReturn("dummy-idp"); // Stub idp for cloudwatch metrics
+    SAMLSession samlSession = Mockito.mock(SAMLSession.class);
+    Mockito.when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(dto);
     Mockito.when(mockAuthDTO.getSamlSession()).thenReturn(samlSession);
 
     // HTTP 302
