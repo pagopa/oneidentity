@@ -1116,7 +1116,7 @@ resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
       mkdir -p ${path.module}/../../dist/python && \
-      /usr/bin/python3 -m pip install -r ../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt -t ${path.module}/../../dist/python
+      pip install -r ../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt -t ${path.module}/../../dist/python
     EOT
   }
 
