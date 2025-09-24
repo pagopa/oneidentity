@@ -558,7 +558,7 @@ module "backend" {
     vpc_id                             = module.network.vpc_id
     vpc_subnet_ids                     = module.network.intra_subnets_ids
     sns_topic_arn                      = module.sns.sns_topic_arn
-    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id 
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
     environment_variables = {
       "PARAM_NAME" = var.ssm_cert_key.cert_pem
       "SNS_TOPIC"  = module.sns.sns_topic_arn
