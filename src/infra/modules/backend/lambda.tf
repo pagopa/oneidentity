@@ -1140,7 +1140,7 @@ data "archive_file" "cryptography_layer" {
 resource "aws_lambda_layer_version" "cryptography" {
   layer_name          = "cryptography-layer"
   description         = "Lambda layer with cryptography"
-  compatible_runtimes = ["python3.12"]
+  compatible_runtimes = ["python3.10"]
   filename            = data.archive_file.cryptography_layer.output_path
   source_code_hash    = data.archive_file.cryptography_layer.output_base64sha256
 }
@@ -1150,7 +1150,7 @@ module "cert_exp_checker_lambda" {
   version                = "7.4.0"
   function_name          = var.cert_exp_checker_lambda.name
   description            = "Lambda function cert expiration checker."
-  runtime                = "python3.12"
+  runtime                = "python3.10"
   handler                = "index.lambda_handler"
   create_package         = false
   local_existing_package = var.cert_exp_checker_lambda.filename
