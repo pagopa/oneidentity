@@ -677,3 +677,9 @@ variable "pairwise_enabled" {
   default     = true
   description = "Enable PDV pairwise feature"
 }
+
+variable "pdv_base_url" {
+  type        = string
+  default     = "https://api.pdv.pagopa.it"
+  description = "PDV base URL"
+}
