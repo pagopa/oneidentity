@@ -987,12 +987,8 @@ module "pdv_reconciler_lambda" {
   ignore_source_code_hash = true
 
 
-  attach_policy_json    = true
-  policy_json           = data.aws_iam_policy_document.pdv_reconciler_lambda.json
-  attach_network_policy = true
-
-  vpc_subnet_ids         = var.pdv_reconciler_lambda.vpc_subnet_ids
-  vpc_security_group_ids = [module.security_group_lambda_pdv_reconciler.security_group_id]
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.pdv_reconciler_lambda.json
 
   publish = true
 
@@ -1030,34 +1026,18 @@ data "aws_iam_policy_document" "pdv_reconciler_lambda" {
       var.pdv_reconciler_lambda.pdv_errors_queue_arn
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:Describe*",
+      "ssm:Get*",
+      "ssm:List*"
+    ]
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter/pdv/*"
+    ]
+  }
 
-}
-
-module "security_group_lambda_pdv_reconciler" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "4.17.2"
-
-  name        = "${var.pdv_reconciler_lambda.name}-sg"
-  description = "Security Group for Lambda Egress"
-
-  vpc_id = var.pdv_reconciler_lambda.vpc_id
-
-  egress_cidr_blocks      = []
-  egress_ipv6_cidr_blocks = []
-
-  # Prefix list ids to use in all egress rules in this module
-  egress_prefix_list_ids = [
-  ]
-
-  egress_rules = ["https-443-tcp"]
-}
-
-resource "aws_vpc_security_group_egress_rule" "pdv_reconciler_sec_group_egress_rule" {
-  security_group_id            = module.security_group_lambda_pdv_reconciler.security_group_id
-  from_port                    = 443
-  ip_protocol                  = "tcp"
-  to_port                      = 443
-  referenced_security_group_id = var.pdv_reconciler_lambda.vpc_tls_security_group_endpoint_id
 }
 
 ## Cert Expiration Lambda ##
