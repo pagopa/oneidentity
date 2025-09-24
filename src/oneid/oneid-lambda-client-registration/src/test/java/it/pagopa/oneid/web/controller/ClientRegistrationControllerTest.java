@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.Header;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
@@ -45,7 +46,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -66,6 +66,8 @@ class ClientRegistrationControllerTest {
 
     given()
         .contentType("application/json")
+        .header(new Header("Authorization",
+            "Bearer eyJraWQiOiJzSDJhV2NneTNzMGRIcElSK0RGbzJMQmxFek0reU5IWVhhdHR3OG4xOUVNPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJjNjFlZDJjMC1mMDAxLTcwMGYtNDE2MC1jOWViZDExNDJlNzkiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmV1LXNvdXRoLTEuYW1hem9uYXdzLmNvbVwvZXUtc291dGgtMV83VmxWUDd5ZFEiLCJjb2duaXRvOnVzZXJuYW1lIjoiYzYxZWQyYzAtZjAwMS03MDBmLTQxNjAtYzllYmQxMTQyZTc5Iiwib3JpZ2luX2p0aSI6IjVkZmQ5MGQ1LWE3NTUtNDI5Yy04ZDY2LWY0ZGU5OTcxZjdiNyIsImF1ZCI6IjJuOTFtMXVtODFxaDNra3JpYmdoZjk1NGVxIiwiZXZlbnRfaWQiOiIzOGU1NDM0YS1jMzk0LTRiMmMtYjAyYy01NTM0ZjkwOGFhM2MiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTc1ODAxNjc5OCwiY3VzdG9tOmNsaWVudF9pZCI6IlJIQ3dNdVdXUXpUQnFfQXRKbER1cjdfbkhZMl9YZzlHZ0J1LXlkRF84MlUiLCJleHAiOjE3NTgwMjAzOTgsImlhdCI6MTc1ODAxNjc5OCwianRpIjoiZWVjODlhYTYtNTRjZS00OTViLWJiMWUtMDE4MzFkMDE0OTQxIiwiZW1haWwiOiJnaXVzZXBwZS5nYW5nZW1pQHBhZ29wYS5pdCJ9.IAP4tgWvByHpiP9d72u9aaIh6fRBXVs1eL7TITRXGUUyUJ-Q1EpPFApS2GFj0AaGS4CNDf8OgTZPut9q5ELDBRZeV5ksbbJAcklZ29_OjwrXwkJujNibZX0W4nOGm_-5fRQV20ihNiMnCOa63Oqo7DUlIFgbC9CT3Spm10pDjawipR_SlsjsTekgT66Wp_Nl3RhTE_D7LXm9l3W1ucpnVSy_x9gSyziK3cyjnH98HHBfLCmjH5ZzwHLmZhUlEsEpaseE8jEX0mRpQVaC3IAv9yWnPVD3Wdn59uHUT03ozRvrRZO0vTXMTLN93l5alcqfQv4teFdrcc80wEWTTchMWg"))
         .body(clientRegistrationDTO)
         .when()
         .post("/register")
