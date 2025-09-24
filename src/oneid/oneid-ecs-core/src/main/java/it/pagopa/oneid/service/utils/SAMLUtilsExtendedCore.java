@@ -199,14 +199,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
       // Check Response doesn't have multiple Signatures
       Element responseElem = doc.getDocumentElement();
-      checkNoMultipleSignatures(responseElem,
-          ErrorCode.IDP_ERROR_MULTIPLE_RESPONSE_SIGNATURES_PRESENT);
+      checkNoMultipleSignatures(responseElem);
       // Check each Assertion doesn't have multiple Signatures
       NodeList assertionNodes = responseElem.getElementsByTagNameNS(
           "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
       for (int i = 0; i < assertionNodes.getLength(); i++) {
-        checkNoMultipleSignatures((Element) assertionNodes.item(i),
-            ErrorCode.IDP_ERROR_MULTIPLE_ASSERTION_SIGNATURES_PRESENT);
+        checkNoMultipleSignatures((Element) assertionNodes.item(i));
       }
 
       // return response even if it has multiple signatures, the error will be handled inside SAMLController
@@ -220,7 +218,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Element elem, ErrorCode errorCode) {
+  private void checkNoMultipleSignatures(Element elem) {
     int count = 0;
     NodeList children = elem.getChildNodes();
     for (int i = 0; i < children.getLength(); i++) {
@@ -232,7 +230,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
     if (count > 1) {
       // set a flag in currentAuthDTO to handle the error in SAMLController
-      Log.error(errorCode.getErrorMessage());
+      Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
       currentAuthDTO.setResponseWithMultipleSignatures(true);
     }
   }

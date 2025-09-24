@@ -92,7 +92,7 @@ public class SAMLController {
     // in this case the raw SAMLResponse is stored in SAML record, but the flow is interrupted
     if (currentAuthDTO.isResponseWithMultipleSignatures()) {
       Log.error("SAML Response contains multiple signatures");
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+      throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
 
     // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page

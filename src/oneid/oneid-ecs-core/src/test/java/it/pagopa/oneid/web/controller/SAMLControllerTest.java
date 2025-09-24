@@ -417,7 +417,7 @@ public class SAMLControllerTest {
 
   @Test
   @SneakyThrows
-  void samlACS_ResponseWithMultipleSignatures() {
+  void samlACS_SAMLResponseWithMultipleSignatures() {
     // given
     CurrentAuthDTO mockAuthDTO = Mockito.mock(CurrentAuthDTO.class);
     QuarkusMock.installMockForType(mockAuthDTO, CurrentAuthDTO.class);
@@ -445,7 +445,8 @@ public class SAMLControllerTest {
         .post("/acs")
         .then()
         .statusCode(302)
-        .header("Location", containsString(ErrorCode.SESSION_ERROR.getErrorCode()));
+        .header("Location", containsString(
+            ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorCode()));
   }
 
   @Test
