@@ -41,3 +41,23 @@ resource "aws_cloudwatch_metric_alarm" "sqs_error_sending_message_alarm" {
     var.sns_topic_arn,
   ]
 }
+
+# Alarm for monitoring the DLQ of the PDV errors SQS queue
+resource "aws_cloudwatch_metric_alarm" "dlq_pdv_errors" {
+  alarm_name = format("%s-%s-Dlq-%s", var.sqs_queue_name, var.dlq_alarms.metric_name,
+  var.dlq_alarms.threshold)
+  comparison_operator = var.dlq_alarms.comparison_operator
+  evaluation_periods  = var.dlq_alarms.evaluation_periods
+  metric_name         = var.dlq_alarms.metric_name
+  namespace           = var.dlq_alarms.namespace
+  period              = var.dlq_alarms.period
+  statistic           = var.dlq_alarms.statistic
+  threshold           = var.dlq_alarms.threshold
+
+
+  dimensions = {
+    QueueName = aws_sqs_queue.pdv_errors_deadletter_queue.name
+  }
+
+  alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
+}
