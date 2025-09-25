@@ -141,6 +141,9 @@ module "sns" {
 module "sqs" {
   source         = "../../modules/sqs"
   sqs_queue_name = format("%s-pdv-reconciler-sqs", local.project)
+  sns_topic_arn  = module.sns.sns_topic_arn
+  env_short      = var.env_short
+  region_short   = var.aws_region_short
 }
 
 module "backend" {
