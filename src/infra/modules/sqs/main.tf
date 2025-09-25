@@ -22,3 +22,22 @@ resource "aws_sqs_queue_redrive_allow_policy" "pdv_errors_queue_redrive_allow_po
     sourceQueueArns   = [aws_sqs_queue.pdv_errors_queue.arn]
   })
 }
+
+# Alarm for monitoring errors during SQS message sending
+resource "aws_cloudwatch_metric_alarm" "sqs_error_sending_message_alarm" {
+  alarm_name          = format("%s_%s_%s", "SQSErrorsSendingMessageAlarm", var.env_short, var.region_short)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  threshold           = 1
+  metric_name         = "OIError"
+  namespace           = "oneid-${var.region_short}-${var.env_short}-core/ApplicationMetrics"
+  period              = "60"
+  statistic           = "Sum"
+
+  dimensions = {
+    OIError = "SQSSendMessageFailures"
+  }
+  alarm_actions = [
+    var.sns_topic_arn,
+  ]
+}
