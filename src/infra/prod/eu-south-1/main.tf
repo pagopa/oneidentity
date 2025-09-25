@@ -101,7 +101,6 @@ module "sqs" {
   sns_topic_arn  = module.sns.sns_topic_arn
   env_short      = var.env_short
   region_short   = var.aws_region_short
-  dlq_alarms     = local.cloudwatch__dlq_alarms_with_sns
 
 }
 

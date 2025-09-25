@@ -26,6 +26,17 @@ variable "dlq_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    sns_topic_alarm_arn = string
   })
+
+  default = {
+
+    metric_name         = "ApproximateNumberOfMessagesVisible"
+    namespace           = "AWS/SQS"
+    threshold           = 0
+    evaluation_periods  = 2
+    comparison_operator = "GreaterThanThreshold"
+    period              = 300
+    statistic           = "Sum"
+
+  }
 }

@@ -59,5 +59,5 @@ resource "aws_cloudwatch_metric_alarm" "dlq_pdv_errors" {
     QueueName = aws_sqs_queue.pdv_errors_deadletter_queue.name
   }
 
-  alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
+  alarm_actions = [var.sns_topic_arn]
 }
