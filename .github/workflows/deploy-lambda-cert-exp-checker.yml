@@ -94,11 +94,11 @@ jobs:
 
       - name: Update Lambda function (${{ matrix.environment }})
         run: |
-          aws s3 cp src/oneid/oneid-lambda-cert-exp-checker/target/cert-exp-checker-lambda.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_cert-exp-checker_KEY}}
+          aws s3 cp src/oneid/oneid-lambda-cert-exp-checker/target/cert-exp-checker-lambda.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_CERT_KEY}}
 
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
           aws lambda update-function-code \
           --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-cert-exp-checker \
-          --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_cert-exp-checker_KEY}}
+          --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_CERT_KEY}}
 
