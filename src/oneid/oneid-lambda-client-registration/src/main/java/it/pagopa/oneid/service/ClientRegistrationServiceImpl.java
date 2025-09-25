@@ -102,12 +102,13 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO) {
+      ClientRegistrationDTO clientRegistrationDTO, String userId) {
     // 1. call to dynamo & set in clientRegistrationRequestDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
     // 2. Convert ClientRegistrationRequestDto to Client and sets newly generated fields
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO, userId);
+    client.setUserId(userId);
     client.setClientId(new ClientID(32).getValue());
     client.setClientIdIssuedAt(System.currentTimeMillis());
     client.setAttributeIndex(maxAttributeIndex + 1);
@@ -137,7 +138,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 8. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
-        .userId(clientRegistrationDTO.getUserId())
+        .userId(userId)
         .redirectUris(clientRegistrationDTO.getRedirectUris())
         .clientName(clientRegistrationDTO.getClientName())
         .logoUri(clientRegistrationDTO.getLogoUri())
@@ -181,15 +182,13 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public Client getClientByUserId(String userId) {
-    Client client = clientConnector.getClientByUserId(userId)
-        .orElseThrow(ClientNotFoundException::new);
-    return client;
+    return clientConnector.getClientByUserId(userId).orElseThrow(ClientNotFoundException::new);
   }
 
   @Override
-  public void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO,
-      String clientID, int attributeIndex, long clientIdIssuedAt) {
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+  public void updateClient(ClientRegistrationDTO clientRegistrationDTO,
+      String clientID, int attributeIndex, long clientIdIssuedAt, String userId) {
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO, userId);
     client.setClientId(clientID);
     client.setAttributeIndex(attributeIndex);
     client.setClientIdIssuedAt(clientIdIssuedAt);

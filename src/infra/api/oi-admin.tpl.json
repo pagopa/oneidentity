@@ -229,7 +229,7 @@
         ]
       }
     },
-    "/oidc/register/user_id/{user_id}": {
+    "/oidc/register": {
       "get": {
         "tags": [
           "Authorization Server APIs"

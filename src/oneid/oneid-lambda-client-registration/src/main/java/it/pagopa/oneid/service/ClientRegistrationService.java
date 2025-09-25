@@ -9,14 +9,14 @@ public interface ClientRegistrationService {
   void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO);
 
   ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO);
+      ClientRegistrationDTO clientRegistrationDTO, String userId);
 
   Client getClientByClientId(String clientId);
 
   Client getClientByUserId(String userId);
 
-  void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO, String clientId,
-      int attributeIndex, long clientIdIssuedAt);
+  void updateClient(ClientRegistrationDTO clientRegistrationDTO, String clientId,
+      int attributeIndex, long clientIdIssuedAt, String userId);
 
   String refreshClientSecret(String clientId, String userId);
 

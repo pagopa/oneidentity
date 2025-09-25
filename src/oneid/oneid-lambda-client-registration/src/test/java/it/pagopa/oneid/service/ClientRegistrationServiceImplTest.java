@@ -185,7 +185,7 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO));
+        clientRegistrationDTO, "userId"));
   }
 
   @Test
@@ -194,7 +194,6 @@ class ClientRegistrationServiceImplTest {
     // given
     String existingUserId = "existingUserId";
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId(existingUserId)
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -238,7 +237,7 @@ class ClientRegistrationServiceImplTest {
 
     // then
     assertThrows(ExistingUserIdException.class,
-        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO));
+        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId));
   }
 
   @Test
@@ -379,7 +378,6 @@ class ClientRegistrationServiceImplTest {
         .thenReturn(Optional.of(existingClient));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("newLogo")
@@ -396,13 +394,13 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClient(
+        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt, "userId"));
 
     // then
     Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
-            && updated.getUserId().equals("test")
+            && updated.getUserId().equals("userId")
             && updated.getFriendlyName().equals("test")
             && updated.getCallbackURI().equals(Set.of("http://test.com"))
             && updated.getRequestedParameters().equals(Set.of("name"))
@@ -432,7 +430,6 @@ class ClientRegistrationServiceImplTest {
     long originalIssuedAt = 987654321L;
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("newLogo")
@@ -450,13 +447,13 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClient(
+        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt, "userId"));
 
     // then
     Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
-            && updated.getUserId().equals("test")
+            && updated.getUserId().equals("userId")
             && updated.getFriendlyName().equals("test")
             && updated.getCallbackURI().equals(Set.of("http://test.com"))
             && updated.getRequestedParameters().equals(Set.of("spidCode"))
