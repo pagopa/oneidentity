@@ -16,6 +16,11 @@ import {
   FormHelperText,
   FormControlLabel,
   Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   SpidLevel,
@@ -30,7 +35,7 @@ import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
 import { ROUTE_PATH } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
-import { isNil } from 'lodash';
+import { isEqual, isNil } from 'lodash';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { useClientId } from '../../context/ClientIdContext';
 import SaveIcon from '@mui/icons-material/Save';
@@ -43,6 +48,9 @@ export const Dashboard = () => {
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const openConfirm = () => setIsConfirmOpen(true);
+  const closeConfirm = () => setIsConfirmOpen(false);
   const { isModalOpen, openModal, closeModal } = useModalManager();
 
   const { setClientId, clientId } = useClientId();
@@ -142,9 +150,7 @@ export const Dashboard = () => {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const doSubmit = () => {
     if (!formData && !isFormValid()) {
       console.error('Form is not valid');
     } else {
@@ -155,6 +161,34 @@ export const Dashboard = () => {
         clientId: clientId,
       });
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    // open modal
+    e.preventDefault();
+
+    // open modal only if is update stauts && spid level or saml attributes are modified
+    if (
+      clientId &&
+      (!isEqual(
+        formData?.defaultAcrValues,
+        fetchedClientData?.defaultAcrValues
+      ) ||
+        !isEqual(
+          formData?.samlRequestedAttributes,
+          fetchedClientData?.samlRequestedAttributes
+        ))
+    ) {
+      openConfirm();
+    } else {
+      doSubmit();
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    // confirm changes submit request
+    closeConfirm();
+    doSubmit();
   };
 
   const handleChange =
@@ -373,7 +407,33 @@ export const Dashboard = () => {
           </Button>
         </Box>
       </Box>
-
+      <Dialog
+        open={isConfirmOpen}
+        onClose={closeConfirm}
+        aria-labelledby="confirm-submit-title"
+      >
+        <DialogTitle id="confirm-submit-title">Confirm changes</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Updating SPID Level and SAML Attributes fields may require
+            re-sharing them with the SPID and CIE authorities (AgID and IPZS).
+            Please confirm you want to proceed
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeConfirm} disabled={isUpdating}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmSubmit}
+            variant="contained"
+            autoFocus
+            disabled={isUpdating}
+          >
+            {isUpdating ? 'Saving...' : 'Confirm'}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Notify
         open={notify.open}
         message={notify.message}

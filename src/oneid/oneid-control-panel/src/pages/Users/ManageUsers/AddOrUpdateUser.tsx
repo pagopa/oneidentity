@@ -179,12 +179,17 @@ export const AddOrUpdateUser = () => {
             margin="normal"
             onChange={handleChange('username')}
             disabled={isEditMode}
+            onKeyDown={(e) => {
+              if (e.key === ' ') {
+                e.preventDefault();
+              }
+            }}
           />
 
           <TextField
             fullWidth
             required
-            type={showPassword ? 'text' : 'password'}
+            type={'text'}
             label="Password"
             value={formData?.password || ''}
             onChange={handleChange('password')}
@@ -193,6 +198,12 @@ export const AddOrUpdateUser = () => {
             helperText={(errorUi as UserErrors)?.password?._errors}
             disabled={isEditMode}
             InputProps={{
+              sx: !showPassword
+                ? {
+                    WebkitTextSecurity: 'disc',
+                    MozTextSecurity: 'disc',
+                  }
+                : {},
               ...(formData.password
                 ? {
                     endAdornment: (
@@ -202,15 +213,16 @@ export const AddOrUpdateUser = () => {
                           onClick={() => setShowPassword((prev) => !prev)}
                           edge="end"
                           size="small"
-                          sx={{ backgroundColor: 'background.default' }}
                         >
                           {showPassword ? (
                             <VisibilityOff
+                              data-testid="VisibilityOffIcon"
                               fontSize="small"
                               sx={{ color: 'grey' }}
                             />
                           ) : (
                             <Visibility
+                              data-testid="VisibilityOnIcon"
                               fontSize="small"
                               sx={{ color: 'grey' }}
                             />
