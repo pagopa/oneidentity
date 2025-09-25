@@ -4,6 +4,7 @@ import logging
 import os
 import json
 import base64
+import jwt
 from typing import Optional
 
 import boto3
@@ -73,6 +74,24 @@ valid_saml_attributes = set(
         "street",
     ]
 )
+
+
+def get_user_id_from_bearer(bearer: str) -> Optional[str]:
+    """
+    Validates a bearer token string, parses it, and extracts the 'sub' (subject) claim.
+    """
+    if not bearer or not bearer.startswith("Bearer "):
+        return None
+
+    token = bearer[len("Bearer ") :]
+    try:
+        payload = jwt.decode(token, options={"verify_signature": False})
+        user_id = payload.get("sub")
+    except Exception as ex:
+        return None
+    if not user_id:
+        return None
+    return user_id
 
 
 def extract_client_id_from_connected_user(user_id: str) -> Optional[str]:
@@ -152,6 +171,14 @@ def create_idp_internal_user():
     """
     logger.info("/client-manager/client-users POST route invoked")
     try:
+        # Extract the user_id from the bearer token
+        bearer = app.current_event.headers.get("Authorization", "")
+        user_id = get_user_id_from_bearer(bearer)
+
+        if not user_id:
+            logger.error("[create_idp_internal_user]: user_id is required")
+            return {"message": "user_id is required"}, 400
+        
         # Parse the JSON body of the request
         body = app.current_event.json_body
 
@@ -159,12 +186,6 @@ def create_idp_internal_user():
         if not body:
             logger.error("[create_idp_internal_user]: Request body is required")
             return {"message": "Request body is required"}, 400
-
-        user_id = body.get("user_id")
-
-        if not user_id:
-            logger.error("[create_idp_internal_user]: user_id is required")
-            return {"message": "user_id is required"}, 400
 
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
@@ -232,13 +253,20 @@ def create_idp_internal_user():
         return {"message": "Internal server error"}, 500
 
 
-@app.patch("/client-manager/client-users/<user_id>/<username>")
-def update_idp_internal_user(user_id: str, username: str):
+@app.patch("/client-manager/client-users/<username>")
+def update_idp_internal_user(username: str):
     """
     Updates a user in the Internal IDP
     """
-    logger.info("/client-manager/client-users PUT route invoked")
+    logger.info("/client-manager/client-users PATCH route invoked")
     try:
+        # Extract the user_id from the bearer token
+        bearer = app.current_event.headers.get("Authorization", "")
+        user_id = get_user_id_from_bearer(bearer)
+        if not user_id:
+            logger.error("[update_idp_internal_user]: user_id is required")
+            return {"message": "user_id is required"}, 400
+
         # Parse the JSON body of the request
         body = app.current_event.json_body
 
@@ -306,13 +334,21 @@ def update_idp_internal_user(user_id: str, username: str):
         return {"message": "Internal server error"}, 500
 
 
-@app.delete("/client-manager/client-users/<user_id>/<username>")
-def delete_idp_internal_user(user_id: str, username: str):
+@app.delete("/client-manager/client-users/<username>")
+def delete_idp_internal_user(username: str):
     """
     Deletes a user in the Internal IDP
     """
     logger.info("/client-manager/client-users DELETE route invoked")
     try:
+
+        # Extract the user_id from the bearer token
+        bearer = app.current_event.headers.get("Authorization", "")
+        user_id = get_user_id_from_bearer(bearer)
+        if not user_id:
+            logger.error("[delete_idp_internal_user]: user_id is required")
+            return {"message": "user_id is required"}, 400
+
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
 
@@ -343,13 +379,19 @@ def delete_idp_internal_user(user_id: str, username: str):
         return {"message": "Internal server error"}, 500
 
 
-@app.get("/client-manager/client-users/<user_id>")
-def get_idp_internal_users(user_id: str):
+@app.get("/client-manager/client-users")
+def get_idp_internal_users():
     """
     Retrieves all users of a client in the Internal IDP
     """
     logger.info("/client-manager/client-users GET route invoked")
     try:
+        # Extract the user_id from the bearer token
+        bearer = app.current_event.headers.get("Authorization", "")
+        user_id = get_user_id_from_bearer(bearer)
+        if not user_id:
+            logger.error("[get_idp_internal_users]: user_id is required")
+            return {"message": "user_id is required"}, 400
         
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
