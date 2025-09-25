@@ -11,6 +11,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.service.config.SAMLNamespaceContext;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,6 +33,10 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -60,9 +65,6 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @ApplicationScoped
@@ -188,47 +190,44 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
+    // log size of SAMLResponse for possible future check on max size
+    Log.info("SAMLResponse size: " + decodedSamlResponse.length);
+
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
 
       // Parse XML
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      dbf.setXIncludeAware(false);
       dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       dbf.setNamespaceAware(true);
+
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
 
-      // Check Response doesn't have multiple Signatures
-      Element responseElem = doc.getDocumentElement();
-      checkNoMultipleSignatures(responseElem);
-      // Check each Assertion doesn't have multiple Signatures
-      NodeList assertionNodes = responseElem.getElementsByTagNameNS(
-          "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
-      for (int i = 0; i < assertionNodes.getLength(); i++) {
-        checkNoMultipleSignatures((Element) assertionNodes.item(i));
-      }
+      checkNoMultipleSignatures(doc);
 
       // return response even if it has multiple signatures, the error will be handled inside SAMLController
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
 
     } catch (UnmarshallingException | XMLParserException | SAXException | IOException |
-             ParserConfigurationException e) {
+             ParserConfigurationException | XPathExpressionException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
     }
   }
 
-  private void checkNoMultipleSignatures(Element elem) {
-    int count = 0;
-    NodeList children = elem.getChildNodes();
-    for (int i = 0; i < children.getLength(); i++) {
-      Node n = children.item(i);
-      if (n.getNodeType() == Node.ELEMENT_NODE && "Signature".equals(n.getLocalName())
-          && "http://www.w3.org/2000/09/xmldsig#".equals(n.getNamespaceURI())) {
-        count++;
-      }
-    }
-    if (count > 1) {
+  private void checkNoMultipleSignatures(Document doc) throws XPathExpressionException {
+    XPath xPath = XPathFactory.newInstance().newXPath();
+    // Set the namespace context to handle prefixes like 'samlp', 'saml', and 'ds'
+    xPath.setNamespaceContext(new SAMLNamespaceContext());
+
+    String expression = "count(.//ds:Signature)";
+    Double responseSignatureCount = (Double) xPath.compile(expression)
+        .evaluate(doc, XPathConstants.NUMBER);
+
+    if (responseSignatureCount > 2) {
       // set a flag in currentAuthDTO to handle the error in SAMLController
       Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
       currentAuthDTO.setResponseWithMultipleSignatures(true);
