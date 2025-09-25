@@ -248,7 +248,7 @@ module "backend" {
       },
       {
         name  = "PDV_BASE_URL"
-        value = "https://api.uat.pdv.pagopa.it"
+        value = var.pdv_base_url
       },
       {
         name  = "PDV_ERROR_QUEUE_URL"
@@ -543,7 +543,8 @@ module "backend" {
     vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
     pdv_errors_queue_arn               = module.sqs.sqs_queue_arn
     environment_variables = {
-      "LOG_LEVEL" = var.app_log_level
+      "LOG_LEVEL"    = var.app_log_level
+      "PDV_BASE_URL" = var.pdv_base_url
     }
   }
 
