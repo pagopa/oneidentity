@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,8 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
-    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
+    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString()))
+        .thenReturn(mockResponse);
 
     given()
         .contentType("application/json")
@@ -79,7 +81,8 @@ class ClientRegistrationControllerTest {
   @Test
   void register_differentContentType() {
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
-    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
+    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString()))
+        .thenReturn(mockResponse);
 
     given()
         .contentType("application/xml") // Testing wrong content-type
@@ -93,7 +96,6 @@ class ClientRegistrationControllerTest {
   void register_missingRequiredField_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        //.userId("test")
         //.redirectUris(Set.of("http://test.com"))
         //.clientName("test")
         //.defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
@@ -101,7 +103,8 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
-    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any())).thenReturn(mockResponse);
+    Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString()))
+        .thenReturn(mockResponse);
 
     given()
         .contentType("application/json")
@@ -116,7 +119,6 @@ class ClientRegistrationControllerTest {
   void register_withInvalidSamlAttribute_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
         .clientName("Test Client")
         .redirectUris(Set.of("https://valid.uri/callback"))
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue())) // This must be valid
@@ -138,7 +140,6 @@ class ClientRegistrationControllerTest {
   void register_withInvalidAcrValues_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test-user")
         .clientName("Test Client")
         .redirectUris(Set.of("https://valid.uri/callback"))
         .samlRequestedAttributes(Set.of("name"))
@@ -160,7 +161,6 @@ class ClientRegistrationControllerTest {
   void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -199,7 +199,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -233,7 +232,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -271,7 +269,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -309,7 +306,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -344,7 +340,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -387,6 +382,10 @@ class ClientRegistrationControllerTest {
 
   @Test
   void getClient_ok() {
+    //userId "1234567890" in the bearer token
+    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String userId = "1234567890";
+
     Client mockClient = Client.builder()
         .clientId("client_id")
         .userId("user_id")
@@ -400,14 +399,14 @@ class ClientRegistrationControllerTest {
         .build();
 
     Mockito.when(
-            clientRegistrationServiceImpl.getClientByUserId(Mockito.eq("user_id")))
+            clientRegistrationServiceImpl.getClientByUserId(Mockito.eq(userId)))
         .thenReturn(mockClient);
 
     given()
+        .header(HttpHeaders.AUTHORIZATION, bearer)
         .contentType("application/json")
-        .pathParam("user_id", "user_id")
         .when()
-        .get("/register/user_id/{user_id}")
+        .get("/register")
         .then()
         .statusCode(200);
   }
@@ -417,24 +416,26 @@ class ClientRegistrationControllerTest {
 
     given()
         .contentType("application/json")
-        .pathParam("user_id", "")
         .when()
-        .get("/register/user_id/{user_id}")
+        .get("/register")
         .then()
-        .statusCode(400); // Bad Request due to missing userId
+        .statusCode(401); // Unauthorized due to missing userId
   }
 
   @Test
   void getClient_clientNotFound_ko() {
+    //userId "1234567890" in the bearer token
+    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String userId = "1234567890";
 
-    Mockito.when(clientRegistrationServiceImpl.getClientByUserId(Mockito.eq("user_id")))
+    Mockito.when(clientRegistrationServiceImpl.getClientByUserId(Mockito.eq(userId)))
         .thenThrow(ClientNotFoundException.class);
 
     given()
+        .header(HttpHeaders.AUTHORIZATION, bearer)
         .contentType("application/json")
-        .pathParam("user_id", "user_id")
         .when()
-        .get("/register/user_id/{user_id}")
+        .get("/register")
         .then()
         .statusCode(404); // NotFound due to client not found
   }
@@ -443,7 +444,9 @@ class ClientRegistrationControllerTest {
 
   @Test
   void updateClient_ok() {
-
+    //userId "1234567890" in the bearer token
+    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String userId = "1234567890";
     // given
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
     Map<String, Client.LocalizedContent> defaultLangs = new HashMap<>();
@@ -461,7 +464,6 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("optional", optionalLangs);
 
     String clientId = "testClientId";
-    String userId = "testUserId";
 
     ClientExtended existingClientExtended = ClientExtended.builder()
         .clientId("testClientId")
@@ -485,7 +487,6 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        .userId(userId)
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
         .redirectUris(Set.of("http://updated.com"))
@@ -498,6 +499,7 @@ class ClientRegistrationControllerTest {
         .thenReturn(existingClientExtended);
 
     given()
+        .header(HttpHeaders.AUTHORIZATION, bearer)
         .contentType("application/json")
         .pathParam("client_id", clientId)
         .body(updatedDto)
@@ -548,13 +550,14 @@ class ClientRegistrationControllerTest {
   void refreshClientSecret() {
     String clientId = "testClientId";
     String userId = "testUserId";
+    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     Mockito.when(clientRegistrationServiceImpl.refreshClientSecret(clientId, userId))
         .thenReturn("NewSecret");
 
     given()
         .contentType("application/json")
+        .header(HttpHeaders.AUTHORIZATION, bearer)
         .pathParam("client_id", clientId)
-        .body("{\"userId\": \"" + userId + "\"}")
         .when()
         .post("/clients/{client_id}/secret/refresh")
         .then()

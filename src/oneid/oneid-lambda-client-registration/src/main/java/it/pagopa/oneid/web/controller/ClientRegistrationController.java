@@ -12,7 +12,6 @@ import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import it.pagopa.oneid.service.utils.ClientUtils;
-import it.pagopa.oneid.web.dto.RefreshTokenRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.groups.ConvertGroup;
@@ -59,18 +58,21 @@ public class ClientRegistrationController {
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.info("start");
 
+    //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
-    //TODO: use the userId extracted from the token
+    Log.info("userId retrieved from bearer token successfully");
 
+    //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput);
-
     Log.info("client info validated successfully");
 
+    //3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
-        clientRegistrationDTOInput);
+        clientRegistrationDTOInput, userId);
     Log.info(
         "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
+    //4. Prepare message for sns notification
     String message =
         "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
             "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
@@ -94,21 +96,25 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register/user_id/{user_id}")
+  @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response getClient(@PathParam("user_id") String userId) {
+  public Response getClient(@HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.info("start");
 
-    //1. Verify if client exists and if so retrieves it from db
+    //1. Extract userId from bearer token
+    String userId = getUseridFromBearer(bearer);
+    Log.info("userId retrieved from bearer token successfully");
+
+    //2. Verify if client exists and if so retrieves it from db
     Client client = clientRegistrationService.getClientByUserId(userId);
     Log.info("client exists for userId: " + userId);
 
-    //2. Convert client to ClientRegistrationDTO
+    //3. Convert client to ClientRegistrationDTO
     ClientRegistrationDTO clientRegistrationDTO = ClientUtils.convertClientToClientRegistrationDTO(
         client);
 
-    //3. Set clientId in ClientRegistrationResponseDTO
+    //4. Set clientId in ClientRegistrationResponseDTO
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = new ClientRegistrationResponseDTO(
         clientRegistrationDTO,
         client.getClientId());
@@ -123,10 +129,15 @@ public class ClientRegistrationController {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateClient(
       @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
-      @PathParam("client_id") String clientId) {
+      @PathParam("client_id") String clientId,
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.info("start");
 
-    //1. Validate client infos
+    //1. Extract userId from bearer token
+    String userId = getUseridFromBearer(bearer);
+    Log.info("userId retrieved from bearer token successfully");
+
+    //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(
         clientRegistrationDTOInput);
     Log.info("client info validated successfully");
@@ -135,15 +146,15 @@ public class ClientRegistrationController {
     ClientExtended clientExtended = clientRegistrationService.getClientExtendedByClientId(clientId);
 
     //3. Check if userId in input matches the client userId on db
-    ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), clientExtended.getUserId());
+    ClientUtils.checkUserId(userId, clientExtended.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
-    //4. Update client infos
+    //5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
         clientExtended);
     Log.info("client updated successfully for clientId: " + clientId);
 
-    //5. Prepare message for sns notification
+    //6a. Prepare message for sns notification
     String message =
         "Name: " + clientRegistrationDTOInput.getClientName() + "\n" +
             "Client ID: " + clientId + "\n";
@@ -160,7 +171,7 @@ public class ClientRegistrationController {
       sendNotification = true;
     }
 
-    //6. Send SNS notification only if redirectUris or metadata-related fields has been updated
+    //7. Send SNS notification only if redirectUris or metadata-related fields has been updated
     if (sendNotification) {
       String subject =
           "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
@@ -184,12 +195,21 @@ public class ClientRegistrationController {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response refreshClientSecret(
-      @PathParam("client_id") String clientId, RefreshTokenRequestDTO refreshTokenRequestDTO) {
+      @PathParam("client_id") String clientId,
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+    Log.info("start");
+
+    //1. Extract userId from bearer token
+    String userId = getUseridFromBearer(bearer);
+    Log.info("userId retrieved from bearer token successfully");
+
+    //2. Refresh client secret
     String secret = clientRegistrationService.refreshClientSecret(
-        clientId, refreshTokenRequestDTO.getUserId());
+        clientId, userId);
     Map<String, String> response = new HashMap<>();
     response.put("newClientSecret", secret);
 
+    //3. Prepare message for sns notification
     String message =
         "Client ID: " + clientId + "\n";
 

@@ -10,7 +10,7 @@ public interface ClientRegistrationService {
   void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO);
 
   ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO);
+      ClientRegistrationDTO clientRegistrationDTO, String userId);
 
   Client getClientExtendedByClientId(String clientId);
 

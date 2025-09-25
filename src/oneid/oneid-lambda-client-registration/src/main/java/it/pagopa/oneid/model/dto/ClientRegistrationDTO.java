@@ -27,11 +27,6 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @SuperBuilder
 public class ClientRegistrationDTO {
 
-  //@NotBlank(groups = {Registration.class, UpdateClient.class})
-  @JsonProperty("userId")
-  @Parameter()
-  private String userId;
-
   @NotEmpty(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
@@ -85,7 +80,6 @@ public class ClientRegistrationDTO {
   private Boolean pairwise;
 
   public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
-    this.userId = clientRegistrationDTO.userId;
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
     this.defaultAcrValues = clientRegistrationDTO.defaultAcrValues;

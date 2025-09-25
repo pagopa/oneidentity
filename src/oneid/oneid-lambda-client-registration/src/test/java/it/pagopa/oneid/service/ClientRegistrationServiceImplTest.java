@@ -186,7 +186,7 @@ class ClientRegistrationServiceImplTest {
     Mockito.when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO));
+        clientRegistrationDTO, "userId"));
   }
 
   @Test
@@ -195,7 +195,6 @@ class ClientRegistrationServiceImplTest {
     // given
     String existingUserId = "existingUserId";
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId(existingUserId)
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("http://test.com")
@@ -239,7 +238,7 @@ class ClientRegistrationServiceImplTest {
 
     // then
     assertThrows(ExistingUserIdException.class,
-        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO));
+        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId));
   }
 
   @Test
@@ -354,6 +353,7 @@ class ClientRegistrationServiceImplTest {
   void updateClient() {
     // given
     String clientId = "client-123";
+    String userId = "userIdTest";
     int attributeIndex = 42;
     long originalIssuedAt = 987654321L;
     String secret = "originalSecret";
@@ -363,7 +363,7 @@ class ClientRegistrationServiceImplTest {
         .secret(secret) // keep original secret and salt
         .salt(salt)
         .clientId(clientId)
-        .userId("test")
+        .userId(userId)
         .friendlyName("Old Name")
         .callbackURI(Set.of("http://old.com"))
         .requestedParameters(Set.of("name"))
@@ -387,7 +387,6 @@ class ClientRegistrationServiceImplTest {
         .thenReturn(Optional.of(existingClientExtended));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("newLogo")
@@ -410,7 +409,7 @@ class ClientRegistrationServiceImplTest {
     // then
     Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
-            && updated.getUserId().equals("test")
+            && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
             && updated.getCallbackURI().equals(Set.of("http://test.com"))
             && updated.getRequestedParameters().equals(Set.of("name"))
@@ -438,11 +437,11 @@ class ClientRegistrationServiceImplTest {
   void updateClient_nullValues() {
     // given
     String clientId = "client-123";
+    String userId = "userIdTest";
     int attributeIndex = 42;
     long originalIssuedAt = 987654321L;
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .userId("test")
         .redirectUris(Set.of("http://test.com"))
         .clientName("test")
         .logoUri("newLogo")
@@ -460,6 +459,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     ClientExtended existingClientExtended = ClientExtended.builder()
+        .userId(userId)
         .secret("originalSecret")
         .salt("originalSalt")
         .clientId(clientId)
@@ -474,7 +474,7 @@ class ClientRegistrationServiceImplTest {
     // then
     Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
-            && updated.getUserId().equals("test")
+            && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
             && updated.getCallbackURI().equals(Set.of("http://test.com"))
             && updated.getRequestedParameters().equals(Set.of("spidCode"))

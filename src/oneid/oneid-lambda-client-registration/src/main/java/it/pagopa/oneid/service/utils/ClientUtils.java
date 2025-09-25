@@ -29,7 +29,7 @@ public class ClientUtils {
   }
 
   public static Client convertClientRegistrationDTOToClient(
-      ClientRegistrationDTO clientRegistrationDTO) {
+      ClientRegistrationDTO clientRegistrationDTO, String userId) {
     Log.debug("start");
 
     Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes();
@@ -38,7 +38,7 @@ public class ClientUtils {
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
-        .userId(clientRegistrationDTO.getUserId())
+        .userId(userId)
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
@@ -68,7 +68,6 @@ public class ClientUtils {
   public static ClientRegistrationDTO convertClientToClientRegistrationDTO(Client client) {
 
     return ClientRegistrationDTO.builder()
-        .userId(client.getUserId())
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
