@@ -446,6 +446,7 @@ variable "cert_exp_checker_lambda" {
     vpc_subnet_ids                     = list(string)
     vpc_tls_security_group_endpoint_id = string
     vpc_id                             = string
+    schedule_expression                = optional(string, "cron( 0 9 * * 1 )")
   })
 }
 

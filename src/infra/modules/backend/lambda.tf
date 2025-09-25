@@ -1177,3 +1177,22 @@ module "cert_exp_checker_lambda" {
 
 }
 
+resource "aws_cloudwatch_event_rule" "cert_expiration" {
+  name        = "Lambda-cert-exp-checker-schedule"
+  description = "Trigger lambda cert-exp-checker every week"
+
+  schedule_expression = var.cert_exp_checker_lambda.schedule_expression
+}
+
+resource "aws_cloudwatch_event_target" "cert_exp_checker_lambda" {
+  rule = aws_cloudwatch_event_rule.cert_expiration.name
+  arn  = module.cert_exp_checker_lambda.lambda_function_arn
+}
+
+resource "aws_lambda_permission" "allow_eventbridge" {
+  action        = "lambda:InvokeFunction"
+  function_name = module.cert_exp_checker_lambda.lambda_function_arn
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.cert_expiration.arn
+}
+
