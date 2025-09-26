@@ -1,6 +1,6 @@
 /* eslint-disable sonarjs/no-duplicate-string */
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { Customize } from './Customize';
@@ -281,5 +281,40 @@ describe('Refactored ReservedAreaForm Component', () => {
     // 5. Assert the 'enterprise' theme is gone and 'default' is now active
     expect(screen.queryByText('enterprise')).not.toBeInTheDocument();
     expect(screen.getByTestId('theme-select')).toHaveTextContent('default');
+  });
+
+  it('should show and hide the unsaved changes reminder', async () => {
+    const user = userEvent.setup();
+    render(<Customize />, { wrapper: createWrapper() });
+
+    expect(
+      screen.queryByText(/You have unsaved changes/i)
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Add Language/i }));
+
+    // select a new language
+    const languageSelect = screen.getByTestId('language-selector');
+    const button = within(languageSelect).getByRole('combobox', {
+      hidden: true,
+    });
+    await user.click(button);
+    await user.click(screen.getByRole('option', { name: /deutsch/i }));
+
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    // the reminder is now visible
+    expect(screen.getByText(/You have unsaved changes/i)).toBeInTheDocument();
+
+    const saveButton = screen.getByRole('button', { name: /Save Changes/i });
+    expect(saveButton).not.toBeDisabled();
+    await user.click(saveButton);
+
+    // reminder is hidden again
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/You have unsaved changes/i)
+      ).not.toBeInTheDocument();
+    });
   });
 });

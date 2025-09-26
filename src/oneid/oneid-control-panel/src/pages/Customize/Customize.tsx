@@ -16,6 +16,8 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  Alert,
+  Fade,
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import {
@@ -66,6 +68,9 @@ function CustomizeDashboard() {
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
+
+  const [unsavedChangesReminder, setUnsavedChangesReminder] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (isFetched) {
@@ -142,6 +147,7 @@ function CustomizeDashboard() {
       data: clientData as ClientWithoutSensitiveData,
       clientId,
     });
+    setUnsavedChangesReminder(false);
   };
 
   const isFormValid = () => {
@@ -252,6 +258,7 @@ function CustomizeDashboard() {
 
   const handleAddLanguage = () => {
     if (!languageToAdd) return;
+    setUnsavedChangesReminder(true);
     setClientData((prev) => {
       if (!prev || !prev.localizedContentMap) return prev;
       const newThemeContent = {
@@ -272,6 +279,7 @@ function CustomizeDashboard() {
 
   const handleRemoveLanguage = (langToRemove: string) => {
     if (!activeTheme || Object.keys(activeTheme).length <= 1) return;
+    setUnsavedChangesReminder(true);
     setClientData((prev) => {
       if (!prev || !prev.localizedContentMap) return prev;
       const themeContent = prev.localizedContentMap[activeThemeKey] as Record<
@@ -319,6 +327,7 @@ function CustomizeDashboard() {
       return;
     }
 
+    setUnsavedChangesReminder(true);
     setClientData((prev) => {
       if (!prev) prev = {} as ClientWithoutSensitiveData; // Ensure prev is always defined
       // Always set backButtonEnabled explicitly and ensure it's always boolean
@@ -350,6 +359,7 @@ function CustomizeDashboard() {
       setConfirmModalOpen(false);
       return;
     }
+    setUnsavedChangesReminder(true);
     setClientData((prev) => {
       if (!prev?.localizedContentMap) return prev;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -410,15 +420,21 @@ function CustomizeDashboard() {
         )}
       </ContentBox>
 
-      <Button
-        sx={{ mt: 3, mb: 4 }}
-        variant="contained"
-        startIcon={<SaveIcon />}
-        onClick={handleSubmit}
-        disabled={isUpdating || !isFormValid()}
-      >
-        {isUpdating ? 'Saving...' : 'Save Changes'}
-      </Button>
+      <Box sx={{ mt: 3, mb: 4 }}>
+        <Fade in={unsavedChangesReminder} timeout={500} unmountOnExit>
+          <Alert severity="info" sx={{ mb: 2 }}>
+            You have unsaved changes. Click ‘Save Changes’ to apply them.
+          </Alert>
+        </Fade>
+        <Button
+          variant="contained"
+          startIcon={<SaveIcon />}
+          onClick={handleSubmit}
+          disabled={isUpdating || !isFormValid()}
+        >
+          {isUpdating ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </Box>
 
       {/* TODO swith to useModal hook */}
       {/* Modals are unchanged but their handlers are updated */}
