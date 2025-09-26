@@ -14,6 +14,8 @@ public interface CloudWatchConnector {
 
   void sendOIDynamoDBErrorMetricData(int numAttempts);
 
+  void sendOISQSErrorMetricData();
+
   void sendClientSuccessMetricData(String ClientID);
 
 }

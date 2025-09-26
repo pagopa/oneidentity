@@ -738,3 +738,9 @@ variable "tags" {
     CostCenter  = "tier0"
   }
 }
+
+variable "pairwise_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable PDV pairwise feature"
+}

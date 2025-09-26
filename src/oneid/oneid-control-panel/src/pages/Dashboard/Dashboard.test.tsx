@@ -1,10 +1,18 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { Dashboard } from './Dashboard';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from '../../components/Layout';
+import { ClientIdProvider, useClientId } from '../../context/ClientIdContext';
+import { useEffect } from 'react';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -59,6 +67,33 @@ const createWrapper = () => {
   );
 };
 
+const createWrapperWithClientId = (initialClientId: string) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+
+  // eslint-disable-next-line react/prop-types
+  const Bootstrap: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { setClientId } = useClientId();
+    useEffect(() => {
+      setClientId(initialClientId);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return <>{children}</>;
+  };
+
+  // eslint-disable-next-line react/display-name
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ClientIdProvider>
+          <Bootstrap>{children}</Bootstrap>
+        </ClientIdProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
+
 describe('Dashboard UI', () => {
   const clientID = '0000000000000000000000000000000000000000000';
 
@@ -75,9 +110,9 @@ describe('Dashboard UI', () => {
     axiosMock.post.mockResolvedValueOnce({
       data: mockClientData,
     });
-    axiosMock.patch.mockResolvedValue({
+    axiosMock.put.mockResolvedValue({
       status: 204,
-      data: null,
+      data: mockClientData,
     });
   });
 
@@ -159,7 +194,7 @@ describe('Dashboard UI', () => {
     // Click the submit button
     fireEvent.click(submitButton);
 
-    // Wait for the success notification
+    // success notify
     await waitFor(() => {
       expect(
         screen.getByText(/Client created successfully/i)
@@ -192,8 +227,56 @@ describe('Dashboard UI', () => {
     expect(submitButton).not.toBeDisabled();
     fireEvent.click(submitButton);
 
+    fireEvent.click(submitButton);
+
     await waitFor(() => {
       expect(screen.getByText(/Error updating client/i)).toBeInTheDocument();
+    });
+  });
+
+  it('shows a success notification after update changes', async () => {
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    // Fill the form with valid data
+    const nameInput = await screen.findByLabelText(/Client Name/i);
+    fireEvent.change(nameInput, { target: { value: 'Existing Updated' } });
+
+    const redirectInput = screen.getByLabelText(/Redirect URIs/i);
+    fireEvent.change(redirectInput, {
+      target: { value: 'https://example.com/callback' },
+    });
+    fireEvent.keyDown(redirectInput, { key: 'Enter', code: 'Enter' });
+
+    const spidSelect = screen.getByLabelText(/SPID Level/i);
+    fireEvent.mouseDown(spidSelect);
+    const spidListbox = await screen.findByRole('listbox');
+    fireEvent.click(
+      within(spidListbox).getByRole('option', { name: /Level L3/i })
+    );
+
+    const samlSelect = screen.getByLabelText(/SAML Attributes/i);
+    fireEvent.mouseDown(samlSelect);
+    const samlListbox = await screen.findByRole('listbox');
+    fireEvent.click(
+      within(samlListbox).getByRole('option', { name: /fiscalNumber/i })
+    );
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+
+    fireEvent.click(submitButton);
+
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm changes/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Client updated successfully/i)
+      ).toBeInTheDocument();
     });
   });
 
