@@ -93,6 +93,10 @@ public class SavePDVUserDTO {
 
   private CertifiedField<String> street;
 
+  public SavePDVUserDTO(String fiscalCode) {
+    this.fiscalCode = fiscalCode.replace(FISCAL_CODE_PREFIX, "");
+  }
+
   public static SavePDVUserDTO fromAttributeDtoList(List<AttributeDTO> attributeDTOList) {
     SavePDVUserDTO.SavePDVUserDTOBuilder builder = SavePDVUserDTO.builder();
 
