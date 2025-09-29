@@ -95,7 +95,8 @@ public class SAMLController {
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
           samlSession.getAuthorizationRequestDTOExtended().getIdp(),
           ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
-      throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
+      // TODO uncomment to activate the check for multiple signatures
+      // throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
 
     // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page
