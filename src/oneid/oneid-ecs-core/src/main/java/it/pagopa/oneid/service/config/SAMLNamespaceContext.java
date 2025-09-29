@@ -12,9 +12,9 @@ public class SAMLNamespaceContext implements NamespaceContext {
       throw new NullPointerException("Null prefix is not allowed.");
     }
     switch (prefix) {
-      case "samlp":
+      case "saml2p":
         return "urn:oasis:names:tc:SAML:2.0:protocol";
-      case "saml":
+      case "saml2":
         return "urn:oasis:names:tc:SAML:2.0:assertion";
       case "ds":
         return "http://www.w3.org/2000/09/xmldsig#";

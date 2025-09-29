@@ -220,10 +220,11 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   private void checkNoMultipleSignatures(Document doc) throws XPathExpressionException {
     XPath xPath = XPathFactory.newInstance().newXPath();
-    // Set the namespace context to handle prefixes like 'samlp', 'saml', and 'ds'
+    // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
     xPath.setNamespaceContext(new SAMLNamespaceContext());
 
-    String expression = "count(.//ds:Signature)";
+    //In case of "Advice" field inside the Response, we do not consider the signatures inside it
+    String expression = "count(.//ds:Signature[not(ancestor::saml2:Advice)])";
     Double responseSignatureCount = (Double) xPath.compile(expression)
         .evaluate(doc, XPathConstants.NUMBER);
 
