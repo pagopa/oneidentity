@@ -195,7 +195,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     try {
-
       // Parse XML
       dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
       dbf.setXIncludeAware(false);
@@ -207,12 +206,18 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
       checkNoMultipleSignatures(doc);
 
+    } catch (SAXException | IOException | ParserConfigurationException |
+             XPathExpressionException e) {
+      Log.error("XML parsing exception " + e.getMessage());
+      // TODO uncomment once feature is active
+      // throw new OneIdentityException(e);
+    }
+
+    try {
       // return response even if it has multiple signatures, the error will be handled inside SAMLController
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
-
-    } catch (UnmarshallingException | XMLParserException | SAXException | IOException |
-             ParserConfigurationException | XPathExpressionException e) {
+    } catch (XMLParserException | UnmarshallingException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
     }
