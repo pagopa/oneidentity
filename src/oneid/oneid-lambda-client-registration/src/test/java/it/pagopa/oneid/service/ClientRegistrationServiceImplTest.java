@@ -249,6 +249,8 @@ class ClientRegistrationServiceImplTest {
     String clientId = "test";
     String userId = "userId-test";
     ClientExtended returnClient = ClientExtended.builder()
+        .secret("secret")
+        .salt("salt")
         .clientId(clientId)
         .userId(userId)
         .friendlyName("test")
@@ -354,7 +356,12 @@ class ClientRegistrationServiceImplTest {
     String clientId = "client-123";
     int attributeIndex = 42;
     long originalIssuedAt = 987654321L;
+    String secret = "originalSecret";
+    String salt = "originalSalt";
+
     ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret(secret) // keep original secret and salt
+        .salt(salt)
         .clientId(clientId)
         .userId("test")
         .friendlyName("Old Name")
@@ -422,6 +429,8 @@ class ClientRegistrationServiceImplTest {
             && updated.isSpidMinors()
             && updated.isSpidProfessionals()
             && updated.isPairwise()
+            && updated.getSecret().equals(secret) // unchanged
+            && updated.getSalt().equals(salt) // unchanged
     ));
   }
 
@@ -451,6 +460,8 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret("originalSecret")
+        .salt("originalSalt")
         .clientId(clientId)
         .attributeIndex(attributeIndex)
         .clientIdIssuedAt(originalIssuedAt)
@@ -482,6 +493,8 @@ class ClientRegistrationServiceImplTest {
             && !updated.isSpidProfessionals()
             && !updated.isRequiredSameIdp() // default false
             && !updated.isPairwise() // default false
+            && updated.getSecret().equals("originalSecret") // unchanged
+            && updated.getSalt().equals("originalSalt") // unchanged
     ));
   }
 
