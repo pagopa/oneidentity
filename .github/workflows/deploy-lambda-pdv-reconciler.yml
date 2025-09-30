@@ -1,4 +1,6 @@
 name: Deploy Lambda PDV reconciler
+permissions:
+  contents: read
 
 on:
   push:
