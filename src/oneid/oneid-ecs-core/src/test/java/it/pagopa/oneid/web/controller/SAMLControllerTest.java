@@ -21,6 +21,7 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.controller.mock.SAMLControllerTestProfile;
 import jakarta.inject.Inject;
 import java.net.URLEncoder;
@@ -41,6 +42,9 @@ public class SAMLControllerTest {
 
   @InjectMock
   SAMLServiceImpl samlServiceImpl;
+
+  @Inject
+  CurrentAuthDTO currentAuthDTO;
 
   @InjectMock
   OIDCServiceImpl oidcServiceImpl;
@@ -408,6 +412,44 @@ public class SAMLControllerTest {
 
     Assertions.assertTrue(location.contains(headerLocation));
   }
+
+// TODO re-enable this test when the feature is back
+//  @Test
+//  @SneakyThrows
+//  void samlACS_SAMLResponseWithMultipleSignatures() {
+//    // given
+//    CurrentAuthDTO mockAuthDTO = Mockito.mock(CurrentAuthDTO.class);
+//    QuarkusMock.installMockForType(mockAuthDTO, CurrentAuthDTO.class);
+//
+//    Map<String, String> samlResponseDTO = new HashMap<>();
+//    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+//    samlResponseDTO.put("RelayState", "dummyRelayState");
+//
+//    // Mock CurrentAuthDTO to simulate multiple signatures scenario
+//    Mockito.when(mockAuthDTO.isResponseWithMultipleSignatures()).thenReturn(true);
+//
+//    // Setup mocks for response and samlSession as usual, but flow will stop at the multiple signatures check
+//    Response response = Mockito.mock(Response.class);
+//    Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
+//    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+//    Mockito.when(mockAuthDTO.getResponse()).thenReturn(response);
+//
+//    AuthorizationRequestDTOExtended dto = Mockito.mock(AuthorizationRequestDTOExtended.class);
+//    Mockito.when(dto.getIdp()).thenReturn("dummy-idp"); // Stub idp for cloudwatch metrics
+//    SAMLSession samlSession = Mockito.mock(SAMLSession.class);
+//    Mockito.when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(dto);
+//    Mockito.when(mockAuthDTO.getSamlSession()).thenReturn(samlSession);
+//
+//    // HTTP 302
+//    given()
+//        .formParams(samlResponseDTO)
+//        .when()
+//        .post("/acs")
+//        .then()
+//        .statusCode(302)
+//        .header("Location", containsString(
+//            ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorCode()));
+//  }
 
   @Test
   void assertion_ok() {

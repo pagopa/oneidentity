@@ -12,4 +12,7 @@ public class CurrentAuthDTO {
   Response response;
 
   SAMLSession samlSession;
+
+  boolean responseWithMultipleSignatures;
+
 }
