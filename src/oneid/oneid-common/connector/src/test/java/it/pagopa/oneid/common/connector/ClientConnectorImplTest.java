@@ -156,9 +156,9 @@ class ClientConnectorImplTest {
   }
 
   @Test
-  void updateClient() {
+  void updateClientExtended() {
     //given
-    Client oldClient = Client.builder()
+    ClientExtended oldClient = ClientExtended.builder()
         .logoUri("originalLogoUri") // This field must not be overwritten
         .clientId("clientId") // same clientId to update
         .userId("oldClient") // This field will be updated
@@ -174,7 +174,7 @@ class ClientConnectorImplTest {
         .build();
     clientExtendedMapper.putItem(new ClientExtended(oldClient, "test", "test"));
 
-    Client newClient = Client.builder()
+    ClientExtended newClientExtended = ClientExtended.builder()
         //.logoUri("") //Empty logoUri to check that it is overwritten
         .clientId("clientId") // same clientId to update
         .userId("newClient") // new userId
@@ -198,7 +198,7 @@ class ClientConnectorImplTest {
         .build();
 
     //then
-    Executable executable = () -> clientConnectorImpl.updateClient(newClient);
+    Executable executable = () -> clientConnectorImpl.updateClientExtended(newClientExtended);
     assertDoesNotThrow(executable);
 
     Client updatedClient = clientExtendedMapper.getItem(
@@ -290,6 +290,12 @@ class ClientConnectorImplTest {
     void getClientById() {
       //then
       assertFalse(clientConnectorImpl.getClientById("test").isEmpty());
+    }
+
+    @Test
+    void getClientExtendedById() {
+      //then
+      assertFalse(clientConnectorImpl.getClientExtendedById("test").isEmpty());
     }
 
     @Test

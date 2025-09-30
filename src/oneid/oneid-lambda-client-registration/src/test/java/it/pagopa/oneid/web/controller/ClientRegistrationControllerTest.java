@@ -5,6 +5,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -460,7 +461,7 @@ class ClientRegistrationControllerTest {
     String clientId = "testClientId";
     String userId = "testUserId";
 
-    Client existingClient = Client.builder()
+    ClientExtended existingClientExtended = ClientExtended.builder()
         .clientId("testClientId")
         .userId(userId)
         .friendlyName("oldName")
@@ -490,9 +491,9 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(localizedContentMap)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)
         ))
-        .thenReturn(existingClient);
+        .thenReturn(existingClientExtended);
 
     given()
         .contentType("application/json")
@@ -509,7 +510,7 @@ class ClientRegistrationControllerTest {
     String clientId = "testClientId";
     String userId = "testUserId";
 
-    Client existingClient = Client.builder()
+    ClientExtended existingClientExtended = ClientExtended.builder()
         .clientId("testClientId")
         .userId(userId)
         .friendlyName("oldName")
@@ -527,9 +528,9 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("http://new.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientByClientId(Mockito.eq(clientId)
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)
         ))
-        .thenReturn(existingClient);
+        .thenReturn(existingClientExtended);
 
     given()
         .contentType("application/json")
