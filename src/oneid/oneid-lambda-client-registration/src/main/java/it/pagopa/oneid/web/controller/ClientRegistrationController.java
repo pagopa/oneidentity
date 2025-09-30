@@ -96,15 +96,18 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register")
+  @Path("/register/user_id/{user_id}")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response getClient(@HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+  public Response getClient(@PathParam("user_id") String userIdPathParam,
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.info("start");
 
     //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
     Log.info("userId retrieved from bearer token successfully");
+
+    ClientUtils.checkUserId(userId, userIdPathParam);
 
     //2. Verify if client exists and if so retrieves it from db
     Client client = clientRegistrationService.getClientByUserId(userId);

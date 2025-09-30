@@ -2,6 +2,7 @@ package it.pagopa.oneid.exception.mapper;
 
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
@@ -124,8 +125,8 @@ public class ExceptionMapper {
   public RestResponse<ErrorResponse> mapUserIdMismatchException(
       UserIdMismatchException userIdMismatchException) {
     Log.error(ExceptionUtils.getStackTrace(userIdMismatchException));
-    Response.Status status = BAD_REQUEST;
-    String message = "Error during Service execution";
+    Response.Status status = FORBIDDEN;
+    String message = "UserId unauthorized";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
 

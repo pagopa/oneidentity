@@ -406,7 +406,7 @@ class ClientRegistrationControllerTest {
         .header(HttpHeaders.AUTHORIZATION, bearer)
         .contentType("application/json")
         .when()
-        .get("/register")
+        .get("/register/user_id/{user_id}", userId)
         .then()
         .statusCode(200);
   }
@@ -417,7 +417,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .when()
-        .get("/register")
+        .get("/register/user_id/{user_id}", "someUserId")
         .then()
         .statusCode(401); // Unauthorized due to missing userId
   }
@@ -435,7 +435,7 @@ class ClientRegistrationControllerTest {
         .header(HttpHeaders.AUTHORIZATION, bearer)
         .contentType("application/json")
         .when()
-        .get("/register")
+        .get("/register/user_id/{user_id}", userId)
         .then()
         .statusCode(404); // NotFound due to client not found
   }
