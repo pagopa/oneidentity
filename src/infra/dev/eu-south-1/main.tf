@@ -260,6 +260,10 @@ module "backend" {
       {
         name  = "PAIRWISE_ENABLED"
         value = var.pairwise_enabled
+      },
+      {
+        name  = "REGISTRY_ENABLED"
+        value = var.registry_enabled
       }
     ]
   }
