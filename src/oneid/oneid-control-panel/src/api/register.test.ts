@@ -58,14 +58,12 @@ describe('getClientData', () => {
       data: mockClientData,
     });
 
-    const result = await getClientData('client_id', 'token');
+    const result = await getClientData('token', 'user_id');
     expect(result).toEqual(mockClientData);
   });
 
   it('throws an error if client_id is invalid or missing', async () => {
-    await expect(getClientData('', 'token')).rejects.toThrow(
-      'User ID is required'
-    );
+    await expect(getClientData('token')).rejects.toThrow('User ID is required');
   });
 
   it('throws a custom error if the fetch fails', async () => {
@@ -74,7 +72,7 @@ describe('getClientData', () => {
       response: { data: { status: 401, message: 'Unauthorized' } },
     });
 
-    await expect(getClientData('client_id', 'token')).rejects.toThrow(
+    await expect(getClientData('token', 'user_id')).rejects.toThrow(
       'Unauthorized'
     );
   });
@@ -85,7 +83,7 @@ describe('getClientData', () => {
       response: { data: { status: 401 } },
     });
 
-    await expect(getClientData('client_id', 'token')).rejects.toThrow(
+    await expect(getClientData('token', 'user_id')).rejects.toThrow(
       'Failed to fetch client data'
     );
   });
@@ -96,7 +94,7 @@ describe('getClientData', () => {
     };
     axiosMock.get.mockRejectedValue(mockError);
 
-    await expect(getClientData('client_id', 'token')).rejects.toThrow(
+    await expect(getClientData('token', 'user_id')).rejects.toThrow(
       `An unknown error occurred ${JSON.stringify(mockError)}`
     );
   });

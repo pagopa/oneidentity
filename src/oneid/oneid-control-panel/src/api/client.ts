@@ -15,21 +15,16 @@ const api = axios.create({
 
 const userNameMessage = 'User Name is required';
 
-export const getClientUsers = async (
-  token: string
-): Promise<IdpUserList> => {
+export const getClientUsers = async (token: string): Promise<IdpUserList> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   try {
     // TODO: remove 1000 and implement server pagination
-    const response = await api.get<IdpUserList>(
-      `${ENDPOINT}?limit=1000`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.get<IdpUserList>(`${ENDPOINT}?limit=1000`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);

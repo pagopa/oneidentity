@@ -42,7 +42,7 @@ export const useRegister = () => {
 
   const clientQuery = useQuery<Client, Error>({
     queryKey,
-    queryFn: () => getClientData(userId, token),
+    queryFn: () => getClientData(token, userId),
     enabled: !!token && !!userId,
     staleTime,
     retry,
