@@ -60,9 +60,8 @@ export const useRegister = () => {
       data: ClientWithoutSensitiveData;
       clientId?: string;
     }) => {
-      const dataWithUserId = { ...data, userId };
       return withTimeout(
-        createOrUpdateClient(dataWithUserId, token, clientId),
+        createOrUpdateClient(data, token, clientId),
         TIMEOUT_DURATION
       );
     },
