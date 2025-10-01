@@ -130,7 +130,9 @@
 
 | Name | Version |
 |------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.49 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
 ## Modules
@@ -138,6 +140,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_assertion_lambda"></a> [assertion\_lambda](#module\_assertion\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_cert_exp_checker_lambda"></a> [cert\_exp\_checker\_lambda](#module\_cert\_exp\_checker\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_client_manager_lambda"></a> [client\_manager\_lambda](#module\_client\_manager\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_client_registration_lambda"></a> [client\_registration\_lambda](#module\_client\_registration\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
@@ -155,10 +158,10 @@
 | <a name="module_retrieve_status_lambda"></a> [retrieve\_status\_lambda](#module\_retrieve\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_s3_lambda_code_bucket"></a> [s3\_lambda\_code\_bucket](#module\_s3\_lambda\_code\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_security_group_lambda_cert_exp_checker"></a> [security\_group\_lambda\_cert\_exp\_checker](#module\_security\_group\_lambda\_cert\_exp\_checker) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
-| <a name="module_security_group_lambda_pdv_reconciler"></a> [security\_group\_lambda\_pdv\_reconciler](#module\_security\_group\_lambda\_pdv\_reconciler) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_retrieve_status_lambda"></a> [security\_group\_retrieve\_status\_lambda](#module\_security\_group\_retrieve\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_update_status_lambda"></a> [security\_group\_update\_status\_lambda](#module\_security\_group\_update\_status\_lambda) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_update_status_lambda"></a> [update\_status\_lambda](#module\_update\_status\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
@@ -167,7 +170,9 @@
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_event_rule.cert_expiration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.cert_key_changes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.cert_exp_checker_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.ecs_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_cloudwatch_log_group.ecs_internal_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
@@ -196,6 +201,8 @@
 | [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.switch_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_event_source_mapping.trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_event_source_mapping) | resource |
+| [aws_lambda_layer_version.cryptography](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_layer_version) | resource |
+| [aws_lambda_permission.allow_eventbridge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_lambda_permission.cert_key_changes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_pipes_pipe.invalidate_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
@@ -205,11 +212,14 @@
 | [aws_sqs_queue.dlq_lambda_assertion](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue.pipe_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_ssm_parameter.key_pem](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
+| [aws_vpc_security_group_egress_rule.cert_checker_sec_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.client_registration_sec_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.https_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
-| [aws_vpc_security_group_egress_rule.pdv_reconciler_sec_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
+| [null_resource.install_dependencies](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [random_integer.bucket_lambda_code_suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) | resource |
+| [archive_file.cryptography_layer](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_iam_policy_document.assertion_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.cert_exp_checker_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_manager_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -233,6 +243,7 @@
 | <a name="input_assertion_lambda"></a> [assertion\_lambda](#input\_assertion\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    s3_assertion_bucket_arn           = string<br/>    kms_assertion_key_arn             = string<br/>    environment_variables             = map(string)<br/>    cloudwatch_logs_retention_in_days = number<br/>    vpc_s3_prefix_id                  = string<br/>    vpc_tls_security_group_id         = string<br/>    vpc_subnet_ids                    = list(string)<br/>    vpc_id                            = string<br/>  })</pre> | n/a | yes |
 | <a name="input_aws_caller_identity"></a> [aws\_caller\_identity](#input\_aws\_caller\_identity) | n/a | `string` | `""` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
+| <a name="input_cert_exp_checker_lambda"></a> [cert\_exp\_checker\_lambda](#input\_cert\_exp\_checker\_lambda) | n/a | <pre>object({<br/>    name                               = string<br/>    filename                           = string<br/>    environment_variables              = map(string)<br/>    cloudwatch_logs_retention_in_days  = number<br/>    sns_topic_arn                      = string<br/>    vpc_subnet_ids                     = list(string)<br/>    vpc_tls_security_group_endpoint_id = string<br/>    vpc_id                             = string<br/>    schedule_expression                = optional(string, "cron(0 8 ? * 2 *)")<br/>  })</pre> | n/a | yes |
 | <a name="input_client_alarm"></a> [client\_alarm](#input\_client\_alarm) | n/a | <pre>object({<br/>    namespace = string<br/>    clients = list(object({<br/>      client_id     = string<br/>      friendly_name = string<br/>    }))<br/>  })</pre> | `null` | no |
 | <a name="input_client_manager_lambda"></a> [client\_manager\_lambda](#input\_client\_manager\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    cloudwatch_logs_retention_in_days = string<br/>    environment_variables             = optional(map(string), {})<br/>    table_client_registrations_arn    = optional(string, "")<br/>    cognito_user_pool_arn             = optional(string, "")<br/>    table_idp_internal_users_arn      = optional(string, "")<br/>    table_idp_internal_users_gsi_arn  = optional(string, "")<br/>    # TODO: move client_manager_lambda to VPC<br/>    # vpc_endpoint_apigw_prefix_id      = string<br/>    # vpc_endpoint_dynamodb_prefix_id   = string<br/>    # vpc_subnet_ids                    = list(string)<br/>    # vpc_id                            = string<br/>  })</pre> | n/a | yes |
 | <a name="input_client_manager_lambda_optional_iam_policy"></a> [client\_manager\_lambda\_optional\_iam\_policy](#input\_client\_manager\_lambda\_optional\_iam\_policy) | n/a | `bool` | `true` | no |

@@ -91,6 +91,9 @@ public class OIDCServiceImpl implements OIDCService {
   @ConfigProperty(name = "pairwise_enabled")
   boolean pairwiseEnabled;
 
+  @ConfigProperty(name = "registry_enabled")
+  boolean registryEnabled;
+
   @Inject
   @RestClient
   PDVApiClient pdvApiClient;
@@ -253,8 +256,12 @@ public class OIDCServiceImpl implements OIDCService {
       id = getIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
         // if fiscalNumber is present, retrieve the token from PDV
-
-        SavePDVUserDTO savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
+        SavePDVUserDTO savePDVUserDTO;
+        if (registryEnabled) {
+          savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
+        } else {
+          savePDVUserDTO = new SavePDVUserDTO(id);
+        }
 
         try {
           ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX + clientId).ifPresentOrElse(

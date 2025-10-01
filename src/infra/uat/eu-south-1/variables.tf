@@ -753,6 +753,12 @@ variable "pairwise_enabled" {
   description = "Enable PDV pairwise feature"
 }
 
+variable "registry_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable PDV registry feature"
+}
+
 variable "pdv_base_url" {
   type        = string
   default     = "https://api.uat.pdv.pagopa.it"
