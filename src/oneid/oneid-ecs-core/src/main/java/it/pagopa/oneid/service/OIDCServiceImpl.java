@@ -29,6 +29,7 @@ import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
 import it.pagopa.oneid.connector.PDVApiClient;
 import it.pagopa.oneid.connector.SQSConnectorImpl;
@@ -102,6 +103,8 @@ public class OIDCServiceImpl implements OIDCService {
   OIDCUtils oidcUtils;
   @Inject
   KMSConnectorImpl kmsConnectorImpl;
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
   @Inject
   ClientConnectorImpl clientConnectorImpl;
   @Inject
@@ -281,6 +284,8 @@ public class OIDCServiceImpl implements OIDCService {
           Log.error("error during PDV upsertUser call: " + e.getMessage());
           // Send message to SQS to manage retry mechanism asynchronously
           sendPDVErrorSQSMessage(clientId, savePDVUserDTO);
+          // Update metric on CloudWatch
+          cloudWatchConnectorImpl.sendPDVErrorMetricData(e.getResponse().getStatus());
         }
       } else {
         // if fiscalNumber is not present, we can't generate the pairwise sub
