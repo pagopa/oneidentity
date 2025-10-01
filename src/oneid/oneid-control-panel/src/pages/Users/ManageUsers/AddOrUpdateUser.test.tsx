@@ -134,7 +134,6 @@ describe('AddOrUpdateUser', () => {
           username: 'newuser',
           password: 'password123',
           samlAttributes: { name: 'name' },
-          user_id: 'mocked_user_id',
         },
       });
     });

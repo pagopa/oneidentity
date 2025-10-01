@@ -156,9 +156,6 @@ export const idpUserSchema = z.object({
 export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),
 });
-export const addIdpUserSchema = idpUserSchema.extend({
-  user_id: z.string(),
-});
 
 export type Languages = z.infer<typeof LanguagesSchema>;
 export type Client = z.infer<typeof clientSchema>;
@@ -168,7 +165,6 @@ export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
 export type IdpUser = z.infer<typeof idpUserSchema>;
 export type IdpUserList = z.infer<typeof idpUserListSchema>;
-export type AddIdpUser = z.infer<typeof addIdpUserSchema>;
 export type IdpUserCreateOrUpdateResponse = z.infer<
   typeof idpUserCreateOrUpdateResponseSchema
 >;

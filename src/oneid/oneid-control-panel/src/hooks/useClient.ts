@@ -1,4 +1,4 @@
-import { AddIdpUser, IdpUser } from './../types/api';
+import { IdpUser } from './../types/api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from 'react-oidc-context';
 import {
@@ -25,9 +25,8 @@ export const useClient = () => {
     onError(error) {
       console.error('Error creating idp user:', error);
     },
-    mutationFn: async ({ data }: { data: AddIdpUser }) => {
-      const newUser = data.user_id ? data : { ...data, user_id: userId };
-      return addClientUser(newUser, token);
+    mutationFn: async ({ data }: { data: IdpUser }) => {
+      return addClientUser(data, token);
     },
   });
 
