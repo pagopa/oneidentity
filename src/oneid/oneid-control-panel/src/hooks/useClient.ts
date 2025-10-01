@@ -42,7 +42,7 @@ export const useClient = () => {
       data: IdpUser;
       username: string;
     }) => {
-      return updateClientUser(userId, username, data, token);
+      return updateClientUser(username, data, token);
     },
   });
 
@@ -51,17 +51,14 @@ export const useClient = () => {
       console.error('Error deleting client user:', error);
     },
     mutationFn: async ({ username }: { username: string | undefined }) => {
-      return deleteClientUser(userId, token, username);
+      return deleteClientUser(token, username);
     },
   });
 
   const getClientUsersList = useQuery({
     queryKey: [USER_LIST_QKEY, userId],
     queryFn: async () => {
-      if (!userId) {
-        throw new Error('userId is required');
-      }
-      return await getClientUsers(userId, token);
+      return await getClientUsers(token);
     },
     retry,
     enabled: !!userId && !!token,
