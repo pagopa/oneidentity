@@ -54,6 +54,12 @@ public class CloudWatchConnectorImplTest {
   }
 
   @Test
+  void sendPDVErrorMetricData_shouldCallPutMetricDataOnce() {
+    cloudWatchConnectorImpl.sendPDVErrorMetricData(404);
+    verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
+  }
+
+  @Test
   void sendClientErrorMetricData_shouldCallPutMetricDataTwice() {
     cloudWatchConnectorImpl.sendClientErrorMetricData("clientId",
         ErrorCode.AUTHORIZATION_ERROR_IDP);

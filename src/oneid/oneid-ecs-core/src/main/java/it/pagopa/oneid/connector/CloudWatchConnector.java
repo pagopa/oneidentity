@@ -16,6 +16,8 @@ public interface CloudWatchConnector {
 
   void sendOISQSErrorMetricData();
 
+  void sendPDVErrorMetricData(int statusCode);
+
   void sendClientSuccessMetricData(String ClientID);
 
 }
