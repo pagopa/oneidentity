@@ -156,9 +156,11 @@ class ClientConnectorImplTest {
   }
 
   @Test
-  void updateClient() {
+  void updateClientExtended() {
     //given
-    Client oldClient = Client.builder()
+    ClientExtended oldClient = ClientExtended.builder()
+        .secret("originalSecret") // This field must not be overwritten
+        .salt("originalSalt") // This field must not be overwritten
         .logoUri("originalLogoUri") // This field must not be overwritten
         .clientId("clientId") // same clientId to update
         .userId("oldClient") // This field will be updated
@@ -174,7 +176,9 @@ class ClientConnectorImplTest {
         .build();
     clientExtendedMapper.putItem(new ClientExtended(oldClient, "test", "test"));
 
-    Client newClient = Client.builder()
+    ClientExtended newClientExtended = ClientExtended.builder()
+        .secret("originalSecret") // This field must not be overwritten
+        .salt("originalSalt") // This field must not be overwritten
         //.logoUri("") //Empty logoUri to check that it is overwritten
         .clientId("clientId") // same clientId to update
         .userId("newClient") // new userId
@@ -198,14 +202,16 @@ class ClientConnectorImplTest {
         .build();
 
     //then
-    Executable executable = () -> clientConnectorImpl.updateClient(newClient);
+    Executable executable = () -> clientConnectorImpl.updateClientExtended(newClientExtended);
     assertDoesNotThrow(executable);
 
-    Client updatedClient = clientExtendedMapper.getItem(
+    ClientExtended updatedClientExtended = clientExtendedMapper.getItem(
         Key.builder().partitionValue("clientId").build());
-    assertNotNull(updatedClient);
-    assertEquals("newClient", updatedClient.getUserId()); // Updated
-    assertNull(updatedClient.getLogoUri()); // now is null
+    assertNotNull(updatedClientExtended);
+    assertEquals("newClient", updatedClientExtended.getUserId()); // Updated
+    assertNull(updatedClientExtended.getLogoUri()); // now is null
+    assertEquals("originalSecret", newClientExtended.getSecret()); // Not overwritten
+    assertEquals("originalSalt", newClientExtended.getSalt()); // Not overwritten
   }
 
   @Test
@@ -290,6 +296,12 @@ class ClientConnectorImplTest {
     void getClientById() {
       //then
       assertFalse(clientConnectorImpl.getClientById("test").isEmpty());
+    }
+
+    @Test
+    void getClientExtendedById() {
+      //then
+      assertFalse(clientConnectorImpl.getClientExtendedById("test").isEmpty());
     }
 
     @Test

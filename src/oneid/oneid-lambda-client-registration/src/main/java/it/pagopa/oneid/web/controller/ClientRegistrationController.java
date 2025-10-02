@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
@@ -144,15 +145,15 @@ public class ClientRegistrationController {
     Log.info("client info validated successfully");
 
     //2. Retrieves client from db
-    Client client = clientRegistrationService.getClientByClientId(clientId);
+    ClientExtended clientExtended = clientRegistrationService.getClientExtendedByClientId(clientId);
 
     //3. Check if userId in input matches the client userId on db
-    ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), client.getUserId());
+    ClientUtils.checkUserId(clientRegistrationDTOInput.getUserId(), clientExtended.getUserId());
     Log.info("client exists for clientId: " + clientId);
 
     //4. Update client infos
-    clientRegistrationService.updateClientRegistrationDTO(clientRegistrationDTOInput, clientId,
-        client.getAttributeIndex(), client.getClientIdIssuedAt());
+    clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
+        clientExtended);
     Log.info("client updated successfully for clientId: " + clientId);
 
     //5. Prepare message for sns notification
@@ -162,11 +163,11 @@ public class ClientRegistrationController {
     boolean sendNotification = false;
 
     // Add information if redirectUris or metadata-related fields are updated
-    if (!clientRegistrationDTOInput.getRedirectUris().equals(client.getCallbackURI())) {
+    if (!clientRegistrationDTOInput.getRedirectUris().equals(clientExtended.getCallbackURI())) {
       message += "- Redirect URIs updated \n";
       sendNotification = true;
     }
-    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput, client);
+    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput, clientExtended);
     if (updatedFields.isPresent()) {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;

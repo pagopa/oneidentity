@@ -81,6 +81,12 @@ public class ClientConnectorImpl implements ClientConnector {
   }
 
   @Override
+  public Optional<ClientExtended> getClientExtendedById(String clientId) {
+    return Optional.ofNullable(
+        clientExtendedMapper.getItem(Key.builder().partitionValue(clientId).build()));
+  }
+
+  @Override
   public Optional<Client> getClientByAttributeConsumingServiceIndex(
       int attributeConsumingServiceIndex) {
     ScanEnhancedRequest request = ScanEnhancedRequest.builder().build();
@@ -93,9 +99,9 @@ public class ClientConnectorImpl implements ClientConnector {
   }
 
   @Override
-  public void updateClient(Client client) {
-    clientMapper.putItem(PutItemEnhancedRequest.builder(Client.class)
-        .item(client)
+  public void updateClientExtended(ClientExtended clientExtended) {
+    clientExtendedMapper.putItem(PutItemEnhancedRequest.builder(ClientExtended.class)
+        .item(clientExtended)
         .build());
   }
 

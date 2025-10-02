@@ -173,10 +173,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public Client getClientByClientId(String clientId) {
-    Client client = clientConnector.getClientById(clientId)
+  public ClientExtended getClientExtendedByClientId(String clientId) {
+    ClientExtended clientExtended = clientConnector.getClientExtendedById(clientId)
         .orElseThrow(ClientNotFoundException::new);
-    return client;
+    return clientExtended;
   }
 
   @Override
@@ -187,14 +187,17 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   @Override
-  public void updateClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO,
-      String clientID, int attributeIndex, long clientIdIssuedAt) {
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
-    client.setClientId(clientID);
-    client.setAttributeIndex(attributeIndex);
-    client.setClientIdIssuedAt(clientIdIssuedAt);
-    clientConnector.updateClient(client);
+  public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
+      ClientExtended clientExtended) {
+    Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
 
+    ClientExtended updatedClientExtended = new ClientExtended(updatedClient,
+        clientExtended.getSecret(),
+        clientExtended.getSalt());
+    updatedClientExtended.setClientId(clientExtended.getClientId());
+    updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
+    updatedClientExtended.setClientIdIssuedAt(clientExtended.getClientIdIssuedAt());
+    clientConnector.updateClientExtended(updatedClientExtended);
   }
 
   @Override

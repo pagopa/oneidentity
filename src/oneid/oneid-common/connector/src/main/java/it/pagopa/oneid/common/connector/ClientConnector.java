@@ -16,9 +16,11 @@ public interface ClientConnector {
 
   Optional<Client> getClientById(String clientId);
 
+  Optional<ClientExtended> getClientExtendedById(String clientId);
+
   Optional<Client> getClientByAttributeConsumingServiceIndex(int attributeConsumingServiceIndex);
 
-  void updateClient(Client client);
+  void updateClientExtended(ClientExtended clientExtended);
 
   void updateClientSecretSalt(Client client, String newSalt, String newHashedSecret);
 

@@ -8,6 +8,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
@@ -242,12 +243,14 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void getClientByClientId() {
+  void getClientExtendedByClientId() {
 
     //given
     String clientId = "test";
     String userId = "userId-test";
-    Client returnClient = Client.builder()
+    ClientExtended returnClient = ClientExtended.builder()
+        .secret("secret")
+        .salt("salt")
         .clientId(clientId)
         .userId(userId)
         .friendlyName("test")
@@ -270,10 +273,10 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     //when
-    Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
+    Mockito.when(clientConnectorImpl.getClientExtendedById(Mockito.anyString()))
         .thenReturn(Optional.of(returnClient));
 
-    assertNotNull(clientRegistrationServiceImpl.getClientByClientId(clientId));
+    assertNotNull(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId));
   }
 
   @Test
@@ -284,7 +287,7 @@ class ClientRegistrationServiceImplTest {
 
     // then
     assertThrows(ClientNotFoundException.class,
-        () -> clientRegistrationServiceImpl.getClientByClientId("nonExistentUserId"));
+        () -> clientRegistrationServiceImpl.getClientExtendedByClientId("nonExistentUserId"));
   }
 
   @Test
@@ -353,7 +356,12 @@ class ClientRegistrationServiceImplTest {
     String clientId = "client-123";
     int attributeIndex = 42;
     long originalIssuedAt = 987654321L;
-    Client existingClient = Client.builder()
+    String secret = "originalSecret";
+    String salt = "originalSalt";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret(secret) // keep original secret and salt
+        .salt(salt)
         .clientId(clientId)
         .userId("test")
         .friendlyName("Old Name")
@@ -376,7 +384,7 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
     Mockito.when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(existingClient));
+        .thenReturn(Optional.of(existingClientExtended));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .userId("test")
@@ -396,11 +404,11 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended));
 
     // then
-    Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
+    Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals("test")
             && updated.getFriendlyName().equals("test")
@@ -421,6 +429,8 @@ class ClientRegistrationServiceImplTest {
             && updated.isSpidMinors()
             && updated.isSpidProfessionals()
             && updated.isPairwise()
+            && updated.getSecret().equals(secret) // unchanged
+            && updated.getSalt().equals(salt) // unchanged
     ));
   }
 
@@ -449,12 +459,20 @@ class ClientRegistrationServiceImplTest {
         //.requiredSameIdp() default false
         .build();
 
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret("originalSecret")
+        .salt("originalSalt")
+        .clientId(clientId)
+        .attributeIndex(attributeIndex)
+        .clientIdIssuedAt(originalIssuedAt)
+        .build();
+
     // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientRegistrationDTO(
-        clientRegistrationDTO, clientId, attributeIndex, originalIssuedAt));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended));
 
     // then
-    Mockito.verify(clientConnectorImpl).updateClient(Mockito.argThat(updated ->
+    Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals("test")
             && updated.getFriendlyName().equals("test")
@@ -475,6 +493,8 @@ class ClientRegistrationServiceImplTest {
             && !updated.isSpidProfessionals()
             && !updated.isRequiredSameIdp() // default false
             && !updated.isPairwise() // default false
+            && updated.getSecret().equals("originalSecret") // unchanged
+            && updated.getSalt().equals("originalSalt") // unchanged
     ));
   }
 
