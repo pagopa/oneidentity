@@ -939,8 +939,6 @@ module "client_manager_lambda" {
   create_package          = false
   local_existing_package  = var.client_manager_lambda.filename
   ignore_source_code_hash = true
-  layers                 = [aws_lambda_layer_version.pyjwt_layer.arn]
-
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.client_manager_lambda.json
@@ -953,7 +951,8 @@ module "client_manager_lambda" {
 
   # lambda powertools layer
   layers = [
-    "arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"
+    "arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11",
+    aws_lambda_layer_version.pyjwt_layer.arn
   ]
 
   memory_size = 256
