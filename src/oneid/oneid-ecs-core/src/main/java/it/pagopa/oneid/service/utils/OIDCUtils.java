@@ -7,7 +7,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
-import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Base64;
