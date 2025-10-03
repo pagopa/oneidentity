@@ -895,6 +895,39 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 
 # Lambda client manager
 
+resource "null_resource" "install_client_manager_dependencies" {
+  provisioner "local-exec" {
+    command = <<EOT
+      mkdir -p ${path.module}/../../dist/python
+      pip install \
+        --platform manylinux2014_x86_64 \
+        --target=${path.module}/../../dist/python \
+        --implementation cp \
+        --only-binary=:all: --upgrade \
+        -r ../../../oneid/oneid-lambda-client-manager/requirements.txt
+    EOT
+  }
+
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+}
+
+data "archive_file" "pyjwt_layer" {
+  type        = "zip"
+  source_dir  = "${path.module}/../../dist/"
+  output_path = "${path.module}/../../dist/python.zip"
+  depends_on  = [null_resource.install_client_manager_dependencies]
+}
+
+resource "aws_lambda_layer_version" "pyjwt_layer" {
+  layer_name          = "pyjwt-layer"
+  description         = "Lambda layer with PyJWT"
+  compatible_runtimes = ["python3.12"]
+  filename            = data.archive_file.pyjwt_layer.output_path
+  source_code_hash    = data.archive_file.pyjwt_layer.output_base64sha256
+}
+
 module "client_manager_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
@@ -907,7 +940,6 @@ module "client_manager_lambda" {
   local_existing_package  = var.client_manager_lambda.filename
   ignore_source_code_hash = true
 
-
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.client_manager_lambda.json
 
@@ -919,7 +951,8 @@ module "client_manager_lambda" {
 
   # lambda powertools layer
   layers = [
-    "arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11"
+    "arn:aws:lambda:${var.aws_region}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python312-x86_64:11",
+    aws_lambda_layer_version.pyjwt_layer.arn
   ]
 
   memory_size = 256

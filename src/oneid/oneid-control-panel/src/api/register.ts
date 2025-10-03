@@ -29,12 +29,13 @@ export const verifyToken = async (token: string): Promise<LoginResponse> => {
 };
 
 export const getClientData = async (
-  userId: string | undefined,
-  token: string
+  token: string,
+  userId?: string
 ): Promise<Client> => {
   if (!userId) {
     throw new Error('User ID is required');
   }
+
   try {
     const response = await api.get<Client>(
       `${ENV.URL_API.REGISTER}/user_id/${userId}`,

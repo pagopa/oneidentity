@@ -7,6 +7,6 @@ import lombok.Getter;
 public class UserIdMismatchException extends RuntimeException {
 
   public UserIdMismatchException() {
-    super(String.valueOf(ErrorCode.USER_ID_MISMATCH_ERROR));
+    super(String.valueOf(ErrorCode.USER_ID_MISMATCH_ERROR.getErrorMessage()));
   }
 }

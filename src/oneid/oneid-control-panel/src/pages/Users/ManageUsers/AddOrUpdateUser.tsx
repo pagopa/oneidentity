@@ -16,7 +16,6 @@ import {
   UserErrors,
   idpUserSchema,
 } from '../../../types/api';
-import { useAuth } from 'react-oidc-context';
 import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
 import { fromPairs } from 'lodash';
@@ -53,8 +52,6 @@ const SamlAttributeValueFields = ({
 };
 
 export const AddOrUpdateUser = () => {
-  const { user } = useAuth();
-  const userId = user?.profile.sub;
   const navigate = useNavigate();
   const location = useLocation();
   const userToEdit = location.state?.userToEdit as IdpUser | undefined;
@@ -148,12 +145,8 @@ export const AddOrUpdateUser = () => {
         username: formData.username as string,
       });
     } else {
-      if (!userId) {
-        console.error('Missing user_id');
-        return;
-      }
       createClientUsersMutation({
-        data: { ...(formData as IdpUser), user_id: userId },
+        data: formData as IdpUser,
       });
     }
   };
