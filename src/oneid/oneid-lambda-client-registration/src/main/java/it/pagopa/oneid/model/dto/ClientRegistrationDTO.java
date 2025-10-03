@@ -27,7 +27,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @SuperBuilder
 public class ClientRegistrationDTO {
 
-  @NotBlank(groups = {Registration.class, UpdateClient.class})
+  //@NotBlank(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("userId")
   @Parameter()
   private String userId;
