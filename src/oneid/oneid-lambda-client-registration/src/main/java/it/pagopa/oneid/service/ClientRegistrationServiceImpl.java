@@ -4,11 +4,18 @@ import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.connector.PDVApiClient;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.HASHUtils;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidUriException;
@@ -20,19 +27,28 @@ import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
 @CustomLogging
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 
+  private static final String PDV_API_KEY_PREFIX = "/apikey-pdv/plan-details";
+
   @Inject
   ClientConnectorImpl clientConnector;
 
+  @Inject
+  @RestClient
+  PDVApiClient pdvApiClient;
+  @Inject
+  SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
 
   @Override
   public void validateClientRegistrationInfo(
@@ -198,6 +214,36 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
     updatedClientExtended.setClientIdIssuedAt(clientExtended.getClientIdIssuedAt());
     clientConnector.updateClientExtended(updatedClientExtended);
+  }
+
+  @Override
+  public PDVApiKeysDTO getPDVPlanList() {
+    try {
+      return ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
+          .map(apiKey -> pdvApiClient.getPDVPlans(apiKey))
+          .orElseThrow(() -> {
+            Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
+            return new NoMasterKeyException("API key master not found");
+          });
+    } catch (WebApplicationException e) {
+      Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
+      throw new PDVException("PDV response not ok: ", e);
+    }
+  }
+
+  @Override
+  public PDVValidationResponseDTO validatePDVApiKey(PDVValidateApiKeyDTO validateApiKeyDTO) {
+    try {
+      return ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
+          .map(apiKey -> pdvApiClient.validatePDVApiKey(validateApiKeyDTO, apiKey))
+          .orElseThrow(() -> {
+            Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
+            return new NoMasterKeyException("API key master not found");
+          });
+    } catch (WebApplicationException e) {
+      Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
+      throw new PDVException("PDV response not ok: ", e);
+    }
   }
 
   @Override

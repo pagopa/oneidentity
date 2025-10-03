@@ -2,6 +2,9 @@ package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 
@@ -21,4 +24,7 @@ public interface ClientRegistrationService {
 
   String refreshClientSecret(String clientId, String userId);
 
+  PDVApiKeysDTO getPDVPlanList();
+
+  PDVValidationResponseDTO validatePDVApiKey(PDVValidateApiKeyDTO validateApiKeyDTO);
 }
