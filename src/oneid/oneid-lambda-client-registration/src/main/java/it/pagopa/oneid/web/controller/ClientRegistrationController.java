@@ -4,7 +4,6 @@ import static it.pagopa.oneid.service.utils.ClientUtils.getUseridFromBearer;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
-import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
@@ -168,7 +167,8 @@ public class ClientRegistrationController {
       message += "- Redirect URIs updated \n";
       sendNotification = true;
     }
-    Optional<String> updatedFields = getUpdateMessage(clientRegistrationDTOInput, clientExtended);
+    Optional<String> updatedFields = ClientUtils.getUpdateMessage(clientRegistrationDTOInput,
+        clientExtended);
     if (updatedFields.isPresent()) {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;
