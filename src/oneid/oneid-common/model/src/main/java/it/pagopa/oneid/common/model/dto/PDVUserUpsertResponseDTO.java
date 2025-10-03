@@ -1,4 +1,4 @@
-package it.pagopa.oneid.model.dto;
+package it.pagopa.oneid.common.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
