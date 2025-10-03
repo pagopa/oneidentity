@@ -1,4 +1,4 @@
-package it.pagopa.oneid.model.dto;
+package it.pagopa.oneid.common.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

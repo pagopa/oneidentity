@@ -13,7 +13,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
