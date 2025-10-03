@@ -175,7 +175,7 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;

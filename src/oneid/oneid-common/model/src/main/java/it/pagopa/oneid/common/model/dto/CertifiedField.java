@@ -1,4 +1,4 @@
-package it.pagopa.oneid.model.dto;
+package it.pagopa.oneid.common.model.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
