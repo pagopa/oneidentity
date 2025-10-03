@@ -3,12 +3,15 @@ package it.pagopa.oneid.exception.mapper;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static jakarta.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
@@ -129,6 +132,24 @@ public class ExceptionMapper {
     String message = "UserId unauthorized";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> pdvNoKeyException(
+      NoMasterKeyException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = BAD_GATEWAY;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> pdvException(
+      PDVException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = Response.Status.fromStatusCode(exception.getResponse().getStatus());
+
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapWebApplicationException(WebApplicationException exception) {

@@ -4,6 +4,10 @@ import static it.pagopa.oneid.service.utils.ClientUtils.getUseridFromBearer;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
@@ -192,6 +196,40 @@ public class ClientRegistrationController {
 
     return Response.noContent().build();
   }
+
+  @GET
+  @Path("/register/plan_list")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getPaidList() {
+    Log.info("start");
+    PDVApiKeysDTO dto = clientRegistrationService.getPDVPlanList();
+    if (dto.getApiKeys() == null || dto.getApiKeys().isEmpty()) {
+      // 204 empty response
+      return Response.noContent().build();
+    }
+    Log.info("end");
+    // 200 no empty response
+    return Response.ok(dto).build();
+
+  }
+
+  @POST
+  @Path("/register/validate_api_key")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response validatePDVApiKey(
+      @Valid @ConvertGroup(to = ValidationGroups.PDVApiKey.class) PDVValidateApiKeyDTO validateApiKeyDTO) {
+    Log.info("start");
+
+    //1. Verify if api key are valid
+    PDVValidationResponseDTO validateResponse = clientRegistrationService.validatePDVApiKey(
+        validateApiKeyDTO);
+    Log.info("end");
+
+    return Response.ok(validateResponse).build();
+  }
+
 
   @POST
   @Path("/clients/{client_id}/secret/refresh")
