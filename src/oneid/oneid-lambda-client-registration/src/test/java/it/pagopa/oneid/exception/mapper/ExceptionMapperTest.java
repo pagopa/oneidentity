@@ -3,6 +3,7 @@ package it.pagopa.oneid.exception.mapper;
 import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,6 +12,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
@@ -23,6 +26,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.ValidationException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -178,6 +182,51 @@ class ExceptionMapperTest {
         exceptionMock);
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapPdvNoKeyExceptionException() {
+    // given
+    String message = "No key exception";
+    NoMasterKeyException exceptionMock = mock(NoMasterKeyException.class);
+    when(exceptionMock.getMessage()).thenReturn(message);
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapPdvNoKeyException(
+        exceptionMock);
+    // then
+    assertEquals(BAD_GATEWAY.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapPdvException_fromCauseResponse_usesCauseHttpStatus() {
+    // given
+    String message = "PDV response not ok: ";
+    Response causeResponse = Response.status(BAD_GATEWAY).entity("upstream bad").build(); // 502
+    WebApplicationException cause = new WebApplicationException("pdv error", causeResponse);
+
+    PDVException ex = new PDVException(message, cause);
+
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapPdvException(ex);
+
+    // then
+    assertEquals(BAD_GATEWAY.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapPdvException_noResponse_noStatus_defaultsTo500() {
+    // given
+    String message = "unknown";
+    PDVException ex = new PDVException(message, (Integer) null, null, null);
+
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapPdvException(ex);
+
+    // then
+    assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), restResponse.getStatus());
     assertEquals(message, restResponse.getEntity().getDetail());
   }
 }
