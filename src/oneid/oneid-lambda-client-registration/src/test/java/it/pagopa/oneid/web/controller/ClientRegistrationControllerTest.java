@@ -5,15 +5,24 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.Header;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVPlanDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -562,5 +571,120 @@ class ClientRegistrationControllerTest {
         .post("/clients/{client_id}/secret/refresh")
         .then()
         .statusCode(200);
+  }
+
+  //Get PDV Plan
+
+  @Test
+  void getPDVPlan_ok() {
+
+    PDVPlanDTO plan1 = PDVPlanDTO.builder()
+        .id("id1")
+        .name("name1")
+        .build();
+    PDVPlanDTO plan2 = PDVPlanDTO.builder()
+        .id("id2")
+        .name("name2")
+        .build();
+
+    PDVApiKeysDTO mockResponse = PDVApiKeysDTO.builder()
+        .apiKeys(List.of(plan1, plan2))
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getPDVPlanList()).thenReturn(mockResponse);
+    given()
+        .contentType("application/json")
+        .when()
+        .get("/register/plan_list")
+        .then()
+        .statusCode(200);
+  }
+
+
+  @Test
+  void getPDVPlan_NotFound_ko() {
+    Mockito.when(clientRegistrationServiceImpl.getPDVPlanList()).thenThrow(
+        new PDVException("PDV response not ok",
+            new WebApplicationException(
+                Response.status(404).entity("not found").build()
+            )));
+
+    given()
+        .contentType("application/json")
+        .when()
+        .get("/register/plan_list")
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  void getPDVPlan_OtherError_ko() {
+    Mockito.when(clientRegistrationServiceImpl.getPDVPlanList()).thenThrow(
+        NoMasterKeyException.class);
+
+    given()
+        .contentType("application/json")
+        .when()
+        .get("/register/plan_list")
+        .then()
+        .statusCode(502);
+  }
+
+  @Test
+  void validatePDVApiKey_ok() {
+    PDVValidationResponseDTO response = PDVValidationResponseDTO.builder().valid(true).build();
+
+    Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any()))
+        .thenReturn(response);
+
+    given()
+        .contentType("application/json")
+        .body(PDVValidateApiKeyDTO.builder().apiKeyId("id").apiKeyValue("apiKey").build())
+        .when().post("/register/validate_api_key")
+        .then().statusCode(200)
+        .body("valid", org.hamcrest.Matchers.is(true));
+  }
+
+  @Test
+  void validatePDVApiKey_NotFound_ko() {
+    PDVValidationResponseDTO response = PDVValidationResponseDTO.builder().valid(true).build();
+    Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any())).thenThrow(
+        new PDVException("PDV response not ok",
+            new WebApplicationException(
+                Response.status(404).entity("not found").build()
+            )));
+
+    given()
+        .contentType("application/json")
+        .body(response)
+        .when()
+        .post("/register/validate_api_key")
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
+  void validatePDVApiKey_MalformedJson_ko() {
+    String malformedJson = "{\"someField\": \"missingEndQuote}"; // invalid JSON
+
+    given()
+        .contentType("application/json")
+        .body(malformedJson)
+        .when()
+        .post("/register/validate_api_key")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void validatePDVApiKey_OtherError_ko() {
+    Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any())).thenThrow(
+        NoMasterKeyException.class);
+
+    given()
+        .contentType("application/json")
+        .body(PDVValidateApiKeyDTO.builder().apiKeyId("id").apiKeyValue("apiKey").build())
+        .when().post("/register/validate_api_key")
+        .then().statusCode(502);
   }
 }
