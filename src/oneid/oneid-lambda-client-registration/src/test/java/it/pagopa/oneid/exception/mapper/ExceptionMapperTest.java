@@ -1,7 +1,10 @@
 package it.pagopa.oneid.exception.mapper;
 
 import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
-import static jakarta.ws.rs.core.Response.Status.*;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -152,7 +155,7 @@ class ExceptionMapperTest {
   @Test
   void mapUserIdMismatchException() {
     // given
-    String message = "Error during Service execution";
+    String message = "UserId unauthorized";
     UserIdMismatchException exceptionMock = mock(
         UserIdMismatchException.class);
     when(exceptionMock.getMessage()).thenReturn(message);
@@ -160,7 +163,7 @@ class ExceptionMapperTest {
     RestResponse<ErrorResponse> restResponse = exceptionMapper.mapUserIdMismatchException(
         exceptionMock);
     // then
-    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(FORBIDDEN.getStatusCode(), restResponse.getStatus());
     assertEquals(message, restResponse.getEntity().getDetail());
   }
 

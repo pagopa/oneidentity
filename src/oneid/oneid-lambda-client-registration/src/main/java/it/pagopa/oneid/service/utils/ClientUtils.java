@@ -1,13 +1,17 @@
 package it.pagopa.oneid.service.utils;
 
 import static it.pagopa.oneid.common.utils.ClientConstants.ACS_INDEX_DEFAULT_VALUE;
+import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidBearerTokenException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import java.text.ParseException;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,7 +29,7 @@ public class ClientUtils {
   }
 
   public static Client convertClientRegistrationDTOToClient(
-      ClientRegistrationDTO clientRegistrationDTO) {
+      ClientRegistrationDTO clientRegistrationDTO, String userId) {
     Log.debug("start");
 
     Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes();
@@ -34,7 +38,7 @@ public class ClientUtils {
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
-        .userId(clientRegistrationDTO.getUserId())
+        .userId(userId)
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
@@ -64,7 +68,6 @@ public class ClientUtils {
   public static ClientRegistrationDTO convertClientToClientRegistrationDTO(Client client) {
 
     return ClientRegistrationDTO.builder()
-        .userId(client.getUserId())
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
@@ -83,5 +86,41 @@ public class ClientUtils {
 
   }
 
+  public static Optional<String> getUpdateMessage(ClientRegistrationDTO input,
+      Client existingClient) {
+    String message = "";
+    if (!input.getClientName().equals(existingClient.getFriendlyName())) {
+      message += "ClientName; ";
+    }
+    if (!input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
+      message += "SamlRequestedAttributes; ";
+    }
+    AuthLevel authLevel = AuthLevel.authLevelFromValue(
+        input.getDefaultAcrValues().stream().findFirst().get());
+    if (!authLevel.equals(existingClient.getAuthLevel())) {
+      message += "DefaultAcrValues; ";
+    }
+    if (StringUtils.isNotBlank(message)) {
+      return Optional.of(message);
+    }
+    return Optional.empty();
+  }
 
+  public static String getUseridFromBearer(String bearer) {
+    if (bearer == null || !bearer.startsWith("Bearer ")) {
+      throw new InvalidBearerTokenException("Invalid or missing Header Authorization");
+    }
+    String token = bearer.substring("Bearer ".length());
+    String userId = null;
+    try {
+      SignedJWT signedJWT = SignedJWT.parse(token);
+      userId = signedJWT.getJWTClaimsSet().getSubject();
+    } catch (ParseException e) {
+      throw new InvalidBearerTokenException("Error parsing bearer token of Header Authorization");
+    }
+    if (userId == null || userId.isEmpty()) {
+      throw new InvalidBearerTokenException("Missing subject in bearer token");
+    }
+    return userId;
+  }
 }

@@ -44,9 +44,9 @@ describe('clientDataWithoutSensitiveData', () => {
     expect(result).not.toHaveProperty('clientSecret');
     expect(result).not.toHaveProperty('clientIdIssuedAt');
     expect(result).not.toHaveProperty('clientSecretExpiresAt');
+    expect(result).not.toHaveProperty('userId');
 
     expect(result).toMatchObject({
-      userId: 'user-123',
       clientName: 'Test Client',
       policyUri: 'https://example.com/policy',
       tosUri: 'https://example.com/tos',

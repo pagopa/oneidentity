@@ -102,12 +102,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO) {
-    // 1. call to dynamo & set in clientRegistrationRequestDTO
+      ClientRegistrationDTO clientRegistrationDTO, String userId) {
+    // 1. call to dynamo & set in clientRegistrationDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
-    // 2. Convert ClientRegistrationRequestDto to Client and sets newly generated fields
-    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+    // 2. Convert ClientRegistrationDTO to Client and sets newly generated fields
+    Client client = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO, userId);
     client.setClientId(new ClientID(32).getValue());
     client.setClientIdIssuedAt(System.currentTimeMillis());
     client.setAttributeIndex(maxAttributeIndex + 1);
@@ -137,7 +137,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     // 8. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
-        .userId(clientRegistrationDTO.getUserId())
+        .userId(userId)
         .redirectUris(clientRegistrationDTO.getRedirectUris())
         .clientName(clientRegistrationDTO.getClientName())
         .logoUri(clientRegistrationDTO.getLogoUri())
@@ -181,20 +181,20 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public Client getClientByUserId(String userId) {
-    Client client = clientConnector.getClientByUserId(userId)
-        .orElseThrow(ClientNotFoundException::new);
-    return client;
+    return clientConnector.getClientByUserId(userId).orElseThrow(ClientNotFoundException::new);
   }
 
   @Override
   public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
       ClientExtended clientExtended) {
-    Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO);
+    Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
+        clientExtended.getUserId());
 
     ClientExtended updatedClientExtended = new ClientExtended(updatedClient,
         clientExtended.getSecret(),
         clientExtended.getSalt());
     updatedClientExtended.setClientId(clientExtended.getClientId());
+    updatedClientExtended.setUserId(clientExtended.getUserId());
     updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
     updatedClientExtended.setClientIdIssuedAt(clientExtended.getClientIdIssuedAt());
     clientConnector.updateClientExtended(updatedClientExtended);

@@ -334,7 +334,7 @@
           {
             "in": "path",
             "name": "client_id",
-            "description": "the user_id of the cognito user",
+            "description": "the unique client_id of the client",
             "required": true,
             "schema": {
               "type": "string"
@@ -391,21 +391,6 @@
           }
         },
         "summary": "Client refresh secret endpoint",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "userId": {
-                  "type": "string",
-                  "description": "The userId of the user who is requesting the client secret refresh. This is required to ensure that only authorized users can refresh the client secret.",
-                  "example": "fake-user-id"
-                }
-              }
-            }
-          },
-          "description": "Request body",
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "Client secret refreshed successfully.",
@@ -450,7 +435,9 @@
         ]
       }
     },
-    %{ if strcontains(server_url, "dev") || strcontains(server_url, "uat")
+    %{ if strcontains(server_url,
+      "dev") || strcontains(server_url,
+      "uat")
     }
 "/client-manager/client-users": {
       "post": {
@@ -546,9 +533,108 @@
             "${authorizer}": []
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "Admin Client Manager APIs"
+        ],
+        "description": "This endpoint expose backend function for Client Onboarding Portal.",
+        "operationId": "Get_admin_client_manager_client_users",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Limit the number of results returned, max 1000",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 1000
+            }
+          },
+          {
+            "in": "query",
+            "name": "last_evaluated_key",
+            "description": "Last evaluated key for pagination",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "summary": "Client Onboarding portal backend",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkUsersJson"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ]
       }
     },
-    "/client-manager/client-users/{user_id}/{username}": {
+    "/client-manager/client-users/{username}": {
       "patch": {
         "tags": [
           "Admin Client Manager APIs"
@@ -556,15 +642,6 @@
         "description": "This endpoint updates samlAttribrutes for a user in the Internal IDP",
         "operationId": "Patch_admin_client_manager_client_users",
         "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "in": "path",
             "name": "username",
@@ -672,15 +749,6 @@
         "parameters": [
           {
             "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
             "name": "username",
             "description": "username of the test user that is being updated",
             "required": true,
@@ -733,116 +801,6 @@
         "responses": {
           "204": {
             "$ref": "#/components/responses/responseOkNoContentJson"
-          },
-          "400": {
-            "$ref": "#/components/responses/invalidParameters"
-          },
-          "401": {
-            "$ref": "#/components/responses/unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/forbidden"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
-          }
-        },
-        "security": [
-          {
-            "${authorizer}": []
-          }
-        ]
-      }
-    },
-    "/client-manager/client-users/{user_id}": {
-      "get": {
-        "tags": [
-          "Admin Client Manager APIs"
-        ],
-        "description": "This endpoint expose backend function for Client Onboarding Portal.",
-        "operationId": "Get_admin_client_manager_client_users",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "user_id",
-            "description": "user_id that is associated to the currently logged in user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "description": "Limit the number of results returned, max 1000",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "minimum": 1,
-              "maximum": 1000
-            }
-          },
-          {
-            "in": "query",
-            "name": "last_evaluated_key",
-            "description": "Last evaluated key for pagination",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${lambda_apigateway_proxy_role}",
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy",
-          "httpMethod": "POST",
-          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_manager_lambda_arn}/invocations",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "'application/json'"
-              }
-            },
-            "400": {
-              "statusCode": "400",
-              "responseParameters": {}
-            },
-            "401": {
-              "statusCode": "401",
-              "responseParameters": {}
-            },
-            "403": {
-              "statusCode": "403",
-              "responseParameters": {}
-            },
-            "405": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "429": {
-              "statusCode": "405",
-              "responseParameters": {}
-            },
-            "500": {
-              "statusCode": "500",
-              "responseParameters": {}
-            }
-          }
-        },
-        "summary": "Client Onboarding portal backend",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkUsersJson"
           },
           "400": {
             "$ref": "#/components/responses/invalidParameters"
@@ -1564,10 +1522,6 @@
       "ClientRegistration": {
         "type": "object",
         "properties": {
-          "userId": {
-            "type": "string",
-            "description": "The userId of the cognito user"
-          },
           "redirectUris": {
             "type": "array",
             "items": {
@@ -2025,10 +1979,6 @@
                 "$ref": "#/components/schemas/SamlAttributes"
               }
             }
-          },
-          "user_id": {
-            "type": "string",
-            "description": "The user_id that is associated to the currently logged in user"
           }
         }
       },

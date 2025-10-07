@@ -19,6 +19,9 @@ public class ClientRegistrationResponseDTO extends ClientRegistrationDTO {
   @JsonProperty("clientId")
   private String clientId;
 
+  @JsonProperty("userId")
+  private String userId;
+
   @JsonProperty("clientSecret")
   private String clientSecret;
 

@@ -13,27 +13,18 @@ const api = axios.create({
   },
 });
 
-const userIdMessage = 'User ID is required';
+const userNameMessage = 'User Name is required';
 
-export const getClientUsers = async (
-  userId: string | undefined,
-  token: string
-): Promise<IdpUserList> => {
+export const getClientUsers = async (token: string): Promise<IdpUserList> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
-  if (!userId) {
-    throw new Error(userIdMessage);
-  }
   try {
     // TODO: remove 1000 and implement server pagination
-    const response = await api.get<IdpUserList>(
-      `${ENDPOINT}/${userId}?limit=1000`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await api.get<IdpUserList>(`${ENDPOINT}?limit=1000`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -41,17 +32,16 @@ export const getClientUsers = async (
 };
 
 export const deleteClientUser = async (
-  userId: string | undefined,
   token: string,
   username: string | undefined
 ): Promise<void> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
-  if (!userId || !username) {
-    throw new Error(userIdMessage);
+  if (!username) {
+    throw new Error(userNameMessage);
   }
   try {
-    await api.delete<string>(`${ENDPOINT}/${userId}/${username}`, {
+    await api.delete<string>(`${ENDPOINT}/${username}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -62,19 +52,18 @@ export const deleteClientUser = async (
 };
 
 export const updateClientUser = async (
-  userId: string | undefined,
   username: string | undefined,
   data: IdpUser,
   token: string
 ): Promise<IdpUserCreateOrUpdateResponse> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
-  if (!userId || !username) {
-    throw new Error(userIdMessage);
+  if (!username) {
+    throw new Error(userNameMessage);
   }
   try {
     const response = await api.patch<IdpUserCreateOrUpdateResponse>(
-      `${ENDPOINT}/${userId}/${username}`,
+      `${ENDPOINT}/${username}`,
       data,
       {
         headers: {
