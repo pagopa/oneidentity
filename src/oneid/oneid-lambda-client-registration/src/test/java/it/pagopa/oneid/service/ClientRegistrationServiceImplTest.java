@@ -2,25 +2,43 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.connector.PDVApiClient;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVPlanDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
+import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 @QuarkusTest
@@ -32,6 +50,11 @@ class ClientRegistrationServiceImplTest {
   @InjectMock
   ClientConnectorImpl clientConnectorImpl;
 
+  @InjectMock
+  @RestClient
+  PDVApiClient pdvApiClientMock;
+  @InjectMock
+  SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
 
   @Test
   void validateClientRegistrationInfo() {
@@ -183,7 +206,7 @@ class ClientRegistrationServiceImplTest {
     ArrayList<Client> allClient = new ArrayList<>();
     allClient.add(returnClient);
 
-    Mockito.when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO, "userId"));
@@ -233,7 +256,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     // when
-    Mockito.when(clientConnectorImpl.getClientByUserId(existingUserId))
+    when(clientConnectorImpl.getClientByUserId(existingUserId))
         .thenReturn(Optional.of(returnClient));
 
     // then
@@ -272,7 +295,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     //when
-    Mockito.when(clientConnectorImpl.getClientExtendedById(Mockito.anyString()))
+    when(clientConnectorImpl.getClientExtendedById(anyString()))
         .thenReturn(Optional.of(returnClient));
 
     assertNotNull(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId));
@@ -281,7 +304,7 @@ class ClientRegistrationServiceImplTest {
   @Test
   void getClientByClientId_ko() {
     //when
-    Mockito.when(clientConnectorImpl.getClientById(Mockito.anyString()))
+    when(clientConnectorImpl.getClientById(anyString()))
         .thenReturn(Optional.empty());
 
     // then
@@ -318,7 +341,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     //when
-    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+    when(clientConnectorImpl.getClientByUserId(anyString()))
         .thenReturn(Optional.of(returnClient));
 
     assertNotNull(clientRegistrationServiceImpl.getClientByUserId(userId));
@@ -327,7 +350,7 @@ class ClientRegistrationServiceImplTest {
   @Test
   void getClientByUserId_ko() {
     //when
-    Mockito.when(clientConnectorImpl.getClientByUserId(Mockito.anyString()))
+    when(clientConnectorImpl.getClientByUserId(anyString()))
         .thenReturn(Optional.empty());
 
     // then
@@ -341,8 +364,8 @@ class ClientRegistrationServiceImplTest {
     String userId = "user-123";
     Client mockClient = Mockito.mock(Client.class);
 
-    Mockito.when(mockClient.getUserId()).thenReturn(userId);
-    Mockito.when(clientConnectorImpl.getClientById(clientId))
+    when(mockClient.getUserId()).thenReturn(userId);
+    when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(mockClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
@@ -383,7 +406,7 @@ class ClientRegistrationServiceImplTest {
         .spidProfessionals(false)
         .pairwise(false)
         .build();
-    Mockito.when(clientConnectorImpl.getClientById(clientId))
+    when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(existingClientExtended));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -407,7 +430,7 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended));
 
     // then
-    Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
@@ -472,7 +495,7 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended));
 
     // then
-    Mockito.verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
@@ -503,7 +526,7 @@ class ClientRegistrationServiceImplTest {
     String clientId = "client-abc";
     String userId = "user-123";
 
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.empty());
+    when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.empty());
     RefreshSecretException exception = assertThrows(RefreshSecretException.class,
         () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
     assertNotNull(exception.getMessage());
@@ -517,7 +540,7 @@ class ClientRegistrationServiceImplTest {
     String userId = "user-123";
 
     Client mockClient = Mockito.mock(Client.class);
-    Mockito.when(clientConnectorImpl.getClientById(clientId))
+    when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(mockClient));
 
     RefreshSecretException exception = assertThrows(RefreshSecretException.class,
@@ -527,4 +550,68 @@ class ClientRegistrationServiceImplTest {
         exception.getMessage());
   }
 
+  @Test
+  void getPDVPlanList_ok() {
+    String apiKey = "dummyApiKey";
+    PDVPlanDTO plan = PDVPlanDTO.builder().id("id").name("name").build();
+    PDVApiKeysDTO expected = PDVApiKeysDTO.builder().apiKeys(List.of(plan)).build();
+
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.of(apiKey));
+    when(pdvApiClientMock.getPDVPlans(anyString()))
+        .thenReturn(expected);
+
+    // when
+    PDVApiKeysDTO result = clientRegistrationServiceImpl.getPDVPlanList();
+
+    // then
+    assertNotNull(result);
+    assertEquals(expected, result);
+
+    ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+    verify(pdvApiClientMock).getPDVPlans(keyCaptor.capture());
+    assertEquals(apiKey, keyCaptor.getValue(), "Client must use key read from SSM");
+
+    verify(ssmConnectorUtilsImplMock).getParameter(anyString());
+    verifyNoMoreInteractions(pdvApiClientMock, ssmConnectorUtilsImplMock);
+  }
+
+  @Test
+  void getPDVPlanList_noApiKey_throwsNoMasterKeyException() {
+    // given
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.empty());
+
+    // when
+    NoMasterKeyException ex = assertThrows(
+        NoMasterKeyException.class,
+        () -> clientRegistrationServiceImpl.getPDVPlanList()
+    );
+
+    // then
+    assertTrue(ex.getMessage().toLowerCase().contains("api key"), "check message");
+
+    // no interaction with pdv
+    verify(pdvApiClientMock, never()).getPDVPlans(anyString());
+  }
+
+  @Test
+  void getPDVPlanList_pdvThrowsWebAppException_wrapsInPDVException() {
+    // given
+    String apiKey = "dummyApiKey";
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.of(apiKey));
+    when(pdvApiClientMock.getPDVPlans(apiKey))
+        .thenThrow(new WebApplicationException(Response.status(502).build()));
+
+    // when
+    PDVException ex = assertThrows(
+        PDVException.class,
+        () -> clientRegistrationServiceImpl.getPDVPlanList()
+    );
+
+    // then
+    assertTrue(ex.getMessage().contains("PDV response not ok"));
+    assertInstanceOf(WebApplicationException.class, ex.getCause());
+  }
 }
