@@ -218,13 +218,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public PDVApiKeysDTO getPDVPlanList() {
+    String apiKey = ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
+        .orElseThrow(() -> {
+          Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
+          return new NoMasterKeyException("API key master not found");
+        });
+
     try {
-      return ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
-          .map(apiKey -> pdvApiClient.getPDVPlans(apiKey))
-          .orElseThrow(() -> {
-            Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
-            return new NoMasterKeyException("API key master not found");
-          });
+      return pdvApiClient.getPDVPlans(apiKey);
     } catch (WebApplicationException e) {
       Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
       throw new PDVException("PDV response not ok: ", e);
@@ -233,13 +234,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public PDVValidationResponseDTO validatePDVApiKey(PDVValidateApiKeyDTO validateApiKeyDTO) {
+    String apiKey = ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
+        .orElseThrow(() -> {
+          Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
+          return new NoMasterKeyException("API key master not found");
+        });
+
     try {
-      return ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
-          .map(apiKey -> pdvApiClient.validatePDVApiKey(validateApiKeyDTO, apiKey))
-          .orElseThrow(() -> {
-            Log.warn("API Key not found: " + PDV_API_KEY_PREFIX);
-            return new NoMasterKeyException("API key master not found");
-          });
+      return pdvApiClient.validatePDVApiKey(validateApiKeyDTO, apiKey);
     } catch (WebApplicationException e) {
       Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
       throw new PDVException("PDV response not ok: ", e);
