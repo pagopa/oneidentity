@@ -134,7 +134,7 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> pdvNoKeyException(
+  public RestResponse<ErrorResponse> mapPdvNoKeyException(
       NoMasterKeyException exception) {
     Log.error(ExceptionUtils.getStackTrace(exception));
     Response.Status status = BAD_GATEWAY;
@@ -142,11 +142,17 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
-  public RestResponse<ErrorResponse> pdvException(
+  public RestResponse<ErrorResponse> mapPdvException(
       PDVException exception) {
     Log.error(ExceptionUtils.getStackTrace(exception));
-    Response.Status status = Response.Status.fromStatusCode(exception.getResponse().getStatus());
-
+    Response.Status status;
+    if (exception.getResponse() != null) {
+      status = Response.Status.fromStatusCode(exception.getResponse().getStatus());
+    } else if (exception.getStatus() != null) {
+      status = Response.Status.fromStatusCode(exception.getStatus());
+    } else {
+      status = Response.Status.INTERNAL_SERVER_ERROR;
+    }
     return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
   }
 
