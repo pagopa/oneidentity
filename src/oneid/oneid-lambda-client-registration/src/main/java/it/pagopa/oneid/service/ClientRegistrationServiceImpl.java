@@ -32,6 +32,7 @@ import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -40,6 +41,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 public class ClientRegistrationServiceImpl implements ClientRegistrationService {
 
   private static final String PDV_API_KEY_PREFIX = "/apikey-pdv/plan-details";
+  private static final String PDV_API_CLIENT_KEY_PREFIX = "/pdv/";
 
   @Inject
   ClientConnectorImpl clientConnector;
@@ -116,9 +118,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
   }
 
+
   @Override
   public ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO, String userId) {
+      ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey) {
     // 1. call to dynamo & set in clientRegistrationDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
@@ -142,16 +145,31 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new ExistingUserIdException("UserId already exists: " + clientExtended.getUserId());
     }
 
-    // 6. Save client on db
+    // 6. Check & update SSM Pdv parameter
+    String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
+
+    // if apiKey not null and pairwise true
+    if (clientRegistrationDTO.getPairwise() != null && clientRegistrationDTO.getPairwise()) {
+      // if not null or empty save update ssm parameter
+      if (pdvApiKey != null && !pdvApiKey.isBlank()) {
+        ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey);
+      }
+      // if pdvApiKey is null set pairWise to false
+      else {
+        clientExtended.setPairwise(false);
+      }
+    }
+
+    // 7. Save client on db
     clientConnector.saveClientIfNotExists(clientExtended);
     Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
-    // 7. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
+    // 8. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
         clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
             .orElseThrow(ClientRegistrationServiceException::new)));
 
-    // 8. create and return ClientRegistrationResponseDTO
+    // 9. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
         .userId(userId)
         .redirectUris(clientRegistrationDTO.getRedirectUris())
@@ -202,10 +220,28 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
-      ClientExtended clientExtended) {
+      ClientExtended clientExtended,
+      @Nullable String pdvApiKey) {
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId());
+    String ssmPath = PDV_API_CLIENT_KEY_PREFIX + updatedClient.getClientId();
 
+    // if apiKey not null and pairwise true
+    if (clientRegistrationDTO.getPairwise() != null && clientRegistrationDTO.getPairwise()) {
+      // if not null or empty save update ssm parameter
+      if (pdvApiKey != null && !pdvApiKey.isBlank()) {
+        ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey);
+      }
+      // if pdvApiKey is null set pairWise to false and delete parameter
+      else {
+        clientExtended.setPairwise(false);
+        ssmConnectorUtilsImpl.deleteParameter(ssmPath);
+      }
+    }
+    // delete pdv api key from ssm
+    else {
+      ssmConnectorUtilsImpl.deleteParameter(ssmPath);
+    }
     ClientExtended updatedClientExtended = new ClientExtended(updatedClient,
         clientExtended.getSecret(),
         clientExtended.getSalt());
