@@ -7,10 +7,10 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
-import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
+import it.pagopa.oneid.model.groups.ValidationGroups;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
@@ -58,7 +58,8 @@ public class ClientRegistrationController {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response register(
       @Valid @ConvertGroup(to = Registration.class) ClientRegistrationDTO clientRegistrationDTOInput,
-      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -71,7 +72,7 @@ public class ClientRegistrationController {
 
     //3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
-        clientRegistrationDTOInput, userId);
+        clientRegistrationDTOInput, userId, pdvApiKey);
     Log.info(
         "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
@@ -136,7 +137,8 @@ public class ClientRegistrationController {
   public Response updateClient(
       @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId,
-      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -157,7 +159,7 @@ public class ClientRegistrationController {
 
     //5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
-        clientExtended);
+        clientExtended, pdvApiKey);
     Log.info("client updated successfully for clientId: " + clientId);
 
     //6a. Prepare message for sns notification
