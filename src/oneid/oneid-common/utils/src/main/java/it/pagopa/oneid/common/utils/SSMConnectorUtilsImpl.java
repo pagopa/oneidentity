@@ -6,8 +6,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.DeleteParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import software.amazon.awssdk.services.ssm.model.ParameterNotFoundException;
+import software.amazon.awssdk.services.ssm.model.ParameterType;
+import software.amazon.awssdk.services.ssm.model.PutParameterRequest;
 import software.amazon.awssdk.services.ssm.model.SsmException;
 
 @ApplicationScoped
@@ -33,5 +37,66 @@ public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
       return Optional.empty();
     }
     return Optional.of(response.parameter().value());
+  }
+
+  @Override
+  public boolean putSecureString(String parameterName, String value) {
+    try {
+      PutParameterRequest.Builder b = PutParameterRequest.builder()
+          .name(parameterName)
+          .type(ParameterType.SECURE_STRING)
+          .value(value)
+          .overwrite(true);
+
+      ssmClient.putParameter(b.build());
+      return true;
+    } catch (SsmException e) {
+      Log.errorf("Error putting secure parameter '%s' to SSM: %s",
+          parameterName,
+          e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public boolean upsertSecureStringIfPresentOnlyIfChanged(String name, String value) {
+    if (value == null || value.isBlank()) {
+      return false;
+    }
+
+    String newVal = value.trim();
+    try {
+      Optional<String> existing = getParameter(name);
+      // if input key equals to existing do nothing
+      if (existing.isPresent() && newVal.equals(existing.get())) {
+        return false;
+      }
+      return putSecureString(name, newVal);
+    } catch (SsmException e) {
+      Log.errorf("Error comparing/updating secure parameter '%s': %s",
+          name,
+          e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  public boolean deleteParameter(String name) {
+    try {
+      DeleteParameterRequest req = DeleteParameterRequest.builder()
+          .name(name)
+          .build();
+
+      ssmClient.deleteParameter(req);
+      return true;
+    } catch (ParameterNotFoundException e) {
+      Log.infof("Parameter '%s' not found in SSM, nothing to delete", name);
+      return false;
+    } catch (SsmException e) {
+      Log.errorf("Error deleting parameter '%s' from SSM: %s",
+          name,
+          e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage());
+      return false;
+    }
   }
 }
