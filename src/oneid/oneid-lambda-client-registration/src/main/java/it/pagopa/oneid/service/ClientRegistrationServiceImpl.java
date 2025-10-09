@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import static com.nimbusds.oauth2.sdk.util.StringUtils.isBlank;
 import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
@@ -18,8 +19,10 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -54,7 +57,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void validateClientRegistrationInfo(
-      ClientRegistrationDTO clientRegistrationDTO) {
+      ClientRegistrationDTO clientRegistrationDTO, @Nullable String pdvApiKey,
+      @Nullable String planName) {
 
     // Validate redirectUris
     if (clientRegistrationDTO.getRedirectUris() != null) {
@@ -116,12 +120,43 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     } catch (InvalidUriException e) {
       throw new InvalidUriException("Invalid a11y URI");
     }
+
+    // Validate pairWise
+    Boolean pairWise = clientRegistrationDTO.getPairwise();
+    if (Boolean.TRUE.equals(pairWise)) {
+      if (isBlank(pdvApiKey)) {
+        throw new InvalidPDVPlanException("PDV api key empty");
+      }
+      if (isBlank(planName)) {
+        throw new InvalidPDVPlanException("PDV plan name empty");
+      }
+
+      // build PDVValidate
+      PDVValidateApiKeyDTO req = PDVValidateApiKeyDTO.builder()
+          .apiKeyValue(pdvApiKey)
+          .apiKeyId(planName)
+          .build();
+      try {
+        PDVValidationResponseDTO res = validatePDVApiKey(req);
+
+        if (res == null || !res.isValid()) {
+          throw new InvalidPDVPlanException("PDV validation failed for api key and plan");
+        }
+
+        Log.info("PDV validation succeeded for plan=" + planName);
+
+      } catch (NoMasterKeyException e) {
+        Log.warn("Missing PDV master key in SSM: " + e.getMessage());
+        throw new InvalidPDVPlanException("Internal PDV configuration error, missing master key");
+      }
+    }
   }
 
 
   @Override
   public ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey) {
+      ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey,
+      @Nullable String planName) {
     // 1. call to dynamo & set in clientRegistrationDTO
     int maxAttributeIndex = findMaxAttributeIndex();
 
@@ -145,18 +180,12 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       throw new ExistingUserIdException("UserId already exists: " + clientExtended.getUserId());
     }
 
-    // 6. Check & update SSM Pdv parameter
-    String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
-
-    // if apiKey not null and pairwise true
-    if (clientRegistrationDTO.getPairwise() != null && clientRegistrationDTO.getPairwise()) {
-      // if not null or empty save update ssm parameter
-      if (pdvApiKey != null && !pdvApiKey.isBlank()) {
-        ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey);
-      }
-      // if pdvApiKey is null set pairWise to false
-      else {
-        clientExtended.setPairwise(false);
+    // 6. update SSM Pdv parameter
+    if (client.isPairwise()) {
+      String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
+      if (!ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey)) {
+        Log.errorf("SSM upsert failed %s", ssmPath);
+        throw new SSMUpsertPDVException("SSM upsert failed %s: ", ssmPath);
       }
     }
 
@@ -221,27 +250,26 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   @Override
   public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
       ClientExtended clientExtended,
-      @Nullable String pdvApiKey) {
+      @Nullable String pdvApiKey,
+      @Nullable String planName) {
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId());
+
     String ssmPath = PDV_API_CLIENT_KEY_PREFIX + updatedClient.getClientId();
 
     // if apiKey not null and pairwise true
-    if (clientRegistrationDTO.getPairwise() != null && clientRegistrationDTO.getPairwise()) {
-      // if not null or empty save update ssm parameter
-      if (pdvApiKey != null && !pdvApiKey.isBlank()) {
-        ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey);
-      }
-      // if pdvApiKey is null set pairWise to false and delete parameter
-      else {
-        clientExtended.setPairwise(false);
-        ssmConnectorUtilsImpl.deleteParameter(ssmPath);
+    if (updatedClient.isPairwise()) {
+      if (!ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey)) {
+        Log.errorf("SSM upsert failed %s", ssmPath);
+        throw new SSMUpsertPDVException("SSM upsert failed %s: ", ssmPath);
       }
     }
     // delete pdv api key from ssm
-    else {
-      ssmConnectorUtilsImpl.deleteParameter(ssmPath);
+    else if (!ssmConnectorUtilsImpl.deleteParameter(ssmPath)) {
+      Log.errorf("SSM delete failed %s", ssmPath);
+      throw new SSMUpsertPDVException("SSM delete failed %s: ", ssmPath);
     }
+
     ClientExtended updatedClientExtended = new ClientExtended(updatedClient,
         clientExtended.getSecret(),
         clientExtended.getSalt());
