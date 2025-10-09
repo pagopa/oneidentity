@@ -21,12 +21,15 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVPlanDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
+import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -75,8 +78,153 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-        clientRegistrationDTO));
+        clientRegistrationDTO, null, null));
   }
+
+  @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_ok() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+    String masterKey = "key";
+
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.of(masterKey));
+    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
+        .valid(true)
+        .build();
+    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+        .thenReturn(validResp);
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        clientRegistrationDTO, "dummy-key", "dummy-plan"));
+  }
+
+  @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+    String masterKey = "key";
+
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.of(masterKey));
+    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
+        .valid(false)
+        .build();
+    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+        .thenReturn(validResp);
+
+    assertThrows(InvalidPDVPlanException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO, "dummy-key", "dummy-plan"));
+  }
+
+  @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+    String masterKey = "key";
+
+    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+        .thenReturn(Optional.of(masterKey));
+    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
+        .valid(false)
+        .build();
+    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+        .thenThrow(new PDVException("PDV response not ok",
+            new WebApplicationException(
+                Response.status(404).entity("not found").build()
+            )));
+
+    assertThrows(PDVException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO, "dummy-key", "dummy-plan"));
+  }
+
+  @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    assertThrows(InvalidPDVPlanException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO, "dummy-key", ""));
+  }
+
+  @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    assertThrows(InvalidPDVPlanException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO, "", "dummy-plan"));
+  }
+
 
   @Test
   void testValidateClientRegistrationInfo_WithMultipleUris() {
@@ -91,7 +239,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-        clientRegistrationDTO));
+        clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -102,7 +250,7 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO));
+            clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -115,7 +263,7 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO));
+            clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -129,7 +277,7 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO));
+            clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -144,7 +292,7 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO));
+            clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -160,7 +308,7 @@ class ClientRegistrationServiceImplTest {
 
     assertThrows(InvalidUriException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO));
+            clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -209,8 +357,114 @@ class ClientRegistrationServiceImplTest {
     when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId"));
+        clientRegistrationDTO, "userId", null, null));
   }
+
+  @Test
+  void saveClient_WithPairWiseEnabled_ok() {
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    Client returnClient = Client.builder()
+        .clientId("test")
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    ArrayList<Client> allClient = new ArrayList<>();
+    allClient.add(returnClient);
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+
+    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+        Mockito.anyString())).thenReturn(true);
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+        clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
+  }
+
+  @Test
+  void saveClient_WithPairWiseEnabled_SSMError_ko() {
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    Client returnClient = Client.builder()
+        .clientId("test")
+        .friendlyName("test")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .logoUri("test")
+        .policyUri("test")
+        .tosUri("test")
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    ArrayList<Client> allClient = new ArrayList<>();
+    allClient.add(returnClient);
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+
+    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+        Mockito.anyString())).thenReturn(false);
+
+    assertThrows(SSMUpsertPDVException.class,
+        () -> clientRegistrationServiceImpl.saveClient(
+            clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
+  }
+
 
   @Test
   void saveClient_existingUserId_ko() {
@@ -261,7 +515,8 @@ class ClientRegistrationServiceImplTest {
 
     // then
     assertThrows(ExistingUserIdException.class,
-        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId));
+        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId,
+            null, null));
   }
 
   @Test
@@ -422,12 +677,101 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(true)
         .spidProfessionals(true)
-        .pairwise(true)
+        .pairwise(false)
         .build();
+
+    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
 
     // when
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended));
+        clientRegistrationDTO, existingClientExtended, null, null));
+
+    // then
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+        updated.getClientId().equals(clientId)
+            && updated.getUserId().equals(userId)
+            && updated.getFriendlyName().equals("test")
+            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getRequestedParameters().equals(Set.of("name"))
+            && updated.getAuthLevel() == AuthLevel.L2
+            && updated.getAcsIndex() == 0
+            && updated.getAttributeIndex() == attributeIndex
+            && updated.isActive()
+            && updated.getClientIdIssuedAt() == originalIssuedAt
+            && updated.getLogoUri().equals("newLogo")
+            && updated.getPolicyUri().equals("newPolicy")
+            && updated.getTosUri().equals("newTos")
+            && !updated.isRequiredSameIdp() // default false
+            && updated.getA11yUri().equals("newA11y")
+            && updated.isBackButtonEnabled()
+            && updated.getLocalizedContentMap().equals(new HashMap<>())
+            && updated.isSpidMinors()
+            && updated.isSpidProfessionals()
+            && !updated.isPairwise()
+            && updated.getSecret().equals(secret) // unchanged
+            && updated.getSalt().equals(salt) // unchanged
+    ));
+  }
+
+  @Test
+  void updateClient_pairWiseEnabled_ok() {
+    // given
+    String clientId = "client-123";
+    String userId = "userIdTest";
+    int attributeIndex = 42;
+    long originalIssuedAt = 987654321L;
+    String secret = "originalSecret";
+    String salt = "originalSalt";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret(secret) // keep original secret and salt
+        .salt(salt)
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("Old Name")
+        .callbackURI(Set.of("http://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(attributeIndex)
+        .isActive(true)
+        .clientIdIssuedAt(originalIssuedAt)
+        .logoUri("oldLogo")
+        .policyUri("oldPolicy")
+        .tosUri("oldTos")
+        .requiredSameIdp(false)
+        .a11yUri("oldA11y")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+    when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(existingClientExtended));
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("newLogo")
+        .policyUri("newPolicy")
+        .tosUri("newTos")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("newA11y")
+        .backButtonEnabled(true)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(true)
+        .pairwise(true)
+        .build();
+
+    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+        Mockito.anyString())).thenReturn(true);
+
+    // when
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended, "dummy-key", "dummy-plan"));
 
     // then
     verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
@@ -490,9 +834,11 @@ class ClientRegistrationServiceImplTest {
         .clientIdIssuedAt(originalIssuedAt)
         .build();
 
+    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+    
     // when
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended));
+        clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
     verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
