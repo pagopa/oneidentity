@@ -11,17 +11,20 @@ import javax.annotation.Nullable;
 
 public interface ClientRegistrationService {
 
-  void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO);
+  void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO,
+      @Nullable String pdvApiKey,
+      @Nullable String planName);
 
   ClientRegistrationResponseDTO saveClient(
-      ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey);
+      ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey,
+      @Nullable String planName);
 
   Client getClientExtendedByClientId(String clientId);
 
   Client getClientByUserId(String userId);
 
   void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
-      ClientExtended clientExtended, @Nullable String pdvApiKey);
+      ClientExtended clientExtended, @Nullable String pdvApiKey, @Nullable String planName);
 
   String refreshClientSecret(String clientId, String userId);
 

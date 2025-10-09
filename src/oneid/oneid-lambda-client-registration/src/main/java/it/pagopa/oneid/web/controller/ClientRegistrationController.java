@@ -59,7 +59,8 @@ public class ClientRegistrationController {
   public Response register(
       @Valid @ConvertGroup(to = Registration.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
-      @HeaderParam("PDV-X-Api-Key") String pdvApiKey) {
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
+      @HeaderParam("PDV-Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -67,12 +68,13 @@ public class ClientRegistrationController {
     Log.info("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
-    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput);
+    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
+        planName);
     Log.info("client info validated successfully");
 
     //3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
-        clientRegistrationDTOInput, userId, pdvApiKey);
+        clientRegistrationDTOInput, userId, pdvApiKey, planName);
     Log.info(
         "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
@@ -138,7 +140,8 @@ public class ClientRegistrationController {
       @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
-      @HeaderParam("PDV-X-Api-Key") String pdvApiKey) {
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
+      @HeaderParam("PDV-Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -147,7 +150,7 @@ public class ClientRegistrationController {
 
     //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(
-        clientRegistrationDTOInput);
+        clientRegistrationDTOInput, pdvApiKey, planName);
     Log.info("client info validated successfully");
 
     //2. Retrieves client from db
@@ -159,7 +162,7 @@ public class ClientRegistrationController {
 
     //5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
-        clientExtended, pdvApiKey);
+        clientExtended, pdvApiKey, planName);
     Log.info("client updated successfully for clientId: " + clientId);
 
     //6a. Prepare message for sns notification
