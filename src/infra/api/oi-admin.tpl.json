@@ -415,10 +415,7 @@
               "statusCode": "502",
               "responseParameters": {}
             }
-          },
-          "cacheKeyParameters": [
-            "method.request.path.user_id"
-          ]
+          }
         },
         "responses": {
           "200": {
@@ -510,10 +507,7 @@
               "statusCode": "502",
               "responseParameters": {}
             }
-          },
-          "cacheKeyParameters": [
-            "method.request.path.user_id"
-          ]
+          }
         },
         "responses": {
           "200": {
