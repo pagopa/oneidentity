@@ -1,9 +1,9 @@
 package it.pagopa.oneid.exception.mapper;
 
 
+import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
-import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
@@ -18,8 +18,10 @@ import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
+import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -122,6 +124,24 @@ public class ExceptionMapper {
         buildClientRegistrationErrorDTO(
             invalidUriException.getClientRegistrationErrorCode(),
             invalidUriException.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidPDVPlanException(
+      InvalidPDVPlanException invalidPDVPlanException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidPDVPlanException));
+    Response.Status status = BAD_REQUEST;
+    return RestResponse.status(status,
+        buildErrorResponse(status, invalidPDVPlanException.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapSSMPDVException(
+      SSMUpsertPDVException ssmUpsertPDVException) {
+    Log.error(ExceptionUtils.getStackTrace(ssmUpsertPDVException));
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    return RestResponse.status(status,
+        buildErrorResponse(status, ssmUpsertPDVException.getMessage()));
   }
 
   @ServerExceptionMapper
