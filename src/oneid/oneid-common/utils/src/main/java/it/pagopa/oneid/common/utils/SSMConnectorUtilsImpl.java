@@ -69,7 +69,7 @@ public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
       Optional<String> existing = getParameter(name);
       // if input key equals to existing do nothing
       if (existing.isPresent() && newVal.equals(existing.get())) {
-        return false;
+        return true;
       }
       return putSecureString(name, newVal);
     } catch (SsmException e) {
@@ -91,7 +91,7 @@ public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
       return true;
     } catch (ParameterNotFoundException e) {
       Log.infof("Parameter '%s' not found in SSM, nothing to delete", name);
-      return false;
+      return true;
     } catch (SsmException e) {
       Log.errorf("Error deleting parameter '%s' from SSM: %s",
           name,
