@@ -209,8 +209,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     } catch (SAXException | IOException | ParserConfigurationException |
              XPathExpressionException e) {
       Log.error("XML parsing exception " + e.getMessage());
-      // TODO uncomment once feature is active
-      // throw new OneIdentityException(e);
+      throw new OneIdentityException(e);
     }
 
     try {
