@@ -1,9 +1,9 @@
 package it.pagopa.oneid.exception.mapper;
 
 import static it.pagopa.oneid.model.enums.ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION;
+import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
-import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +18,9 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.web.dto.ClientRegistrationErrorDTO;
@@ -154,6 +156,35 @@ class ExceptionMapperTest {
     // then
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
     assertEquals(message, restResponse.getEntity().getErrorDescription());
+  }
+
+  @Test
+  void mapInvalidPDVPlanException() {
+    // given
+    String message = "Invalid PDV Plan";
+    InvalidPDVPlanException exceptionMock = new InvalidPDVPlanException(
+        message);
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapInvalidPDVPlanException(
+        exceptionMock);
+    // then
+    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
+    assertEquals(message, restResponse.getEntity().getDetail());
+  }
+
+  @Test
+  void mapSSMPDVExceptionException() {
+    // given
+    String message = "SSM PDV Error";
+    SSMUpsertPDVException exceptionMock = new SSMUpsertPDVException(
+        message, "path");
+    // when
+    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapSSMPDVException(
+        exceptionMock);
+    // then
+    String expectedMessage = "SSM PDV Error [path=path]";
+    assertEquals(INTERNAL_SERVER_ERROR.getStatusCode(), restResponse.getStatus());
+    assertEquals(expectedMessage, restResponse.getEntity().getDetail());
   }
 
   @Test
