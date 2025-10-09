@@ -88,7 +88,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -216,7 +216,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -305,7 +305,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -507,7 +507,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -614,7 +614,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -714,7 +714,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -827,7 +827,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -920,7 +920,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -1021,7 +1021,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
