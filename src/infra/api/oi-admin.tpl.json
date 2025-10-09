@@ -390,6 +390,9 @@
                 "method.response.header.content-type": "'application/json'"
               }
             },
+            "204": { 
+              "statusCode": "204"
+            },
             "400": {
               "statusCode": "400",
               "responseParameters": {}
@@ -407,7 +410,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -467,7 +470,15 @@
           "Authorization Server APIs"
         ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
-        "operationId": "Get_pdv_plan_list",
+        "operationId": "Validate_api_key",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PDVValidateApiKey" }
+            }
+          }
+        },
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
@@ -2288,6 +2299,24 @@
           }
         },
         "required": ["valid"]
+      },
+      "PDVValidateApiKey": {
+        "type": "object",
+        "properties": {
+          "api_key_id": {
+            "type": "string",
+            "description": "Identifier of the PDV API key."
+          },
+          "api_key_value": {
+            "type": "string",
+            "description": "Secret value of the PDV API key."
+          }
+        },
+        "required": ["api_key_id", "api_key_value"],
+        "example": {
+          "api_key_id": "my-api-key-id",
+          "api_key_value": "super-secret-key"
+        }
       }
     }
   }
