@@ -17,9 +17,11 @@ repos:
         entry: bash -c 'cd src/oneid/oneid-fe && yarn eslint --fix --cache --config eslint.config.mjs "${@/#src\/oneid\/oneid-fe\/}"' --
         language: system
         files: "^src/oneid/oneid-fe/.*\\.(js|jsx|ts|tsx)$"
+        stages: [pre-push]
 
       - id: eslint-oneid-control-panel
         name: eslint oneid-control-panel
         entry: bash -c 'cd src/oneid/oneid-control-panel && yarn eslint --fix --cache --config eslint.config.mjs "${@/#src\/oneid\/oneid-control-panel\/}"' --
         language: system
         files: "^src/oneid/oneid-control-panel/.*\\.(js|jsx|ts|tsx)$"
+        stages: [pre-push]
