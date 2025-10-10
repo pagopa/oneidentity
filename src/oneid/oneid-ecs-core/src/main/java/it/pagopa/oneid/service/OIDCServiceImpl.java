@@ -45,6 +45,7 @@ import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -279,13 +280,15 @@ public class OIDCServiceImpl implements OIDCService {
               () -> Log.warn("API Key not found for clientId: " + clientId
                   + ", can't retrieve pairwise sub from PDV")
           );
-        } catch (WebApplicationException e) {
+        } catch (WebApplicationException | ProcessingException e) {
           // if PDV returns an error, we log it but we don't block the authentication flow
           Log.error("error during PDV upsertUser call: " + e.getMessage());
           // Send message to SQS to manage retry mechanism asynchronously
           sendPDVErrorSQSMessage(clientId, savePDVUserDTO);
           // Update metric on CloudWatch
-          cloudWatchConnectorImpl.sendPDVErrorMetricData(e.getResponse().getStatus());
+          cloudWatchConnectorImpl.sendPDVErrorMetricData(
+              e instanceof WebApplicationException ? ((WebApplicationException) e).getResponse()
+                  .getStatus() : 500);
         }
       } else {
         // if fiscalNumber is not present, we can't generate the pairwise sub
