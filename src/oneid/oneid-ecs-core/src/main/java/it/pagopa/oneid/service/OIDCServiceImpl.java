@@ -288,7 +288,7 @@ public class OIDCServiceImpl implements OIDCService {
           // Update metric on CloudWatch
           cloudWatchConnectorImpl.sendPDVErrorMetricData(
               e instanceof WebApplicationException ? ((WebApplicationException) e).getResponse()
-                  .getStatus() : 500);
+                  .getStatus() : 504);
         }
       } else {
         // if fiscalNumber is not present, we can't generate the pairwise sub
