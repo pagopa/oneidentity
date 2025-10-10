@@ -32,7 +32,7 @@
               "stacked": false,
               "region": "${aws_region}",
               "period": 300,
-              "stat": "Average"
+              "stat": "Sum"
           }
       },
       {
@@ -106,7 +106,7 @@
               "view": "timeSeries",
               "stacked": false,
               "region": "${aws_region}",
-              "stat": "Average",
+              "stat": "Sum",
               "period": 300
           }
       },
