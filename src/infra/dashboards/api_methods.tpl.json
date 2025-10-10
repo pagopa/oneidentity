@@ -13,7 +13,8 @@
                   [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ],
                   [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -32,7 +33,7 @@
               "stacked": false,
               "region": "${aws_region}",
               "period": 300,
-              "stat": "Sum"
+              "stat": "Average"
           }
       },
       {
@@ -47,7 +48,8 @@
               "metrics": [
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/assertion", "Stage", "v1", "Method", "GET" ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -72,7 +74,8 @@
               "metrics": [
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -88,7 +91,8 @@
                   [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/token", "Stage", "v1", "Method", "POST" ],
                   [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -106,7 +110,7 @@
               "view": "timeSeries",
               "stacked": false,
               "region": "${aws_region}",
-              "stat": "Sum",
+              "stat": "Average",
               "period": 300
           }
       },
@@ -132,7 +136,8 @@
               "metrics": [
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -148,7 +153,8 @@
                   [ "AWS/ApiGateway", "5XXError", "ApiName", "${api_name}", "Resource", "/saml/acs", "Stage", "v1", "Method", "POST" ],
                   [ ".", "4XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -192,7 +198,8 @@
               "metrics": [
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -208,7 +215,8 @@
                   [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/keys", "Stage", "v1", "Method", "GET" ],
                   [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -252,7 +260,8 @@
               "metrics": [
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -268,7 +277,8 @@
                   [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/authorize", "Stage", "v1", "Method", "GET" ],
                   [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "region": "${aws_region}"
+              "region": "${aws_region}",
+              "stat": "Sum"
           }
       },
       {
@@ -323,7 +333,8 @@
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ]
               ],
               "region": "${aws_region}",
-              "title": "Count"
+              "title": "Count",
+              "stat": "Sum"
           }
       },
       {
@@ -340,7 +351,8 @@
                   [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST" ],
                   [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "title": "4XXError, 5XXError"
+              "title": "4XXError, 5XXError",
+              "stat": "Sum"
           }
       },
       {
@@ -358,7 +370,8 @@
                   [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/register", "Stage", "v1", "Method", "POST",  { "region": "${aws_region}", "id": "m1" }  ],
                   [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" }  ]
               ],
-              "title": "IntegrationLatency, Latency"
+              "title": "IntegrationLatency, Latency",
+              "stat": "Average"
           }
       },
       {
@@ -384,7 +397,8 @@
                   [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ]
               ],
               "region": "${aws_region}",
-              "title": "Count"
+              "title": "Count",
+              "stat": "Sum"
           }
       },
       {
@@ -401,7 +415,8 @@
                   [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/register/{client_id}", "Stage", "v1", "Method", "GET" ],
                   [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
               ],
-              "title": "4XXError, 5XXError"
+              "title": "4XXError, 5XXError",
+              "stat": "Sum"
           }
       },
       {
@@ -419,7 +434,8 @@
                   [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" }  ]
               ],
               "region": "${aws_region}",
-              "title": "IntegrationLatency, Latency"
+              "title": "IntegrationLatency, Latency",
+              "stat": "Average"
           }
       }
   ]
