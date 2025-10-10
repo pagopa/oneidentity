@@ -1,6 +1,27 @@
 repos:
-- repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.98.0
-  hooks:
-    - id: terraform_fmt
-    - id: terraform_docs
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    # antonbabenko/pre-commit-terraform@v1.98.0
+    rev: e5f4170e017cfa2a848a1be0763bdab683076242
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_docs
+  - repo: https://github.com/gitleaks/gitleaks
+    # gitleaks/gitleaks@8.28.0
+    rev: 4fb43823ef3d152d239e92d7d5cb04783b548062
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: eslint-oneid-fe
+        name: eslint oneid-fe
+        entry: bash -c 'cd src/oneid/oneid-fe && yarn eslint --fix --cache --config eslint.config.mjs "${@/#src\/oneid\/oneid-fe\/}"' --
+        language: system
+        files: "^src/oneid/oneid-fe/.*\\.(js|jsx|ts|tsx)$"
+        stages: [pre-push]
+
+      - id: eslint-oneid-control-panel
+        name: eslint oneid-control-panel
+        entry: bash -c 'cd src/oneid/oneid-control-panel && yarn eslint --fix --cache --config eslint.config.mjs "${@/#src\/oneid\/oneid-control-panel\/}"' --
+        language: system
+        files: "^src/oneid/oneid-control-panel/.*\\.(js|jsx|ts|tsx)$"
+        stages: [pre-push]
