@@ -849,13 +849,13 @@ public class SAMLServiceImplTest {
         .build();
     when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.minusSeconds(10));
+    when(clock.instant()).thenReturn(mockInstant.minusSeconds(40));
 
     // then
     Exception exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
                 defaultFallbackUri, defaultState, defaultClientId));
 
     assertTrue(
@@ -1436,13 +1436,13 @@ public class SAMLServiceImplTest {
         .build();
     when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.minusSeconds(10));
+    when(clock.instant()).thenReturn(mockInstant.minusSeconds(40));
 
     // then
     Exception exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
                 defaultFallbackUri, defaultState, defaultClientId));
 
     assertTrue(
@@ -1471,13 +1471,13 @@ public class SAMLServiceImplTest {
         .build();
     when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.minusSeconds(10));
+    when(clock.instant()).thenReturn(mockInstant.minusSeconds(40));
 
     // then
     Exception exception =
         assertThrows(SAMLValidationException.class,
             () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
+                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
                 defaultFallbackUri, defaultState, defaultClientId));
 
     assertTrue(
