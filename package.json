@@ -1,0 +1,22 @@
+{
+  "name": "oneidentity",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "git+https://github.com/pagopa/oneidentity.git",
+  "license": "ISC",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7"
+  },
+  "scripts": {
+    "version": "changeset version && yarn install",
+    "release": "changeset publish",
+    "tag": "changeset tag",
+    "changeset": "changeset"
+  },
+  "workspaces": [
+    "src/oneid/oneid-fe/",
+    "src/oneid/oneid-control-panel/",
+    "src/oneid/oneid-webui-e2e/",
+    "."
+  ]
+}
