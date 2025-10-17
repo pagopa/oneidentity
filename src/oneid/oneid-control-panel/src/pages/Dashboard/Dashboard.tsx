@@ -42,6 +42,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
+import FieldWithInfo from '../../components/FieldWithInfo';
 
 export const Dashboard = () => {
   const [formData, setFormData] =
@@ -374,17 +375,19 @@ export const Dashboard = () => {
           />
 
           <FormGroup sx={{ mt: 2, mb: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  sx={{ mr: 2, ml: 1 }}
-                  name="requiredSameIdp"
-                  checked={formData?.requiredSameIdp || false}
-                  onChange={handleChange('requiredSameIdp')}
-                />
-              }
-              label="Required Same IDP"
-            />
+            <FieldWithInfo tooltipText="Change me" placement="top">
+              <FormControlLabel
+                control={
+                  <Switch
+                    sx={{ mr: 2, ml: 1 }}
+                    name="requiredSameIdp"
+                    checked={formData?.requiredSameIdp || false}
+                    onChange={handleChange('requiredSameIdp')}
+                  />
+                }
+                label="Required Same IDP"
+              />
+            </FieldWithInfo>
           </FormGroup>
         </ContentBox>
 
