@@ -296,4 +296,19 @@ describe('Dashboard UI', () => {
       expect(window.location.pathname).toBe('/');
     });
   });
+
+  it('toggles the "Required Same IDP" switch and shows tooltip', async () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const switchControl = screen.getByLabelText(/Required Same IDP/i);
+    expect(switchControl).not.toBeChecked();
+
+    fireEvent.click(switchControl);
+    expect(switchControl).toBeChecked();
+
+    const infoButton = screen.getByTestId('info-icon');
+    fireEvent.mouseOver(infoButton);
+    // TODO: change text
+    expect(await screen.findByText(/Change me/i)).toBeInTheDocument();
+  });
 });

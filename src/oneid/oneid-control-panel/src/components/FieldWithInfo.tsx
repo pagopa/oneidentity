@@ -43,7 +43,12 @@ const FieldWithInfo: React.FC<FieldWithInfoProps> = ({
   const infoPopup = (
     <Tooltip title={tooltipText} arrow placement={placement}>
       <span>
-        <IconButton size="small" tabIndex={0} sx={infoIconButtonSx}>
+        <IconButton
+          size="small"
+          tabIndex={0}
+          sx={infoIconButtonSx}
+          data-testid="info-icon"
+        >
           <InfoOutlinedIcon fontSize="small" />
         </IconButton>
       </span>
