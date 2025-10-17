@@ -1167,7 +1167,6 @@ resource "null_resource" "install_dependencies" {
   }
 
   triggers = {
-    # Replace the requirements file path with the correct relative path
     requirements_hash = filesha256("../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
   }
 }
