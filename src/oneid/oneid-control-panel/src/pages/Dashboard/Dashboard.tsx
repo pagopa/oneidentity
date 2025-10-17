@@ -375,6 +375,7 @@ export const Dashboard = () => {
           />
 
           <FormGroup sx={{ mt: 2, mb: 1 }}>
+            {/* TODO: replace "change me" */}
             <FieldWithInfo tooltipText="Change me" placement="top">
               <FormControlLabel
                 control={
