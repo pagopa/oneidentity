@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "pdv-api")
-@Path("/user-registry/v1/users")
+@Path("/users")
 public interface PDVApiClient {
 
   @PATCH
