@@ -143,13 +143,13 @@ module "vpc_endpoints" {
       security_group_ids  = [aws_security_group.vpc_tls.id]
       tags                = { Name = "sns-endpoint" }
     },
-    # apigw = {
-    #   service             = "execute-api"
-    #   private_dns_enabled = true
-    #   subnet_ids          = module.vpc.private_subnets
-    #   security_group_ids  = [aws_security_group.vpc_tls.id]
-    #   tags                = { Name = "apigw-endpoint" }
-    # },
+    apigw = {
+      service             = "execute-api"
+      private_dns_enabled = true
+      subnet_ids          = module.vpc.private_subnets
+      security_group_ids  = [aws_security_group.vpc_tls.id]
+      tags                = { Name = "apigw-endpoint" }
+    },
     sqs = {
       service             = "sqs"
       private_dns_enabled = true
