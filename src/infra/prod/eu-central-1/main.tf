@@ -231,7 +231,7 @@ module "backend" {
     pdv_errors_queue_arn               = module.sqs.sqs_queue_arn
     environment_variables = {
       "LOG_LEVEL"    = var.app_log_level
-      "PDV_BASE_URL" = var.pdv_base_url
+      "PDV_BASE_URL" = ""
     }
   }
 
