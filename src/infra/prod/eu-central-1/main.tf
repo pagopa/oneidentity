@@ -173,10 +173,6 @@ module "backend" {
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       },
       {
-        name  = "PDV_BASE_URL"
-        value = var.pdv_base_url
-      },
-      {
         name  = "PDV_ERROR_QUEUE_URL"
         value = module.sqs.sqs_queue_url
       },
@@ -235,7 +231,7 @@ module "backend" {
     pdv_errors_queue_arn               = module.sqs.sqs_queue_arn
     environment_variables = {
       "LOG_LEVEL"    = var.app_log_level
-      "PDV_BASE_URL" = var.pdv_base_url
+      "PDV_BASE_URL" = ""
     }
   }
 

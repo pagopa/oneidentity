@@ -674,7 +674,7 @@ variable "tags" {
 
 variable "pairwise_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Enable PDV pairwise feature"
 }
 
@@ -682,10 +682,4 @@ variable "registry_enabled" {
   type        = bool
   default     = false
   description = "Enable PDV registry feature"
-}
-
-variable "pdv_base_url" {
-  type        = string
-  default     = "https://api.pdv.pagopa.it"
-  description = "PDV base URL"
 }

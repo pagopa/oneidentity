@@ -761,6 +761,6 @@ variable "registry_enabled" {
 
 variable "pdv_base_url" {
   type        = string
-  default     = "https://api.uat.pdv.pagopa.it"
+  default     = "https://jmkvok2u23.execute-api.eu-south-1.amazonaws.com/private-v1"
   description = "PDV base URL"
 }
