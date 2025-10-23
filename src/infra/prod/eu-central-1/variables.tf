@@ -674,7 +674,7 @@ variable "tags" {
 
 variable "pairwise_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Enable PDV pairwise feature"
 }
 
