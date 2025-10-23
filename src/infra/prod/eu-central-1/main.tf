@@ -173,10 +173,6 @@ module "backend" {
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       },
       {
-        name  = "PDV_BASE_URL"
-        value = var.pdv_base_url
-      },
-      {
         name  = "PDV_ERROR_QUEUE_URL"
         value = module.sqs.sqs_queue_url
       },
