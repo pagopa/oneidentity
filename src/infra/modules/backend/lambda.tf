@@ -1029,6 +1029,11 @@ module "pdv_reconciler_lambda" {
 
   environment_variables = var.pdv_reconciler_lambda.environment_variables
 
+  attach_network_policy = true
+
+  vpc_subnet_ids         = var.pdv_reconciler_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_pdv_reconciler.security_group_id]
+
   allowed_triggers = {
     AllowSQSTrigger = {
       principal  = "sqs.amazonaws.com"
@@ -1045,6 +1050,29 @@ module "pdv_reconciler_lambda" {
   memory_size = 256
   timeout     = 30
 
+}
+
+module "security_group_lambda_pdv_reconciler" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.pdv_reconciler_lambda.name}-sg"
+  description = "Security Group for Lambda PDV Reconciler"
+
+  vpc_id = var.pdv_reconciler_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  egress_rules = ["https-443-tcp"]
+}
+
+resource "aws_vpc_security_group_egress_rule" "pdv_reconciler_https_rule" {
+  security_group_id = module.security_group_lambda_pdv_reconciler.security_group_id
+  from_port         = 443
+  ip_protocol       = "tcp"
+  to_port           = 443
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 data "aws_iam_policy_document" "pdv_reconciler_lambda" {
