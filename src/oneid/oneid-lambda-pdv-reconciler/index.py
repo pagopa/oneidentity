@@ -43,7 +43,7 @@ def handler(event, context):
         try:
             response = http.request(
                 'PATCH',
-                f"{ENDPOINT_URL}/user-registry/v1/users",
+                f"{ENDPOINT_URL}/users",
                 headers=headers,
                 body=encoded_body,
                 timeout=10.0
