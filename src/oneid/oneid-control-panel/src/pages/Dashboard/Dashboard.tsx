@@ -376,7 +376,7 @@ export const Dashboard = () => {
 
           <FormGroup sx={{ mt: 2, mb: 1 }}>
             {/* TODO: replace "change me" */}
-            <FieldWithInfo tooltipText="Change me" placement="top">
+            <FieldWithInfo tooltipText="Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time." placement="top">
               <FormControlLabel
                 control={
                   <Switch
