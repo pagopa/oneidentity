@@ -308,7 +308,10 @@ describe('Dashboard UI', () => {
 
     const infoButton = screen.getByTestId('info-icon');
     fireEvent.mouseOver(infoButton);
-    // TODO: change text
-    expect(await screen.findByText(/Change me/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        /Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time./i
+      )
+    ).toBeInTheDocument();
   });
 });
