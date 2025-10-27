@@ -370,7 +370,7 @@ module "backend" {
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
       "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
       "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.dev.oneid.pagopa.it",
-      "PDV_BASE_URL"                       = var.pdv_base_url
+      "PDV_PLAN_URL"                       = var.pdv_plan_url
     }
   }
 
