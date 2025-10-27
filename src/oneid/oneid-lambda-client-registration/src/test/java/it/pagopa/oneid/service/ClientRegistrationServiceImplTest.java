@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
-import it.pagopa.oneid.common.connector.PDVApiClient;
+import it.pagopa.oneid.common.connector.PDVApiPlanClient;
 import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
 import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
@@ -55,7 +55,7 @@ class ClientRegistrationServiceImplTest {
 
   @InjectMock
   @RestClient
-  PDVApiClient pdvApiClientMock;
+  PDVApiPlanClient pdvApiClientMock;
   @InjectMock
   SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
 
