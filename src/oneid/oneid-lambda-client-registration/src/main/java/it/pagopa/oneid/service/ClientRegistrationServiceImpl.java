@@ -5,7 +5,7 @@ import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
-import it.pagopa.oneid.common.connector.PDVApiClient;
+import it.pagopa.oneid.common.connector.PDVApiPlanClient;
 import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
 import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
@@ -51,7 +51,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Inject
   @RestClient
-  PDVApiClient pdvApiClient;
+  PDVApiPlanClient pdvApiClient;
   @Inject
   SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
 
