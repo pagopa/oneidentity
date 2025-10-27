@@ -28,7 +28,7 @@ function isReactElementWithProps<
 
 type FieldWithInfoProps = {
   children: ReactNode;
-  tooltipText: string;
+  tooltipText: string | ReactNode; // tooltipText can be either a string -> it will be displayed as plain text inside the tooltip; or a ReactNode -> it will be rendered directly as JSX/HTML
   placement?: Placement;
   inputAdornment?: boolean;
 };

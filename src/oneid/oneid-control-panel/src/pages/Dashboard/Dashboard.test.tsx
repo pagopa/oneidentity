@@ -12,6 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from '../../components/Layout';
 import { ClientIdProvider, useClientId } from '../../context/ClientIdContext';
+import FieldWithInfo from '../../components/FieldWithInfo';
 import { useEffect } from 'react';
 
 vi.mock('react-oidc-context', () => ({
@@ -313,5 +314,39 @@ describe('Dashboard UI', () => {
         /Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time./i
       )
     ).toBeInTheDocument();
+  });
+
+  it('renders tooltip with ReactNode containing a link', async () => {
+    const TestComponent = () => (
+      <FieldWithInfo
+        tooltipText={
+          <span>
+            For more info{' '}
+            <a href="https://example.com/help" target="_blank" rel="noreferrer">
+              click here
+            </a>
+          </span>
+        }
+        placement="top"
+      >
+        <div>Test field</div>
+      </FieldWithInfo>
+    );
+
+    render(<TestComponent />, { wrapper: createWrapper() });
+
+    const infoButton = screen.getByTestId('info-icon');
+    expect(infoButton).toBeInTheDocument();
+
+    fireEvent.mouseOver(infoButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('For more info')).toBeInTheDocument();
+    });
+
+    const link = screen.getByRole('link', { name: /click here/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', 'https://example.com/help');
+    expect(link).toHaveAttribute('target', '_blank');
   });
 });
