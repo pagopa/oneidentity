@@ -1,5 +1,6 @@
 package it.pagopa.oneid.service;
 
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -169,10 +170,14 @@ class ClientRegistrationServiceImplTest {
         .valid(false)
         .build();
     when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
-        .thenThrow(new PDVException("PDV response not ok",
+        .thenThrow(new PDVException(
+            "PDV response not ok",
+            NOT_FOUND.getStatusCode(),
+            Optional.of("not found"),
             new WebApplicationException(
-                Response.status(404).entity("not found").build()
-            )));
+                Response.status(NOT_FOUND).entity("not found").build()
+            )
+        ));
 
     assertThrows(PDVException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(

@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.mockito.Mockito.doThrow;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -26,6 +27,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -789,10 +791,14 @@ class ClientRegistrationControllerTest {
   @Test
   void getPDVPlan_NotFound_ko() {
     Mockito.when(clientRegistrationServiceImpl.getPDVPlanList()).thenThrow(
-        new PDVException("PDV response not ok",
+        new PDVException(
+            "PDV response not ok",
+            NOT_FOUND.getStatusCode(),
+            Optional.of("not found"),
             new WebApplicationException(
-                Response.status(404).entity("not found").build()
-            )));
+                Response.status(NOT_FOUND).entity("not found").build()
+            )
+        ));
 
     given()
         .contentType("application/json")
@@ -834,10 +840,14 @@ class ClientRegistrationControllerTest {
   void validatePDVApiKey_NotFound_ko() {
     PDVValidationResponseDTO response = PDVValidationResponseDTO.builder().valid(true).build();
     Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any())).thenThrow(
-        new PDVException("PDV response not ok",
+        new PDVException(
+            "PDV response not ok",
+            NOT_FOUND.getStatusCode(),
+            Optional.of("not found"),
             new WebApplicationException(
-                Response.status(404).entity("not found").build()
-            )));
+                Response.status(NOT_FOUND).entity("not found").build()
+            )
+        ));
 
     given()
         .contentType("application/json")
