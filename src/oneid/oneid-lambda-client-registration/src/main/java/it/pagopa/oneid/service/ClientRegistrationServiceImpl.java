@@ -31,6 +31,7 @@ import it.pagopa.oneid.service.utils.CustomURIUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       @Nullable String planName) {
 
     // Validate redirectUris
-    if (clientRegistrationDTO.getRedirectUris() != null) {
+    if (clientRegistrationDTO.getRedirectUris()!=null) {
       if (clientRegistrationDTO.getRedirectUris().isEmpty()) {
         throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
       }
@@ -139,7 +140,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       try {
         PDVValidationResponseDTO res = validatePDVApiKey(req);
 
-        if (res == null || !res.isValid()) {
+        if (res==null || !res.isValid()) {
           throw new InvalidPDVPlanException("PDV validation failed for api key and plan");
         }
 
@@ -210,14 +211,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
         .a11yUri(clientRegistrationDTO.getA11yUri())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
-        .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
-            ? clientRegistrationDTO.getBackButtonEnabled() : false)
-        .spidMinors(clientRegistrationDTO.getSpidMinors() != null
-            ? clientRegistrationDTO.getSpidMinors() : false)
-        .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
-            ? clientRegistrationDTO.getSpidProfessionals() : false)
-        .pairwise(clientRegistrationDTO.getPairwise() != null
-            ? clientRegistrationDTO.getPairwise() : false)
+        .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled()!=null
+            ? clientRegistrationDTO.getBackButtonEnabled():false)
+        .spidMinors(clientRegistrationDTO.getSpidMinors()!=null
+            ? clientRegistrationDTO.getSpidMinors():false)
+        .spidProfessionals(clientRegistrationDTO.getSpidProfessionals()!=null
+            ? clientRegistrationDTO.getSpidProfessionals():false)
+        .pairwise(clientRegistrationDTO.getPairwise()!=null
+            ? clientRegistrationDTO.getPairwise():false)
         .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
         .clientIdIssuedAt(client.getClientIdIssuedAt())
@@ -249,9 +250,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
-      ClientExtended clientExtended,
-      @Nullable String pdvApiKey,
-      @Nullable String planName) {
+                                   ClientExtended clientExtended,
+                                   @Nullable String pdvApiKey,
+                                   @Nullable String planName) {
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId());
 
@@ -280,6 +281,24 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     clientConnector.updateClientExtended(updatedClientExtended);
   }
 
+  private PDVException createPDVException(WebApplicationException e) {
+    Response response = e.getResponse();
+    if (response==null) {
+      return new PDVException("PDV response not ok: ", null, Optional.empty(), e);
+    }
+    Integer status = response.getStatus();
+    Optional<String> payload = Optional.empty();
+
+    if (response.hasEntity()) {
+      try {
+        payload = Optional.of(response.readEntity(String.class));
+      } catch (IllegalStateException ignored) {
+      }
+    }
+    Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
+    return new PDVException("PDV response not ok: ", status, payload, e);
+  }
+
   @Override
   public PDVApiKeysDTO getPDVPlanList() {
     String apiKey = ssmConnectorUtilsImpl.getParameter(PDV_API_KEY_PREFIX)
@@ -292,7 +311,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       return pdvApiClient.getPDVPlans(apiKey);
     } catch (WebApplicationException e) {
       Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
-      throw new PDVException("PDV response not ok: ", e);
+      throw createPDVException(e);
     }
   }
 
@@ -308,7 +327,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       return pdvApiClient.validatePDVApiKey(validateApiKeyDTO, apiKey);
     } catch (WebApplicationException e) {
       Log.warn("PDV error: " + PDV_API_KEY_PREFIX);
-      throw new PDVException("PDV response not ok: ", e);
+      throw createPDVException(e);
     }
   }
 
