@@ -2256,7 +2256,7 @@
       "PDVApiKeys": {
         "type": "object",
         "properties": {
-          "apiKeys": {
+          "api_keys": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PDVPlan"
