@@ -255,7 +255,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId());
 
-    String ssmPath = PDV_API_CLIENT_KEY_PREFIX + updatedClient.getClientId();
+    String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
 
     // if apiKey not null and pairwise true
     if (updatedClient.isPairwise()) {
