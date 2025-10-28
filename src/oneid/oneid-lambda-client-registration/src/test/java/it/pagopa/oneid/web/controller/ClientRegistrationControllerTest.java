@@ -779,7 +779,10 @@ class ClientRegistrationControllerTest {
         .when()
         .get("/register/plan_list")
         .then()
-        .statusCode(200);
+        .statusCode(200)
+        .body("api_keys", org.hamcrest.Matchers.hasSize(2))
+        .body("api_keys.id", org.hamcrest.Matchers.contains(plan1.getId(), plan2.getId()))
+        .body("api_keys.name", org.hamcrest.Matchers.contains(plan1.getName(), plan2.getName()));
   }
 
 

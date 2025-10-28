@@ -1,5 +1,6 @@
 package it.pagopa.oneid.common.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,6 @@ import lombok.experimental.SuperBuilder;
 @RegisterForReflection
 @SuperBuilder
 public class PDVApiKeysDTO {
-
-  private List<PDVPlanDTO> apiKeys;
+    @JsonProperty("api_keys")
+    private List<PDVPlanDTO> apiKeys;
 }
