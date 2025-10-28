@@ -8,6 +8,13 @@
       "sha256": "9B97qs1xaJZEes6XWGIfYsHGsKkdiazuSI2ib8R3yE8="
     },
     {
+      "id": "org.apache.commons:commons-lang3:jar:3.18.0",
+      "artifactId": "commons-lang3",
+      "groupId": "org.apache.commons",
+      "version": "3.18.0",
+      "sha256": "Tu6ujSDAeKu2SwFewVit04OsWBVxzdxFxo8MmuAjByA="
+    },
+    {
       "id": "io.quarkus:quarkus-arc:jar:3.11.3",
       "artifactId": "quarkus-arc",
       "groupId": "io.quarkus",
@@ -2253,13 +2260,6 @@
       "groupId": "commons-cli",
       "version": "1.2",
       "sha256": "582JUZVtNJtWi3zP1PWyUpqMET5nwysCj1L_2jcSWdk="
-    },
-    {
-      "id": "org.apache.commons:commons-lang3:jar:3.18.0",
-      "artifactId": "commons-lang3",
-      "groupId": "org.apache.commons",
-      "version": "3.18.0",
-      "sha256": "Tu6ujSDAeKu2SwFewVit04OsWBVxzdxFxo8MmuAjByA="
     },
     {
       "id": "com.almworks.sqlite4java:libsqlite4java-linux-i386:so:1.0.392",
