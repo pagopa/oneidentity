@@ -63,21 +63,12 @@ public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
     if (value == null || value.isBlank()) {
       return false;
     }
-
     String newVal = value.trim();
-    try {
-      Optional<String> existing = getParameter(name);
-      // if input key equals to existing do nothing
-      if (existing.isPresent() && newVal.equals(existing.get())) {
-        return true;
-      }
-      return putSecureString(name, newVal);
-    } catch (SsmException e) {
-      Log.errorf("Error comparing/updating secure parameter '%s': %s",
-          name,
-          e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage());
-      return false;
+    Optional<String> existing = getParameter(name);
+    if (existing.isPresent() && newVal.equals(existing.get())) {
+      return true;
     }
+    return putSecureString(name, newVal);
   }
 
   @Override
