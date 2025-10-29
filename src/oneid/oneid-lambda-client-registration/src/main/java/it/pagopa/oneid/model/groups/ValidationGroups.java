@@ -11,8 +11,4 @@ public interface ValidationGroups {
   interface Registration extends Default {
 
   }
-
-  interface PDVApiKey extends Default {
-
-  }
 }
