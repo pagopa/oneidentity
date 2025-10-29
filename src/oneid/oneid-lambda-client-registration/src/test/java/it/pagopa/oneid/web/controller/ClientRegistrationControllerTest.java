@@ -838,20 +838,22 @@ class ClientRegistrationControllerTest {
 
   @Test
   void validatePDVApiKey_NotFound_ko() {
-    PDVValidationResponseDTO response = PDVValidationResponseDTO.builder().valid(true).build();
-    Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any())).thenThrow(
-        new PDVException(
+    PDVValidateApiKeyDTO request = PDVValidateApiKeyDTO.builder()
+        .apiKeyId("api_key")
+        .apiKeyValue("value")
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.validatePDVApiKey(Mockito.any()))
+        .thenThrow(new PDVException(
             "PDV response not ok",
             NOT_FOUND.getStatusCode(),
             Optional.of("not found"),
-            new WebApplicationException(
-                Response.status(NOT_FOUND).entity("not found").build()
-            )
+            new WebApplicationException(Response.status(NOT_FOUND).entity("not found").build())
         ));
 
     given()
         .contentType("application/json")
-        .body(response)
+        .body(request)
         .when()
         .post("/register/validate_api_key")
         .then()

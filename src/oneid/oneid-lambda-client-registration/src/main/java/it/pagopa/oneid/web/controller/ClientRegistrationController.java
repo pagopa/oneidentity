@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
-import it.pagopa.oneid.model.groups.ValidationGroups;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.service.ClientRegistrationServiceImpl;
@@ -224,7 +223,7 @@ public class ClientRegistrationController {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response validatePDVApiKey(
-      @Valid @ConvertGroup(to = ValidationGroups.PDVApiKey.class) PDVValidateApiKeyDTO validateApiKeyDTO) {
+      @Valid PDVValidateApiKeyDTO validateApiKeyDTO) {
     Log.info("start");
 
     //1. Verify if api key are valid
