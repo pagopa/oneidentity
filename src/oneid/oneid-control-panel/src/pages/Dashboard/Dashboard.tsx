@@ -21,6 +21,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Link,
 } from '@mui/material';
 import {
   SpidLevel,
@@ -43,6 +44,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
 import FieldWithInfo from '../../components/FieldWithInfo';
+import { tooltipLinkSx } from '../../utils/styles';
 
 export const Dashboard = () => {
   const [formData, setFormData] =
@@ -375,9 +377,24 @@ export const Dashboard = () => {
           />
 
           <FormGroup sx={{ mt: 2, mb: 1 }}>
-            {/* TODO: replace "change me" */}
             <FieldWithInfo
-              tooltipText="Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time."
+              tooltipText={
+                <span>
+                  Same IDP is a function that will return a custom request
+                  indicating whether the user has logged in using the same IDP
+                  as the previous time.
+                  <br />
+                  More info can be found{' '}
+                  <Link
+                    href="https://pagopa.atlassian.net/wiki/spaces/OI/pages/1560477700/RFC+OI-004+Check+last+used+IDP+-+OTP"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={tooltipLinkSx}
+                  >
+                    here
+                  </Link>
+                </span>
+              }
               placement="top"
             >
               <FormControlLabel
