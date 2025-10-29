@@ -1,0 +1,34 @@
+{
+  "name": "oneidentity",
+  "version": "4.0.0",
+  "private": true,
+  "repository": "https://github.com/pagopa/oneidentity.git",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7"
+  },
+  "scripts": {
+    "version": "yarn changeset version && yarn --mode update-lockfile",
+    "release": "yarn changeset publish"
+  },
+  "workspaces": [
+    "src/infra/",
+    "src/oneid/oneid-control-panel/",
+    "src/oneid/oneid-ecs-core/",
+    "src/oneid/oneid-ecs-internal-idp/",
+    "src/oneid/oneid-fe/",
+    "src/oneid/oneid-lambda-assertion/",
+    "src/oneid/oneid-lambda-cert-exp-checker/",
+    "src/oneid/oneid-lambda-client-manager/",
+    "src/oneid/oneid-lambda-client-registration/",
+    "src/oneid/oneid-lambda-cognito-presignup/",
+    "src/oneid/oneid-lambda-idp-mock/",
+    "src/oneid/oneid-lambda-invalidate-cache/",
+    "src/oneid/oneid-lambda-is-gh-integration/",
+    "src/oneid/oneid-lambda-pdv-reconciler/",
+    "src/oneid/oneid-lambda-retrieve-status/",
+    "src/oneid/oneid-lambda-service-metadata/",
+    "src/oneid/oneid-lambda-update-idp-metadata/",
+    "src/oneid/oneid-lambda-update-status/",
+    "."
+  ]
+}

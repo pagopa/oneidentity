@@ -83,6 +83,7 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/gradle
 
 # Frontend stuff
+node_modules/
 src/oneid/oneid-control-panel/node_modules
 src/oneid/oneid-control-panel/dist
 src/oneid/oneid-control-panel/coverage
