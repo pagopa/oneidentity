@@ -1167,7 +1167,7 @@ resource "null_resource" "install_dependencies" {
   }
 
   triggers = {
-    requirements_hash = filesha256("../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
+    always_run = "${timestamp()}"
   }
 }
 
