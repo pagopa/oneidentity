@@ -60,7 +60,7 @@ variable "vpc_internal_subnets_cidr" {
 
 variable "enable_nat_gateway" {
   type        = bool
-  default     = false
+  default     = true
   description = "Create nat gateway(s)"
 }
 
