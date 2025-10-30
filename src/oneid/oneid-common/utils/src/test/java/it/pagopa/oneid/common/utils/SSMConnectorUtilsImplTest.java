@@ -89,13 +89,53 @@ class SSMConnectorUtilsImplTest {
   }
 
   @Test
-  void upsertSecureString_nullValue_returnsFalse() {
-    assertFalse(ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param1", null));
+  void upsertSecureString_existing_ssm_nullValue_returnsTrue() {
+    GetParameterResponse existing = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("existing").build())
+        .build();
+    when(ssmClient.getParameter(any(GetParameterRequest.class))).thenReturn(existing);
+    boolean result = ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param1", null);
+
+    assertTrue(result);
+    verify(ssmClient, never()).putParameter(ArgumentMatchers.<PutParameterRequest>any());
   }
 
   @Test
-  void upsertSecureString_emptyValue_returnsFalse() {
-    assertFalse(ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param1", ""));
+  void upsertSecureString_existing_ssm_emptyValue_returnsTrue() {
+    GetParameterResponse existing = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("existing").build())
+        .build();
+    when(ssmClient.getParameter(any(GetParameterRequest.class))).thenReturn(existing);
+    boolean result = ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param1", "");
+
+    assertTrue(result);
+    verify(ssmClient, never()).putParameter(ArgumentMatchers.<PutParameterRequest>any());
+  }
+
+  @Test
+  void upsertSecureString_no_existing_ssm_nullValue_returnsFalse() {
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
+        .thenThrow(SsmException.builder()
+            .awsErrorDetails(AwsErrorDetails.builder()
+                .errorMessage("Parameter not found")
+                .build())
+            .build());
+
+    boolean result = ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param", null);
+    assertFalse(result, "Expected false when parameter not found and value=null");
+  }
+
+  @Test
+  void upsertSecureString_no_existing_ssm_emptyValue_returnsFalse() {
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
+        .thenThrow(SsmException.builder()
+            .awsErrorDetails(AwsErrorDetails.builder()
+                .errorMessage("Parameter not found")
+                .build())
+            .build());
+
+    boolean result = ssmConnectorUtils.upsertSecureStringIfPresentOnlyIfChanged("param", "");
+    assertFalse(result, "Expected false when parameter not found and value=null");
   }
 
   @Test

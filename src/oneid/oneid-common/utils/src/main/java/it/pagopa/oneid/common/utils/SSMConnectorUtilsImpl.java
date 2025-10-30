@@ -60,11 +60,11 @@ public class SSMConnectorUtilsImpl implements SSMConnectorUtils {
 
   @Override
   public boolean upsertSecureStringIfPresentOnlyIfChanged(String name, String value) {
+    Optional<String> existing = getParameter(name);
     if (value == null || value.isBlank()) {
-      return false;
+      return existing.isPresent();
     }
     String newVal = value.trim();
-    Optional<String> existing = getParameter(name);
     if (existing.isPresent() && newVal.equals(existing.get())) {
       return true;
     }
