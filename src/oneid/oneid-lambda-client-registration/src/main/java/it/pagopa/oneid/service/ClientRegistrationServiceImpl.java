@@ -125,30 +125,29 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // Validate pairWise
     Boolean pairWise = clientRegistrationDTO.getPairwise();
     if (Boolean.TRUE.equals(pairWise)) {
-      if (isBlank(pdvApiKey)) {
-        throw new InvalidPDVPlanException("PDV api key empty");
+      if (isBlank(pdvApiKey) ^ isBlank(planName)) {
+        throw new InvalidPDVPlanException("Both PDV api key and plan name must be provided together");
       }
-      if (isBlank(planName)) {
-        throw new InvalidPDVPlanException("PDV plan name empty");
-      }
+      if (!isBlank(pdvApiKey) && !isBlank(planName)) {
 
-      // build PDVValidate
-      PDVValidateApiKeyDTO req = PDVValidateApiKeyDTO.builder()
-          .apiKeyValue(pdvApiKey)
-          .apiKeyId(planName)
-          .build();
-      try {
-        PDVValidationResponseDTO res = validatePDVApiKey(req);
+        // build PDVValidate
+        PDVValidateApiKeyDTO req = PDVValidateApiKeyDTO.builder()
+            .apiKeyValue(pdvApiKey)
+            .apiKeyId(planName)
+            .build();
+        try {
+          PDVValidationResponseDTO res = validatePDVApiKey(req);
 
-        if (res==null || !res.isValid()) {
-          throw new InvalidPDVPlanException("PDV validation failed for api key and plan");
+          if (res==null || !res.isValid()) {
+            throw new InvalidPDVPlanException("PDV validation failed for api key and plan");
+          }
+
+          Log.info("PDV validation succeeded for plan=" + planName);
+
+        } catch (NoMasterKeyException e) {
+          Log.warn("Missing PDV master key in SSM: " + e.getMessage());
+          throw new InvalidPDVPlanException("Internal PDV configuration error, missing master key");
         }
-
-        Log.info("PDV validation succeeded for plan=" + planName);
-
-      } catch (NoMasterKeyException e) {
-        Log.warn("Missing PDV master key in SSM: " + e.getMessage());
-        throw new InvalidPDVPlanException("Internal PDV configuration error, missing master key");
       }
     }
   }

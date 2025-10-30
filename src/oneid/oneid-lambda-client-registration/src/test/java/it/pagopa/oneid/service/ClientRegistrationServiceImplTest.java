@@ -83,6 +83,28 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void validateClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("http://test.com"))
+        .clientName("test")
+        .logoUri("http://test.com")
+        .policyUri("http://test.com")
+        .tosUri("http://test.com")
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("http://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(true)
+        .build();
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
+  }
+
+  @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("http://test.com"))
