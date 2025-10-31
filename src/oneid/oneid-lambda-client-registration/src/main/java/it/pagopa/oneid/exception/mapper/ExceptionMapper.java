@@ -1,6 +1,7 @@
 package it.pagopa.oneid.exception.mapper;
 
 
+import static jakarta.ws.rs.core.Response.Status.BAD_GATEWAY;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -9,14 +10,18 @@ import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static jakarta.ws.rs.core.Response.Status.UNSUPPORTED_MEDIA_TYPE;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
+import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
+import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
+import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
@@ -122,6 +127,24 @@ public class ExceptionMapper {
   }
 
   @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidPDVPlanException(
+      InvalidPDVPlanException invalidPDVPlanException) {
+    Log.error(ExceptionUtils.getStackTrace(invalidPDVPlanException));
+    Response.Status status = BAD_REQUEST;
+    return RestResponse.status(status,
+        buildErrorResponse(status, invalidPDVPlanException.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapSSMPDVException(
+      SSMUpsertPDVException ssmUpsertPDVException) {
+    Log.error(ExceptionUtils.getStackTrace(ssmUpsertPDVException));
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    return RestResponse.status(status,
+        buildErrorResponse(status, ssmUpsertPDVException.getMessage()));
+  }
+
+  @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapUserIdMismatchException(
       UserIdMismatchException userIdMismatchException) {
     Log.error(ExceptionUtils.getStackTrace(userIdMismatchException));
@@ -129,6 +152,29 @@ public class ExceptionMapper {
     String message = "UserId unauthorized";
     return RestResponse.status(status, buildErrorResponse(status, message));
   }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapPdvNoKeyException(
+      NoMasterKeyException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = BAD_GATEWAY;
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapPdvException(
+      PDVException exception) {
+    Log.error(ExceptionUtils.getStackTrace(exception));
+    Response.Status status = INTERNAL_SERVER_ERROR;
+    if (exception.getStatus()!=null) {
+      status = Response.Status.fromStatusCode(exception.getStatus());
+    }
+    if (exception.getPayload().isPresent()) {
+      return RestResponse.status(status, buildErrorResponse(status, exception.getPayload().orElseThrow()));
+    }
+    return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
+  }
+
 
   @ServerExceptionMapper
   public RestResponse<ErrorResponse> mapWebApplicationException(WebApplicationException exception) {

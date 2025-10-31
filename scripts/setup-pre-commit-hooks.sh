@@ -3,7 +3,7 @@
 # Run ./scripts/setup-pre-commit-hooks.sh from the root of the repo to setup pre-commit hooks
 
 # Install required tools
-brew install pre-commit yarn node
+brew install pre-commit yarn node terraform-docs
 
 # Install frontend dependencies
 cd src/oneid/oneid-fe

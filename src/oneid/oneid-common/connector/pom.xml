@@ -29,6 +29,18 @@
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
         <!--region Test -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -68,6 +80,6 @@
             <scope>test</scope>
         </dependency>
         <!--endregion Test -->
-        
+
     </dependencies>
 </project>

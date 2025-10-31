@@ -55,7 +55,7 @@ resource "aws_iam_policy" "deploy_lambda" {
         Resource = [
           "${module.s3_lambda_code_bucket.s3_bucket_arn}/*"
         ]
-      }
+      },
     ]
   })
 }
@@ -103,6 +103,41 @@ data "aws_iam_policy_document" "client_registration_lambda" {
       var.sns_topic_arn
     ]
   }
+  statement {
+    sid    = "SSMGetCertParameters"
+    effect = "Allow"
+    actions = [
+      "ssm:Describe*",
+      "ssm:Get*",
+      "ssm:List*"
+    ]
+    resources = [
+      data.aws_ssm_parameter.certificate.arn,
+      aws_ssm_parameter.key_pem.arn,
+      "arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter/apikey-pdv/plan-details"
+    ]
+  }
+
+  statement {
+    sid    = "SSMWriteParameters"
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParameterHistory",
+      "ssm:GetParametersByPath",
+      "ssm:PutParameter",
+      "ssm:DeleteParameter",
+      "ssm:DeleteParameters",
+      "ssm:AddTagsToResource",
+      "ssm:RemoveTagsFromResource",
+      "ssm:LabelParameterVersion"
+    ]
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${var.account_id}:parameter/pdv/*"
+    ]
+  }
+
 }
 
 module "security_group_lambda_client_registration" {
