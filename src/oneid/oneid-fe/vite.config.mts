@@ -10,4 +10,5 @@ export default defineConfig({
     loader: 'tsx',
     include: /\.(ts|tsx|js|mjs)$/,
   },
+  base: import.meta.env.VITE_URL_BASE || '/',
 });
