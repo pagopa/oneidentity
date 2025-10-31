@@ -105,8 +105,8 @@ jobs:
           provenance: false
           push: true
           tags: |
-            ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:latest
+            ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY_IDP }}:${{ github.sha }}
+            ${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY_IDP }}:latest
           file: src/oneid/oneid-ecs-internal-idp/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -132,7 +132,7 @@ jobs:
         with:
           task-definition: ./task-definition.json
           container-name: oneid-internal-idp
-          image: "${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}"
+          image: "${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY_IDP }}:${{ github.sha }}"
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2.2.0
