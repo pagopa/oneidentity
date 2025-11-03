@@ -549,23 +549,28 @@ resource "aws_cloudfront_origin_access_control" "assets_cdn" {
   signing_protocol                  = "sigv4"
 }
 
+data "aws_cloudfront_response_headers_policy" "cors_preflight_managed" {
+  name = "Managed-CORS-With-Preflight"
+}
+
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "assets_cdn_distribution" {
   count = var.deploy_cloudfront ? 1 : 0
   origin {
-    domain_name              = var.cloudfront.bucket_origin_domain_name #aws_s3_bucket.content_bucket.bucket_regional_domain_name
+    domain_name              = var.cloudfront.bucket_origin_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.assets_cdn[0].id
     origin_id                = "S3Origin"
   }
-
+  aliases         = ["assets.${var.domain_name}"]
   enabled         = true
   is_ipv6_enabled = true
 
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3Origin"
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "S3Origin"
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors_preflight_managed.id
 
     forwarded_values {
       query_string = false
