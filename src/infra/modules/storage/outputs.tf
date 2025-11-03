@@ -30,7 +30,9 @@ output "assets_control_panel_bucket_arn" {
 output "assets_control_panel_bucket_name" {
   value = try(module.s3_assets_control_panel_bucket[0].s3_bucket_id, null)
 }
-
+output "assets_bucket_regional_domain_name" {
+  value = try(module.s3_assets_bucket[0].s3_bucket_bucket_regional_domain_name, null)
+}
 output "assets_internal_idp_bucket_arn" {
   value = try(module.s3_internal_idp_assets_bucket[0].s3_bucket_arn, null)
 }
