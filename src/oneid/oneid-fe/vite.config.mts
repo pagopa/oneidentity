@@ -1,14 +1,34 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    extensions: ['.ts', '.js', '.mjs', '.json', '.tsx'],
-  },
-  esbuild: {
-    loader: 'tsx',
-    include: /\.(ts|tsx|js|mjs)$/,
-  },
-  base: import.meta.env.VITE_URL_BASE || '/',
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const cdnURL = env.VITE_CDN_URL;
+
+  return {
+    plugins: [react()],
+    resolve: {
+      extensions: ['.ts', '.js', '.mjs', '.json', '.tsx'],
+    },
+    esbuild: {
+      loader: 'tsx',
+      include: /\.(ts|tsx|js|mjs)$/,
+    },
+    /**
+     * https://v4.vitejs.dev/guide/build.html#advanced-base-options
+     */
+    experimental: {
+      renderBuiltUrl(filename: string | URL) {
+        // We only want to prepend the CDN URL during the 'build' command
+        // and only if the VITE_CDN_URL is set.
+        if (command === 'build' && cdnURL) {
+          // hostType can be 'js', 'css', or 'asset'
+          return new URL(filename, cdnURL).href;
+        } else {
+          // Otherwise, (e.g., in 'serve' mode), use relative paths.
+          return { relative: true };
+        }
+      },
+    },
+  };
 });

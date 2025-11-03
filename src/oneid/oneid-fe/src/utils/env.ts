@@ -24,7 +24,7 @@ export const ENV = {
   },
 
   URL_FE: {
-    ASSETS: import.meta.env.VITE_URL_CDN as string,
+    ASSETS: import.meta.env.VITE_CDN_URL as string,
   },
 
   HEADER: {
