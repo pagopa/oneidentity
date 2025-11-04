@@ -15,7 +15,7 @@ export default defineConfig(({ command, mode }) => {
       include: /\.(ts|tsx|js|mjs)$/,
     },
     /**
-     * https://v4.vitejs.dev/guide/build.html#advanced-base-options
+     * https://vite.dev/guide/build.html#advanced-base-options
      */
     experimental: {
       renderBuiltUrl(filename: string | URL) {
