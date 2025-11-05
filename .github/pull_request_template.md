@@ -25,7 +25,10 @@
 
 <!-- Add a changeset to include this PR in the release notes -->
 
-### Changeset
+### Does this PR need a Changeset?
+
+A changeset is a description of changes that should be included in the changelog and release notes. 
+If your PR includes significant changes that must be versioned, run `yarn changeset` from the root of the repo and select `oneidentity` plus any other affected package in order to create a changeset.
 
 - [ ] 🦋 I have added a changeset by running `yarn changeset`
 - [ ] ❌ This PR doesn't require a changeset (e.g., documentation, config changes)
