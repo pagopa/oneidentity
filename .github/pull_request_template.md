@@ -23,6 +23,13 @@
 
 - task/story number
 
+<!-- Add a changeset to include this PR in the release notes -->
+
+### Changeset
+
+- [ ] 🦋 I have added a changeset by running `yarn changeset`
+- [ ] ❌ This PR doesn't require a changeset (e.g., documentation, config changes)
+
 <!-- You can specify how you tested the tasks in the pr -->
 
 ### How Has This Been Tested?
