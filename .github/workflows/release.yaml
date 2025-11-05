@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -11,8 +13,39 @@ permissions:
   pull-requests: write
 
 jobs:
+  check-changeset:
+    name: Check Changeset
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        with:
+          fetch-depth: 0
+        
+      - name: Check for changeset file
+        id: changeset-check
+        run: |
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q '^\.changeset/.*\.md$'; then
+            echo "has_changeset=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changeset=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Manage 'missing changeset' label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "missing changeset" --color "199FD6" --description "missing changeset in the pr" --force 2>/dev/null || true
+          if [ "${{ steps.changeset-check.outputs.has_changeset }}" = "false" ]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "missing changeset"
+          else
+            gh pr edit ${{ github.event.pull_request.number }} --remove-label "missing changeset" || true
+          fi
+
   release:
     name: Release
+    if: github.event_name == 'push'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
