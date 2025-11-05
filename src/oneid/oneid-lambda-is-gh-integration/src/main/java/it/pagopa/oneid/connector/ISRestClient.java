@@ -12,7 +12,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface ISRestClient {
 
   @GET
-  @Path("/{type}/latest")
+  @Path("/{type}/{timestamp}")
   @Produces(MediaType.APPLICATION_XML)
-  String getLatestMetadata(@PathParam("type") String type);
+  String getLatestMetadata(@PathParam("type") String type,
+      @PathParam("timestamp") String timestamp);
 }
