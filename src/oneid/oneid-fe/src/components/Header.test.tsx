@@ -34,6 +34,9 @@ vi.mock('../utils/env', () => ({
     ANALYTICS: {
       ENABLE: false,
     },
+    URL_FE: {
+      ASSETS: 'https://cdn.pagopa.it/oneid-fe',
+    },
   },
 }));
 

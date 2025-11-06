@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.js": "/static/js/main.js",
+    "index.html": "/index.html",
+    "favicon.svg": "/assets/favicon.svg",
+    "favicon-32x32.png": "/assets/favicon-32x32.png",
+    "icons/icon-48x48.png": "/assets/icons/icon-48x48.png",
+    "icons/icon-72x72.png": "/assets/icons/icon-72x72.png",
+    "icons/icon-96x96.png": "/assets/icons/icon-96x96.png",
+    "icons/icon-144x144.png": "/assets/icons/icon-144x144.png",
+    "icons/icon-192x192.png": "/assets/icons/icon-192x192.png",
+    "icons/icon-256x256.png": "/assets/icons/icon-256x256.png",
+    "icons/icon-384x384.png": "/assets/icons/icon-384x384.png",
+    "icons/icon-512x512.png": "/assets/icons/icon-512x512.png"
+  },
+  "entrypoints": [
+    "static/js/main.js"
+  ]
+} 
