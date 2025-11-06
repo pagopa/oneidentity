@@ -41,6 +41,7 @@ module "frontend" {
   domain_admin_name        = module.r53_zones.dns_zone_name
   domain_internal_idp_name = module.r53_zones.dns_zone_name
   domain_auth_name         = module.r53_zones.dns_zone_name
+  domain_assets_name       = module.r53_zones.dns_zone_name
   r53_dns_zone_id          = module.r53_zones.dns_zone_id
   role_prefix              = local.project
 
@@ -107,6 +108,12 @@ module "frontend" {
   cognito_domain_cloudfront_distribution         = module.cognito.cloudfront_distribution
   cognito_domain_cloudfront_distribution_zone_id = module.cognito.cloudfront_distribution_zone_id
 
+  cloudfront = {
+    name                      = format("%s-cloudfront", local.project)
+    bucket_arn                = module.storage.assets_bucket_arn
+    bucket_id                 = module.storage.assets_bucket_name
+    bucket_origin_domain_name = module.storage.assets_bucket_regional_domain_name
+  }
 }
 
 

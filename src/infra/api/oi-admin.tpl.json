@@ -36,6 +36,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -150,6 +151,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -239,6 +241,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -349,6 +352,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -449,6 +453,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -655,6 +660,7 @@
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "httpMethod": "POST",
@@ -900,6 +906,7 @@
           "uri": "${assets_bucket_control_panel_uri}/index.html",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {
             "integration.request.querystring.client_id": "method.request.querystring.client_id",
             "integration.request.querystring.response_type": "method.request.querystring.response_type",
@@ -982,6 +989,7 @@
           "uri": "${assets_bucket_control_panel_uri}/index.html",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {},
           "responseParameters": {},
           "responses": {
@@ -1030,6 +1038,7 @@
           "uri": "${assets_bucket_control_panel_uri}/index.html",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {},
           "responseParameters": {},
           "responses": {
@@ -1114,6 +1123,7 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "cacheKeyParameters": [
             "method.request.path.proxy"
           ]

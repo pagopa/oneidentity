@@ -26,6 +26,16 @@ module "records" {
         ttl                    = var.dns_record_ttl
       }
     },
+    {
+      name = "assets"
+      type = "A"
+      alias = {
+        name                   = aws_cloudfront_distribution.assets_cdn_distribution[0].domain_name
+        zone_id                = aws_cloudfront_distribution.assets_cdn_distribution[0].hosted_zone_id
+        evaluate_target_health = true
+        ttl                    = var.dns_record_ttl
+      }
+    },
     ],
     var.deploy_internal_idp_rest_api ? [
       {
@@ -74,6 +84,28 @@ module "acm" {
 
   tags = {
     Name = var.domain_name
+  }
+}
+
+module "acm_assets" {
+  count   = var.aws_region != "eu-south-1" ? 0 : 1
+  source  = "terraform-aws-modules/acm/aws"
+  version = "5.0.0"
+
+  #domain_name = format("admin.%s", var.domain_admin_name)
+  domain_name = var.domain_assets_name != null ? format("assets.%s", var.domain_assets_name) : null
+
+  zone_id = var.r53_dns_zone_id
+
+  validation_method      = "DNS"
+  create_route53_records = true
+
+  tags = {
+    Name = var.domain_assets_name != null ? format("assets.%s", var.domain_assets_name) : null
+  }
+
+  providers = {
+    aws = aws.us_east_1
   }
 }
 
@@ -504,6 +536,100 @@ module "rest_api_internal_idp" {
   }
 
   api_authorizer = {}
+}
+
+## Cloudfront 
+
+resource "aws_cloudfront_origin_access_control" "assets_cdn" {
+  count                             = var.deploy_cloudfront ? 1 : 0
+  name                              = var.cloudfront.name
+  description                       = "CDN for S3 assets bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+data "aws_cloudfront_response_headers_policy" "cors_preflight_managed" {
+  name = "Managed-CORS-With-Preflight"
+}
+
+# CloudFront Distribution
+resource "aws_cloudfront_distribution" "assets_cdn_distribution" {
+  count = var.deploy_cloudfront ? 1 : 0
+  origin {
+    domain_name              = var.cloudfront.bucket_origin_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.assets_cdn[0].id
+    origin_id                = "S3Origin"
+  }
+  aliases         = ["assets.${var.domain_name}"]
+  enabled         = true
+  is_ipv6_enabled = true
+
+
+  default_cache_behavior {
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "S3Origin"
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors_preflight_managed.id
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  price_class = "PriceClass_100"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    #cloudfront_default_certificate = true  # Use this for *.cloudfront.net domain
+    # For custom domain, use ACM certificate and modify as needed
+    acm_certificate_arn      = module.acm_assets[0].acm_certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+  }
+
+  # Enable WAF if needed
+  # web_acl_id = aws_waf_web_acl.example_waf.id
+  depends_on = [module.acm_assets]
+}
+
+# S3 Bucket Policy
+resource "aws_s3_bucket_policy" "content_bucket_policy" {
+  count  = var.deploy_cloudfront ? 1 : 0
+  bucket = var.cloudfront.bucket_id #aws_s3_bucket.content_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${var.cloudfront.bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.assets_cdn_distribution[0].arn
+          }
+        }
+      }
+    ]
+  })
 }
 
 

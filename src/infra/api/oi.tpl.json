@@ -35,6 +35,7 @@
           "type": "mock",
           "requestParameters": {},
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "contentHandling": "CONVERT_TO_TEXT",
           "responses": {
             "302": {
@@ -78,6 +79,7 @@
           "connectionId": "${connection_id}",
           "requestParameters": {},
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 5000,
           "responses": {
             "200": {
               "statusCode": "200",
@@ -187,6 +189,7 @@
             "integration.request.querystring.state": "method.request.querystring.state"
           },
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 10000,
           "responseParameters": {},
           "type": "aws",
           "responses": {
@@ -195,7 +198,7 @@
               "responseParameters": {
                 "method.response.header.content-type": "integration.response.header.Content-Type",
                 "method.response.header.location": "integration.response.header.location",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self' https://*.oneid.pagopa.it ; script-src 'self' https://*.oneid.pagopa.it; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.oneid.pagopa.it; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -237,6 +240,7 @@
           "uri": "${assets_bucket_uri}/index.html",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {
             "integration.request.querystring.errorCode": "method.request.querystring.errorCode"
           },
@@ -246,7 +250,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self' https://*.oneid.pagopa.it ; script-src 'self' https://*.oneid.pagopa.it; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.oneid.pagopa.it; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -276,6 +280,7 @@
           "httpMethod": "POST",
           "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${retrieve_status_lambda_arn}/invocations",
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 5000,
           "contentHandling": "CONVERT_TO_TEXT",
           "type": "aws_proxy",
           "responses": {
@@ -450,6 +455,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
@@ -567,6 +573,7 @@
             "integration.request.querystring.access_token": "method.request.querystring.access_token"
           },
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "responses": {
             "200": {
               "statusCode": "200",
@@ -657,6 +664,7 @@
           "uri": "${assets_bucket_uri}/{id_type}.xml",
           "type": "aws",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
           "requestParameters": {
             "integration.request.path.id_type": "method.request.path.id_type"
           },
@@ -794,6 +802,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
             "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For",
@@ -1065,6 +1074,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 20000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
             "integration.request.header.authorization": "method.request.header.authorization"
@@ -1192,6 +1202,7 @@
             "integration.request.header.Origin": "method.request.header.Origin"
           },
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
           "responses": {
             "200": {
               "statusCode": "200",
@@ -1363,6 +1374,7 @@
             "integration.request.header.Origin": "method.request.header.Origin"
           },
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
           "responses": {
             "204": {
               "statusCode": "204",
@@ -1482,6 +1494,7 @@
           "uri": "${uri}/idps",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
+          "timeoutInMillis" : 5000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
@@ -1523,6 +1536,7 @@
           "uri": "${uri}/clients/{client_id}",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
+          "timeoutInMillis" : 5000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
             "integration.request.path.client_id": "method.request.path.client_id"
@@ -1583,6 +1597,7 @@
           "uri": "${uri}/clients",
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
+          "timeoutInMillis" : 5000,
           "responses": {
             "200": {
               "statusCode": "200",
@@ -1657,7 +1672,7 @@
               "statusCode": "200",
               "responseParameters": {
                 "method.response.header.Content-Type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
+                "method.response.header.Content-Security-Policy": "'default-src 'self' https://*.oneid.pagopa.it ; script-src 'self' https://*.oneid.pagopa.it; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.oneid.pagopa.it; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
               }
             },
             "404": {
@@ -1669,112 +1684,10 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 5000,
           "cacheKeyParameters": [
             "method.request.path.proxy"
           ]
-        }
-      }
-    },
-    "/assets/{proxy+}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "proxy",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "headers": {
-              "Content-Type": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Length": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Content-Security-Policy": {
-                "type": "string"
-              }
-            },
-            "content": {}
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
-        },
-        "x-amazon-apigateway-integration": {
-          "type": "aws",
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_uri}/assets/{proxy}",
-          "responses": {
-            "default": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.Content-Type": "integration.response.header.Content-Type",
-                "method.response.header.Content-Security-Policy": "'default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.pagopa.it; frame-ancestors 'none';'"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          },
-          "requestParameters": {
-            "integration.request.path.proxy": "method.request.path.proxy"
-          },
-          "passthroughBehavior": "when_no_match",
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ]
-        }
-      }
-    },
-    "/asset-manifest.json": {
-      "get": {
-        "tags": [
-          "asset-manifest.json static file"
-        ],
-        "description": "This route will serve the asset-manifest.json file",
-        "parameters": [],
-        "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
-          "httpMethod": "GET",
-          "uri": "${assets_bucket_uri}/asset-manifest.json",
-          "requestParameters": {},
-          "passthroughBehavior": "when_no_match",
-          "responseParameters": {},
-          "type": "aws",
-          "responses": {
-            "200": {
-              "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type",
-                "method.response.header.location": "integration.response.header.location"
-              }
-            },
-            "404": {
-              "statusCode": "404",
-              "responseParameters": {}
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/responseOkHtml"
-          },
-          "404": {
-            "$ref": "#/components/responses/notFound"
-          }
         }
       }
     }

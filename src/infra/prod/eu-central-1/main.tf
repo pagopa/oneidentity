@@ -480,10 +480,12 @@ module "frontend" {
     sns_topic_arn              = module.sns.sns_topic_arn
   }
   domain_admin_name           = "admin"
+  domain_assets_name          = "assets"
   api_gateway_admin_plan      = null
   rest_api_admin_name         = null
   openapi_admin_template_file = null
   client_manager_lambda_arn   = null
+  deploy_cloudfront           = false
 
 }
 

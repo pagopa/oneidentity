@@ -31,6 +31,12 @@ variable "domain_internal_idp_name" {
   default     = null
 }
 
+variable "domain_assets_name" {
+  type        = string
+  description = "DNS assets domain name."
+  default     = null
+}
+
 variable "cognito_domain_cloudfront_distribution" {
   type    = string
   default = null
@@ -215,6 +221,23 @@ variable "web_acl" {
     sns_topic_arn              = optional(string, "")
   })
   description = "WEB acl name"
+}
+
+## Cloudfront
+
+variable "cloudfront" {
+  type = object({
+    name                      = string,
+    bucket_origin_domain_name = string,
+    bucket_id                 = string,
+    bucket_arn                = string
+  })
+  default = null
+}
+
+variable "deploy_cloudfront" {
+  type    = bool
+  default = true
 }
 
 ## Network loadbalancer.
