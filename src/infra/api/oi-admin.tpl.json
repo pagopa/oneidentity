@@ -369,7 +369,7 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
-    "/oidc/register/plan_list": {
+    "/oidc/register/plan-list": {
       "get": {
         "tags": [
           "Authorization Server APIs"

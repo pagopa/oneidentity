@@ -202,7 +202,7 @@ public class ClientRegistrationController {
   }
 
   @GET
-  @Path("/register/plan_list")
+  @Path("/register/plan-list")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response getPaidList() {

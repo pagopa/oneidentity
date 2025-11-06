@@ -779,7 +779,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .when()
-        .get("/register/plan_list")
+        .get("/register/plan-list")
         .then()
         .statusCode(200)
         .body("api_keys", org.hamcrest.Matchers.hasSize(2))
@@ -803,7 +803,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .when()
-        .get("/register/plan_list")
+        .get("/register/plan-list")
         .then()
         .statusCode(404);
   }
@@ -816,7 +816,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .when()
-        .get("/register/plan_list")
+        .get("/register/plan-list")
         .then()
         .statusCode(502);
   }
