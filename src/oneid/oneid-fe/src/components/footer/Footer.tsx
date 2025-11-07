@@ -181,7 +181,7 @@ export default function Footer({
       links: [
         {
           label: t('common.footer.preLoginLinks.accessibility'),
-          href: ENV.FOOTER.LINK.ACCESSIBILITY,
+          href: clientQuery.data?.a11yUri || ENV.FOOTER.LINK.ACCESSIBILITY,
           ariaLabel: 'Vai al link: Accessibilità',
           linkType: 'internal',
         },
