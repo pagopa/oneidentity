@@ -831,7 +831,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .body(PDVValidateApiKeyDTO.builder().apiKeyId("id").apiKeyValue("apiKey").build())
-        .when().post("/register/validate_api_key")
+        .when().post("/register/validate-api-key")
         .then().statusCode(200)
         .body("valid", org.hamcrest.Matchers.is(true));
   }
@@ -855,7 +855,7 @@ class ClientRegistrationControllerTest {
         .contentType("application/json")
         .body(request)
         .when()
-        .post("/register/validate_api_key")
+        .post("/register/validate-api-key")
         .then()
         .statusCode(404);
   }
@@ -868,7 +868,7 @@ class ClientRegistrationControllerTest {
         .contentType("application/json")
         .body(malformedJson)
         .when()
-        .post("/register/validate_api_key")
+        .post("/register/validate-api-key")
         .then()
         .statusCode(400);
   }
@@ -881,7 +881,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .body(PDVValidateApiKeyDTO.builder().apiKeyId("id").apiKeyValue("apiKey").build())
-        .when().post("/register/validate_api_key")
+        .when().post("/register/validate-api-key")
         .then().statusCode(502);
   }
 }

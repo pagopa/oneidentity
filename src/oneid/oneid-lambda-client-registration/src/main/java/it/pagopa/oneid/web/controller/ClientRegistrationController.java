@@ -219,7 +219,7 @@ public class ClientRegistrationController {
   }
 
   @POST
-  @Path("/register/validate_api_key")
+  @Path("/register/validate-api-key")
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response validatePDVApiKey(

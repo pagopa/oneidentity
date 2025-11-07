@@ -464,13 +464,13 @@
         "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
       }
     },
-    "/oidc/register/validate_api_key": {
+    "/oidc/register/validate-api-key": {
       "post": {
         "tags": [
           "Authorization Server APIs"
         ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
-        "operationId": "Validate_api_key",
+        "operationId": "Validate-api-key",
         "requestBody": {
           "required": true,
           "content": {
