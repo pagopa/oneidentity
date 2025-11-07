@@ -28,7 +28,7 @@ jobs:
          --service-namespace ecs \
          --scalable-dimension ecs:service:DesiredCount \
          --resource-id service/$ECS_CLUSTER_NAME/$ECS_SERVICE_NAME \
-         --min-capacity 3 \
+         --min-capacity 40 --max-capacity 80 \
          --region eu-central-1
 
 
@@ -38,7 +38,7 @@ jobs:
          aws ecs update-service \
          --cluster $ECS_CLUSTER_NAME \
          --service $ECS_SERVICE_NAME \
-         --desired-count 3 \
+         --desired-count 40 \
          --region eu-central-1
 
       - name: Wait for ECS Service to stabilize
