@@ -66,10 +66,11 @@ variable "fargate_capacity_providers" {
 
 variable "service_core" {
   type = object({
-    service_name           = string
-    cpu                    = number
-    memory                 = number
-    enable_execute_command = optional(bool, true)
+    service_name                = string
+    cpu                         = number
+    memory                      = number
+    enable_execute_command      = optional(bool, true)
+    cpu_high_scaling_adjustment = number
     container = object({
       name                = string
       cpu                 = number

@@ -195,10 +195,10 @@ module "backend" {
   vpc_cidr_block  = module.network.vpc_cidr_block
 
   service_core = {
-    service_name = format("%s-core", local.project)
-
-    cpu    = var.ecs_oneid_core.cpu
-    memory = var.ecs_oneid_core.memory
+    service_name                = format("%s-core", local.project)
+    cpu                         = var.ecs_oneid_core.cpu
+    memory                      = var.ecs_oneid_core.memory
+    cpu_high_scaling_adjustment = 2
 
     container = {
       name                = "oneid-core"

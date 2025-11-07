@@ -115,9 +115,9 @@ variable "ecs_oneid_core" {
     container_memory = 4096
     autoscaling = {
       enable        = true
-      desired_count = 40
-      min_capacity  = 40
-      max_capacity  = 80
+      desired_count = 1
+      min_capacity  = 1
+      max_capacity  = 12
     }
     logs_retention_days = 30
   }
@@ -423,8 +423,8 @@ variable "ecs_alarms" {
       namespace           = "AWS/ECS"
       evaluation_periods  = 3
       comparison_operator = "LessThanOrEqualToThreshold"
-      threshold           = 20
-      period              = 900
+      threshold           = 5
+      period              = 300
       statistic           = "Average"
       scaling_policy      = "cpu_low"
     },

@@ -490,8 +490,8 @@ variable "ecs_alarms" {
       namespace           = "AWS/ECS"
       evaluation_periods  = 3
       comparison_operator = "LessThanOrEqualToThreshold"
-      threshold           = 20
-      period              = 900
+      threshold           = 5
+      period              = 300
       statistic           = "Average"
       scaling_policy      = "cpu_low"
     },
