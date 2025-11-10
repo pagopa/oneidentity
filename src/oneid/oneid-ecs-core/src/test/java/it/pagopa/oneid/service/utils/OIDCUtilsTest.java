@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
-import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;

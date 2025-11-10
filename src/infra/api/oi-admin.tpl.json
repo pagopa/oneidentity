@@ -33,6 +33,26 @@
         ],
         "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It enables a client to dynamically register itself as an OAuth 2.0 client.",
         "operationId": "Post_oidc_register",
+        "parameters":[
+          {
+            "name": "PDV-X-Api-Key",
+            "in": "header",
+            "description": "PDV API key used for plan validation when pairwise = true",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PDV-Plan-Name",
+            "in": "header",
+            "description": "PDV plan name associated with the PDV API key when pairwise = true",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "x-amazon-apigateway-integration": {
           "credentials": "${lambda_apigateway_proxy_role}",
           "passthroughBehavior": "when_no_match",
@@ -69,7 +89,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -146,6 +166,24 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "PDV-X-Api-Key",
+            "in": "header",
+            "description": "PDV API key used for plan validation when pairwise = true",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PDV-Plan-Name",
+            "in": "header",
+            "description": "PDV plan name associated with the PDV API key when pairwise = true",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -180,7 +218,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -270,7 +308,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -321,6 +359,201 @@
           },
           "500": {
             "$ref": "#/components/responses/serverError"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ],
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+      }
+    },
+    "/oidc/register/plan-list": {
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
+        "operationId": "Get_pdv_plan_list",
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "204": { 
+              "statusCode": "204"
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "429",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            },
+            "502": {
+              "statusCode": "502",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response including details about the client registration. Additional details may also be included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PDVApiKeys"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          },
+          "502": {
+            "$ref": "#/components/responses/badGateway"
+          }
+        },
+        "security": [
+          {
+            "${authorizer}": []
+          }
+        ],
+        "summary": "OpenID Connect Dynamic Registration Configuration endpoint"
+      }
+    },
+    "/oidc/register/validate-api-key": {
+      "post": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "description": "This endpoint follows the specification defined at http://openid.net/specs/openid-connect-registration-1_0.html. It implements the 'registration_client_uri'.",
+        "operationId": "Validate-api-key",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PDVValidateApiKey" }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "credentials": "${lambda_apigateway_proxy_role}",
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "uri": "arn:aws:apigateway:${aws_region}:lambda:path/2015-03-31/functions/${client_registration_lambda_arn}/invocations",
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "'application/json'"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "404": {
+              "statusCode": "404",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "429": {
+              "statusCode": "429",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            },
+            "502": {
+              "statusCode": "502",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response including details about the client registration. Additional details may also be included",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PDVValidation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFound"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          },
+          "502": {
+            "$ref": "#/components/responses/badGateway"
           }
         },
         "security": [
@@ -385,7 +618,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -486,7 +719,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -599,7 +832,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -693,7 +926,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -794,7 +1027,7 @@
               "responseParameters": {}
             },
             "429": {
-              "statusCode": "405",
+              "statusCode": "429",
               "responseParameters": {}
             },
             "500": {
@@ -1499,6 +1732,31 @@
             "type": "string"
           }
         }
+      },
+      "badGateway": {
+        "description": "bad gateway error",
+        "headers": {
+          "Pragma": {
+            "description": "Pragma browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-cache"
+            }
+          },
+          "Cache-Control": {
+            "description": "Cache-Control browser directive",
+            "schema": {
+              "type": "string",
+              "default": "no-store"
+            }
+          }
+        },
+        "content-type": {
+          "description": "Content type response.",
+          "schema": {
+            "type": "string"
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -2003,6 +2261,61 @@
               }
             }
           }
+        }
+      },
+      "PDVApiKeys": {
+        "type": "object",
+        "properties": {
+          "api_keys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PDVPlan"
+            },
+            "description": "List of available PDV API key plans."
+          }
+        }
+      },
+      "PDVPlan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "PDV api key."
+          },
+          "name": {
+            "type": "string",
+            "description": "PDV plan name."
+          }
+        },
+        "required": ["id", "name"]
+      },
+      "PDVValidation": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "description": "Indicates whether the provided PDV API key and plan are valid.",
+            "example": true
+          }
+        },
+        "required": ["valid"]
+      },
+      "PDVValidateApiKey": {
+        "type": "object",
+        "properties": {
+          "api_key_id": {
+            "type": "string",
+            "description": "Identifier of the PDV API key."
+          },
+          "api_key_value": {
+            "type": "string",
+            "description": "Secret value of the PDV API key."
+          }
+        },
+        "required": ["api_key_id", "api_key_value"],
+        "example": {
+          "api_key_id": "my-api-key-id",
+          "api_key_value": "super-secret-key"
         }
       }
     }

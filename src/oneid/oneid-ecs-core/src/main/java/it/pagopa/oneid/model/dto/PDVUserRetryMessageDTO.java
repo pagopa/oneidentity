@@ -2,6 +2,7 @@ package it.pagopa.oneid.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.pagopa.oneid.common.model.dto.SavePDVUserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

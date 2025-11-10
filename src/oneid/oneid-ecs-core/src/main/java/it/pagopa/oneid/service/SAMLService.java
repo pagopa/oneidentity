@@ -3,7 +3,7 @@ package it.pagopa.oneid.service;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
-import it.pagopa.oneid.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

@@ -4,6 +4,9 @@ import static it.pagopa.oneid.service.utils.ClientUtils.getUseridFromBearer;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
+import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
+import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.EnvironmentMapping;
@@ -54,7 +57,9 @@ public class ClientRegistrationController {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response register(
       @Valid @ConvertGroup(to = Registration.class) ClientRegistrationDTO clientRegistrationDTOInput,
-      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
+      @HeaderParam("PDV-Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -62,12 +67,13 @@ public class ClientRegistrationController {
     Log.info("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
-    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput);
+    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
+        planName);
     Log.info("client info validated successfully");
 
     //3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
-        clientRegistrationDTOInput, userId);
+        clientRegistrationDTOInput, userId, pdvApiKey, planName);
     Log.info(
         "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
@@ -132,7 +138,9 @@ public class ClientRegistrationController {
   public Response updateClient(
       @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId,
-      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
+      @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
+      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
+      @HeaderParam("PDV-Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -141,7 +149,7 @@ public class ClientRegistrationController {
 
     //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(
-        clientRegistrationDTOInput);
+        clientRegistrationDTOInput, pdvApiKey, planName);
     Log.info("client info validated successfully");
 
     //2. Retrieves client from db
@@ -153,7 +161,7 @@ public class ClientRegistrationController {
 
     //5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
-        clientExtended);
+        clientExtended, pdvApiKey, planName);
     Log.info("client updated successfully for clientId: " + clientId);
 
     //6a. Prepare message for sns notification
@@ -192,6 +200,40 @@ public class ClientRegistrationController {
 
     return Response.noContent().build();
   }
+
+  @GET
+  @Path("/register/plan-list")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getPaidList() {
+    Log.info("start");
+    PDVApiKeysDTO dto = clientRegistrationService.getPDVPlanList();
+    if (dto.getApiKeys() == null || dto.getApiKeys().isEmpty()) {
+      // 204 empty response
+      return Response.noContent().build();
+    }
+    Log.info("end");
+    // 200 no empty response
+    return Response.ok(dto).build();
+
+  }
+
+  @POST
+  @Path("/register/validate-api-key")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response validatePDVApiKey(
+      @Valid PDVValidateApiKeyDTO validateApiKeyDTO) {
+    Log.info("start");
+
+    //1. Verify if api key are valid
+    PDVValidationResponseDTO validateResponse = clientRegistrationService.validatePDVApiKey(
+        validateApiKeyDTO);
+    Log.info("end");
+
+    return Response.ok(validateResponse).build();
+  }
+
 
   @POST
   @Path("/clients/{client_id}/secret/refresh")

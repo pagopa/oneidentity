@@ -167,6 +167,7 @@
 | <a name="input_number_of_images_to_keep"></a> [number\_of\_images\_to\_keep](#input\_number\_of\_images\_to\_keep) | Number of images to keeps in ECR. | `number` | `10` | no |
 | <a name="input_pairwise_enabled"></a> [pairwise\_enabled](#input\_pairwise\_enabled) | Enable PDV pairwise feature | `bool` | `true` | no |
 | <a name="input_pdv_base_url"></a> [pdv\_base\_url](#input\_pdv\_base\_url) | PDV base URL | `string` | `"https://z0mfw5a170.execute-api.eu-south-1.amazonaws.com/private-v1"` | no |
+| <a name="input_pdv_plan_url"></a> [pdv\_plan\_url](#input\_pdv\_plan\_url) | PDV plan URL | `string` | `"https://urgromna57.execute-api.eu-south-1.amazonaws.com/private-v1"` | no |
 | <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br/>    name    = string<br/>    comment = string<br/>  })</pre> | <pre>{<br/>  "comment": "Oneidentity prod hosted zone.",<br/>  "name": "oneid.pagopa.it"<br/>}</pre> | no |
 | <a name="input_registry_enabled"></a> [registry\_enabled](#input\_registry\_enabled) | Enable PDV registry feature | `bool` | `false` | no |
 | <a name="input_repository_image_tag_mutability"></a> [repository\_image\_tag\_mutability](#input\_repository\_image\_tag\_mutability) | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE | `string` | `"MUTABLE"` | no |

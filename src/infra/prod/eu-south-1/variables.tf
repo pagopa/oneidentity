@@ -756,3 +756,9 @@ variable "pdv_base_url" {
   default     = "https://z0mfw5a170.execute-api.eu-south-1.amazonaws.com/private-v1"
   description = "PDV base URL"
 }
+
+variable "pdv_plan_url" {
+  type        = string
+  default     = "https://urgromna57.execute-api.eu-south-1.amazonaws.com/private-v1"
+  description = "PDV plan URL"
+}
