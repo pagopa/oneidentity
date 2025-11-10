@@ -16,8 +16,8 @@ public class ISServiceImpl implements ISService {
 
 
   @Override
-  public String getLatestIdpMetadata(String type) {
-    return isRestClient.getLatestMetadata(type);
+  public String getLatestIdpMetadata(String type, String timestamp) {
+    return isRestClient.getLatestMetadata(type, timestamp);
   }
 
 }
