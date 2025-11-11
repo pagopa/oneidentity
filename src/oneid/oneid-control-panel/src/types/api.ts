@@ -145,9 +145,28 @@ export const clientSchema = z.object({
     .nullish(),
 });
 
+export const planSchema = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+});
+
+export const planListSchema = z.object({
+  api_keys: z.array(planSchema),
+});
+
+export const validatePlanSchema = z.object({
+  apiKeyId: z.string().trim().min(1),
+  apiKeyValue: z.string().trim().min(1),
+});
+
+export const validApiKeySchema = z.object({
+  valid: z.boolean(),
+});
+
 export const idpUserCreateOrUpdateResponseSchema = z.object({
   message: z.string(),
 });
+
 export const idpUserSchema = z.object({
   username: z.string().trim().min(1),
   password: z.string().trim().min(1),
@@ -163,11 +182,17 @@ export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
 export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
+export type ValidatePlanErrors = z.inferFormattedError<typeof validatePlanSchema>;
 export type IdpUser = z.infer<typeof idpUserSchema>;
 export type IdpUserList = z.infer<typeof idpUserListSchema>;
 export type IdpUserCreateOrUpdateResponse = z.infer<
   typeof idpUserCreateOrUpdateResponseSchema
 >;
+export type PlanListSchema = z.infer<typeof planListSchema>;
+export type ValidateApiKeySchema = z.infer<typeof validApiKeySchema>;
+export type ValidatePlanSchema = z.infer<typeof validatePlanSchema>;
+export type PlanErrors = z.inferFormattedError<typeof planListSchema>;
+export type ValidateError = z.inferFormattedError<typeof validApiKeySchema>;
 
 export type ClientRegisteredData = Pick<
   Client,
