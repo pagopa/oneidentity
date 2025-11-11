@@ -87,7 +87,7 @@ variable "r53_dns_zone" {
 variable "ecs_enable_container_insights" {
   type        = bool
   description = "Enable ecs cluster container insight."
-  default     = false
+  default     = true
 }
 
 variable "ecs_oneid_core" {
