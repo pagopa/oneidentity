@@ -22,12 +22,17 @@ import {
   DialogContentText,
   DialogActions,
   Link,
+  Divider,
 } from '@mui/material';
 import {
   SpidLevel,
   SamlAttribute,
   ClientErrors,
   ClientWithoutSensitiveData,
+  ValidatePlanSchema,
+  ValidateApiKeySchema,
+  ValidateError,
+  PlanErrors,
 } from '../../types/api';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
@@ -49,6 +54,12 @@ import { tooltipLinkSx } from '../../utils/styles';
 export const Dashboard = () => {
   const [formData, setFormData] =
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
+  const [pairWiseData, setPairWiseData] = useState<Partial<ValidatePlanSchema>>(
+    {
+      apiKeyId: '',
+      apiKeyValue: '',
+    }
+  );
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
   const [notify, setNotify] = useState<Notify>({ open: false });
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -65,12 +76,25 @@ export const Dashboard = () => {
       error: fetchError,
       isSuccess: isUpdatePhase,
     },
+    planQuery: {
+      data: planList,
+      isLoading: isLoadingPlanList,
+      error: planListError,
+      isSuccess: planListSuccess,
+    },
     createOrUpdateClientMutation: {
       data: clientUpdated,
       mutate: createOrUpdateClient,
       error: updateError,
       isPending: isUpdating,
       isSuccess: isUpdated,
+    },
+    validatePlanKeyMutation: {
+      data: validationResult,
+      mutate: validatePlanKey,
+      error: validateError,
+      isPending: isValidating,
+      isSuccess: isValidated,
     },
   } = useRegister();
 
@@ -125,6 +149,40 @@ export const Dashboard = () => {
         openModal('secretViewer');
       }
     }
+    if (isValidated) {
+      if (validationResult?.valid) {
+        setErrorUi(null);
+        setNotify({
+          open: true,
+          message: 'PairWise key validated successfully',
+          severity: 'success',
+        });
+      } else {
+        setErrorUi(null);
+        setNotify({
+          open: true,
+          message: 'PairWise key validation failed',
+          severity: 'error',
+        });
+      }
+    }
+    if (validateError) {
+      console.error('Error validatig api key:', validateError);
+      setErrorUi(validateError as unknown as ValidateError);
+      setNotify({
+        open: true,
+        message: 'PairWise error validating api key',
+        severity: 'error',
+      });
+    }
+    if (planListError) {
+      setErrorUi(planListError as unknown as PlanErrors);
+      setNotify({
+        open: true,
+        message: 'PairWise error retrieving plan list',
+        severity: 'error',
+      });
+    }
   }, [
     updateError,
     isUpdated,
@@ -133,6 +191,9 @@ export const Dashboard = () => {
     openModal,
     isCreating,
     setClientId,
+    validateError,
+    isValidated,
+    planListError,
   ]);
 
   const isFormValid = () => {
@@ -162,6 +223,7 @@ export const Dashboard = () => {
       createOrUpdateClient({
         data: formData as ClientWithoutSensitiveData,
         clientId: clientId,
+        pairWiseData: pairWiseData as ValidatePlanSchema,
       });
     }
   };
@@ -209,13 +271,24 @@ export const Dashboard = () => {
       }));
     };
 
-  if (isLoadingClient) {
+  if (isLoadingClient || isLoadingPlanList) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <CircularProgress />
       </Box>
     );
   }
+
+  const checkEnableSaveUpdateClientPairwiseBased = () => {
+    if (
+      !formData?.pairwise ||
+      validationResult?.valid ||
+      fetchedClientData?.pairwise === true
+    ) {
+      return true;
+    }
+    return false;
+  };
 
   return (
     <PageContainer>
@@ -410,6 +483,122 @@ export const Dashboard = () => {
               />
             </FieldWithInfo>
           </FormGroup>
+
+          <FormGroup sx={{ mt: 2, mb: 1 }}>
+            <Divider sx={{ mb: 3 }} />
+            <FieldWithInfo
+              tooltipText={<span>Pairwise feature description</span>}
+              placement="top"
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    sx={{ mr: 2, ml: 1 }}
+                    name="pairWise"
+                    checked={formData?.pairwise || false}
+                    onChange={handleChange('pairwise')}
+                  />
+                }
+                label="Pairwise Enabled"
+              />
+            </FieldWithInfo>
+          </FormGroup>
+          {formData?.pairwise && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                mt: 2,
+                width: '100%',
+              }}
+            >
+              {planListError && (
+                <Box>
+                  <Alert severity="error">
+                    {planListError instanceof Error
+                      ? planListError.message
+                      : 'An error occurred while retrieving plan list'}
+                  </Alert>
+                </Box>
+              )}
+              {fetchedClientData?.pairwise && (
+                <Box>
+                  <Alert severity="info">
+                    PairWise is already enabled for this client if you want to
+                    change the configuration please disable it and use save
+                    button, then enable it again and set new values.
+                  </Alert>
+                </Box>
+              )}
+              {!fetchedClientData?.pairwise && (
+                <>
+                  <FormControl fullWidth>
+                    <InputLabel id="pairwise-select-label">
+                      Plan Name
+                    </InputLabel>
+                    <Select
+                      labelId="pairwise-select-label"
+                      name="pairwiseOption"
+                      value={pairWiseData?.apiKeyId || ''}
+                      label="Plan Name"
+                      onChange={(e) =>
+                        setPairWiseData((prev) => ({
+                          ...prev,
+                          apiKeyId: e.target.value,
+                        }))
+                      }
+                      renderValue={(selected) => {
+                        const selectedPlan = planList?.api_keys?.find(
+                          (plan) => plan.id === selected
+                        );
+                        return selectedPlan ? selectedPlan.name : '';
+                      }}
+                    >
+                      {planListSuccess &&
+                        planList?.api_keys.map((plan) => (
+                          <MenuItem key={plan.id} value={plan.id}>
+                            {plan.name}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    fullWidth
+                    label="Key value"
+                    name="pairwiseValue"
+                    value={pairWiseData?.apiKeyValue || ''}
+                    onChange={(e) =>
+                      setPairWiseData((prev) => ({
+                        ...prev,
+                        apiKeyValue: e.target.value,
+                      }))
+                    }
+                  />
+
+                  <Button
+                    variant="contained"
+                    disabled={
+                      !pairWiseData?.apiKeyValue || !pairWiseData?.apiKeyId
+                    }
+                    onClick={() =>
+                      validatePlanKey({
+                        data: pairWiseData as ValidatePlanSchema,
+                      })
+                    }
+                  >
+                    {isValidating ? 'Validating…' : 'Validate'}
+                  </Button>
+                </>
+              )}
+              <Notify
+                open={notify.open}
+                message={notify.message}
+                severity={notify.severity}
+                handleOpen={(open) => setNotify({ ...notify, open })}
+              />
+            </Box>
+          )}
         </ContentBox>
 
         <Box>
@@ -419,7 +608,11 @@ export const Dashboard = () => {
             startIcon={clientId ? <SaveIcon /> : <AddIcon />}
             sx={{ mt: 3 }}
             data-testid="submit-button"
-            disabled={isUpdating || !isFormValid()}
+            disabled={
+              !checkEnableSaveUpdateClientPairwiseBased() ||
+              isUpdating ||
+              !isFormValid()
+            }
           >
             {clientId
               ? isUpdating
