@@ -1044,3 +1044,24 @@ resource "aws_iam_role_policy_attachment" "switch_region" {
   role       = aws_iam_role.switch_region_role[0].name
   policy_arn = aws_iam_policy.switch_region_policy[0].arn
 }
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_running" {
+  count               = var.enable_container_insights ? 1 : 0
+  alarm_name          = "ecs-task-running"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "RunningTaskCount"
+  namespace           = "ECS/ContainerInsights"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 1
+  alarm_description   = "This alarm triggers when ECS Task Running is less than 1."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    var.ecs_alarms.sns_topic_alarm_arn
+  ]
+}
