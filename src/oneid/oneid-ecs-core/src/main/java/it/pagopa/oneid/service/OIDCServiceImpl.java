@@ -387,7 +387,7 @@ public class OIDCServiceImpl implements OIDCService {
   @Override
   public void authorizeClient(String clientId, String clientSecret) {
     if (clientsMap.get(clientId) == null) {
-      Log.debug("client not found");
+      Log.error("client not found");
       throw new InvalidClientException("Client ID not valid", clientId);
     }
 
@@ -396,7 +396,7 @@ public class OIDCServiceImpl implements OIDCService {
 
     if (!HASHUtils.validateSecret(secretDTO.getSalt(), clientSecret,
         secretDTO.getSecret())) {
-      Log.debug("client secret not valid");
+      Log.error("client secret not valid");
       throw new InvalidClientException("Client secret not valid", clientId);
     }
   }

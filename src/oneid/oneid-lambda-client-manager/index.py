@@ -169,7 +169,7 @@ def create_idp_internal_user():
     """
     Creates a user in the Internal IDP
     """
-    logger.info("/client-manager/client-users POST route invoked")
+    logger.debug("/client-manager/client-users POST route invoked")
     try:
         # Extract the user_id from the bearer token
         bearer = app.current_event.headers.get("Authorization", "")
@@ -234,7 +234,7 @@ def create_idp_internal_user():
                 },
             },
         )
-        logger.debug("[create_idp_internal_user]: %s", response)
+        logger.info("[create_idp_internal_user]: %s", response)
 
         # Check if the response indicates success
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
@@ -258,7 +258,7 @@ def update_idp_internal_user(username: str):
     """
     Updates a user in the Internal IDP
     """
-    logger.info("/client-manager/client-users PATCH route invoked")
+    logger.debug("/client-manager/client-users PATCH route invoked")
     try:
         # Extract the user_id from the bearer token
         bearer = app.current_event.headers.get("Authorization", "")
@@ -315,7 +315,7 @@ def update_idp_internal_user(username: str):
                 }
             },
         )
-        logger.debug("[update_idp_internal_user]: %s", response)
+        logger.info("[update_idp_internal_user]: %s", response)
 
         # Check if the response indicates success
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
@@ -339,7 +339,7 @@ def delete_idp_internal_user(username: str):
     """
     Deletes a user in the Internal IDP
     """
-    logger.info("/client-manager/client-users DELETE route invoked")
+    logger.debug("/client-manager/client-users DELETE route invoked")
     try:
 
         # Extract the user_id from the bearer token
@@ -364,7 +364,7 @@ def delete_idp_internal_user(username: str):
                 "namespace": {"S": client_id},
             },
         )
-        logger.debug("[delete_idp_internal_user]: %s", response)
+        logger.info("[delete_idp_internal_user]: %s", response)
 
         # Check if the response indicates success
         if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
@@ -384,7 +384,7 @@ def get_idp_internal_users():
     """
     Retrieves all users of a client in the Internal IDP
     """
-    logger.info("/client-manager/client-users GET route invoked")
+    logger.debug("/client-manager/client-users GET route invoked")
     try:
         # Extract the user_id from the bearer token
         bearer = app.current_event.headers.get("Authorization", "")

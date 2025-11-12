@@ -25,7 +25,7 @@ public class SessionServiceImpl implements SessionService {
 
   @Override
   public void saveIDPSession(AuthnRequest authnRequest, Client client) {
-    Log.info("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
+    Log.debug("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
     if (client == null) {
       Log.error("Client not found for AttributeConsumingServiceIndex: "
           + authnRequest.getAttributeConsumingServiceIndex());
@@ -42,7 +42,7 @@ public class SessionServiceImpl implements SessionService {
         .timestampEnd(0)
         .build();
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
-    Log.info("End saveIDPSession for authnRequestId: " + authnRequest.getID());
+    Log.debug("End saveIDPSession for authnRequestId: " + authnRequest.getID());
   }
 
   @Override
