@@ -538,3 +538,8 @@ variable "idp_alarm" {
   })
   default = null
 }
+
+variable "task_ecs_count_enable" {
+  type    = bool
+  default = false
+}
