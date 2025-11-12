@@ -1045,20 +1045,41 @@ resource "aws_iam_role_policy_attachment" "switch_region" {
   policy_arn = aws_iam_policy.switch_region_policy[0].arn
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_task_running" {
+resource "aws_cloudwatch_metric_alarm" "ecs_task_running_core" {
   count               = var.enable_container_insights ? 1 : 0
-  alarm_name          = "ecs-task-running"
+  alarm_name          = "ecs-task-running-core"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
   metric_name         = "RunningTaskCount"
   namespace           = "ECS/ContainerInsights"
   period              = 60
-  statistic           = "Average"
+  statistic           = "Minimum"
   threshold           = 1
   alarm_description   = "This alarm triggers when ECS Task Running is less than 1."
   dimensions = {
     ClusterName = module.ecs_cluster.cluster_name
     ServiceName = module.ecs_core_service.name
+  }
+
+  alarm_actions = [
+    var.sns_topic_arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
+  count               = var.enable_container_insights ? 1 : 0
+  alarm_name          = "ecs-task-running-idp"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "RunningTaskCount"
+  namespace           = "ECS/ContainerInsights"
+  period              = 60
+  statistic           = "Minimum"
+  threshold           = 1
+  alarm_description   = "This alarm triggers when ECS Task Running is less than 1."
+  dimensions = {
+    ClusterName = module.ecs_cluster.cluster_name
+    ServiceName = module.ecs_internal_idp_service.name
   }
 
   alarm_actions = [
