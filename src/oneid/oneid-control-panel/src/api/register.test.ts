@@ -10,7 +10,6 @@ import {
   Client,
   SamlAttribute,
   SpidLevel,
-  validApiKeySchema,
   ValidateApiKeySchema,
   ValidatePlanSchema,
 } from '../types/api';
@@ -18,6 +17,8 @@ import {
 vi.mock('../utils/env', () => ({
   ENV: { URL_API: { REGISTER: 'https://api.example.com/register' } },
 }));
+
+const unexpectedError = 'Unexpected error';
 
 const axiosMock = vi.hoisted(() => ({
   get: vi.fn(),
@@ -217,11 +218,11 @@ describe('createOrUpdateClient', () => {
   });
 
   it('throws a generic error if the API call fails unexpectedly', async () => {
-    const mockError = { isAxiosError: false, message: 'Unexpected error' };
+    const mockError = { isAxiosError: false, message: unexpectedError };
     axiosMock.post.mockRejectedValueOnce(mockError);
 
     await expect(createOrUpdateClient(mockClientData, token)).rejects.toThrow(
-      'Unexpected error'
+      unexpectedError
     );
   });
 });
@@ -342,11 +343,11 @@ describe('validateApiKeyPlan', () => {
   });
 
   it('throws a generic error if the API call fails unexpectedly', async () => {
-    const mockError = { isAxiosError: false, message: 'Unexpected error' };
+    const mockError = { isAxiosError: false, message: unexpectedError };
     axiosMock.post.mockRejectedValueOnce(mockError);
 
     await expect(validateApiKeyPlan(mockValidatePlan, token)).rejects.toThrow(
-      'Unexpected error'
+      unexpectedError
     );
   });
 });

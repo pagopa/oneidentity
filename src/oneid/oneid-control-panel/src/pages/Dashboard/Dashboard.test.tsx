@@ -307,8 +307,10 @@ describe('Dashboard UI', () => {
     fireEvent.click(switchControl);
     expect(switchControl).toBeChecked();
 
-    const infoButton = screen.getByTestId('info-icon');
-    fireEvent.mouseOver(infoButton);
+    const infoButtons = screen.getAllByTestId('info-icon');
+    infoButtons.forEach((button) => {
+      fireEvent.mouseOver(button);
+    });
     expect(
       await screen.findByText(
         /Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time./i
@@ -348,5 +350,80 @@ describe('Dashboard UI', () => {
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', 'https://example.com/help');
     expect(link).toHaveAttribute('target', '_blank');
+  });
+
+  it('enables pairwise, selects plan, types key and calls validate endpoint', async () => {
+    const validateMutate = vi.fn().mockResolvedValue({ data: { valid: true } });
+
+    // mock register hook for this test
+    const mockedHookReturn = {
+      clientQuery: {
+        data: null,
+        isLoading: false,
+        error: null,
+        isSuccess: false,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [{ id: 'plan-id', name: 'plan-name' }] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: validateMutate,
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const hookModule = await import('../../hooks/useRegister');
+
+    // disable any linting for the next line
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const switchElement = await screen.findByLabelText(/Pairwise Enabled/i);
+    fireEvent.click(switchElement);
+
+    const planSelect = await screen.findByLabelText(/Plan Name/i);
+    fireEvent.mouseDown(planSelect);
+
+    const option = await screen.findByText(/plan-name/i);
+    fireEvent.click(option);
+
+    const keyInput = screen.getByLabelText(/Key value/i);
+    fireEvent.change(keyInput, { target: { value: 'plan-key' } });
+
+    const validateButton = screen.getByRole('button', { name: /validate/i });
+    expect(validateButton).not.toBeDisabled();
+    fireEvent.click(validateButton);
+
+    await waitFor(() => {
+      expect(validateMutate).toHaveBeenCalledTimes(1);
+
+      const passed = validateMutate.mock.calls[0][0];
+      const payload = passed?.data ?? passed;
+      expect(payload).toEqual(
+        expect.objectContaining({
+          apiKeyId: 'plan-id',
+          apiKeyValue: 'plan-key',
+        })
+      );
+    });
+
+    spy.mockRestore();
   });
 });
