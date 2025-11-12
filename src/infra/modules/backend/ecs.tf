@@ -1062,6 +1062,6 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running" {
   }
 
   alarm_actions = [
-    var.ecs_alarms.sns_topic_alarm_arn
+    var.sns_topic_arn
   ]
 }
