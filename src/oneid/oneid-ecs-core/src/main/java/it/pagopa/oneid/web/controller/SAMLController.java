@@ -71,7 +71,7 @@ public class SAMLController {
   @Path("/acs")
   @ControllerCustomInterceptor
   public Response samlACS(@BeanParam @Valid SAMLResponseDTO samlResponseDTO) {
-    Log.info("start");
+    Log.debug("start");
 
     // 1a. Get CurrentAuthDTO parameters
 
@@ -163,7 +163,7 @@ public class SAMLController {
     cloudWatchConnectorImpl.sendIDPSuccessMetricData(
         samlSession.getAuthorizationRequestDTOExtended().getIdp());
 
-    Log.info("end");
+    Log.debug("end");
 
     // 5. Redirect to client callback URI
     return jakarta.ws.rs.core.Response.status(302).location(redirectStringResponse).build();
@@ -173,7 +173,7 @@ public class SAMLController {
   @Path("/assertion")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
-    Log.info("start");
+    Log.debug("start");
     String samlResponse = null;
     try {
       samlResponse = accessTokenSessionService.getSAMLResponseByCode(accessToken.getAccessToken());

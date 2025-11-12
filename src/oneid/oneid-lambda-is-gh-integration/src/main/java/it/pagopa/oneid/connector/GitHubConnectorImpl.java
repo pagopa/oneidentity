@@ -59,7 +59,7 @@ public class GitHubConnectorImpl implements GitHubConnector {
           .orElse(null);
     } catch (IOException e) {
       // file does not exist
-      Log.debug("file does not exist, needs to be created");
+      Log.warn("file does not exist, needs to be created");
       return null;
     }
   }

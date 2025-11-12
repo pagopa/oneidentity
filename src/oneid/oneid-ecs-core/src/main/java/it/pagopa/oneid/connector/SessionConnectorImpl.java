@@ -96,7 +96,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         }
       }
       default -> {
-        Log.debug("not valid RecordType");
+        Log.error("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -183,7 +183,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
       }
       default -> {
-        Log.debug("not valid RecordType");
+        Log.error("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -202,11 +202,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
 
         if (samlSession == null) {
-          Log.debug("saml session not found");
+          Log.warn("saml session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(samlSession)) {
-          Log.debug("session successfully found");
+          Log.info("session successfully found");
           return (Optional<T>) Optional.ofNullable(samlSession);
         }
         return Optional.empty();
@@ -230,14 +230,14 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
             OIDCSession oidcSession = collectedItems.getFirst();
             try {
               if (checkSessionValidity(oidcSession)) {
-                Log.debug("session successfully found");
+                Log.info("session successfully found");
                 return Optional.of((T) oidcSession);
               }
             } catch (SessionException e) {
               throw new RuntimeException(e);
             }
           }
-          Log.debug("oidc session not found");
+          Log.warn("oidc session not found");
           return Optional.empty();
         });
       }
@@ -259,17 +259,17 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         try {
           accessTokenSession = collectedItems.getFirst();
         } catch (NoSuchElementException e) {
-          Log.debug("access token session not found");
+          Log.warn("access token session not found");
           return Optional.empty();
         }
         if (checkSessionValidity(accessTokenSession)) {
-          Log.debug("session successfully found");
+          Log.info("session successfully found");
           return (Optional<T>) Optional.ofNullable(accessTokenSession);
         }
         return Optional.empty();
       }
       default -> {
-        Log.debug("not valid RecordType");
+        Log.error("not valid RecordType");
         throw new SessionException();
       }
     }
@@ -290,7 +290,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                   .expression("attribute_not_exists(SAMLResponse)")
                   .build())
               .build());
-      Log.debug("session successfully updated");
+      Log.info("session successfully updated");
 
     } catch (ConditionalCheckFailedException e) {
       Log.error(

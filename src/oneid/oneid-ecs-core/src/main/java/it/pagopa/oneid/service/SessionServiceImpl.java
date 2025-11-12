@@ -20,8 +20,8 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
   @Override
   public void saveSession(T session) throws SessionException {
     if (session != null) {
-      Log.debug("session successfully saved");
       sessionConnectorImpl.saveSessionIfNotExists(session);
+      Log.debug("session successfully saved");
     } else {
       Log.error("session object is null");
       throw new SessionException();
