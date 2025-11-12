@@ -30,7 +30,6 @@ import {
   ClientErrors,
   ClientWithoutSensitiveData,
   ValidatePlanSchema,
-  ValidateApiKeySchema,
   ValidateError,
   PlanErrors,
 } from '../../types/api';
@@ -113,6 +112,8 @@ export const Dashboard = () => {
     }
   }, [isUpdatePhase, fetchedClientData, clientId, setClientId]);
 
+  const validationIsValid = validationResult?.valid;
+
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
@@ -150,7 +151,7 @@ export const Dashboard = () => {
       }
     }
     if (isValidated) {
-      if (validationResult?.valid) {
+      if (validationIsValid) {
         setErrorUi(null);
         setNotify({
           open: true,
@@ -194,6 +195,7 @@ export const Dashboard = () => {
     validateError,
     isValidated,
     planListError,
+    validationIsValid,
   ]);
 
   const isFormValid = () => {
@@ -279,16 +281,10 @@ export const Dashboard = () => {
     );
   }
 
-  const checkEnableSaveUpdateClientPairwiseBased = () => {
-    if (
-      !formData?.pairwise ||
-      validationResult?.valid ||
-      fetchedClientData?.pairwise === true
-    ) {
-      return true;
-    }
-    return false;
-  };
+  const checkEnableSaveUpdateClientPairwiseBased = (): boolean =>
+    !formData?.pairwise ||
+    validationIsValid === true ||
+    fetchedClientData?.pairwise === true;
 
   return (
     <PageContainer>

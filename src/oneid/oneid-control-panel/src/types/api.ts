@@ -182,7 +182,9 @@ export type ClientThemeEntry = z.infer<typeof ThemeSchema>;
 export type ClientLocalizedEntry = z.infer<typeof ThemeLocalizedSchema>;
 export type ClientErrors = z.inferFormattedError<typeof clientSchema>;
 export type UserErrors = z.inferFormattedError<typeof idpUserSchema>;
-export type ValidatePlanErrors = z.inferFormattedError<typeof validatePlanSchema>;
+export type ValidatePlanErrors = z.inferFormattedError<
+  typeof validatePlanSchema
+>;
 export type IdpUser = z.infer<typeof idpUserSchema>;
 export type IdpUserList = z.infer<typeof idpUserListSchema>;
 export type IdpUserCreateOrUpdateResponse = z.infer<

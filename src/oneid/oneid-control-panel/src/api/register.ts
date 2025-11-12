@@ -111,12 +111,13 @@ export const createOrUpdateClient = async (
     }
     const headers: Record<string, string> = {
       Authorization: `Bearer ${token}`,
+      ...(pairWiseData?.apiKeyId && pairWiseData?.apiKeyValue
+        ? {
+            'PDV-X-Api-Key': pairWiseData.apiKeyValue,
+            'PDV-Plan-Name': pairWiseData.apiKeyId,
+          }
+        : {}),
     };
-
-    if (pairWiseData && pairWiseData?.apiKeyId && pairWiseData?.apiKeyValue) {
-      headers['PDV-X-Api-Key'] = pairWiseData.apiKeyValue;
-      headers['PDV-Plan-Name'] = pairWiseData.apiKeyId;
-    }
     // mock:
     // return Promise.resolve({
     //   ...data,
