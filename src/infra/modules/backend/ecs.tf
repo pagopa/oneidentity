@@ -1079,7 +1079,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
   alarm_description   = "This alarm triggers when ECS Task Running is less than 1."
   dimensions = {
     ClusterName = module.ecs_cluster.cluster_name
-    ServiceName = module.ecs_internal_idp_service.name
+    ServiceName = module.ecs_internal_idp_service[0].name
   }
 
   alarm_actions = [
