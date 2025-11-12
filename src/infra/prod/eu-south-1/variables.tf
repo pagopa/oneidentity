@@ -19,7 +19,7 @@ variable "app_name" {
 variable "app_log_level" {
   type        = string
   description = "Log level of application"
-  default     = "DEBUG" //TODO: switch to INFO after stable release
+  default     = "INFO"
 }
 
 variable "app_cloudwatch_custom_metric_namespace" {
