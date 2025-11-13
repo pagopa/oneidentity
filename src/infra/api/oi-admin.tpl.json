@@ -35,7 +35,7 @@
         "operationId": "Post_oidc_register",
         "parameters":[
           {
-            "name": "PDV-X-Api-Key",
+            "name": "Plan-Api-Key",
             "in": "header",
             "description": "PDV API key used for plan validation when pairwise = true",
             "required": false,
@@ -44,7 +44,7 @@
             }
           },
           {
-            "name": "PDV-Plan-Name",
+            "name": "Plan-Name",
             "in": "header",
             "description": "PDV plan name associated with the PDV API key when pairwise = true",
             "required": false,
@@ -168,7 +168,7 @@
             }
           },
           {
-            "name": "PDV-X-Api-Key",
+            "name": "Plan-Api-Key",
             "in": "header",
             "description": "PDV API key used for plan validation when pairwise = true",
             "required": false,
@@ -177,7 +177,7 @@
             }
           },
           {
-            "name": "PDV-Plan-Name",
+            "name": "Plan-Name",
             "in": "header",
             "description": "PDV plan name associated with the PDV API key when pairwise = true",
             "required": false,

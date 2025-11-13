@@ -483,7 +483,23 @@ export const Dashboard = () => {
           <FormGroup sx={{ mt: 2, mb: 1 }}>
             <Divider sx={{ mb: 3 }} />
             <FieldWithInfo
-              tooltipText={<span>Pairwise feature description</span>}
+              tooltipText={
+                <span>
+                  Pairwise pseudonymous is an OIDC object used to replace the
+                  subject identifier. One Identity will leverage on PDV Building
+                  block to calculate or obtain it.
+                  <br />
+                  More info can be found{' '}
+                  <Link
+                    href="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2101936152/OI+-+Integrazione+PDV"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={tooltipLinkSx}
+                  >
+                    here
+                  </Link>
+                </span>
+              }
               placement="top"
             >
               <FormControlLabel

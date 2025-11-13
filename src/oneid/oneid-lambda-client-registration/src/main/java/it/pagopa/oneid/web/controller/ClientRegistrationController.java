@@ -58,8 +58,8 @@ public class ClientRegistrationController {
   public Response register(
       @Valid @ConvertGroup(to = Registration.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
-      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
-      @HeaderParam("PDV-Plan-Name") String planName) {
+      @HeaderParam("Plan-Api-Key") String pdvApiKey,
+      @HeaderParam("Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token
@@ -139,8 +139,8 @@ public class ClientRegistrationController {
       @Valid @ConvertGroup(to = UpdateClient.class) ClientRegistrationDTO clientRegistrationDTOInput,
       @PathParam("client_id") String clientId,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
-      @HeaderParam("PDV-X-Api-Key") String pdvApiKey,
-      @HeaderParam("PDV-Plan-Name") String planName) {
+      @HeaderParam("Plan-Api-Key") String pdvApiKey,
+      @HeaderParam("Plan-Name") String planName) {
     Log.info("start");
 
     //1. Extract userId from bearer token

@@ -113,19 +113,11 @@ export const createOrUpdateClient = async (
       Authorization: `Bearer ${token}`,
       ...(pairWiseData?.apiKeyId && pairWiseData?.apiKeyValue
         ? {
-            'PDV-X-Api-Key': pairWiseData.apiKeyValue,
-            'PDV-Plan-Name': pairWiseData.apiKeyId,
+            'Plan-Api-Key': pairWiseData.apiKeyValue,
+            'Plan-Name': pairWiseData.apiKeyId,
           }
         : {}),
     };
-    // mock:
-    // return Promise.resolve({
-    //   ...data,
-    //   clientId: 'm2XC3qdG0GpSmmwoIY0NMRXiOWNDUmQyA40m7EP56bw',
-    //   clientSecret: 'xxx',
-    //   clientIdIssuedAt: 1234567890,
-    //   clientSecretExpiresAt: 1234567890,
-    // });
 
     // TODO: cloud we use axios middleware to inject auth bearer token ?
     // TODO: and should we use an interceptor for token expired that inform user and maybe make an automatic logout
