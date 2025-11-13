@@ -194,8 +194,8 @@ describe('createOrUpdateClient', () => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'PDV-X-Api-Key': mockValidatePlanSchema.apiKeyValue,
-          'PDV-Plan-Name': mockValidatePlanSchema.apiKeyId,
+          'Plan-Api-Key': mockValidatePlanSchema.apiKeyValue,
+          'Plan-Name': mockValidatePlanSchema.apiKeyId,
         },
       }
     );
