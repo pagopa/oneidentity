@@ -426,7 +426,7 @@ module "ecs_core_service" {
         "adjustment_type" : "ChangeInCapacity"
         "step_adjustment" : [
           {
-            "scaling_adjustment" : 2 # Add 2 tasks
+            "scaling_adjustment" : var.service_core.cpu_high_scaling_adjustment # Add 10 tasks
             metric_interval_lower_bound = 0
           }
         ]
@@ -439,11 +439,11 @@ module "ecs_core_service" {
         "adjustment_type" : "ChangeInCapacity"
         "step_adjustment" : [
           {
-            "scaling_adjustment" : -1 # Add 2 tasks
+            "scaling_adjustment" : -1 # Remove 1 task
             metric_interval_lower_bound = 0
           }
         ]
-        cooldown = 900
+        cooldown = 300
       }
     }
   }
