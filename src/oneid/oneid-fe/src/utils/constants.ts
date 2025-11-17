@@ -4,8 +4,6 @@ export const ROUTE_LOGIN = '/login';
 export const ROUTE_LOGIN_SUCCESS = '/login/success';
 export const ROUTE_LOGIN_ERROR = '/login/error';
 export const ROUTE_LOGOUT = '/logout';
-export const ROUTE_COURTESY_SWITCHTOIO = '/courtesy/switch-to-io';
-export const ROUTE_COURTESY_SERVICE_KO = '/courtesy/service-ko';
 
 export const IDP_PLACEHOLDER_IMG =
   ENV.URL_FE.ASSETS +
