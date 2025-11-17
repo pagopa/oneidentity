@@ -4,10 +4,11 @@ import Footer from './footer/Footer';
 import { PRODUCTS_URL } from '../utils/constants';
 
 type Props = {
+  hidePreFooter?: boolean;
   children: React.ReactNode;
 };
 
-const Layout = ({ children }: Props) => {
+const Layout = ({ children, hidePreFooter = false }: Props) => {
   return (
     <Box
       bgcolor={'#F5F5F5'}
@@ -22,7 +23,7 @@ const Layout = ({ children }: Props) => {
 
       {children}
       <Box mt={10}>
-        <Footer productsJsonUrl={PRODUCTS_URL} />
+        <Footer productsJsonUrl={PRODUCTS_URL} hidePreFooter={hidePreFooter} />
       </Box>
     </Box>
   );
