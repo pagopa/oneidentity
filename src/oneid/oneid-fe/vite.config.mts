@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -13,6 +14,16 @@ export default defineConfig(({ command, mode }) => {
     esbuild: {
       loader: 'tsx',
       include: /\.(ts|tsx|js|mjs)$/,
+    },
+    /* Multi-page app configuration */
+    build: {
+      rollupOptions: {
+        input: {
+          main: resolve(__dirname, 'index.html'),
+          'service-ko': resolve(__dirname, 'service-ko.html'),
+          'switch-to-io': resolve(__dirname, 'switch-to-io.html'),
+        },
+      },
     },
     /**
      * https://vite.dev/guide/build.html#advanced-base-options
