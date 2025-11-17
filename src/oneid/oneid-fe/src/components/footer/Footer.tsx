@@ -12,6 +12,7 @@ import i18n from '../../locale';
 import { useLoginData } from '../../hooks/useLoginData';
 
 type FooterProps = {
+  hidePreFooter?: boolean;
   productsJsonUrl?: string;
   onExit?: (exitAction: () => void) => void;
 };
@@ -27,6 +28,7 @@ declare const window: Window &
 export default function Footer({
   productsJsonUrl,
   onExit = (exitAction) => exitAction(),
+  hidePreFooter = false,
 }: FooterProps) {
   const { clientQuery } = useLoginData();
 
@@ -230,7 +232,7 @@ export default function Footer({
       postLoginLinks={postLoginLinks}
       preLoginLinks={preLoginLinks}
       legalInfo={companyLegalInfo}
-      loggedUser={false}
+      loggedUser={hidePreFooter}
       onExit={onExit}
       languages={LANGUAGES as Languages}
       onLanguageChanged={async (language: LangCode) => {
