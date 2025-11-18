@@ -28,7 +28,7 @@ jobs:
          --service-namespace ecs \
          --scalable-dimension ecs:service:DesiredCount \
          --resource-id service/$ECS_CLUSTER_NAME/$ECS_SERVICE_NAME \
-         --min-capacity 60 --max-capacity 1000 \
+         --min-capacity 40 --max-capacity 1000 \
          --region eu-central-1
 
 
