@@ -20,6 +20,9 @@ export const ENV = {
     LOGIN: import.meta.env.VITE_URL_API_LOGIN as string,
     REGISTER: import.meta.env.VITE_URL_API_REGISTER as string,
     CLIENT_USERS: import.meta.env.VITE_URL_API_CLIENT_USERS as string,
+    PLAN_LIST: import.meta.env.VITE_URL_API_PLAN_LIST_SCHEMA as string,
+    VALIDATE_API_PLAN: import.meta.env
+      .VITE_URL_API_VALIDATE_PLAN_SCHEMA as string,
   },
   OIDC: {
     API: import.meta.env.VITE_COGNITO_API as string,

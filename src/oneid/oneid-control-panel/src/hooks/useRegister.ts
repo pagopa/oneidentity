@@ -1,3 +1,5 @@
+import { PlanListSchema, ValidatePlanSchema } from './../types/api';
+import { getPlanList, validateApiKeyPlan } from './../api/register';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Client, ClientWithoutSensitiveData } from '../types/api';
 import { getClientData, createOrUpdateClient } from '../api/register';
@@ -38,10 +40,10 @@ export const useRegister = () => {
     throw new Error('No token available');
   }
 
-  const queryKey = ['user-client', userId];
-
+  const clientQueryKey = ['user-client', userId];
+  const planQueryKey = ['plan-list', userId];
   const clientQuery = useQuery<Client, Error>({
-    queryKey,
+    queryKey: clientQueryKey,
     queryFn: () => getClientData(token, userId),
     enabled: !!token && !!userId,
     staleTime,
@@ -56,22 +58,47 @@ export const useRegister = () => {
     mutationFn: async ({
       data,
       clientId,
+      pairWiseData,
     }: {
       data: ClientWithoutSensitiveData;
       clientId?: string;
+      pairWiseData?: ValidatePlanSchema;
     }) => {
       return withTimeout(
-        createOrUpdateClient(data, token, clientId),
+        createOrUpdateClient(data, token, clientId, pairWiseData),
         TIMEOUT_DURATION
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: clientQueryKey });
+    },
+  });
+
+  const planQuery = useQuery<PlanListSchema, Error>({
+    queryKey: planQueryKey,
+    queryFn: () => getPlanList(token),
+    enabled: !!token && !!userId,
+    staleTime,
+    retry,
+    throwOnError: false,
+  });
+
+  const validatePlanKeyMutation = useMutation({
+    onError(error) {
+      console.error('Error validating plan api key:', error);
+    },
+    mutationFn: async ({ data }: { data: ValidatePlanSchema }) => {
+      return withTimeout(validateApiKeyPlan(data, token), TIMEOUT_DURATION);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: planQueryKey });
     },
   });
 
   return {
     clientQuery,
     createOrUpdateClientMutation,
+    planQuery,
+    validatePlanKeyMutation,
   };
 };
