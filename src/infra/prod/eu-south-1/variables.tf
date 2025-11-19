@@ -115,8 +115,8 @@ variable "ecs_oneid_core" {
     container_memory = 4096
     autoscaling = {
       enable        = true
-      desired_count = 40
-      min_capacity  = 40
+      desired_count = 10
+      min_capacity  = 10
       max_capacity  = 1000
     }
     logs_retention_days = 30
