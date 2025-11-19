@@ -27,6 +27,7 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
   @Override
   public String handleRequest(SNSEvent event, Context context) {
     //TODO add exceptions handling
+    Log.debug("start");
 
     ObjectMapper objectMapper = new ObjectMapper();
     String snsMessage;
@@ -74,9 +75,11 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
       Log.error("Error parsing s3Key: " + s3Key);
       throw new RuntimeException(e);
     }
+    Log.info("Parsed metadata info. idpType: " + idpType + ", timestamp: " + timestamp);
 
     // 2. Download metadata from IS
     String metadataContent = isServiceImpl.getLatestIdpMetadata(idpType, timestamp);
+    Log.info("Metadata download successful.");
 
     // 3. Interact with GitHub Repository
     String branchName = BRANCH_BASE_NAME + idpType + "-" + timestamp;
@@ -89,7 +92,10 @@ public class ISGHIntegration implements RequestHandler<SNSEvent, String> {
         metadataContent,
         metadataPath,
         idpType);
+    Log.info("Successfully processed and opened PR for " + idpType + "-"
+        + timestamp + ".xml");
 
+    Log.debug("end");
     return snsMessage;
   }
 }

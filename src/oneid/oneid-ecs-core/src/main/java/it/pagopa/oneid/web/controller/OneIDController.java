@@ -34,7 +34,7 @@ public class OneIDController {
   @Path("/.well-known/openid-configuration")
   @Produces(MediaType.APPLICATION_JSON)
   public Response openIDConfig() {
-    Log.info("start");
+    Log.debug("start");
     return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
   }
 
@@ -42,7 +42,7 @@ public class OneIDController {
   @Path("/clients/{client_id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findClientById(@PathParam("client_id") String clientID) {
-    Log.info("start");
+    Log.debug("start");
     Optional<ClientFE> clientFE = clientServiceImpl.getClientInformation(clientID);
     return clientFE.isEmpty() ?
         Response.status(404).build() :
@@ -53,7 +53,7 @@ public class OneIDController {
   @Path("/clients")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAllClients() {
-    Log.info("start");
+    Log.debug("start");
     Optional<ArrayList<ClientFE>> clients = clientServiceImpl.getAllClientsInformation();
     return clients.isEmpty() ?
         Response.status(404).build() :
@@ -64,7 +64,7 @@ public class OneIDController {
   @Path("/idps")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAllIdp() {
-    Log.info("start");
+    Log.debug("start");
     Optional<ArrayList<IDP>> idps = idpServiceImpl.findAllIdpByTimestamp();
     return idps.isEmpty() ?
         Response.status(404).build() :

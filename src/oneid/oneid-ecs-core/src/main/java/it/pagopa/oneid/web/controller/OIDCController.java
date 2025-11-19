@@ -109,7 +109,7 @@ public class OIDCController {
   @Path("/keys")
   @Produces(MediaType.APPLICATION_JSON)
   public Response keys() {
-    Log.info("start");
+    Log.debug("start");
     return Response.ok(oidcServiceImpl.getJWKSPublicKey()).build();
   }
 
@@ -118,7 +118,7 @@ public class OIDCController {
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizePost(
       @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
-    Log.info("start");
+    Log.debug("start");
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedPost));
     } catch (OneIdentityException e) {
@@ -131,7 +131,7 @@ public class OIDCController {
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizeGet(
       @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
-    Log.info("start");
+    Log.debug("start");
     try {
       return handleAuthorize(getObject(authorizationRequestDTOExtendedGet));
     } catch (OneIdentityException e) {
@@ -141,7 +141,7 @@ public class OIDCController {
 
   private Response handleAuthorize(
       AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
-    Log.info("start");
+    Log.debug("start");
     Optional<IDP> idp;
 
     // 1. Check if clientId exists
@@ -241,7 +241,7 @@ public class OIDCController {
   @ControllerCustomInterceptor
   public TokenDataDTO token(@BeanParam @Valid TokenRequestDTOExtended tokenRequestDTOExtended)
       throws OneIdentityException {
-    Log.info("start");
+    Log.debug("start");
 
     // 1. Get CurrentAuthDTO parameters
     SAMLSession session = currentAuthDTO.getSamlSession();

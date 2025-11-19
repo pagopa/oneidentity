@@ -3,6 +3,7 @@ package it.pagopa.oneid.service.utils;
 
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -10,7 +11,6 @@ import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.config.SAMLNamespaceContext;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -294,9 +294,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         cert.checkValidity(Date.from(issueInstant));
         credentials.add(new BasicX509Credential(cert));
       } catch (CertificateExpiredException expiredEx) {
-        Log.debug("certificate expired: " + expiredEx.getMessage());
+        Log.warn("certificate expired: " + expiredEx.getMessage());
       } catch (CertificateNotYetValidException notYetValidEx) {
-        Log.debug("certificate not valid yet: " + notYetValidEx.getMessage());
+        Log.warn("certificate not valid yet: " + notYetValidEx.getMessage());
       }
     }
     return credentials;
