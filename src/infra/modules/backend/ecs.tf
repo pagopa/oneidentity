@@ -1067,7 +1067,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running_core" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
-  count               = var.enable_container_insights ? 1 : 0
+  count               = (var.enable_container_insights && var.internal_idp_enabled) ? 1 : 0
   alarm_name          = "ecs-task-running-idp"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
