@@ -180,7 +180,6 @@ module "backend" {
   ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
   lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
   dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
-  task_ecs_count_enable     = true
 
   fargate_capacity_providers = {
     FARGATE = {
