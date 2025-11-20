@@ -6,6 +6,8 @@ on:
       - "main"
     paths:
       - "**/src/oneid/oneid-lambda-update-status/**"
+      - "!**/src/oneid/oneid-lambda-update-status/**/package.json"
+      - "!**/src/oneid/oneid-lambda-update-status/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

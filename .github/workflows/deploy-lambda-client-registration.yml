@@ -7,6 +7,10 @@ on:
     paths:
       - "**/src/oneid/oneid-lambda-client-registration/**"
       - "**/src/oneid/oneid-common/**"
+      - "!**/src/oneid/oneid-lambda-client-registration/**/package.json"
+      - "!**/src/oneid/oneid-lambda-client-registration/**/CHANGELOG.md"
+      - "!**/src/oneid/oneid-common/**/package.json"
+      - "!**/src/oneid/oneid-common/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:
