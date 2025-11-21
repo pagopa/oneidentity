@@ -1,5 +1,11 @@
 # infra
 
+## 1.2.0
+
+### Minor Changes
+
+- ca70fb6: Increased autoscaling capacity of ecs-core tasks for bonus elettrodomestici
+
 ## 1.1.0
 
 ### Minor Changes
