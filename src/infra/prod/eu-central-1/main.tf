@@ -112,7 +112,7 @@ module "backend" {
 
   service_core = {
     service_name                = format("%s-core", local.project)
-    cpu_high_scaling_adjustment = 10
+    cpu_high_scaling_adjustment = 2
     cpu                         = var.ecs_oneid_core.cpu
     memory                      = var.ecs_oneid_core.memory
 
