@@ -5,9 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-cert-exp-checker/**"
-      - "!**/src/oneid/oneid-lambda-cert-exp-checker/**/package.json"
-      - "!**/src/oneid/oneid-lambda-cert-exp-checker/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-cert-exp-checker/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

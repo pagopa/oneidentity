@@ -5,9 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-cognito-presignup/**"
-      - "!**/src/oneid/oneid-lambda-cognito-presignup/**/package.json"
-      - "!**/src/oneid/oneid-lambda-cognito-presignup/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-cognito-presignup/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

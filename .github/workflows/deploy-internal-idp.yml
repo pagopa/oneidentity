@@ -5,13 +5,9 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-ecs-internal-idp/**"
-      - "**/src/oneid/oneid-common/**"
       - ".github/workflows/deploy-internal-idp.yml"
-      - "!**/src/oneid/oneid-ecs-internal-idp/**/package.json"
-      - "!**/src/oneid/oneid-ecs-internal-idp/**/CHANGELOG.md"
-      - "!**/src/oneid/oneid-common/**/package.json"
-      - "!**/src/oneid/oneid-common/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-ecs-internal-idp/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-common/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

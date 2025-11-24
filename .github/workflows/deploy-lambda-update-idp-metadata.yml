@@ -5,12 +5,8 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-update-idp-metadata/**"
-      - "**/src/oneid/oneid-common/**"
-      - "!**/src/oneid/oneid-lambda-update-idp-metadata/**/package.json"
-      - "!**/src/oneid/oneid-lambda-update-idp-metadata/**/CHANGELOG.md"
-      - "!**/src/oneid/oneid-common/**/package.json"
-      - "!**/src/oneid/oneid-common/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-update-idp-metadata/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-common/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

@@ -5,9 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-assertion/**"
-      - "!**/src/oneid/oneid-lambda-assertion/**/package.json"
-      - "!**/src/oneid/oneid-lambda-assertion/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-assertion/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

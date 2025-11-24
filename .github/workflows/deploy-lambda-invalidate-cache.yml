@@ -5,9 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-invalidate-cache/**"
-      - "!**/src/oneid/oneid-lambda-invalidate-cache/**/package.json"
-      - "!**/src/oneid/oneid-lambda-invalidate-cache/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-invalidate-cache/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

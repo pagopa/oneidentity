@@ -7,9 +7,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-pdv-reconciler/**"
-      - "!**/src/oneid/oneid-lambda-pdv-reconciler/**/package.json"
-      - "!**/src/oneid/oneid-lambda-pdv-reconciler/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-lambda-pdv-reconciler/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:
