@@ -5,8 +5,8 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-is-gh-integration/**"
-      - "**/src/oneid/oneid-common/**"
+      - "**/src/oneid/oneid-lambda-is-gh-integration/**/CHANGELOG.md"
+      - "**/src/oneid/oneid-common/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

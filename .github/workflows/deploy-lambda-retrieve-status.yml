@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-lambda-retrieve-status/**"
+      - "**/src/oneid/oneid-lambda-retrieve-status/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:

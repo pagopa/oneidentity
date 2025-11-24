@@ -16,7 +16,7 @@ on:
     branches:
       - 'main'
     paths:
-      - 'src/infra/**'
+      - 'src/infra/**/CHANGELOG.md'
 
 defaults:
   run:

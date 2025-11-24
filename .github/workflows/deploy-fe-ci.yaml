@@ -5,7 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "**/src/oneid/oneid-fe**"
+      - "**/src/oneid/oneid-fe/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:
