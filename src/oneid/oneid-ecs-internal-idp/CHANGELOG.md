@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.0.2
+
+### Patch Changes
+
+- 71f2274: Log level refactoring
+
 ## 1.0.1
 
 ### Patch Changes
