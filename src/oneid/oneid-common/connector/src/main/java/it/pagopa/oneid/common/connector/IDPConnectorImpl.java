@@ -53,7 +53,7 @@ public class IDPConnectorImpl implements IDPConnector {
     if (!idps.isEmpty()) {
       return Optional.of(idps);
     }
-    Log.debug("IDPs not found");
+    Log.warn("IDPs not found for timestamp: " + timestamp);
     return Optional.empty();
   }
 

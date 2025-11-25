@@ -60,16 +60,16 @@ public class ClientRegistrationController {
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
       @HeaderParam("Plan-Api-Key") String pdvApiKey,
       @HeaderParam("Plan-Name") String planName) {
-    Log.info("start");
+    Log.debug("start");
 
     //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
-    Log.info("userId retrieved from bearer token successfully");
+    Log.debug("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
         planName);
-    Log.info("client info validated successfully");
+    Log.debug("client info validated successfully");
 
     //3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
@@ -90,12 +90,13 @@ public class ClientRegistrationController {
     try {
       sns.publish(p ->
           p.topicArn(topicArn).subject(subject).message(message));
+      Log.debug("SNS notification sent");
     } catch (Exception e) {
       Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
           "Failed to send SNS notification: ", e);
     }
 
-    Log.info("end");
+    Log.debug("end");
     return Response.status(Status.CREATED).entity(clientRegistrationResponseDTO).build();
 
   }
@@ -106,11 +107,11 @@ public class ClientRegistrationController {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response getClient(@PathParam("user_id") String userIdPathParam,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
-    Log.info("start");
+    Log.debug("start");
 
     //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
-    Log.info("userId retrieved from bearer token successfully");
+    Log.debug("userId retrieved from bearer token successfully");
 
     ClientUtils.checkUserId(userId, userIdPathParam);
 
@@ -127,7 +128,7 @@ public class ClientRegistrationController {
         clientRegistrationDTO,
         client.getClientId());
 
-    Log.info("end");
+    Log.debug("end");
     return Response.ok(clientRegistrationResponseDTO).build();
   }
 
@@ -141,23 +142,23 @@ public class ClientRegistrationController {
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer,
       @HeaderParam("Plan-Api-Key") String pdvApiKey,
       @HeaderParam("Plan-Name") String planName) {
-    Log.info("start");
+    Log.debug("start");
 
     //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
-    Log.info("userId retrieved from bearer token successfully");
+    Log.debug("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
     clientRegistrationService.validateClientRegistrationInfo(
         clientRegistrationDTOInput, pdvApiKey, planName);
-    Log.info("client info validated successfully");
+    Log.debug("client info validated successfully");
 
     //2. Retrieves client from db
     ClientExtended clientExtended = clientRegistrationService.getClientExtendedByClientId(clientId);
 
     //3. Check if userId in input matches the client userId on db
     ClientUtils.checkUserId(userId, clientExtended.getUserId());
-    Log.info("client exists for clientId: " + clientId);
+    Log.debug("client exists for clientId: " + clientId);
 
     //5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
@@ -187,16 +188,16 @@ public class ClientRegistrationController {
       String subject =
           "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
       try {
-
         String finalMessage = message;
         sns.publish(p ->
             p.topicArn(topicArn).subject(subject).message(finalMessage));
+        Log.debug("SNS notification sent");
       } catch (Exception e) {
         Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
             "Failed to send SNS notification: ", e);
       }
     }
-    Log.info("end");
+    Log.debug("end");
 
     return Response.noContent().build();
   }
@@ -206,13 +207,13 @@ public class ClientRegistrationController {
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   public Response getPaidList() {
-    Log.info("start");
+    Log.debug("start");
     PDVApiKeysDTO dto = clientRegistrationService.getPDVPlanList();
     if (dto.getApiKeys() == null || dto.getApiKeys().isEmpty()) {
       // 204 empty response
       return Response.noContent().build();
     }
-    Log.info("end");
+    Log.debug("end");
     // 200 no empty response
     return Response.ok(dto).build();
 
@@ -224,12 +225,12 @@ public class ClientRegistrationController {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response validatePDVApiKey(
       @Valid PDVValidateApiKeyDTO validateApiKeyDTO) {
-    Log.info("start");
+    Log.debug("start");
 
     //1. Verify if api key are valid
     PDVValidationResponseDTO validateResponse = clientRegistrationService.validatePDVApiKey(
         validateApiKeyDTO);
-    Log.info("end");
+    Log.debug("end");
 
     return Response.ok(validateResponse).build();
   }
@@ -242,17 +243,18 @@ public class ClientRegistrationController {
   public Response refreshClientSecret(
       @PathParam("client_id") String clientId,
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
-    Log.info("start");
+    Log.debug("start");
 
     //1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
-    Log.info("userId retrieved from bearer token successfully");
+    Log.debug("userId retrieved from bearer token successfully");
 
     //2. Refresh client secret
     String secret = clientRegistrationService.refreshClientSecret(
         clientId, userId);
     Map<String, String> response = new HashMap<>();
     response.put("newClientSecret", secret);
+    Log.info("client secret refreshed successfully for clientId: " + clientId);
 
     //3. Prepare message for sns notification
     String message =
@@ -263,6 +265,7 @@ public class ClientRegistrationController {
     try {
       sns.publish(p ->
           p.topicArn(topicArn).subject(subject).message(message));
+      Log.debug("SNS notification sent");
     } catch (Exception e) {
       Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
           "Failed to send SNS notification: ", e);

@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
@@ -13,7 +14,6 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -456,8 +456,7 @@ public class SAMLServiceImpl implements SAMLService {
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (StringUtils.isNotBlank(statusMessage)) {
-        Log.debug("SAML Response status code: " + statusCode
-            + statusMessage);
+        Log.info("SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
         ErrorCode errorCode = null;
         try {
           errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));

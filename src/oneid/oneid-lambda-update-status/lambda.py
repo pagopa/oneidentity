@@ -42,7 +42,7 @@ IDS_MAP = {
 
 # Initialize a logger
 logger = logging.getLogger()
-logger.setLevel(os.getenv("LOG_LEVEL", "DEBUG"))
+logger.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 
 # Initialize a boto3 client for DynamoDB
 dynamodb_client = boto3.client("dynamodb", region_name=AWS_REGION)

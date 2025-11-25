@@ -442,7 +442,7 @@ module "backend" {
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
     environment_variables = {
-      LOG_LEVEL                       = "DEBUG"
+      LOG_LEVEL                       = "INFO"
       USER_POOL_ID                    = module.cognito.user_pool_id
       CLIENT_REGISTRATIONS_TABLE_NAME = module.database.table_client_registrations_name
     }
