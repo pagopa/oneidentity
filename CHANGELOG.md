@@ -1,5 +1,15 @@
 # oneidentity
 
+## 4.3.0
+
+### Minor Changes
+
+- ca70fb6: Increased autoscaling capacity of ecs-core tasks for bonus elettrodomestici
+
+### Patch Changes
+
+- 71f2274: Log level refactoring
+
 ## 4.2.0
 
 ### Minor Changes

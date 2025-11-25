@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.1.1
+
+### Patch Changes
+
+- 71f2274: Log level refactoring
+
 ## 1.1.0
 
 ### Minor Changes
