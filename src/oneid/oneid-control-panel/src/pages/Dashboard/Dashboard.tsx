@@ -117,42 +117,7 @@ export const Dashboard = () => {
 
   const validationIsValid = validationResult?.valid;
 
-useEffect(() => {
-    if (updateError) {
-      console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientErrors);
-      setNotify({
-        open: true,
-        message: 'Error updating client',
-        severity: 'error',
-      });
-    }
-    if (isUpdated) {
-      setErrorUi(null);
-      const message = isCreating
-        ? 'Client created successfully'
-        : 'Client updated successfully';
-      setNotify({
-        open: true,
-        message: message,
-        severity: 'success',
-      });
-
-      // Save client id retrieved from api to session storage
-      if (!isUpdatePhase) {
-        const newClientId = clientUpdated?.clientId;
-        if (!isNil(newClientId) && typeof newClientId === 'string') {
-          setClientId(newClientId);
-        } else {
-          console.error('clientId is not a valid value:', newClientId);
-        }
-      }
-      // before redirecting we need to show a modal with clientId and clientSecret
-      // open only if it is in creation phase, not an update
-      if (!isUpdatePhase) {
-        openModal('secretViewer');
-      }
-    }
+  useEffect(() => {
     if (isValidated) {
       if (validationIsValid) {
         setErrorUi(null);
@@ -187,6 +152,44 @@ useEffect(() => {
         severity: 'error',
       });
     }
+  }, [validateError, isValidated, planListError, validationIsValid]);
+
+  useEffect(() => {
+    if (updateError) {
+      console.error('Error updating client:', updateError);
+      setErrorUi(updateError as unknown as ClientErrors);
+      setNotify({
+        open: true,
+        message: 'Error updating client',
+        severity: 'error',
+      });
+    }
+    if (isUpdated) {
+      setErrorUi(null);
+      const message = isCreating
+        ? 'Client created successfully'
+        : 'Client updated successfully';
+      setNotify({
+        open: true,
+        message: message,
+        severity: 'success',
+      });
+
+      // Save client id retrieved from api to session storage
+      if (!isUpdatePhase) {
+        const newClientId = clientUpdated?.clientId;
+        if (!isNil(newClientId) && typeof newClientId === 'string') {
+          setClientId(newClientId);
+        } else {
+          console.error('clientId is not a valid value:', newClientId);
+        }
+      }
+      // before redirecting we need to show a modal with clientId and clientSecret
+      // open only if it is in creation phase, not an update
+      if (!isUpdatePhase && !updateError) {
+        openModal('secretViewer');
+      }
+    }
   }, [
     updateError,
     isUpdated,
@@ -195,10 +198,6 @@ useEffect(() => {
     openModal,
     isCreating,
     setClientId,
-    validateError,
-    isValidated,
-    planListError,
-    validationIsValid,
   ]);
 
   const isFormValid = () => {
