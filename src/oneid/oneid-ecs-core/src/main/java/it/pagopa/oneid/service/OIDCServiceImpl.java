@@ -387,7 +387,7 @@ public class OIDCServiceImpl implements OIDCService {
   @Override
   public void authorizeClient(String clientId, String clientSecret) {
     if (clientsMap.get(clientId) == null) {
-      Log.error("client not found");
+      Log.error("client not found with clientId: " + clientId);
       throw new InvalidClientException("Client ID not valid", clientId);
     }
 

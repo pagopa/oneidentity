@@ -456,8 +456,7 @@ public class SAMLServiceImpl implements SAMLService {
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (StringUtils.isNotBlank(statusMessage)) {
-        Log.info("SAML Response status code: " + statusCode
-            + statusMessage);
+        Log.info("SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
         ErrorCode errorCode = null;
         try {
           errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));

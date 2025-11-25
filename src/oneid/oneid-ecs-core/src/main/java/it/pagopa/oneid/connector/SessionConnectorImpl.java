@@ -96,7 +96,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
         }
       }
       default -> {
-        Log.error("not valid RecordType");
+        Log.error("not valid RecordType: " + session.getRecordType());
         throw new SessionException();
       }
     }
@@ -143,7 +143,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       Log.debug("successfully saved session");
     } catch (ConditionalCheckFailedException e) {
       Log.error(
-          "a record with the same SAMLRequestID already exists");
+          "a record with the same SAMLRequestID already exists: " + session.getSamlRequestID());
       throw new SessionException("Existing session for the specified SAMLRequestID");
     }
   }
@@ -183,7 +183,7 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
       }
       default -> {
-        Log.error("not valid RecordType");
+        Log.error("not valid RecordType: " + session.getRecordType());
         throw new SessionException();
       }
     }
@@ -202,11 +202,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                 .build());
 
         if (samlSession == null) {
-          Log.warn("saml session not found");
+          Log.warn("saml session with id " + identifier + " not found");
           return Optional.empty();
         }
         if (checkSessionValidity(samlSession)) {
-          Log.info("session successfully found");
+          Log.debug("SAML session with id " + identifier + " successfully found");
           return (Optional<T>) Optional.ofNullable(samlSession);
         }
         return Optional.empty();
@@ -230,14 +230,14 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
             OIDCSession oidcSession = collectedItems.getFirst();
             try {
               if (checkSessionValidity(oidcSession)) {
-                Log.info("session successfully found");
+                Log.debug("OIDC session with id " + identifier + " successfully found");
                 return Optional.of((T) oidcSession);
               }
             } catch (SessionException e) {
               throw new RuntimeException(e);
             }
           }
-          Log.warn("oidc session not found");
+          Log.warn("OIDC session with id " + identifier + " not found");
           return Optional.empty();
         });
       }
@@ -263,13 +263,13 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
           return Optional.empty();
         }
         if (checkSessionValidity(accessTokenSession)) {
-          Log.info("session successfully found");
+          Log.debug("Access Token session for identifier " + identifier + " successfully found");
           return (Optional<T>) Optional.ofNullable(accessTokenSession);
         }
         return Optional.empty();
       }
       default -> {
-        Log.error("not valid RecordType");
+        Log.error("not valid RecordType: " + recordType);
         throw new SessionException();
       }
     }
@@ -290,11 +290,11 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
                   .expression("attribute_not_exists(SAMLResponse)")
                   .build())
               .build());
-      Log.info("session successfully updated");
+      Log.info("session successfully updated: " + samlRequestID);
 
     } catch (ConditionalCheckFailedException e) {
       Log.error(
-          "the record contains already the samlResponse");
+          "the record contains already the samlResponse with samlRequestID: " + samlRequestID);
       throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
     }
   }
