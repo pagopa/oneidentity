@@ -29,6 +29,7 @@
     "src/oneid/oneid-lambda-service-metadata/",
     "src/oneid/oneid-lambda-update-idp-metadata/",
     "src/oneid/oneid-lambda-update-status/",
+    "src/oneid/oneid-common/",
     "."
   ]
 }
