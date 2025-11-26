@@ -151,6 +151,7 @@
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | n/a |
 | <a name="output_assets_bucket_arn"></a> [assets\_bucket\_arn](#output\_assets\_bucket\_arn) | n/a |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
+| <a name="output_assets_bucket_regional_domain_name"></a> [assets\_bucket\_regional\_domain\_name](#output\_assets\_bucket\_regional\_domain\_name) | n/a |
 | <a name="output_assets_control_panel_bucket_arn"></a> [assets\_control\_panel\_bucket\_arn](#output\_assets\_control\_panel\_bucket\_arn) | n/a |
 | <a name="output_assets_control_panel_bucket_name"></a> [assets\_control\_panel\_bucket\_name](#output\_assets\_control\_panel\_bucket\_name) | n/a |
 | <a name="output_assets_internal_idp_bucket_arn"></a> [assets\_internal\_idp\_bucket\_arn](#output\_assets\_internal\_idp\_bucket\_arn) | n/a |

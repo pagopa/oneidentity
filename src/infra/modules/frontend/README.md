@@ -81,6 +81,7 @@
 |------|--------|---------|
 | <a name="module_acm"></a> [acm](#module\_acm) | terraform-aws-modules/acm/aws | 5.0.0 |
 | <a name="module_acm_admin"></a> [acm\_admin](#module\_acm\_admin) | terraform-aws-modules/acm/aws | 5.0.0 |
+| <a name="module_acm_assets"></a> [acm\_assets](#module\_acm\_assets) | terraform-aws-modules/acm/aws | 5.0.0 |
 | <a name="module_acm_internal_idp"></a> [acm\_internal\_idp](#module\_acm\_internal\_idp) | terraform-aws-modules/acm/aws | 5.0.0 |
 | <a name="module_records"></a> [records](#module\_records) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 | <a name="module_rest_api"></a> [rest\_api](#module\_rest\_api) | ../rest-api | n/a |
@@ -95,6 +96,8 @@
 | [aws_acm_certificate.auth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate) | resource |
 | [aws_acm_certificate_validation.auth](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation) | resource |
 | [aws_api_gateway_vpc_link.apigw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_vpc_link) | resource |
+| [aws_cloudfront_distribution.assets_cdn_distribution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
+| [aws_cloudfront_origin_access_control.assets_cdn](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_control) | resource |
 | [aws_cloudwatch_metric_alarm.api_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_iam_policy.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -106,11 +109,13 @@
 | [aws_iam_role_policy_attachment.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.s3_internal_idp_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_route53_record.certificate](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
+| [aws_s3_bucket_policy.content_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_object.openapi_exp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_wafv2_web_acl.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl) | resource |
 | [aws_wafv2_web_acl_association.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/wafv2_web_acl_association) | resource |
 | [random_id.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [aws_api_gateway_export.api_exp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/api_gateway_export) | data source |
+| [aws_cloudfront_response_headers_policy.cors_preflight_managed](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/cloudfront_response_headers_policy) | data source |
 | [aws_iam_policy_document.apigw_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.s3_apigw_proxy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -139,15 +144,18 @@
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region. | `string` | n/a | yes |
 | <a name="input_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#input\_client\_manager\_lambda\_arn) | lambda client manager arn | `string` | n/a | yes |
 | <a name="input_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#input\_client\_registration\_lambda\_arn) | lambda client registration arn | `string` | n/a | yes |
+| <a name="input_cloudfront"></a> [cloudfront](#input\_cloudfront) | n/a | <pre>object({<br/>    name                      = string,<br/>    bucket_origin_domain_name = string,<br/>    bucket_id                 = string,<br/>    bucket_arn                = string<br/>  })</pre> | `null` | no |
 | <a name="input_cognito_domain_cloudfront_distribution"></a> [cognito\_domain\_cloudfront\_distribution](#input\_cognito\_domain\_cloudfront\_distribution) | n/a | `string` | `null` | no |
 | <a name="input_cognito_domain_cloudfront_distribution_zone_id"></a> [cognito\_domain\_cloudfront\_distribution\_zone\_id](#input\_cognito\_domain\_cloudfront\_distribution\_zone\_id) | n/a | `string` | `null` | no |
 | <a name="input_cors_allow_origins"></a> [cors\_allow\_origins](#input\_cors\_allow\_origins) | List of allowed origins for CORS. | `string` | `null` | no |
 | <a name="input_create_custom_domain_admin_name"></a> [create\_custom\_domain\_admin\_name](#input\_create\_custom\_domain\_admin\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
 | <a name="input_create_custom_domain_name"></a> [create\_custom\_domain\_name](#input\_create\_custom\_domain\_name) | ApiGw create custom domain admin name. | `bool` | `true` | no |
 | <a name="input_create_dns_record"></a> [create\_dns\_record](#input\_create\_dns\_record) | Create DNS record to associate the API Gateway RestApi to the hosted zone. | `bool` | `true` | no |
+| <a name="input_deploy_cloudfront"></a> [deploy\_cloudfront](#input\_deploy\_cloudfront) | n/a | `bool` | `true` | no |
 | <a name="input_deploy_internal_idp_rest_api"></a> [deploy\_internal\_idp\_rest\_api](#input\_deploy\_internal\_idp\_rest\_api) | ApiGW deploy internal idp api. | `bool` | `false` | no |
 | <a name="input_dns_record_ttl"></a> [dns\_record\_ttl](#input\_dns\_record\_ttl) | DNS records ttl | `number` | n/a | yes |
 | <a name="input_domain_admin_name"></a> [domain\_admin\_name](#input\_domain\_admin\_name) | DNS domain name. | `string` | n/a | yes |
+| <a name="input_domain_assets_name"></a> [domain\_assets\_name](#input\_domain\_assets\_name) | DNS assets domain name. | `string` | `null` | no |
 | <a name="input_domain_auth_name"></a> [domain\_auth\_name](#input\_domain\_auth\_name) | DNS domain name. | `string` | `null` | no |
 | <a name="input_domain_internal_idp_name"></a> [domain\_internal\_idp\_name](#input\_domain\_internal\_idp\_name) | DNS domain name. | `string` | `null` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | DNS domain name. | `string` | n/a | yes |
