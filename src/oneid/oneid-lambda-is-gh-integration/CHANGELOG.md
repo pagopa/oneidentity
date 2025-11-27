@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.1.2
+
+### Patch Changes
+
+- a311aeb: update nimbus-jose-jwt lib in oneid pom.xml and update sha
+
 ## 1.1.1
 
 ### Patch Changes

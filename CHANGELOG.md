@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.3.1
+
+### Patch Changes
+
+- a311aeb: update nimbus-jose-jwt lib in oneid pom.xml and update sha
+
 ## 4.3.0
 
 ### Minor Changes
