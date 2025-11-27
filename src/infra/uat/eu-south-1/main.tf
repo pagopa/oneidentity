@@ -584,6 +584,12 @@ module "backend" {
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
+
+  idp_no_traffic_alarm = {
+    enabled   = false
+    entity_id = local.idp_entity_ids
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
 }
 
 module "database" {
