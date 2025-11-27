@@ -127,11 +127,11 @@
       "sha256": "6MHFlOJCW9vqLYYN5Vxptp_F1ZRURSRJoPCRPCpbijE="
     },
     {
-      "id": "com.nimbusds:nimbus-jose-jwt:jar:9.39.3",
+      "id": "com.nimbusds:nimbus-jose-jwt:jar:10.0.2",
       "artifactId": "nimbus-jose-jwt",
       "groupId": "com.nimbusds",
-      "version": "9.39.3",
-      "sha256": "YVmZch4V2kB4vSa69-_uFVwUJ4SmJIpk19h5fCvxa9A="
+      "version": "10.0.2",
+      "sha256": "lguXimzWy8MxlkitxzlZeJ9nQqK_Ho3QyEPbyRYkIYo="
     },
     {
       "id": "io.quarkus:quarkus-config-yaml:jar:3.11.3",
