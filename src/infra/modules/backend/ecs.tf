@@ -657,6 +657,62 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   }
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
+  for_each            = var.idp_no_traffic_alarm != null && var.idp_no_traffic_alarm.enabled ? { for s in var.idp_no_traffic_alarm.entity_id : s => s } : {}
+  alarm_name          = format("%s_%s_%s", "IDPNoTrafficErrorRateAlarm", var.env_short, each.key)
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 5
+  datapoints_to_alarm = 5
+  threshold           = 0
+  treat_missing_data  = "breaching"
+
+  ok_actions = [module.update_status_lambda.lambda_function_arn]
+
+  alarm_actions = [
+    var.sns_topic_arn,
+    module.update_status_lambda.lambda_function_arn
+  ]
+
+  metric_query {
+    id          = "total_requests"
+    expression  = "successes + errors"
+    label       = "Total Requests"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "IDPSuccess"
+      namespace   = var.idp_no_traffic_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "IDPAggregated" = each.key
+      }
+    }
+  }
+
+  metric_query {
+    id = "errors"
+
+    metric {
+      metric_name = "IDPError"
+      namespace   = var.idp_no_traffic_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "IDPAggregated" = each.key
+      }
+    }
+  }
+}
+
 resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
   for_each            = var.client_alarm != null ? { for c in var.client_alarm.clients : c.client_id => c } : {}
   alarm_name          = format("%s_%s_%s_%s", "ClientErrorRateAlarm", var.env_short, each.value.friendly_name, each.key)
