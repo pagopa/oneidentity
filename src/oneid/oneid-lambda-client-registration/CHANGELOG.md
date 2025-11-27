@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.1.1
+
+### Patch Changes
+
+- a311aeb: update nimbus-jose-jwt lib in oneid pom.xml and update sha
+
 ## 2.1.0
 
 ### Minor Changes
