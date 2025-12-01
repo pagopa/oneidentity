@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.1.2
+
+### Patch Changes
+
+- 04a5d8a: update bouncycastle
+
 ## 2.1.1
 
 ### Patch Changes

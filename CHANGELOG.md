@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.3.2
+
+### Patch Changes
+
+- 04a5d8a: update bouncycastle
+
 ## 4.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.0.3
+
+### Patch Changes
+
+- 04a5d8a: update bouncycastle
+
 ## 1.0.2
 
 ### Patch Changes
