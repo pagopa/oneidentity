@@ -664,8 +664,8 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   evaluation_periods  = 1
   threshold_metric_id = "ad1"
   treat_missing_data  = "ignore"
-  ok_actions          = [module.update_status_lambda.lambda_function_arn]
 
+  ok_actions = [module.update_status_lambda.lambda_function_arn]
   # TODO uncomment before merging
   #alarm_actions = [
   #  var.sns_topic_arn,
@@ -681,7 +681,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
 
   metric_query {
     id          = "m1"
-    expression  = "FILL(successes + errors, 0)"
+    expression  = "FILL(successes, 0) + FILL(errors, 0)"
     label       = "Total Requests"
     return_data = "true"
   }
