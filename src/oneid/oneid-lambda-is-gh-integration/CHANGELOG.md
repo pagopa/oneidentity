@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.1.3
+
+### Patch Changes
+
+- 04a5d8a: update bouncycastle
+
 ## 1.1.2
 
 ### Patch Changes
