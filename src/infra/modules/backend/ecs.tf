@@ -660,25 +660,28 @@ resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
 resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   for_each            = var.idp_no_traffic_alarm != null && var.idp_no_traffic_alarm.enabled ? { for s in var.idp_no_traffic_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s_%s_%s", "IDPNoTrafficErrorRateAlarm", var.env_short, each.key)
-  comparison_operator = "LessThanOrEqualToThreshold"
-  evaluation_periods  = 5
-  datapoints_to_alarm = 5
-  threshold           = 0
-  treat_missing_data  = "breaching"
+  comparison_operator = "LessThanLowerThreshold"
+  evaluation_periods  = 1
+  threshold_metric_id = "ad1"
+  treat_missing_data  = "ignore"
 
-  ok_actions = [module.update_status_lambda.lambda_function_arn]
-
-  alarm_actions = [
-    var.sns_topic_arn,
-    module.update_status_lambda.lambda_function_arn
-  ]
+  # TODO uncomment before merging
+  # alarm_actions = [var.sns_topic_arn]
 
   metric_query {
-    id          = "total_requests"
-    expression  = "successes + errors"
+    id          = "ad1"
+    expression  = "ANOMALY_DETECTION_BAND(m1, 2)"
+    label       = "Traffic Anomaly Band"
+    return_data = "true"
+  }
+
+  metric_query {
+    id          = "m1"
+    expression  = "FILL(successes + errors, 0)"
     label       = "Total Requests"
     return_data = "true"
   }
+
 
   metric_query {
     id = "successes"
