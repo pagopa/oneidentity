@@ -605,6 +605,7 @@ export const Dashboard = () => {
                     label="Key value"
                     name="pairwiseValue"
                     value={pairWiseData?.apiKeyValue || ''}
+                    autoComplete="off"
                     onChange={(e) =>
                       setPairWiseData((prev) => ({
                         ...prev,
