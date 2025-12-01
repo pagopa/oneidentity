@@ -36,11 +36,11 @@
       "sha256": "aczARIfod3nUlwqlDGc8w0qd8IDBwOjY6rLotG-CXPQ="
     },
     {
-      "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.78.1",
+      "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.79",
       "artifactId": "bcpkix-jdk18on",
       "groupId": "org.bouncycastle",
-      "version": "1.78.1",
-      "sha256": "S0jqCE5SMrnXnryhiHud4DexJJMYB81gcQdIwq7gjMk="
+      "version": "1.79",
+      "sha256": "NjmiTd-bpLfroGWbRHcOkeuoFkIYiOVx8oWq3v5TLNY="
     },
     {
       "id": "org.bouncycastle:bcutil-jdk18on:jar:1.78.1",
