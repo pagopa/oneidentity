@@ -664,9 +664,13 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   evaluation_periods  = 1
   threshold_metric_id = "ad1"
   treat_missing_data  = "ignore"
+  ok_actions          = [module.update_status_lambda.lambda_function_arn]
 
   # TODO uncomment before merging
-  # alarm_actions = [var.sns_topic_arn]
+  #alarm_actions = [
+  #  var.sns_topic_arn,
+  #  module.update_status_lambda.lambda_function_arn
+  #]
 
   metric_query {
     id          = "ad1"
