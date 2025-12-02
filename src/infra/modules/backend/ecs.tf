@@ -666,11 +666,11 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   treat_missing_data  = "ignore"
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
-  # TODO uncomment before merging
-  #alarm_actions = [
-  #  var.sns_topic_arn,
-  #  module.update_status_lambda.lambda_function_arn
-  #]
+
+  alarm_actions = [
+    var.sns_topic_arn,
+    module.update_status_lambda.lambda_function_arn
+  ]
 
   metric_query {
     id          = "ad1"
