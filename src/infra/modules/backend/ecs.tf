@@ -693,7 +693,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPSuccess"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 60
+      period      = 900
       stat        = "Sum"
       unit        = "Count"
 
@@ -701,6 +701,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
         "IDPAggregated" = each.key
       }
     }
+    return_data = "false"
   }
 
   metric_query {
@@ -709,7 +710,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPError"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 60
+      period      = 900
       stat        = "Sum"
       unit        = "Count"
 
@@ -717,6 +718,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
         "IDPAggregated" = each.key
       }
     }
+    return_data = "false"
   }
 }
 
