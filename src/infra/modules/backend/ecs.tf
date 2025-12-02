@@ -674,7 +674,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
 
   metric_query {
     id          = "ad1"
-    expression  = "ANOMALY_DETECTION_BAND(m1, 2)"
+    expression  = "ANOMALY_DETECTION_BAND(m1, 4)"
     label       = "Traffic Anomaly Band"
     return_data = "true"
   }
