@@ -30,6 +30,14 @@ IDS_MAP = {
         "idxName": os.getenv("IDP_STATUS_DYNAMODB_IDX"),
         "fileName": os.getenv("IDP_STATUS_S3_FILE_NAME")
     },
+    "IDPNoTrafficErrorRateAlarm": {
+        "type": "IDP",
+        "keyId": "entityID",
+        "statusId": "idpStatus",
+        "tableName": os.getenv("IDP_STATUS_DYNAMODB_TABLE"),
+        "idxName": os.getenv("IDP_STATUS_DYNAMODB_IDX"),
+        "fileName": os.getenv("IDP_STATUS_S3_FILE_NAME")
+    },
     "ClientErrorRateAlarm": {
         "type": "Client",
         "keyId": "clientID",

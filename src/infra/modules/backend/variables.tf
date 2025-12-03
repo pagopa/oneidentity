@@ -538,3 +538,12 @@ variable "idp_alarm" {
   })
   default = null
 }
+
+variable "idp_no_traffic_alarm" {
+  type = object({
+    enabled   = optional(bool, false)
+    entity_id = list(string)
+    namespace = string
+  })
+  default = null
+}
