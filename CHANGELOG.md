@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.4.0
+
+### Minor Changes
+
+- dea511a: Add Cloudwatch Alarm for IDPs with no traffic
+
 ## 4.3.2
 
 ### Patch Changes

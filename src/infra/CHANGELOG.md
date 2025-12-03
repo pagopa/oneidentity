@@ -1,5 +1,11 @@
 # infra
 
+## 1.3.0
+
+### Minor Changes
+
+- dea511a: Add Cloudwatch Alarm for IDPs with no traffic
+
 ## 1.2.0
 
 ### Minor Changes
