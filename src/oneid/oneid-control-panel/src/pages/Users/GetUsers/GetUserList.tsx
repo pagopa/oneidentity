@@ -147,6 +147,15 @@ export const GetUserList = () => {
             onConfirm={handleDelete}
             confirmText="Delete"
             cancelText="Cancel"
+            confirmButtonProps={{
+              color: 'error',
+              sx: (theme) => ({
+                '&:hover': {
+                  color: `${theme.palette.error.dark} !important`,
+                  backgroundColor: `${theme.palette.error.dark}1A !important`,
+                },
+              }),
+            }}
           />
           <Button
             variant="contained"

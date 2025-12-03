@@ -5,6 +5,7 @@ import {
   DialogActions,
   Button,
   Typography,
+  ButtonProps,
 } from '@mui/material';
 
 type ConfirmDialogProps = {
@@ -15,6 +16,8 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
+  confirmButtonProps?: Partial<ButtonProps>;
+  cancelButtonProps?: Partial<ButtonProps>;
 };
 
 const ConfirmDialog = ({
@@ -25,35 +28,37 @@ const ConfirmDialog = ({
   onConfirm,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
+  confirmButtonProps,
+  cancelButtonProps,
 }: ConfirmDialogProps) => {
   return (
     <Dialog open={open} onClose={onCancel}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <Typography>{content}</Typography>
+        <Typography sx={{ whiteSpace: 'pre-line' }}>{content}</Typography>
       </DialogContent>
       <DialogActions>
         <Button
           onClick={onCancel}
-          color="primary"
-          sx={(theme) => ({
-            '&:hover': {
-              backgroundColor: `${theme.palette.primary.dark}1A !important`,
-            },
-          })}
+          color={cancelButtonProps?.color ?? 'primary'}
+          variant={cancelButtonProps?.variant ?? 'text'}
+          sx={
+            cancelButtonProps?.sx ??
+            ((theme) => ({
+              '&:hover': {
+                backgroundColor: `${theme.palette.primary.dark}1A !important`,
+              },
+            }))
+          }
         >
           {cancelText}
         </Button>
         <Button
           onClick={onConfirm}
-          color="error"
+          color={confirmButtonProps?.color ?? 'primary'}
+          variant={confirmButtonProps?.variant ?? 'text'}
           autoFocus
-          sx={(theme) => ({
-            '&:hover': {
-              color: `${theme.palette.error.dark} !important`,
-              backgroundColor: `${theme.palette.error.dark}1A !important`,
-            },
-          })}
+          sx={confirmButtonProps?.sx}
         >
           {confirmText}
         </Button>
