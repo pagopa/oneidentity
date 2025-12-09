@@ -1,5 +1,11 @@
 # infra
 
+## 1.4.0
+
+### Minor Changes
+
+- bd80132: add alarm for clients with no traffic
+
 ## 1.3.0
 
 ### Minor Changes
