@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.5.0
+
+### Minor Changes
+
+- bd80132: add alarm for clients with no traffic
+
 ## 4.4.0
 
 ### Minor Changes
