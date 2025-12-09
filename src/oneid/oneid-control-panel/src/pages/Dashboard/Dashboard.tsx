@@ -47,6 +47,8 @@ import { tooltipLinkSx } from '../../utils/styles';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 export const Dashboard = () => {
+  type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
+
   const [formData, setFormData] =
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [pairWiseData, setPairWiseData] = useState<Partial<ValidatePlanSchema>>(
@@ -232,6 +234,13 @@ export const Dashboard = () => {
     }
   };
 
+  const getChangeType = (pairwise: boolean, metadata: boolean): ChangeType => {
+    if (pairwise && metadata) return 'pairwise+metadata';
+    if (pairwise) return 'pairwise';
+    if (metadata) return 'metadata';
+    return 'none';
+  };
+
   const createContentDialog = () => {
     const isPairwiseChanged = !isEqual(
       formData?.pairwise,
@@ -251,7 +260,8 @@ export const Dashboard = () => {
         ? enablingPairWiseDialogContent
         : disablingPairWiseDialogContent);
 
-    const changeType = `${isPairwiseChanged ? 'pairwise' : ''}${isPairwiseChanged && isMetadataChanged ? '+' : ''}${isMetadataChanged ? 'metadata' : ''}`;
+    const changeType = getChangeType(isPairwiseChanged, isMetadataChanged);
+
     switch (changeType) {
       case 'pairwise+metadata':
         return `${metadataDialogContent}\n\n${pairWiseText} ${confirmText}`;
@@ -259,7 +269,7 @@ export const Dashboard = () => {
         return `${pairWiseText} ${confirmText}`;
       case 'metadata':
         return `${metadataDialogContent} ${confirmText}`;
-      default:
+      case 'none':
         return '';
     }
   };
