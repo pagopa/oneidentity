@@ -526,7 +526,7 @@ module "backend" {
   }
 
   client_no_traffic_alarm = {
-    enabled   = true #TODO remove after testing
+    enabled   = false
     clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }
