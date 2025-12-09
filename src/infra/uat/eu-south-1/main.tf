@@ -580,6 +580,12 @@ module "backend" {
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
+  client_no_traffic_alarm = {
+    enabled   = false
+    clients   = local.clients
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
   idp_alarm = {
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"

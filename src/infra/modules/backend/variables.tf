@@ -547,3 +547,15 @@ variable "idp_no_traffic_alarm" {
   })
   default = null
 }
+
+variable "client_no_traffic_alarm" {
+  type = object({
+    enabled = optional(bool, false)
+    clients = list(object({
+      client_id     = string
+      friendly_name = string
+    }))
+    namespace = string
+  })
+  default = null
+}

@@ -46,6 +46,14 @@ IDS_MAP = {
         "idxName": os.getenv("CLIENT_STATUS_DYNAMODB_IDX"),
         "fileName": os.getenv("CLIENT_STATUS_S3_FILE_NAME")
     },
+    "ClientNoTrafficErrorRateAlarm": {
+        "type": "Client",
+        "keyId": "clientID",
+        "statusId": "clientStatus",
+        "tableName": os.getenv("CLIENT_STATUS_DYNAMODB_TABLE"),
+        "idxName": os.getenv("CLIENT_STATUS_DYNAMODB_IDX"),
+        "fileName": os.getenv("CLIENT_STATUS_S3_FILE_NAME")
+    },
 }
 
 # Initialize a logger
@@ -70,7 +78,7 @@ def get_event_data(event):
     alarm_data = event["alarmData"]
     alarm_name = alarm_data["alarmName"]
     alarm_type, env_short, key = alarm_name.split("_", 2)
-    if alarm_type == "ClientErrorRateAlarm":
+    if alarm_type == "ClientErrorRateAlarm" or alarm_type == "ClientNoTrafficErrorRateAlarm":
         # Extract the client ID from the alarm name
         # The client ID is the last 43 characters of the alarm name
         key = key[-43:]
