@@ -746,6 +746,10 @@ module "update_status_lambda" {
     IDPNoTrafficErrorRate = {
       principal  = "lambda.alarms.cloudwatch.amazonaws.com"
       source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:IDPNoTrafficErrorRateAlarm*"
+    },
+    ClientNoTrafficErrorRate = {
+      principal  = "lambda.alarms.cloudwatch.amazonaws.com"
+      source_arn = "arn:aws:cloudwatch:${var.aws_region}:${var.account_id}:alarm:ClientNoTrafficErrorRateAlarm*"
     }
   }
 
