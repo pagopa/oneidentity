@@ -776,6 +776,70 @@ resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
   }
 }
 
+resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
+  for_each            = var.client_no_traffic_alarm != null && var.client_no_traffic_alarm.enabled ? { for c in var.client_no_traffic_alarm.clients : c.client_id => c } : {}
+  alarm_name          = format("%s_%s_%s_%s", "ClientNoTrafficErrorRateAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "LessThanLowerThreshold"
+  evaluation_periods  = 1
+  threshold_metric_id = "ad1"
+  treat_missing_data  = "ignore"
+
+  ok_actions = [module.update_status_lambda.lambda_function_arn]
+  alarm_actions = [
+    var.sns_topic_arn,
+    module.update_status_lambda.lambda_function_arn
+  ]
+
+  metric_query {
+    id          = "ad1"
+    expression  = "ANOMALY_DETECTION_BAND(m1, 4)"
+    label       = "Traffic Anomaly Band"
+    return_data = "true"
+  }
+
+  metric_query {
+    id          = "m1"
+    expression  = "FILL(successes, 0) + FILL(errors, 0)"
+    label       = "Total Requests"
+    return_data = "true"
+  }
+
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "ClientSuccess"
+      namespace   = var.client_no_traffic_alarm.namespace
+      period      = 900
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "ClientAggregated" = each.key
+      }
+    }
+    return_data = "false"
+  }
+
+  metric_query {
+    id = "errors"
+
+    metric {
+      metric_name = "ClientError"
+      namespace   = var.client_no_traffic_alarm.namespace
+      period      = 900
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "ClientAggregated" = each.key
+      }
+    }
+    return_data = "false"
+  }
+}
+
 /*
 resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   count               = var.service_core.autoscaling.enable ? 1 : 0

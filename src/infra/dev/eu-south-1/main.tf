@@ -524,6 +524,13 @@ module "backend" {
     clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }
+
+  client_no_traffic_alarm = {
+    enabled   = false
+    clients   = local.clients
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
   ssm_cert_key = {}
 
   ssm_idp_internal_cert_key = {}
