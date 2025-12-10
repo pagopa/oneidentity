@@ -26,21 +26,25 @@ jobs:
       - name: Check for changeset file
         id: changeset-check
         run: |
-          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q '^\.changeset/.*\.md$'; then
+          if git diff --name-only origin/$GITHUB_BASE_REF...HEAD | grep -q '^\.changeset/.*\.md$'; then
             echo "has_changeset=true" >> $GITHUB_OUTPUT
           else
             echo "has_changeset=false" >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
           
       - name: Manage 'missing changeset' label
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HAS_CHANGESET: ${{ steps.changeset-check.outputs.has_changeset }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           gh label create "missing changeset" --color "199FD6" --description "missing changeset in the pr" --force 2>/dev/null || true
-          if [ "${{ steps.changeset-check.outputs.has_changeset }}" == "false" ]; then
-            gh pr edit ${{ github.event.pull_request.number }} --add-label "missing changeset"
+          if [ "$HAS_CHANGESET" == "false" ]; then
+            gh pr edit $PR_NUMBER --add-label "missing changeset"
           else
-            gh pr edit ${{ github.event.pull_request.number }} --remove-label "missing changeset" || true
+            gh pr edit $PR_NUMBER --remove-label "missing changeset" || true
           fi
 
   release:

@@ -17,12 +17,15 @@ jobs:
       - name: Set Dynamic Env Matrix
         id: setmatrix
         run: |
-          echo "github.ref ${{ github.ref }}"
-          echo "event name ${{ github.event_name }}"
+          echo "github.ref $GITHUB_REF"
+          echo "event name $EVENT_NAME"
           
           matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
 
 
   upload:
@@ -60,16 +63,22 @@ jobs:
         if: ${{ matrix.environment == 'prod' }}
         id: changed-file
         run: |
-          echo "changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+          echo "changed_files=$(git diff --name-only $BEFORE $AFTER | xargs)" >> $GITHUB_OUTPUT
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
 
       - name: Upload changed files to S3 (${{ matrix.environment }})
         if: ${{ matrix.environment == 'prod' }}
         run: |
-          for file in ${{ steps.changed-file.outputs.changed_files }}; do
+          for file in $CHANGED_FILES; do
               if [[ -f $file && ! $file == */test/*  && $file == *.xml ]]; then
-                aws s3 cp $file ${{vars.IDP_BUCKET_PATH}}/$(basename "$file")
+                aws s3 cp $file $IDP_BUCKET_PATH/$(basename "$file")
               fi
           done
+        env:
+          CHANGED_FILES: ${{ steps.changed-file.outputs.changed_files }}
+          IDP_BUCKET_PATH: ${{ vars.IDP_BUCKET_PATH }}
 
       - name: Take all test-idp files
         if: ${{ matrix.environment != 'prod' }}
@@ -83,8 +92,11 @@ jobs:
         if: ${{ matrix.environment != 'prod' }}
         working-directory: src/oneid/metadata/test/${{ matrix.environment }}
         run: |
-          for file in ${{ steps.test-files.outputs.test_files }}; do
+          for file in $TEST_FILES; do
               if [[ $file == *.xml ]]; then
-                aws s3 cp $(basename "$file") ${{vars.IDP_BUCKET_PATH}}"/$(basename "${file%.xml}")-$(date +%s).xml"
+                aws s3 cp $(basename "$file") $IDP_BUCKET_PATH"/$(basename "${file%.xml}")-$(date +%s).xml"
               fi
           done
+        env:
+          TEST_FILES: ${{ steps.test-files.outputs.test_files }}
+          IDP_BUCKET_PATH: ${{ vars.IDP_BUCKET_PATH }}

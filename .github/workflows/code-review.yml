@@ -42,8 +42,10 @@ jobs:
       - name: Set up Maven settings.xml
         shell: bash
         run: |
-          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
-
+          echo "<settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>" >> src/oneid/settings.xml
+        env:
+          GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
+          GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
       - name: Prepare SonarCloud analysis configuration
         run: >
           src/oneid/mvnw -Bclean verify
@@ -67,7 +69,7 @@ jobs:
           src/oneid/mvnw -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
-          -Dsonar.coverage.jacoco.xmlReportPaths=${{ steps.finding-jacoco.outputs.xmlReportPaths}}
+          -Dsonar.coverage.jacoco.xmlReportPaths=$XML_REPORT_PATHS
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
@@ -80,3 +82,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONARCLOUD_PROJECT_KEY: ${{ vars.SONARCLOUD_PROJECT_KEY }}
           SONARCLOUD_PROJECT_NAME: ${{ vars.SONARCLOUD_PROJECT_NAME }}
+          XML_REPORT_PATHS: ${{ steps.finding-jacoco.outputs.xmlReportPaths }}
