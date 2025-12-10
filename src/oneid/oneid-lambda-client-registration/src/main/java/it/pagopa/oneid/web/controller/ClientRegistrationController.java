@@ -182,6 +182,10 @@ public class ClientRegistrationController {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;
     }
+    if (!clientRegistrationDTOInput.getPairwise().equals(clientExtended.isPairwise())) {
+      message += "- Pairwise changed to: " + clientRegistrationDTOInput.getPairwise() + " \n";
+      sendNotification = true;
+    }
 
     //7. Send SNS notification only if redirectUris or metadata-related fields has been updated
     if (sendNotification) {
