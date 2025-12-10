@@ -366,11 +366,9 @@ module "backend" {
     vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
     vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     environment_variables = {
-      "LOG_LEVEL"                          = var.app_log_level
-      "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
-      "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
-      "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.dev.oneid.pagopa.it",
-      "PDV_PLAN_URL"                       = var.pdv_plan_url
+      "LOG_LEVEL"                 = var.app_log_level
+      "QUARKUS_HTTP_CORS_ORIGINS" = "https://admin.dev.oneid.pagopa.it",
+      "PDV_PLAN_URL"              = var.pdv_plan_url
     }
   }
 
@@ -510,6 +508,7 @@ module "backend" {
   rest_api_id = module.frontend.rest_api_id
 
   idp_alarm = {
+    enabled   = false
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
@@ -521,6 +520,7 @@ module "backend" {
   }
 
   client_alarm = {
+    enabled   = false
     clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }

@@ -576,6 +576,7 @@ module "backend" {
   }
 
   client_alarm = {
+    enabled   = true
     clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }
@@ -587,6 +588,7 @@ module "backend" {
   }
 
   idp_alarm = {
+    enabled   = true
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
