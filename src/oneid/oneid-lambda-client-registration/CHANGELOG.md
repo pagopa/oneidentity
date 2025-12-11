@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.1.3
+
+### Patch Changes
+
+- 65c155c: add sns notification for pairwise change
+
 ## 2.1.2
 
 ### Patch Changes

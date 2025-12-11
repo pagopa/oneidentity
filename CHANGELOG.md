@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.5.1
+
+### Patch Changes
+
+- 65c155c: add sns notification for pairwise change
+
 ## 4.5.0
 
 ### Minor Changes
