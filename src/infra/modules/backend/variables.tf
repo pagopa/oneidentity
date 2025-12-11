@@ -522,6 +522,7 @@ variable "dlq_alarms" {
 
 variable "client_alarm" {
   type = object({
+    enabled   = optional(bool, true)
     namespace = string
     clients = list(object({
       client_id     = string
@@ -533,6 +534,7 @@ variable "client_alarm" {
 
 variable "idp_alarm" {
   type = object({
+    enabled   = optional(bool, true)
     namespace = string
     entity_id = list(string)
   })

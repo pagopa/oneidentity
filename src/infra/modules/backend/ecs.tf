@@ -604,7 +604,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
-  for_each            = var.idp_alarm != null ? { for s in var.idp_alarm.entity_id : s => s } : {}
+  for_each            = var.idp_alarm != null && var.idp_alarm.enabled ? { for s in var.idp_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s_%s_%s", "IDPErrorRateAlarm", var.env_short, each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
@@ -723,7 +723,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "client_error_alarm" {
-  for_each            = var.client_alarm != null ? { for c in var.client_alarm.clients : c.client_id => c } : {}
+  for_each            = var.client_alarm != null && var.client_alarm.enabled ? { for c in var.client_alarm.clients : c.client_id => c } : {}
   alarm_name          = format("%s_%s_%s_%s", "ClientErrorRateAlarm", var.env_short, each.value.friendly_name, each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 2
