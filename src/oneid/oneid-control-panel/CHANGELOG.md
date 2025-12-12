@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.2.0
+
+### Minor Changes
+
+- 3638d75: fix validate notification and add modal pairwise dialog
+
 ## 1.1.0
 
 ### Minor Changes
