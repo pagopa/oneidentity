@@ -28,16 +28,20 @@ jobs:
       - name: Set Dynamic Env Matrix
         id: setmatrix
         run: |
-          echo "github.ref ${{ github.ref }}"
-          echo "event name ${{ github.event_name }}"
+          echo "github.ref ${GITHUB_REF}"
+          echo "event name ${EVENT_NAME}"
 
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+          if [ "${EVENT_NAME}" == "workflow_dispatch" ]; then
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"${INPUTS_ENVIRONMENT}\", \"region\":\"eu-south-1\"}]}"
           else
             matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
   deploy:
     name: Deploy on ECS ${{ matrix.environment }}-${{ matrix.region }}
@@ -94,7 +98,10 @@ jobs:
       - name: Set up Maven settings.xml
         shell: bash
         run: |
-          echo "<settings><servers><server><id>github</id><username>${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}</username><password>${{ secrets.GH_TOKEN_READ_PACKAGES }}</password></server></servers></settings>" >> src/oneid/settings.xml
+          echo "<settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>" >> src/oneid/settings.xml
+        env:
+          GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
+          GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -114,7 +121,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-          --task-definition oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-internal-idp  \
+          --task-definition oneid-${REGION_SHORT}-${ENV_SHORT}-internal-idp  \
           --query taskDefinition > ./task-definition.json
           echo $(cat ./task-definition.json | jq 'del(
                   .taskDefinitionArn,
@@ -125,6 +132,9 @@ jobs:
                   .registeredAt,
                   .registeredBy
               )') > ./task-definition.json
+        env:
+          REGION_SHORT: ${{ env.REGION_SHORT }}
+          ENV_SHORT: ${{ env.ENV_SHORT }}
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
@@ -150,7 +160,9 @@ jobs:
 
       - name: Copy to S3 FE assets
         run: |
-          aws s3 sync src/main/resources/META-INF/resources s3://${{ vars.ASSETS_INTERNAL_IDP_BUCKET_NAME }}
+          aws s3 sync src/main/resources/META-INF/resources s3://${ASSETS_INTERNAL_IDP_BUCKET_NAME}
+        env:
+          ASSETS_INTERNAL_IDP_BUCKET_NAME: ${{ vars.ASSETS_INTERNAL_IDP_BUCKET_NAME }}
         working-directory: src/oneid/oneid-ecs-internal-idp
 
   # release:

@@ -27,20 +27,24 @@ jobs:
       - name: Set Dynamic Env Matrix
         id: setmatrix
         run: |
-          echo "github.ref ${{ github.ref }}"
-          echo "event name ${{ github.event_name }}"
+          echo "github.ref $GITHUB_REF"
+          echo "event name $EVENT_NAME"
           
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+          if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            if [ "$INPUTS_ENVIRONMENT" == "prod" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
             else
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"$INPUTS_ENVIRONMENT\", \"region\":\"eu-south-1\"}]}"
             fi
           else
             matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
   build:
     runs-on: ubuntu-22.04
@@ -91,10 +95,18 @@ jobs:
 
       - name: Retrieve Lambda function (${{ matrix.environment }})
         run: |
-          aws s3 cp src/oneid/oneid-lambda-client-manager/target/oneid-lambda-client-manager.zip s3://${{vars.LAMBDA_CODE_BUCKET_NAME}}/${{vars.LAMBDA_CLIENT_MANAGER_KEY}}
+          aws s3 cp src/oneid/oneid-lambda-client-manager/target/oneid-lambda-client-manager.zip s3://$LAMBDA_CODE_BUCKET_NAME/$LAMBDA_CLIENT_MANAGER_KEY
+        env:
+          LAMBDA_CODE_BUCKET_NAME: ${{ vars.LAMBDA_CODE_BUCKET_NAME }}
+          LAMBDA_CLIENT_MANAGER_KEY: ${{ vars.LAMBDA_CLIENT_MANAGER_KEY }}
 
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
           aws lambda update-function-code \
-          --function-name oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-client-manager \
-          --s3-bucket ${{vars.LAMBDA_CODE_BUCKET_NAME}} --s3-key ${{vars.LAMBDA_CLIENT_MANAGER_KEY}}
+          --function-name oneid-$REGION_SHORT-$ENV_SHORT-client-manager \
+          --s3-bucket $LAMBDA_CODE_BUCKET_NAME --s3-key $LAMBDA_CLIENT_MANAGER_KEY
+        env:
+          REGION_SHORT: ${{env.REGION_SHORT}}
+          ENV_SHORT: ${{env.ENV_SHORT}}
+          LAMBDA_CODE_BUCKET_NAME: ${{ vars.LAMBDA_CODE_BUCKET_NAME }}
+          LAMBDA_CLIENT_MANAGER_KEY: ${{ vars.LAMBDA_CLIENT_MANAGER_KEY }}

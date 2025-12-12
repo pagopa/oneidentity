@@ -28,20 +28,24 @@ jobs:
       - name: Set Dynamic Env Matrix
         id: setmatrix
         run: |
-          echo "github.ref ${{ github.ref }}"
-          echo "event name ${{ github.event_name }}"
+          echo "github.ref ${GITHUB_REF}"
+          echo "event name ${EVENT_NAME}"
 
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.environment }}" == "prod" ]; then
+          if [ "${EVENT_NAME}" == "workflow_dispatch" ]; then
+            if [ "${INPUTS_ENVIRONMENT}" == "prod" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
             else
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"${{ github.event.inputs.environment }}\", \"region\":\"eu-south-1\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"${INPUTS_ENVIRONMENT}\", \"region\":\"eu-south-1\"}]}"
             fi
           else
             matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_REF: ${{ github.ref }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
   
   deploy:
     runs-on: ubuntu-22.04
@@ -68,11 +72,15 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
           yarn test:coverage
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            yarn build --mode ${{ github.event.inputs.environment }}
+          if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            yarn build --mode $INPUTS_ENVIRONMENT
           else
-            yarn build --mode ${{ matrix.environment }}
+            yarn build --mode $MATRIX_ENVIRONMENT
           fi
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
+          MATRIX_ENVIRONMENT: ${{ matrix.environment }}
        
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
@@ -82,5 +90,7 @@ jobs:
 
       - name: Copy to S3
         run: |
-            aws s3 sync dist s3://${{ vars.ASSETS_CONTROL_PANEL_BUCKET_NAME }}
+            aws s3 sync dist s3://${ASSETS_CONTROL_PANEL_BUCKET_NAME}
+        env:
+          ASSETS_CONTROL_PANEL_BUCKET_NAME: ${{ vars.ASSETS_CONTROL_PANEL_BUCKET_NAME }}
         working-directory: src/oneid/oneid-control-panel
