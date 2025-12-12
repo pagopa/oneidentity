@@ -16,11 +16,6 @@ import {
   FormHelperText,
   FormControlLabel,
   Switch,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Link,
   Divider,
 } from '@mui/material';
@@ -49,8 +44,11 @@ import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
 import FieldWithInfo from '../../components/FieldWithInfo';
 import { tooltipLinkSx } from '../../utils/styles';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 export const Dashboard = () => {
+  type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
+
   const [formData, setFormData] =
     useState<Partial<ClientWithoutSensitiveData> | null>(null);
   const [pairWiseData, setPairWiseData] = useState<Partial<ValidatePlanSchema>>(
@@ -64,8 +62,15 @@ export const Dashboard = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const openConfirm = () => setIsConfirmOpen(true);
   const closeConfirm = () => setIsConfirmOpen(false);
+  const [contentDialog, setContentDialog] = useState<string>('');
   const { isModalOpen, openModal, closeModal } = useModalManager();
-
+  const enablingPairWiseDialogContent =
+    'By enabling PairWise One Identity, it will use PDV to obtain the subject identifier.';
+  const disablingPairWiseDialogContent =
+    'Disabling PairWise pseudonymous will stop sharing communication from PDV Building Block and OI.';
+  const metadataDialogContent =
+    'Updating SPID Level and SAML Attributes fields may require re-sharing them with the SPID and CIE authorities (AgID and IPZS).';
+  const confirmText = 'Please confirm you want to proceed';
   const { setClientId, clientId } = useClientId();
 
   const {
@@ -115,41 +120,6 @@ export const Dashboard = () => {
   const validationIsValid = validationResult?.valid;
 
   useEffect(() => {
-    if (updateError) {
-      console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientErrors);
-      setNotify({
-        open: true,
-        message: 'Error updating client',
-        severity: 'error',
-      });
-    }
-    if (isUpdated) {
-      setErrorUi(null);
-      const message = isCreating
-        ? 'Client created successfully'
-        : 'Client updated successfully';
-      setNotify({
-        open: true,
-        message: message,
-        severity: 'success',
-      });
-
-      // Save client id retrieved from api to session storage
-      if (!isUpdatePhase) {
-        const newClientId = clientUpdated?.clientId;
-        if (!isNil(newClientId) && typeof newClientId === 'string') {
-          setClientId(newClientId);
-        } else {
-          console.error('clientId is not a valid value:', newClientId);
-        }
-      }
-      // before redirecting we need to show a modal with clientId and clientSecret
-      // open only if it is in creation phase, not an update
-      if (!isUpdatePhase) {
-        openModal('secretViewer');
-      }
-    }
     if (isValidated) {
       if (validationIsValid) {
         setErrorUi(null);
@@ -184,6 +154,44 @@ export const Dashboard = () => {
         severity: 'error',
       });
     }
+  }, [validateError, isValidated, planListError, validationIsValid]);
+
+  useEffect(() => {
+    if (updateError) {
+      console.error('Error updating client:', updateError);
+      setErrorUi(updateError as unknown as ClientErrors);
+      setNotify({
+        open: true,
+        message: 'Error updating client',
+        severity: 'error',
+      });
+    }
+    if (isUpdated) {
+      setErrorUi(null);
+      const message = isCreating
+        ? 'Client created successfully'
+        : 'Client updated successfully';
+      setNotify({
+        open: true,
+        message: message,
+        severity: 'success',
+      });
+
+      // Save client id retrieved from api to session storage
+      if (!isUpdatePhase) {
+        const newClientId = clientUpdated?.clientId;
+        if (!isNil(newClientId) && typeof newClientId === 'string') {
+          setClientId(newClientId);
+        } else {
+          console.error('clientId is not a valid value:', newClientId);
+        }
+      }
+      // before redirecting we need to show a modal with clientId and clientSecret
+      // open only if it is in creation phase, not an update
+      if (!isUpdatePhase && !updateError) {
+        openModal('secretViewer');
+      }
+    }
   }, [
     updateError,
     isUpdated,
@@ -192,10 +200,6 @@ export const Dashboard = () => {
     openModal,
     isCreating,
     setClientId,
-    validateError,
-    isValidated,
-    planListError,
-    validationIsValid,
   ]);
 
   const isFormValid = () => {
@@ -230,22 +234,53 @@ export const Dashboard = () => {
     }
   };
 
+  const getChangeType = (pairwise: boolean, metadata: boolean): ChangeType => {
+    if (pairwise && metadata) return 'pairwise+metadata';
+    if (pairwise) return 'pairwise';
+    if (metadata) return 'metadata';
+    return 'none';
+  };
+
+  const createContentDialog = () => {
+    const isPairwiseChanged = !isEqual(
+      formData?.pairwise,
+      fetchedClientData?.pairwise
+    );
+
+    const isMetadataChanged =
+      !isEqual(
+        formData?.samlRequestedAttributes,
+        fetchedClientData?.samlRequestedAttributes
+      ) ||
+      !isEqual(formData?.defaultAcrValues, fetchedClientData?.defaultAcrValues);
+
+    const pairWiseText =
+      isPairwiseChanged &&
+      (formData?.pairwise
+        ? enablingPairWiseDialogContent
+        : disablingPairWiseDialogContent);
+
+    const changeType = getChangeType(isPairwiseChanged, isMetadataChanged);
+
+    switch (changeType) {
+      case 'pairwise+metadata':
+        return `${metadataDialogContent}\n\n${pairWiseText} ${confirmText}`;
+      case 'pairwise':
+        return `${pairWiseText} ${confirmText}`;
+      case 'metadata':
+        return `${metadataDialogContent} ${confirmText}`;
+      case 'none':
+        return '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     // open modal
     e.preventDefault();
-
+    const content = createContentDialog();
+    setContentDialog(content || '');
     // open modal only if is update stauts && spid level or saml attributes are modified
-    if (
-      clientId &&
-      (!isEqual(
-        formData?.defaultAcrValues,
-        fetchedClientData?.defaultAcrValues
-      ) ||
-        !isEqual(
-          formData?.samlRequestedAttributes,
-          fetchedClientData?.samlRequestedAttributes
-        ))
-    ) {
+    if (clientId && content !== '') {
       openConfirm();
     } else {
       doSubmit();
@@ -580,6 +615,7 @@ export const Dashboard = () => {
                     label="Key value"
                     name="pairwiseValue"
                     value={pairWiseData?.apiKeyValue || ''}
+                    autoComplete="off"
                     onChange={(e) =>
                       setPairWiseData((prev) => ({
                         ...prev,
@@ -636,33 +672,22 @@ export const Dashboard = () => {
           </Button>
         </Box>
       </Box>
-      <Dialog
+      <ConfirmDialog
         open={isConfirmOpen}
-        onClose={closeConfirm}
-        aria-labelledby="confirm-submit-title"
-      >
-        <DialogTitle id="confirm-submit-title">Confirm changes</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Updating SPID Level and SAML Attributes fields may require
-            re-sharing them with the SPID and CIE authorities (AgID and IPZS).
-            Please confirm you want to proceed
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeConfirm} disabled={isUpdating}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirmSubmit}
-            variant="contained"
-            autoFocus
-            disabled={isUpdating}
-          >
-            {isUpdating ? 'Saving...' : 'Confirm'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        title="Confirm changes"
+        content={contentDialog}
+        onCancel={closeConfirm}
+        onConfirm={handleConfirmSubmit}
+        confirmText={isUpdating ? 'Saving...' : 'Confirm'}
+        cancelText="Cancel"
+        confirmButtonProps={{
+          color: 'primary',
+          variant: 'contained',
+        }}
+        cancelButtonProps={{
+          color: 'primary',
+        }}
+      />
       <Notify
         open={notify.open}
         message={notify.message}
