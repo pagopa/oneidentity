@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Alert, Backdrop, Box, Button, CircularProgress } from '@mui/material';
 import { IdpUser } from '../../../types/api';
 import { useAuth } from 'react-oidc-context';
-import { Notify } from '../../../components/Notify';
 import UserTable from '../../../components/UserTable';
+import { useNotification } from '../../../context/NotificationContext';
 import { useClient, USER_LIST_QKEY } from '../../../hooks/useClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { ROUTE_PATH } from '../../../utils/constants';
@@ -20,8 +20,8 @@ export const GetUserList = () => {
   const [users, setUsers] = useState<Array<IdpUser>>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const [notify, setNotify] = useState<Notify>({ open: false });
   const queryClient = useQueryClient();
+  const { showNotification } = useNotification();
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const { isModalOpen, openModal, closeModal } = useModalManager();
 
@@ -41,13 +41,9 @@ export const GetUserList = () => {
     }
 
     if (getIdpUsersError) {
-      setNotify({
-        open: true,
-        message: 'Error retrieving users',
-        severity: 'error',
-      });
+      showNotification('Error retrieving users', 'error');
     }
-  }, [data, getIdpUsersError]);
+  }, [data, getIdpUsersError, showNotification]);
 
   const handleEditUser = useCallback(
     (user: IdpUser) => {
@@ -60,36 +56,37 @@ export const GetUserList = () => {
 
   useEffect(() => {
     if (isUserDeleted) {
-      setNotify({
-        open: true,
-        message: 'User successfully deleted',
-        severity: 'success',
-      });
+      showNotification('User successfully deleted', 'success');
       queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     if (deleteClientUsersError) {
       console.error('Error update user:', deleteClientUsersError);
-      setNotify({
-        open: true,
-        message: 'Error deleting user',
-        severity: 'error',
-      });
+      showNotification('Error deleting user', 'error');
     }
-  }, [isUserDeleted, deleteClientUsersError, queryClient, userId]);
+  }, [
+    isUserDeleted,
+    deleteClientUsersError,
+    queryClient,
+    userId,
+    showNotification,
+  ]);
 
   // get from state: refresh and notify
   // if refresh is true reload user data
   // if notify is not null show notify
   useEffect(() => {
     const notifyFromState = location.state?.notify;
-    if (notifyFromState) {
-      setNotify(notifyFromState);
+    if (notifyFromState && notifyFromState.message) {
+      showNotification(
+        notifyFromState.message,
+        notifyFromState.severity || 'success'
+      );
     }
     if (location.state?.refresh) {
       queryClient.invalidateQueries({ queryKey: [USER_LIST_QKEY, userId] });
     }
     window.history.replaceState({}, document.title);
-  }, [location.state, queryClient, userId]);
+  }, [location.state, queryClient, showNotification, userId]);
 
   const handleDelete = useCallback(() => {
     if (userToDelete) {
@@ -172,13 +169,6 @@ export const GetUserList = () => {
       <Backdrop open={isDeletingUser}>
         <CircularProgress color="secondary" />
       </Backdrop>
-
-      <Notify
-        open={notify.open}
-        message={notify.message}
-        severity={notify.severity}
-        handleOpen={(open) => setNotify({ ...notify, open })}
-      />
     </PageContainer>
   );
 };

@@ -16,8 +16,8 @@ import {
   UserErrors,
   idpUserSchema,
 } from '../../../types/api';
-import { Notify } from '../../../components/Notify';
 import { useClient } from '../../../hooks/useClient';
+import { useNotification } from '../../../context/NotificationContext';
 import { fromPairs } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
 import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
@@ -59,8 +59,8 @@ export const AddOrUpdateUser = () => {
   const isEditMode = !!usernameQueryParam;
   const [formData, setFormData] = useState<Partial<IdpUser>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
-  const [notify, setNotify] = useState<Notify>({ open: false });
   const [showPassword, setShowPassword] = useState(false);
+  const { showNotification } = useNotification();
 
   const {
     createClientUsersMutation: {
@@ -87,25 +87,19 @@ export const AddOrUpdateUser = () => {
     if (addClientUsersError) {
       console.error('Error adding user:', addClientUsersError);
       setErrorUi(addClientUsersError as unknown as UserErrors);
-      setNotify({
-        open: true,
-        message:
-          addClientUsersError.message === 'User already exists'
-            ? 'User already exists'
-            : 'Error creating user',
-        severity: 'error',
-      });
+      showNotification(
+        addClientUsersError.message === 'User already exists'
+          ? 'User already exists'
+          : 'Error creating user',
+        'error'
+      );
     }
     if (updateClientUsersError) {
       console.error('Error update user:', updateClientUsersError);
       setErrorUi(updateClientUsersError as unknown as UserErrors);
-      setNotify({
-        open: true,
-        message: 'Error updating user',
-        severity: 'error',
-      });
+      showNotification('Error updating user', 'error');
     }
-  }, [addClientUsersError, updateClientUsersError]);
+  }, [addClientUsersError, updateClientUsersError, showNotification]);
 
   useEffect(() => {
     if (isUserCreated) {
@@ -281,13 +275,6 @@ export const AddOrUpdateUser = () => {
       <Backdrop open={isCreatingUser || isUpdatingUser}>
         <CircularProgress color="secondary" />
       </Backdrop>
-
-      <Notify
-        open={notify.open}
-        message={notify.message}
-        severity={notify.severity}
-        handleOpen={(open) => setNotify({ ...notify, open })}
-      />
     </PageContainer>
   );
 };
