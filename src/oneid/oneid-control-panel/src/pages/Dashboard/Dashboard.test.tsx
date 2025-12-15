@@ -12,6 +12,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Layout from '../../components/Layout';
 import { ClientIdProvider, useClientId } from '../../context/ClientIdContext';
+import { NotificationProvider } from '../../context/NotificationContext';
 import FieldWithInfo from '../../components/FieldWithInfo';
 import { useEffect } from 'react';
 
@@ -63,7 +64,9 @@ const createWrapper = () => {
   // eslint-disable-next-line react/display-name
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <NotificationProvider>{children}</NotificationProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
@@ -88,7 +91,9 @@ const createWrapperWithClientId = (initialClientId: string) => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ClientIdProvider>
-          <Bootstrap>{children}</Bootstrap>
+          <NotificationProvider>
+            <Bootstrap>{children}</Bootstrap>
+          </NotificationProvider>
         </ClientIdProvider>
       </BrowserRouter>
     </QueryClientProvider>

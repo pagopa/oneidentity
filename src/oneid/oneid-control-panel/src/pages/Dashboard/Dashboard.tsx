@@ -30,9 +30,9 @@ import {
 } from '../../types/api';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
-import { Notify } from '../../components/Notify';
 import { SecretModal } from '../../components/SecretModal';
 import { useModalManager } from '../../hooks/useModal';
+import { useNotification } from '../../context/NotificationContext';
 import { ROUTE_PATH } from '../../utils/constants';
 import SamlAttributesSelectInput from '../../components/SamlAttributesSelectInput';
 import { isEqual, isNil } from 'lodash';
@@ -58,8 +58,8 @@ export const Dashboard = () => {
     }
   );
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
-  const [notify, setNotify] = useState<Notify>({ open: false });
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const { showNotification } = useNotification();
   const openConfirm = () => setIsConfirmOpen(true);
   const closeConfirm = () => setIsConfirmOpen(false);
   const [contentDialog, setContentDialog] = useState<string>('');
@@ -123,59 +123,41 @@ export const Dashboard = () => {
     if (isValidated) {
       if (validationIsValid) {
         setErrorUi(null);
-        setNotify({
-          open: true,
-          message: 'PairWise key validated successfully',
-          severity: 'success',
-        });
+        showNotification('PairWise key validated successfully', 'success');
       } else {
         setErrorUi(null);
-        setNotify({
-          open: true,
-          message: 'PairWise key validation failed',
-          severity: 'error',
-        });
+        showNotification('PairWise key validation failed', 'error');
       }
     }
     if (validateError) {
       console.error('Error validatig api key:', validateError);
       setErrorUi(validateError as unknown as ValidateError);
-      setNotify({
-        open: true,
-        message: 'PairWise error validating api key',
-        severity: 'error',
-      });
+      showNotification('PairWise error validating api key', 'error');
     }
     if (planListError) {
       setErrorUi(planListError as unknown as PlanErrors);
-      setNotify({
-        open: true,
-        message: 'PairWise error retrieving plan list',
-        severity: 'error',
-      });
+      showNotification('PairWise error retrieving plan list', 'error');
     }
-  }, [validateError, isValidated, planListError, validationIsValid]);
+  }, [
+    validateError,
+    isValidated,
+    planListError,
+    validationIsValid,
+    showNotification,
+  ]);
 
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
       setErrorUi(updateError as unknown as ClientErrors);
-      setNotify({
-        open: true,
-        message: 'Error updating client',
-        severity: 'error',
-      });
+      showNotification('Error updating client', 'error');
     }
     if (isUpdated) {
       setErrorUi(null);
       const message = isCreating
         ? 'Client created successfully'
         : 'Client updated successfully';
-      setNotify({
-        open: true,
-        message: message,
-        severity: 'success',
-      });
+      showNotification(message, 'success');
 
       // Save client id retrieved from api to session storage
       if (!isUpdatePhase) {
@@ -200,6 +182,7 @@ export const Dashboard = () => {
     openModal,
     isCreating,
     setClientId,
+    showNotification,
   ]);
 
   const isFormValid = () => {
@@ -639,12 +622,6 @@ export const Dashboard = () => {
                   </Button>
                 </>
               )}
-              <Notify
-                open={notify.open}
-                message={notify.message}
-                severity={notify.severity}
-                handleOpen={(open) => setNotify({ ...notify, open })}
-              />
             </Box>
           )}
         </ContentBox>
@@ -687,12 +664,6 @@ export const Dashboard = () => {
         cancelButtonProps={{
           color: 'primary',
         }}
-      />
-      <Notify
-        open={notify.open}
-        message={notify.message}
-        severity={notify.severity}
-        handleOpen={(open) => setNotify({ ...notify, open })}
       />
     </PageContainer>
   );

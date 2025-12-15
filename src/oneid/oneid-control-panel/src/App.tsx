@@ -5,6 +5,7 @@ import { User } from 'oidc-client-ts';
 import Layout from './components/Layout';
 import AppRoutes from './Routes';
 import { ClientIdProvider } from './context/ClientIdContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 // remove ?code... in params after signin
 const onSigninCallback = (_user: User | undefined): void => {
@@ -32,9 +33,11 @@ function App() {
     <AuthProvider {...oidcConfig}>
       <BrowserRouter>
         <ClientIdProvider>
-          <Layout>
-            <AppRoutes />
-          </Layout>
+          <NotificationProvider>
+            <Layout>
+              <AppRoutes />
+            </Layout>
+          </NotificationProvider>
         </ClientIdProvider>
       </BrowserRouter>
     </AuthProvider>

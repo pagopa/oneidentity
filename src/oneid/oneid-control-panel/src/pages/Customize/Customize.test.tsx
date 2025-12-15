@@ -6,6 +6,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { Customize } from './Customize';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
+import { NotificationProvider } from '../../context/NotificationContext';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -91,7 +92,9 @@ const createWrapper = () => {
   // eslint-disable-next-line react/display-name
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <NotificationProvider>{children}</NotificationProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };

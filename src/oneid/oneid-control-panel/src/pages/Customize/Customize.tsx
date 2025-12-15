@@ -31,12 +31,12 @@ import {
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
 import { ClientSettings } from './components/ClientSettings';
-import { Notify } from '../../components/Notify';
 import { useRegister } from '../../hooks/useRegister';
 import { clientDataWithoutSensitiveData } from '../../utils/client';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
 import { useClientId } from '../../context/ClientIdContext';
+import { useNotification } from '../../context/NotificationContext';
 
 function isEqualOrNullish(a: unknown, b: unknown): boolean {
   // If one is null and one is undefined treat them as equal
@@ -47,6 +47,7 @@ function isEqualOrNullish(a: unknown, b: unknown): boolean {
 
 function CustomizeDashboard() {
   const { clientId } = useClientId();
+  const { showNotification } = useNotification();
 
   const {
     clientQuery: {
@@ -67,7 +68,6 @@ function CustomizeDashboard() {
     useState<ClientWithoutSensitiveData | null>(null);
   const [activeThemeKey, setActiveThemeKey] = useState<string>('');
   const [errorUi, setErrorUi] = useState<ClientErrors | null>(null);
-  const [notify, setNotify] = useState<Notify>({ open: false });
 
   const [unsavedChangesReminder, setUnsavedChangesReminder] =
     useState<boolean>(false);
@@ -113,21 +113,13 @@ function CustomizeDashboard() {
     if (updateError) {
       console.error('Error updating client:', updateError);
       setErrorUi(updateError as unknown as ClientErrors);
-      setNotify({
-        open: true,
-        message: 'Error updating client',
-        severity: 'error',
-      });
+      showNotification('Error updating client', 'error');
     }
     if (isUpdateSuccess) {
       setErrorUi(null);
-      setNotify({
-        open: true,
-        message: 'Client updated successfully',
-        severity: 'success',
-      });
+      showNotification('Client updated successfully', 'success');
     }
-  }, [updateError, isUpdateSuccess]);
+  }, [updateError, isUpdateSuccess, showNotification]);
 
   // --- Handlers ---
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,11 +127,7 @@ function CustomizeDashboard() {
 
     if (!clientData && !isFormValid()) {
       console.error('Form is not valid, please check the data');
-      setNotify({
-        open: true,
-        message: 'Form is not valid, please check the data',
-        severity: 'error',
-      });
+      showNotification('Form is not valid, please check the data', 'error');
       return;
     }
 
@@ -522,12 +510,6 @@ function CustomizeDashboard() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Notify
-        open={notify.open}
-        message={notify.message}
-        severity={notify.severity}
-        handleOpen={(open) => setNotify({ ...notify, open })}
-      />
     </PageContainer>
   );
 }
