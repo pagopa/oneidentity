@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GetUserList } from './GetUserList';
 import { PropsWithChildren } from 'react';
+import { NotificationProvider } from '../../../context/NotificationContext';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -29,7 +30,9 @@ const createWrapper = () => {
 
   const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <NotificationProvider>{children}</NotificationProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 

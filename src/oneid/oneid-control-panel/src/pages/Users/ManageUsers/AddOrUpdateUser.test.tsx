@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AddOrUpdateUser } from './AddOrUpdateUser';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
+import { NotificationProvider } from '../../../context/NotificationContext';
 import { ROUTE_PATH } from '../../../utils/constants';
 
 vi.mock('react-oidc-context', () => ({
@@ -72,7 +73,9 @@ const createWrapper = () => {
 
   const Wrapper: React.FC<PropsWithChildren> = ({ children }) => (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <NotificationProvider>{children}</NotificationProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 
