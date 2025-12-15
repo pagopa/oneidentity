@@ -11,6 +11,8 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.junit5.virtual.ShouldNotPin;
+import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
@@ -49,9 +51,11 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Element;
 
+@QuarkusTest
 @TestProfile(OIDCControllerTestProfile.class)
 @TestHTTPEndpoint(OIDCController.class)
-@QuarkusTest
+@VirtualThreadUnit
+@ShouldNotPin
 class OIDCControllerTest {
 
   private final String CLIENT_ID = "test";

@@ -13,6 +13,8 @@ import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import io.quarkus.test.junit5.virtual.ShouldNotPin;
+import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -40,6 +42,8 @@ import org.opensaml.saml.saml2.core.Response;
 @QuarkusTest
 @TestProfile(SAMLControllerTestProfile.class)
 @TestHTTPEndpoint(SAMLController.class)
+@VirtualThreadUnit
+@ShouldNotPin
 public class SAMLControllerTest {
 
   @InjectMock

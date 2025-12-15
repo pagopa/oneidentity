@@ -140,6 +140,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>io.quarkus.junit5</groupId>
+                <artifactId>junit5-virtual-threads</artifactId>
+                <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.quarkiverse.amazonservices</groupId>
                 <artifactId>quarkus-amazon-services-bom</artifactId>
                 <version>${quarkus-amazon-services.version}</version>

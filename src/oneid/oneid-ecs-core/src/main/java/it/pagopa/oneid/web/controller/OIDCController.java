@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
@@ -52,6 +53,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Path(("/oidc"))
 @Startup
+@RunOnVirtualThread
 public class OIDCController {
 
   @Inject

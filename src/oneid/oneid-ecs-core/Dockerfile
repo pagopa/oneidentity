@@ -45,6 +45,8 @@ RUN \
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526aebd99245eee76feb55c0b9a10325cddfc9530b24c096064a5ed81e
 
+ENV JAVA_OPTS="-Djdk.tracePinnedThreads=short"
+
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/lib/ /deployments/lib/
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/*.jar /deployments/
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/app/ /deployments/app/

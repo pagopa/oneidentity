@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit5.virtual.ShouldNotPin;
+import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.ClientServiceImpl;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @QuarkusTest
+@VirtualThreadUnit
+@ShouldNotPin
 class OneIDControllerTest {
 
   @Inject
