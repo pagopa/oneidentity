@@ -952,7 +952,7 @@ resource "null_resource" "install_client_manager_dependencies" {
   }
 
   triggers = {
-    always_run = "${timestamp()}"
+    requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt")
   }
 }
 
@@ -1210,7 +1210,7 @@ resource "null_resource" "install_dependencies" {
   }
 
   triggers = {
-    always_run = "${timestamp()}"
+    requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
   }
 }
 
