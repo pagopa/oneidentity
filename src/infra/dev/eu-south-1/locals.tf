@@ -4,13 +4,13 @@ locals {
   ecr_oneid_internal_idp = format("%s-internal-idp", local.project)
   ecr_spid_validator     = format("%s-spid-validator", local.project)
 
-  cloudwatch_ecs_alarms_with_sns = var.ecs_alarms
+  cloudwatch_ecs_alarms_without_sns = var.ecs_alarms
 
-  cloudwatch_lambda_alarms_with_sns = var.lambda_alarms
+  cloudwatch_lambda_alarms_without_sns = var.lambda_alarms
 
-  cloudwatch_dlq_alarms_with_sns = var.dlq_alarms
+  cloudwatch_dlq_alarms_without_sns = var.dlq_alarms
 
-  cloudwatch_api_alarms_with_sns = var.api_alarms
+  cloudwatch_api_alarms_without_sns = var.api_alarms
 
   idp_entity_ids = concat(
     try(
