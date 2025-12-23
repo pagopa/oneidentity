@@ -963,7 +963,7 @@ data "archive_file" "pyjwt_layer" {
   source_dir  = "${path.module}/../../dist/"
   output_path = "${path.module}/../../dist/pyjwt-layer-${filemd5("${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt")}.zip"
   depends_on  = [null_resource.install_client_manager_dependencies, null_resource.install_dependencies]
-  
+
   excludes = [
     "**/.gitkeep",
     ".*"
@@ -1223,7 +1223,7 @@ resource "null_resource" "install_dependencies" {
   triggers = {
     requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
   }
-  
+
   depends_on = [null_resource.install_client_manager_dependencies]
 }
 
@@ -1232,7 +1232,7 @@ data "archive_file" "cryptography_layer" {
   source_dir  = "${path.module}/../../dist/"
   output_path = "${path.module}/../../dist/cryptography-layer-${filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")}.zip"
   depends_on  = [null_resource.install_client_manager_dependencies, null_resource.install_dependencies]
-  
+
   excludes = [
     "**/.gitkeep",
     ".*"
