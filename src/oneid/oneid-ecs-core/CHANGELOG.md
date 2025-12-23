@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.1.0
+
+### Minor Changes
+
+- f6a6bd1: Enable Virtual threads usage for ecs-core
+
 ## 1.0.4
 
 ### Patch Changes
