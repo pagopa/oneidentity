@@ -2498,6 +2498,13 @@
       "groupId": "software.amazon.awssdk",
       "version": "2.25.15",
       "sha256": "rO1g_9UOrGsZsl3RFo49VVG1RgEXXkjpnvkKjTSeToY="
+    },
+    {
+      "id": "io.quarkus.junit5:junit5-virtual-threads:jar:3.11.3",
+      "artifactId": "junit5-virtual-threads",
+      "groupId": "io.quarkus.junit5",
+      "version": "3.11.3",
+      "sha256": "6mHshKLHU4IL8jHXnYtlTwL8lZcqELzbYinuMX2bdTk="
     }
   ]
 }

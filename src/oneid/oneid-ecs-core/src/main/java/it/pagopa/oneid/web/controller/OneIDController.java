@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.controller;
 
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.ClientServiceImpl;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 @Path("/")
 @Startup
+@RunOnVirtualThread
 public class OneIDController {
 
   @Inject
