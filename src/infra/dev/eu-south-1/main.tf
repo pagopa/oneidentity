@@ -96,7 +96,7 @@ module "frontend" {
 
 
   xray_tracing_enabled = var.xray_tracing_enabled
-  api_alarms           = local.cloudwatch__api_alarms_with_sns
+  api_alarms           = local.cloudwatch_api_alarms_with_sns
   web_acl = {
     name = format("%s-webacl", local.project)
   }
@@ -177,9 +177,9 @@ module "backend" {
   ecs_cluster_name          = format("%s-ecs", local.project)
   enable_container_insights = var.ecs_enable_container_insights
   sns_topic_arn             = module.sns.sns_topic_arn
-  ecs_alarms                = local.cloudwatch__ecs_alarms_with_sns
-  lambda_alarms             = local.cloudwatch__lambda_alarms_with_sns
-  dlq_alarms                = local.cloudwatch__dlq_alarms_with_sns
+  ecs_alarms                = local.cloudwatch_ecs_alarms_with_sns
+  lambda_alarms             = local.cloudwatch_lambda_alarms_with_sns
+  dlq_alarms                = local.cloudwatch_dlq_alarms_with_sns
 
   fargate_capacity_providers = {
     FARGATE = {

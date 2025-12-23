@@ -304,7 +304,7 @@ variable "api_alarms" {
     statistic           = string
     comparison_operator = string
     resource_name       = string
-    sns_topic_alarm_arn = string
+    sns_topic_alarm_arn = optional(string, null)
     method              = string
   }))
 }

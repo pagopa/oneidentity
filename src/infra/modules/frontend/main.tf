@@ -365,7 +365,7 @@ resource "aws_cloudwatch_metric_alarm" "api_alarms" {
     Method   = each.value.method
   }
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
+  alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
 }
 
 ## Firewall regional web acl  

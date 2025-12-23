@@ -93,7 +93,7 @@ module "frontend" {
   assets_internal_idp_bucket_arn  = module.storage.assets_internal_idp_bucket_arn
 
   xray_tracing_enabled = var.xray_tracing_enabled
-  api_alarms           = local.cloudwatch__api_alarms_with_sns
+  api_alarms           = local.cloudwatch_api_alarms_with_sns
   web_acl = {
     name = format("%s-webacl", local.project)
   }
@@ -185,9 +185,9 @@ module "backend" {
   }
 
   sns_topic_arn   = module.sns.sns_topic_arn
-  ecs_alarms      = local.cloudwatch__ecs_alarms_with_sns
-  lambda_alarms   = local.cloudwatch__lambda_alarms_with_sns
-  dlq_alarms      = local.cloudwatch__dlq_alarms_with_sns
+  ecs_alarms      = local.cloudwatch_ecs_alarms_with_sns
+  lambda_alarms   = local.cloudwatch_lambda_alarms_with_sns
+  dlq_alarms      = local.cloudwatch_dlq_alarms_with_sns
   vpc_id          = module.network.vpc_id
   private_subnets = module.network.private_subnet_ids
   vpc_cidr_block  = module.network.vpc_cidr_block

@@ -9,7 +9,7 @@ locals {
   table_idpMetadata_gsi_pointer_arn = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/IDPMetadata/index/gsi_pointer_idx"
   table_idp_metadata_arn            = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/IDPMetadata"
 
-  cloudwatch__ecs_alarms_with_sns = {
+  cloudwatch_ecs_alarms_with_sns = {
     for key, alarm in var.ecs_alarms : key => merge(
       alarm,
       {
@@ -18,7 +18,7 @@ locals {
     )
   }
 
-  cloudwatch__lambda_alarms_with_sns = {
+  cloudwatch_lambda_alarms_with_sns = {
     for key, alarm in var.lambda_alarms : key => merge(
       alarm,
       {
@@ -27,13 +27,13 @@ locals {
     )
   }
 
-  cloudwatch__dlq_alarms_with_sns = merge(var.dlq_alarms, {
+  cloudwatch_dlq_alarms_with_sns = merge(var.dlq_alarms, {
 
     sns_topic_alarm_arn = module.sns.sns_topic_arn
 
   })
 
-  cloudwatch__api_alarms_with_sns = {
+  cloudwatch_api_alarms_with_sns = {
     for key, alarm in var.api_alarms : key => merge(
       alarm,
       {
