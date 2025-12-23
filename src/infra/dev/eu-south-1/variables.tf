@@ -523,7 +523,7 @@ variable "dlq_alarms" {
     period              = optional(number)
     statistic           = optional(string)
     comparison_operator = optional(string)
-    sns_topic_alarm_arn = optional(list(string))
+    sns_topic_alarm_arn = optional(string, null)
   })
 
   default = {

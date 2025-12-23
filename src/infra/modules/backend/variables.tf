@@ -488,7 +488,7 @@ variable "ecs_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    sns_topic_alarm_arn = string
+    sns_topic_alarm_arn = optional(string, null)
     scaling_policy      = optional(string, null)
   }))
 }
@@ -502,7 +502,7 @@ variable "lambda_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    sns_topic_alarm_arn = string
+    sns_topic_alarm_arn = optional(string, null)
     treat_missing_data  = string
   }))
 }
@@ -516,7 +516,7 @@ variable "dlq_alarms" {
     period              = number
     statistic           = string
     comparison_operator = string
-    sns_topic_alarm_arn = string
+    sns_topic_alarm_arn = optional(string, null)
   })
 }
 

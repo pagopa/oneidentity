@@ -637,7 +637,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
     FunctionName = each.key
   }
 
-  alarm_actions = [each.value.sns_topic_alarm_arn]
+  alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
@@ -656,7 +656,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
     QueueName = aws_sqs_queue.dlq_lambda_assertion.name
   }
 
-  alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
+  alarm_actions = var.dlq_alarms.sns_topic_alarm_arn != null ? [var.dlq_alarms.sns_topic_alarm_arn] : []
 }
 
 
@@ -952,7 +952,7 @@ resource "null_resource" "install_client_manager_dependencies" {
   }
 
   triggers = {
-    requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt")
+    always_run = "${timestamp()}"
   }
 }
 
@@ -1210,7 +1210,7 @@ resource "null_resource" "install_dependencies" {
   }
 
   triggers = {
-    requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
+    always_run = "${timestamp()}"
   }
 }
 

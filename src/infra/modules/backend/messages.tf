@@ -20,7 +20,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_sessions" {
     QueueName = aws_sqs_queue.pipe_dlq.name
   }
 
-  alarm_actions = [var.dlq_alarms.sns_topic_alarm_arn]
+  alarm_actions = var.dlq_alarms.sns_topic_alarm_arn != null ? [var.dlq_alarms.sns_topic_alarm_arn] : []
 }
 
 resource "aws_iam_role" "pipe_sessions" {

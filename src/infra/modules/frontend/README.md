@@ -125,7 +125,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_api_alarms"></a> [api\_alarms](#input\_api\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = number<br/>    evaluation_periods  = number<br/>    period              = number<br/>    statistic           = string<br/>    comparison_operator = string<br/>    resource_name       = string<br/>    sns_topic_alarm_arn = string<br/>    method              = string<br/>  }))</pre> | n/a | yes |
+| <a name="input_api_alarms"></a> [api\_alarms](#input\_api\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = number<br/>    evaluation_periods  = number<br/>    period              = number<br/>    statistic           = string<br/>    comparison_operator = string<br/>    resource_name       = string<br/>    sns_topic_alarm_arn = optional(string, null)<br/>    method              = string<br/>  }))</pre> | n/a | yes |
 | <a name="input_api_authorizer_admin_name"></a> [api\_authorizer\_admin\_name](#input\_api\_authorizer\_admin\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_authorizer_name"></a> [api\_authorizer\_name](#input\_api\_authorizer\_name) | n/a | `string` | `null` | no |
 | <a name="input_api_cache_cluster_enabled"></a> [api\_cache\_cluster\_enabled](#input\_api\_cache\_cluster\_enabled) | Enablr cache cluster is enabled for the stage. | `bool` | `false` | no |
