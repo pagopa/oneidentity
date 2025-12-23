@@ -941,6 +941,7 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 resource "null_resource" "install_client_manager_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
+      rm -rf ${path.module}/../../dist/python
       mkdir -p ${path.module}/../../dist/python
       pip install \
         --platform manylinux2014_x86_64 \
@@ -948,6 +949,7 @@ resource "null_resource" "install_client_manager_dependencies" {
         --implementation cp \
         --only-binary=:all: --upgrade \
         -r ../../../oneid/oneid-lambda-client-manager/requirements.txt
+      touch ${path.module}/../../dist/.client-manager-ready
     EOT
   }
 
@@ -960,7 +962,12 @@ data "archive_file" "pyjwt_layer" {
   type        = "zip"
   source_dir  = "${path.module}/../../dist/"
   output_path = "${path.module}/../../dist/pyjwt-layer-${filemd5("${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt")}.zip"
-  depends_on  = [null_resource.install_client_manager_dependencies]
+  depends_on  = [null_resource.install_client_manager_dependencies, null_resource.install_dependencies]
+  
+  excludes = [
+    "**/.gitkeep",
+    ".*"
+  ]
 }
 
 resource "aws_lambda_layer_version" "pyjwt_layer" {
@@ -1199,26 +1206,37 @@ resource "aws_vpc_security_group_egress_rule" "cert_checker_sec_group_egress_rul
 resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
-      mkdir -p ${path.module}/../../dist/python
+      # Wait for client manager to finish if running
+      while [ -f ${path.module}/../../dist/.client-manager-running ]; do sleep 1; done
+      touch ${path.module}/../../dist/.cert-exp-running
       pip install \
         --platform manylinux2014_x86_64 \
         --target=${path.module}/../../dist/python \
         --implementation cp \
         --only-binary=:all: --upgrade \
         -r ../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt
+      touch ${path.module}/../../dist/.cert-exp-ready
+      rm -f ${path.module}/../../dist/.cert-exp-running
     EOT
   }
 
   triggers = {
     requirements_hash = filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")
   }
+  
+  depends_on = [null_resource.install_client_manager_dependencies]
 }
 
 data "archive_file" "cryptography_layer" {
   type        = "zip"
   source_dir  = "${path.module}/../../dist/"
   output_path = "${path.module}/../../dist/cryptography-layer-${filemd5("${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt")}.zip"
-  depends_on  = [null_resource.install_dependencies]
+  depends_on  = [null_resource.install_client_manager_dependencies, null_resource.install_dependencies]
+  
+  excludes = [
+    "**/.gitkeep",
+    ".*"
+  ]
 }
 
 resource "aws_lambda_layer_version" "cryptography" {
