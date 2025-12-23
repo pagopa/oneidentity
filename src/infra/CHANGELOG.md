@@ -1,5 +1,11 @@
 # infra
 
+## 1.5.0
+
+### Minor Changes
+
+- b362d39: Set trigger install dependency on requirements changes and remove sns from alarms in dev
+
 ## 1.4.1
 
 ### Patch Changes

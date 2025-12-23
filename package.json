@@ -1,6 +1,6 @@
 {
   "name": "oneidentity",
-  "version": "4.5.1",
+  "version": "4.6.0",
   "private": true,
   "repository": "https://github.com/pagopa/oneidentity.git",
   "devDependencies": {

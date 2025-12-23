@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.6.0
+
+### Minor Changes
+
+- f6a6bd1: Enable Virtual threads usage for ecs-core
+
 ## 4.5.1
 
 ### Patch Changes

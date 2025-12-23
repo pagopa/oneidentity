@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.2.2
+
+### Patch Changes
+
+- bcae2bc: Bump react-router from 7.10.1 to 7.11.0
+
 ## 1.2.1
 
 ### Patch Changes
