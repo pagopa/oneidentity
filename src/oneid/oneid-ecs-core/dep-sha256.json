@@ -2409,11 +2409,11 @@
       "sha256": "u6DubolZWzraJ3IgwV3nxssPVL8-V2phgcdZYECw6sU="
     },
     {
-      "id": "org.apache.logging.log4j:log4j-api:jar:2.23.1",
+      "id": "org.apache.logging.log4j:log4j-api:jar:2.25.3",
       "artifactId": "log4j-api",
       "groupId": "org.apache.logging.log4j",
-      "version": "2.23.1",
-      "sha256": "kuwf02qzvAneYZjS18CRRoXA9xJ-qTGswy_S7N2C6ok="
+      "version": "2.25.3",
+      "sha256": "6IZoKSD6D7nW62OV3LTeCIRD-GRsicXlhG4WjjJ_QG8="
     },
     {
       "id": "org.eclipse.jetty:jetty-client:jar:12.0.2",
@@ -2479,11 +2479,11 @@
       "sha256": "JDpkRw_aDoam_d6wr0x6qUJs6E5oy_4Y117l2kt-C5I="
     },
     {
-      "id": "org.apache.logging.log4j:log4j-core:jar:2.23.1",
+      "id": "org.apache.logging.log4j:log4j-core:jar:2.25.3",
       "artifactId": "log4j-core",
       "groupId": "org.apache.logging.log4j",
-      "version": "2.23.1",
-      "sha256": "cHk2gAX8NPViSPV_iopTNhw6U-kAfVVtvGb8Zp3wgbU="
+      "version": "2.25.3",
+      "sha256": "Nit_y2W3OqRsxLxTq_TrIW9ESoO10aA3y2_f_wrp8Pk="
     },
     {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-ssm:jar:2.13.1",
