@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.1.4
+
+### Patch Changes
+
+- f7c6c3e: fixed SNS notification logic for pairwise update
+
 ## 2.1.3
 
 ### Patch Changes
