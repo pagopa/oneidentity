@@ -31,6 +31,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -182,7 +183,7 @@ public class ClientRegistrationController {
       message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
       sendNotification = true;
     }
-    if (!clientRegistrationDTOInput.getPairwise().equals(clientExtended.isPairwise())) {
+    if (!Objects.equals(clientRegistrationDTOInput.getPairwise(), clientExtended.isPairwise())) {
       message += "- Pairwise changed to: " + clientRegistrationDTOInput.getPairwise() + " \n";
       sendNotification = true;
     }
