@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.1.1
+
+### Patch Changes
+
+- bd9dad3: update log4j to 2.25.3
+
 ## 1.1.0
 
 ### Minor Changes

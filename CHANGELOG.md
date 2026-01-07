@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.6.1
+
+### Patch Changes
+
+- bd9dad3: update log4j to 2.25.3
+
 ## 4.6.0
 
 ### Minor Changes
