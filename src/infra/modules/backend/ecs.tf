@@ -389,6 +389,10 @@ module "ecs_core_service" {
         {
           name  = "SIGN_JWT_KEY_ALIAS"
           value = module.jwt_sign.aliases.sign-jwt.name
+        },
+        {
+          name  = "SIGN_JWT_KEY_ID"
+          value = module.jwt_sign.aliases.sign-jwt.target_key_id
         }
       ])
 
