@@ -25,6 +25,10 @@ public class OIDCUtils {
   @ConfigProperty(name = "sign_jwt_key_alias")
   String SIGN_JWT_KEY_ALIAS;
 
+  @Inject
+  @ConfigProperty(name = "sign_jwt_key_id")
+  String SIGN_JWT_KEY_ID;
+
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
 
@@ -70,6 +74,7 @@ public class OIDCUtils {
       String nonce, boolean sameIdp) {
     // Prepare header for JWT
     JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
+        .keyID(SIGN_JWT_KEY_ID)
         .type(JOSEObjectType.JWT)
         .build();
     byte[] headerBytes = jwsHeader.toString().getBytes();
@@ -97,6 +102,7 @@ public class OIDCUtils {
       String nonce) {
     // Prepare header for JWT
     JWSHeader jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256)
+        .keyID(SIGN_JWT_KEY_ID)
         .type(JOSEObjectType.JWT)
         .build();
     byte[] headerBytes = jwsHeader.toString().getBytes();

@@ -83,6 +83,7 @@ services:
       QUARKUS_DYNAMODB_ENDPOINT_OVERRIDE: "http://dynamodb-local:8000"
       QUARKUS_KMS_ENDPOINT_OVERRIDE: "http://local-kms:8080"
       SIGN_JWT_KEY_ALIAS: "alias/sign-jwt"
+      SIGN_JWT_KEY_ID: "1234"
   oneid-lambda-service-metadata:
     build:
       context: ./
