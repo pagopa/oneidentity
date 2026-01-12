@@ -35,7 +35,7 @@ RUN \
 
 RUN \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -s settings.xml -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true
+  ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -s settings.xml -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -Dquarkus.package.jar.appcds.enabled=true
 
 # TODO debug logs, must be removed as soon as we're sure about caching
 RUN \
@@ -47,6 +47,9 @@ FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526a
 
 ENV JAVA_OPTS="-Djdk.tracePinnedThreads=short"
 
+# Copy the generated AppCDS file (app-cds.jsa)
+COPY --from=build /code/oneid-ecs-core/target/quarkus-app/app-cds.jsa /deployments/app-cds.jsa
+
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/lib/ /deployments/lib/
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/*.jar /deployments/
 COPY --from=build /code/oneid-ecs-core/target/quarkus-app/app/ /deployments/app/
@@ -54,7 +57,7 @@ COPY --from=build /code/oneid-ecs-core/target/quarkus-app/quarkus/ /deployments/
 
 EXPOSE 8080
 USER 185
-ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:SharedArchiveFile=/deployments/app-cds.jsa"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
 ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]
