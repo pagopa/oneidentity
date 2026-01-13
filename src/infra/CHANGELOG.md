@@ -1,5 +1,11 @@
 # infra
 
+## 1.5.1
+
+### Patch Changes
+
+- fcb0258: Edit period for no traffic error alarms to 1 hour
+
 ## 1.5.0
 
 ### Minor Changes
