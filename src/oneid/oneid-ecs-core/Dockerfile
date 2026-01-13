@@ -33,6 +33,8 @@ RUN \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   ["./mvnw", "verify", "clean", "-Dmaven.repo.local=/tmp/.build-cache", "--fail-never", "-s", "settings.xml"]
 
+ENV MAVEN_OPTS="-Xmx2512m"
+
 RUN \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -s settings.xml -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -Dquarkus.package.jar.appcds.enabled=true
