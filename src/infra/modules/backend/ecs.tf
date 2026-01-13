@@ -661,9 +661,10 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   for_each            = var.idp_no_traffic_alarm != null && var.idp_no_traffic_alarm.enabled ? { for s in var.idp_no_traffic_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s_%s_%s", "IDPNoTrafficErrorRateAlarm", var.env_short, each.key)
   comparison_operator = "LessThanLowerThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 60
+  datapoints_to_alarm = 60
   threshold_metric_id = "ad1"
-  treat_missing_data  = "ignore"
+  treat_missing_data  = "breaching"
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
 
@@ -674,8 +675,15 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
 
   metric_query {
     id          = "ad1"
-    expression  = "ANOMALY_DETECTION_BAND(m1, 4)"
+    expression  = "ANOMALY_DETECTION_BAND(heartbeat, 2)"
     label       = "Traffic Anomaly Band"
+    return_data = "true"
+  }
+
+  metric_query {
+    id          = "heartbeat"
+    expression  = "IF(m1 > 0, 1, 0)"
+    label       = "IDP Availability"
     return_data = "true"
   }
 
@@ -683,7 +691,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     id          = "m1"
     expression  = "FILL(successes, 0) + FILL(errors, 0)"
     label       = "Total Requests"
-    return_data = "true"
+    return_data = "false"
   }
 
 
@@ -693,7 +701,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPSuccess"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 3600
+      period      = 60
       stat        = "Sum"
       unit        = "Count"
 
@@ -710,7 +718,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPError"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 3600
+      period      = 60
       stat        = "Sum"
       unit        = "Count"
 
@@ -780,9 +788,10 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
   for_each            = var.client_no_traffic_alarm != null && var.client_no_traffic_alarm.enabled ? { for c in var.client_no_traffic_alarm.clients : c.client_id => c } : {}
   alarm_name          = format("%s_%s_%s_%s", "ClientNoTrafficErrorRateAlarm", var.env_short, each.value.friendly_name, each.key)
   comparison_operator = "LessThanLowerThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = 60
+  datapoints_to_alarm = 60
   threshold_metric_id = "ad1"
-  treat_missing_data  = "ignore"
+  treat_missing_data  = "breaching"
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
   alarm_actions = [
@@ -792,8 +801,15 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
 
   metric_query {
     id          = "ad1"
-    expression  = "ANOMALY_DETECTION_BAND(m1, 4)"
+    expression  = "ANOMALY_DETECTION_BAND(heartbeat, 2)"
     label       = "Traffic Anomaly Band"
+    return_data = "true"
+  }
+
+  metric_query {
+    id          = "heartbeat"
+    expression  = "IF(traffic > 0, 1, 0)"
+    label       = "Client Availability"
     return_data = "true"
   }
 
@@ -801,7 +817,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
     id          = "m1"
     expression  = "FILL(successes, 0) + FILL(errors, 0)"
     label       = "Total Requests"
-    return_data = "true"
+    return_data = "false"
   }
 
 
@@ -811,7 +827,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
     metric {
       metric_name = "ClientSuccess"
       namespace   = var.client_no_traffic_alarm.namespace
-      period      = 3600
+      period      = 60
       stat        = "Sum"
       unit        = "Count"
 
@@ -828,7 +844,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
     metric {
       metric_name = "ClientError"
       namespace   = var.client_no_traffic_alarm.namespace
-      period      = 3600
+      period      = 60
       stat        = "Sum"
       unit        = "Count"
 
