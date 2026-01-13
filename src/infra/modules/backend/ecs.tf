@@ -693,7 +693,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPSuccess"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 900
+      period      = 3600
       stat        = "Sum"
       unit        = "Count"
 
@@ -710,7 +710,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
     metric {
       metric_name = "IDPError"
       namespace   = var.idp_no_traffic_alarm.namespace
-      period      = 900
+      period      = 3600
       stat        = "Sum"
       unit        = "Count"
 
@@ -811,7 +811,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
     metric {
       metric_name = "ClientSuccess"
       namespace   = var.client_no_traffic_alarm.namespace
-      period      = 900
+      period      = 3600
       stat        = "Sum"
       unit        = "Count"
 
@@ -828,7 +828,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
     metric {
       metric_name = "ClientError"
       namespace   = var.client_no_traffic_alarm.namespace
-      period      = 900
+      period      = 3600
       stat        = "Sum"
       unit        = "Count"
 
