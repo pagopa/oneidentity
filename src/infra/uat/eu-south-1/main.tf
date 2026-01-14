@@ -594,7 +594,7 @@ module "backend" {
   }
 
   idp_no_traffic_alarm = {
-    enabled   = false
+    enabled   = true #TODO set to false once verified
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
