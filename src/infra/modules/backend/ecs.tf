@@ -664,7 +664,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   evaluation_periods  = 60
   datapoints_to_alarm = 60
   threshold_metric_id = "ad1"
-  treat_missing_data  = "breaching"
+  treat_missing_data  = "ignore"
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
 
@@ -791,7 +791,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
   evaluation_periods  = 60
   datapoints_to_alarm = 60
   threshold_metric_id = "ad1"
-  treat_missing_data  = "breaching"
+  treat_missing_data  = "ignore"
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
   alarm_actions = [
