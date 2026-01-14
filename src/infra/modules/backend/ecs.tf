@@ -669,7 +669,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   ok_actions = [module.update_status_lambda.lambda_function_arn]
 
   alarm_actions = [
-    var.sns_topic_arn,
+    #var.sns_topic_arn, TODO: enable once verified
     module.update_status_lambda.lambda_function_arn
   ]
 
@@ -795,7 +795,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
 
   ok_actions = [module.update_status_lambda.lambda_function_arn]
   alarm_actions = [
-    var.sns_topic_arn,
+    #var.sns_topic_arn, TODO: enable once verified
     module.update_status_lambda.lambda_function_arn
   ]
 
