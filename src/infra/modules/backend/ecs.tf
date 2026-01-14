@@ -661,8 +661,9 @@ resource "aws_cloudwatch_metric_alarm" "idp_no_traffic_alarm" {
   for_each            = var.idp_no_traffic_alarm != null && var.idp_no_traffic_alarm.enabled ? { for s in var.idp_no_traffic_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s_%s_%s", "IDPNoTrafficErrorRateAlarm", var.env_short, each.key)
   comparison_operator = "LessThanLowerThreshold"
-  evaluation_periods  = 60
-  datapoints_to_alarm = 60
+  #evaluation_periods  = 60 TODO set back to 60 once verified
+  evaluation_periods  = 3
+  datapoints_to_alarm = 3
   threshold_metric_id = "ad1"
   treat_missing_data  = "breaching"
 
