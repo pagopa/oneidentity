@@ -808,7 +808,7 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
 
   metric_query {
     id          = "heartbeat"
-    expression  = "IF(traffic > 0, 1, 0)"
+    expression  = "IF(m1 > 0, 1, 0)"
     label       = "Client Availability"
     return_data = "true"
   }
