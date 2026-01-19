@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.7.0
+
+### Minor Changes
+
+- a55e3d7: Add keyId to jwt header
+
 ## 4.6.1
 
 ### Patch Changes
