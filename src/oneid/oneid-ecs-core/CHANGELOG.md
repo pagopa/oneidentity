@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.2.0
+
+### Minor Changes
+
+- a55e3d7: Add keyId to jwt header
+
 ## 1.1.1
 
 ### Patch Changes

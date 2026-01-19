@@ -1,5 +1,12 @@
 # infra
 
+## 1.6.0
+
+### Minor Changes
+
+- a55e3d7: Add keyId to jwt header
+- 0099b5c: Edit no traffic alarms logic
+
 ## 1.5.1
 
 ### Patch Changes
