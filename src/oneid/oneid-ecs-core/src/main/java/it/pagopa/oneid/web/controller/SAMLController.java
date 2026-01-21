@@ -80,17 +80,7 @@ public class SAMLController {
     org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
     SAMLSession samlSession = currentAuthDTO.getSamlSession();
 
-    // 1b. Update SAMLSession with SAMLResponse attribute
-    try {
-      samlSessionService.setSAMLResponse(response.getInResponseTo(),
-          samlResponseDTO.getSAMLResponse());
-    } catch (SessionException e) {
-      Log.error("error during session management: " + e.getMessage());
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
-    }
-
-    // 1c. Check if the SAMLResponse contains multiple signatures,
+    // 1b. Check if the SAMLResponse contains multiple signatures,
     // in this case the raw SAMLResponse is stored in SAML record, but the flow is interrupted
     if (currentAuthDTO.isResponseWithMultipleSignatures()) {
       Log.error("SAML Response contains multiple signatures");
@@ -100,7 +90,7 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
 
-    // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page
+    // 1c. Check status, will raise CustomException in case of error mapped to a custom html error page
     try {
       samlServiceImpl.checkSAMLStatus(response,
           samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
