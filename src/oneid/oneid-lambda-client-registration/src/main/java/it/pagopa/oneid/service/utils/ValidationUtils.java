@@ -25,7 +25,7 @@ public class ValidationUtils {
   public static boolean isSafeDescription(String value) {
     if (value==null) return false;
     String v = value.trim();
-    return (v.length() >= 20 && v.length() <= 2000)
+    return (v.length() >= 20)
         && (v.indexOf('\u0000') < 0)
         && (v.indexOf('<') < 0 && v.indexOf('>') < 0)
         && (!DANGEROUS_PROTOCOL_PREFIX.matcher(v).find());
