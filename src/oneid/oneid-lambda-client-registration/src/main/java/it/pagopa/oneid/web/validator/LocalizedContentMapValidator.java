@@ -53,7 +53,7 @@ public class LocalizedContentMapValidator implements
           return false;
         }
 
-        boolean contentValid = isSafeTitle(content.title(), 10, 200)
+        boolean contentValid = isSafeTitle(content.title(), 10)
             && isSafeDescription(content.description());
         
         try {
