@@ -151,31 +151,14 @@ public class ControllerInterceptor {
 
       if (currentAuthDTO.isResponseWithMultipleSignatures()) {
         Log.error(
-            "SAML Response parsing failed due to Multiple Signatures. Initiating recovery to store session and metrics.");
+            "SAML Response parsing failed due to Multiple Signatures. Sending Metric and blocking.");
 
-        String inResponseTo = extractInResponseToFromRaw(samlResponseDTO.getSAMLResponse());
+        String idp = extractIssuerFromRaw(samlResponseDTO.getSAMLResponse());
 
-        if (inResponseTo != null) {
-          try {
-            SAMLSession samlSession = samlSessionService.getSession(inResponseTo, RecordType.SAML);
-            samlSessionService.setSAMLResponse(inResponseTo, samlResponseDTO.getSAMLResponse());
-
-            cloudWatchConnectorImpl.sendIDPErrorMetricData(
-                samlSession.getAuthorizationRequestDTOExtended().getIdp(),
-                ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT
-            );
-
-            // Update MDC for logs
-            updateMDCClientAndStateProperties(
-                samlSession.getAuthorizationRequestDTOExtended().getClientId(),
-                samlSession.getAuthorizationRequestDTOExtended().getState());
-
-          } catch (SessionException se) {
-            Log.error("Failed to recover session during Multiple Signature error handling: "
-                + se.getMessage());
-          }
-        } else {
-          Log.error("Could not extract InResponseTo from malformed SAML Response.");
+        if (idp != null && !idp.isBlank()) {
+          cloudWatchConnectorImpl.sendIDPErrorMetricData(
+              idp,
+              ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
         }
 
         throw new GenericHTMLException(
@@ -203,15 +186,6 @@ public class ControllerInterceptor {
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
-    // Update SAMLSession with SAMLResponse attribute
-    try {
-      samlSessionService.setSAMLResponse(inResponseTo, samlResponseDTO.getSAMLResponse());
-    } catch (SessionException e) {
-      Log.error("error during session management: " + e.getMessage());
-      // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
-    }
-
     // Set MDC properties
     updateMDCClientAndStateProperties(
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
@@ -222,20 +196,20 @@ public class ControllerInterceptor {
 
   }
 
-  private String extractInResponseToFromRaw(String base64Response) {
+  private String extractIssuerFromRaw(String base64Response) {
     try {
       byte[] decodedBytes = Base64.getDecoder().decode(base64Response);
       String xml = new String(decodedBytes, StandardCharsets.UTF_8);
 
-      Pattern pattern = Pattern.compile("InResponseTo=\"([^\"]+)\"");
+      Pattern pattern = java.util.regex.Pattern.compile("Issuer[^>]*>(.*?)</");
       Matcher matcher = pattern.matcher(xml);
 
       if (matcher.find()) {
-        return matcher.group(1);
+        return matcher.group(1).trim();
       }
     } catch (Exception e) {
-      Log.error("Error manually extracting InResponseTo: " + e.getMessage());
+      Log.warn("Could not extract Issuer from raw SAML Response: " + e.getMessage());
     }
-    return null;
+    return "UNKNOWN_IDP"; // Fallback if extraction fails completely
   }
 }
