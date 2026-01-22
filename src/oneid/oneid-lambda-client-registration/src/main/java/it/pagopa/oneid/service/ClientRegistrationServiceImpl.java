@@ -28,11 +28,13 @@ import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
+import it.pagopa.oneid.service.utils.ValidationUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +62,11 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   public void validateClientRegistrationInfo(
       ClientRegistrationDTO clientRegistrationDTO, @Nullable String pdvApiKey,
       @Nullable String planName) {
+
+    // validate client name
+    if (!(clientRegistrationDTO.getClientName()!=null && ValidationUtils.isSafeTitle(clientRegistrationDTO.getClientName()))) {
+      throw new InvalidParameterException("Invalid Client name");
+    }
 
     // Validate redirectUris
     if (clientRegistrationDTO.getRedirectUris()!=null) {
