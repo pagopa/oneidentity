@@ -269,6 +269,10 @@ module "backend" {
       {
         name  = "REGISTRY_ENABLED"
         value = var.registry_enabled
+      },
+      {
+        name  = "SNS_TOPIC_ARN"
+        value = module.sns.sns_topic_arn
       }
     ]
   }

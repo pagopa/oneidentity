@@ -271,6 +271,11 @@ module "backend" {
       {
         name  = "REGISTRY_ENABLED"
         value = var.registry_enabled
+      },
+      {
+        #TODO: remove after testing in dev
+        name  = "SNS_TOPIC_ARN"
+        value = module.sns.sns_topic_arn
       }
     ]
   }

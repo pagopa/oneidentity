@@ -1989,6 +1989,27 @@
       "sha256": "B2siED13dDCKaM1cy4STZEHswjTXpWKCU6fNPhBd0S8="
     },
     {
+      "id": "io.quarkiverse.amazonservices:quarkus-amazon-sns:jar:2.13.1",
+      "artifactId": "quarkus-amazon-sns",
+      "groupId": "io.quarkiverse.amazonservices",
+      "version": "2.13.1",
+      "sha256": "M6GdZtDjqau02B_--5JXlk8aSnc0CE2fbvLxJq_Zd8c="
+    },
+    {
+      "id": "software.amazon.awssdk:sns:jar:2.25.15",
+      "artifactId": "sns",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "VaiV0z-V2HbW5nZJJG5s83PqOqZlDWH6kSu7mSQuwSU="
+    },
+    {
+      "id": "software.amazon.awssdk:aws-query-protocol:jar:2.25.15",
+      "artifactId": "aws-query-protocol",
+      "groupId": "software.amazon.awssdk",
+      "version": "2.25.15",
+      "sha256": "WI-qIKHgcq8tegKfQzQMiNvx6-ACbrQOdUBaMGQ-qWQ="
+    },
+    {
       "id": "io.quarkus:quarkus-config-yaml:jar:3.11.3",
       "artifactId": "quarkus-config-yaml",
       "groupId": "io.quarkus",
@@ -2085,13 +2106,6 @@
       "groupId": "software.amazon.awssdk",
       "version": "2.25.15",
       "sha256": "yND4CUY8yfLYyinBTkMhZ4Ql4p6WtfhPsD1zAtwfano="
-    },
-    {
-      "id": "software.amazon.awssdk:aws-query-protocol:jar:2.25.15",
-      "artifactId": "aws-query-protocol",
-      "groupId": "software.amazon.awssdk",
-      "version": "2.25.15",
-      "sha256": "WI-qIKHgcq8tegKfQzQMiNvx6-ACbrQOdUBaMGQ-qWQ="
     },
     {
       "id": "software.amazon.awssdk:netty-nio-client:jar:2.29.21",

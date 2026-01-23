@@ -66,6 +66,7 @@ import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @ApplicationScoped
 @CustomLogging
@@ -77,6 +78,11 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   @Inject
   CurrentAuthDTO currentAuthDTO;
 
+  @Inject
+  SnsClient sns;
+
+  @ConfigProperty(name = "sns_topic_arn")
+  String topicArn;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
@@ -109,7 +115,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
     byte[] decodedSamlResponse = decodeBase64(SAMLResponse);
-    return unmarshallResponse(decodedSamlResponse);
+    return unmarshallResponse(decodedSamlResponse, SAMLResponse);
   }
 
   public void validateSignature(Response response, IDP idp)
@@ -189,7 +195,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
+  private Response unmarshallResponse(byte[] decodedSamlResponse, String samlResponseBase64)
+      throws OneIdentityException {
     // log size of SAMLResponse for possible future check on max size
     Log.info("SAMLResponse size: " + decodedSamlResponse.length);
 
@@ -204,7 +211,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
 
-      checkNoMultipleSignatures(doc);
+      checkNoMultipleSignatures(doc, samlResponseBase64);
 
     } catch (SAXException | IOException | ParserConfigurationException |
              XPathExpressionException e) {
@@ -222,7 +229,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Document doc) throws XPathExpressionException {
+  private void checkNoMultipleSignatures(Document doc, String samlResponseBase64) throws XPathExpressionException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
     xPath.setNamespaceContext(new SAMLNamespaceContext());
@@ -236,6 +243,24 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       // set a flag in currentAuthDTO to handle the error in SAMLController
       Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
       currentAuthDTO.setResponseWithMultipleSignatures(true);
+
+      // Extract issuer from the Response and send SNS notification
+      String issuerExpression = "//saml2p:Response/saml2:Issuer/text()";
+      String issuer = (String) xPath.compile(issuerExpression).evaluate(doc, XPathConstants.STRING);
+      if (issuer == null || issuer.isEmpty()) {
+        issuer = "unknown";
+      }
+
+      String subject = "Multiple SAML Signatures Detected - Issuer: " + issuer;
+      String message = "Multiple signatures detected in SAMLResponse.\n\nIssuer: " + issuer
+          + "\n\nSAMLResponse (Base64):\n" + samlResponseBase64;
+
+      try {
+        sns.publish(p -> p.topicArn(topicArn).subject(subject).message(message));
+        Log.info("SNS notification sent");
+      } catch (Exception e) {
+        Log.error("Failed to send SNS notification: ", e);
+      }
     }
   }
 

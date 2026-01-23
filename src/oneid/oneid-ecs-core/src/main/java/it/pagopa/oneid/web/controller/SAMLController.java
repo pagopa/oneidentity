@@ -80,8 +80,7 @@ public class SAMLController {
     org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
     SAMLSession samlSession = currentAuthDTO.getSamlSession();
 
-    // 1b. Check if the SAMLResponse contains multiple signatures,
-    // in this case the raw SAMLResponse is stored in SAML record, but the flow is interrupted
+    // 1b. Check if the SAMLResponse contains multiple signatures
     if (currentAuthDTO.isResponseWithMultipleSignatures()) {
       Log.error("SAML Response contains multiple signatures");
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
@@ -90,8 +89,7 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
 
-    // 1c. SAFE TO STORE: Save SAMLResponse attribute to Session
-    // We only reach this point if the Multiple Signatures check passed.
+    // 1c. Update SAMLSession with SAMLResponse attribute
     try {
       samlSessionService.setSAMLResponse(response.getInResponseTo(),
           samlResponseDTO.getSAMLResponse());
