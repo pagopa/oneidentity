@@ -9,10 +9,10 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.config.SAMLNamespaceContext;
-import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -76,13 +76,13 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   String ENTITY_ID;
 
   @Inject
-  CurrentAuthDTO currentAuthDTO;
-
-  @Inject
   SnsClient sns;
 
   @ConfigProperty(name = "sns_topic_arn")
   String topicArn;
+
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
@@ -220,7 +220,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
 
     try {
-      // return response even if it has multiple signatures, the error will be handled inside SAMLController
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
@@ -229,7 +228,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Document doc, String samlResponseBase64) throws XPathExpressionException {
+  private void checkNoMultipleSignatures(Document doc, String samlResponseBase64)
+      throws XPathExpressionException, OneIdentityException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
     xPath.setNamespaceContext(new SAMLNamespaceContext());
@@ -240,9 +240,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         .evaluate(doc, XPathConstants.NUMBER);
 
     if (responseSignatureCount > 2) {
-      // set a flag in currentAuthDTO to handle the error in SAMLController
       Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
-      currentAuthDTO.setResponseWithMultipleSignatures(true);
 
       // Extract issuer from the Response and send SNS notification
       String issuerExpression = "//saml2p:Response/saml2:Issuer/text()";
@@ -261,6 +259,13 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       } catch (Exception e) {
         Log.error("Failed to send SNS notification: ", e);
       }
+
+      cloudWatchConnectorImpl.sendIDPErrorMetricData(
+          issuer,
+          ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
+
+      throw new OneIdentityException(
+          ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
   }
 

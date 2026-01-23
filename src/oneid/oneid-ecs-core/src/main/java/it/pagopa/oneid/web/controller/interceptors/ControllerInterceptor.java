@@ -5,7 +5,6 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
-import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.InvalidGrantException;
 import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
@@ -27,8 +26,6 @@ import jakarta.interceptor.InvocationContext;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Interceptor
 @ControllerCustomInterceptor
@@ -48,9 +45,6 @@ public class ControllerInterceptor {
 
   @Inject
   CurrentAuthDTO currentAuthDTO;
-
-  @Inject
-  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @AroundInvoke
   public Object handleControllerRequest(InvocationContext context) throws Exception {
@@ -148,23 +142,11 @@ public class ControllerInterceptor {
     try {
       response = samlServiceImpl.getSAMLResponseFromString(samlResponseDTO.getSAMLResponse());
     } catch (OneIdentityException e) {
-
-      if (currentAuthDTO.isResponseWithMultipleSignatures()) {
-        Log.error(
-            "SAML Response parsing failed due to Multiple Signatures. Sending Metric and blocking.");
-
-        String idp = extractIssuerFromRaw(samlResponseDTO.getSAMLResponse());
-
-        if (idp != null && !idp.isBlank()) {
-          cloudWatchConnectorImpl.sendIDPErrorMetricData(
-              idp,
-              ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
-        }
-
+      if (ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()
+          .equals(e.getMessage())) {
         throw new GenericHTMLException(
             ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
       }
-
       Log.error("error getting SAML Response");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -196,20 +178,4 @@ public class ControllerInterceptor {
 
   }
 
-  private String extractIssuerFromRaw(String base64Response) {
-    try {
-      byte[] decodedBytes = Base64.getDecoder().decode(base64Response);
-      String xml = new String(decodedBytes, StandardCharsets.UTF_8);
-
-      Pattern pattern = java.util.regex.Pattern.compile("Issuer[^>]*>(.*?)</");
-      Matcher matcher = pattern.matcher(xml);
-
-      if (matcher.find()) {
-        return matcher.group(1).trim();
-      }
-    } catch (Exception e) {
-      Log.warn("Could not extract Issuer from raw SAML Response: " + e.getMessage());
-    }
-    return "UNKNOWN_IDP"; // Fallback if extraction fails completely
-  }
 }
