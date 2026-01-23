@@ -33,19 +33,14 @@ export const useRegister = () => {
   const queryClient = useQueryClient();
 
   const { user } = useAuth();
-  const token = user?.id_token;
   const userId = user?.profile.sub;
-
-  if (!token) {
-    throw new Error('No token available');
-  }
 
   const clientQueryKey = ['user-client', userId];
   const planQueryKey = ['plan-list', userId];
   const clientQuery = useQuery<Client, Error>({
     queryKey: clientQueryKey,
-    queryFn: () => getClientData(token, userId),
-    enabled: !!token && !!userId,
+    queryFn: () => getClientData(userId),
+    enabled: !!userId,
     staleTime,
     retry,
     throwOnError: false, //be careful with this option, it can cause unexpected behavior
@@ -65,7 +60,7 @@ export const useRegister = () => {
       pairWiseData?: ValidatePlanSchema;
     }) => {
       return withTimeout(
-        createOrUpdateClient(data, token, clientId, pairWiseData),
+        createOrUpdateClient(data, clientId, pairWiseData),
         TIMEOUT_DURATION
       );
     },
@@ -76,8 +71,8 @@ export const useRegister = () => {
 
   const planQuery = useQuery<PlanListSchema, Error>({
     queryKey: planQueryKey,
-    queryFn: () => getPlanList(token),
-    enabled: !!token && !!userId,
+    queryFn: getPlanList,
+    enabled: !!userId,
     staleTime,
     retry,
     throwOnError: false,
@@ -88,7 +83,7 @@ export const useRegister = () => {
       console.error('Error validating plan api key:', error);
     },
     mutationFn: async ({ data }: { data: ValidatePlanSchema }) => {
-      return withTimeout(validateApiKeyPlan(data, token), TIMEOUT_DURATION);
+      return withTimeout(validateApiKeyPlan(data), TIMEOUT_DURATION);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: planQueryKey });

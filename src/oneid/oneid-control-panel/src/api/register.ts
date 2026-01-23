@@ -6,50 +6,22 @@ import {
   ValidateError,
 } from './../types/api';
 import axios from 'axios';
+import api from './config/AxiosBase';
 import {
-  LoginResponse,
   Client,
   clientSchema,
   ClientErrors,
   ClientWithoutSensitiveData,
 } from '../types/api';
 import { ENV } from '../utils/env';
-import { handleApiError } from '../utils/errors';
 
-const api = axios.create({
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-export const verifyToken = async (token: string): Promise<LoginResponse> => {
-  try {
-    const response = await api.get<LoginResponse>(`${ENV.URL_API.LOGIN}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw handleApiError(error);
-  }
-};
-
-export const getClientData = async (
-  token: string,
-  userId?: string
-): Promise<Client> => {
+export const getClientData = async (userId?: string): Promise<Client> => {
   if (!userId) {
     throw new Error('User ID is required');
   }
   try {
     const response = await api.get<Client>(
-      `${ENV.URL_API.REGISTER}/user_id/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `${ENV.URL_API.REGISTER}/user_id/${userId}`
     );
     return response.data;
   } catch (error) {
@@ -67,15 +39,10 @@ export const getClientData = async (
   }
 };
 
-export const getPlanList = async (token: string): Promise<PlanListSchema> => {
+export const getPlanList = async (): Promise<PlanListSchema> => {
   try {
     const response = await api.get<PlanListSchema>(
-      ENV.URL_API.REGISTER + ENV.URL_API.PLAN_LIST,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      ENV.URL_API.REGISTER + ENV.URL_API.PLAN_LIST
     );
     return response.data;
   } catch (error) {
@@ -95,7 +62,6 @@ export const getPlanList = async (token: string): Promise<PlanListSchema> => {
 
 export const createOrUpdateClient = async (
   data: ClientWithoutSensitiveData,
-  token: string,
   clientId?: string,
   pairWiseData?: ValidatePlanSchema
 ): Promise<Client | ClientErrors> => {
@@ -110,7 +76,6 @@ export const createOrUpdateClient = async (
       return Promise.reject(errors.error.format());
     }
     const headers: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
       ...(pairWiseData?.apiKeyId && pairWiseData?.apiKeyValue
         ? {
             'Plan-Api-Key': pairWiseData.apiKeyValue,
@@ -118,9 +83,6 @@ export const createOrUpdateClient = async (
           }
         : {}),
     };
-
-    // TODO: cloud we use axios middleware to inject auth bearer token ?
-    // TODO: and should we use an interceptor for token expired that inform user and maybe make an automatic logout
 
     const response = await api[method]<Client>(url, data, {
       headers: headers,
@@ -137,8 +99,7 @@ export const createOrUpdateClient = async (
 };
 
 export const validateApiKeyPlan = async (
-  data: ValidatePlanSchema,
-  token: string
+  data: ValidatePlanSchema
 ): Promise<ValidateApiKeySchema | ValidateError> => {
   try {
     const url = ENV.URL_API.REGISTER + ENV.URL_API.VALIDATE_API_PLAN;
@@ -154,11 +115,7 @@ export const validateApiKeyPlan = async (
       api_key_value: data.apiKeyValue,
     };
 
-    const response = await api[method]<ValidateApiKeySchema>(url, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api[method]<ValidateApiKeySchema>(url, payload);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
