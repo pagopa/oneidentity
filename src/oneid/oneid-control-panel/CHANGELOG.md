@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.3.0
+
+### Minor Changes
+
+- 1ee01b2: add axios request interceptor to inject token from auth context
+
 ## 1.2.2
 
 ### Patch Changes
