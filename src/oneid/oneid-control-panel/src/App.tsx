@@ -1,11 +1,13 @@
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider, AuthProviderProps } from 'react-oidc-context';
+import { AuthProvider, AuthProviderProps, useAuth } from 'react-oidc-context';
 import { ENV } from './utils/env';
 import { User } from 'oidc-client-ts';
 import Layout from './components/Layout';
 import AppRoutes from './Routes';
 import { ClientIdProvider } from './context/ClientIdContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { useEffect } from 'react';
+import { setAuthInstance } from './context/AuthInterceptorContext';
 
 // remove ?code... in params after signin
 const onSigninCallback = (_user: User | undefined): void => {
@@ -28,9 +30,20 @@ const oidcConfig: AuthProviderProps = {
   onSigninCallback,
 };
 
+function AuthBridge() {
+  const auth = useAuth();
+
+  useEffect(() => {
+    setAuthInstance(auth);
+  }, [auth]);
+
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider {...oidcConfig}>
+      <AuthBridge />
       <BrowserRouter>
         <ClientIdProvider>
           <NotificationProvider>

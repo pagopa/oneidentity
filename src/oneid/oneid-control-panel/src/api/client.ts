@@ -4,27 +4,18 @@ import {
   IdpUserList,
 } from './../types/api';
 import axios from 'axios';
+import api from './config/AxiosBase';
 import { ENV } from '../utils/env';
 import { handleApiError } from '../utils/errors';
 
-const api = axios.create({
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 const userNameMessage = 'User Name is required';
 
-export const getClientUsers = async (token: string): Promise<IdpUserList> => {
+export const getClientUsers = async (): Promise<IdpUserList> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
   try {
     // TODO: remove 1000 and implement server pagination
-    const response = await api.get<IdpUserList>(`${ENDPOINT}?limit=1000`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.get<IdpUserList>(`${ENDPOINT}?limit=1000`);
     return response.data;
   } catch (error) {
     throw handleApiError(error);
@@ -32,7 +23,6 @@ export const getClientUsers = async (token: string): Promise<IdpUserList> => {
 };
 
 export const deleteClientUser = async (
-  token: string,
   username: string | undefined
 ): Promise<void> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
@@ -41,11 +31,7 @@ export const deleteClientUser = async (
     throw new Error(userNameMessage);
   }
   try {
-    await api.delete<string>(`${ENDPOINT}/${username}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await api.delete<string>(`${ENDPOINT}/${username}`);
   } catch (error) {
     throw handleApiError(error);
   }
@@ -53,8 +39,7 @@ export const deleteClientUser = async (
 
 export const updateClientUser = async (
   username: string | undefined,
-  data: IdpUser,
-  token: string
+  data: IdpUser
 ): Promise<IdpUserCreateOrUpdateResponse> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
@@ -64,12 +49,7 @@ export const updateClientUser = async (
   try {
     const response = await api.patch<IdpUserCreateOrUpdateResponse>(
       `${ENDPOINT}/${username}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      data
     );
     return response.data;
   } catch (error) {
@@ -78,8 +58,7 @@ export const updateClientUser = async (
 };
 
 export const addClientUser = async (
-  data: IdpUser,
-  token: string
+  data: IdpUser
 ): Promise<IdpUserCreateOrUpdateResponse> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
@@ -89,12 +68,7 @@ export const addClientUser = async (
   try {
     const response = await api.post<IdpUserCreateOrUpdateResponse>(
       `${ENDPOINT}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      data
     );
     return response.data;
   } catch (error) {

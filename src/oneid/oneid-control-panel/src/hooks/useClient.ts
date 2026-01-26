@@ -14,19 +14,14 @@ const retry = 2;
 
 export const useClient = () => {
   const { user } = useAuth();
-  const token = user?.id_token;
   const userId = user?.profile.sub;
-
-  if (!token) {
-    throw new Error('No token available');
-  }
 
   const createIdpUserMutation = useMutation({
     onError(error) {
       console.error('Error creating idp user:', error);
     },
     mutationFn: async ({ data }: { data: IdpUser }) => {
-      return addClientUser(data, token);
+      return addClientUser(data);
     },
   });
 
@@ -41,7 +36,7 @@ export const useClient = () => {
       data: IdpUser;
       username: string;
     }) => {
-      return updateClientUser(username, data, token);
+      return updateClientUser(username, data);
     },
   });
 
@@ -50,17 +45,17 @@ export const useClient = () => {
       console.error('Error deleting client user:', error);
     },
     mutationFn: async ({ username }: { username: string | undefined }) => {
-      return deleteClientUser(token, username);
+      return deleteClientUser(username);
     },
   });
 
   const getClientUsersList = useQuery({
     queryKey: [USER_LIST_QKEY, userId],
     queryFn: async () => {
-      return await getClientUsers(token);
+      return await getClientUsers();
     },
     retry,
-    enabled: !!userId && !!token,
+    enabled: !!userId,
   });
 
   return {

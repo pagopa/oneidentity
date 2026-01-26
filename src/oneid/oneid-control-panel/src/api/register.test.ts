@@ -71,12 +71,12 @@ describe('getClientData', () => {
       data: mockClientData,
     });
 
-    const result = await getClientData('token', 'user_id');
+    const result = await getClientData('user_id');
     expect(result).toEqual(mockClientData);
   });
 
   it('throws an error if client_id is invalid or missing', async () => {
-    await expect(getClientData('token')).rejects.toThrow('User ID is required');
+    await expect(getClientData()).rejects.toThrow('User ID is required');
   });
 
   it('throws a custom error if the fetch fails', async () => {
@@ -85,9 +85,7 @@ describe('getClientData', () => {
       response: { data: { status: 401, message: 'Unauthorized' } },
     });
 
-    await expect(getClientData('token', 'user_id')).rejects.toThrow(
-      'Unauthorized'
-    );
+    await expect(getClientData('user_id')).rejects.toThrow('Unauthorized');
   });
 
   it('throws an error if the fetch fails', async () => {
@@ -96,7 +94,7 @@ describe('getClientData', () => {
       response: { data: { status: 401 } },
     });
 
-    await expect(getClientData('token', 'user_id')).rejects.toThrow(
+    await expect(getClientData('user_id')).rejects.toThrow(
       'Failed to fetch client data'
     );
   });
@@ -107,7 +105,7 @@ describe('getClientData', () => {
     };
     axiosMock.get.mockRejectedValue(mockError);
 
-    await expect(getClientData('token', 'user_id')).rejects.toThrow(
+    await expect(getClientData('user_id')).rejects.toThrow(
       `An unknown error occurred ${JSON.stringify(mockError)}`
     );
   });
@@ -125,8 +123,6 @@ describe('createOrUpdateClient', () => {
     backButtonEnabled: false, // aggiungi il default manualmente
   };
 
-  const token = 'test-token';
-
   it('creates a new client successfully', async () => {
     axiosMock.post.mockResolvedValueOnce({
       data: {
@@ -134,14 +130,14 @@ describe('createOrUpdateClient', () => {
       },
     });
 
-    const result = await createOrUpdateClient(mockClientData, token);
+    const result = await createOrUpdateClient(mockClientData);
     expect(result).toEqual({
       ...mockClientData,
     });
     expect(axiosMock.post).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}`,
       mockClientData,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: {} }
     );
   });
 
@@ -153,14 +149,14 @@ describe('createOrUpdateClient', () => {
       },
     });
 
-    const result = await createOrUpdateClient(mockClientData, token, clientId);
+    const result = await createOrUpdateClient(mockClientData, clientId);
     expect(result).toEqual({
       ...mockClientData,
     });
     expect(axiosMock.put).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}/client_id/${clientId}`,
       mockClientData,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: {} }
     );
   });
 
@@ -180,7 +176,6 @@ describe('createOrUpdateClient', () => {
 
     const result = await createOrUpdateClient(
       mockClientData,
-      token,
       clientId,
       mockValidatePlanSchema
     );
@@ -193,7 +188,6 @@ describe('createOrUpdateClient', () => {
       mockClientData,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Plan-Api-Key': mockValidatePlanSchema.apiKeyValue,
           'Plan-Name': mockValidatePlanSchema.apiKeyId,
         },
@@ -203,7 +197,7 @@ describe('createOrUpdateClient', () => {
 
   it('throws validation errors for invalid client data', async () => {
     const invalidData = { ...mockClientData, client_name: '' }; // Invalid client_name
-    await expect(createOrUpdateClient(invalidData, token)).rejects.toThrow();
+    await expect(createOrUpdateClient(invalidData)).rejects.toThrow();
   });
 
   it('throws an error if the API call fails', async () => {
@@ -212,7 +206,7 @@ describe('createOrUpdateClient', () => {
       response: { data: { message: 'Failed to create client' } },
     });
 
-    await expect(createOrUpdateClient(mockClientData, token)).rejects.toThrow(
+    await expect(createOrUpdateClient(mockClientData)).rejects.toThrow(
       'Failed to create client'
     );
   });
@@ -221,7 +215,7 @@ describe('createOrUpdateClient', () => {
     const mockError = { isAxiosError: false, message: unexpectedError };
     axiosMock.post.mockRejectedValueOnce(mockError);
 
-    await expect(createOrUpdateClient(mockClientData, token)).rejects.toThrow(
+    await expect(createOrUpdateClient(mockClientData)).rejects.toThrow(
       unexpectedError
     );
   });
@@ -257,7 +251,7 @@ describe('getPlanData', () => {
       data: mockPlanData,
     });
 
-    const result = await getPlanList('token');
+    const result = await getPlanList();
     expect(result).toEqual(mockPlanData);
   });
 
@@ -267,7 +261,7 @@ describe('getPlanData', () => {
       response: { data: { status: 401, message: 'Unauthorized' } },
     });
 
-    await expect(getPlanList('token')).rejects.toThrow('Unauthorized');
+    await expect(getPlanList()).rejects.toThrow('Unauthorized');
   });
 
   it('throws an error if the fetch fails', async () => {
@@ -276,9 +270,7 @@ describe('getPlanData', () => {
       response: { data: { status: 401 } },
     });
 
-    await expect(getPlanList('token')).rejects.toThrow(
-      'Failed to fetch plan data'
-    );
+    await expect(getPlanList()).rejects.toThrow('Failed to fetch plan data');
   });
   it('throws a generic error if the fetch fails', async () => {
     const mockError = {
@@ -287,7 +279,7 @@ describe('getPlanData', () => {
     };
     axiosMock.get.mockRejectedValue(mockError);
 
-    await expect(getPlanList('token')).rejects.toThrow(
+    await expect(getPlanList()).rejects.toThrow(
       `An unknown error occurred ${JSON.stringify(mockError)}`
     );
   });
@@ -303,8 +295,6 @@ describe('validateApiKeyPlan', () => {
     apiKeyValue: 'keyValue',
   };
 
-  const token = 'test-token';
-
   it('validates key successfully', async () => {
     axiosMock.post.mockResolvedValueOnce({
       data: {
@@ -312,7 +302,7 @@ describe('validateApiKeyPlan', () => {
       },
     });
 
-    const result = await validateApiKeyPlan(mockValidatePlan, token);
+    const result = await validateApiKeyPlan(mockValidatePlan);
     expect(result).toEqual({
       ...mockValidateApiKeyData,
     });
@@ -321,14 +311,13 @@ describe('validateApiKeyPlan', () => {
       {
         api_key_id: mockValidatePlan.apiKeyId,
         api_key_value: mockValidatePlan.apiKeyValue,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
+      }
     );
   });
 
   it('throws validation errors for invalid API key data', async () => {
     const invalidData = { ...mockValidatePlan, apiKeyValue: '' };
-    await expect(validateApiKeyPlan(invalidData, token)).rejects.toThrow();
+    await expect(validateApiKeyPlan(invalidData)).rejects.toThrow();
   });
 
   it('throws an error if the API call fails', async () => {
@@ -337,7 +326,7 @@ describe('validateApiKeyPlan', () => {
       response: { data: { message: 'Failed to validate API key' } },
     });
 
-    await expect(validateApiKeyPlan(mockValidatePlan, token)).rejects.toThrow(
+    await expect(validateApiKeyPlan(mockValidatePlan)).rejects.toThrow(
       'Failed to validate API key'
     );
   });
@@ -346,7 +335,7 @@ describe('validateApiKeyPlan', () => {
     const mockError = { isAxiosError: false, message: unexpectedError };
     axiosMock.post.mockRejectedValueOnce(mockError);
 
-    await expect(validateApiKeyPlan(mockValidatePlan, token)).rejects.toThrow(
+    await expect(validateApiKeyPlan(mockValidatePlan)).rejects.toThrow(
       unexpectedError
     );
   });
