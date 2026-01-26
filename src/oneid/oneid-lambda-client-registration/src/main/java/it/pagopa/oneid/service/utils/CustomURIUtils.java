@@ -17,7 +17,6 @@ public class CustomURIUtils {
 
   private static final Pattern DANGEROUS_PATTERN = Pattern.compile("(?i)^(javascript|data|vbscript|file):.*");
 
-  // RFC-like hostname (no IPs, no leading/trailing dash)
   private static final Pattern DOMAIN_PATTERN =
       Pattern.compile(
           "^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
