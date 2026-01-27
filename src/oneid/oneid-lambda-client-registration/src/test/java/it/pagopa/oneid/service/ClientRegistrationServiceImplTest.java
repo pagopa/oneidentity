@@ -35,6 +35,7 @@ import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,14 +64,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -85,14 +86,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -107,14 +108,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -138,14 +139,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -170,14 +171,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -209,14 +210,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -232,14 +233,14 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -256,11 +257,11 @@ class ClientRegistrationServiceImplTest {
   @Test
   void testValidateClientRegistrationInfo_WithMultipleUris() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://valid.com", "https://valid.com"))
+        .redirectUris(Set.of("https://valid.it", "https://valid.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL1"))
         .samlRequestedAttributes(Set.of("name"))
         .build();
@@ -270,8 +271,20 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void validateClientRegistrationInfo_invalid_client_name() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of(".error"))
+        .build();
+
+    assertThrows(InvalidParameterException.class,
+        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+            clientRegistrationDTO, null, null));
+  }
+
+  @Test
   void validateClientRegistrationInfo_invalid_redirectUri() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .clientName("test")
         .redirectUris(Set.of(".error"))
         .build();
 
@@ -283,7 +296,7 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_invalid_logoUri() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
         .logoUri("error")
         .build();
@@ -296,9 +309,9 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_invalid_policyUri() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
+        .logoUri("https://test.com")
         .policyUri("error")
         .build();
 
@@ -310,10 +323,10 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_invalid_tosUri() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
         .tosUri("error")
         .build();
 
@@ -325,11 +338,11 @@ class ClientRegistrationServiceImplTest {
   @Test
   void validateClientRegistrationInfo_invalid_a11yUri() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .a11yUri("error")
         .build();
 
@@ -342,14 +355,14 @@ class ClientRegistrationServiceImplTest {
   void saveClient_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -370,7 +383,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -391,14 +404,14 @@ class ClientRegistrationServiceImplTest {
   void saveClient_WithPairWiseEnabled_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -419,7 +432,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -443,14 +456,14 @@ class ClientRegistrationServiceImplTest {
   void saveClient_WithPairWiseEnabled_SSMError_ko() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -471,7 +484,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -499,14 +512,14 @@ class ClientRegistrationServiceImplTest {
     // given
     String existingUserId = "existingUserId";
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of("test"))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -528,7 +541,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -568,7 +581,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -614,7 +627,7 @@ class ClientRegistrationServiceImplTest {
         .logoUri("test")
         .policyUri("test")
         .tosUri("test")
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .localizedContentMap(new HashMap<>())
         .spidMinors(false)
@@ -670,7 +683,7 @@ class ClientRegistrationServiceImplTest {
         .clientId(clientId)
         .userId(userId)
         .friendlyName("Old Name")
-        .callbackURI(Set.of("http://old.com"))
+        .callbackURI(Set.of("https://old.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -692,7 +705,7 @@ class ClientRegistrationServiceImplTest {
         .thenReturn(Optional.of(existingClientExtended));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
         .logoUri("newLogo")
         .policyUri("newPolicy")
@@ -718,7 +731,7 @@ class ClientRegistrationServiceImplTest {
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getCallbackURI().equals(Set.of("https://test.com"))
             && updated.getRequestedParameters().equals(Set.of("name"))
             && updated.getAuthLevel() == AuthLevel.L2
             && updated.getAcsIndex() == 0
@@ -756,7 +769,7 @@ class ClientRegistrationServiceImplTest {
         .clientId(clientId)
         .userId(userId)
         .friendlyName("Old Name")
-        .callbackURI(Set.of("http://old.com"))
+        .callbackURI(Set.of("https://old.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -778,7 +791,7 @@ class ClientRegistrationServiceImplTest {
         .thenReturn(Optional.of(existingClientExtended));
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
         .logoUri("newLogo")
         .policyUri("newPolicy")
@@ -805,7 +818,7 @@ class ClientRegistrationServiceImplTest {
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getCallbackURI().equals(Set.of("https://test.com"))
             && updated.getRequestedParameters().equals(Set.of("name"))
             && updated.getAuthLevel() == AuthLevel.L2
             && updated.getAcsIndex() == 0
@@ -836,7 +849,7 @@ class ClientRegistrationServiceImplTest {
     long originalIssuedAt = 987654321L;
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
         .logoUri("newLogo")
         .policyUri("newPolicy")
@@ -872,7 +885,7 @@ class ClientRegistrationServiceImplTest {
         updated.getClientId().equals(clientId)
             && updated.getUserId().equals(userId)
             && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("http://test.com"))
+            && updated.getCallbackURI().equals(Set.of("https://test.com"))
             && updated.getRequestedParameters().equals(Set.of("spidCode"))
             && updated.getAuthLevel() == AuthLevel.L2
             && updated.getAcsIndex() == 0

@@ -49,26 +49,26 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("en",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null,
+            "https://test.com", null,
             ""));
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -102,26 +102,26 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("en",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null,
+            "https://test.com", null,
             ""));
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -155,26 +155,26 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("en",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null,
+            "https://test.com", null,
             ""));
     localizedContentMap.put("optional", optionalLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -218,7 +218,7 @@ class ClientRegistrationControllerTest {
   void register_missingRequiredField_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        //.redirectUris(Set.of("http://test.com"))
+        //.redirectUris(Set.of("https://test.com"))
         //.clientName("test")
         //.defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         //.samlRequestedAttributes(Set.of(Identifier.name))
@@ -284,14 +284,14 @@ class ClientRegistrationControllerTest {
   void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -318,18 +318,18 @@ class ClientRegistrationControllerTest {
     defaultLangs.put(lang, // Invalid language code
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -355,14 +355,14 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -388,18 +388,18 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("it", // Invalid language code
         new Client.LocalizedContent("short", // Title too short
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -425,18 +425,18 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("it", // Invalid language code
         new Client.LocalizedContent("Title that is ok",
             "short", // Description too short
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -463,14 +463,14 @@ class ClientRegistrationControllerTest {
     localizedContentMap.put("default", defaultLangs);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("http://test.com"))
+        .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .logoUri("http://test.com")
-        .policyUri("http://test.com")
-        .tosUri("http://test.com")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
         .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
         .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("http://test.com")
+        .a11yUri("https://test.com")
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
@@ -513,7 +513,7 @@ class ClientRegistrationControllerTest {
         .clientId("client_id")
         .userId("user_id")
         .friendlyName("test")
-        .callbackURI(Set.of("http://test.com"))
+        .callbackURI(Set.of("https://test.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -576,13 +576,13 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("en",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
         new Client.LocalizedContent("Title of minimum 10 characters",
-            "Description of minimum 20 characters to pass the constraint", "http://test.com", null,
+            "Description of minimum 20 characters to pass the constraint", "https://test.com", null,
             ""));
     localizedContentMap.put("optional", optionalLangs);
 
@@ -592,7 +592,7 @@ class ClientRegistrationControllerTest {
         .clientId("testClientId")
         .userId(userId)
         .friendlyName("oldName")
-        .callbackURI(Set.of("http://old.com"))
+        .callbackURI(Set.of("https://old.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -603,7 +603,7 @@ class ClientRegistrationControllerTest {
                 Map.of("en",
                     new Client.LocalizedContent("Title of minimum 10 characters",
                         "Description of minimum 20 characters to pass the constraint",
-                        "http://test.com",
+                        "https://test.com",
                         "test", "test")
                 )
             ))
@@ -612,7 +612,7 @@ class ClientRegistrationControllerTest {
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
-        .redirectUris(Set.of("http://updated.com"))
+        .redirectUris(Set.of("https://updated.com"))
         .samlRequestedAttributes(Set.of("spidCode"))
         .localizedContentMap(localizedContentMap)
         .build();
@@ -643,13 +643,13 @@ class ClientRegistrationControllerTest {
     defaultLangs.put("en",
         new Client.LocalizedContent("Title of minimum 10 characters",
             "Description of minimum 20 characters to pass the constraint",
-            "http://test.com", null, null));
+            "https://test.com", null, null));
     localizedContentMap.put("default", defaultLangs);
     // Add new theme 'optional'
     Map<String, Client.LocalizedContent> optionalLangs = new HashMap<>();
     optionalLangs.put("de",
         new Client.LocalizedContent("Title of minimum 10 characters",
-            "Description of minimum 20 characters to pass the constraint", "http://test.com", null,
+            "Description of minimum 20 characters to pass the constraint", "https://test.com", null,
             ""));
     localizedContentMap.put("optional", optionalLangs);
 
@@ -659,7 +659,7 @@ class ClientRegistrationControllerTest {
         .clientId("testClientId")
         .userId(userId)
         .friendlyName("oldName")
-        .callbackURI(Set.of("http://old.com"))
+        .callbackURI(Set.of("https://old.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -670,7 +670,7 @@ class ClientRegistrationControllerTest {
                 Map.of("en",
                     new Client.LocalizedContent("Title of minimum 10 characters",
                         "Description of minimum 20 characters to pass the constraint",
-                        "http://test.com",
+                        "https://test.com",
                         "test", "test")
                 )
             ))
@@ -679,7 +679,7 @@ class ClientRegistrationControllerTest {
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
         .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
         .clientName("updatedName")
-        .redirectUris(Set.of("http://updated.com"))
+        .redirectUris(Set.of("https://updated.com"))
         .samlRequestedAttributes(Set.of("spidCode"))
         .localizedContentMap(localizedContentMap)
         .pairwise(true)
@@ -711,7 +711,7 @@ class ClientRegistrationControllerTest {
         .clientId("testClientId")
         .userId(userId)
         .friendlyName("oldName")
-        .callbackURI(Set.of("http://old.com"))
+        .callbackURI(Set.of("https://old.com"))
         .requestedParameters(Set.of("name"))
         .authLevel(AuthLevel.L2)
         .acsIndex(0)
@@ -722,7 +722,7 @@ class ClientRegistrationControllerTest {
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
         //.userId(userId) // Intentionally missing userId to simulate error
         .clientName("newName")
-        .redirectUris(Set.of("http://new.com"))
+        .redirectUris(Set.of("https://new.com"))
         .build();
 
     Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)

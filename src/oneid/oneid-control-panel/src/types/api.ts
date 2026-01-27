@@ -104,15 +104,51 @@ export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
 
+const httpsUrlSchema = z
+  .string()
+  .url()
+  .refine((url) => url.startsWith('https://'), {
+    message: 'Must be an HTTPS URL',
+  })
+  .nullish();
+
+const httpsUrlOrEmailSchema = z
+  .string()
+  .refine(
+    (val) => {
+      // Check if it's a valid email
+      if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(val)) {
+        return true;
+      }
+      // Check if it's a valid HTTPS URL
+      try {
+        const url = new URL(val);
+        return url.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    },
+    { message: 'Must be a valid HTTPS URL or email address' }
+  )
+  .nullish();
+
 const ThemeSchema = z.object({
   title: z
     .string()
-    .min(10, 'Title is required and must be at least 10 characters'),
+    .min(10, 'Title is required and must be at least 10 characters')
+    .max(200, 'Title must not exceed 200 characters')
+    .refine((val) => !/[\r\n]/.test(val), {
+      message: 'Title must be a single line',
+    }),
   description: z
     .string()
-    .min(20, 'Description is required and must be at least 20 characters'),
-  docUri: z.string().url().nullish(),
-  cookieUri: z.string().url().nullish(),
+    .min(20, 'Description is required and must be at least 20 characters')
+    .max(2000, 'Description must not exceed 2000 characters')
+    .refine((val) => !val.includes('<') && !val.includes('>'), {
+      message: 'Description must not contain < or >',
+    }),
+  docUri: httpsUrlOrEmailSchema,
+  cookieUri: httpsUrlSchema,
   supportAddress: z.string().email().nullish(),
 });
 
@@ -126,11 +162,11 @@ export const clientSchema = z.object({
   clientIdIssuedAt: z.number().optional(),
   clientSecretExpiresAt: z.number().optional(),
   clientName: z.string().optional(),
-  policyUri: z.string().url().nullish(),
-  tosUri: z.string().url().nullish(),
-  redirectUris: z.array(z.string().url().min(1)),
+  policyUri: httpsUrlSchema,
+  tosUri: httpsUrlSchema,
+  redirectUris: z.array(httpsUrlSchema).min(1),
   samlRequestedAttributes: SamlAttributeArraySchema.min(1),
-  logoUri: z.string().url().optional().nullable(),
+  logoUri: httpsUrlSchema,
   defaultAcrValues: SpidLevelArraySchema.min(1),
   requiredSameIdp: z.boolean().optional(),
   // feature flags
@@ -138,7 +174,7 @@ export const clientSchema = z.object({
   spidProfessionals: z.boolean().optional(),
   pairwise: z.boolean().optional(),
   // customize
-  a11yUri: z.string().url().optional().nullable(),
+  a11yUri: httpsUrlSchema,
   backButtonEnabled: z.boolean().optional().default(false),
   localizedContentMap: z
     .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)

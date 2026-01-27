@@ -1,6 +1,10 @@
 package it.pagopa.oneid.web.validator;
 
+import static it.pagopa.oneid.service.utils.ValidationUtils.isSafeDescription;
+import static it.pagopa.oneid.service.utils.ValidationUtils.isSafeTitle;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
+import it.pagopa.oneid.exception.InvalidUriException;
+import it.pagopa.oneid.service.utils.CustomURIUtils;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -44,11 +48,27 @@ public class LocalizedContentMapValidator implements
         LocalizedContent content = langEntry.getValue();
 
         boolean langValid = lang != null && ALLOWED_LANGS.contains(lang);
-        boolean contentValid = content != null
-            && !StringUtils.isBlank(content.title())
-            && !StringUtils.isBlank(content.description())
-            && content.title().length() >= 10
-            && content.description().length() >= 20;
+
+        if (content==null) {
+          return false;
+        }
+
+        boolean contentValid = isSafeTitle(content.title(), 10)
+            && isSafeDescription(content.description());
+        
+        try {
+          if (content.cookieUri()!=null && StringUtils.isNotBlank(content.cookieUri())) {
+            CustomURIUtils.validateURI(content.cookieUri());
+          }
+          if (content.docUri()!=null && StringUtils.isNotBlank(content.docUri())) {
+            CustomURIUtils.validateHttpsOrMail(content.docUri());
+          }
+          if (content.supportAddress()!=null && StringUtils.isNotBlank(content.supportAddress())) {
+            CustomURIUtils.validateEmail(content.supportAddress());
+          }
+        } catch (InvalidUriException e) {
+          return false;
+        }
 
         return langValid && contentValid;
       });
