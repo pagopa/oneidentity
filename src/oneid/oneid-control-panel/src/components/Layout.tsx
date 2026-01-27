@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,7 +28,8 @@ type Props = {
 };
 
 function Layout({ children }: Props) {
-  const { removeUser, signoutRedirect, user, isAuthenticated } = useAuth();
+  const { removeUser, signoutRedirect, user, isAuthenticated, events } =
+    useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { clientId } = useClientId();
 
@@ -65,6 +66,14 @@ function Layout({ children }: Props) {
       },
     });
   };
+
+  useEffect(() => {
+    return events.addAccessTokenExpired(() => {
+      console.log('Access token expired');
+      handleLogout();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
 
   const drawer = (
     <div>
