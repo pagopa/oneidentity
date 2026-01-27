@@ -24,6 +24,13 @@ vi.mock('react-oidc-context', () => ({
       profile: { email: 'test@example.com' },
     },
     isAuthenticated: true,
+    events: {
+      addAccessTokenExpired: vi.fn(() => {
+        return () => {
+          /* empty */
+        };
+      }),
+    },
     removeUser: vi.fn(),
     signoutRedirect: vi.fn(),
   }),
