@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AuthContextProps } from 'react-oidc-context';
-import { getAccessToken, setAuthInstance } from './AuthInterceptorContext';
+import { getIdToken, setAuthInstance } from './AuthInterceptorContext';
 
 describe('AuthInterceptorContext', () => {
   beforeEach(() => {
@@ -9,7 +9,7 @@ describe('AuthInterceptorContext', () => {
   });
 
   it('should return null initially', () => {
-    expect(getAccessToken()).toBeNull();
+    expect(getIdToken()).toBeNull();
   });
 
   it('should return the id_token when an instance is set', () => {
@@ -20,7 +20,7 @@ describe('AuthInterceptorContext', () => {
     } as AuthContextProps;
 
     setAuthInstance(mockInstance);
-    expect(getAccessToken()).toBe('mock-id-token-123');
+    expect(getIdToken()).toBe('mock-id-token-123');
   });
 
   it('should return null if user or id_token is missing', () => {
@@ -29,14 +29,14 @@ describe('AuthInterceptorContext', () => {
     } as unknown as AuthContextProps;
 
     setAuthInstance(mockInstance);
-    expect(getAccessToken()).toBeNull();
+    expect(getIdToken()).toBeNull();
   });
 
   it('should update the token if a new instance is set', () => {
     setAuthInstance({ user: { id_token: 'token-1' } } as AuthContextProps);
-    expect(getAccessToken()).toBe('token-1');
+    expect(getIdToken()).toBe('token-1');
 
     setAuthInstance({ user: { id_token: 'token-2' } } as AuthContextProps);
-    expect(getAccessToken()).toBe('token-2');
+    expect(getIdToken()).toBe('token-2');
   });
 });

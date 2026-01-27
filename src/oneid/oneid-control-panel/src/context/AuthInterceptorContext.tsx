@@ -6,6 +6,6 @@ export const setAuthInstance = (instance: AuthContextProps) => {
   authContext = instance;
 };
 
-export const getAccessToken = () => {
+export const getIdToken = () => {
   return authContext?.user?.id_token || null;
 };
