@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AxiosHeaders, InternalAxiosRequestConfig } from 'axios';
 import AxiosRequestTokenInterceptor from './AxiosRequestTokenInterceptor';
-import { getAccessToken } from '../../context/AuthInterceptorContext';
+import { getIdToken } from '../../context/AuthInterceptorContext';
 
 vi.mock('../../context/AuthInterceptorContext', () => ({
-  getAccessToken: vi.fn(),
+  getIdToken: vi.fn(),
 }));
 
 describe('AxiosRequestTokenInterceptor', () => {
@@ -14,7 +14,7 @@ describe('AxiosRequestTokenInterceptor', () => {
 
   it('should add Authorization header if token exists', () => {
     const mockToken = 'test-token-abc';
-    vi.mocked(getAccessToken).mockReturnValue(mockToken);
+    vi.mocked(getIdToken).mockReturnValue(mockToken);
 
     const config = {
       headers: new AxiosHeaders(),
@@ -26,7 +26,7 @@ describe('AxiosRequestTokenInterceptor', () => {
   });
 
   it('should NOT add Authorization header if token is missing', () => {
-    vi.mocked(getAccessToken).mockReturnValue(null);
+    vi.mocked(getIdToken).mockReturnValue(null);
 
     const config = {
       headers: new AxiosHeaders(),
@@ -38,7 +38,7 @@ describe('AxiosRequestTokenInterceptor', () => {
   });
 
   it('should return a new config object for immutability when token is added', () => {
-    vi.mocked(getAccessToken).mockReturnValue('some-token');
+    vi.mocked(getIdToken).mockReturnValue('some-token');
 
     const config = {
       headers: new AxiosHeaders({ 'Content-Type': 'application/json' }),

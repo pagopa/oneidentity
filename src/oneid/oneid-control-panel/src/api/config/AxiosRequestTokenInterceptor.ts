@@ -1,8 +1,8 @@
 import type { InternalAxiosRequestConfig } from 'axios';
-import { getAccessToken } from '../../context/AuthInterceptorContext';
+import { getIdToken } from '../../context/AuthInterceptorContext';
 
 const AxiosRequestTokenInterceptor = (config: InternalAxiosRequestConfig) => {
-  const token = getAccessToken();
+  const token = getIdToken();
   if (token) {
     return {
       ...config,
