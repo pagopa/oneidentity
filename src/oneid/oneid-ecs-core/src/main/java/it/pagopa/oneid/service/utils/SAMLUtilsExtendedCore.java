@@ -23,6 +23,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -66,7 +69,9 @@ import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @ApplicationScoped
 @CustomLogging
@@ -76,13 +81,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   String ENTITY_ID;
 
   @Inject
-  SnsClient sns;
-
-  @ConfigProperty(name = "sns_topic_arn")
-  String topicArn;
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @Inject
-  CloudWatchConnectorImpl cloudWatchConnectorImpl;
+  S3Client s3Client;
+
+
+  @ConfigProperty(name = "xsw_assertions_s3_bucket")
+  String xswAssertionsS3Bucket;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
@@ -115,7 +121,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public Response getSAMLResponseFromString(String SAMLResponse) throws OneIdentityException {
     byte[] decodedSamlResponse = decodeBase64(SAMLResponse);
-    return unmarshallResponse(decodedSamlResponse, SAMLResponse);
+    return unmarshallResponse(decodedSamlResponse);
   }
 
   public void validateSignature(Response response, IDP idp)
@@ -195,7 +201,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private Response unmarshallResponse(byte[] decodedSamlResponse, String samlResponseBase64)
+  private Response unmarshallResponse(byte[] decodedSamlResponse)
       throws OneIdentityException {
     // log size of SAMLResponse for possible future check on max size
     Log.info("SAMLResponse size: " + decodedSamlResponse.length);
@@ -211,7 +217,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
 
-      checkNoMultipleSignatures(doc, samlResponseBase64);
+      checkNoMultipleSignatures(doc, decodedSamlResponse);
 
     } catch (SAXException | IOException | ParserConfigurationException |
              XPathExpressionException e) {
@@ -228,7 +234,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Document doc, String samlResponseBase64)
+  private void checkNoMultipleSignatures(Document doc, byte[] decodedSamlResponse)
       throws XPathExpressionException, OneIdentityException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
@@ -242,33 +248,53 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     if (responseSignatureCount > 2) {
       Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
 
-      // Extract issuer from the Response and send SNS notification
-      String issuerExpression = "//saml2p:Response/saml2:Issuer/text()";
-      String issuer = (String) xPath.compile(issuerExpression).evaluate(doc, XPathConstants.STRING);
-      if (issuer == null || issuer.isEmpty()) {
-        issuer = "unknown";
-      }
+      String issuer = extractFromDoc(xPath, doc, "//saml2p:Response/saml2:Issuer/text()");
 
-      String subject = "Multiple SAML Signatures Detected - Issuer: " + issuer;
-      String message = "Multiple signatures detected in SAMLResponse.\n\nIssuer: " + issuer
-          + "\n\nSAMLResponse (Base64):\n" + samlResponseBase64;
+      String requestId = extractFromDoc(xPath, doc, "//saml2p:Response/@InResponseTo");
 
-      try {
-        sns.publish(p -> p.topicArn(topicArn).subject(subject).message(message));
-        Log.info("SNS notification sent");
-      } catch (Exception e) {
-        Log.error("Failed to send SNS notification: ", e);
-      }
-
-      cloudWatchConnectorImpl.sendIDPErrorMetricData(
-          issuer,
-          ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
+      uploadToS3(decodedSamlResponse, requestId);
+      cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData(issuer);
 
       throw new OneIdentityException(
           ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
   }
 
+  private void uploadToS3(byte[] decodedSamlResponse, String requestId) {
+    try {
+      String objectKey = generateS3ObjectKey(requestId);
+
+      s3Client.putObject(PutObjectRequest.builder()
+              .bucket(xswAssertionsS3Bucket)
+              .key(objectKey)
+              .contentType("application/xml")
+              .build(),
+          RequestBody.fromBytes(decodedSamlResponse));
+      Log.info("Uploaded Assertion containing XSW to S3: " + objectKey);
+
+    } catch (Exception e) {
+      Log.error("Failed to upload Assertion containing XSW to S3: " + e.getMessage());
+    }
+  }
+
+  private String extractFromDoc(XPath xPath, Document doc, String expression)
+      throws XPathExpressionException {
+
+    String value = (String) xPath.compile(expression).evaluate(doc, XPathConstants.STRING);
+    return (value == null || value.isEmpty()) ? "unknown" : value;
+  }
+
+  private String generateS3ObjectKey(String requestId) {
+    ZonedDateTime cetTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
+    String timestampStr = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(cetTime);
+
+    // Structure: year=YYYY/month=MM/day=DD/hour=HH/samlRequestId=ID/ID-TIMESTAMP.xml
+    return String.format(
+        "year=%04d/month=%02d/day=%02d/hour=%02d/samlRequestId=%s/%s-%s.xml",
+        cetTime.getYear(), cetTime.getMonthValue(), cetTime.getDayOfMonth(), cetTime.getHour(),
+        requestId, requestId, timestampStr
+    );
+  }
 
   private void validateResponseSignature(Response response, List<Credential> credentials)
       throws SignatureException {

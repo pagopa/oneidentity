@@ -202,6 +202,28 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid    = "S3PutMalformedSamlResponses"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = [
+          "${var.xsw_assertions_bucket_arn}/*"
+        ]
+      },
+      {
+        Sid    = "KMSUseMalformedSamlResponses"
+        Effect = "Allow"
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = [
+          var.xsw_assertions_kms_key_arn
+        ]
+      },
+      {
         "Sid" : "SSMGetCertParameters",
         "Effect" : "Allow",
         "Action" : [

@@ -3,6 +3,11 @@ resource "random_integer" "assertion_bucket_suffix" {
   max = 9999
 }
 
+resource "random_integer" "xsw_assertions_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 module "kms_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
@@ -33,6 +38,21 @@ module "kms_assertions_bucket" {
 
   # Aliases
   aliases = ["assertions/S3"]
+}
+
+module "kms_xsw_assertions_bucket" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  description             = "KMS key for XSW assertions S3 encryption"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.assertion_bucket.enable_key_rotation
+  multi_region            = var.assertion_bucket.kms_multi_region
+  enable_default_policy   = true
+  rotation_period_in_days = var.kms_rotation_period_in_days
+
+  # Aliases
+  aliases = ["xsw-assertions/S3"]
 }
 
 resource "aws_iam_role" "replication" {
@@ -288,6 +308,48 @@ module "s3_assertions_bucket" {
   tags = {
     Name   = local.assertions_bucket_name
     Backup = "True"
+  }
+}
+
+module "s3_xsw_assertions_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.xsw_assertions_bucket_name
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerEnforced"
+
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = true
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  versioning = {
+    enabled = true
+  }
+
+  lifecycle_rule = [
+    {
+      enabled = true
+      id      = "expire_rule"
+      prefix  = ""
+      tags    = {}
+
+      expiration = {
+        days = var.assertion_bucket.expiration_days
+      }
+    }
+  ]
+
+  tags = {
+    Name = local.xsw_assertions_bucket_name
   }
 }
 

@@ -29,10 +29,10 @@ import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_I
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MISSING_CONDITIONS;
-import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_ASSERTIONS;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCES;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_AUDIENCE_RESTRICTIONS;
+import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE;
 import static it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_NOT_BEFORE_NOT_FOUND;
@@ -166,6 +166,7 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit.mockito.InjectSpy;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
@@ -175,7 +176,6 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;
@@ -199,6 +199,7 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.StatusMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.s3.S3Client;
 
 @QuarkusTest
 @TestProfile(X509CredentialTestProfile.class)
@@ -221,6 +222,8 @@ public class SAMLServiceImplTest {
   SAMLUtilsExtendedCore samlUtils;
   @InjectMock
   IDPConnectorImpl idpConnectorImpl;
+  @InjectMock
+  S3Client s3Client;
   @InjectSpy
   Clock clock;
 
@@ -3895,34 +3898,11 @@ public class SAMLServiceImplTest {
   @Test
   void validateSAMLResponse_IDP_ERROR_MULTIPLE_ASSERTIONS() throws OneIdentityException {
     // given
-    Response response = samlUtils.getSAMLResponseFromString(
-        MULTIPLE_ASSERTIONS_SAMLRESPONSE
-    );
-
-    Instant mockInstant = response.getIssueInstant();
-
-    IDP testIDP = IDP.builder()
-        .entityID("https://validator.dev.oneid.pagopa.it")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    when(clock.instant()).thenReturn(mockInstant.plusMillis(10));
-
-    // then
-    Exception exception =
-        assertThrows(SAMLValidationException.class,
-            () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-                Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-                defaultFallbackUri, defaultState, defaultClientId));
-    assertTrue(exception.getMessage().contains(IDP_ERROR_MULTIPLE_ASSERTIONS.getErrorMessage()));
+    Exception exception = assertThrows(OneIdentityException.class, () -> {
+      samlUtils.getSAMLResponseFromString(MULTIPLE_ASSERTIONS_SAMLRESPONSE);
+    });
+    assertTrue(exception.getMessage()
+        .contains(IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()));
   }
 
   @Test

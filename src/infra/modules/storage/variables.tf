@@ -90,6 +90,12 @@ variable "metadata_bucket_prefix" {
   default     = ""
 }
 
+variable "xsw_assertions_bucket_prefix" {
+  type        = string
+  description = "XSW assertions bucket prefix."
+  default     = "xsw-assertions"
+}
+
 //TODO check if this is needed
 //variable "metadata_bucket" {
 //  type = object({

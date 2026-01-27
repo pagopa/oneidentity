@@ -127,6 +127,7 @@ module "storage" {
   }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
+  xsw_assertions_bucket_prefix       = "xsw-assertions"
   assets_bucket_prefix               = "assets"
   assets_bucket_control_panel_prefix = "assets-control-panel"
   assets_bucket_internal_idp_prefix  = "assets-internal-idp"
@@ -271,8 +272,8 @@ module "backend" {
         value = var.registry_enabled
       },
       {
-        name  = "SNS_TOPIC_ARN"
-        value = module.sns.sns_topic_arn
+        name  = "XSW_ASSERTIONS_S3_BUCKET"
+        value = module.storage.xsw_assertions_bucket_name
       }
     ]
   }
@@ -355,6 +356,9 @@ module "backend" {
   table_client_registrations_arn = module.database.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+
+  xsw_assertions_bucket_arn  = module.storage.xsw_assertions_bucket_arn
+  xsw_assertions_kms_key_arn = module.storage.xsw_assertions_kms_key_arn
 
 
   client_registration_lambda = {
