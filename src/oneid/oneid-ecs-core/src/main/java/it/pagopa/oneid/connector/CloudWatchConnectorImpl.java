@@ -188,7 +188,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagXSW + tagError,
-            dimensions));
+            dimensions)).join();
   }
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,
