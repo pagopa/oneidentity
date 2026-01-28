@@ -127,9 +127,14 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
+  xsw_assertions_bucket = {
+    name_prefix              = "xsw-assertions"
+    glacier_transaction_days = 90
+    expiration_days          = 100
+    enable_key_rotation      = true
+  }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
-  xsw_assertions_bucket_prefix       = "xsw-assertions"
   assets_bucket_prefix               = "assets"
   assets_bucket_control_panel_prefix = "assets-control-panel"
   assets_bucket_internal_idp_prefix  = "assets-internal-idp"

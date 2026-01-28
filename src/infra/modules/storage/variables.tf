@@ -30,6 +30,26 @@ variable "assertion_bucket" {
   })
 }
 
+variable "xsw_assertions_bucket" {
+  type = object({
+    name_prefix                     = string
+    expiration_days                 = number
+    mfa_delete                      = optional(bool, false)
+    kms_key_deletion_window_in_days = optional(number, 10)
+    kms_multi_region                = optional(bool, false)
+
+    object_lock_legal_hold_status = optional(bool, false)
+    object_lock_configuration     = optional(any, null)
+    enable_key_rotation           = optional(bool, false)
+    replication_configuration = optional(
+      object({
+        id                     = string
+        destination_bucket_arn = string
+        kms_key_replica_arn    = string
+    }), null)
+  })
+}
+
 variable "create_assets_bucket" {
   type        = bool
   description = "Create assets bucket."
@@ -90,11 +110,6 @@ variable "metadata_bucket_prefix" {
   default     = ""
 }
 
-variable "xsw_assertions_bucket_prefix" {
-  type        = string
-  description = "XSW assertions bucket prefix."
-  default     = "xsw-assertions"
-}
 
 //TODO check if this is needed
 //variable "metadata_bucket" {

@@ -43,11 +43,18 @@ module "storage" {
     kms_multi_region          = var.assertion_bucket.kms_multi_region
     object_lock_configuration = var.assertion_bucket.object_lock_configuration
   }
+  xsw_assertions_bucket = {
+    name_prefix               = "xsw-assertions"
+    glacier_transaction_days  = var.xsw_assertions_bucket.glacier_transaction_days
+    expiration_days           = var.xsw_assertions_bucket.expiration_days
+    enable_key_rotation       = var.xsw_assertions_bucket.enable_key_rotation
+    kms_multi_region          = var.xsw_assertions_bucket.kms_multi_region
+    object_lock_configuration = var.xsw_assertions_bucket.object_lock_configuration
+  }
   create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
   idp_metadata_bucket_prefix         = "idp-metadata"
-  xsw_assertions_bucket_prefix       = "xsw-assertions"
   assets_bucket_prefix               = "assets"
   assets_bucket_control_panel_prefix = "assets-control-panel"
   github_repository                  = "pagopa/oneidentity"

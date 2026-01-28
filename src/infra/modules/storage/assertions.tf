@@ -44,10 +44,10 @@ module "kms_xsw_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  description             = "KMS key for XSW assertions S3 encryption"
+  description             = "KMS key for S3 encryption used on XSW assertions bucket"
   key_usage               = "ENCRYPT_DECRYPT"
-  enable_key_rotation     = var.assertion_bucket.enable_key_rotation
-  multi_region            = var.assertion_bucket.kms_multi_region
+  enable_key_rotation     = var.xsw_assertions_bucket.enable_key_rotation
+  multi_region            = var.xsw_assertions_bucket.kms_multi_region
   enable_default_policy   = true
   rotation_period_in_days = var.kms_rotation_period_in_days
 
@@ -332,8 +332,12 @@ module "s3_xsw_assertions_bucket" {
   }
 
   versioning = {
-    enabled = true
+    enabled    = true
+    mfa_delete = var.xsw_assertions_bucket.mfa_delete
   }
+
+  object_lock_enabled       = var.xsw_assertions_bucket.object_lock_configuration != null ? true : false
+  object_lock_configuration = var.xsw_assertions_bucket.object_lock_configuration
 
   lifecycle_rule = [
     {
@@ -343,10 +347,12 @@ module "s3_xsw_assertions_bucket" {
       tags    = {}
 
       expiration = {
-        days = var.assertion_bucket.expiration_days
+        days = var.xsw_assertions_bucket.expiration_days
       }
     }
   ]
+
+  replication_configuration = local.replication_configuration_xsw_assertions_bucket
 
   tags = {
     Name = local.xsw_assertions_bucket_name

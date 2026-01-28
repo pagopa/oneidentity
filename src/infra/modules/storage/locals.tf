@@ -2,6 +2,9 @@ locals {
   assertions_bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
+  xsw_assertions_bucket_name = format("%s-%s", var.xsw_assertions_bucket.name_prefix,
+    random_integer.xsw_assertions_bucket_suffix.result
+  )
   bucket_accesslogs_name = format("%s-accesslogs-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
@@ -15,8 +18,7 @@ locals {
   assets_internal_idp_bucket = format("%s-%s",
     var.assets_bucket_internal_idp_prefix,
   random_integer.asset_bucket_internal_idp_suffix.result)
-  idp_metadata_bucket        = format("%s-%s", var.idp_metadata_bucket_prefix, random_integer.idp_metadata_bucket_suffix.result)
-  xsw_assertions_bucket_name = format("%s-%s", var.xsw_assertions_bucket_prefix, random_integer.xsw_assertions_bucket_suffix.result)
+  idp_metadata_bucket = format("%s-%s", var.idp_metadata_bucket_prefix, random_integer.idp_metadata_bucket_suffix.result)
 
   replication_configuration = [
     {
@@ -53,6 +55,43 @@ locals {
     }, {}
     ][
     var.assertion_bucket.replication_configuration != null ? 0 : 1
+  ]
+
+  replication_configuration_xsw_assertions_bucket = [
+    {
+      role = try(aws_iam_role.replication[0].arn, null)
+
+      rules = [
+        {
+          id     = try(var.xsw_assertions_bucket.replication_configuration.id, null)
+          status = "Enabled"
+
+          delete_marker_replication = false
+
+          source_selection_criteria = {
+            replica_modifications = {
+              status = "Enabled"
+            }
+            sse_kms_encrypted_objects = {
+              enabled = true
+            }
+          }
+
+          destination = {
+            bucket             = try(var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn, null)
+            storage_class      = "STANDARD"
+            replica_kms_key_id = try(var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn, null)
+            account_id         = var.account_id
+          }
+
+          filter = {
+            prefix = "" # Replicate all objects
+          }
+        }
+      ]
+    }, {}
+    ][
+    var.xsw_assertions_bucket.replication_configuration != null ? 0 : 1
   ]
 
 }
