@@ -37,8 +37,8 @@ module "ecr" {
 # During normal mode: uses regular autoscaling configuration
 # Note: desired_count is managed separately via null_resource to force updates
 locals {
-  core_min_capacity = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.min_capacity : var.service_core.autoscaling.min_capacity
-  core_max_capacity = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.max_capacity : var.service_core.autoscaling.max_capacity
+  core_min_capacity  = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.min_capacity : var.service_core.autoscaling.min_capacity
+  core_max_capacity  = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.max_capacity : var.service_core.autoscaling.max_capacity
   core_desired_count = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.desired_count : var.service_core.autoscaling.desired_count
 }
 
@@ -525,7 +525,7 @@ resource "null_resource" "update_core_desired_count" {
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = <<-EOT
+    command     = <<-EOT
       aws ecs update-service \
         --region ${var.aws_region} \
         --cluster ${module.ecs_cluster.cluster_name} \
