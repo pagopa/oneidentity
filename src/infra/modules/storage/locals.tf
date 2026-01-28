@@ -59,7 +59,7 @@ locals {
 
   replication_configuration_xsw_assertions_bucket = [
     {
-      role = try(aws_iam_role.replication[0].arn, null)
+      role = try(aws_iam_role.replication_xsw[0].arn, null)
 
       rules = [
         {
