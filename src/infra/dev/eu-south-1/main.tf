@@ -544,6 +544,11 @@ module "backend" {
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
+  xsw_error_alarm = {
+    enabled   = true #TODO to false after test
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
   ssm_cert_key = {}
 
   ssm_idp_internal_cert_key = {}

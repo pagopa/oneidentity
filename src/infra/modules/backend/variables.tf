@@ -571,3 +571,10 @@ variable "client_no_traffic_alarm" {
   })
   default = null
 }
+variable "xsw_error_alarm" {
+  type = object({
+    enabled   = optional(bool, false)
+    namespace = string
+  })
+  default = null
+}

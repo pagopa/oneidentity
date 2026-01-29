@@ -1257,3 +1257,18 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
     var.sns_topic_arn
   ]
 }
+
+resource "aws_cloudwatch_metric_alarm" "xsw_error_alarm" {
+
+  count               = var.xsw_error_alarm.enabled ? 1 : 0
+  alarm_name          = "${var.env_short}-xsw-error-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "XSWError"
+  namespace           = var.xsw_error_alarm.namespace
+  period              = 60
+  statistic           = "Sum"
+  threshold           = 1
+  alarm_description   = "Alarm for XSW Assertion Errors"
+  alarm_actions       = [var.sns_topic_arn]
+}

@@ -504,6 +504,11 @@ module "backend" {
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
+  xsw_error_alarm = {
+    enabled   = true
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
   idp_alarm = {
     enabled   = true
     entity_id = local.idp_entity_ids

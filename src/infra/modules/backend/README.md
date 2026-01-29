@@ -187,6 +187,7 @@
 | [aws_cloudwatch_metric_alarm.idp_error_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.idp_no_traffic_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.lambda_errors](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.xsw_error_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_iam_policy.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.deploy_ecs_internal_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -309,6 +310,7 @@
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
 | <a name="input_xsw_assertions_bucket_arn"></a> [xsw\_assertions\_bucket\_arn](#input\_xsw\_assertions\_bucket\_arn) | S3 bucket ARN for XSW assertions. | `string` | n/a | yes |
 | <a name="input_xsw_assertions_kms_key_arn"></a> [xsw\_assertions\_kms\_key\_arn](#input\_xsw\_assertions\_kms\_key\_arn) | KMS key ARN used to encrypt assertions with XSW bucket objects. | `string` | n/a | yes |
+| <a name="input_xsw_error_alarm"></a> [xsw\_error\_alarm](#input\_xsw\_error\_alarm) | n/a | <pre>object({<br/>    enabled   = optional(bool, false)<br/>    namespace = string<br/>  })</pre> | `null` | no |
 
 ## Outputs
 
