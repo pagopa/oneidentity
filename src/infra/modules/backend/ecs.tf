@@ -1264,11 +1264,25 @@ resource "aws_cloudwatch_metric_alarm" "xsw_error_alarm" {
   alarm_name          = "${var.aws_region}-${var.env_short}-xsw-error-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
-  metric_name         = "XSWError"
-  namespace           = var.xsw_error_alarm.namespace
-  period              = 60
-  statistic           = "Sum"
   threshold           = 1
   alarm_description   = "Alarm for XSW Assertion Errors"
   alarm_actions       = [var.sns_topic_arn]
+
+  metric_query {
+    id          = "errors"
+    label       = "XSW Errors"
+    return_data = true
+
+    metric {
+      metric_name = "XSWError"
+      namespace   = var.xsw_error_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "XSW" = "Aggregated"
+      }
+    }
+  }
 }
