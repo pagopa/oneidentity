@@ -83,13 +83,13 @@ public class CloudWatchConnectorImplTest {
 
   @Test
   void sendXSWAssertionErrorMetricData_shouldCallPutMetricDataOnce() {
-    cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData("idp");
+    cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
     verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
   }
 
   @Test
   void sendXSWAssertionErrorMetricData_shouldUseExpectedMetricName() {
-    cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData("idp");
+    cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
 
     ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(
         PutMetricDataRequest.class);

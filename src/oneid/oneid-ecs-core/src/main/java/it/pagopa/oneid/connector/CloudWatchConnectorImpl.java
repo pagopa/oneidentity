@@ -180,7 +180,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   }
 
   @Override
-  public void sendXSWAssertionErrorMetricData(String issuer) {
+  public void sendXSWAssertionErrorMetricData() {
 
     List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
         .name(tagXSW)

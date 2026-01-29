@@ -246,18 +246,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         .evaluate(doc, XPathConstants.NUMBER);
 
     if (responseSignatureCount > 2) {
-      Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
-      
-      String issuer = extractFromDoc(xPath, doc, "//saml2p:Response/saml2:Issuer/text()");
-      String safeIssuer = issuer.replaceAll("[^\\p{ASCII}]", "").trim();
-      if (safeIssuer.isEmpty()) {
-        safeIssuer = "unknown";
-      }
-
       String requestId = extractFromDoc(xPath, doc, "//saml2p:Response/@InResponseTo");
+      Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()
+          + " - requestId: " + requestId);
 
       uploadToS3(decodedSamlResponse, requestId);
-      cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData(safeIssuer);
+      cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
 
       throw new OneIdentityException(
           ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
