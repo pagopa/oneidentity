@@ -1261,7 +1261,7 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
 resource "aws_cloudwatch_metric_alarm" "xsw_error_alarm" {
 
   count               = var.xsw_error_alarm.enabled ? 1 : 0
-  alarm_name          = "${var.env_short}-xsw-error-alarm"
+  alarm_name          = "${var.aws_region}-${var.env_short}-xsw-error-alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "XSWError"
