@@ -181,20 +181,11 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendXSWAssertionErrorMetricData(String issuer) {
-    List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-        .name(tagXSW)
-        .value(issuer)
-        .build());
 
     List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
         .name(tagXSW)
         .value(tagAggregated)
         .build());
-
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagXSW + tagError,
-            specificErrorDimensions)).join();
-
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagXSW + tagError,
             totalErrorDimensions)).join();
