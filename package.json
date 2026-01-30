@@ -21,7 +21,6 @@
     "src/oneid/oneid-lambda-client-manager/",
     "src/oneid/oneid-lambda-client-registration/",
     "src/oneid/oneid-lambda-cognito-presignup/",
-    "src/oneid/oneid-lambda-idp-mock/",
     "src/oneid/oneid-lambda-invalidate-cache/",
     "src/oneid/oneid-lambda-is-gh-integration/",
     "src/oneid/oneid-lambda-pdv-reconciler/",
