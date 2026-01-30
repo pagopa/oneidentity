@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.0.3
+
+### Patch Changes
+
+- fba3684: remove idp-mock package and use validator image for demo.gov/validator idp
+
 ## 1.0.2
 
 ### Patch Changes
