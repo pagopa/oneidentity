@@ -1,0 +1,19 @@
+{
+  "type": "metric",
+  "height": 6,
+  "width": 8,
+  "properties": {
+    "title": "XSW Assertions Errors",
+    "stat": "Sum",
+    "view": "bar",
+    "period": 300,
+    "height": 200,
+    "width": 1710,
+    "region": "${aws_region}",
+    "setPeriodToTimeRange": true,
+    "liveData": true,
+    "metrics": [
+        [ "oneid-es-1-d-core/ApplicationMetrics", "XSWError", "XSW", "Aggregated", { "id": "m1" } ]
+    ]
+  }
+}
