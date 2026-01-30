@@ -60,6 +60,12 @@ locals {
     })
   ]
 
+  xsw_assertions_widgets = [
+    templatefile("../../dashboards/xsw_assertions_widget.tpl.json", {
+      aws_region = var.aws_region
+    })
+  ]
+
   idp_widget_header = {
     "height" : 1,
     "width" : 24,
@@ -114,6 +120,15 @@ locals {
     }
   }
 
+  xsw_assertions_widget_header = {
+    "height" : 1,
+    "width" : 24,
+    "type" : "text",
+    "properties" : {
+      "markdown" : "## XSW Assertions\n"
+    }
+  }
+
   detailed_metrics_dashboard_body = jsonencode({
     widgets = concat(
       [local.idp_widget_header],
@@ -127,7 +142,9 @@ locals {
       [local.samlstatus_client_error_widget_header],
       [for w in local.samlstatus_client_widgets : jsondecode(w)],
       [local.assertion_counter_widget_header],
-      [for w in local.assertion_counter_widgets : jsondecode(w)]
+      [for w in local.assertion_counter_widgets : jsondecode(w)],
+      [local.xsw_assertions_widget_header],
+      [for w in local.xsw_assertions_widgets : jsondecode(w)]
     )
     }
   )

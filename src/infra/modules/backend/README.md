@@ -187,6 +187,7 @@
 | [aws_cloudwatch_metric_alarm.idp_error_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.idp_no_traffic_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.lambda_errors](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.xsw_error_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_iam_policy.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.deploy_ecs_internal_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -307,6 +308,9 @@
 | <a name="input_update_status_lambda"></a> [update\_status\_lambda](#input\_update\_status\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    assets_bucket_arn                 = string<br/>    cloudwatch_logs_retention_in_days = string<br/>    environment_variables             = map(string)<br/>    vpc_s3_prefix_id                  = string<br/>    vpc_endpoint_dynamodb_prefix_id   = string<br/>    vpc_subnet_ids                    = list(string)<br/>    vpc_id                            = string<br/>  })</pre> | n/a | yes |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | VPC cidr block. | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC id | `string` | n/a | yes |
+| <a name="input_xsw_assertions_bucket_arn"></a> [xsw\_assertions\_bucket\_arn](#input\_xsw\_assertions\_bucket\_arn) | S3 bucket ARN for XSW assertions. | `string` | n/a | yes |
+| <a name="input_xsw_assertions_kms_key_arn"></a> [xsw\_assertions\_kms\_key\_arn](#input\_xsw\_assertions\_kms\_key\_arn) | KMS key ARN used to encrypt assertions with XSW bucket objects. | `string` | n/a | yes |
+| <a name="input_xsw_error_alarm"></a> [xsw\_error\_alarm](#input\_xsw\_error\_alarm) | n/a | <pre>object({<br/>    enabled   = optional(bool, false)<br/>    namespace = string<br/>  })</pre> | `null` | no |
 
 ## Outputs
 

@@ -3,6 +3,11 @@ resource "random_integer" "assertion_bucket_suffix" {
   max = 9999
 }
 
+resource "random_integer" "xsw_assertions_bucket_suffix" {
+  min = 1000
+  max = 9999
+}
+
 module "kms_assertions_bucket" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
@@ -33,6 +38,21 @@ module "kms_assertions_bucket" {
 
   # Aliases
   aliases = ["assertions/S3"]
+}
+
+module "kms_xsw_assertions_bucket" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  description             = "KMS key for S3 encryption used on XSW assertions bucket"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = var.xsw_assertions_bucket.enable_key_rotation
+  multi_region            = var.xsw_assertions_bucket.kms_multi_region
+  enable_default_policy   = true
+  rotation_period_in_days = var.kms_rotation_period_in_days
+
+  # Aliases
+  aliases = ["xsw-assertions/S3"]
 }
 
 resource "aws_iam_role" "replication" {
@@ -170,6 +190,141 @@ resource "aws_iam_policy_attachment" "replication" {
   policy_arn = aws_iam_policy.replication[0].arn
 }
 
+resource "aws_iam_role" "replication_xsw" {
+  count = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
+
+  name               = "${var.role_prefix}-replica-xsw-assertions"
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy" "replication_xsw" {
+  count = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
+  name  = "${var.role_prefix}-replica-xsw-assertions"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetReplicationConfiguration",
+        "s3:GetObjectVersionForReplication",
+        "s3:GetObjectVersionAcl",
+        "s3:GetObjectVersionTagging",
+        "s3:GetObjectRetention",
+        "s3:GetObjectLegalHold"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${module.s3_xsw_assertions_bucket.s3_bucket_arn}",
+        "${module.s3_xsw_assertions_bucket.s3_bucket_arn}/*"
+      ]
+    },
+    {
+      "Action": [
+        "s3:ReplicateObject",
+        "s3:ReplicateDelete",
+        "s3:ReplicateTags",
+        "s3:GetObjectVersionTagging",
+        "s3:ObjectOwnerOverrideToBucketOwner"
+      ],
+      "Effect": "Allow",
+      "Condition": {
+        "StringLikeIfExists": {
+          "s3:x-amz-server-side-encryption": [
+            "aws:kms",
+            "aws:kms:dsse",
+            "AES256"
+          ]
+        }
+      },
+      "Resource": [
+        "${var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn}/*"
+      ]
+    },
+    {
+      "Action": [
+        "kms:Decrypt"
+      ],
+      "Effect": "Allow",
+      "Condition": {
+        "StringLike": {
+          "kms:ViaService": "s3.eu-south-1.amazonaws.com",
+          "kms:EncryptionContext:aws:s3:arn": [
+            "${module.s3_xsw_assertions_bucket.s3_bucket_arn}/*"
+          ]
+        }
+      },
+      "Resource": [
+        "${module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn}"
+      ]
+    },
+    {
+      "Action": [
+        "kms:Encrypt"
+      ],
+      "Effect": "Allow",
+      "Condition": {
+        "StringLike": {
+          "kms:ViaService": [
+            "s3.eu-central-1.amazonaws.com"
+          ],
+          "kms:EncryptionContext:aws:s3:arn": [
+            "${var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn}/*"
+          ]
+        }
+      },
+      "Resource": [
+        "${var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": [
+        "${module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:GenerateDataKey",
+        "kms:Encrypt"
+      ],
+      "Resource": [
+        "${var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn}"
+      ]
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy_attachment" "replication_xsw" {
+  count      = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
+  name       = "${var.role_prefix}-replicate-xsw-assertions"
+  roles      = [aws_iam_role.replication_xsw[0].name]
+  policy_arn = aws_iam_policy.replication_xsw[0].arn
+}
+
 
 data "aws_iam_policy_document" "lambda_assertions" {
 
@@ -288,6 +443,53 @@ module "s3_assertions_bucket" {
   tags = {
     Name   = local.assertions_bucket_name
     Backup = "True"
+  }
+}
+
+module "s3_xsw_assertions_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "4.1.1"
+
+  bucket = local.xsw_assertions_bucket_name
+
+  control_object_ownership = true
+  object_ownership         = "BucketOwnerEnforced"
+
+  server_side_encryption_configuration = {
+    rule = {
+      bucket_key_enabled = true
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  versioning = {
+    enabled    = true
+    mfa_delete = var.xsw_assertions_bucket.mfa_delete
+  }
+
+  object_lock_enabled       = var.xsw_assertions_bucket.object_lock_configuration != null ? true : false
+  object_lock_configuration = var.xsw_assertions_bucket.object_lock_configuration
+
+  lifecycle_rule = [
+    {
+      enabled = true
+      id      = "expire_rule"
+      prefix  = ""
+      tags    = {}
+
+      expiration = {
+        days = var.xsw_assertions_bucket.expiration_days
+      }
+    }
+  ]
+
+  replication_configuration = local.replication_configuration_xsw_assertions_bucket
+
+  tags = {
+    Name = local.xsw_assertions_bucket_name
   }
 }
 

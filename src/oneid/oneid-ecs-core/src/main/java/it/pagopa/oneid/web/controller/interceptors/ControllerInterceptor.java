@@ -142,6 +142,11 @@ public class ControllerInterceptor {
     try {
       response = samlServiceImpl.getSAMLResponseFromString(samlResponseDTO.getSAMLResponse());
     } catch (OneIdentityException e) {
+      if (ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()
+          .equals(e.getMessage())) {
+        throw new GenericHTMLException(
+            ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
+      }
       Log.error("error getting SAML Response");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -172,4 +177,5 @@ public class ControllerInterceptor {
     currentAuthDTO.setSamlSession(samlSession);
 
   }
+
 }

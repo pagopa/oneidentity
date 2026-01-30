@@ -36,6 +36,7 @@
 | <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | `"es-1"` | no |
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | Environment short. | `string` | `"p"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | n/a | `map(any)` | <pre>{<br/>  "CostCenter": "tier0",<br/>  "CreatedBy": "Terraform",<br/>  "Environment": "Prod",<br/>  "Owner": "Oneidentity",<br/>  "Source": "https://github.com/pagopa/oneidentity"<br/>}</pre> | no |
+| <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | XSW assertions bucket configurations. | <pre>object({<br/>    mfa_delete                = bool<br/>    glacier_transaction_days  = number<br/>    expiration_days           = number<br/>    enable_key_rotation       = bool<br/>    kms_multi_region          = bool<br/>    object_lock_configuration = any<br/>    replication_configuration = optional(<br/>      object({<br/>        id                     = string<br/>        destination_bucket_arn = string<br/>        kms_key_replica_arn    = string<br/>    }), null)<br/>  })</pre> | <pre>{<br/>  "enable_key_rotation": true,<br/>  "expiration_days": 731,<br/>  "glacier_transaction_days": 90,<br/>  "kms_multi_region": false,<br/>  "mfa_delete": false,<br/>  "object_lock_configuration": {<br/>    "rule": {<br/>      "default_retention": {<br/>        "days": 730,<br/>        "mode": "GOVERNANCE"<br/>      }<br/>    }<br/>  }<br/>}</pre> | no |
 
 ## Outputs
 

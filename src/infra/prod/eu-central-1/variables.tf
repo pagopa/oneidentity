@@ -170,6 +170,34 @@ variable "assertion_bucket" {
   }
 }
 
+variable "xsw_assertions_bucket" {
+  type = object({
+    mfa_delete                = bool
+    glacier_transaction_days  = number
+    expiration_days           = number
+    kms_multi_region          = bool
+    enable_key_rotation       = bool
+    object_lock_configuration = any
+  })
+
+  description = "XSW assertions storage."
+  default = {
+    mfa_delete               = false
+    glacier_transaction_days = 90
+    expiration_days          = 731
+    enable_key_rotation      = true
+    kms_multi_region         = true
+    object_lock_configuration = {
+      rule = {
+        default_retention = {
+          mode = "GOVERNANCE"
+          days = 730 # 24 months
+        }
+      }
+    }
+  }
+}
+
 variable "assertions_crawler_schedule" {
   type        = string
   description = "A cron expression used to specify the schedule"

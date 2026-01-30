@@ -9,7 +9,6 @@ import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_ASSERTION_SAML_
 import static it.pagopa.oneid.model.Base64SAMLResponses.UNSIGNED_SAML_RESPONSE_02;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,9 +20,9 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
-import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Set;
@@ -58,9 +57,6 @@ public class SAMLUtilsExtendedCoreTest {
 
   @Inject
   MarshallerFactory marshallerFactory;
-
-  @Inject
-  CurrentAuthDTO currentAuthDTO;
 
   @Test
   void buildIssuer() {
@@ -135,7 +131,6 @@ public class SAMLUtilsExtendedCoreTest {
       samlUtilsExtendedCore.getSAMLResponseFromString(
           samlResponseString);
     });
-    assertFalse(currentAuthDTO.isResponseWithMultipleSignatures());
   }
 
   @Test
@@ -147,7 +142,6 @@ public class SAMLUtilsExtendedCoreTest {
     OneIdentityException exception = assertThrows(OneIdentityException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(samlResponseString));
     assertEquals(UnmarshallingException.class, exception.getCause().getClass());
-    assertFalse(currentAuthDTO.isResponseWithMultipleSignatures());
   }
 
   @Test
@@ -159,43 +153,30 @@ public class SAMLUtilsExtendedCoreTest {
     OneIdentityException exception = assertThrows(OneIdentityException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));
     assertEquals(IllegalArgumentException.class, exception.getCause().getClass());
-    assertFalse(currentAuthDTO.isResponseWithMultipleSignatures());
   }
 
   @Test
   @SneakyThrows
   void getSAMLResponseFromString_ResponseWithMultipleSignatures() {
 
-    // Here we have a SAML response with multiple signatures, we want to verify that it passes
     String samlResponseString = RESPONSE_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
 
-    Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        samlResponseString);
-
-    assertNotNull(response);
-    assertDoesNotThrow(() -> {
-      samlUtilsExtendedCore.getSAMLResponseFromString(
-          samlResponseString);
-    });
-    assertTrue(currentAuthDTO.isResponseWithMultipleSignatures());
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(samlResponseString));
+    assertEquals(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage(),
+        exception.getMessage());
   }
 
   @Test
   @SneakyThrows
   void getSAMLResponseFromString_AssertionWithMultipleSignatures() {
 
-    // Here we have a SAML response with multiple signatures, we want to verify that it passes
     String samlResponseString = ASSERTION_WITH_MULTIPLE_SIGNATURES_SAMLRESPONSE;
 
-    Response response = samlUtilsExtendedCore.getSAMLResponseFromString(
-        samlResponseString);
-
-    assertNotNull(response);
-    assertDoesNotThrow(() -> {
-      samlUtilsExtendedCore.getSAMLResponseFromString(
-          samlResponseString);
-    });
-    assertTrue(currentAuthDTO.isResponseWithMultipleSignatures());
+    OneIdentityException exception = assertThrows(OneIdentityException.class,
+        () -> samlUtilsExtendedCore.getSAMLResponseFromString(samlResponseString));
+    assertEquals(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage(),
+        exception.getMessage());
   }
 
   @Test

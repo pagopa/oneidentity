@@ -195,6 +195,21 @@ variable "assertion_bucket" {
 
 }
 
+variable "xsw_assertions_bucket" {
+  type = object({
+    mfa_delete               = bool
+    glacier_transaction_days = number
+    expiration_days          = number
+  })
+
+  description = "XSW assertions bucket configurations."
+  default = {
+    mfa_delete               = false
+    glacier_transaction_days = 90
+    expiration_days          = 100
+  }
+}
+
 variable "assertions_crawler_schedule" {
   type        = string
   description = "A cron expression used to specify the schedule"

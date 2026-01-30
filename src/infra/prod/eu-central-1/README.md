@@ -155,6 +155,7 @@ No outputs.
 | <a name="input_vpc_private_subnets_cidr"></a> [vpc\_private\_subnets\_cidr](#input\_vpc\_private\_subnets\_cidr) | Private subnets address spaces. | `list(string)` | <pre>[<br/>  "10.0.80.0/20",<br/>  "10.0.64.0/20",<br/>  "10.0.48.0/20"<br/>]</pre> | no |
 | <a name="input_vpc_public_subnets_cidr"></a> [vpc\_public\_subnets\_cidr](#input\_vpc\_public\_subnets\_cidr) | Public subnets address spaces. | `list(string)` | <pre>[<br/>  "10.0.120.0/21",<br/>  "10.0.112.0/21",<br/>  "10.0.104.0/21"<br/>]</pre> | no |
 | <a name="input_xray_tracing_enabled"></a> [xray\_tracing\_enabled](#input\_xray\_tracing\_enabled) | Whether active tracing with X-ray is enabled. | `bool` | `true` | no |
+| <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | XSW assertions storage. | <pre>object({<br/>    mfa_delete                = bool<br/>    glacier_transaction_days  = number<br/>    expiration_days           = number<br/>    kms_multi_region          = bool<br/>    enable_key_rotation       = bool<br/>    object_lock_configuration = any<br/>  })</pre> | <pre>{<br/>  "enable_key_rotation": true,<br/>  "expiration_days": 731,<br/>  "glacier_transaction_days": 90,<br/>  "kms_multi_region": true,<br/>  "mfa_delete": false,<br/>  "object_lock_configuration": {<br/>    "rule": {<br/>      "default_retention": {<br/>        "days": 730,<br/>        "mode": "GOVERNANCE"<br/>      }<br/>    }<br/>  }<br/>}</pre> | no |
 
 ## Outputs
 

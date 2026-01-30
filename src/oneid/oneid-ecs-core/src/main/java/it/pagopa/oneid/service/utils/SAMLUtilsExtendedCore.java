@@ -9,10 +9,10 @@ import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.service.config.SAMLNamespaceContext;
-import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -23,6 +23,9 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -66,6 +69,9 @@ import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.Signer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @ApplicationScoped
 @CustomLogging
@@ -75,8 +81,14 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   String ENTITY_ID;
 
   @Inject
-  CurrentAuthDTO currentAuthDTO;
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
+  @Inject
+  S3Client s3Client;
+
+
+  @ConfigProperty(name = "xsw_assertions_s3_bucket")
+  String xswAssertionsS3Bucket;
 
   @Inject
   public SAMLUtilsExtendedCore(BasicParserPool basicParserPool,
@@ -189,7 +201,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private Response unmarshallResponse(byte[] decodedSamlResponse) throws OneIdentityException {
+  private Response unmarshallResponse(byte[] decodedSamlResponse)
+      throws OneIdentityException {
     // log size of SAMLResponse for possible future check on max size
     Log.info("SAMLResponse size: " + decodedSamlResponse.length);
 
@@ -204,7 +217,7 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       DocumentBuilder db = dbf.newDocumentBuilder();
       Document doc = db.parse(new ByteArrayInputStream(decodedSamlResponse));
 
-      checkNoMultipleSignatures(doc);
+      checkNoMultipleSignatures(doc, decodedSamlResponse);
 
     } catch (SAXException | IOException | ParserConfigurationException |
              XPathExpressionException e) {
@@ -213,7 +226,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
 
     try {
-      // return response even if it has multiple signatures, the error will be handled inside SAMLController
       return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
     } catch (XMLParserException | UnmarshallingException e) {
@@ -222,7 +234,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
   }
 
-  private void checkNoMultipleSignatures(Document doc) throws XPathExpressionException {
+  private void checkNoMultipleSignatures(Document doc, byte[] decodedSamlResponse)
+      throws XPathExpressionException, OneIdentityException {
     XPath xPath = XPathFactory.newInstance().newXPath();
     // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
     xPath.setNamespaceContext(new SAMLNamespaceContext());
@@ -233,12 +246,53 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
         .evaluate(doc, XPathConstants.NUMBER);
 
     if (responseSignatureCount > 2) {
-      // set a flag in currentAuthDTO to handle the error in SAMLController
-      Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
-      currentAuthDTO.setResponseWithMultipleSignatures(true);
+      String requestId = extractFromDoc(xPath, doc, "//saml2p:Response/@InResponseTo");
+      Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()
+          + " - requestId: " + requestId);
+
+      uploadToS3(decodedSamlResponse, requestId);
+      cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
+
+      throw new OneIdentityException(
+          ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
     }
   }
 
+  private void uploadToS3(byte[] decodedSamlResponse, String requestId) {
+    try {
+      String objectKey = generateS3ObjectKey(requestId);
+
+      s3Client.putObject(PutObjectRequest.builder()
+              .bucket(xswAssertionsS3Bucket)
+              .key(objectKey)
+              .contentType("application/xml")
+              .build(),
+          RequestBody.fromBytes(decodedSamlResponse));
+      Log.info("Uploaded Assertion containing XSW to S3: " + objectKey);
+
+    } catch (Exception e) {
+      Log.error("Failed to upload Assertion containing XSW to S3: " + e.getMessage());
+    }
+  }
+
+  private String extractFromDoc(XPath xPath, Document doc, String expression)
+      throws XPathExpressionException {
+
+    String value = (String) xPath.compile(expression).evaluate(doc, XPathConstants.STRING);
+    return (value == null || value.isEmpty()) ? "unknown" : value;
+  }
+
+  private String generateS3ObjectKey(String requestId) {
+    ZonedDateTime cetTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
+    String timestampStr = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(cetTime);
+
+    // Structure: year=YYYY/month=MM/day=DD/hour=HH/samlRequestId=ID/ID-TIMESTAMP.xml
+    return String.format(
+        "year=%04d/month=%02d/day=%02d/hour=%02d/samlRequestId=%s/%s-%s.xml",
+        cetTime.getYear(), cetTime.getMonthValue(), cetTime.getDayOfMonth(), cetTime.getHour(),
+        requestId, requestId, timestampStr
+    );
+  }
 
   private void validateResponseSignature(Response response, List<Credential> credentials)
       throws SignatureException {
