@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.7.1
+
+### Patch Changes
+
+- fba3684: remove idp-mock package and use validator image for demo.gov/validator idp
+
 ## 4.7.0
 
 ### Minor Changes
