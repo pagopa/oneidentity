@@ -25,8 +25,8 @@ const oidcConfig: AuthProviderProps = {
   scope: ENV.OIDC.SCOPE,
   // no revoke of "access token" (https://github.com/authts/oidc-client-ts/issues/262)
   revokeTokenTypes: ['refresh_token'],
-  // no silent renew via "prompt=none" (https://github.com/authts/oidc-client-ts/issues/366)
-  automaticSilentRenew: false,
+  // enable silent renew (refresh access and id token automatically)
+  automaticSilentRenew: true,
   onSigninCallback,
 };
 
