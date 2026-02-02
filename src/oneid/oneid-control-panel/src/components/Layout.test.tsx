@@ -14,6 +14,7 @@ describe('Layout - Auth Events', () => {
   const mockRemoveUser = vi.fn();
   const mockSignoutRedirect = vi.fn();
   const mockAddAccessTokenExpired = vi.fn();
+  const mockAddSilentRenewError = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -23,6 +24,7 @@ describe('Layout - Auth Events', () => {
       isAuthenticated: true,
       events: {
         addAccessTokenExpired: mockAddAccessTokenExpired,
+        addSilentRenewError: mockAddSilentRenewError,
       },
       removeUser: mockRemoveUser,
       signoutRedirect: mockSignoutRedirect,
@@ -65,5 +67,38 @@ describe('Layout - Auth Events', () => {
 
     unmount();
     expect(mockUnsubscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle silent renew error by logging out and cleaning up', () => {
+    let capturedCallback: ((e: unknown) => void) | undefined;
+    const unsubscribeSilent = vi.fn();
+
+    // catch callback passed to addSilentRenewError
+    mockAddSilentRenewError.mockImplementation((cb) => {
+      capturedCallback = cb;
+      return unsubscribeSilent;
+    });
+
+    const { unmount } = render(
+      <BrowserRouter>
+        <ClientIdProvider>
+          <Layout>
+            <div>Content</div>
+          </Layout>
+        </ClientIdProvider>
+      </BrowserRouter>
+    );
+
+    expect(mockAddSilentRenewError).toHaveBeenCalledTimes(1);
+
+    // simulate silent renew error
+    const err = new Error('renew failed');
+    if (capturedCallback) capturedCallback(err);
+
+    expect(mockRemoveUser).toHaveBeenCalled();
+    expect(mockSignoutRedirect).toHaveBeenCalled();
+
+    unmount();
+    expect(unsubscribeSilent).toHaveBeenCalledTimes(1);
   });
 });

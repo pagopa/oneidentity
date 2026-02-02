@@ -25,11 +25,8 @@ vi.mock('react-oidc-context', () => ({
     },
     isAuthenticated: true,
     events: {
-      addAccessTokenExpired: vi.fn(() => {
-        return () => {
-          /* empty */
-        };
-      }),
+      addAccessTokenExpired: vi.fn(() => vi.fn()),
+      addSilentRenewError: vi.fn(() => vi.fn()),
     },
     removeUser: vi.fn(),
     signoutRedirect: vi.fn(),
