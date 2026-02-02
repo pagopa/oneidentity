@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.5.0
+
+### Minor Changes
+
+- 23dae5f: add refresh token feature and token expired event listener with automatic logout
+
 ## 1.4.0
 
 ### Minor Changes
