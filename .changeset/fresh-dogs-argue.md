@@ -2,4 +2,4 @@
 "oi-control-panel": minor
 ---
 
-add access token expired event listener with automatic logout
+add refresh token feature and token expired event listener with automatic logout
