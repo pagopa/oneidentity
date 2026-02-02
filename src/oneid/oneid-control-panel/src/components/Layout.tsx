@@ -67,9 +67,19 @@ function Layout({ children }: Props) {
     });
   };
 
+  // Refresh token error: automatic refresh failed (e.g. refresh token no longer valid) -> logout
+  useEffect(() => {
+    return events.addSilentRenewError((e) => {
+      console.error('Silent renew error - logging out', e);
+      handleLogout();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events]);
+
+  // Fallback: if refresh token failed and renew error don't fire, when the access expire -> logout
   useEffect(() => {
     return events.addAccessTokenExpired(() => {
-      console.log('Access token expired');
+      console.log('Access token expired - logging out');
       handleLogout();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
