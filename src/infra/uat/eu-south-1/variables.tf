@@ -245,7 +245,7 @@ variable "xsw_assertions_bucket" {
   default = {
     mfa_delete               = false
     glacier_transaction_days = 90
-    expiration_days          = 100
+    expiration_days          = 30
     enable_key_rotation      = true
     kms_multi_region         = false
   }
