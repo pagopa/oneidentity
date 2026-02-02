@@ -32,7 +32,9 @@ export const FormArrayTextField = ({
     if (formData?.[fieldName]) {
       const fieldData = formData[fieldName];
       if (Array.isArray(fieldData)) {
-        setData(fieldData);
+        const stringArray = fieldData
+          .filter((item) => typeof item === 'string' && item !== null && item !== undefined) as string[];
+        setData(stringArray);
       }
     }
   }, [formData, fieldName]);
