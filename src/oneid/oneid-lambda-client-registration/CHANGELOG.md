@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.2.0
+
+### Minor Changes
+
+- 8e08c43: add admin contorl panel input checks
+
 ## 2.1.4
 
 ### Patch Changes
