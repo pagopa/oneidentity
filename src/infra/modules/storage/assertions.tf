@@ -190,142 +190,6 @@ resource "aws_iam_policy_attachment" "replication" {
   policy_arn = aws_iam_policy.replication[0].arn
 }
 
-resource "aws_iam_role" "replication_xsw" {
-  count = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
-
-  name               = "${var.role_prefix}-replica-xsw-assertions"
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "s3.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_iam_policy" "replication_xsw" {
-  count = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
-  name  = "${var.role_prefix}-replica-xsw-assertions"
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "s3:ListBucket",
-        "s3:GetReplicationConfiguration",
-        "s3:GetObjectVersionForReplication",
-        "s3:GetObjectVersionAcl",
-        "s3:GetObjectVersionTagging",
-        "s3:GetObjectRetention",
-        "s3:GetObjectLegalHold"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "${module.s3_xsw_assertions_bucket.s3_bucket_arn}",
-        "${module.s3_xsw_assertions_bucket.s3_bucket_arn}/*"
-      ]
-    },
-    {
-      "Action": [
-        "s3:ReplicateObject",
-        "s3:ReplicateDelete",
-        "s3:ReplicateTags",
-        "s3:GetObjectVersionTagging",
-        "s3:ObjectOwnerOverrideToBucketOwner"
-      ],
-      "Effect": "Allow",
-      "Condition": {
-        "StringLikeIfExists": {
-          "s3:x-amz-server-side-encryption": [
-            "aws:kms",
-            "aws:kms:dsse",
-            "AES256"
-          ]
-        }
-      },
-      "Resource": [
-        "${var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn}/*"
-      ]
-    },
-    {
-      "Action": [
-        "kms:Decrypt"
-      ],
-      "Effect": "Allow",
-      "Condition": {
-        "StringLike": {
-          "kms:ViaService": "s3.eu-south-1.amazonaws.com",
-          "kms:EncryptionContext:aws:s3:arn": [
-            "${module.s3_xsw_assertions_bucket.s3_bucket_arn}/*"
-          ]
-        }
-      },
-      "Resource": [
-        "${module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn}"
-      ]
-    },
-    {
-      "Action": [
-        "kms:Encrypt"
-      ],
-      "Effect": "Allow",
-      "Condition": {
-        "StringLike": {
-          "kms:ViaService": [
-            "s3.eu-central-1.amazonaws.com"
-          ],
-          "kms:EncryptionContext:aws:s3:arn": [
-            "${var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn}/*"
-          ]
-        }
-      },
-      "Resource": [
-        "${var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn}"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:GenerateDataKey"
-      ],
-      "Resource": [
-        "${module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn}"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "kms:GenerateDataKey",
-        "kms:Encrypt"
-      ],
-      "Resource": [
-        "${var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn}"
-      ]
-    }
-  ]
-}
-POLICY
-}
-
-resource "aws_iam_policy_attachment" "replication_xsw" {
-  count      = var.xsw_assertions_bucket.replication_configuration != null ? 1 : 0
-  name       = "${var.role_prefix}-replicate-xsw-assertions"
-  roles      = [aws_iam_role.replication_xsw[0].name]
-  policy_arn = aws_iam_policy.replication_xsw[0].arn
-}
-
-
 data "aws_iam_policy_document" "lambda_assertions" {
 
   count = var.assertion_bucket.lambda_role_arn != null ? 1 : 0
@@ -470,8 +334,6 @@ module "s3_xsw_assertions_bucket" {
     mfa_delete = var.xsw_assertions_bucket.mfa_delete
   }
 
-  object_lock_enabled       = var.xsw_assertions_bucket.object_lock_configuration != null ? true : false
-  object_lock_configuration = var.xsw_assertions_bucket.object_lock_configuration
 
   lifecycle_rule = [
     {
@@ -485,9 +347,6 @@ module "s3_xsw_assertions_bucket" {
       }
     }
   ]
-
-  replication_configuration = local.replication_configuration_xsw_assertions_bucket
-
   tags = {
     Name = local.xsw_assertions_bucket_name
   }

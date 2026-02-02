@@ -39,14 +39,7 @@ variable "xsw_assertions_bucket" {
     kms_multi_region                = optional(bool, false)
 
     object_lock_legal_hold_status = optional(bool, false)
-    object_lock_configuration     = optional(any, null)
     enable_key_rotation           = optional(bool, false)
-    replication_configuration = optional(
-      object({
-        id                     = string
-        destination_bucket_arn = string
-        kms_key_replica_arn    = string
-    }), null)
   })
 }
 

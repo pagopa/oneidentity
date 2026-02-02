@@ -185,18 +185,11 @@ variable "assertion_bucket" {
 
 variable "xsw_assertions_bucket" {
   type = object({
-    mfa_delete                = bool
-    glacier_transaction_days  = number
-    expiration_days           = number
-    enable_key_rotation       = bool
-    kms_multi_region          = bool
-    object_lock_configuration = any
-    replication_configuration = optional(
-      object({
-        id                     = string
-        destination_bucket_arn = string
-        kms_key_replica_arn    = string
-    }), null)
+    mfa_delete               = bool
+    glacier_transaction_days = number
+    expiration_days          = number
+    enable_key_rotation      = bool
+    kms_multi_region         = bool
   })
 
   description = "XSW assertions storage."
@@ -206,15 +199,6 @@ variable "xsw_assertions_bucket" {
     expiration_days          = 731
     enable_key_rotation      = true
     kms_multi_region         = true
-    object_lock_configuration = {
-      rule = {
-        default_retention = {
-          mode = "GOVERNANCE"
-          days = 730 #
-        }
-      }
-    }
-    replication_configuration = null #TODO add replication configuration of bucket in eu-central-1
   }
 }
 

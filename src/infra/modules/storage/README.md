@@ -102,14 +102,11 @@
 | [aws_iam_policy.github_s3_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.replication_xsw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.upload_idp_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy_attachment.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
-| [aws_iam_policy_attachment.replication_xsw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_role.githubS3deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.glue_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role.replication_xsw](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.upload_idp_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.deploy_cp_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.deploy_internal_idp_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -148,7 +145,7 @@
 | <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
 | <a name="input_metadata_bucket_prefix"></a> [metadata\_bucket\_prefix](#input\_metadata\_bucket\_prefix) | Metadata bucket prefix. | `string` | `""` | no |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
-| <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | n/a | <pre>object({<br/>    name_prefix                     = string<br/>    expiration_days                 = number<br/>    mfa_delete                      = optional(bool, false)<br/>    kms_key_deletion_window_in_days = optional(number, 10)<br/>    kms_multi_region                = optional(bool, false)<br/><br/>    object_lock_legal_hold_status = optional(bool, false)<br/>    object_lock_configuration     = optional(any, null)<br/>    enable_key_rotation           = optional(bool, false)<br/>    replication_configuration = optional(<br/>      object({<br/>        id                     = string<br/>        destination_bucket_arn = string<br/>        kms_key_replica_arn    = string<br/>    }), null)<br/>  })</pre> | n/a | yes |
+| <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | n/a | <pre>object({<br/>    name_prefix                     = string<br/>    expiration_days                 = number<br/>    mfa_delete                      = optional(bool, false)<br/>    kms_key_deletion_window_in_days = optional(number, 10)<br/>    kms_multi_region                = optional(bool, false)<br/><br/>    object_lock_legal_hold_status = optional(bool, false)<br/>    enable_key_rotation           = optional(bool, false)<br/>  })</pre> | n/a | yes |
 
 ## Outputs
 

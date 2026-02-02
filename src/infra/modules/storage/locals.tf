@@ -56,42 +56,4 @@ locals {
     ][
     var.assertion_bucket.replication_configuration != null ? 0 : 1
   ]
-
-  replication_configuration_xsw_assertions_bucket = [
-    {
-      role = try(aws_iam_role.replication_xsw[0].arn, null)
-
-      rules = [
-        {
-          id     = try(var.xsw_assertions_bucket.replication_configuration.id, null)
-          status = "Enabled"
-
-          delete_marker_replication = false
-
-          source_selection_criteria = {
-            replica_modifications = {
-              status = "Enabled"
-            }
-            sse_kms_encrypted_objects = {
-              enabled = true
-            }
-          }
-
-          destination = {
-            bucket             = try(var.xsw_assertions_bucket.replication_configuration.destination_bucket_arn, null)
-            storage_class      = "STANDARD"
-            replica_kms_key_id = try(var.xsw_assertions_bucket.replication_configuration.kms_key_replica_arn, null)
-            account_id         = var.account_id
-          }
-
-          filter = {
-            prefix = "" # Replicate all objects
-          }
-        }
-      ]
-    }, {}
-    ][
-    var.xsw_assertions_bucket.replication_configuration != null ? 0 : 1
-  ]
-
 }

@@ -80,13 +80,11 @@ module "storage" {
     replication_configuration = var.assertion_bucket.replication_configuration
   }
   xsw_assertions_bucket = {
-    name_prefix               = "xsw-assertions"
-    glacier_transaction_days  = var.xsw_assertions_bucket.glacier_transaction_days
-    expiration_days           = var.xsw_assertions_bucket.expiration_days
-    enable_key_rotation       = var.xsw_assertions_bucket.enable_key_rotation
-    kms_multi_region          = var.xsw_assertions_bucket.kms_multi_region
-    object_lock_configuration = var.xsw_assertions_bucket.object_lock_configuration
-    replication_configuration = var.xsw_assertions_bucket.replication_configuration
+    name_prefix              = "xsw-assertions"
+    glacier_transaction_days = var.xsw_assertions_bucket.glacier_transaction_days
+    expiration_days          = var.xsw_assertions_bucket.expiration_days
+    enable_key_rotation      = var.xsw_assertions_bucket.enable_key_rotation
+    kms_multi_region         = var.xsw_assertions_bucket.kms_multi_region
   }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
