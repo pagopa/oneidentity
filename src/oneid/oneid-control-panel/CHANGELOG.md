@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.4.0
+
+### Minor Changes
+
+- 8e08c43: add admin contorl panel input checks
+
 ## 1.3.0
 
 ### Minor Changes
