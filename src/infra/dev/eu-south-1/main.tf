@@ -545,7 +545,7 @@ module "backend" {
   }
 
   xsw_error_alarm = {
-    enabled   = true #TODO to false after test
+    enabled   = false
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
