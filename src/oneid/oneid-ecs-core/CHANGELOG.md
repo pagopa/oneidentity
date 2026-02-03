@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.3.0
+
+### Minor Changes
+
+- bc866e8: Add XSW assertions handling with dedicated storage and alarms
+
 ## 1.2.0
 
 ### Minor Changes

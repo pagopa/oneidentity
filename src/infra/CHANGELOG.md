@@ -1,5 +1,11 @@
 # infra
 
+## 1.7.0
+
+### Minor Changes
+
+- bc866e8: Add XSW assertions handling with dedicated storage and alarms
+
 ## 1.6.0
 
 ### Minor Changes

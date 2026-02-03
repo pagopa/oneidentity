@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.8.0
+
+### Minor Changes
+
+- bc866e8: Add XSW assertions handling with dedicated storage and alarms
+
 ## 4.7.1
 
 ### Patch Changes
