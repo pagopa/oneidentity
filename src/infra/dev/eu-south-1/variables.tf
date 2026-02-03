@@ -573,7 +573,7 @@ variable "alarm_subscribers" {
 variable "event_mode" {
   type        = bool
   description = "Enable event mode to use higher autoscaling limits for special events. Set to true to activate event_autoscaling configuration."
-  default     = false
+  default     = true
 }
 
 variable "is_gh_sns_arn" {
