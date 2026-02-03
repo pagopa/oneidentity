@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.5.1
+
+### Patch Changes
+
+- e8dec67: Fixed a regression in FormArrayTextField caused by stricter Zod validation on redirectUri
+
 ## 1.5.0
 
 ### Minor Changes
