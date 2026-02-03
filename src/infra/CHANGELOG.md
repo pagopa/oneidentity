@@ -1,5 +1,11 @@
 # infra
 
+## 1.8.0
+
+### Minor Changes
+
+- 0b35dfc: Created event_mode for ecs desired count
+
 ## 1.7.0
 
 ### Minor Changes

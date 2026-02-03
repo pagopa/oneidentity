@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.9.0
+
+### Minor Changes
+
+- 0b35dfc: Created event_mode for ecs desired count
+
 ## 4.8.0
 
 ### Minor Changes
