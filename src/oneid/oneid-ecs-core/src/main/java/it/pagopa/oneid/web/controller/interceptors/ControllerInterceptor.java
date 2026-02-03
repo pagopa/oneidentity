@@ -144,6 +144,7 @@ public class ControllerInterceptor {
     } catch (OneIdentityException e) {
       if (ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage()
           .equals(e.getMessage())) {
+        Log.error(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorMessage());
         throw new GenericHTMLException(
             ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
       }
