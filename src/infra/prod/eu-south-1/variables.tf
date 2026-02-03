@@ -102,6 +102,11 @@ variable "ecs_oneid_core" {
       min_capacity  = number
       max_capacity  = number
     })
+    event_autoscaling = optional(object({
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
+    }), null)
     logs_retention_days   = number
     app_spid_test_enabled = optional(bool, false)
   })
@@ -118,6 +123,11 @@ variable "ecs_oneid_core" {
       desired_count = 3
       min_capacity  = 3
       max_capacity  = 12
+    }
+    event_autoscaling = {
+      desired_count = 40
+      min_capacity  = 40
+      max_capacity  = 1000
     }
     logs_retention_days = 30
   }
@@ -463,6 +473,12 @@ variable "rest_api_throttle_settings" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "event_mode" {
+  type        = bool
+  description = "Enable event mode to use higher autoscaling limits for special events (e.g., high-traffic periods). Set to true to activate event_autoscaling configuration."
+  default     = false
 }
 
 variable "is_gh_sns_arn" {

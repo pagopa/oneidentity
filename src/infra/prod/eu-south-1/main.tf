@@ -137,6 +137,7 @@ module "backend" {
 
   client_manager_lambda_optional_iam_policy = false
   role_prefix                               = local.project
+  event_mode                                = var.event_mode
 
   ecr_registers = [
     {
@@ -183,7 +184,8 @@ module "backend" {
       logs_retention_days = var.ecs_oneid_core.logs_retention_days
     }
 
-    autoscaling = var.ecs_oneid_core.autoscaling
+    autoscaling       = var.ecs_oneid_core.autoscaling
+    event_autoscaling = var.ecs_oneid_core.event_autoscaling
 
     subnet_ids = module.network.private_subnet_ids
 

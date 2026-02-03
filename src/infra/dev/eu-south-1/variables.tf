@@ -126,9 +126,9 @@ variable "ecs_oneid_core" {
       max_capacity  = 2
     }
     event_autoscaling = {
-      desired_count = 5
-      min_capacity  = 5
-      max_capacity  = 10
+      desired_count = 3
+      min_capacity  = 3
+      max_capacity  = 12
     }
     logs_retention_days   = 30
     app_spid_test_enabled = true
@@ -573,7 +573,7 @@ variable "alarm_subscribers" {
 variable "event_mode" {
   type        = bool
   description = "Enable event mode to use higher autoscaling limits for special events. Set to true to activate event_autoscaling configuration."
-  default     = true
+  default     = false
 }
 
 variable "is_gh_sns_arn" {
