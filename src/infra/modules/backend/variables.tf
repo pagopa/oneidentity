@@ -576,17 +576,17 @@ variable "client_no_traffic_alarm" {
   })
   default = null
 }
+
+variable "event_mode" {
+  type        = bool
+  description = "Enable event mode to use higher autoscaling limits for special events. When true, uses event_autoscaling configuration if defined."
+  default     = false
+}
+
 variable "xsw_error_alarm" {
   type = object({
     enabled   = optional(bool, false)
     namespace = string
   })
   default = null
-}
-
-
-variable "event_mode" {
-  type        = bool
-  description = "Enable event mode to use higher autoscaling limits for special events. When true, uses event_autoscaling configuration if defined."
-  default     = false
 }
