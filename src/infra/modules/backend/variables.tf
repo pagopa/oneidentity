@@ -225,6 +225,16 @@ variable "kms_sessions_table_alias_arn" {
   description = "Kms key used to encrypt and decrypt session table."
 }
 
+variable "xsw_assertions_bucket_arn" {
+  type        = string
+  description = "S3 bucket ARN for XSW assertions."
+}
+
+variable "xsw_assertions_kms_key_arn" {
+  type        = string
+  description = "KMS key ARN used to encrypt assertions with XSW bucket objects."
+}
+
 variable "kms_ssm_enable_rotation" {
   type    = bool
   default = true
@@ -557,6 +567,13 @@ variable "client_no_traffic_alarm" {
       client_id     = string
       friendly_name = string
     }))
+    namespace = string
+  })
+  default = null
+}
+variable "xsw_error_alarm" {
+  type = object({
+    enabled   = optional(bool, false)
     namespace = string
   })
   default = null

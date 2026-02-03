@@ -127,6 +127,12 @@ module "storage" {
     expiration_days          = 100
     enable_key_rotation      = true
   }
+  xsw_assertions_bucket = {
+    name_prefix              = "xsw-assertions"
+    glacier_transaction_days = 90
+    expiration_days          = 100
+    enable_key_rotation      = true
+  }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
   assets_bucket_prefix               = "assets"
@@ -271,6 +277,10 @@ module "backend" {
       {
         name  = "REGISTRY_ENABLED"
         value = var.registry_enabled
+      },
+      {
+        name  = "XSW_ASSERTIONS_S3_BUCKET"
+        value = module.storage.xsw_assertions_bucket_name
       }
     ]
   }
@@ -354,6 +364,9 @@ module "backend" {
   table_client_registrations_arn = module.database.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+
+  xsw_assertions_bucket_arn  = module.storage.xsw_assertions_bucket_arn
+  xsw_assertions_kms_key_arn = module.storage.xsw_assertions_kms_key_arn
 
 
   client_registration_lambda = {
@@ -528,6 +541,11 @@ module "backend" {
   client_no_traffic_alarm = {
     enabled   = false
     clients   = local.clients
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
+  xsw_error_alarm = {
+    enabled   = false
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 

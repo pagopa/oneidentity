@@ -43,6 +43,13 @@ module "storage" {
     kms_multi_region          = var.assertion_bucket.kms_multi_region
     object_lock_configuration = var.assertion_bucket.object_lock_configuration
   }
+  xsw_assertions_bucket = {
+    name_prefix              = "xsw-assertions"
+    glacier_transaction_days = var.xsw_assertions_bucket.glacier_transaction_days
+    expiration_days          = var.xsw_assertions_bucket.expiration_days
+    enable_key_rotation      = var.xsw_assertions_bucket.enable_key_rotation
+    kms_multi_region         = var.xsw_assertions_bucket.kms_multi_region
+  }
   create_athena_table         = false
   assertions_crawler_schedule = var.assertions_crawler_schedule
 
@@ -183,6 +190,10 @@ module "backend" {
       {
         name  = "REGISTRY_ENABLED"
         value = var.registry_enabled
+      },
+      {
+        name  = "XSW_ASSERTIONS_S3_BUCKET"
+        value = module.storage.xsw_assertions_bucket_name
       }
     ]
   }
@@ -263,6 +274,9 @@ module "backend" {
   table_client_registrations_arn = local.table_client_registrations_arn
 
   kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
+
+  xsw_assertions_bucket_arn  = module.storage.xsw_assertions_bucket_arn
+  xsw_assertions_kms_key_arn = module.storage.xsw_assertions_kms_key_arn
 
   client_registration_lambda = {
     name     = format("%s-client-registration", local.project)
@@ -430,6 +444,11 @@ module "backend" {
   client_no_traffic_alarm = {
     enabled   = true
     clients   = local.clients
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
+  xsw_error_alarm = {
+    enabled   = true
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 

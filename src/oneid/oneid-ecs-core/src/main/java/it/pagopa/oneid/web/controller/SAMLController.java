@@ -90,16 +90,6 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
-    // 1c. Check if the SAMLResponse contains multiple signatures,
-    // in this case the raw SAMLResponse is stored in SAML record, but the flow is interrupted
-    if (currentAuthDTO.isResponseWithMultipleSignatures()) {
-      Log.error("SAML Response contains multiple signatures");
-      cloudWatchConnectorImpl.sendIDPErrorMetricData(
-          samlSession.getAuthorizationRequestDTOExtended().getIdp(),
-          ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
-      throw new GenericHTMLException(ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT);
-    }
-
     // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page
     try {
       samlServiceImpl.checkSAMLStatus(response,

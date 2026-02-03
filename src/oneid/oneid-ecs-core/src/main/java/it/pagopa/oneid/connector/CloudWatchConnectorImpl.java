@@ -26,6 +26,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagAggregated = "Aggregated";
   private final String tagError = "Error";
   private final String tagSuccess = "Success";
+  private final String tagXSW = "XSW";
 
 
   @Inject
@@ -176,6 +177,18 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagClient + tagSuccess, dimensions));
+  }
+
+  @Override
+  public void sendXSWAssertionErrorMetricData() {
+
+    List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
+        .name(tagXSW)
+        .value(tagAggregated)
+        .build());
+    cloudWatchAsyncClient.putMetricData(
+        generatePutMetricRequest(tagXSW + tagError,
+            totalErrorDimensions)).join();
   }
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,

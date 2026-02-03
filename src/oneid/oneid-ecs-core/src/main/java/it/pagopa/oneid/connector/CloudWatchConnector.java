@@ -8,6 +8,8 @@ public interface CloudWatchConnector {
 
   void sendIDPErrorMetricData(String IDP, ErrorCode errorCode);
 
+  void sendXSWAssertionErrorMetricData();
+
   void sendIDPSuccessMetricData(String IDP);
 
   void sendClientErrorMetricData(String clientID, ErrorCode errorCode);

@@ -202,6 +202,28 @@ resource "aws_iam_policy" "ecs_core_task" {
         ]
       },
       {
+        Sid    = "S3PutMalformedSamlResponses"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = [
+          "${var.xsw_assertions_bucket_arn}/*"
+        ]
+      },
+      {
+        Sid    = "KMSUseMalformedSamlResponses"
+        Effect = "Allow"
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:GenerateDataKey"
+        ]
+        Resource = [
+          var.xsw_assertions_kms_key_arn
+        ]
+      },
+      {
         "Sid" : "SSMGetCertParameters",
         "Effect" : "Allow",
         "Action" : [
@@ -1234,4 +1256,33 @@ resource "aws_cloudwatch_metric_alarm" "ecs_task_running_idp" {
   alarm_actions = [
     var.sns_topic_arn
   ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "xsw_error_alarm" {
+
+  count               = var.xsw_error_alarm.enabled ? 1 : 0
+  alarm_name          = "XSW-Assertion-Alarm-${var.aws_region}-${var.env_short}"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  threshold           = 1
+  alarm_description   = "Alarm for XSW Assertion Errors"
+  alarm_actions       = [var.sns_topic_arn]
+
+  metric_query {
+    id          = "errors"
+    label       = "XSW Errors"
+    return_data = true
+
+    metric {
+      metric_name = "XSWError"
+      namespace   = var.xsw_error_alarm.namespace
+      period      = 60
+      stat        = "Sum"
+      unit        = "Count"
+
+      dimensions = {
+        "XSW" = "Aggregated"
+      }
+    }
+  }
 }

@@ -2,6 +2,9 @@ locals {
   assertions_bucket_name = format("%s-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
+  xsw_assertions_bucket_name = format("%s-%s", var.xsw_assertions_bucket.name_prefix,
+    random_integer.xsw_assertions_bucket_suffix.result
+  )
   bucket_accesslogs_name = format("%s-accesslogs-%s", var.assertion_bucket.name_prefix,
     random_integer.assertion_bucket_suffix.result
   )
@@ -53,5 +56,4 @@ locals {
     ][
     var.assertion_bucket.replication_configuration != null ? 0 : 1
   ]
-
 }

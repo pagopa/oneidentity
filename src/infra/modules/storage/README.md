@@ -80,6 +80,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_kms_assertions_bucket"></a> [kms\_assertions\_bucket](#module\_kms\_assertions\_bucket) | terraform-aws-modules/kms/aws | 3.0.0 |
+| <a name="module_kms_xsw_assertions_bucket"></a> [kms\_xsw\_assertions\_bucket](#module\_kms\_xsw\_assertions\_bucket) | terraform-aws-modules/kms/aws | 3.0.0 |
 | <a name="module_s3_assertions_accesslogs_bucket"></a> [s3\_assertions\_accesslogs\_bucket](#module\_s3\_assertions\_accesslogs\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assertions_bucket"></a> [s3\_assertions\_bucket](#module\_s3\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_assets_bucket"></a> [s3\_assets\_bucket](#module\_s3\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
@@ -87,6 +88,7 @@
 | <a name="module_s3_athena_output_bucket"></a> [s3\_athena\_output\_bucket](#module\_s3\_athena\_output\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_idp_metadata_bucket"></a> [s3\_idp\_metadata\_bucket](#module\_s3\_idp\_metadata\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_internal_idp_assets_bucket"></a> [s3\_internal\_idp\_assets\_bucket](#module\_s3\_internal\_idp\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_s3_xsw_assertions_bucket"></a> [s3\_xsw\_assertions\_bucket](#module\_s3\_xsw\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
 
@@ -116,6 +118,7 @@
 | [random_integer.asset_bucket_internal_idp_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [random_integer.asset_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [random_integer.idp_metadata_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
+| [random_integer.xsw_assertions_bucket_suffix](https://registry.terraform.io/providers/hashicorp/random/3.6.1/docs/resources/integer) | resource |
 | [aws_iam_policy_document.glue_assertions_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.glue_assume_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -142,6 +145,7 @@
 | <a name="input_kms_rotation_period_in_days"></a> [kms\_rotation\_period\_in\_days](#input\_kms\_rotation\_period\_in\_days) | n/a | `number` | `365` | no |
 | <a name="input_metadata_bucket_prefix"></a> [metadata\_bucket\_prefix](#input\_metadata\_bucket\_prefix) | Metadata bucket prefix. | `string` | `""` | no |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
+| <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | n/a | <pre>object({<br/>    name_prefix                     = string<br/>    expiration_days                 = number<br/>    mfa_delete                      = optional(bool, false)<br/>    kms_key_deletion_window_in_days = optional(number, 10)<br/>    kms_multi_region                = optional(bool, false)<br/><br/>    object_lock_legal_hold_status = optional(bool, false)<br/>    enable_key_rotation           = optional(bool, false)<br/>  })</pre> | n/a | yes |
 
 ## Outputs
 
@@ -160,4 +164,7 @@
 | <a name="output_idp_metadata_bucket_arn"></a> [idp\_metadata\_bucket\_arn](#output\_idp\_metadata\_bucket\_arn) | n/a |
 | <a name="output_kms_assertion_key_arn"></a> [kms\_assertion\_key\_arn](#output\_kms\_assertion\_key\_arn) | n/a |
 | <a name="output_s3_idp_metadata_bucket_name"></a> [s3\_idp\_metadata\_bucket\_name](#output\_s3\_idp\_metadata\_bucket\_name) | n/a |
+| <a name="output_xsw_assertions_bucket_arn"></a> [xsw\_assertions\_bucket\_arn](#output\_xsw\_assertions\_bucket\_arn) | n/a |
+| <a name="output_xsw_assertions_bucket_name"></a> [xsw\_assertions\_bucket\_name](#output\_xsw\_assertions\_bucket\_name) | n/a |
+| <a name="output_xsw_assertions_kms_key_arn"></a> [xsw\_assertions\_kms\_key\_arn](#output\_xsw\_assertions\_kms\_key\_arn) | n/a |
 <!-- END_TF_DOCS -->

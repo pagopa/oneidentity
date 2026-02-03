@@ -79,6 +79,13 @@ module "storage" {
 
     replication_configuration = var.assertion_bucket.replication_configuration
   }
+  xsw_assertions_bucket = {
+    name_prefix              = "xsw-assertions"
+    glacier_transaction_days = var.xsw_assertions_bucket.glacier_transaction_days
+    expiration_days          = var.xsw_assertions_bucket.expiration_days
+    enable_key_rotation      = var.xsw_assertions_bucket.enable_key_rotation
+    kms_multi_region         = var.xsw_assertions_bucket.kms_multi_region
+  }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
   assets_bucket_prefix               = "assets"
@@ -236,6 +243,10 @@ module "backend" {
       {
         name  = "REGISTRY_ENABLED"
         value = var.registry_enabled
+      },
+      {
+        name  = "XSW_ASSERTIONS_S3_BUCKET"
+        value = module.storage.xsw_assertions_bucket_name
       }
     ]
   }
@@ -255,7 +266,10 @@ module "backend" {
 
   table_client_registrations_arn = module.database.table_client_registrations_arn
   kms_sessions_table_alias_arn   = module.database.kms_sessions_table_alias_arn
-  table_last_idp_used_arn        = module.database.table_last_idp_used_arn
+
+  xsw_assertions_bucket_arn  = module.storage.xsw_assertions_bucket_arn
+  xsw_assertions_kms_key_arn = module.storage.xsw_assertions_kms_key_arn
+  table_last_idp_used_arn    = module.database.table_last_idp_used_arn
 
   client_registration_lambda = {
     name                               = format("%s-client-registration", local.project)
@@ -485,6 +499,11 @@ module "backend" {
   client_no_traffic_alarm = {
     enabled   = true
     clients   = local.clients
+    namespace = "${local.project}-core/ApplicationMetrics"
+  }
+
+  xsw_error_alarm = {
+    enabled   = true
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
