@@ -103,6 +103,11 @@ variable "ecs_oneid_core" {
       min_capacity  = number
       max_capacity  = number
     })
+    event_autoscaling = optional(object({
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
+    }), null)
     logs_retention_days   = number
     app_spid_test_enabled = optional(bool, false)
   })
@@ -119,6 +124,11 @@ variable "ecs_oneid_core" {
       desired_count = 1
       min_capacity  = 1
       max_capacity  = 2
+    }
+    event_autoscaling = {
+      desired_count = 3
+      min_capacity  = 3
+      max_capacity  = 12
     }
     logs_retention_days   = 30
     app_spid_test_enabled = true
@@ -558,6 +568,12 @@ variable "dlq_alarms" {
 variable "alarm_subscribers" {
   type    = string
   default = "alarm-subscribers"
+}
+
+variable "event_mode" {
+  type        = bool
+  description = "Enable event mode to use higher autoscaling limits for special events. Set to true to activate event_autoscaling configuration."
+  default     = false
 }
 
 variable "is_gh_sns_arn" {

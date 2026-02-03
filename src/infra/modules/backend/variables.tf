@@ -87,6 +87,11 @@ variable "service_core" {
       min_capacity  = number
       max_capacity  = number
     })
+    event_autoscaling = optional(object({
+      desired_count = number
+      min_capacity  = number
+      max_capacity  = number
+    }), null)
     environment_variables = list(object({
       name  = string
       value = string
@@ -571,6 +576,13 @@ variable "client_no_traffic_alarm" {
   })
   default = null
 }
+
+variable "event_mode" {
+  type        = bool
+  description = "Enable event mode to use higher autoscaling limits for special events. When true, uses event_autoscaling configuration if defined."
+  default     = false
+}
+
 variable "xsw_error_alarm" {
   type = object({
     enabled   = optional(bool, false)
