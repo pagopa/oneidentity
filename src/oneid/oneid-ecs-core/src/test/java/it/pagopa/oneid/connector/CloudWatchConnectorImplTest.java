@@ -4,15 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.inject.Inject;
 import java.time.Clock;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataResponse;
 
 @QuarkusTest
 public class CloudWatchConnectorImplTest {
@@ -83,12 +86,16 @@ public class CloudWatchConnectorImplTest {
 
   @Test
   void sendXSWAssertionErrorMetricData_shouldCallPutMetricDataOnce() {
+    when(cloudWatchAsyncClient.putMetricData(any(PutMetricDataRequest.class)))
+        .thenReturn(CompletableFuture.completedFuture(PutMetricDataResponse.builder().build()));
     cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
     verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
   }
 
   @Test
   void sendXSWAssertionErrorMetricData_shouldUseExpectedMetricName() {
+    when(cloudWatchAsyncClient.putMetricData(any(PutMetricDataRequest.class)))
+        .thenReturn(CompletableFuture.completedFuture(PutMetricDataResponse.builder().build()));
     cloudWatchConnectorImpl.sendXSWAssertionErrorMetricData();
 
     ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(

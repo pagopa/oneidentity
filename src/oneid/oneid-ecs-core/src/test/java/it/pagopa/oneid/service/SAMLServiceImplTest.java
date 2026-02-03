@@ -173,6 +173,7 @@ import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
@@ -224,6 +225,8 @@ public class SAMLServiceImplTest {
   IDPConnectorImpl idpConnectorImpl;
   @InjectMock
   S3Client s3Client;
+  @InjectMock
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
   @InjectSpy
   Clock clock;
 
