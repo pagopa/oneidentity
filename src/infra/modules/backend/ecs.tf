@@ -33,6 +33,15 @@ module "ecr" {
   registry_replication_rules                = []
 }
 
+# During event mode: min/max are adjusted from event_autoscaling, autoscaling remains active
+# During normal mode: uses regular autoscaling configuration
+# Note: desired_count is managed separately via null_resource to force updates
+locals {
+  core_min_capacity = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.min_capacity : var.service_core.autoscaling.min_capacity
+  core_max_capacity = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.max_capacity : var.service_core.autoscaling.max_capacity
+  core_desired_count = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.desired_count : var.service_core.autoscaling.desired_count
+}
+
 # SSM parameters
 
 data "aws_ssm_parameter" "certificate" {
@@ -423,9 +432,9 @@ module "ecs_core_service" {
   }
 
   enable_autoscaling       = var.service_core.autoscaling.enable
-  autoscaling_min_capacity = var.service_core.autoscaling.min_capacity
-  autoscaling_max_capacity = var.service_core.autoscaling.max_capacity
-  desired_count            = var.service_core.autoscaling.desired_count
+  autoscaling_min_capacity = local.core_min_capacity
+  autoscaling_max_capacity = local.core_max_capacity
+  desired_count            = local.core_desired_count
 
   autoscaling_policies = {
     "cpu" : {
@@ -504,6 +513,28 @@ module "ecs_core_service" {
     }
   }
 
+}
+
+# Force desired count update for core service when switching modes
+# This is necessary because the ECS module ignores desired_count when autoscaling is enabled
+resource "null_resource" "update_core_desired_count" {
+  triggers = {
+    event_mode    = var.event_mode
+    desired_count = local.core_desired_count
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    command = <<-EOT
+      aws ecs update-service \
+        --region ${var.aws_region} \
+        --cluster ${module.ecs_cluster.cluster_name} \
+        --service ${module.ecs_core_service.name} \
+        --desired-count ${local.core_desired_count}
+    EOT
+  }
+
+  depends_on = [module.ecs_core_service]
 }
 
 ## Log group for ECS Internal IDP
