@@ -109,28 +109,24 @@ const httpsUrlSchema = z
   .url()
   .refine((url) => url.startsWith('https://'), {
     message: 'Must be an HTTPS URL',
-  })
-  .nullish();
+  });
 
-const httpsUrlOrEmailSchema = z
-  .string()
-  .refine(
-    (val) => {
-      // Check if it's a valid email
-      if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(val)) {
-        return true;
-      }
-      // Check if it's a valid HTTPS URL
-      try {
-        const url = new URL(val);
-        return url.protocol === 'https:';
-      } catch {
-        return false;
-      }
-    },
-    { message: 'Must be a valid HTTPS URL or email address' }
-  )
-  .nullish();
+const httpsUrlOrEmailSchema = z.string().refine(
+  (val) => {
+    // Check if it's a valid email
+    if (/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(val)) {
+      return true;
+    }
+    // Check if it's a valid HTTPS URL
+    try {
+      const url = new URL(val);
+      return url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Must be a valid HTTPS URL or email address' }
+);
 
 const ThemeSchema = z.object({
   title: z
@@ -147,8 +143,8 @@ const ThemeSchema = z.object({
     .refine((val) => !val.includes('<') && !val.includes('>'), {
       message: 'Description must not contain < or >',
     }),
-  docUri: httpsUrlOrEmailSchema,
-  cookieUri: httpsUrlSchema,
+  docUri: httpsUrlOrEmailSchema.nullish(),
+  cookieUri: httpsUrlSchema.nullish(),
   supportAddress: z.string().email().nullish(),
 });
 
@@ -162,11 +158,11 @@ export const clientSchema = z.object({
   clientIdIssuedAt: z.number().optional(),
   clientSecretExpiresAt: z.number().optional(),
   clientName: z.string().optional(),
-  policyUri: httpsUrlSchema,
-  tosUri: httpsUrlSchema,
+  policyUri: httpsUrlSchema.nullish(),
+  tosUri: httpsUrlSchema.nullish(),
   redirectUris: z.array(httpsUrlSchema).min(1),
   samlRequestedAttributes: SamlAttributeArraySchema.min(1),
-  logoUri: httpsUrlSchema,
+  logoUri: httpsUrlSchema.nullish(),
   defaultAcrValues: SpidLevelArraySchema.min(1),
   requiredSameIdp: z.boolean().optional(),
   // feature flags
@@ -174,7 +170,7 @@ export const clientSchema = z.object({
   spidProfessionals: z.boolean().optional(),
   pairwise: z.boolean().optional(),
   // customize
-  a11yUri: httpsUrlSchema,
+  a11yUri: httpsUrlSchema.nullish(),
   backButtonEnabled: z.boolean().optional().default(false),
   localizedContentMap: z
     .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
