@@ -98,6 +98,29 @@ This will start our backend and frontend instance thanks to Quarkus plugin Quino
 
 Firstly we should take care about DynamoDB and its data
 
+## Event Mode (ECS Autoscaling) 🚀
+
+One Identity supports an **Event Mode** to handle high-traffic periods by increasing ECS autoscaling limits and forcing a higher number of tasks.
+
+### Activation/Deactivation Workflow
+
+Activation and deactivation must be performed via Pull Request:
+
+1. **Open a PR**: In the target environment (e.g., `src/infra/prod/eu-south-1`), set the `event_mode` variable to `true`.
+2. **Adjust Scale**: If the default `event_autoscaling` values are not sufficient for the specific event, update them in the same PR.
+3. **Merge and Apply**: Once the PR is merged, the infrastructure is updated.
+4. **Cleanup**: After the event, open a new PR to set `event_mode` back to `false` to return to normal operating limits.
+
+### Configuration per Environment
+
+| Environment | Normal (min-max/desired) | Event (min-max/desired) |
+|-------------|-------------------------|-------------------------|
+| **PROD**    | 3-12 / 3                | 40-1000 / 40            |
+| **UAT**     | 1-3 / 1                 | 10-50 / 10              |
+| **DEV**     | 1-2 / 1                 | 3-12 / 3                |
+
+> **Note:** The `event_mode` flag updates the autoscaling min/max capacity via the ECS module and forces the `desired_count` using an AWS CLI workaround within a `null_resource`.
+
 #### Start dynamo using docker compose
 ```shell
 docker-compose up -d dynamodb-local
