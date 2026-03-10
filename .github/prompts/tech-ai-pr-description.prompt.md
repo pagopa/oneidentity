@@ -1,7 +1,7 @@
 ---
 description: Build a complete pull request body using the existing repository PR template
 name: TechAIPRDescription
-agent: TechAIPRWriter
+agent: TechAIPREditor
 argument-hint: title=<text> intent=<text> changed_files=<comma-separated paths> [validation=<commands/results>] [risk=<Low|Medium|High>] [links=<issue/docs/runbook>] [target_branch=<name>] [pr_number=<number>]
 ---
 
@@ -25,7 +25,7 @@ Create or update a pull request body using the repository template (`.github/PUL
 - Do not add extra sections unless the template already includes them.
 
 ## Instructions
-1. Use `.github/skills/tech-ai-pr-writing/SKILL.md`.
+1. Use `.github/skills/tech-ai-pr-editor/SKILL.md`.
 2. Resolve the template path in this order:
    - `.github/PULL_REQUEST_TEMPLATE.md`
    - `.github/pull_request_template.md`

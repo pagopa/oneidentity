@@ -29,7 +29,7 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 - Use `TechAIIAMLeastPrivilege` for role and permission scoping checks.
 - Use `TechAIWorkflowSupplyChain` for workflow supply-chain hardening and CI checks.
 - Use `TechAISecurityReviewer` as the security-focused review gate.
-- Use `TechAIPRWriter` when generating pull request content from the repository template.
+- Use `TechAIPREditor` when generating pull request content from the repository template.
 
 ### Agent composition
 - For changes spanning multiple specialist domains, run each relevant specialist and aggregate findings.
@@ -116,7 +116,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 - `.github/prompts/tech-ai-data-registry.prompt.md`
 - `.github/prompts/tech-ai-github-action.prompt.md`
 - `.github/prompts/tech-ai-github-composite-action.prompt.md`
-- `.github/prompts/tech-ai-github-pr-description.prompt.md`
+- `.github/prompts/tech-ai-pr-description.prompt.md`
 - `.github/prompts/tech-ai-python-script.prompt.md`
 - `.github/prompts/tech-ai-python.prompt.md`
 - `.github/prompts/tech-ai-terraform.prompt.md`
@@ -127,7 +127,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 - `.github/skills/tech-ai-cloud-policy/SKILL.md`
 - `.github/skills/tech-ai-composite-action/SKILL.md`
 - `.github/skills/tech-ai-data-registry/SKILL.md`
-- `.github/skills/tech-ai-pr-writing/SKILL.md`
+- `.github/skills/tech-ai-pr-editor/SKILL.md`
 - `.github/skills/tech-ai-project-python/SKILL.md`
 - `.github/skills/tech-ai-script-bash/SKILL.md`
 - `.github/skills/tech-ai-script-python/SKILL.md`
@@ -136,7 +136,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 
 ### Agents
 - `.github/agents/internal-oneidentity-repo-specialist.agent.md`
-- `.github/agents/tech-ai-github-pr-writer.agent.md`
+- `.github/agents/tech-ai-pr-editor.agent.md`
 - `.github/agents/tech-ai-github-workflow-supply-chain.agent.md`
 - `.github/agents/tech-ai-iam-least-privilege.agent.md`
 - `.github/agents/tech-ai-implementer.agent.md`

@@ -6,10 +6,10 @@
       "sha256": "1991b994bc59e81ec0900e3ba808b8982f429fb7079cd80939bc0542fadbac2e",
       "source_relative_path": ".github/DEPRECATION.md"
     },
-    ".github/agents/tech-ai-github-pr-writer.agent.md": {
+    ".github/agents/tech-ai-pr-editor.agent.md": {
       "generated": false,
       "sha256": "41006031bdf76dc89ad5653d717ab0f960aac87679711a2a527cd2168301228a",
-      "source_relative_path": ".github/agents/tech-ai-github-pr-writer.agent.md"
+      "source_relative_path": ".github/agents/tech-ai-pr-editor.agent.md"
     },
     ".github/agents/tech-ai-github-workflow-supply-chain.agent.md": {
       "generated": false,
@@ -146,10 +146,10 @@
       "sha256": "e4a4c547ccbfd263851bd6977a418446095eb3f94e349dffca3b6ae4e4dc731b",
       "source_relative_path": ".github/prompts/tech-ai-github-composite-action.prompt.md"
     },
-    ".github/prompts/tech-ai-github-pr-description.prompt.md": {
+    ".github/prompts/tech-ai-pr-description.prompt.md": {
       "generated": false,
       "sha256": "90d80e3c8979f961a50939358c58ce3ae749308613a9ffcb91da5992c4895fe9",
-      "source_relative_path": ".github/prompts/tech-ai-github-pr-description.prompt.md"
+      "source_relative_path": ".github/prompts/tech-ai-pr-description.prompt.md"
     },
     ".github/prompts/tech-ai-python-script.prompt.md": {
       "generated": false,
@@ -201,10 +201,10 @@
       "sha256": "d1b989c1fde0c9da9d5d5e762aec9955e77dcdc3f60612fe06ad9c733411e302",
       "source_relative_path": ".github/skills/tech-ai-data-registry/SKILL.md"
     },
-    ".github/skills/tech-ai-pr-writing/SKILL.md": {
+    ".github/skills/tech-ai-pr-editor/SKILL.md": {
       "generated": false,
       "sha256": "773a7fc63895186617a14cf5806fb64c15d6fc534e2e74c35f850eadb8decafc",
-      "source_relative_path": ".github/skills/tech-ai-pr-writing/SKILL.md"
+      "source_relative_path": ".github/skills/tech-ai-pr-editor/SKILL.md"
     },
     ".github/skills/tech-ai-project-python/SKILL.md": {
       "generated": false,
@@ -241,6 +241,6 @@
   "source_commit": "463be334cb56ad74a0e759709f0a48f6b13354c4",
   "source_version": "1.0.0",
   "target_repo": "/Users/diego.lagosmorales/code/building-blocks-technology/oneidentity",
-  "tool": "TechAISyncCopilotConfigs",
+  "tool": "TechAISyncGlobalCopilotConfigsIntoRepo",
   "version": 1
 }

@@ -1,6 +1,6 @@
 ---
 description: Create or update pull request title/body using repository template and real diff context.
-name: TechAIPRWriter
+name: TechAIPREditor
 tools: ["search", "usages", "problems", "fetch", "githubRepo"]
 ---
 
