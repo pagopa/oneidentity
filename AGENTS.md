@@ -23,6 +23,7 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 ### When to use each agent
 - Use `TechAIPlanner` for ambiguous scope, tradeoff analysis, or multi-step design.
 - Use `TechAIImplementer` for direct code/config changes and validation-first delivery.
+- Use `internal-oneidentity-repo-specialist` for repo-specific work that depends on the actual `src/infra`, `src/oneid`, and `.github/workflows` conventions in this repository.
 - Use `TechAIReviewer` for quality gates and defect/regression findings.
 - Use `TechAITerraformGuardrails` for Terraform safety and policy guardrail reviews.
 - Use `TechAIIAMLeastPrivilege` for role and permission scoping checks.
@@ -75,11 +76,13 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 ### Preferred prompts
 - `TechAICloudPolicy`
 - `TechAITerraform`
+- `internal-oneidentity-change`
 
 ### Preferred skills
 - `TechAICloudPolicy`
 - `TechAITerraformFeature`
 - `TechAITerraformModule`
+- `internal-oneidentity-repo-context`
 
 ### Required validations before PR
 - `terraform fmt -recursive`
@@ -106,6 +109,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 - `.github/instructions/yaml.instructions.md`
 
 ### Prompts
+- `.github/prompts/internal-oneidentity-change.prompt.md`
 - `.github/prompts/tech-ai-add-unit-tests.prompt.md`
 - `.github/prompts/tech-ai-bash-script.prompt.md`
 - `.github/prompts/tech-ai-cloud-policy.prompt.md`
@@ -118,6 +122,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 - `.github/prompts/tech-ai-terraform.prompt.md`
 
 ### Skills
+- `.github/skills/internal-oneidentity-repo-context/SKILL.md`
 - `.github/skills/tech-ai-cicd-workflow/SKILL.md`
 - `.github/skills/tech-ai-cloud-policy/SKILL.md`
 - `.github/skills/tech-ai-composite-action/SKILL.md`
@@ -130,6 +135,7 @@ This inventory reflects the desired managed baseline plus repository-owned inter
 - `.github/skills/tech-ai-terraform-module/SKILL.md`
 
 ### Agents
+- `.github/agents/internal-oneidentity-repo-specialist.agent.md`
 - `.github/agents/tech-ai-github-pr-writer.agent.md`
 - `.github/agents/tech-ai-github-workflow-supply-chain.agent.md`
 - `.github/agents/tech-ai-iam-least-privilege.agent.md`
