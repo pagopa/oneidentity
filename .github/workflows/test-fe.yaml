@@ -1,5 +1,8 @@
 name: Test FE
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:
@@ -10,9 +13,9 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6 https://github.com/actions/checkout/releases/tag/v4.1.6
       - name: Use Node.js 20.x
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2 https://github.com/actions/setup-node/releases/tag/v4.0.2
         with:
           node-version: 20.x
       - name: Run yarn install, lint and test

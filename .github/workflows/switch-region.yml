@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
         with:
           role-to-assume: ${{ vars.IAM_ROLE_SWITCH_REGION }}
           aws-region: "eu-central-1"

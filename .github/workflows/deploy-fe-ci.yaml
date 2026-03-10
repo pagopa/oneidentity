@@ -61,9 +61,9 @@ jobs:
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
 
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6 https://github.com/actions/checkout/releases/tag/v4.1.6
       - name: Use Node.js 20.x
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2 https://github.com/actions/setup-node/releases/tag/v4.0.2
         with:
           node-version: 20.x
       - name: Run yarn install, lint and test
@@ -83,7 +83,7 @@ jobs:
           MATRIX_ENVIRONMENT: ${{ matrix.environment }}
        
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_FE }}
           aws-region: ${{ matrix.region }}
