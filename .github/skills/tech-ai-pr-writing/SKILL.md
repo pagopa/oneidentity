@@ -22,10 +22,10 @@ description: Produce concise, complete pull request descriptions aligned with th
 
 ## Template alignment
 - Resolve and use one existing repository template path:
-  - `.github/pull_request_template.md`
   - `.github/PULL_REQUEST_TEMPLATE.md`
-  - `pull_request_template.md`
+  - `.github/pull_request_template.md`
   - `PULL_REQUEST_TEMPLATE.md`
+  - `pull_request_template.md`
 - Keep headings and section order unchanged.
 - If a section is not applicable, write `N/A`.
 - Avoid leaving placeholders empty.

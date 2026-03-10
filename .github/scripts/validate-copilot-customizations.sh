@@ -1063,18 +1063,25 @@ validate_workflow_permissions() {
 
 validate_pr_template_consistency() {
   local github_dir="$1"
-  local lower_template="${github_dir}/pull_request_template.md"
-  local upper_template="${github_dir}/PULL_REQUEST_TEMPLATE.md"
+  local lower_template
+  local upper_template
   local severity="error"
 
   [[ "$MODE" == "legacy-compatible" ]] && severity="warn"
 
-  if [[ ! -f "$lower_template" && ! -f "$upper_template" ]]; then
-    record_issue "$severity" "Missing PR template in ${github_dir} (expected pull_request_template.md or PULL_REQUEST_TEMPLATE.md)"
+  lower_template="$(find "$github_dir" -maxdepth 1 -type f -name 'pull_request_template.md' -print -quit)"
+  upper_template="$(find "$github_dir" -maxdepth 1 -type f -name 'PULL_REQUEST_TEMPLATE.md' -print -quit)"
+
+  if [[ -z "$lower_template" && -z "$upper_template" ]]; then
+    record_issue "$severity" "Missing PR template in ${github_dir} (expected PULL_REQUEST_TEMPLATE.md)"
     return 0
   fi
 
-  if [[ -f "$lower_template" && -f "$upper_template" ]] && ! cmp -s "$lower_template" "$upper_template"; then
+  if [[ -n "$lower_template" ]]; then
+    record_issue "$severity" "PR template filename must be uppercase in ${github_dir}: rename pull_request_template.md to PULL_REQUEST_TEMPLATE.md"
+  fi
+
+  if [[ -n "$lower_template" && -n "$upper_template" ]] && ! cmp -s "$lower_template" "$upper_template"; then
     record_issue "$severity" "PR template files diverge in ${github_dir}: pull_request_template.md vs PULL_REQUEST_TEMPLATE.md"
   fi
 

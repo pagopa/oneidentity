@@ -19,10 +19,10 @@ Produce and apply a complete PR title/body aligned with the repository template,
 
 ## Execution workflow
 1. Resolve the PR template path in this order:
-   - `.github/pull_request_template.md`
    - `.github/PULL_REQUEST_TEMPLATE.md`
-   - `pull_request_template.md`
+   - `.github/pull_request_template.md`
    - `PULL_REQUEST_TEMPLATE.md`
+   - `pull_request_template.md`
 2. Detect whether an open PR already exists for the branch.
 3. If a PR exists, update title/body directly.
 4. If no PR exists, create a draft PR first, then update title/body.

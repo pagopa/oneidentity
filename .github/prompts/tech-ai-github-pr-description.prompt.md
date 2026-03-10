@@ -8,7 +8,7 @@ argument-hint: title=<text> intent=<text> changed_files=<comma-separated paths> 
 # Pull Request Description Task
 
 ## Context
-Create or update a pull request body using the repository template (`.github/pull_request_template.md` or `pull_request_template.md`), including a short list of key changes.
+Create or update a pull request body using the repository template (`.github/PULL_REQUEST_TEMPLATE.md` or `PULL_REQUEST_TEMPLATE.md`), including a short list of key changes.
 
 ## Required inputs
 - **Title**: ${input:title}
@@ -27,10 +27,10 @@ Create or update a pull request body using the repository template (`.github/pul
 ## Instructions
 1. Use `.github/skills/tech-ai-pr-writing/SKILL.md`.
 2. Resolve the template path in this order:
-   - `.github/pull_request_template.md`
    - `.github/PULL_REQUEST_TEMPLATE.md`
-   - `pull_request_template.md`
+   - `.github/pull_request_template.md`
    - `PULL_REQUEST_TEMPLATE.md`
+   - `pull_request_template.md`
 3. Follow template section order and headings exactly as defined by the resolved template.
 4. Answer every prompt/question line from the template explicitly with repository facts.
 5. Preserve checklist items and mark each one intentionally (`[x]` or `[ ]`) based on real scope.
