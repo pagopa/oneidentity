@@ -62,23 +62,23 @@ jobs:
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1"}')[matrix.region] }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2 https://github.com/actions/checkout/releases/tag/v4.2.2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_ECS_INTERNAL_IDP }}
           aws-region: ${{ matrix.region }}
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1 https://github.com/aws-actions/amazon-ecr-login/releases/tag/v2.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1 https://github.com/docker/setup-buildx-action/releases/tag/v3.7.1
 
       - name: Cache Docker layers
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0 https://github.com/actions/cache/releases/tag/v4.2.0
         id: cache
         with:
           path: build-cache-internal-idp
@@ -87,7 +87,7 @@ jobs:
             buildx-${{ env.ENV_SHORT }}-
 
       - name: inject buildx-qgs into docker
-        uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de # v3.1.2
+        uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de # v3.1.2 https://github.com/reproducible-containers/buildkit-cache-dance/releases/tag/v3.1.2
         with:
           cache-map: |
             {
@@ -105,7 +105,7 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0 https://github.com/docker/build-push-action/releases/tag/v6.9.0
         with:
           context: ./src/oneid/
 
@@ -138,14 +138,14 @@ jobs:
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@4225e0b507142a2e432b018bc3ccb728559b437a # v1.2.0
+        uses: aws-actions/amazon-ecs-render-task-definition@4225e0b507142a2e432b018bc3ccb728559b437a # v1.2.0 https://github.com/aws-actions/amazon-ecs-render-task-definition/releases/tag/v1.2.0
         with:
           task-definition: ./task-definition.json
           container-name: oneid-internal-idp
           image: "${{ vars.ECR_REGISTRY }}/${{ vars.ECR_REPOSITORY_IDP }}:${{ github.sha }}"
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2.2.0
+        uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2.2.0 https://github.com/aws-actions/amazon-ecs-deploy-task-definition/releases/tag/v2.2.0
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-internal-idp
@@ -153,7 +153,7 @@ jobs:
           wait-for-service-stability: true
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
         with:
           role-to-assume: ${{ vars.IAM_ROLE_DEPLOY_FE }}
           aws-region: ${{ matrix.region }}
@@ -175,12 +175,12 @@ jobs:
   #   environment: ${{ matrix.environment }}
 
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - action: actions/checkout@v4
   #     - name: Release
   #       if: ${{ matrix.environment == 'prod' }}
   #       id: release
   #       # from https://github.com/cycjimmy/semantic-release-action/commits/main
-  #       uses: cycjimmy/semantic-release-action@v4.1.0
+  #       action: cycjimmy/semantic-release-action@v4.1.0
   #       with:
   #         semantic_version: 18.0.0
   #         extra_plugins: |

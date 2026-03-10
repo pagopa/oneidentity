@@ -1,0 +1,88 @@
+# Purpose: Define reusable Copilot configuration profiles for different repository types.
+# Notes:
+# - Keep this file generic so it can be copied to unrelated teams.
+# - Profiles are advisory and can be consumed by automation later.
+
+version: 1
+profiles:
+  minimal:
+    description: Baseline setup for small repositories.
+    recommended_instructions:
+      - instructions/markdown.instructions.md
+      - instructions/yaml.instructions.md
+      - instructions/json.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-github-action.prompt.md
+    recommended_skills:
+      - skills/tech-ai-cicd-workflow/SKILL.md
+
+  backend-java:
+    description: Java service repositories.
+    recommended_instructions:
+      - instructions/java.instructions.md
+      - instructions/github-actions.instructions.md
+      - instructions/markdown.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-java.prompt.md
+      - prompts/tech-ai-add-unit-tests.prompt.md
+    recommended_skills:
+      - skills/tech-ai-project-java/SKILL.md
+      - skills/tech-ai-cicd-workflow/SKILL.md
+
+  backend-nodejs:
+    description: Node.js service repositories.
+    recommended_instructions:
+      - instructions/nodejs.instructions.md
+      - instructions/github-actions.instructions.md
+      - instructions/markdown.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-nodejs.prompt.md
+      - prompts/tech-ai-add-unit-tests.prompt.md
+    recommended_skills:
+      - skills/tech-ai-project-nodejs/SKILL.md
+      - skills/tech-ai-cicd-workflow/SKILL.md
+
+  backend-python:
+    description: Python service repositories.
+    recommended_instructions:
+      - instructions/python.instructions.md
+      - instructions/github-actions.instructions.md
+      - instructions/markdown.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-python.prompt.md
+      - prompts/tech-ai-add-unit-tests.prompt.md
+    recommended_skills:
+      - skills/tech-ai-project-python/SKILL.md
+      - skills/tech-ai-cicd-workflow/SKILL.md
+
+  infrastructure-heavy:
+    description: Infrastructure repositories with Terraform as primary language.
+    recommended_instructions:
+      - instructions/terraform.instructions.md
+      - instructions/github-actions.instructions.md
+      - instructions/yaml.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-terraform.prompt.md
+      - prompts/tech-ai-cloud-policy.prompt.md
+    recommended_skills:
+      - skills/tech-ai-terraform-feature/SKILL.md
+      - skills/tech-ai-terraform-module/SKILL.md
+      - skills/tech-ai-cloud-policy/SKILL.md
+
+  mixed-platform:
+    description: Repositories mixing app code, CI/CD, and some infrastructure.
+    recommended_instructions:
+      - instructions/java.instructions.md
+      - instructions/nodejs.instructions.md
+      - instructions/github-actions.instructions.md
+      - instructions/terraform.instructions.md
+    recommended_prompts:
+      - prompts/tech-ai-java.prompt.md
+      - prompts/tech-ai-nodejs.prompt.md
+      - prompts/tech-ai-github-action.prompt.md
+      - prompts/tech-ai-terraform.prompt.md
+    recommended_skills:
+      - skills/tech-ai-project-java/SKILL.md
+      - skills/tech-ai-project-nodejs/SKILL.md
+      - skills/tech-ai-cicd-workflow/SKILL.md
+      - skills/tech-ai-terraform-feature/SKILL.md

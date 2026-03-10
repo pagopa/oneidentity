@@ -48,13 +48,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7 https://github.com/actions/checkout/releases/tag/v4.1.7
         with:
           fetch-depth: 0
 
       # Configure AWS
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # v3
+        uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # v3.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v3.0.2
         with:
           role-to-assume: ${{ vars.IAM_ROLE_UPLOAD_S3 }}
           aws-region: ${{ matrix.region }}
