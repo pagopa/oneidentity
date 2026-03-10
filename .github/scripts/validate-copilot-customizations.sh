@@ -306,7 +306,7 @@ prompt_expected_name() {
     tech-ai-github-composite-action.prompt.md)
       printf '%s' "TechAICompositeAction"
       ;;
-    tech-ai-github-pr-description.prompt.md)
+    tech-ai-pr-description.prompt.md)
       printf '%s' "TechAIPRDescription"
       ;;
     tech-ai-add-platform.prompt.md)
@@ -773,7 +773,7 @@ validate_agents_dir() {
           record_issue "$semantic_severity" "Reviewer agent should reference code review instructions: ${file}"
         fi
         ;;
-      tech-ai-global-customization-builder.agent.md)
+      tech-ai-standards-repo-config-builder.agent.md)
         if ! has_heading_exact "$file" '## Source of truth'; then
           record_issue "$semantic_severity" "Global customization builder missing '## Source of truth' section: ${file}"
         fi
@@ -801,11 +801,11 @@ validate_agents_dir() {
         if ! grep -Fq 'scripts/validate-copilot-customizations.sh' "$file"; then
           record_issue "$semantic_severity" "Global customization builder should reference customization validator: ${file}"
         fi
-        if ! grep -Fq 'TechAIGlobalCustomizationAuditor' "$file"; then
-          record_issue "$semantic_severity" "Global customization builder should hand off to TechAIGlobalCustomizationAuditor: ${file}"
+        if ! grep -Fq 'TechAIStandardsRepoConfigAuditor' "$file"; then
+          record_issue "$semantic_severity" "Global customization builder should hand off to TechAIStandardsRepoConfigAuditor: ${file}"
         fi
         ;;
-      tech-ai-global-customization-auditor.agent.md)
+      tech-ai-standards-repo-config-auditor.agent.md)
         if ! has_heading_exact "$file" '## Audit protocol'; then
           record_issue "$semantic_severity" "Global customization auditor missing '## Audit protocol' section: ${file}"
         fi
@@ -821,8 +821,8 @@ validate_agents_dir() {
         if ! grep -Fq 'scripts/validate-copilot-customizations.sh' "$file"; then
           record_issue "$semantic_severity" "Global customization auditor should reference customization validator: ${file}"
         fi
-        if ! grep -Fq 'TechAIGlobalCustomizationBuilder' "$file"; then
-          record_issue "$semantic_severity" "Global customization auditor should route major findings to TechAIGlobalCustomizationBuilder: ${file}"
+        if ! grep -Fq 'TechAIStandardsRepoConfigBuilder' "$file"; then
+          record_issue "$semantic_severity" "Global customization auditor should route major findings to TechAIStandardsRepoConfigBuilder: ${file}"
         fi
         ;;
     esac

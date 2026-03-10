@@ -1,5 +1,5 @@
 ---
-name: TechAIPRWriting
+name: TechAIPREditor
 description: Produce concise, complete pull request descriptions aligned with the repository PR template.
 ---
 
