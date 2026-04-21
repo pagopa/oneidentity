@@ -1,11 +1,11 @@
+import { Trans, useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import {
   Footer as MuiItaliaFooter,
   FooterLinksType,
+  LangCode,
   PreLoginFooterLinksType,
-} from '@pagopa/mui-italia/dist/components/Footer/Footer';
-import { Trans, useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
-import { LangCode } from '@pagopa/mui-italia';
+} from '@pagopa/mui-italia';
 import { ENV } from '../../utils/env';
 import { LANGUAGES, pagoPALink } from './FooterConfig';
 import i18n from '../../locale';
@@ -162,22 +162,22 @@ export default function Footer({
           ariaLabel: 'Link: vai al sito LinkedIn di PagoPA S.p.A.',
         },
         {
-          title: 'Twitter',
-          icon: 'twitter',
-          href: ENV.FOOTER.LINK.TWITTER,
-          ariaLabel: 'Link: vai al sito Twitter di PagoPA S.p.A.',
-        },
-        {
           icon: 'instagram',
           title: 'Instagram',
           href: ENV.FOOTER.LINK.INSTAGRAM,
           ariaLabel: 'Link: vai al sito Instagram di PagoPA S.p.A.',
         },
         {
-          icon: 'medium',
-          title: 'Medium',
-          href: ENV.FOOTER.LINK.MEDIUM,
-          ariaLabel: 'Link: vai al sito Medium di PagoPA S.p.A.',
+          icon: 'threads',
+          title: 'Threads',
+          href: ENV.FOOTER.LINK.THREADS,
+          ariaLabel: 'Link: vai al sito Threads di PagoPA S.p.A.',
+        },
+        {
+          icon: 'youtube',
+          title: 'YouTube',
+          href: ENV.FOOTER.LINK.YOUTUBE,
+          ariaLabel: 'Link: vai al sito YouTube di PagoPA S.p.A.',
         },
       ],
       links: [
