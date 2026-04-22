@@ -40,7 +40,22 @@ services:
       AWS_SECRET_ACCESS_KEY: "DUMMYEXAMPLEKEY"
     command:
       - |
-        sleep 3
+        echo "[dynamo-import] waiting for dynamodb-local..."
+        for i in $$(seq 1 60); do
+          if aws dynamodb list-tables --endpoint-url http://dynamodb-local:8000 --region eu-south-1 >/dev/null 2>&1; then
+            echo "[dynamo-import] dynamodb-local ready"
+            break
+          fi
+          sleep 1
+        done
+        echo "[dynamo-import] waiting for aws-local-ssm..."
+        for i in $$(seq 1 60); do
+          if aws ssm describe-parameters --endpoint http://aws-local-ssm:4566 --region eu-south-1 >/dev/null 2>&1; then
+            echo "[dynamo-import] aws-local-ssm ready"
+            break
+          fi
+          sleep 1
+        done
         aws dynamodb create-table --table-name ClientRegistrations --attribute-definitions AttributeName=clientId,AttributeType=S --key-schema AttributeName=clientId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
         aws dynamodb create-table --table-name Sessions --attribute-definitions AttributeName=samlRequestID,AttributeType=S AttributeName=recordType,AttributeType=S AttributeName=code,AttributeType=S --key-schema AttributeName=samlRequestID,KeyType=HASH AttributeName=recordType,KeyType=RANGE --global-secondary-indexes file:///home/aws/gsi_code.json --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
         aws dynamodb create-table --table-name IDPMetadata --attribute-definitions AttributeName=entityID,AttributeType=S AttributeName=pointer,AttributeType=S --key-schema AttributeName=entityID,KeyType=HASH AttributeName=pointer,KeyType=RANGE --global-secondary-indexes file:///home/aws/gsi_pointer.json --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 --endpoint-url http://dynamodb-local:8000 --region eu-south-1
@@ -108,6 +123,7 @@ services:
       QUARKUS_SSM_DEVSERVICES_ENABLED: "false"
       QUARKUS_SSM_ENDPOINT_OVERRIDE: "http://aws-local-ssm:4566"
       QUARKUS_DYNAMODB_ENDPOINT_OVERRIDE: "http://dynamodb-local:8000"
+      SERVICE_METADATA_BUCKET_NAME: "local-metadata-bucket"
   oneid-lambda-client-registration:
     build:
       context: ./
