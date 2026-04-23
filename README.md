@@ -47,19 +47,47 @@ Then
 *This will specifically run both backend and frontend*
 
 #### Configuration and mock data
-In `src/oneid/docker_mock/` folder are present some useful data to configure and use One Identity correctly. Of course **all certificates and secret are for demo purpose**.
-Firstly copy `.env.example` in `.env` and fill the required information.
+`src/oneid/docker_mock/` contains the mock data used by the local Docker Compose stack. All certificates and secrets in this directory are demo-only.
 
-In the other hand it is available a more handy mode which will starts all needed services to have a full One Identity instance using `docker-compose`. More details in next chapter.
+Remember to configure GitHub Packages access for the `it.pagopa.maven:depcheck` plugin in `src/oneid/settings.xml`:
+
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+		<server>
+			<id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
+    </server>
+  </servers>
+</settings>
+```
+
+The token only needs `read:packages` scope for local development.
+
+Before starting the stack, create `src/oneid/docker_mock/.env` for `dummy-client`:
+
+```shell
+cp src/oneid/docker_mock/.env.example src/oneid/docker_mock/.env
+```
+
+`src/oneid/docker_mock/.env.example` contains working demo credentials for local development, but you can customize them as needed.
 
 ## Start composing
+Run Docker Compose from `src/oneid`, because the compose file and the bind-mounted `docker_mock` assets are resolved from that directory:
+
 ```shell
+cd src/oneid
 docker compose up
 ```
 
 Some are having problems running compose as plugin, we'd recommend, in those cases, to switch on `docker-compose` classic syntax, as follow:
 
 ```shell
+cd src/oneid
 docker-compose up
 ```
 
