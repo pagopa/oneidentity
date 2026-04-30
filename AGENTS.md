@@ -12,11 +12,19 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 ## Decision Priority
 1. Apply repository non-negotiables from `.github/copilot-instructions.md`.
 2. Apply explicit user requirements for the current task.
-3. Apply the selected agent behavior (agent-first routing).
-4. Apply matching files under `.github/instructions/*.instructions.md` using `applyTo`.
-5. Apply selected prompt constraints from `.github/prompts/*.prompt.md`.
-6. Apply implementation details from referenced `.github/skills/*/SKILL.md`.
-7. If no agent is explicitly selected, default to `TechAIImplementer`.
+3. Load and apply `docs/architecture.md` for architecture boundaries, dependency rules, runtime/deployment flows, high-risk surfaces, unknowns, and area-specific validation.
+4. Apply the selected agent behavior (agent-first routing).
+5. Apply matching files under `.github/instructions/*.instructions.md` using `applyTo`.
+6. Apply selected prompt constraints from `.github/prompts/*.prompt.md`.
+7. Apply implementation details from referenced `.github/skills/*/SKILL.md`.
+8. If no agent is explicitly selected, default to `TechAIImplementer`.
+
+## Architecture Contract
+- Load `docs/architecture.md` before structural, cross-file, refactoring, infrastructure, workflow, backend, frontend, Lambda, or documentation changes that affect repository architecture.
+- Treat `docs/architecture.md` as the canonical source for system topology, technology stack, repository map, architectural boundaries, dependency direction, key flows, configuration assumptions, validation by area, and known unknowns.
+- Keep AGENTS.md focused on assistant routing, naming policy, governance references, reusable instruction routing, and inventory. Do not duplicate architecture facts here.
+- When an intentional change modifies architecture, update `docs/architecture.md` in the same change set.
+- If this file and `docs/architecture.md` appear to conflict, use this file for assistant behavior and use `docs/architecture.md` for architecture facts. Report unresolved conflicts before editing.
 
 ## Agent Routing
 
@@ -47,16 +55,9 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 - Never skip validation after making changes.
 
 ## Repository Defaults
-- Primary focus: Infrastructure-heavy repository with Terraform-managed platform assets.
-- Profile hint: `infrastructure-heavy`
 - AGENTS.md is the external bridge for assistant behavior and naming; keep runtime references abstract.
-- Resolve stack from target files and explicit prompt inputs; the agent role remains behavioral, not language-specific.
-- Prioritize these paths:
-  - `src/oneid`
-  - `src/infra`
-  - `src/config`
-  - `docs`
-  - `AUTHORS`
+- Profile hint for reusable instruction selection: `infrastructure-heavy`.
+- Resolve stack, path ownership, and validation from `docs/architecture.md`, target files, and explicit prompt inputs. The agent role remains behavioral, not language-specific.
 
 ### Default instruction routing
 | Pattern | Instruction |
@@ -84,13 +85,10 @@ This file is for GitHub Copilot and AI assistants working in this repository.
 - `TechAITerraformModule`
 - `internal-oneidentity-repo-context`
 
-### Required validations before PR
-- `terraform fmt -recursive`
-- `terraform validate`
-- `bash -n <changed_bash_paths>`
-- `shellcheck -s bash <changed_bash_paths>`
-- `python -m compileall <changed_python_paths>`
-- `bash .github/scripts/validate-copilot-customizations.sh --scope root --mode strict`
+### Validation routing
+- Use `docs/architecture.md` for architecture and component-specific validation expectations.
+- Apply file-type baselines from `.github/copilot-instructions.md` and matching `.github/instructions/*.instructions.md`.
+- For repository-local Copilot customization changes, run `bash .github/scripts/validate-copilot-customizations.sh --scope root --mode strict`.
 
 ## Repository Inventory (Auto-generated)
 This inventory reflects the desired managed baseline plus repository-owned internal Copilot assets already present in the target repository.
