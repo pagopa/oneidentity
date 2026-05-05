@@ -620,55 +620,6 @@ module "backend" {
   }
 }
 
-module "spid_validator" {
-  source = "../../modules/spid-validator"
-
-  aws_region = var.aws_region
-
-  ecr_repository_name = format("%s-spid-validator", local.project)
-
-  spid_validator = {
-    cluster_arn  = module.backend.ecs_cluster_arn
-    service_name = format("%s-spid-validator", local.project)
-    container = {
-      name          = "validator"
-      image_name    = format("%s-spid-validator", local.project)
-      image_version = "2.1.6"
-      environment = [
-        {
-          name  = "NODE_USE_HTTPS"
-          value = "false"
-          }, {
-          name  = "NODE_HTTPS_PORT"
-          value = "8080"
-        },
-        {
-          name  = "SPID_USERS_URL"
-          value = "https://raw.githubusercontent.com/pagopa/oneidentity/main/src/config/validator/users.json"
-        },
-        {
-          name  = "NODE_SERVER_HOST"
-          value = "https://validator.dev.oneid.pagopa.it"
-        },
-        {
-          name  = "NODE_USE_PROXY"
-          value = "true"
-        }
-      ]
-    }
-  }
-
-  vpc_id              = module.network.vpc_id
-  public_subnet_ids   = module.network.public_subnet_ids
-  private_subnets_ids = module.network.private_subnet_ids
-
-  alb_spid_validator_name = format("%s-spid-validator-alb", local.project)
-  vpc_cidr_block          = module.network.vpc_cidr_block
-
-  zone_id   = module.r53_zones.dns_zone_id
-  zone_name = module.r53_zones.dns_zone_name
-}
-
 module "database" {
   source                      = "../../modules/database"
   sessions_table              = var.sessions_table

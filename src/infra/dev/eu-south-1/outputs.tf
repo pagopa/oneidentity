@@ -56,12 +56,3 @@ output "table_saml_responses_name" {
 output "table_client_registrations_name" {
   value = module.database.table_client_registrations_name
 }
-
-## Spid validator ##
-output "spid_validator_fqdn" {
-  value = module.spid_validator.route53_record_fqdn
-}
-
-output "spid_validator_ecr_endpoint" {
-  value = module.spid_validator.ecr_endpoint
-}

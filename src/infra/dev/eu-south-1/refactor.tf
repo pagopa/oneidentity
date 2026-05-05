@@ -100,40 +100,6 @@ moved {
   to   = module.backend.module.ecs_cluster
 }
 
-
-## Refactor spid-validator module
-
-moved {
-  from = module.backend.module.ecs_spid_validator[0]
-  to   = module.spid_validator.module.ecs_spid_validator
-}
-
-moved {
-  from = module.backend.module.ecr["oneid-es-1-d-spid-validator"]
-  to   = module.spid_validator.module.ecr
-}
-
-moved {
-  from = module.frontend.module.alb_spid_validator[0]
-  to   = module.spid_validator.module.alb
-}
-
-moved {
-  from = module.frontend.module.acm_validator[0]
-  to   = module.spid_validator.module.acm_validator
-}
-
-moved {
-  from = module.backend.aws_cloudwatch_log_group.ecs_spid_validator[0]
-  to   = module.spid_validator.aws_cloudwatch_log_group.ecs_spid_validator
-}
-
-
-moved {
-  from = module.frontend.module.records.aws_route53_record.this["validator A"]
-  to   = module.spid_validator.module.record.aws_route53_record.this["validator A"]
-}
-
 moved {
   from = module.backend.aws_iam_role.pipe_sessions[0]
   to   = module.backend.aws_iam_role.pipe_sessions
