@@ -1,5 +1,11 @@
 # infra
 
+## 1.9.0
+
+### Minor Changes
+
+- 3c92ac5: Removed validator from dev env
+
 ## 1.8.0
 
 ### Minor Changes
