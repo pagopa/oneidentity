@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.10.0
+
+### Minor Changes
+
+- 3c92ac5: Removed validator from dev env
+
 ## 4.9.0
 
 ### Minor Changes
