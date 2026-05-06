@@ -304,6 +304,9 @@ export const Dashboard = () => {
     validationIsValid === true ||
     fetchedClientData?.pairwise === true;
 
+  const checkEnableSpidMinors = (): boolean =>
+    !!formData?.spidMinors && !formData?.minAge;
+
   return (
     <PageContainer>
       {fetchError && fetchError.message !== 'Client not found' && (
@@ -626,6 +629,106 @@ export const Dashboard = () => {
               )}
             </Box>
           )}
+
+          <FormGroup sx={{ mt: 2, mb: 1 }}>
+            <Divider sx={{ mb: 3 }} />
+            <FieldWithInfo
+              tooltipText={
+                <span>
+                  SPID Minors allows the service to authenticate minor users
+                  (under 18). When enabled, you can define an allowed age range
+                  for minor authentication.
+                  <br />
+                  More info can be found{' '}
+                  <Link
+                    href="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2965078170/RFC+OI-016+-+Supporto+SPID+per+minori"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={tooltipLinkSx}
+                  >
+                    here
+                  </Link>
+                </span>
+              }
+              placement="top"
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    sx={{ mr: 2, ml: 1 }}
+                    name="spidMinors"
+                    checked={formData?.spidMinors || false}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setFormData((prev) => ({
+                        ...prev,
+                        spidMinors: checked,
+                        ...(!checked && {
+                          minAge: undefined,
+                          maxAge: undefined,
+                        }),
+                      }));
+                      if (!checked) {
+                        // reset minage and maxage errors
+                        setErrorUi((prev) => {
+                          if (!prev) return prev;
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                          const { minAge: _, maxAge: __, ...rest } = prev;
+                          return rest as ClientErrors;
+                        });
+                      }
+                    }}
+                  />
+                }
+                label="SPID Minors"
+              />
+            </FieldWithInfo>
+          </FormGroup>
+          {formData?.spidMinors && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 2,
+                mt: 2,
+                width: '100%',
+              }}
+            >
+              <TextField
+                label="Min Age"
+                fullWidth
+                required
+                type="number"
+                inputProps={{ min: 1, max: 99 }}
+                value={formData?.minAge ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    minAge: val === '' ? undefined : parseInt(val, 10),
+                  }));
+                }}
+                error={!!(errorUi as ClientErrors)?.minAge?._errors}
+                helperText={(errorUi as ClientErrors)?.minAge?._errors}
+              />
+              <TextField
+                label="Max Age"
+                fullWidth
+                type="number"
+                inputProps={{ min: 1, max: 99 }}
+                value={formData?.maxAge ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    maxAge: val === '' ? undefined : parseInt(val, 10),
+                  }));
+                }}
+                error={!!(errorUi as ClientErrors)?.maxAge?._errors}
+                helperText={(errorUi as ClientErrors)?.maxAge?._errors}
+              />
+            </Box>
+          )}
         </ContentBox>
 
         <Box>
@@ -637,6 +740,7 @@ export const Dashboard = () => {
             data-testid="submit-button"
             disabled={
               !checkEnableSaveUpdateClientPairwiseBased() ||
+              checkEnableSpidMinors() ||
               isUpdating ||
               !isFormValid()
             }
