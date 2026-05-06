@@ -2,8 +2,8 @@
 Unit tests for index.py
 """
 import unittest
-from unittest.mock import patch, Mock
-from index import check_client_id_exists, get_cognito_client, get_dynamodb_client
+from unittest.mock import patch, Mock, MagicMock
+from index import check_client_id_exists, get_cognito_client, get_dynamodb_client, app
 
 
 class TestCheckClientIdExists(unittest.TestCase):
@@ -74,6 +74,191 @@ class TestGetDynamoDBClient(unittest.TestCase):
         result = get_dynamodb_client("eu-south-1")
         mock_boto3_client.assert_called_once_with("dynamodb", region_name="eu-south-1")
         self.assertIsNone(result)
+
+
+class TestCreateIdpInternalUserAge(unittest.TestCase):
+    """Tests for age field in create_idp_internal_user."""
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_create_user_with_age(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.put_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
+
+        event = {
+            "httpMethod": "POST",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"username":"testuser","password":"pass","samlAttributes":{"name":"Mario"},"age":16}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 201)
+        call_args = mock_dynamodb.put_item.call_args
+        item = call_args[1]["Item"] if "Item" in call_args[1] else call_args.kwargs["Item"]
+        self.assertEqual(item["age"], {"N": "16"})
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_create_user_without_age(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.put_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
+
+        event = {
+            "httpMethod": "POST",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"username":"testuser","password":"pass","samlAttributes":{"name":"Mario"}}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 201)
+        call_args = mock_dynamodb.put_item.call_args
+        item = call_args[1]["Item"] if "Item" in call_args[1] else call_args.kwargs["Item"]
+        self.assertNotIn("age", item)
+
+
+class TestUpdateIdpInternalUserAge(unittest.TestCase):
+    """Tests for age field in update_idp_internal_user."""
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_with_age_only(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.update_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
+
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"age":18}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 200)
+        call_args = mock_dynamodb.update_item.call_args
+        kwargs = call_args[1] if call_args[1] else call_args.kwargs
+        self.assertIn("age = :age", kwargs["UpdateExpression"])
+        self.assertEqual(kwargs["ExpressionAttributeValues"][":age"], {"N": "18"})
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_with_age_and_saml(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.update_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
+
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"samlAttributes":{"name":"Luigi"},"age":20}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 200)
+        call_args = mock_dynamodb.update_item.call_args
+        kwargs = call_args[1] if call_args[1] else call_args.kwargs
+        self.assertIn("samlAttributes = :samlAttributes", kwargs["UpdateExpression"])
+        self.assertIn("age = :age", kwargs["UpdateExpression"])
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_no_saml_no_age_returns_400(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
+
+class TestGetIdpInternalUsersAge(unittest.TestCase):
+    """Tests for age field in get_idp_internal_users."""
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_get_users_includes_age(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.query.return_value = {
+            "ResponseMetadata": {"HTTPStatusCode": 200},
+            "Items": [
+                {
+                    "username": {"S": "testuser"},
+                    "password": {"S": "pass"},
+                    "samlAttributes": {"M": {"name": {"S": "Mario"}}},
+                    "age": {"N": "16"},
+                }
+            ],
+        }
+
+        event = {
+            "httpMethod": "GET",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "queryStringParameters": {"limit": "10"},
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 200)
+        import json
+        body = json.loads(response["body"])
+        self.assertEqual(body["users"][0]["age"], 16)
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_get_users_without_age(self, mock_getenv, mock_dynamodb, mock_get_user, mock_extract):
+        mock_dynamodb.query.return_value = {
+            "ResponseMetadata": {"HTTPStatusCode": 200},
+            "Items": [
+                {
+                    "username": {"S": "testuser"},
+                    "password": {"S": "pass"},
+                    "samlAttributes": {"M": {"name": {"S": "Mario"}}},
+                }
+            ],
+        }
+
+        event = {
+            "httpMethod": "GET",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "queryStringParameters": {"limit": "10"},
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 200)
+        import json
+        body = json.loads(response["body"])
+        self.assertNotIn("age", body["users"][0])
 
 
 if __name__ == "__main__":

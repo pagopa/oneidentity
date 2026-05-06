@@ -218,21 +218,30 @@ def create_idp_internal_user():
             "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
             }, 400
 
+        # Extract the optional age field
+        age = body.get("age")
+
+        # Build the item for DynamoDB
+        item = {
+            "username": {"S": username},
+            "namespace": {"S": client_id},
+            "password": {"S": password},
+            "samlAttributes": {
+                "M": {
+                    k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
+                    for k, v in saml_attributes.items()
+                }
+            },
+        }
+
+        if age is not None:
+            item["age"] = {"N": str(int(age))}
+
         # Create user in Internal IDP
         response = dynamodb_client.put_item(
             TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
             ConditionExpression="attribute_not_exists(username) AND attribute_not_exists(namespace)",
-            Item={
-                "username": {"S": username},
-                "namespace": {"S": client_id},
-                "password": {"S": password},
-                "samlAttributes": {
-                    "M": {
-                        k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
-                        for k, v in saml_attributes.items()
-                    }
-                },
-            },
+            Item=item,
         )
         logger.info("[create_idp_internal_user]: %s", response)
 
@@ -284,18 +293,37 @@ def update_idp_internal_user(username: str):
 
         # Extract the samlAttributes from the request body
         saml_attributes = body.get("samlAttributes", {})
+        age = body.get("age")
 
-        if not saml_attributes:
-            logger.error("[update_idp_internal_user]: samlAttributes are required")
-            return {"message": "samlAttributes are required"}, 400
+        if not saml_attributes and age is None:
+            logger.error("[update_idp_internal_user]: samlAttributes or age are required")
+            return {"message": "samlAttributes or age are required"}, 400
 
         # Ensure that samlAttributes only contains valid keys
-        invalid_keys = set(saml_attributes) - valid_saml_attributes
-        if invalid_keys:
-            logger.error("[update_idp_internal_user]: Invalid saml attributes: %s", invalid_keys)
-            return {
-                "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
-            }, 400
+        if saml_attributes:
+            invalid_keys = set(saml_attributes) - valid_saml_attributes
+            if invalid_keys:
+                logger.error("[update_idp_internal_user]: Invalid saml attributes: %s", invalid_keys)
+                return {
+                    "message": f"Invalid saml attribute(s): {', '.join(invalid_keys)}. Valid attributes are: {', '.join(valid_saml_attributes)}"
+                }, 400
+
+        # Build update expression dynamically
+        update_parts = []
+        expression_values = {}
+
+        if saml_attributes:
+            update_parts.append("samlAttributes = :samlAttributes")
+            expression_values[":samlAttributes"] = {
+                "M": {
+                    k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
+                    for k, v in saml_attributes.items()
+                }
+            }
+
+        if age is not None:
+            update_parts.append("age = :age")
+            expression_values[":age"] = {"N": str(int(age))}
 
         # Update user in Internal IDP
         response = dynamodb_client.update_item(
@@ -305,15 +333,8 @@ def update_idp_internal_user(username: str):
                 "namespace": {"S": client_id},
             },
             ConditionExpression="attribute_exists(username) AND attribute_exists(namespace)",
-            UpdateExpression="SET samlAttributes = :samlAttributes",
-            ExpressionAttributeValues={
-                ":samlAttributes": {
-                    "M": {
-                        k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
-                        for k, v in saml_attributes.items()
-                    }
-                }
-            },
+            UpdateExpression="SET " + ", ".join(update_parts),
+            ExpressionAttributeValues=expression_values,
         )
         logger.info("[update_idp_internal_user]: %s", response)
 
@@ -451,6 +472,9 @@ def get_idp_internal_users():
                     k: v["S"] if "S" in v else v["N"]
                     for k, v in user.get("samlAttributes", {}).get("M", {}).items()
                 },
+                **({
+                    "age": int(user["age"]["N"])
+                } if "age" in user else {}),
             }
             for user in items
         ])
