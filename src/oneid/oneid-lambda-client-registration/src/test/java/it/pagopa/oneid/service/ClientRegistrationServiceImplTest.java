@@ -717,6 +717,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(true)
         .spidProfessionals(true)
+        .minAge(14)
         .pairwise(false)
         .build();
 
@@ -804,6 +805,7 @@ class ClientRegistrationServiceImplTest {
         .spidMinors(true)
         .spidProfessionals(true)
         .pairwise(true)
+        .minAge(14)
         .build();
 
     when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
@@ -861,6 +863,7 @@ class ClientRegistrationServiceImplTest {
         .localizedContentMap(new HashMap<>())
         .spidMinors(true)
         .spidProfessionals(false)
+        .minAge(14)
         //.pairwise() default false
         //.requiredSameIdp() default false
         .build();

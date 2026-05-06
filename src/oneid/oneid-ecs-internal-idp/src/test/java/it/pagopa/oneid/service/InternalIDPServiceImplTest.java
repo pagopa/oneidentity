@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
@@ -25,6 +26,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Extensions;
 
 @QuarkusTest
+@TestProfile(InternalIDPServiceTestProfile.class)
 class InternalIDPServiceImplTest {
 
   @Inject
@@ -198,8 +200,8 @@ class InternalIDPServiceImplTest {
             .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
-    OneIdentityException ex = assertThrows(OneIdentityException.class,
+    //in case of a already existing user with missing age, the method should not throw an exception and allow the flow to continue
+    assertDoesNotThrow(
         () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
-    assertEquals("User age attribute is missing", ex.getMessage());
   }
 }
