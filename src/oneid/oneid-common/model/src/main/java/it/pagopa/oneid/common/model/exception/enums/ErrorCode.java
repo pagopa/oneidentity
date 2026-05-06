@@ -153,6 +153,7 @@ public enum ErrorCode {
       "Destination not found"),
   IDP_ERROR_DESTINATION_MISMATCH(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(), "Destination mismatch"),
   CLIENT_UTILS_ERROR("CLIENT_UTILS_ERROR", "Error during Client credentials initialization"),
+  CLIENT_SPID_MINORS_ERROR("CLIENT_SPID_MINORS_ERROR", "minAge is required when spidMinors is true"),
   CLIENT_REGISTRATION_SERVICE_ERROR("CLIENT_REGISTRATION_SERVICE_ERROR",
       "Error during ClientRegistrationService method"),
   USER_ID_MISMATCH_ERROR("USER_ID_MISMATCH_ERROR", "Error during check of userId");

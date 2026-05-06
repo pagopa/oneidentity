@@ -25,19 +25,23 @@ public class MockClientProducer extends ClientProducer {
     clients.add(
         new Client("test", "test", "test", Set.of("foo.bar"), Set.of("test"), AuthLevel.L2, 0, 0,
             true, 0,
-            "test", "test", "test", true, "test", false, null, false, false, false));
+            "test", "test", "test", true, "test", false, null, false, false, false,
+            null, null));
     clients.add(
         new Client("testIsRequiredSameIdpFalse", "test", "test", Set.of("foo.bar"), Set.of("test"),
             AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", false, "test", false, null, false, false, false));
+            "test", "test", "test", false, "test", false, null, false, false, false,
+            null, null));
     clients.add(
         new Client("testIsRequiredSameIdpTrue", "test", "test", Set.of("foo.bar"), Set.of("test"),
             AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", true, "test", false, null, false, false, false));
+            "test", "test", "test", true, "test", false, null, false, false, false,
+            null, null));
     clients.add(
         new Client("testPairwiseTrue", "test", "test", Set.of("foo.bar"), Set.of("test"),
             AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", false, "test", false, null, false, false, true));
+            "test", "test", "test", false, "test", false, null, false, false, true,
+            null, null));
     clients.forEach(client -> map.put(client.getClientId(), client));
 
     return map;
