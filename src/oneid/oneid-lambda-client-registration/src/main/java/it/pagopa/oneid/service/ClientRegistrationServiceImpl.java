@@ -15,6 +15,7 @@ import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -64,12 +65,13 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       @Nullable String planName) {
 
     // validate client name
-    if (!(clientRegistrationDTO.getClientName()!=null && ValidationUtils.isSafeTitle(clientRegistrationDTO.getClientName()))) {
+    if (!(clientRegistrationDTO.getClientName() != null && ValidationUtils.isSafeTitle(
+        clientRegistrationDTO.getClientName()))) {
       throw new InvalidParameterException("Invalid Client name");
     }
 
     // Validate redirectUris
-    if (clientRegistrationDTO.getRedirectUris()!=null) {
+    if (clientRegistrationDTO.getRedirectUris() != null) {
       if (clientRegistrationDTO.getRedirectUris().isEmpty()) {
         throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
       }
@@ -133,7 +135,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Boolean pairWise = clientRegistrationDTO.getPairwise();
     if (Boolean.TRUE.equals(pairWise)) {
       if (isBlank(pdvApiKey) ^ isBlank(planName)) {
-        throw new InvalidPDVPlanException("Both PDV api key and plan name must be provided together");
+        throw new InvalidPDVPlanException(
+            "Both PDV api key and plan name must be provided together");
       }
       if (!isBlank(pdvApiKey) && !isBlank(planName)) {
 
@@ -145,7 +148,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         try {
           PDVValidationResponseDTO res = validatePDVApiKey(req);
 
-          if (res==null || !res.isValid()) {
+          if (res == null || !res.isValid()) {
             throw new InvalidPDVPlanException("PDV validation failed for api key and plan");
           }
 
@@ -203,7 +206,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // 8. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
         clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
-            .orElseThrow(ClientRegistrationServiceException::new)));
+            .orElseThrow(
+                () -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))));
 
     // 9. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
@@ -217,14 +221,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
         .a11yUri(clientRegistrationDTO.getA11yUri())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
-        .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled()!=null
-            ? clientRegistrationDTO.getBackButtonEnabled():false)
-        .spidMinors(clientRegistrationDTO.getSpidMinors()!=null
-            ? clientRegistrationDTO.getSpidMinors():false)
-        .spidProfessionals(clientRegistrationDTO.getSpidProfessionals()!=null
-            ? clientRegistrationDTO.getSpidProfessionals():false)
-        .pairwise(clientRegistrationDTO.getPairwise()!=null
-            ? clientRegistrationDTO.getPairwise():false)
+        .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
+            ? clientRegistrationDTO.getBackButtonEnabled() : false)
+        .spidMinors(clientRegistrationDTO.getSpidMinors() != null
+            ? clientRegistrationDTO.getSpidMinors() : false)
+        .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
+            ? clientRegistrationDTO.getSpidProfessionals() : false)
+        .pairwise(clientRegistrationDTO.getPairwise() != null
+            ? clientRegistrationDTO.getPairwise() : false)
         .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
         .clientIdIssuedAt(client.getClientIdIssuedAt())
@@ -256,9 +260,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   @Override
   public void updateClientExtended(ClientRegistrationDTO clientRegistrationDTO,
-                                   ClientExtended clientExtended,
-                                   @Nullable String pdvApiKey,
-                                   @Nullable String planName) {
+      ClientExtended clientExtended,
+      @Nullable String pdvApiKey,
+      @Nullable String planName) {
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId());
 
@@ -289,7 +293,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
   private PDVException createPDVException(WebApplicationException e) {
     Response response = e.getResponse();
-    if (response==null) {
+    if (response == null) {
       return new PDVException("PDV response not ok: ", null, Optional.empty(), e);
     }
     Integer status = response.getStatus();

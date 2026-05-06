@@ -5,6 +5,7 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
@@ -36,6 +37,20 @@ public class ClientUtils {
 
     Set<String> callbackUris = clientRegistrationDTO.getRedirectUris();
 
+    boolean spidMinors = clientRegistrationDTO.getSpidMinors() != null
+        && clientRegistrationDTO.getSpidMinors();
+
+    Integer minAge = null;
+    Integer maxAge = null;
+    if (spidMinors) {
+      if (clientRegistrationDTO.getMinAge() == null) {
+        throw new ClientRegistrationServiceException(ErrorCode.CLIENT_SPID_MINORS_ERROR);
+      }
+      minAge = clientRegistrationDTO.getMinAge();
+      maxAge = clientRegistrationDTO.getMaxAge() != null
+          ? clientRegistrationDTO.getMaxAge() : 99;
+    }
+
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
         .userId(userId)
@@ -44,7 +59,7 @@ public class ClientUtils {
         .requestedParameters(requestedParameters)
         .authLevel(AuthLevel.authLevelFromValue(
             clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
-                .orElseThrow(ClientRegistrationServiceException::new)))
+                .orElseThrow(() -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .isActive(true)
         .logoUri(clientRegistrationDTO.getLogoUri())
@@ -54,14 +69,15 @@ public class ClientUtils {
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
         .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
             ? clientRegistrationDTO.getBackButtonEnabled() : false)
-        .spidMinors(clientRegistrationDTO.getSpidMinors() != null
-            ? clientRegistrationDTO.getSpidMinors() : false)
+        .spidMinors(spidMinors)
         .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
             ? clientRegistrationDTO.getSpidProfessionals() : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise() : false)
         .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
             ? clientRegistrationDTO.getRequiredSameIdp() : false)
+        .minAge(minAge)
+        .maxAge(maxAge)
         .build();
   }
 
@@ -82,6 +98,8 @@ public class ClientUtils {
         .a11yUri(client.getA11yUri())
         .backButtonEnabled(client.isBackButtonEnabled())
         .localizedContentMap(client.getLocalizedContentMap())
+        .minAge(client.getMinAge())
+        .maxAge(client.getMaxAge())
         .build();
 
   }

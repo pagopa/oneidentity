@@ -79,6 +79,12 @@ public class ClientRegistrationDTO {
   @JsonProperty("pairwise")
   private Boolean pairwise;
 
+  @JsonProperty("minAge")
+  private Integer minAge;
+
+  @JsonProperty("maxAge")
+  private Integer maxAge;
+
   public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
@@ -94,5 +100,7 @@ public class ClientRegistrationDTO {
     this.spidMinors = clientRegistrationDTO.spidMinors;
     this.spidProfessionals = clientRegistrationDTO.spidProfessionals;
     this.pairwise = clientRegistrationDTO.pairwise;
+    this.minAge = clientRegistrationDTO.minAge;
+    this.maxAge = clientRegistrationDTO.maxAge;
   }
 }
