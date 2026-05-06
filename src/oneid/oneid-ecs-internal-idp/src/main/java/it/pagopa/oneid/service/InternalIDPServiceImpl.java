@@ -29,6 +29,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -38,10 +39,12 @@ import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SAMLVersion;
@@ -63,6 +66,7 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
@@ -192,6 +196,63 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   }
 
+  @Override
+  public Optional<int[]> extractAgeLimit(AuthnRequest authnRequest) {
+    if (authnRequest.getExtensions() == null) {
+      return Optional.empty();
+    }
+
+    for (XMLObject extension : authnRequest.getExtensions().getUnknownXMLObjects()) {
+      if (SAMLUtilsConstants.LOCAL_NAME_AGE_LIMIT.equals(extension.getElementQName().getLocalPart())
+          && SAMLUtilsConstants.NAMESPACE_URI_SPID.equals(
+          extension.getElementQName().getNamespaceURI())) {
+
+        Integer minAge = null;
+        Integer maxAge = null;
+
+        for (XMLObject child : extension.getOrderedChildren()) {
+          String localPart = child.getElementQName().getLocalPart();
+          if (SAMLUtilsConstants.LOCAL_NAME_MIN_AGE.equals(localPart)
+              && child instanceof XSAny xsAny) {
+            minAge = Integer.parseInt(xsAny.getTextContent());
+          } else if (SAMLUtilsConstants.LOCAL_NAME_MAX_AGE.equals(localPart)
+              && child instanceof XSAny xsAny) {
+            maxAge = Integer.parseInt(xsAny.getTextContent());
+          }
+        }
+
+        if (minAge != null && maxAge != null) {
+          return Optional.of(new int[]{minAge, maxAge});
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public void verifyAge(String clientId, String username, Integer minAge, Integer maxAge)
+      throws OneIdentityException {
+    if (minAge == null || maxAge == null) {
+      return;
+    }
+
+    IDPInternalUser user = internalIDPUsersConnectorImpl
+        .getIDPInternalUserByUsernameAndNamespace(username, clientId)
+        .orElseThrow(() -> new OneIdentityException("User not found"));
+
+    if (user.getAge() == null) {
+      return;
+    }
+
+    int age = user.getAge();
+
+    if (age < minAge || (maxAge != 99 && age > maxAge)) {
+      String userName = user.getSamlAttributes().getOrDefault("name", username);
+      throw new OneIdentityException(
+          "Spiacente " + userName + ", ma non hai l'età richiesta per accedere al servizio");
+    }
+  }
+
 
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
@@ -210,6 +271,43 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
     return buildSAMLResponse(authnRequestId, StatusCode.SUCCESS, user, requestedParameters);
 
+  }
+
+  @Override
+  public Response createAgeVerificationFailureResponse(String authnRequestId)
+      throws SAMLUtilsException {
+    Response samlResponse = buildSAMLObject(Response.class);
+
+    samlResponse.setID(generateSecureRandomId());
+    samlResponse.setVersion(SAMLVersion.VERSION_20);
+    samlResponse.setIssueInstant(Instant.now());
+    samlResponse.setInResponseTo(authnRequestId);
+    samlResponse.setDestination(ACS_ENDPOINT);
+
+    Issuer issuer = buildSAMLObject(Issuer.class);
+    issuer.setValue(ISSUER);
+    issuer.setNameQualifier(ISSUER);
+    issuer.setFormat(NameIDType.ENTITY);
+    samlResponse.setIssuer(issuer);
+
+    Status status = buildSAMLObject(Status.class);
+    StatusCode statusCode = buildSAMLObject(StatusCode.class);
+    statusCode.setValue(StatusCode.RESPONDER);
+    status.setStatusCode(statusCode);
+
+    org.opensaml.saml.saml2.core.StatusMessage statusMessage = buildSAMLObject(
+        org.opensaml.saml.saml2.core.StatusMessage.class);
+    statusMessage.setValue("AGE_VERIFICATION_FAILED");
+    status.setStatusMessage(statusMessage);
+
+    samlResponse.setStatus(status);
+
+    BasicX509Credential idpX509Credential = getIdpbasicX509Credential(ssmClient);
+    Signature signature = buildSignature(samlResponse, idpX509Credential);
+    samlResponse.setSignature(signature);
+    marshallAndSignResponse(samlResponse, signature);
+
+    return samlResponse;
   }
 
   public void validateUserInformation(String clientId, String username, String password)

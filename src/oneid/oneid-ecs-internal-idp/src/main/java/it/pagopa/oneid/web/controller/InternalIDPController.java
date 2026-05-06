@@ -72,7 +72,7 @@ public class InternalIDPController {
     TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
         .data("authnRequestId", authnRequest.getID())
         .data("clientId", client.getClientId())
-        .data("clientName", client.getFriendlyName());;
+        .data("clientName", client.getFriendlyName());
 
     return Response.status(Status.OK)
         .entity(instance.render())
@@ -154,6 +154,22 @@ public class InternalIDPController {
   }
 
   private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
+
+    // Verify age limit if present in the session
+    if (idpSession.getMinAge() != null && idpSession.getMaxAge() != null) {
+      try {
+        internalIDPServiceImpl.verifyAge(idpSession.getClientId(), idpSession.getUsername(),
+            idpSession.getMinAge(), idpSession.getMaxAge());
+      } catch (OneIdentityException e) {
+        // Age verification failed - return failure SAML Response to SP
+        return Response.status(Status.OK)
+            .entity(error.data("errorMessage",
+                "Spiacente " + idpSession.getUsername() + ", ma non hai l’età richiesta da "
+                    + idpSession.getClientId() + " per accedere al servizio"))
+            .type(MediaType.TEXT_HTML)
+            .build();
+      }
+    }
 
     // Create a successful SAML Response based on the AuthnRequest
 

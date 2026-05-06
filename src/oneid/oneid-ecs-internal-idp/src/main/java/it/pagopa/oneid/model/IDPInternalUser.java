@@ -32,4 +32,6 @@ public class IDPInternalUser {
 
   @NotNull
   private Map<String, String> samlAttributes;
+
+  private Integer age;
 }
