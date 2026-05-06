@@ -436,3 +436,109 @@ describe('Dashboard UI', () => {
     spy.mockRestore();
   });
 });
+
+describe('Dashboard SPID Minors', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const fillRequiredFields = () => {
+    const nameInput = screen.getByLabelText(/Client Name/i);
+    fireEvent.change(nameInput, { target: { value: 'Test Client' } });
+
+    const redirectUrisInput = screen.getByLabelText(/Redirect URIs/i);
+    fireEvent.change(redirectUrisInput, {
+      target: { value: 'https://example.com/callback' },
+    });
+
+    const spidSelect = screen.getByLabelText(/SPID Level/i);
+    fireEvent.mouseDown(spidSelect);
+    fireEvent.click(screen.getByText('Level L2'));
+
+    const samlSelect = screen.getByLabelText(/SAML Attributes/i);
+    fireEvent.mouseDown(samlSelect);
+    fireEvent.click(screen.getByText('fiscalNumber'));
+  };
+
+  it('renders the SPID Minors toggle initially unchecked', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    expect(toggle).not.toBeChecked();
+  });
+
+  it('does not show Min Age / Max Age fields when SPID Minors is disabled', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    expect(screen.queryByLabelText(/Min Age/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Max Age/i)).not.toBeInTheDocument();
+  });
+
+  it('shows Min Age and Max Age fields when SPID Minors is enabled', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    expect(screen.getByLabelText(/Min Age/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Max Age/i)).toBeInTheDocument();
+  });
+
+  it('disables the submit button when SPID Minors is enabled but Min Age is empty', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    fillRequiredFields();
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    const submitButton = screen.getByTestId('submit-button');
+    expect(submitButton).toBeDisabled();
+  });
+
+  it('enables the submit button when SPID Minors is enabled and Min Age is filled', async () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    fillRequiredFields();
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '10' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+  });
+
+  it('hides Min Age and Max Age fields when SPID Minors is toggled off', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    expect(screen.getByLabelText(/Min Age/i)).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(screen.queryByLabelText(/Min Age/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Max Age/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the SPID Minors tooltip with the RFC link', async () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const infoButtons = screen.getAllByTestId('info-icon');
+    // SPID Minors is the last info icon
+    const spidMinorsInfoIcon = infoButtons[infoButtons.length - 1];
+    fireEvent.mouseOver(spidMinorsInfoIcon);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /SPID Minors allows the service to authenticate minor users/i
+        )
+      ).toBeInTheDocument();
+    });
+  });
+});
