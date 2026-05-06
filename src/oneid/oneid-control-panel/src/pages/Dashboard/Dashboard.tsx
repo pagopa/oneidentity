@@ -570,6 +570,7 @@ export const Dashboard = () => {
                     <Select
                       labelId="pairwise-select-label"
                       name="pairwiseOption"
+                      required
                       value={pairWiseData?.apiKeyId || ''}
                       label="Plan Name"
                       onChange={(e) =>
@@ -595,6 +596,7 @@ export const Dashboard = () => {
                   </FormControl>
                   <TextField
                     fullWidth
+                    required
                     label="Key value"
                     name="pairwiseValue"
                     value={pairWiseData?.apiKeyValue || ''}
