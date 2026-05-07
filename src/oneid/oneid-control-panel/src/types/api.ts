@@ -169,8 +169,8 @@ export const clientSchema = z
     requiredSameIdp: z.boolean().optional(),
     // feature flags
     spidMinors: z.boolean().optional(),
-    minAge: z.number().int().min(1).max(99).optional(),
-    maxAge: z.number().int().min(1).max(99).optional(),
+    minAge: z.number().int().min(1).max(99).nullish(),
+    maxAge: z.number().int().min(1).max(99).nullish(),
     spidProfessionals: z.boolean().optional(),
     pairwise: z.boolean().optional(),
     // customize
