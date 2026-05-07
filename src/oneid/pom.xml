@@ -289,6 +289,13 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-ecs-internal-idp-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-ecs-internal-idp</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-all</id>
             <modules>
                 <module>oneid-common</module>
