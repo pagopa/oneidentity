@@ -47,8 +47,7 @@ public class ClientUtils {
         throw new ClientRegistrationServiceException(ErrorCode.CLIENT_SPID_MINORS_ERROR);
       }
       minAge = clientRegistrationDTO.getMinAge();
-      maxAge = clientRegistrationDTO.getMaxAge() != null
-          ? clientRegistrationDTO.getMaxAge() : 99;
+      maxAge = clientRegistrationDTO.getMaxAge();
     }
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
