@@ -73,6 +73,7 @@ jobs:
           src/oneid/mvnw -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
+          -s src/oneid/settings.xml
           -Dsonar.coverage.jacoco.xmlReportPaths=$XML_REPORT_PATHS
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
