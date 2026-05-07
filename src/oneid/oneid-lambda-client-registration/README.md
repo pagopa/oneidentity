@@ -1,4 +1,116 @@
-## Client Registration
+## Local Development
+
+Run all commands from the Maven workspace root:
+
+```shell
+cd src/oneid
+```
+
+### Purpose
+
+`oneid-lambda-client-registration` is the Quarkus service responsible for client registration APIs.
+
+The controller exposes routes under `/oidc`, including:
+
+- `/oidc/register`
+- `/oidc/register/user_id/{user_id}`
+- `/oidc/register/client_id/{client_id}`
+- `/oidc/register/plan-list`
+- `/oidc/register/validate-api-key`
+- `/oidc/clients/{client_id}/secret/refresh`
+
+In the default local compose stack it is exposed on:
+
+- `http://localhost:8081`
+
+### Recommended workflow
+
+The default local compose stack already includes this service and builds it with `SKIP_DEPCHECK=true`:
+
+```shell
+cd src/oneid
+docker compose up --build oneid-lambda-client-registration
+```
+
+If you want the full application flow, run the entire stack instead:
+
+```shell
+cd src/oneid
+docker compose up --build
+```
+
+### Run in Quarkus dev mode
+
+This service depends on local AWS-compatible resources. The simplest path is to start MiniStack and the seeder first:
+
+```shell
+cd src/oneid
+docker compose up oneid-aws-local oneid-services-seeder
+```
+
+The current dev profile uses a local DynamoDB endpoint at `http://localhost:8000`, while the shared compose stack exposes MiniStack on `http://localhost:4566`.
+
+If you want to use the compose-provided MiniStack from the host, override the DynamoDB endpoint when starting dev mode:
+
+```shell
+cd src/oneid
+./mvnw quarkus:dev \
+  -P oneid-lambda-client-registration-aggregate \
+  -DskipDepcheck=true \
+  -Dquarkus.dynamodb.endpoint-override=http://localhost:4566
+```
+
+If you want depcheck enabled, provide your Maven settings file:
+
+```shell
+cd src/oneid
+./mvnw quarkus:dev \
+  -P oneid-lambda-client-registration-aggregate \
+  -Dquarkus.dynamodb.endpoint-override=http://localhost:4566 \
+  -s settings.xml
+```
+
+### Docker image build
+
+Fast local build without depcheck:
+
+```shell
+cd src/oneid
+docker build -f oneid-lambda-client-registration/Dockerfile --build-arg SKIP_DEPCHECK=true -t local/oneid-lambda-client-registration .
+```
+
+Depcheck-enabled build with BuildKit secret:
+
+```shell
+cd src/oneid
+DOCKER_BUILDKIT=1 docker build \
+  --secret id=maven_settings,src=settings.xml \
+  -f oneid-lambda-client-registration/Dockerfile \
+  -t local/oneid-lambda-client-registration .
+```
+
+Current `skipDepcheck` behavior is:
+
+- default: depcheck enabled
+- `-DskipDepcheck=false`: depcheck enabled
+- `-DskipDepcheck=true`: depcheck disabled
+
+### Useful Commands
+
+Follow logs:
+
+```shell
+cd src/oneid
+docker compose logs -f oneid-lambda-client-registration
+```
+
+Check the running container from the host:
+
+```shell
+curl -fsS http://localhost:8081/oidc/register/plan-list
+```
+
+## Registration API
 
 After receiving a registration API Key for the environment you need, you can
 register

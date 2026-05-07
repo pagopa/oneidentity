@@ -1,73 +1,135 @@
-# One Identity
+# oneid-ecs-core
 
----
+## Purpose
 
-## Summary 📖
+`oneid-ecs-core` is the main Quarkus backend for the local One Identity stack.
 
-- [Api Documentation 📖 [TODO]](#api-documentation-todo)
-- [Technology Stack 📚](#technology-stack-)
-- [Start Project Locally 🚀](#start-project-locally-)
-    * [Running the application in dev mode](#running-the-application-in-dev-mode)
-    * [Run locally with Docker](#run-locally-with-docker)
-- [Develop Locally 💻](#develop-locally-)
-    * [Prerequisites](#prerequisites)
-    * [Testing 🧪 [TODO]](#testing-todo)
-        + [Unit test [TODO]](#unit-test-todo)
-        + [Integration test [TODO]](#integration-test-todo)
-        + [Performance test [TODO]](#performance-test-todo)
+It exposes the core HTTP routes used by the application, including:
 
----
+- OIDC endpoints under `/oidc`
+- SAML endpoints under `/saml`
+- client and IDP endpoints such as `/clients` and `/idps`
 
-## Api Documentation 📖 [TODO]
+In the default local stack, it runs behind the nginx gateway exposed on `http://localhost:8080`.
 
----
+## Local Development
 
-## Technology Stack 📚
-
-- Java 21 Runtime Environment GraalVM CE
-- [Quarkus](https://quarkus.io/)
-
----
-
-## Start Project Locally 🚀
-
-### Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-
-```shell script
-./mvnw quarkus:dev -P oneid-ecs-core-aggregate
-```
-
-> **_NOTE:_**  This command must be executed from **oneid** directory.
-
-### Run locally with Docker
-
-`docker build -f oneid-ecs-core/Dockerfile -t local/oneid-ecs-core .`
-
-Then
-
-`docker run -i --rm -p 8080:8080 local/oneid-ecs-core`
-
-### Run locally with Docker compose
-This creates DynamoDB and spid-saml-check instances. Useful for debugging the entire application flow.
+Run all commands from the Maven workspace root:
 
 ```shell
-docker-compose -f oneid-ecs-core/docker-compose.yaml up
+cd src/oneid
 ```
-
-## Develop Locally 💻
 
 ### Prerequisites
 
-- git
-- maven (v3.9.6)
-- jdk-21
+- JDK 21
+- Docker
+- Docker Compose
 
-### Testing 🧪[TODO]
+### Recommended workflow
 
-#### Unit test [TODO]
+For the most complete local experience, start the compose stack:
 
-#### Integration test [TODO]
+```shell
+cd src/oneid
+docker compose up --build
+```
 
-#### Performance test [TODO]
+The compose stack starts:
+
+- local AWS-compatible services on `http://localhost:4566`
+- the local seeder that creates DynamoDB tables, KMS alias, and SSM parameters
+- `oneid-ecs-core`
+- `oneid-ecs-internal-idp`
+- frontend and gateway services
+
+The normal browser entry point is:
+
+- `http://localhost:8080`
+
+### Run only `oneid-ecs-core` in dev mode
+
+If you want to run the service outside Docker while keeping local dependencies available, first start MiniStack and the seeder:
+
+```shell
+cd src/oneid
+docker compose up oneid-aws-local oneid-services-seeder
+```
+
+Then start Quarkus dev mode:
+
+```shell
+cd src/oneid
+./mvnw quarkus:dev -P oneid-ecs-core-aggregate -DskipDepcheck=true
+```
+
+If you want depcheck enabled instead of skipped, provide Maven settings with GitHub Packages credentials:
+
+```shell
+cd src/oneid
+./mvnw quarkus:dev -P oneid-ecs-core-aggregate -s settings.xml
+```
+
+### Docker image build
+
+The Dockerfile supports two local build modes.
+
+Fast local build without depcheck:
+
+```shell
+cd src/oneid
+docker build -f oneid-ecs-core/Dockerfile --build-arg SKIP_DEPCHECK=true -t local/oneid-ecs-core .
+```
+
+Depcheck-enabled build with BuildKit secret:
+
+```shell
+cd src/oneid
+DOCKER_BUILDKIT=1 docker build \
+    --secret id=maven_settings,src=settings.xml \
+    -f oneid-ecs-core/Dockerfile \
+    -t local/oneid-ecs-core .
+```
+
+Current `skipDepcheck` behavior is:
+
+- default: depcheck enabled
+- `-DskipDepcheck=false`: depcheck enabled
+- `-DskipDepcheck=true`: depcheck disabled
+
+The local compose stack passes `SKIP_DEPCHECK=true` for this service so local container builds do not depend on GitHub Packages credentials.
+
+## Local Dependencies
+
+The local stack seeds and refreshes the resources used by `oneid-ecs-core`:
+
+- `SSM` parameters `cert.pem` and `key.pem`
+- DynamoDB tables used by the authentication flows
+- KMS alias `alias/sign-jwt`
+
+If you reseed certificates or delete local `SSM` parameters while the service is already running, restart the service so it reloads credentials:
+
+```shell
+cd src/oneid
+docker compose restart oneid-ecs-core
+```
+
+## Useful Commands
+
+Follow service logs:
+
+```shell
+cd src/oneid
+docker compose logs -f oneid-ecs-core
+```
+
+Check health through the container port:
+
+```shell
+curl -fsS http://localhost:8080/q/health
+```
+
+## Notes
+
+- `oneid-ecs-core` is built from the workspace root `src/oneid/pom.xml` with the aggregate profile `oneid-ecs-core-aggregate`.
+- The root repository README contains the complete stack-level local-development guide.
