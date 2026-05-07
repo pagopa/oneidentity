@@ -214,18 +214,18 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                                     ([attrKey]) => attrKey
                                   ),
                                   ([attrKey, attrValue]) => (
-                                    <Chip
-                                      sx={{ mr: 1, mb: 1 }}
-                                      key={attrKey}
-                                      label={
-                                        <>
-                                          <strong>{attrKey}:</strong>{' '}
-                                          {attrValue}
-                                        </>
-                                      }
-                                      variant="outlined"
-                                      size="small"
-                                    />
+                                    <Box key={attrKey} sx={{ mb: 1 }}>
+                                      <Chip
+                                        label={
+                                          <>
+                                            <strong>{attrKey}:</strong>{' '}
+                                            {attrValue}
+                                          </>
+                                        }
+                                        variant="outlined"
+                                        size="small"
+                                      />
+                                    </Box>
                                   )
                                 )}
                               </>
