@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import type * as ReactRouterDom from 'react-router-dom';
-import { vi, describe, it, beforeEach, expect, Mock } from 'vitest';
+import { vi, describe, it, beforeEach, afterEach, expect, Mock } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AddOrUpdateUser } from './AddOrUpdateUser';
@@ -110,6 +110,10 @@ describe('AddOrUpdateUser', () => {
       isSuccess: false,
       isPending: false,
     };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('calls createClientUsersMutation when form is valid and submitted', async () => {
@@ -282,14 +286,98 @@ describe('AddOrUpdateUser', () => {
   });
 
   it('should not submit if form is invalid', async () => {
-    const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
     const submitBtn = screen.getByTestId(submitBtnId);
-    await user.click(submitBtn);
+    expect(submitBtn).toBeDisabled();
+
+    fireEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(mockCreate).not.toHaveBeenCalled();
     });
+  });
+
+  it('renders the Age field', () => {
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    expect(screen.getByLabelText(/Age/i)).toBeInTheDocument();
+  });
+
+  it('submits without age when age is not filled (age is optional)', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await user.type(screen.getByLabelText(/Username/i), 'newuser');
+    await user.type(
+      screen.getByLabelText(/Password/i, { selector: 'input' }),
+      'password123'
+    );
+
+    const selectButton = screen.getByRole('button', { name: /saml/i });
+    await user.click(selectButton);
+    const attributeInput = await screen.findByLabelText(/Value for name/i);
+    await user.type(attributeInput, 'name');
+
+    const submitBtn = screen.getByTestId(submitBtnId);
+    expect(submitBtn).not.toBeDisabled();
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith({
+        data: expect.not.objectContaining({ age: expect.anything() }),
+      });
+    });
+  });
+
+  it('includes age in the mutation payload when provided', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await user.type(screen.getByLabelText(/Username/i), 'newuser');
+    await user.type(
+      screen.getByLabelText(/Password/i, { selector: 'input' }),
+      'password123'
+    );
+
+    const selectButton = screen.getByRole('button', { name: /saml/i });
+    await user.click(selectButton);
+    const attributeInput = await screen.findByLabelText(/Value for name/i);
+    await user.type(attributeInput, 'name');
+
+    const ageInput = screen.getByLabelText(/Age/i);
+    await user.type(ageInput, '17');
+
+    const submitBtn = screen.getByTestId(submitBtnId);
+    expect(submitBtn).not.toBeDisabled();
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith({
+        data: expect.objectContaining({ age: 17 }),
+      });
+    });
+  });
+
+  it('disables submit when age is out of range (e.g. 0)', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await user.type(screen.getByLabelText(/Username/i), 'newuser');
+    await user.type(
+      screen.getByLabelText(/Password/i, { selector: 'input' }),
+      'password123'
+    );
+
+    const selectButton = screen.getByRole('button', { name: /saml/i });
+    await user.click(selectButton);
+    const attributeInput = await screen.findByLabelText(/Value for name/i);
+    await user.type(attributeInput, 'name');
+
+    const ageInput = screen.getByLabelText(/Age/i);
+    await user.type(ageInput, '0');
+
+    const submitBtn = screen.getByTestId(submitBtnId);
+    expect(submitBtn).toBeDisabled();
   });
 });

@@ -229,6 +229,7 @@ export const idpUserSchema = z.object({
   username: z.string().trim().min(1),
   password: z.string().trim().min(1),
   samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
+  age: z.number().int().min(1).max(99).optional(),
 });
 export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),

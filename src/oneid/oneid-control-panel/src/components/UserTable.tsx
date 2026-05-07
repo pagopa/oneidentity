@@ -11,6 +11,7 @@ import {
   Typography,
   TablePagination,
   TableSortLabel,
+  Chip,
 } from '@mui/material';
 import {
   KeyboardArrowDown,
@@ -193,27 +194,41 @@ const UserTable = ({ users, onDelete, onEdit }: Props) => {
                           unmountOnExit
                         >
                           <Box margin={2}>
-                            <Typography variant="subtitle1">
+                            {user.age !== undefined && (
+                              <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                                  User Details
+                                </Typography>
+                                <strong>Age: </strong> {user.age}
+                              </Box>
+                            )}
+                            <Typography variant="subtitle1" sx={{ mb: 1 }}>
                               SAML Attributes
                             </Typography>
                             {user.samlAttributes &&
                             !isEmpty(user.samlAttributes) ? (
-                              <ul>
+                              <>
                                 {map(
                                   sortBy(
                                     Object.entries(user.samlAttributes || {}),
                                     ([attrKey]) => attrKey
                                   ),
                                   ([attrKey, attrValue]) => (
-                                    <li
+                                    <Chip
+                                      sx={{ mr: 1, mb: 1 }}
                                       key={attrKey}
-                                      style={{ marginBottom: '6px' }}
-                                    >
-                                      <strong>{attrKey}:</strong> {attrValue}
-                                    </li>
+                                      label={
+                                        <>
+                                          <strong>{attrKey}:</strong>{' '}
+                                          {attrValue}
+                                        </>
+                                      }
+                                      variant="outlined"
+                                      size="small"
+                                    />
                                   )
                                 )}
-                              </ul>
+                              </>
                             ) : (
                               <Typography variant="body2" color="textSecondary">
                                 No attributes
