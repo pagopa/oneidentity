@@ -33,8 +33,6 @@ services:
       dockerfile: oneid-ecs-core/Dockerfile
       args:
         ENVIRONMENT: local
-        # disable Quinoa, will be removed.
-        QUARKUS_QUINOA: false
         SKIP_DEPCHECK: true
     container_name: oneid-ecs-core
     depends_on:

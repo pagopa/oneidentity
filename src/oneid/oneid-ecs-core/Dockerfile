@@ -11,41 +11,31 @@ COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
 # oneid-common, oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-common ./oneid-common
-COPY --chown=quarkus:quarkus ../oneid-fe ./oneid-fe
 COPY --chown=quarkus:quarkus ../oneid-ecs-core ./oneid-ecs-core
-COPY --chown=quarkus:quarkus ../docker_mock/login-alert-message.json ./oneid-fe/public/assets/login-alert-message.json
 USER quarkus
 
-# Default disable quinoa but take as build arg from ../docker-compose.yaml file to have it locally if needed
-ARG QUARKUS_QUINOA=false
-ENV QUARKUS_QUINOA=${QUARKUS_QUINOA}
 ARG SKIP_DEPCHECK=false
 
-# TODO debug logs, must be removed as soon as we're sure about caching
-RUN \
-  --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ls -la /tmp/.build-cache; id
-
 # Ensure deterministic container builds even when host workspace contains stale build artifacts.
-RUN rm -rf /code/oneid-ecs-core/target /code/oneid-fe/dist
+RUN rm -rf /code/oneid-ecs-core/target
 
 # Build oneid-ecs-core using oneid-ecs-core-aggregate
 # Start downloading dependencies
 RUN \
-  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
-    ./mvnw verify clean -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
+    ./mvnw -f pom.xml -B verify clean -P oneid-ecs-core-aggregate -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
   else \
     if [ ! -f /run/secrets/maven_settings ]; then \
       echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
       exit 1; \
     fi; \
-    ./mvnw verify clean -Dmaven.repo.local=/tmp/.build-cache --fail-never -s /run/secrets/maven_settings; \
+    ./mvnw -f pom.xml -B verify clean -P oneid-ecs-core-aggregate -Dmaven.repo.local=/tmp/.build-cache --fail-never -s /run/secrets/maven_settings; \
   fi
 
 RUN \
-  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
     ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -DskipDepcheck=true; \
@@ -56,11 +46,6 @@ RUN \
     fi; \
     ./mvnw -f pom.xml -B package -P oneid-ecs-core-aggregate -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -s /run/secrets/maven_settings; \
   fi
-
-# TODO debug logs, must be removed as soon as we're sure about caching
-RUN \
-  --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ls -la /tmp/.build-cache; id
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526aebd99245eee76feb55c0b9a10325cddfc9530b24c096064a5ed81e

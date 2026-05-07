@@ -22,15 +22,10 @@ USER quarkus
 
 ARG SKIP_DEPCHECK=false
 
-# TODO debug logs, must be removed as soon as we're sure about caching
-RUN \
-  --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ls -la /tmp/.build-cache; id
-
 # Build oneid-ecs-internal-idp using oneid-ecs-internal-idp-aggregate
 # Start downloading dependencies
 RUN \
-  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
     ./mvnw verify clean -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
@@ -43,7 +38,7 @@ RUN \
   fi
 
 RUN \
-  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
     ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -DskipDepcheck=true; \
@@ -55,10 +50,6 @@ RUN \
     ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -s /run/secrets/maven_settings; \
   fi
 
-# TODO debug logs, must be removed as soon as we're sure about caching
-RUN \
-  --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ls -la /tmp/.build-cache; id
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526aebd99245eee76feb55c0b9a10325cddfc9530b24c096064a5ed81e
