@@ -16,7 +16,7 @@
             "S": "wnPIm5bGfbSX5W5LcyScBQ"
           },
           "callbackURI": {
-            "SS": ["http://localhost:8084/client/cb"]
+            "SS": ["http://localhost:8080/client/cb"]
           },
           "acsIndex": {
             "N": "0"
@@ -116,7 +116,7 @@
             "S": "YP1cYg+39af5jm2ZKpnLJw"
           },
           "callbackURI": {
-            "SS": ["http://localhost:8084/client/cb"]
+            "SS": ["http://localhost:8080/client/cb"]
           },
           "acsIndex": {
             "N": "0"
@@ -173,7 +173,7 @@
             "S": "YP1cYg+39af5jm2ZKpnLJw"
           },
           "callbackURI": {
-            "SS": ["http://localhost:8084/client/cb"]
+            "SS": ["http://localhost:8080/client/cb"]
           },
           "acsIndex": {
             "N": "0"
@@ -209,6 +209,93 @@
       }
     }
   ],
+  "InternalIDPUsers": [
+    {
+      "PutRequest": {
+        "Item": {
+          "username": {
+            "S": "r.lovelace"
+          },
+          "namespace": {
+            "S": "fM2Ki8PDGjazPFubNtv03FpJZ21CYimrS6-client_1"
+          },
+          "password": {
+            "S": "test"
+          },
+          "samlAttributes": {
+            "M": {
+              "address": {
+                "S": ""
+              },
+              "companyFiscalNumber": {
+                "S": ""
+              },
+              "countyOfBirth": {
+                "S": ""
+              },
+              "dateOfBirth": {
+                "S": "1980-01-01"
+              },
+              "digitalAddress": {
+                "S": ""
+              },
+              "domicileMunicipality": {
+                "S": ""
+              },
+              "domicileNation": {
+                "S": ""
+              },
+              "domicilePostalCode": {
+                "S": ""
+              },
+              "domicileProvince": {
+                "S": ""
+              },
+              "domicileStreetAddress": {
+                "S": ""
+              },
+              "email": {
+                "S": "r.lovelace@test.email.it"
+              },
+              "expirationDate": {
+                "S": ""
+              },
+              "familyName": {
+                "S": "Lovelace"
+              },
+              "fiscalNumber": {
+                "S": "TINIT-LVLRHR80A01F205T"
+              },
+              "gender": {
+                "S": "M"
+              },
+              "idCard": {
+                "S": ""
+              },
+              "ivaCode": {
+                "S": ""
+              },
+              "mobilePhone": {
+                "S": ""
+              },
+              "name": {
+                "S": "Richard"
+              },
+              "placeOfBirth": {
+                "S": ""
+              },
+              "spidCode": {
+                "S": "SPID-406"
+              },
+              "spidLevel": {
+                "N": "2"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "IDPMetadata": [
     {
       "PutRequest": {
@@ -218,11 +305,11 @@
           },
           "certificates": {
             "SS": [
-              "MIIEATCCAumgAwIBAgIUWvV6Ls+Ez/jKVoIJuhRhKabPugAwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAklUMQ0wCwYDVQQIDARSb21lMQ0wCwYDVQQHDARSb21lMQ0wCwYDVQQKDARBZ0lEMQ0wCwYDVQQLDARBZ0lEMR4wHAYDVQQDDBV2YWxpZGF0b3Iuc3BpZC5nb3YuaXQxJDAiBgkqhkiG9w0BCQEWFXNwaWQudGVjaEBhZ2lkLmdvdi5pdDAeFw0yNTAzMTMxMjE0MDZaFw0yNzAzMTMxMjE0MDZaMIGPMQswCQYDVQQGEwJJVDENMAsGA1UECAwEUm9tZTENMAsGA1UEBwwEUm9tZTENMAsGA1UECgwEQWdJRDENMAsGA1UECwwEQWdJRDEeMBwGA1UEAwwVdmFsaWRhdG9yLnNwaWQuZ292Lml0MSQwIgYJKoZIhvcNAQkBFhVzcGlkLnRlY2hAYWdpZC5nb3YuaXQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCXI6XbIIWneL5d42b5tMI+OqfpSvYzymQuCkkTtjw0I9Yg2iGfJumGXizZHDc3Oo4rSsZhLn7JkS3TUDIDS8ftS3Igc6gO5Pe0aGDn7aYRChL51N2Nc6CaBWd2e/yMY0RNVzMxpxYEO5mAireduqIRm/eHboL5Bx3fId1Ym7FbPjj+l2fYHn2xY58emJNp1vmwmyQhrDnj/XDOIngcqdmQX5EDPv8zsvX8h1/6AzMngMH+qyuKUikTZm4N16LRVXGGtRYUk1ZhfVUMS90jWcNXBIs634ErHPonj/7VFwso0XmkJF6rBZz7anXhnqPavvGhbja+oskjsvQAiqwnQ66vAgMBAAGjUzBRMB0GA1UdDgQWBBStSe+G3htq/uYFKHHQ+mxyG8IQEzAfBgNVHSMEGDAWgBStSe+G3htq/uYFKHHQ+mxyG8IQEzAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBxsAeL/6cXIePCWa2cw7xDGOqab7X2dl93IQRCM1EKkkwiYDs7AaFhoxTdL4peFiQows2VNmU4mpYRnqW4PVerz6Juq6hIPctIibDuh3p88XWFtpXF8jHqcBOGr0YOhOua9uvy43sKogJts1xsikK5u3AWf0VNssraLN7eR+EDcLwIiFS1+imQiHRlFPPx6ZoSeJtCAVDTbQ4SrVRA5nHEZbBYkY7dIZX6dc1YZTsXub8BLZDI2BK1aGOysxjZ1mjFNH4LX/0mCDOvXTchzKttC3r8wZTEy1DGJopVn0BUZTAkKHZZt9fwpJqHiTpwqbRuo2gCM52yo9AZRdVFWMw/"
+              "__IDP_INTERNAL_CERTIFICATE_BASE64__"
             ]
           },
           "entityID": {
-            "S": "https://localhost:8443"
+            "S": "http://localhost:8080/idp/"
           },
           "status": {
             "S": "OK"
@@ -239,10 +326,10 @@
           "idpSSOEndpoints": {
             "M": {
               "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST": {
-                "S": "https://localhost:8443/samlsso"
+                "S": "http://localhost:8080/idp/samlsso"
               },
               "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect": {
-                "S": "https://localhost:8443/samlsso"
+                "S": "http://localhost:8080/idp/samlsso"
               }
             }
           }

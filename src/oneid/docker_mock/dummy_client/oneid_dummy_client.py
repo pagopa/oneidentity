@@ -12,7 +12,7 @@ app = Flask(__name__)
 client_id = os.getenv("client_id", "")
 client_secret = os.getenv("client_secret", "")
 authorizer_url = "http://localhost:8080/login"
-redirect_url = "http://localhost:8084/client/cb"
+redirect_url = "http://localhost:8080/client/cb"
 token_url = "http://oneid-ecs-core:8080/oidc/token"
 
 @app.route("/")

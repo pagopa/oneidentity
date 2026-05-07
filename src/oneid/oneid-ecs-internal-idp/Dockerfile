@@ -6,20 +6,21 @@ WORKDIR /code
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml .
-# Settings xml
-COPY --chown=quarkus:quarkus ../settings.xml .
 # Maven wrapper files
 COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
-# oneid-common, oneid-ecs-internal-idp
+# oneid-common, oneid-ecs-internal-idp and sibling modules needed by workspace pom
 COPY --chown=quarkus:quarkus ../oneid-common ./oneid-common
+COPY --chown=quarkus:quarkus ../oneid-ecs-core ./oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-ecs-internal-idp ./oneid-ecs-internal-idp
+COPY --chown=quarkus:quarkus ../oneid-lambda-client-registration ./oneid-lambda-client-registration
+COPY --chown=quarkus:quarkus ../oneid-lambda-service-metadata ./oneid-lambda-service-metadata
+COPY --chown=quarkus:quarkus ../oneid-lambda-update-idp-metadata ./oneid-lambda-update-idp-metadata
+COPY --chown=quarkus:quarkus ../oneid-lambda-is-gh-integration ./oneid-lambda-is-gh-integration
 
 USER quarkus
 
-# Default disable quinoa but take as build arg from ../docker-compose.yaml file to have it locally if needed
-ARG QUARKUS_QUINOA=false
-ENV QUARKUS_QUINOA=${QUARKUS_QUINOA}
+ARG SKIP_DEPCHECK=false
 
 # TODO debug logs, must be removed as soon as we're sure about caching
 RUN \
@@ -29,12 +30,30 @@ RUN \
 # Build oneid-ecs-internal-idp using oneid-ecs-internal-idp-aggregate
 # Start downloading dependencies
 RUN \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ["./mvnw", "verify", "clean", "-Dmaven.repo.local=/tmp/.build-cache", "--fail-never", "-s", "settings.xml"]
+  if [ "$SKIP_DEPCHECK" = "true" ]; then \
+    ./mvnw verify clean -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
+  else \
+    if [ ! -f /run/secrets/maven_settings ]; then \
+      echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
+      exit 1; \
+    fi; \
+    ./mvnw verify clean -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache --fail-never -s /run/secrets/maven_settings; \
+  fi
 
 RUN \
+  --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
-  ./mvnw -f pom.xml -B package -P oneid-ecs-internal-idp-aggregate -s settings.xml -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true
+  if [ "$SKIP_DEPCHECK" = "true" ]; then \
+    ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -DskipDepcheck=true; \
+  else \
+    if [ ! -f /run/secrets/maven_settings ]; then \
+      echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
+      exit 1; \
+    fi; \
+    ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -s /run/secrets/maven_settings; \
+  fi
 
 # TODO debug logs, must be removed as soon as we're sure about caching
 RUN \
@@ -43,6 +62,15 @@ RUN \
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.20-2@sha256:6a3242526aebd99245eee76feb55c0b9a10325cddfc9530b24c096064a5ed81e
+
+ARG IDP_ASSETS_BASE_URL
+ENV IDP_ASSETS_BASE_URL=${IDP_ASSETS_BASE_URL}
+ARG IDP_LOGIN_ENDPOINT
+ENV IDP_LOGIN_ENDPOINT=${IDP_LOGIN_ENDPOINT}
+ARG IDP_CONSENT_ENDPOINT
+ENV IDP_CONSENT_ENDPOINT=${IDP_CONSENT_ENDPOINT}
+ARG ACS_ENDPOINT
+ENV ACS_ENDPOINT=${ACS_ENDPOINT}
 
 COPY --from=build /code/oneid-ecs-internal-idp/target/quarkus-app/lib/ /deployments/lib/
 COPY --from=build /code/oneid-ecs-internal-idp/target/quarkus-app/*.jar /deployments/
