@@ -221,7 +221,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
           }
         }
 
-        if (minAge != null && maxAge != null) {
+        if (minAge != null) {
+          maxAge = (maxAge != null) ? maxAge : 99;
           return Optional.of(new int[]{minAge, maxAge});
         }
       }
@@ -248,8 +249,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
     if (age < minAge || (maxAge != 99 && age > maxAge)) {
       String userName = user.getSamlAttributes().getOrDefault("name", username);
-      throw new OneIdentityException(
-          "Spiacente " + userName + ", ma non hai l'età richiesta per accedere al servizio");
+      throw new OneIdentityException(userName + " doesn't have the required age for the service.");
     }
   }
 

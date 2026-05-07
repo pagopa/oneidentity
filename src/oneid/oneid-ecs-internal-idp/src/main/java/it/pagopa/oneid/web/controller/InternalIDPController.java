@@ -164,8 +164,7 @@ public class InternalIDPController {
         // Age verification failed - return failure SAML Response to SP
         return Response.status(Status.OK)
             .entity(error.data("errorMessage",
-                "Spiacente " + idpSession.getUsername() + ", ma non hai l’età richiesta da "
-                    + idpSession.getClientId() + " per accedere al servizio"))
+                "Spiacente " + idpSession.getUsername() + ", ma non hai l’età richiesta per accedere al servizio"))
             .type(MediaType.TEXT_HTML)
             .build();
       }
