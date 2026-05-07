@@ -197,7 +197,7 @@ public class OIDCController {
       authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint, client.getAcsIndex(),
           client.getAttributeIndex(), client.getAuthLevel().getValue(),
           client.isSpidMinors() ? client.getMinAge() : null,
-          client.isSpidMinors() ? client.getMaxAge() : null);
+          client.isSpidMinors() ? (client.getMaxAge() != null ? client.getMaxAge() : 99) : null); // In case maxAge is not set, the upper limit is set to 99 as defined by AGID documentation
     } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
              OneIdentityException e) {
       Log.error("error building authorization request: " + e.getMessage());

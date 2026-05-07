@@ -401,6 +401,71 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void saveClient_withSpidMinorsNoMaxAge_ok() {
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("https://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .minAge(14)
+        .build();
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+        clientRegistrationDTO, "userId", null, null));
+
+    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
+        saved.isSpidMinors()
+            && saved.getMinAge() == 14
+            && saved.getMaxAge() == null
+    ));
+  }
+
+  @Test
+  void saveClient_withSpidMinorsAndMaxAge_ok() {
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("https://test.com")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .minAge(14)
+        .maxAge(18)
+        .build();
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+        clientRegistrationDTO, "userId", null, null));
+
+    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
+        saved.isSpidMinors()
+            && saved.getMinAge() == 14
+            && saved.getMaxAge() == 18
+    ));
+  }
+
+  @Test
   void saveClient_WithPairWiseEnabled_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -749,6 +814,8 @@ class ClientRegistrationServiceImplTest {
             && updated.isSpidMinors()
             && updated.isSpidProfessionals()
             && !updated.isPairwise()
+            && updated.getMinAge() == 14
+            && updated.getMaxAge() == null // maxAge not specified
             && updated.getSecret().equals(secret) // unchanged
             && updated.getSalt().equals(salt) // unchanged
     ));
@@ -837,6 +904,8 @@ class ClientRegistrationServiceImplTest {
             && updated.isSpidMinors()
             && updated.isSpidProfessionals()
             && updated.isPairwise()
+            && updated.getMinAge() == 14
+            && updated.getMaxAge() == null // maxAge not specified
             && updated.getSecret().equals(secret) // unchanged
             && updated.getSalt().equals(salt) // unchanged
     ));
@@ -905,8 +974,80 @@ class ClientRegistrationServiceImplTest {
             && !updated.isSpidProfessionals()
             && !updated.isRequiredSameIdp() // default false
             && !updated.isPairwise() // default false
+            && updated.getMinAge() == 14
+            && updated.getMaxAge() == null // maxAge not specified
             && updated.getSecret().equals("originalSecret") // unchanged
             && updated.getSalt().equals("originalSalt") // unchanged
+    ));
+  }
+
+  @Test
+  void updateClient_withSpidMinorsAndMaxAge_ok() {
+    // given
+    String clientId = "client-123";
+    String userId = "userIdTest";
+    int attributeIndex = 42;
+    long originalIssuedAt = 987654321L;
+    String secret = "originalSecret";
+    String salt = "originalSalt";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret(secret)
+        .salt(salt)
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("Old Name")
+        .callbackURI(Set.of("https://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(attributeIndex)
+        .isActive(true)
+        .clientIdIssuedAt(originalIssuedAt)
+        .logoUri("oldLogo")
+        .policyUri("oldPolicy")
+        .tosUri("oldTos")
+        .requiredSameIdp(false)
+        .a11yUri("oldA11y")
+        .backButtonEnabled(false)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(false)
+        .spidProfessionals(false)
+        .pairwise(false)
+        .build();
+    when(clientConnectorImpl.getClientById(clientId))
+        .thenReturn(Optional.of(existingClientExtended));
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("newLogo")
+        .policyUri("newPolicy")
+        .tosUri("newTos")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .a11yUri("newA11y")
+        .backButtonEnabled(true)
+        .localizedContentMap(new HashMap<>())
+        .spidMinors(true)
+        .spidProfessionals(false)
+        .minAge(14)
+        .maxAge(18)
+        .pairwise(false)
+        .build();
+
+    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+    // when
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended, null, null));
+
+    // then
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+        updated.getClientId().equals(clientId)
+            && updated.isSpidMinors()
+            && updated.getMinAge() == 14
+            && updated.getMaxAge() == 18
     ));
   }
 
