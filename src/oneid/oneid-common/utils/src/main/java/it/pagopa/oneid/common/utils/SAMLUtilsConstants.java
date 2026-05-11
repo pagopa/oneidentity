@@ -21,5 +21,8 @@ public class SAMLUtilsConstants {
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
   public static String MUNICIPALITY = "H501";
   public static String SPID_AGGREGATOR = "aggregator";
+  public static String LOCAL_NAME_AGE_LIMIT = "AgeLimit";
+  public static String LOCAL_NAME_MIN_AGE = "MinAge";
+  public static String LOCAL_NAME_MAX_AGE = "MaxAge";
   
 }

@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.SAMLUtils;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -48,7 +49,9 @@ import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallingException;
+import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.core.xml.schema.impl.XSAnyImpl;
 import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -56,6 +59,7 @@ import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Extensions;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.NameIDType;
@@ -107,6 +111,33 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
     return createRequestedAuthnContext(spidLevel, AuthnContextComparisonTypeEnumeration.MINIMUM);
+  }
+
+  public Extensions buildAgeLimitExtensions(int minAge, int maxAge) {
+    Extensions extensions = buildSAMLObject(Extensions.class);
+
+    XSAny ageLimit = new XSAnyBuilder().buildObject(
+        SAMLUtilsConstants.NAMESPACE_URI_SPID,
+        SAMLUtilsConstants.LOCAL_NAME_AGE_LIMIT,
+        SAMLUtilsConstants.NAMESPACE_PREFIX_SPID);
+
+    XSAny minAgeElement = new XSAnyBuilder().buildObject(
+        SAMLUtilsConstants.NAMESPACE_URI_SPID,
+        SAMLUtilsConstants.LOCAL_NAME_MIN_AGE,
+        SAMLUtilsConstants.NAMESPACE_PREFIX_SPID);
+    minAgeElement.setTextContent(String.valueOf(minAge));
+
+    XSAny maxAgeElement = new XSAnyBuilder().buildObject(
+        SAMLUtilsConstants.NAMESPACE_URI_SPID,
+        SAMLUtilsConstants.LOCAL_NAME_MAX_AGE,
+        SAMLUtilsConstants.NAMESPACE_PREFIX_SPID);
+    maxAgeElement.setTextContent(String.valueOf(maxAge));
+
+    ageLimit.getUnknownXMLObjects().add(minAgeElement);
+    ageLimit.getUnknownXMLObjects().add(maxAgeElement);
+    extensions.getUnknownXMLObjects().add(ageLimit);
+
+    return extensions;
   }
 
   public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {

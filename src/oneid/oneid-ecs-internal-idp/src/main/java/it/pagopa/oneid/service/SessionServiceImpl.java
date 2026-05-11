@@ -23,6 +23,9 @@ public class SessionServiceImpl implements SessionService {
   @Inject
   SessionConnectorImpl sessionConnectorImpl;
 
+  @Inject
+  InternalIDPServiceImpl internalIDPServiceImpl;
+
   @Override
   public void saveIDPSession(AuthnRequest authnRequest, Client client) {
     Log.debug("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
@@ -41,6 +44,13 @@ public class SessionServiceImpl implements SessionService {
         .timestampStart(Instant.now().toEpochMilli())
         .timestampEnd(0)
         .build();
+
+    Optional<int[]> ageLimit = internalIDPServiceImpl.extractAgeLimit(authnRequest);
+    ageLimit.ifPresent(ages -> {
+      idpSession.setMinAge(ages[0]);
+      idpSession.setMaxAge(ages[1]);
+    });
+
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
     Log.debug("End saveIDPSession for authnRequestId: " + authnRequest.getID());
   }

@@ -258,6 +258,24 @@ export const AddOrUpdateUser = () => {
               }}
             />
           </SamlAttributesSelectInput>
+
+          <TextField
+            fullWidth
+            label="Age"
+            type="number"
+            inputProps={{ min: 1, max: 99 }}
+            value={formData?.age ?? ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              setFormData((prev) => ({
+                ...prev,
+                age: val === '' ? undefined : parseInt(val, 10),
+              }));
+            }}
+            margin="normal"
+            error={!!(errorUi as UserErrors)?.age?._errors}
+            helperText={(errorUi as UserErrors)?.age?._errors}
+          />
         </ContentBox>
 
         <Button

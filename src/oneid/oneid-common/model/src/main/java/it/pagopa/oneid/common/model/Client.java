@@ -79,6 +79,8 @@ public class Client {
   private boolean spidMinors;
   private boolean spidProfessionals;
   private boolean pairwise;
+  private Integer minAge;
+  private Integer maxAge;
 
   public record LocalizedContent(@NotEmpty String title, @NotEmpty String description,
                                  String docUri, String supportAddress, String cookieUri) {

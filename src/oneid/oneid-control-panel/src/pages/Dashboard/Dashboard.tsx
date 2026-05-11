@@ -7,17 +7,12 @@ import {
   Select,
   MenuItem,
   FormControl,
-  FormGroup,
   InputLabel,
   OutlinedInput,
   CircularProgress,
   Alert,
   Chip,
   FormHelperText,
-  FormControlLabel,
-  Switch,
-  Link,
-  Divider,
 } from '@mui/material';
 import {
   SpidLevel,
@@ -42,8 +37,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
 import { PageContainer } from '../../components/PageContainer';
 import { ContentBox } from '../../components/ContentBox';
-import FieldWithInfo from '../../components/FieldWithInfo';
-import { tooltipLinkSx } from '../../utils/styles';
+import ToggleSection from '../../components/ToggleSection';
+import TooltipContentWithLink from '../../components/TooltipContent';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 export const Dashboard = () => {
@@ -304,6 +299,9 @@ export const Dashboard = () => {
     validationIsValid === true ||
     fetchedClientData?.pairwise === true;
 
+  const checkEnableSpidMinors = (): boolean =>
+    !!formData?.spidMinors && !formData?.minAge;
+
   return (
     <PageContainer>
       {fetchError && fetchError.message !== 'Client not found' && (
@@ -463,76 +461,32 @@ export const Dashboard = () => {
             }
           />
 
-          <FormGroup sx={{ mt: 2, mb: 1 }}>
-            <FieldWithInfo
-              tooltipText={
-                <span>
-                  Same IDP is a function that will return a custom request
-                  indicating whether the user has logged in using the same IDP
-                  as the previous time.
-                  <br />
-                  More info can be found{' '}
-                  <Link
-                    href="https://pagopa.atlassian.net/wiki/spaces/OI/pages/1560477700/RFC+OI-004+Check+last+used+IDP+-+OTP"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={tooltipLinkSx}
-                  >
-                    here
-                  </Link>
-                </span>
-              }
-              placement="top"
-            >
-              <FormControlLabel
-                control={
-                  <Switch
-                    sx={{ mr: 2, ml: 1 }}
-                    name="requiredSameIdp"
-                    checked={formData?.requiredSameIdp || false}
-                    onChange={handleChange('requiredSameIdp')}
-                  />
-                }
-                label="Required Same IDP"
+          <ToggleSection
+            name="requiredSameIdp"
+            label="Required Same IDP"
+            checked={formData?.requiredSameIdp || false}
+            onChange={handleChange('requiredSameIdp')}
+            tooltipText={
+              <TooltipContentWithLink
+                text="Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time."
+                infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/1560477700/RFC+OI-004+Check+last+used+IDP+-+OTP"
               />
-            </FieldWithInfo>
-          </FormGroup>
+            }
+          />
 
-          <FormGroup sx={{ mt: 2, mb: 1 }}>
-            <Divider sx={{ mb: 3 }} />
-            <FieldWithInfo
-              tooltipText={
-                <span>
-                  Pairwise pseudonymous is an OIDC object used to replace the
-                  subject identifier. One Identity will leverage on PDV Building
-                  block to calculate or obtain it.
-                  <br />
-                  More info can be found{' '}
-                  <Link
-                    href="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2101936152/OI+-+Integrazione+PDV"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={tooltipLinkSx}
-                  >
-                    here
-                  </Link>
-                </span>
-              }
-              placement="top"
-            >
-              <FormControlLabel
-                control={
-                  <Switch
-                    sx={{ mr: 2, ml: 1 }}
-                    name="pairWise"
-                    checked={formData?.pairwise || false}
-                    onChange={handleChange('pairwise')}
-                  />
-                }
-                label="Pairwise Enabled"
+          <ToggleSection
+            name="pairWise"
+            label="Pairwise Enabled"
+            checked={formData?.pairwise || false}
+            onChange={handleChange('pairwise')}
+            withDivider
+            tooltipText={
+              <TooltipContentWithLink
+                text="Pairwise pseudonymous is an OIDC object used to replace the subject identifier. One Identity will leverage on PDV Building block to calculate or obtain it."
+                infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2101936152/OI+-+Integrazione+PDV"
               />
-            </FieldWithInfo>
-          </FormGroup>
+            }
+          />
           {formData?.pairwise && (
             <Box
               sx={{
@@ -570,6 +524,7 @@ export const Dashboard = () => {
                     <Select
                       labelId="pairwise-select-label"
                       name="pairwiseOption"
+                      required
                       value={pairWiseData?.apiKeyId || ''}
                       label="Plan Name"
                       onChange={(e) =>
@@ -595,6 +550,7 @@ export const Dashboard = () => {
                   </FormControl>
                   <TextField
                     fullWidth
+                    required
                     label="Key value"
                     name="pairwiseValue"
                     value={pairWiseData?.apiKeyValue || ''}
@@ -624,6 +580,84 @@ export const Dashboard = () => {
               )}
             </Box>
           )}
+
+          <ToggleSection
+            name="spidMinors"
+            label="SPID Minors"
+            checked={formData?.spidMinors || false}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData((prev) => ({
+                ...prev,
+                spidMinors: checked,
+                ...(!checked && {
+                  minAge: undefined,
+                  maxAge: undefined,
+                }),
+              }));
+              if (!checked) {
+                // reset minage and maxage errors
+                setErrorUi((prev) => {
+                  if (!prev) return prev;
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { minAge: _, maxAge: __, ...rest } = prev;
+                  return rest as ClientErrors;
+                });
+              }
+            }}
+            withDivider
+            tooltipText={
+              <TooltipContentWithLink
+                text="SPID Minors allows the service to authenticate minor users (under 18). When enabled, you can define an allowed age range for minor authentication."
+                infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2965078170/RFC+OI-016+-+Supporto+SPID+per+minori"
+              />
+            }
+          />
+          {formData?.spidMinors && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 2,
+                mt: 2,
+                width: '100%',
+              }}
+            >
+              <TextField
+                label="Min Age"
+                fullWidth
+                required
+                type="number"
+                inputProps={{ min: 1, max: 99 }}
+                value={formData?.minAge ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    minAge: val === '' ? undefined : parseInt(val, 10),
+                  }));
+                }}
+                error={!!(errorUi as ClientErrors)?.minAge?._errors}
+                helperText={(errorUi as ClientErrors)?.minAge?._errors}
+              />
+              <TextField
+                label="Max Age"
+                fullWidth
+                type="number"
+                inputProps={{ min: 1, max: 99 }}
+                value={formData?.maxAge ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    maxAge: val === '' ? undefined : parseInt(val, 10),
+                  }));
+                }}
+                error={!!(errorUi as ClientErrors)?.maxAge?._errors}
+                helperText={(errorUi as ClientErrors)?.maxAge?._errors}
+              />
+            </Box>
+          )}
         </ContentBox>
 
         <Box>
@@ -635,6 +669,7 @@ export const Dashboard = () => {
             data-testid="submit-button"
             disabled={
               !checkEnableSaveUpdateClientPairwiseBased() ||
+              checkEnableSpidMinors() ||
               isUpdating ||
               !isFormValid()
             }

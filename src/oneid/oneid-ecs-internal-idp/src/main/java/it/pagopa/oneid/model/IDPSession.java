@@ -38,4 +38,8 @@ public class IDPSession {
 
   @NotNull
   private IDPSessionStatus status;
+
+  private Integer minAge;
+
+  private Integer maxAge;
 }

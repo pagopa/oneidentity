@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
+import java.util.Optional;
 import java.util.Set;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
@@ -16,7 +17,15 @@ public interface InternalIDPService {
 
   Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest);
 
+  Optional<int[]> extractAgeLimit(AuthnRequest authnRequest);
+
+  void verifyAge(String clientId, String username, Integer minAge, Integer maxAge)
+      throws OneIdentityException;
+
   Response createSuccessfulSamlResponse(String authnRequestId, String clientId, String username)
+      throws SAMLUtilsException;
+
+  Response createAgeVerificationFailureResponse(String authnRequestId)
       throws SAMLUtilsException;
 
   Element getElementValueFromSamlResponse(Response samlResponse);

@@ -1,3 +1,4 @@
+import isNil from 'lodash/isNil';
 import { z } from 'zod';
 
 export type LoginResponse = {
@@ -151,31 +152,56 @@ const ThemeSchema = z.object({
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 // TODO: check and eventually remove optional from required fields
-export const clientSchema = z.object({
-  userId: z.string().optional(),
-  clientId: z.string().optional(),
-  clientSecret: z.string().nullish(),
-  clientIdIssuedAt: z.number().optional(),
-  clientSecretExpiresAt: z.number().optional(),
-  clientName: z.string().optional(),
-  policyUri: httpsUrlSchema.nullish(),
-  tosUri: httpsUrlSchema.nullish(),
-  redirectUris: z.array(httpsUrlSchema).min(1),
-  samlRequestedAttributes: SamlAttributeArraySchema.min(1),
-  logoUri: httpsUrlSchema.nullish(),
-  defaultAcrValues: SpidLevelArraySchema.min(1),
-  requiredSameIdp: z.boolean().optional(),
-  // feature flags
-  spidMinors: z.boolean().optional(),
-  spidProfessionals: z.boolean().optional(),
-  pairwise: z.boolean().optional(),
-  // customize
-  a11yUri: httpsUrlSchema.nullish(),
-  backButtonEnabled: z.boolean().optional().default(false),
-  localizedContentMap: z
-    .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
-    .nullish(),
-});
+export const clientSchema = z
+  .object({
+    userId: z.string().optional(),
+    clientId: z.string().optional(),
+    clientSecret: z.string().nullish(),
+    clientIdIssuedAt: z.number().optional(),
+    clientSecretExpiresAt: z.number().optional(),
+    clientName: z.string().optional(),
+    policyUri: httpsUrlSchema.nullish(),
+    tosUri: httpsUrlSchema.nullish(),
+    redirectUris: z.array(httpsUrlSchema).min(1),
+    samlRequestedAttributes: SamlAttributeArraySchema.min(1),
+    logoUri: httpsUrlSchema.nullish(),
+    defaultAcrValues: SpidLevelArraySchema.min(1),
+    requiredSameIdp: z.boolean().optional(),
+    // feature flags
+    spidMinors: z.boolean().optional(),
+    minAge: z.number().int().min(1).max(99).nullish(),
+    maxAge: z.number().int().min(1).max(99).nullish(),
+    spidProfessionals: z.boolean().optional(),
+    pairwise: z.boolean().optional(),
+    // customize
+    a11yUri: httpsUrlSchema.nullish(),
+    backButtonEnabled: z.boolean().optional().default(false),
+    localizedContentMap: z
+      .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+      .nullish(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.spidMinors) {
+      if (isNil(data.minAge)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Min Age is required when SPID Minors is enabled',
+          path: ['minAge'],
+        });
+      }
+      if (
+        !isNil(data.maxAge) &&
+        !isNil(data.minAge) &&
+        data.maxAge < data.minAge
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Max Age must be greater than or equal to Min Age',
+          path: ['maxAge'],
+        });
+      }
+    }
+  });
 
 export const planSchema = z.object({
   id: z.string().trim().min(1),
@@ -203,6 +229,7 @@ export const idpUserSchema = z.object({
   username: z.string().trim().min(1),
   password: z.string().trim().min(1),
   samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
+  age: z.number().int().min(1).max(99).optional(),
 });
 export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),
