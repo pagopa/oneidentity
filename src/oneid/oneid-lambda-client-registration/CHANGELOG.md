@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.3.0
+
+### Minor Changes
+
+- 6d0665a: implement support for spid minors
+
 ## 2.2.0
 
 ### Minor Changes
