@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.1.0
+
+### Minor Changes
+
+- 6d0665a: implement support for spid minors
+
 ## 1.0.4
 
 ### Patch Changes

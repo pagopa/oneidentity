@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.4.0
+
+### Minor Changes
+
+- 6d0665a: implement support for spid minors
+
 ## 1.3.0
 
 ### Minor Changes

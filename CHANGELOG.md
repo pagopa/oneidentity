@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.11.0
+
+### Minor Changes
+
+- 6d0665a: implement support for spid minors
+
 ## 4.10.0
 
 ### Minor Changes
