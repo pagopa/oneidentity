@@ -1,5 +1,12 @@
 # oi-control-panel
 
+## 1.6.1
+
+### Patch Changes
+
+- 7472d46: Update lodash
+- fcfe9fb: Update Vite
+
 ## 1.6.0
 
 ### Minor Changes
