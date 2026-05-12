@@ -1483,13 +1483,65 @@
       }
     },
     "/idps": {
+      "options": {
+        "tags": [
+          "IDPs api"
+        ],
+        "operationId": "Options_idps",
+        "description": "CORS preflight request",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "OPTIONS",
+          "uri": "${uri}/idps",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "requestParameters": {
+            "integration.request.header.Access-Control-Request-Headers": "method.request.header.Access-Control-Request-Headers",
+            "integration.request.header.Access-Control-Request-Method": "method.request.header.Access-Control-Request-Method",
+            "integration.request.header.Origin": "method.request.header.Origin"
+          },
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "requestParameters": {}
+            },
+            "204": {
+              "statusCode": "204",
+              "requestParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "requestParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CORS preflight response",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        },
+        "summary": "CORS preflight for /idps endpoint"
+      },
       "get": {
         "tags": [
           "Authorization Server APIs"
         ],
         "operationId": "Get_finAllIdps",
         "x-amazon-apigateway-integration": {
-          "type": "HTTP",
+          "type": "HTTP_PROXY",
           "httpMethod": "GET",
           "uri": "${uri}/idps",
           "connectionType": "VPC_LINK",
@@ -1514,13 +1566,6 @@
         "responses": {
           "200": {
             "description": "Find all Idps",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "content": {
               "application/json": {}
             }
