@@ -2514,11 +2514,11 @@
       "sha256": "JDpkRw_aDoam_d6wr0x6qUJs6E5oy_4Y117l2kt-C5I="
     },
     {
-      "id": "org.apache.logging.log4j:log4j-core:jar:2.25.3",
+      "id": "org.apache.logging.log4j:log4j-core:jar:2.25.4",
       "artifactId": "log4j-core",
       "groupId": "org.apache.logging.log4j",
-      "version": "2.25.3",
-      "sha256": "Nit_y2W3OqRsxLxTq_TrIW9ESoO10aA3y2_f_wrp8Pk="
+      "version": "2.25.4",
+      "sha256": "EP7iwEhdVPpE7nXTFPYpVQj3uTIoGHPbYakbiAcyAOY="
     },
     {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-ssm:jar:2.13.1",
