@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.0.4
+
+### Patch Changes
+
+- fcfe9fb: Update Vite
+
 ## 1.0.3
 
 ### Patch Changes
