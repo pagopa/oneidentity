@@ -1653,6 +1653,13 @@
       "sha256": "xgDRrmG1sP8TkeAOtvs5AgHkYSw6ry3BuUBQyHhIQL4="
     },
     {
+      "id": "org.bouncycastle:bcprov-jdk18on:jar:1.78.1",
+      "artifactId": "bcprov-jdk18on",
+      "groupId": "org.bouncycastle",
+      "version": "1.78.1",
+      "sha256": "rdWRXmrPxqtYNuH9il4hxkiFNqjB8h84bus78oC3Atc="
+    },
+    {
       "id": "org.opensaml:opensaml-soap-api:jar:4.3.0",
       "artifactId": "opensaml-soap-api",
       "groupId": "org.opensaml",
@@ -1856,18 +1863,11 @@
       "sha256": "lguXimzWy8MxlkitxzlZeJ9nQqK_Ho3QyEPbyRYkIYo="
     },
     {
-      "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.79",
+      "id": "org.bouncycastle:bcpkix-jdk18on:jar:1.84",
       "artifactId": "bcpkix-jdk18on",
       "groupId": "org.bouncycastle",
-      "version": "1.79",
-      "sha256": "NjmiTd-bpLfroGWbRHcOkeuoFkIYiOVx8oWq3v5TLNY="
-    },
-    {
-      "id": "org.bouncycastle:bcprov-jdk18on:jar:1.78.1",
-      "artifactId": "bcprov-jdk18on",
-      "groupId": "org.bouncycastle",
-      "version": "1.78.1",
-      "sha256": "rdWRXmrPxqtYNuH9il4hxkiFNqjB8h84bus78oC3Atc="
+      "version": "1.84",
+      "sha256": "yH8W7Z5exhvJQVHp82RqxE5QzUSBIc6ENn-kt-x-wbs="
     },
     {
       "id": "org.bouncycastle:bcutil-jdk18on:jar:1.78.1",
