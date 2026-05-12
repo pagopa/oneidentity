@@ -17,8 +17,8 @@ def lambda_handler(event, context):
 
     # Parse certificate
     cert = x509.load_pem_x509_certificate(cert_pem, default_backend())
-    expiry_date = cert.not_valid_after
-    days_left = (expiry_date - datetime.datetime.utcnow()).days
+    expiry_date = cert.not_valid_after_utc
+    days_left = (expiry_date - datetime.datetime.now(datetime.timezone.utc)).days
 
     if days_left <= 15:
         message = f"The OneIdentity's certificate '{param['Parameter']['Name']}' expires in {days_left} days on {expiry_date}."
