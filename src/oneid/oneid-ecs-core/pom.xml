@@ -276,7 +276,9 @@
         <profile>
             <id>depcheck</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!skipDepcheck</name>
+                </property>
             </activation>
             <build>
                 <plugins>

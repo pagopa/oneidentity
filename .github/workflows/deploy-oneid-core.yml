@@ -107,7 +107,9 @@ jobs:
           GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
           GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
         run: |
-          echo "<settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>" >> src/oneid/settings.xml
+          cat <<EOF > "$RUNNER_TEMP/maven-settings.xml"
+          <settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>
+          EOF
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -115,7 +117,7 @@ jobs:
         with:
           context: ./src/oneid/
           secret-files: |
-            maven_settings=src/oneid/settings.xml
+            maven_settings=${{ runner.temp }}/maven-settings.xml
 
           provenance: false
           push: true
