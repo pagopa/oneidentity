@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.1.4
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.1.3
 
 ### Patch Changes

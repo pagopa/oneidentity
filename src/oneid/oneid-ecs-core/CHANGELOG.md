@@ -1,5 +1,16 @@
 # oneid-ecs-core
 
+## 1.5.0
+
+### Minor Changes
+
+- 8d7893e: enable cors for /idps route
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+- a6b0a05: update org.bouncycastle:bcpkix ecs core
+
 ## 1.4.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.3.1
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 2.3.0
 
 ### Minor Changes

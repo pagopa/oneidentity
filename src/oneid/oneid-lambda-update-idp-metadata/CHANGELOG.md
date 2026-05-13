@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.0.4
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.0.3
 
 ### Patch Changes
