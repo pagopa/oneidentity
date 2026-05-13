@@ -1545,9 +1545,7 @@
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.Access-Control-Allow-Origin": "'*'"
-              }
+              "requestParameters": {}
             },
             "404": {
               "statusCode": "404",
