@@ -73,7 +73,8 @@ public class OneIDController {
         : Response.ok(idps);
 
     return responseBuilder
-        .header("Access-Control-Allow-Origin", "*")
+    //TODO: to be removed when CORS will be properly configured in API Gateway
+        .header("Access-Control-Allow-Origin", "http://localhost:9999")
         .build();
   }
 
