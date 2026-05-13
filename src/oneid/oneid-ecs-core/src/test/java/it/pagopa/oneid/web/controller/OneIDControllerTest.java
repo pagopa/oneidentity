@@ -150,6 +150,7 @@ class OneIDControllerTest {
             .when().get("/idps")
             .then()
             .statusCode(200)
+        .header("Access-Control-Allow-Origin", "*")
             .extract()
             .asString();
 
@@ -171,6 +172,7 @@ class OneIDControllerTest {
             .when().get("/idps")
             .then()
             .statusCode(404)
+        .header("Access-Control-Allow-Origin", "*")
             .extract()
             .asString();
 

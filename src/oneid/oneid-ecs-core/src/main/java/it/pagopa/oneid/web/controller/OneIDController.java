@@ -68,9 +68,13 @@ public class OneIDController {
   public Response findAllIdp() {
     Log.debug("start");
     Optional<ArrayList<IDP>> idps = idpServiceImpl.findAllIdpByTimestamp();
-    return idps.isEmpty() ?
-        Response.status(404).build() :
-        Response.ok(idps).build();
+    Response.ResponseBuilder responseBuilder = idps.isEmpty()
+        ? Response.status(404)
+        : Response.ok(idps);
+
+    return responseBuilder
+        .header("Access-Control-Allow-Origin", "*")
+        .build();
   }
 
 }
