@@ -22,6 +22,7 @@ services:
       dockerfile: docker_mock/oneid-aws-seed/Dockerfile
     volumes:
       - ${PWD}/docker_mock/oneid-aws-seed:/home/aws:ro
+      - oneid-runtime:/runtime
     container_name: oneid-services-seeder
     entrypoint: ["/bin/bash", "/home/aws/oneid-seeder.sh"]
     environment:
@@ -162,13 +163,17 @@ services:
     build:
       context: ./
       dockerfile: docker_mock/dummy_client/Dockerfile
-    env_file: docker_mock/oneid-aws-seed/.env
-    container_name: oneid-dummy-client
     depends_on:
+      oneid-services-seeder:
+        condition: service_completed_successfully
       oneid-ecs-core:
         condition: service_healthy
+    container_name: oneid-dummy-client
+    entrypoint: ["/bin/sh", "-c", "set -a && . /runtime/dummy-client.env && set +a && exec python3 oneid_dummy_client.py"]
     links:
       - oneid-ecs-core
+    volumes:
+      - oneid-runtime:/runtime:ro
     ports:
       - "8084:8084"
     healthcheck:
@@ -180,3 +185,4 @@ services:
 volumes:
   mvncache:
   oneid-fe-node-modules:
+  oneid-runtime:

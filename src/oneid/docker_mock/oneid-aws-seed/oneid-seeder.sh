@@ -15,13 +15,16 @@ readonly SSM_ENDPOINT="http://oneid-aws-local:4566"
 readonly KMS_ENDPOINT="http://oneid-aws-local:4566"
 readonly SEED_ROOT="/home/aws"
 readonly DYNAMODB_SEED_ROOT="$SEED_ROOT/dynamodb"
+readonly DUMMY_CLIENT_ENV_TEMPLATE_FILE="$SEED_ROOT/dummy-client.env.template"
 readonly KMS_SEED_ROOT="$SEED_ROOT/kms"
+readonly RUNTIME_SHARED_ROOT="${RUNTIME_SHARED_ROOT:-/runtime}"
 readonly RUNTIME_SEED_ROOT="$(mktemp -d /tmp/oneid-seeder.XXXXXX)"
 readonly RUNTIME_DYNAMODB_SEED_FILE="$RUNTIME_SEED_ROOT/batchDynamo.runtime.json"
 readonly RUNTIME_CERT_FILE="$RUNTIME_SEED_ROOT/cert.pem"
 readonly RUNTIME_KEY_FILE="$RUNTIME_SEED_ROOT/key.pem"
 readonly RUNTIME_IDP_INTERNAL_CERT_FILE="$RUNTIME_SEED_ROOT/idp_internal_cert.pem"
 readonly RUNTIME_IDP_INTERNAL_KEY_FILE="$RUNTIME_SEED_ROOT/idp_internal_key.pem"
+readonly RUNTIME_DUMMY_CLIENT_ENV_FILE="$RUNTIME_SHARED_ROOT/dummy-client.env"
 readonly IDP_INTERNAL_CERT_PLACEHOLDER="__IDP_INTERNAL_CERTIFICATE_BASE64__"
 
 cleanup() {
@@ -43,11 +46,19 @@ require_seed_file() {
 
 ensure_runtime_dependencies() {
   if command -v openssl >/dev/null 2>&1; then
+    :
+  else
+    echo "❌ [oneid-seeder] openssl is required but not available in the seeder environment"
+    echo "ℹ️ [oneid-seeder] install openssl in the image or provide it in the runtime environment before running the seeder"
+    exit 1
+  fi
+
+  if command -v python3 >/dev/null 2>&1; then
     return
   fi
 
-  echo "❌ [oneid-seeder] openssl is required but not available in the seeder environment"
-  echo "ℹ️ [oneid-seeder] install openssl in the image or provide it in the runtime environment before running the seeder"
+  echo "❌ [oneid-seeder] python3 is required but not available in the seeder environment"
+  echo "ℹ️ [oneid-seeder] install python3 in the image or provide it in the runtime environment before running the seeder"
   exit 1
 }
 
@@ -90,9 +101,8 @@ generate_internal_idp_certificate_pair() {
     "/CN=oneid-internal-idp.local/O=OneIdentity/C=IT"
 }
 
-render_runtime_dynamodb_seed() {
+render_runtime_seed_artifacts() {
   local generated_certificate_base64
-  local escaped_certificate_base64
 
   generated_certificate_base64="$({ openssl x509 -in "$RUNTIME_IDP_INTERNAL_CERT_FILE" -outform DER | base64; } | tr -d '\n')"
 
@@ -101,19 +111,18 @@ render_runtime_dynamodb_seed() {
     exit 1
   fi
 
-  escaped_certificate_base64="${generated_certificate_base64//\/\\}"
-  escaped_certificate_base64="${escaped_certificate_base64//&/\&}"
+  require_seed_file "$DUMMY_CLIENT_ENV_TEMPLATE_FILE"
 
-  if ! grep -q "$IDP_INTERNAL_CERT_PLACEHOLDER" "$DYNAMODB_SEED_ROOT/batchDynamo.json"; then
-    echo "❌ [oneid-seeder] missing certificate placeholder in batchDynamo.json"
-    exit 1
-  fi
-
-  sed "s|$IDP_INTERNAL_CERT_PLACEHOLDER|$escaped_certificate_base64|g" \
-    "$DYNAMODB_SEED_ROOT/batchDynamo.json" > "$RUNTIME_DYNAMODB_SEED_FILE"
+    python3 "$SEED_ROOT/render_runtime_seed.py" \
+    --dynamodb-template "$DYNAMODB_SEED_ROOT/batchDynamo.json" \
+    --dummy-client-template "$DUMMY_CLIENT_ENV_TEMPLATE_FILE" \
+    --output-dynamodb "$RUNTIME_DYNAMODB_SEED_FILE" \
+    --output-dummy-client-env "$RUNTIME_DUMMY_CLIENT_ENV_FILE" \
+    --certificate-base64 "$generated_certificate_base64"
 
   require_seed_file "$RUNTIME_DYNAMODB_SEED_FILE"
-  echo "✅ [oneid-seeder] runtime DynamoDB seed rendered"
+  require_seed_file "$RUNTIME_DUMMY_CLIENT_ENV_FILE"
+  echo "✅ [oneid-seeder] runtime seed artifacts rendered"
 }
 
 ensure_dynamodb_table() {
@@ -231,7 +240,7 @@ main() {
   wait_for_kms
   generate_default_certificate_pair
   generate_internal_idp_certificate_pair
-  render_runtime_dynamodb_seed
+  render_runtime_seed_artifacts
   ensure_sign_jwt_alias
   seed_dynamodb
   seed_ssm

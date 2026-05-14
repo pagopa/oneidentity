@@ -47,18 +47,11 @@ The gateway is the normal browser entry point for the application. It routes:
 
 ### First-Time Setup
 
-#### 1. Prepare the dummy client environment
+#### 1. No manual dummy client secret setup is required
 
-The dummy client reads its environment from `src/oneid/docker_mock/oneid-aws-seed/.env`.
+The dummy client credentials are generated at runtime by `oneid-services-seeder`.
 
-Create it from the example file before starting the local stack:
-
-```shell
-cd src/oneid
-cp docker_mock/oneid-aws-seed/.env.example docker_mock/oneid-aws-seed/.env
-```
-
-The example file contains demo-only values intended for local development.
+The seeder renders a runtime env file for the dummy client from `src/oneid/docker_mock/oneid-aws-seed/dummy-client.env.template`, so you do not need to create or update a checked-in `.env` file before starting the local stack.
 
 #### 2. Optional: configure Maven settings for depcheck-enabled builds
 
@@ -161,11 +154,55 @@ When `oneid-services-seeder` runs, it:
 - waits for local `DynamoDB`, `SSM`, and `KMS` on `oneid-aws-local`
 - generates a fresh local certificate pair for `oneid-ecs-core`
 - generates a fresh local certificate pair for `oneid-ecs-internal-idp`
-- renders runtime DynamoDB seed data by injecting the generated internal IDP certificate into the seed payload
+- generates fresh dummy client secrets and salts for the local seeded clients
+- renders runtime DynamoDB seed data by injecting the generated internal IDP certificate and generated client secret material into the seed payload
+- renders a runtime dummy client env file from `src/oneid/docker_mock/oneid-aws-seed/dummy-client.env.template`
 - ensures a local `KMS` key exists and that alias `alias/sign-jwt` points to it
 - creates DynamoDB tables if they do not already exist
 - inserts demo seed data into local DynamoDB
 - stores generated certificates in local `SSM`
+
+### Validate Seeder Changes
+
+Use these commands from `src/oneid` when you change the local seeder logic.
+
+Run the Bash syntax check:
+
+```shell
+cd src/oneid
+bash -n docker_mock/oneid-aws-seed/oneid-seeder.sh
+```
+
+Run the zero-dependency helper self-check:
+
+```shell
+cd src/oneid
+python3 docker_mock/oneid-aws-seed/render_runtime_seed.py --self-check
+```
+
+Validate the helper in the same container image used by the local stack:
+
+```shell
+cd src/oneid
+docker build -f docker_mock/oneid-aws-seed/Dockerfile -t local/oneid-seeder-validate .
+docker run --rm --entrypoint python3 \
+  -v "$PWD"/docker_mock/oneid-aws-seed:/home/aws:ro \
+  -v /tmp/oneid-runtime-validate:/runtime \
+  local/oneid-seeder-validate \
+  /home/aws/render_runtime_seed.py \
+  --dynamodb-template /home/aws/dynamodb/batchDynamo.json \
+  --dummy-client-template /home/aws/dummy-client.env.template \
+  --output-dynamodb /runtime/batchDynamo.runtime.validation.json \
+  --output-dummy-client-env /runtime/dummy-client.validation.env \
+  --certificate-base64 validation-cert
+```
+
+Validate the Compose wiring after seeder changes:
+
+```shell
+cd src/oneid
+docker compose config >/tmp/oneid-docker-compose.rendered.yaml
+```
 
 The local seeder creates or refreshes these `SSM` parameters:
 
@@ -309,7 +346,7 @@ With the full stack running:
 3. Follow the redirect to the local IDP pages served through the gateway.
 4. Use the demo credentials configured for the local dummy client and internal IDP setup.
 
-The exact demo values come from `src/oneid/docker_mock/oneid-aws-seed/.env` and the seeded DynamoDB data.
+The exact demo values come from the runtime env rendered by the seeder and the seeded DynamoDB data.
 
 ## Event Mode (ECS Autoscaling) 🚀
 

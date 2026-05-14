@@ -10,10 +10,10 @@
             "BOOL": true
           },
           "hashed_client_secret": {
-            "S": "eQCAH3sO2CiN+6MYx/BdfMOH8vhMUN5ySTp0n6vG3Qk"
+            "S": "__CLIENT_1_HASHED_CLIENT_SECRET__"
           },
           "salt": {
-            "S": "wnPIm5bGfbSX5W5LcyScBQ"
+            "S": "__CLIENT_1_SALT__"
           },
           "callbackURI": {
             "SS": ["http://localhost:8080/client/cb"]
@@ -110,10 +110,10 @@
             "BOOL": true
           },
           "hashed_client_secret": {
-            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
+            "S": "__CLIENT_2_HASHED_CLIENT_SECRET__"
           },
           "salt": {
-            "S": "YP1cYg+39af5jm2ZKpnLJw"
+            "S": "__CLIENT_2_SALT__"
           },
           "callbackURI": {
             "SS": ["http://localhost:8080/client/cb"]
@@ -167,10 +167,10 @@
             "BOOL": true
           },
           "hashed_client_secret": {
-            "S": "A8eEY26PgzZAp0J/t/9jCpCOpGC6Jm7TayqLNtCya1w"
+            "S": "__CLIENT_3_HASHED_CLIENT_SECRET__"
           },
           "salt": {
-            "S": "YP1cYg+39af5jm2ZKpnLJw"
+            "S": "__CLIENT_3_SALT__"
           },
           "callbackURI": {
             "SS": ["http://localhost:8080/client/cb"]

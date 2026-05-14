@@ -9,14 +9,9 @@ COPY --chown=quarkus:quarkus ../pom.xml .
 # Maven wrapper files
 COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
-# oneid-common, oneid-ecs-internal-idp and sibling modules needed by workspace pom
+# oneid-common and oneid-ecs-internal-idp
 COPY --chown=quarkus:quarkus ../oneid-common ./oneid-common
-COPY --chown=quarkus:quarkus ../oneid-ecs-core ./oneid-ecs-core
 COPY --chown=quarkus:quarkus ../oneid-ecs-internal-idp ./oneid-ecs-internal-idp
-COPY --chown=quarkus:quarkus ../oneid-lambda-client-registration ./oneid-lambda-client-registration
-COPY --chown=quarkus:quarkus ../oneid-lambda-service-metadata ./oneid-lambda-service-metadata
-COPY --chown=quarkus:quarkus ../oneid-lambda-update-idp-metadata ./oneid-lambda-update-idp-metadata
-COPY --chown=quarkus:quarkus ../oneid-lambda-is-gh-integration ./oneid-lambda-is-gh-integration
 
 USER quarkus
 
@@ -28,26 +23,26 @@ RUN \
   --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
-    ./mvnw verify clean -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
+    ./mvnw -f pom.xml -B verify clean -P oneid-ecs-internal-idp-aggregate -Dmaven.repo.local=/tmp/.build-cache --fail-never -DskipDepcheck=true; \
   else \
     if [ ! -f /run/secrets/maven_settings ]; then \
       echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
       exit 1; \
     fi; \
-    ./mvnw verify clean -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache --fail-never -s /run/secrets/maven_settings; \
+    ./mvnw -f pom.xml -B verify clean -P oneid-ecs-internal-idp-aggregate -Dmaven.repo.local=/tmp/.build-cache --fail-never -s /run/secrets/maven_settings; \
   fi
 
 RUN \
   --mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false,uid=1001,gid=1001,mode=0400 \
   --mount=type=cache,target=/tmp/.build-cache,sharing=locked,uid=1001,gid=1001 \
   if [ "$SKIP_DEPCHECK" = "true" ]; then \
-    ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -DskipDepcheck=true; \
+    ./mvnw -f pom.xml -B package -P oneid-ecs-internal-idp-aggregate -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -DskipDepcheck=true; \
   else \
     if [ ! -f /run/secrets/maven_settings ]; then \
       echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
       exit 1; \
     fi; \
-    ./mvnw -f pom.xml -B package -pl oneid-ecs-internal-idp -am -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -s /run/secrets/maven_settings; \
+    ./mvnw -f pom.xml -B package -P oneid-ecs-internal-idp-aggregate -Dmaven.repo.local=/tmp/.build-cache -Dmaven.test.skip=true -s /run/secrets/maven_settings; \
   fi
 
 
