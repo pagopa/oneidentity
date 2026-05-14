@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.1.1
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # infra
 
+## 2.0.0
+
+### Major Changes
+
+- 8d7893e: enable cors for /idps route
+
 ## 1.9.0
 
 ### Minor Changes
