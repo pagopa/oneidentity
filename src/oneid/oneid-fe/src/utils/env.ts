@@ -49,6 +49,7 @@ export const ENV = {
   FOOTER: {
     LINK: {
       ABOUTUS: import.meta.env.VITE_FOOTER_LINK_ABOUTUS as string,
+      PNRR: import.meta.env.VITE_FOOTER_LINK_PNRR as string,
       MEDIA: import.meta.env.VITE_FOOTER_LINK_MEDIA as string,
       WORKWITHUS: import.meta.env.VITE_FOOTER_LINK_WORKWITHUS as string,
       ACCESSIBILITY: import.meta.env.VITE_FOOTER_LINK_ACCESSIBILITY as string,

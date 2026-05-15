@@ -1096,10 +1096,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@pagopa/mui-italia@^2.4.0-RC.1":
-  version "2.4.0-RC.1"
-  resolved "https://registry.yarnpkg.com/@pagopa/mui-italia/-/mui-italia-2.4.0-RC.1.tgz#6acc87560b432d400186905020b7a3742feda658"
-  integrity sha512-4iz5eF2dSipfhdZqDcXQRD5YcXwD4sONxNUMGSzwD3d+ziBnwmBjpcvxUAJGV727KEkEd2aVHuTlWGFVL99yXA==
+"@pagopa/mui-italia@^2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@pagopa/mui-italia/-/mui-italia-2.4.1.tgz#39d0663a85d9c2d55d5312b98757e9d8da002e1a"
+  integrity sha512-IqT7d6AWzN0xtUTRAEb/u9QGOni2Bkb0BTPPMcdZW/1j8mb9DtMk1imE+pG2XZQfV0zKp0v80L1pnAjkguF4ag==
   dependencies:
     "@fontsource/dm-mono" "^4.5.10"
     "@fontsource/titillium-web" "^4.5.9"
@@ -1991,9 +1991,9 @@ callsites@^3.0.0:
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
 
 caniuse-lite@^1.0.30001663:
-  version "1.0.30001755"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001755.tgz"
-  integrity sha512-44V+Jm6ctPj7R52Na4TLi3Zri4dWUljJd+RDm+j8LtNCc/ihLCT+X1TzoOAkRETEWqjuLnh9581Tl80FvK7jVA==
+  version "1.0.30001792"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001792.tgz"
+  integrity sha512-hVLMUZFgR4JJ6ACt1uEESvQN1/dBVqPAKY0hgrV70eN3391K6juAfTjKZLKvOMsx8PxA7gsY1/tLMMTcfFLLpw==
 
 chai@^5.1.2:
   version "5.2.0"
@@ -4759,6 +4759,8 @@ vite@^5.0.0:
 
 vite@^6.3.5:
   version "6.4.2"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-6.4.2.tgz#a4e548ca3a90ca9f3724582cab35e1ba15efc6f2"
+  integrity sha512-2N/55r4JDJ4gdrCvGgINMy+HH3iRpNIz8K6SFwVsA+JbQScLiC+clmAxBgwiSPgcG9U15QmvqCGWzMbqda5zGQ==
   dependencies:
     esbuild "^0.25.0"
     fdir "^6.4.4"

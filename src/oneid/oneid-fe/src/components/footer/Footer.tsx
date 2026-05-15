@@ -64,6 +64,12 @@ export default function Footer({
           linkType: 'internal',
         },
         {
+          label: t('common.footer.preLoginLinks.aboutUs.links.pnrr'),
+          href: ENV.FOOTER.LINK.PNRR,
+          ariaLabel: 'Vai al link: PNRR',
+          linkType: 'internal',
+        },
+        {
           label: t('common.footer.preLoginLinks.aboutUs.links.media'),
           href: ENV.FOOTER.LINK.MEDIA,
           ariaLabel: 'Vai al link: Media',
@@ -81,13 +87,22 @@ export default function Footer({
     resources: {
       title: t('common.footer.preLoginLinks.resources.title'),
       links: [
-        {
-          label: t('common.footer.preLoginLinks.resources.links.privacyPolicy'),
-          href:
-            clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
-          ariaLabel: 'Vai al link: Informativa Privacy',
-          linkType: 'internal',
-        },
+        // TODO disabled since they are expressed under login buttons
+        // {
+        //   label: t('common.footer.preLoginLinks.resources.links.privacyPolicy'),
+        //   href:
+        //     clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
+        //   ariaLabel: 'Vai al link: Informativa Privacy',
+        //   linkType: 'internal',
+        // },
+        // {
+        //   label: t(
+        //     'common.footer.preLoginLinks.resources.links.termsandconditions'
+        //   ),
+        //   href: clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
+        //   ariaLabel: 'Vai al link: Termini e Condizioni',
+        //   linkType: 'internal',
+        // },
         {
           label: t(
             'common.footer.preLoginLinks.resources.links.certifications'
@@ -117,14 +132,6 @@ export default function Footer({
           // onClick: () => window.OneTrust.ToggleInfoDisplay(),
           href: localizedContent?.cookieUri || ENV.FOOTER.LINK.COOKIE,
           ariaLabel: 'Vai al link: Preferenze Cookie',
-          linkType: 'internal',
-        },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.termsandconditions'
-          ),
-          href: clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
-          ariaLabel: 'Vai al link: Termini e Condizioni',
           linkType: 'internal',
         },
         {

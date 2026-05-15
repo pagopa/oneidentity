@@ -28,6 +28,7 @@ export default {
         aboutUs: {
           links: {
             aboutUs: 'PagoPA S.p.A.',
+            pnrr: 'PNRR',
             media: 'Medien',
             workwithud: 'Karriere',
           },
