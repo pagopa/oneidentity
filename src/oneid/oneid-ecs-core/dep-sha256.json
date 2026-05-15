@@ -2080,13 +2080,6 @@
       "sha256": "3uJ3-B4e3-r9XkNYlEHs30NFAP5KMdA150uObY57_ZE="
     },
     {
-      "id": "io.quarkiverse.quinoa:quarkus-quinoa:jar:2.3.10",
-      "artifactId": "quarkus-quinoa",
-      "groupId": "io.quarkiverse.quinoa",
-      "version": "2.3.10",
-      "sha256": "yENZ18PwfEV9R3VuTVV0C-rsWbabdDYzdJbCu40s_tU="
-    },
-    {
       "id": "io.vertx:vertx-web-client:jar:4.5.7",
       "artifactId": "vertx-web-client",
       "groupId": "io.vertx",
