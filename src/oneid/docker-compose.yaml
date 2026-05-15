@@ -68,7 +68,6 @@ services:
       args:
         ENVIRONMENT: local
         SKIP_DEPCHECK: true
-        IDP_ASSETS_BASE_URL: '/idp/assets'
     container_name: oneid-ecs-internal-idp
     depends_on:
       oneid-services-seeder:
@@ -89,6 +88,7 @@ services:
       IDP_CONSENT_ENDPOINT: "/idp/consent"
       ACS_ENDPOINT: "http://localhost:8080/saml/acs"
       ISSUER: "http://localhost:8080/idp/"
+      IDP_ASSETS_BASE_URL: '/idp/assets'
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8082/q/health >/dev/null || exit 1"]
       interval: 5s
