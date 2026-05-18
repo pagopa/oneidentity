@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.6.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
 ## 1.5.0
 
 ### Minor Changes
