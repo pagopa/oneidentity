@@ -1,6 +1,6 @@
 services:
   oneid-aws-local:
-    image: "ministackorg/ministack:latest"
+    image: "ministackorg/ministack:latest@sha256:3a8d16f02b1842623fe8d0759098886fab4ca78b63280bdad70777ec472570c1"
     ports:
       - "4566:4566"
     container_name: oneid-aws-local
@@ -68,7 +68,6 @@ services:
       args:
         ENVIRONMENT: local
         SKIP_DEPCHECK: true
-        IDP_ASSETS_BASE_URL: '/idp/assets'
     container_name: oneid-ecs-internal-idp
     depends_on:
       oneid-services-seeder:
@@ -89,6 +88,7 @@ services:
       IDP_CONSENT_ENDPOINT: "/idp/consent"
       ACS_ENDPOINT: "http://localhost:8080/saml/acs"
       ISSUER: "http://localhost:8080/idp/"
+      IDP_ASSETS_BASE_URL: '/idp/assets'
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8082/q/health >/dev/null || exit 1"]
       interval: 5s
@@ -96,7 +96,7 @@ services:
       retries: 20
       start_period: 10s
   oneid-fe:
-    image: node:24-alpine
+    image: node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
     container_name: oneid-fe
     working_dir: /app
     command: >-
@@ -118,7 +118,7 @@ services:
       retries: 30
       start_period: 10s
   oneid-gateway:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
     container_name: oneid-gateway
     depends_on:
       oneid-fe:
