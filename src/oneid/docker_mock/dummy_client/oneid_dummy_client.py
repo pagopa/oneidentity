@@ -1,6 +1,6 @@
 # from attr import fields
 from urllib3 import PoolManager
-from urllib.parse import urlencode
+from urllib.parse import quote_plus
 import json
 import base64
 import uuid
@@ -14,6 +14,13 @@ client_secret = os.getenv("client_secret", "")
 authorizer_url = "http://localhost:8080/login"
 redirect_url = "http://localhost:8080/client/cb"
 token_url = "http://oneid-ecs-core:8080/oidc/token"
+
+
+def build_basic_authorization_header(client_identifier: str, secret: str) -> str:
+    encoded_client_identifier = quote_plus(client_identifier)
+    encoded_secret = quote_plus(secret)
+    credentials = f"{encoded_client_identifier}:{encoded_secret}".encode("utf-8")
+    return base64.b64encode(credentials).decode("ascii")
 
 @app.route("/")
 def index():
@@ -40,9 +47,7 @@ def callback():
     state = request.args.get("state")
 
     url = token_url  # + "?" + get_form_data_as_string(form_data)
-    base64string = base64.b64encode(
-        bytes("{}:{}".format(client_id, client_secret), "ascii")
-    )
+    base64string = build_basic_authorization_header(client_id, client_secret)
 
     encoded_body = {
         "grant_type": "AUTHORIZATION_CODE",
@@ -56,7 +61,7 @@ def callback():
         url,
         headers={
             "Accept": "application/json",
-            "Authorization": "Basic {}".format(base64string.decode("utf-8")),
+            "Authorization": "Basic {}".format(base64string),
         },
         fields=encoded_body,
         encode_multipart=False,
