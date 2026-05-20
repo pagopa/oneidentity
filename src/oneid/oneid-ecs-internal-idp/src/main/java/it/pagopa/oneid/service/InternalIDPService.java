@@ -28,6 +28,9 @@ public interface InternalIDPService {
   Response createAgeVerificationFailureResponse(String authnRequestId)
       throws SAMLUtilsException;
 
+  Response createConsentDeniedSamlResponse(String authnRequestId)
+      throws SAMLUtilsException;
+
   Element getElementValueFromSamlResponse(Response samlResponse);
 
   String getStringValue(Element element);

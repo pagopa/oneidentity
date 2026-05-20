@@ -150,7 +150,7 @@ public class InternalIDPController {
         consentRequestDto.getUsername());
 
     return consentRequestDto.isConsent() ? handleConsentGiven(idpSession)
-        : handleConsentDenied(consentRequestDto);
+        : handleConsentDenied(idpSession);
   }
 
   private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
@@ -189,9 +189,21 @@ public class InternalIDPController {
         .build();
   }
 
-  private Response handleConsentDenied(ConsentRequestDTO consentRequestDto) {
-    // TODO: implement the logic to handle the case where consent is denied. If the consent is not given, proceed with the appropriate SAML Response with the corresponding state value to communicate the denying that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
-    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
+  private Response handleConsentDenied(IDPSession idpSession) throws SAMLUtilsException {
+    org.opensaml.saml.saml2.core.Response samlResponse =
+        internalIDPServiceImpl.createConsentDeniedSamlResponse(idpSession.getAuthnRequestId());
+
+    // TODO: common with successful response
+    String encodedSamlResponse = Base64.getEncoder()
+        .encodeToString(internalIDPServiceImpl.getStringValue(
+            internalIDPServiceImpl.getElementValueFromSamlResponse(samlResponse)).getBytes());
+
+    idpSession.setStatus(IDPSessionStatus.DENIED);
+    idpSession.setTimestampEnd(Instant.now().getEpochSecond());
+    sessionServiceImpl.updateIdPSession(idpSession);
+
+    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
+        .type(MediaType.TEXT_HTML)
         .build();
   }
 

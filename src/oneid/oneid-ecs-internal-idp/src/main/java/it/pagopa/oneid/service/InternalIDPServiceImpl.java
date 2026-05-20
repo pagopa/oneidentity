@@ -310,6 +310,44 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     return samlResponse;
   }
 
+  @Override
+  public Response createConsentDeniedSamlResponse(String authnRequestId)
+      throws SAMLUtilsException {
+    // TODO: common with verification age failure response
+    Response samlResponse = buildSAMLObject(Response.class);
+
+    samlResponse.setID(generateSecureRandomId());
+    samlResponse.setVersion(SAMLVersion.VERSION_20);
+    samlResponse.setIssueInstant(Instant.now());
+    samlResponse.setInResponseTo(authnRequestId);
+    samlResponse.setDestination(ACS_ENDPOINT);
+
+    Issuer issuer = buildSAMLObject(Issuer.class);
+    issuer.setValue(ISSUER);
+    issuer.setNameQualifier(ISSUER);
+    issuer.setFormat(NameIDType.ENTITY);
+    samlResponse.setIssuer(issuer);
+
+    Status status = buildSAMLObject(Status.class);
+    StatusCode statusCode = buildSAMLObject(StatusCode.class);
+    statusCode.setValue(StatusCode.RESPONDER);
+    status.setStatusCode(statusCode);
+
+    org.opensaml.saml.saml2.core.StatusMessage statusMessage = buildSAMLObject(
+        org.opensaml.saml.saml2.core.StatusMessage.class);
+    statusMessage.setValue("ERRORCODE_NR22");
+    status.setStatusMessage(statusMessage);
+
+    samlResponse.setStatus(status);
+
+    BasicX509Credential idpX509Credential = getIdpbasicX509Credential(ssmClient);
+    Signature signature = buildSignature(samlResponse, idpX509Credential);
+    samlResponse.setSignature(signature);
+    marshallAndSignResponse(samlResponse, signature);
+
+    return samlResponse;
+  }
+
   public void validateUserInformation(String clientId, String username, String password)
       throws OneIdentityException {
     IDPInternalUser user = internalIDPUsersConnectorImpl
