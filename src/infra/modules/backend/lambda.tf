@@ -1281,3 +1281,102 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 }
 
 
+## Custom Metrics Archiver Lambda 
+
+data "archive_file" "metrics_archiver_lambda_package" {
+  for_each = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+
+  type        = "zip"
+  source_dir  = "${path.module}/../../../oneid/oneid-lambda-metrics-archiver"
+  output_path = "${path.module}/../../dist/metrics-archiver-lambda.zip"
+}
+
+data "aws_iam_policy_document" "metrics_archiver_lambda" {
+  for_each = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${each.value.s3_metrics_archiver_bucket_arn}/*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:Scan"
+    ]
+    resources = [
+      each.value.table_client_registrations_arn,
+      each.value.table_idp_metadata_arn,
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:GetMetricData"
+    ]
+    resources = ["*"]
+  }
+}
+
+module "security_group_metrics_archiver_lambda" {
+  for_each = var.metrics_archiver_lambda != null && var.metrics_archiver_lambda.vpc_id != null ? { metrics_archiver = var.metrics_archiver_lambda } : {}
+
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${each.value.name}-sg"
+  description = "Security Group for Lambda Metrics Archiver"
+
+  vpc_id = each.value.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  egress_prefix_list_ids = [
+    each.value.vpc_endpoint_dynamodb_prefix_id,
+    each.value.vpc_s3_prefix_id,
+  ]
+  egress_rules = ["https-443-tcp"]
+}
+
+resource "aws_vpc_security_group_egress_rule" "metrics_archiver_https_rule" {
+  for_each = var.metrics_archiver_lambda != null && var.metrics_archiver_lambda.vpc_id != null ? { metrics_archiver = var.metrics_archiver_lambda } : {}
+
+  security_group_id            = module.security_group_metrics_archiver_lambda[each.key].security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = each.value.vpc_tls_security_group_endpoint_id
+}
+
+
+module "metrics_archiver_lambda" {
+  for_each               = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+  source                 = "terraform-aws-modules/lambda/aws"
+  version                = "7.4.0"
+  function_name          = each.value.name
+  description            = "Lambda function metrics archiver."
+  runtime                = "python3.12"
+  handler                = "index.lambda_handler"
+  create_package         = false
+  local_existing_package = data.archive_file.metrics_archiver_lambda_package[each.key].output_path
+
+  publish = true
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.metrics_archiver_lambda[each.key].json
+  attach_network_policy = each.value.vpc_id != null
+
+  environment_variables = each.value.environment_variables
+
+  vpc_subnet_ids         = each.value.vpc_id != null ? each.value.vpc_subnet_ids : []
+  vpc_security_group_ids = each.value.vpc_id != null ? [module.security_group_metrics_archiver_lambda[each.key].security_group_id] : []
+
+  memory_size = 1024
+  timeout     = 900
+
+  cloudwatch_logs_retention_in_days = each.value.cloudwatch_logs_retention_in_days
+
+}

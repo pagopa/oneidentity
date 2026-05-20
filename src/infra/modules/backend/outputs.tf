@@ -83,6 +83,10 @@ output "assertion_lambda_arn" {
   value = module.assertion_lambda.lambda_function_arn
 }
 
+output "metrics_archiver_lambda_arn" {
+  value = try(module.metrics_archiver_lambda["metrics_archiver"].lambda_function_arn, null)
+}
+
 
 ## S3 buket for lambda code ##
 output "s3_lambda_code_bucket" {
