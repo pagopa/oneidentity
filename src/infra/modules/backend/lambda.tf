@@ -1365,8 +1365,8 @@ module "metrics_archiver_lambda" {
 
   publish = true
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.metrics_archiver_lambda[each.key].json
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.metrics_archiver_lambda[each.key].json
   attach_network_policy = each.value.vpc_id != null
 
   environment_variables = each.value.environment_variables

@@ -450,24 +450,24 @@ module "backend" {
   }
 
   metrics_archiver_lambda = {
-    name                           = format("%s-metrics-archiver", local.project)
-    s3_metrics_archiver_bucket_arn = module.storage.metrics_archiver_bucket_arn
-    table_client_registrations_arn = module.database.table_client_registrations_arn
-    table_idp_metadata_arn         = module.database.table_idp_metadata_arn
-    vpc_id                         = module.network.vpc_id
-    vpc_subnet_ids                 = module.network.intra_subnets_ids
-    vpc_s3_prefix_id               = module.network.vpc_endpoints["s3"]["prefix_list_id"]
-    vpc_endpoint_dynamodb_prefix_id = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    name                               = format("%s-metrics-archiver", local.project)
+    s3_metrics_archiver_bucket_arn     = module.storage.metrics_archiver_bucket_arn
+    table_client_registrations_arn     = module.database.table_client_registrations_arn
+    table_idp_metadata_arn             = module.database.table_idp_metadata_arn
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_s3_prefix_id                   = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
-      LOG_LEVEL             = var.app_log_level
-      CLOUDWATCH_NAMESPACE  = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
-      EXPORT_ENV            = lookup({ d = "dev", u = "uat", p = "prod" }, var.env_short, var.env_short)
-      S3_BUCKET             = module.storage.metrics_archiver_bucket_name
-      S3_PREFIX             = "cloudwatch-metrics-backfill"
-      MONTHS_BACK           = "15"
-      PERIOD_SECONDS        = "3600"
+      LOG_LEVEL            = var.app_log_level
+      CLOUDWATCH_NAMESPACE = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
+      EXPORT_ENV           = lookup({ d = "dev", u = "uat", p = "prod" }, var.env_short, var.env_short)
+      S3_BUCKET            = module.storage.metrics_archiver_bucket_name
+      S3_PREFIX            = "cloudwatch-metrics-backfill"
+      MONTHS_BACK          = "15"
+      PERIOD_SECONDS       = "3600"
       DIMENSION_SOURCES_JSON = jsonencode({
         ClientAggregated = {
           table_name     = module.database.table_client_registrations_name
