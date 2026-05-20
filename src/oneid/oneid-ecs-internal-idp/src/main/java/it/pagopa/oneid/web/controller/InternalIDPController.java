@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
@@ -176,29 +177,23 @@ public class InternalIDPController {
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
             idpSession.getUsername());
 
-    String encodedSamlResponse = Base64.getEncoder()
-        .encodeToString(internalIDPServiceImpl.getStringValue(
-            internalIDPServiceImpl.getElementValueFromSamlResponse(response)).getBytes());
-
-    idpSession.setStatus(IDPSessionStatus.AUTHENTICATED);
-    idpSession.setTimestampEnd(Instant.now().getEpochSecond());
-    sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
-
-    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
-        .type(MediaType.TEXT_HTML)
-        .build();
+    return buildSamlRedirectResponse(response, idpSession, Optional.of(IDPSessionStatus.AUTHENTICATED));
   }
 
   private Response handleConsentDenied(IDPSession idpSession) throws SAMLUtilsException {
     org.opensaml.saml.saml2.core.Response samlResponse =
         internalIDPServiceImpl.createConsentDeniedSamlResponse(idpSession.getAuthnRequestId());
 
-    // TODO: common with successful response
+    return buildSamlRedirectResponse(samlResponse, idpSession, Optional.of(IDPSessionStatus.DENIED));
+  }
+
+  private Response buildSamlRedirectResponse(org.opensaml.saml.saml2.core.Response samlResponse,
+      IDPSession idpSession, Optional<IDPSessionStatus> status) {
     String encodedSamlResponse = Base64.getEncoder()
         .encodeToString(internalIDPServiceImpl.getStringValue(
             internalIDPServiceImpl.getElementValueFromSamlResponse(samlResponse)).getBytes());
 
-    idpSession.setStatus(IDPSessionStatus.DENIED);
+    status.ifPresent(idpSession::setStatus);
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
     sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 

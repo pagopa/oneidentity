@@ -276,44 +276,17 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @Override
   public Response createAgeVerificationFailureResponse(String authnRequestId)
       throws SAMLUtilsException {
-    Response samlResponse = buildSAMLObject(Response.class);
-
-    samlResponse.setID(generateSecureRandomId());
-    samlResponse.setVersion(SAMLVersion.VERSION_20);
-    samlResponse.setIssueInstant(Instant.now());
-    samlResponse.setInResponseTo(authnRequestId);
-    samlResponse.setDestination(ACS_ENDPOINT);
-
-    Issuer issuer = buildSAMLObject(Issuer.class);
-    issuer.setValue(ISSUER);
-    issuer.setNameQualifier(ISSUER);
-    issuer.setFormat(NameIDType.ENTITY);
-    samlResponse.setIssuer(issuer);
-
-    Status status = buildSAMLObject(Status.class);
-    StatusCode statusCode = buildSAMLObject(StatusCode.class);
-    statusCode.setValue(StatusCode.RESPONDER);
-    status.setStatusCode(statusCode);
-
-    org.opensaml.saml.saml2.core.StatusMessage statusMessage = buildSAMLObject(
-        org.opensaml.saml.saml2.core.StatusMessage.class);
-    statusMessage.setValue("AGE_VERIFICATION_FAILED");
-    status.setStatusMessage(statusMessage);
-
-    samlResponse.setStatus(status);
-
-    BasicX509Credential idpX509Credential = getIdpbasicX509Credential(ssmClient);
-    Signature signature = buildSignature(samlResponse, idpX509Credential);
-    samlResponse.setSignature(signature);
-    marshallAndSignResponse(samlResponse, signature);
-
-    return samlResponse;
+    return buildErrorSamlResponse(authnRequestId, "AGE_VERIFICATION_FAILED");
   }
 
   @Override
   public Response createConsentDeniedSamlResponse(String authnRequestId)
       throws SAMLUtilsException {
-    // TODO: common with verification age failure response
+    return buildErrorSamlResponse(authnRequestId, "ERRORCODE_NR22");
+  }
+
+  private Response buildErrorSamlResponse(String authnRequestId, String statusMessageValue)
+      throws SAMLUtilsException {
     Response samlResponse = buildSAMLObject(Response.class);
 
     samlResponse.setID(generateSecureRandomId());
@@ -333,9 +306,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     statusCode.setValue(StatusCode.RESPONDER);
     status.setStatusCode(statusCode);
 
-    org.opensaml.saml.saml2.core.StatusMessage statusMessage = buildSAMLObject(
-        org.opensaml.saml.saml2.core.StatusMessage.class);
-    statusMessage.setValue("ERRORCODE_NR22");
+    StatusMessage statusMessage = buildSAMLObject(StatusMessage.class);
+    statusMessage.setValue(statusMessageValue);
     status.setStatusMessage(statusMessage);
 
     samlResponse.setStatus(status);
