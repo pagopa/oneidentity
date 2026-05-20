@@ -182,7 +182,7 @@ public class InternalIDPController {
 
     idpSession.setStatus(IDPSessionStatus.AUTHENTICATED);
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
-    sessionServiceImpl.setSessionAsAuthenticated(idpSession);
+    sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
     return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
         .type(MediaType.TEXT_HTML)
@@ -200,7 +200,7 @@ public class InternalIDPController {
 
     idpSession.setStatus(IDPSessionStatus.DENIED);
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
-    sessionServiceImpl.updateIdPSession(idpSession);
+    sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
     return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
         .type(MediaType.TEXT_HTML)
