@@ -1,5 +1,15 @@
 # oneid-ecs-internal-idp
 
+## 1.2.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+### Patch Changes
+
+- 7593252: Fix environment variables flow building container
+
 ## 1.1.1
 
 ### Patch Changes

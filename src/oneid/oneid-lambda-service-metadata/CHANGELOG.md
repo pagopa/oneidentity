@@ -1,5 +1,11 @@
 # oneid-lambda-service-metadata
 
+## 1.1.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
 ## 1.0.5
 
 ### Patch Changes

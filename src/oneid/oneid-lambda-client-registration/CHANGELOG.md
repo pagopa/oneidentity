@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.4.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
 ## 2.3.1
 
 ### Patch Changes
