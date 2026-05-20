@@ -9,6 +9,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.model.IDPInternalUser;
@@ -24,6 +25,11 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Extensions;
+import org.opensaml.saml.saml2.core.Response;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import software.amazon.awssdk.services.ssm.model.Parameter;
+import software.amazon.awssdk.services.ssm.model.SsmException;
 
 @QuarkusTest
 @TestProfile(InternalIDPServiceTestProfile.class)
@@ -34,6 +40,9 @@ class InternalIDPServiceImplTest {
 
   @InjectMock
   InternalIDPUsersConnectorImpl internalIDPUsersConnectorImpl;
+
+  @InjectMock
+  SsmClient ssmClient;
 
   @Test
   void getAuthnRequestFromString() {
@@ -203,5 +212,50 @@ class InternalIDPServiceImplTest {
     //in case of a already existing user with missing age, the method should not throw an exception and allow the flow to continue
     assertDoesNotThrow(
         () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
+  }
+
+  @Test
+  @DisplayName("given_ssm_failure_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_ssmFailure_throwsRuntimeException() {
+    Mockito.when(ssmClient.getParameter(Mockito.any()))
+        .thenThrow(SsmException.builder().message("SSM error").build());
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
+  }
+
+  @Test
+  @DisplayName("given_invalid_certificate_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_invalidCertificate_throwsRuntimeException() {
+    // SSM get not valid certificate
+    GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("not-a-real-cert").build())
+        .build();
+    Mockito.when(ssmClient.getParameter(Mockito.any())).thenReturn(invalidCertResponse);
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
+  }
+
+  @Test
+  @DisplayName("given_cert_ok_but_invalid_key_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_invalidKey_throwsRuntimeException() {
+    //  first getParameter (cert) ok, second getParameter (key) not valid
+    String testCertPem = "-----BEGIN CERTIFICATE-----\n"
+        + "MIIBpDCCAQ2gAwIBAgIUYz1234InvalidTestCertForUnitTests1234567890MA0G"
+        + "CSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGEludGVybmFsSURQVGVzdENlcnQwHhcN\n"
+        + "-----END CERTIFICATE-----";
+    GetParameterResponse certResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value(testCertPem).build())
+        .build();
+    GetParameterResponse invalidKeyResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("not-a-real-key").build())
+        .build();
+    Mockito.when(ssmClient.getParameter(Mockito.any()))
+        .thenReturn(certResponse)
+        .thenReturn(invalidKeyResponse);
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
   }
 }
