@@ -27,6 +27,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Extensions;
 import org.opensaml.saml.saml2.core.Response;
 import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import software.amazon.awssdk.services.ssm.model.Parameter;
 import software.amazon.awssdk.services.ssm.model.SsmException;
@@ -217,7 +218,7 @@ class InternalIDPServiceImplTest {
   @Test
   @DisplayName("given_ssm_failure_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
   void createConsentDeniedSamlResponse_ssmFailure_throwsRuntimeException() {
-    Mockito.when(ssmClient.getParameter(Mockito.any()))
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
         .thenThrow(SsmException.builder().message("SSM error").build());
 
     assertThrows(RuntimeException.class,
@@ -231,7 +232,7 @@ class InternalIDPServiceImplTest {
     GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value("not-a-real-cert").build())
         .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any())).thenReturn(invalidCertResponse);
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class))).thenReturn(invalidCertResponse);
 
     assertThrows(RuntimeException.class,
         () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
@@ -251,7 +252,7 @@ class InternalIDPServiceImplTest {
     GetParameterResponse invalidKeyResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value("not-a-real-key").build())
         .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any()))
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
         .thenReturn(certResponse)
         .thenReturn(invalidKeyResponse);
 
