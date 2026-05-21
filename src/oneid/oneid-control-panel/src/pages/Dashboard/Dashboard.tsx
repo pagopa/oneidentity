@@ -593,14 +593,19 @@ export const Dashboard = () => {
                 ...(!checked && {
                   minAge: undefined,
                   maxAge: undefined,
+                  ageParentAuth: undefined,
                 }),
               }));
               if (!checked) {
-                // reset minage and maxage errors
+                // reset spid minors field errors
                 setErrorUi((prev) => {
                   if (!prev) return prev;
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const { minAge: _, maxAge: __, ...rest } = prev;
+                  const {
+                    minAge: _minAge,
+                    maxAge: _maxAge,
+                    ageParentAuth: _ageParentAuth,
+                    ...rest
+                  } = prev;
                   return rest as ClientErrors;
                 });
               }
@@ -628,7 +633,7 @@ export const Dashboard = () => {
                 fullWidth
                 required
                 type="number"
-                inputProps={{ min: 1, max: 99 }}
+                inputProps={{ min: 5, max: 17 }}
                 value={formData?.minAge ?? ''}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -644,7 +649,7 @@ export const Dashboard = () => {
                 label="Max Age"
                 fullWidth
                 type="number"
-                inputProps={{ min: 1, max: 99 }}
+                inputProps={{ min: 5, max: 999 }}
                 value={formData?.maxAge ?? ''}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -655,6 +660,22 @@ export const Dashboard = () => {
                 }}
                 error={!!(errorUi as ClientErrors)?.maxAge?._errors}
                 helperText={(errorUi as ClientErrors)?.maxAge?._errors}
+              />
+              <TextField
+                label="Age Parent Auth"
+                fullWidth
+                type="number"
+                inputProps={{ min: 6, max: 17 }}
+                value={formData?.ageParentAuth ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    ageParentAuth: val === '' ? undefined : parseInt(val, 10),
+                  }));
+                }}
+                error={!!(errorUi as ClientErrors)?.ageParentAuth?._errors}
+                helperText={(errorUi as ClientErrors)?.ageParentAuth?._errors}
               />
             </Box>
           )}

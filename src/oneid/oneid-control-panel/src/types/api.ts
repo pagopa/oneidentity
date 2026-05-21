@@ -169,8 +169,9 @@ export const clientSchema = z
     requiredSameIdp: z.boolean().optional(),
     // feature flags
     spidMinors: z.boolean().optional(),
-    minAge: z.number().int().min(1).max(99).nullish(),
-    maxAge: z.number().int().min(1).max(99).nullish(),
+    minAge: z.number().int().min(5).max(17).nullish(),
+    maxAge: z.number().int().min(5).max(999).nullish(),
+    ageParentAuth: z.number().int().min(6).max(17).nullish(),
     spidProfessionals: z.boolean().optional(),
     pairwise: z.boolean().optional(),
     // customize
@@ -198,6 +199,17 @@ export const clientSchema = z
           code: z.ZodIssueCode.custom,
           message: 'Max Age must be greater than or equal to Min Age',
           path: ['maxAge'],
+        });
+      }
+      if (
+        !isNil(data.ageParentAuth) &&
+        !isNil(data.minAge) &&
+        data.ageParentAuth <= data.minAge
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Age Parent Auth must be greater than Min Age',
+          path: ['ageParentAuth'],
         });
       }
     }
