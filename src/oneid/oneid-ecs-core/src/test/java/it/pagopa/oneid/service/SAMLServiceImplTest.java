@@ -247,36 +247,21 @@ public class SAMLServiceImplTest {
     String authLevel = "foobar";
 
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null);
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
 
     assertFalse(authnRequest.getID().isEmpty());
   }
 
   @Test
-  void buildAuthnRequest_withAgeLimit() throws OneIdentityException {
-    // given
+  void buildAuthnRequest_noExtensionsInAuthnRequest() throws OneIdentityException {
+    // given - age limits are in SP metadata, not in AuthnRequest
     String idpId = "dummy";
     int assertionConsumerServiceIndex = 0;
     int attributeConsumingServiceIndex = 0;
     String authLevel = "foobar";
 
     AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, 14, 99);
-
-    assertFalse(authnRequest.getID().isEmpty());
-    assertNotNull(authnRequest.getExtensions());
-  }
-
-  @Test
-  void buildAuthnRequest_withoutAgeLimit() throws OneIdentityException {
-    // given
-    String idpId = "dummy";
-    int assertionConsumerServiceIndex = 0;
-    int attributeConsumingServiceIndex = 0;
-    String authLevel = "foobar";
-
-    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null);
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
 
     assertFalse(authnRequest.getID().isEmpty());
     assertNull(authnRequest.getExtensions());
@@ -291,7 +276,7 @@ public class SAMLServiceImplTest {
     String authLevel = "foobar";
 
     assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null));
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
   }
 
   @Test
@@ -303,7 +288,7 @@ public class SAMLServiceImplTest {
     String authLevel = "foobar";
 
     assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null));
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
   }
 
   @Test
@@ -315,7 +300,7 @@ public class SAMLServiceImplTest {
     String authLevel = "foobar";
 
     assertThrows(OneIdentityException.class, () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null));
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel));
   }
 
   @Test
@@ -330,7 +315,7 @@ public class SAMLServiceImplTest {
     // then
 
     Executable executable = () -> samlServiceImpl.buildAuthnRequest(idpId,
-        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel, null, null);
+        assertionConsumerServiceIndex, attributeConsumingServiceIndex, authLevel);
     assertThrows(GenericAuthnRequestCreationException.class, executable);
   }
 

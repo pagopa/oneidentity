@@ -81,6 +81,7 @@ public class Client {
   private boolean pairwise;
   private Integer minAge;
   private Integer maxAge;
+  private Integer ageParentAuth;
 
   public record LocalizedContent(@NotEmpty String title, @NotEmpty String description,
                                  String docUri, String supportAddress, String cookieUri) {
