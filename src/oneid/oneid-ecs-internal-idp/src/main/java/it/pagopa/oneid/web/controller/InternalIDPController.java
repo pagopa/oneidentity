@@ -160,12 +160,10 @@ public class InternalIDPController {
     if (idpSession.getMinAge() != null && idpSession.getMaxAge() != null) {
       try {
         internalIDPServiceImpl.verifyAge(idpSession.getClientId(), idpSession.getUsername(),
-            idpSession.getMinAge(), idpSession.getMaxAge());
+            idpSession.getMinAge(), idpSession.getMaxAge(), idpSession.getAgeParentAuth());
       } catch (OneIdentityException e) {
-        // Age verification failed - return failure SAML Response to SP
         return Response.status(Status.OK)
-            .entity(error.data("errorMessage",
-                "Spiacente " + idpSession.getUsername() + ", ma non hai l’età richiesta per accedere al servizio"))
+            .entity(error.data("errorMessage", e.getMessage()))
             .type(MediaType.TEXT_HTML)
             .build();
       }

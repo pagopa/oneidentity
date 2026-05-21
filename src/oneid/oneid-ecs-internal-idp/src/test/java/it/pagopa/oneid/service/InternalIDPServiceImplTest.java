@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,10 +13,8 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.inject.Inject;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.xml.namespace.QName;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -58,52 +55,10 @@ class InternalIDPServiceImplTest {
   }
 
   @Test
-  @DisplayName("given_authnRequest_without_extensions_when_extractAgeLimit_then_empty")
-  void extractAgeLimit_noExtensions() {
-    AuthnRequest authnRequest = Mockito.mock(AuthnRequest.class);
-    Mockito.when(authnRequest.getExtensions()).thenReturn(null);
-
-    Optional<int[]> result = internalIDPServiceImpl.extractAgeLimit(authnRequest);
-
-    assertTrue(result.isEmpty());
-  }
-
-  @Test
-  @DisplayName("given_authnRequest_with_age_limit_extensions_when_extractAgeLimit_then_returns_values")
-  void extractAgeLimit_withAgeLimit() {
-    AuthnRequest authnRequest = Mockito.mock(AuthnRequest.class);
-    Extensions extensions = Mockito.mock(Extensions.class);
-
-    XSAny minAgeElement = Mockito.mock(XSAny.class);
-    Mockito.when(minAgeElement.getElementQName()).thenReturn(
-        new QName(SAMLUtilsConstants.NAMESPACE_URI_SPID, SAMLUtilsConstants.LOCAL_NAME_MIN_AGE));
-    Mockito.when(minAgeElement.getTextContent()).thenReturn("14");
-
-    XSAny maxAgeElement = Mockito.mock(XSAny.class);
-    Mockito.when(maxAgeElement.getElementQName()).thenReturn(
-        new QName(SAMLUtilsConstants.NAMESPACE_URI_SPID, SAMLUtilsConstants.LOCAL_NAME_MAX_AGE));
-    Mockito.when(maxAgeElement.getTextContent()).thenReturn("99");
-
-    XMLObject ageLimitElement = Mockito.mock(XMLObject.class);
-    Mockito.when(ageLimitElement.getElementQName()).thenReturn(
-        new QName(SAMLUtilsConstants.NAMESPACE_URI_SPID, SAMLUtilsConstants.LOCAL_NAME_AGE_LIMIT));
-    Mockito.when(ageLimitElement.getOrderedChildren())
-        .thenReturn(List.of(minAgeElement, maxAgeElement));
-
-    Mockito.when(extensions.getUnknownXMLObjects()).thenReturn(List.of(ageLimitElement));
-    Mockito.when(authnRequest.getExtensions()).thenReturn(extensions);
-
-    Optional<int[]> result = internalIDPServiceImpl.extractAgeLimit(authnRequest);
-
-    assertTrue(result.isPresent());
-    assertArrayEquals(new int[]{14, 99}, result.get());
-  }
-
-  @Test
   @DisplayName("given_null_age_params_when_verifyAge_then_no_exception")
   void verifyAge_nullParams() {
     assertDoesNotThrow(
-        () -> internalIDPServiceImpl.verifyAge("clientId", "username", null, null));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "username", null, null, null));
   }
 
   @Test
@@ -122,7 +77,7 @@ class InternalIDPServiceImplTest {
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, null));
   }
 
   @Test
@@ -141,8 +96,8 @@ class InternalIDPServiceImplTest {
         .thenReturn(Optional.of(user));
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
-    assertTrue(ex.getMessage().contains("Mario"));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, null));
+    assertTrue(ex.getMessage().contains("Spiacente Mario"));
   }
 
   @Test
@@ -161,8 +116,8 @@ class InternalIDPServiceImplTest {
         .thenReturn(Optional.of(user));
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 18));
-    assertTrue(ex.getMessage().contains("Luigi"));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 18, null));
+    assertTrue(ex.getMessage().contains("Spiacente Luigi"));
   }
 
   @Test
@@ -181,7 +136,7 @@ class InternalIDPServiceImplTest {
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, null));
   }
 
   @Test
@@ -192,12 +147,12 @@ class InternalIDPServiceImplTest {
         .thenReturn(Optional.empty());
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, null));
     assertEquals("User not found", ex.getMessage());
   }
 
   @Test
-  @DisplayName("given_user_without_age_when_verifyAge_then_throws")
+  @DisplayName("given_user_without_age_when_verifyAge_then_no_exception")
   void verifyAge_missingAge() {
     IDPInternalUser user = IDPInternalUser.builder()
         .username("testUser")
@@ -210,9 +165,111 @@ class InternalIDPServiceImplTest {
             .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
-    //in case of a already existing user with missing age, the method should not throw an exception and allow the flow to continue
     assertDoesNotThrow(
-        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99));
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, null));
+  }
+
+  @Test
+  @DisplayName("given_user_below_ageParentAuth_when_verifyAge_then_throws")
+  void verifyAge_belowAgeParentAuth() {
+    IDPInternalUser user = IDPInternalUser.builder()
+        .username("testUser")
+        .namespace("clientId")
+        .password("pass")
+        .samlAttributes(Map.of("name", "Mario"))
+        .age(15)
+        .build();
+
+    Mockito.when(internalIDPUsersConnectorImpl
+            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .thenReturn(Optional.of(user));
+
+    OneIdentityException ex = assertThrows(OneIdentityException.class,
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, 16));
+    assertTrue(ex.getMessage().contains("autorizzazione dei genitori"));
+  }
+
+  @Test
+  @DisplayName("given_user_at_or_above_ageParentAuth_when_verifyAge_then_no_exception")
+  void verifyAge_atOrAboveAgeParentAuth() {
+    IDPInternalUser user = IDPInternalUser.builder()
+        .username("testUser")
+        .namespace("clientId")
+        .password("pass")
+        .samlAttributes(Map.of("name", "Mario"))
+        .age(16)
+        .build();
+
+    Mockito.when(internalIDPUsersConnectorImpl
+            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .thenReturn(Optional.of(user));
+
+    assertDoesNotThrow(
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, 16));
+  }
+
+  @Test
+  @DisplayName("given_ageParentAuth_zero_when_verifyAge_then_no_exception")
+  void verifyAge_ageParentAuthZero() {
+    IDPInternalUser user = IDPInternalUser.builder()
+        .username("testUser")
+        .namespace("clientId")
+        .password("pass")
+        .samlAttributes(Map.of("name", "Mario"))
+        .age(15)
+        .build();
+
+    Mockito.when(internalIDPUsersConnectorImpl
+            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .thenReturn(Optional.of(user));
+
+    assertDoesNotThrow(
+        () -> internalIDPServiceImpl.verifyAge("clientId", "testUser", 14, 99, 0));
+  }
+
+  @Test
+  @DisplayName("given_ssm_failure_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_ssmFailure_throwsRuntimeException() {
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+        .thenThrow(SsmException.builder().message("SSM error").build());
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
+  }
+
+  @Test
+  @DisplayName("given_invalid_certificate_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_invalidCertificate_throwsRuntimeException() {
+    // SSM get not valid certificate
+    GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("not-a-real-cert").build())
+        .build();
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class))).thenReturn(invalidCertResponse);
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
+  }
+
+  @Test
+  @DisplayName("given_cert_ok_but_invalid_key_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
+  void createConsentDeniedSamlResponse_invalidKey_throwsRuntimeException() {
+    //  first getParameter (cert) ok, second getParameter (key) not valid
+    String testCertPem = "-----BEGIN CERTIFICATE-----\n"
+        + "MIIBpDCCAQ2gAwIBAgIUYz1234InvalidTestCertForUnitTests1234567890MA0G"
+        + "CSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGEludGVybmFsSURQVGVzdENlcnQwHhcN\n"
+        + "-----END CERTIFICATE-----";
+    GetParameterResponse certResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value(testCertPem).build())
+        .build();
+    GetParameterResponse invalidKeyResponse = GetParameterResponse.builder()
+        .parameter(Parameter.builder().value("not-a-real-key").build())
+        .build();
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+        .thenReturn(certResponse)
+        .thenReturn(invalidKeyResponse);
+
+    assertThrows(RuntimeException.class,
+        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
   }
 
   @Test
