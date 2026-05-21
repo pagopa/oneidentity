@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.2.1
+
+### Patch Changes
+
+- 2031943: internal idp deny redirect
+
 ## 1.2.0
 
 ### Minor Changes
