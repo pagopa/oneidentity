@@ -12,7 +12,7 @@ public interface SessionService {
 
   void saveIDPSession(AuthnRequest authnRequest, Client client) throws OneIdentityException;
 
-  void setSessionAsAuthenticated(IDPSession idpSession);
+  void setSessionAsAuthenticatedOrDenied(IDPSession idpSession);
 
   IDPSession validateAuthnRequestIdStatus(String authnRequestId, String clientId,
       IDPSessionStatus status)

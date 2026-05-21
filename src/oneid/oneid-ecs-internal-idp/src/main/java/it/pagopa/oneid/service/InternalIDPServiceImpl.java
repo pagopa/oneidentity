@@ -276,6 +276,17 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   @Override
   public Response createAgeVerificationFailureResponse(String authnRequestId)
       throws SAMLUtilsException {
+    return buildErrorSamlResponse(authnRequestId, "AGE_VERIFICATION_FAILED");
+  }
+
+  @Override
+  public Response createConsentDeniedSamlResponse(String authnRequestId)
+      throws SAMLUtilsException {
+    return buildErrorSamlResponse(authnRequestId, "ERRORCODE_NR22");
+  }
+
+  private Response buildErrorSamlResponse(String authnRequestId, String statusMessageValue)
+      throws SAMLUtilsException {
     Response samlResponse = buildSAMLObject(Response.class);
 
     samlResponse.setID(generateSecureRandomId());
@@ -295,9 +306,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     statusCode.setValue(StatusCode.RESPONDER);
     status.setStatusCode(statusCode);
 
-    org.opensaml.saml.saml2.core.StatusMessage statusMessage = buildSAMLObject(
-        org.opensaml.saml.saml2.core.StatusMessage.class);
-    statusMessage.setValue("AGE_VERIFICATION_FAILED");
+    StatusMessage statusMessage = buildSAMLObject(StatusMessage.class);
+    statusMessage.setValue(statusMessageValue);
     status.setStatusMessage(statusMessage);
 
     samlResponse.setStatus(status);

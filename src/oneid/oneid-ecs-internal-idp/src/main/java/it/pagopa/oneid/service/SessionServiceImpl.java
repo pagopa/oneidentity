@@ -74,7 +74,7 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public void setSessionAsAuthenticated(IDPSession idpSession) {
+  public void setSessionAsAuthenticatedOrDenied(IDPSession idpSession) {
     sessionConnectorImpl.updateIDPSession(idpSession,
         Optional.of(IDPSessionStatus.CREDENTIALS_VALIDATED));
   }
