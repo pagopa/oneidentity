@@ -156,8 +156,12 @@
     </EntityDescriptor>
     <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
                          xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                         xmlns:spid="https://spid.gov.it/saml-extensions"
                          ID="_5ffda6a72cec0a877ba32f460897b4131ad8b6e090"
                          entityID="https://idp.dev.oneid.pagopa.it">
+    <md:Extensions>
+      <spid:SupportedAgeLimit />
+    </md:Extensions> 
         <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
             <ds:SignedInfo>
                 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
