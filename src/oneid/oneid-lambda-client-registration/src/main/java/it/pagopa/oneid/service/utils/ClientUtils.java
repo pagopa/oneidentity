@@ -42,12 +42,14 @@ public class ClientUtils {
 
     Integer minAge = null;
     Integer maxAge = null;
+    Integer ageParentAuth = null;
     if (spidMinors) {
       if (clientRegistrationDTO.getMinAge() == null) {
         throw new ClientRegistrationServiceException(ErrorCode.CLIENT_SPID_MINORS_ERROR);
       }
       minAge = clientRegistrationDTO.getMinAge();
       maxAge = clientRegistrationDTO.getMaxAge();
+      ageParentAuth = clientRegistrationDTO.getAgeParentAuth();
     }
 
     //clientID, attributeIndex and clientIdIssuedAt are set outside this method
@@ -77,6 +79,7 @@ public class ClientUtils {
             ? clientRegistrationDTO.getRequiredSameIdp() : false)
         .minAge(minAge)
         .maxAge(maxAge)
+        .ageParentAuth(ageParentAuth)
         .build();
   }
 
@@ -99,6 +102,7 @@ public class ClientUtils {
         .localizedContentMap(client.getLocalizedContentMap())
         .minAge(client.getMinAge())
         .maxAge(client.getMaxAge())
+        .ageParentAuth(client.getAgeParentAuth())
         .build();
 
   }

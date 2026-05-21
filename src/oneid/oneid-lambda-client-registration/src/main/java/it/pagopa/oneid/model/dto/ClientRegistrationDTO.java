@@ -8,6 +8,7 @@ import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
+import it.pagopa.oneid.web.validator.annotations.SpidMinorsCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 @AllArgsConstructor
 @RegisterForReflection
 @SuperBuilder
+@SpidMinorsCheck(groups = {Registration.class, UpdateClient.class})
 public class ClientRegistrationDTO {
 
   @NotEmpty(groups = {Registration.class, UpdateClient.class})
@@ -85,6 +87,9 @@ public class ClientRegistrationDTO {
   @JsonProperty("maxAge")
   private Integer maxAge;
 
+  @JsonProperty("ageParentAuth")
+  private Integer ageParentAuth;
+
   public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
@@ -102,5 +107,6 @@ public class ClientRegistrationDTO {
     this.pairwise = clientRegistrationDTO.pairwise;
     this.minAge = clientRegistrationDTO.minAge;
     this.maxAge = clientRegistrationDTO.maxAge;
+    this.ageParentAuth = clientRegistrationDTO.ageParentAuth;
   }
 }
