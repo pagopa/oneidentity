@@ -166,7 +166,35 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         .asBoolean();
     boolean isActiveNew = nodeRecord.get("dynamodb").get("NewImage").get("active").get("BOOL")
         .asBoolean();
-    return isActiveNew != isActiveOld;
+    if (isActiveNew != isActiveOld) {
+      return true;
+    }
+    if (hasDynamoFieldChanged(nodeRecord, "spidMinors", "BOOL")) {
+      return true;
+    }
+    if (hasDynamoFieldChanged(nodeRecord, "minAge", "N")) {
+      return true;
+    }
+    if (hasDynamoFieldChanged(nodeRecord, "maxAge", "N")) {
+      return true;
+    }
+    return hasDynamoFieldChanged(nodeRecord, "ageParentAuth", "N");
+  }
+
+  private boolean hasDynamoFieldChanged(JsonNode nodeRecord, String fieldName, String type) {
+    JsonNode oldImage = nodeRecord.get("dynamodb").get("OldImage");
+    JsonNode newImage = nodeRecord.get("dynamodb").get("NewImage");
+
+    JsonNode oldField = oldImage.get(fieldName);
+    JsonNode newField = newImage.get(fieldName);
+
+    if (oldField == null && newField == null) {
+      return false;
+    }
+    if (oldField == null || newField == null) {
+      return true;
+    }
+    return !Objects.equals(oldField.get(type), newField.get(type));
   }
 
   private void uploadToS3(String objectKey, String content) {
@@ -250,6 +278,17 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     entityDescriptor.getNamespaceManager()
         .registerNamespaceDeclaration(
             new Namespace(idType.getNamespaceUri(), idType.getNamespacePrefix()));
+
+    org.opensaml.saml.saml2.metadata.Extensions entityExtensions =
+        samlUtils.buildEntityExtensions(clientsMap);
+    if (entityExtensions != null) {
+      entityDescriptor.setExtensions(entityExtensions);
+      if (!idType.getNamespacePrefix().equals("spid")) {
+        entityDescriptor.getNamespaceManager()
+            .registerNamespaceDeclaration(
+                new Namespace("https://spid.gov.it/saml-extensions", "spid"));
+      }
+    }
 
     Signature signature = samlUtils.buildSignature(entityDescriptor);
     entityDescriptor.setSignature(signature);
