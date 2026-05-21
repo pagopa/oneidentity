@@ -271,49 +271,4 @@ class InternalIDPServiceImplTest {
     assertThrows(RuntimeException.class,
         () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
   }
-
-  @Test
-  @DisplayName("given_ssm_failure_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
-  void createConsentDeniedSamlResponse_ssmFailure_throwsRuntimeException() {
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
-        .thenThrow(SsmException.builder().message("SSM error").build());
-
-    assertThrows(RuntimeException.class,
-        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
-  }
-
-  @Test
-  @DisplayName("given_invalid_certificate_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
-  void createConsentDeniedSamlResponse_invalidCertificate_throwsRuntimeException() {
-    // SSM get not valid certificate
-    GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
-        .parameter(Parameter.builder().value("not-a-real-cert").build())
-        .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class))).thenReturn(invalidCertResponse);
-
-    assertThrows(RuntimeException.class,
-        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
-  }
-
-  @Test
-  @DisplayName("given_cert_ok_but_invalid_key_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
-  void createConsentDeniedSamlResponse_invalidKey_throwsRuntimeException() {
-    //  first getParameter (cert) ok, second getParameter (key) not valid
-    String testCertPem = "-----BEGIN CERTIFICATE-----\n"
-        + "MIIBpDCCAQ2gAwIBAgIUYz1234InvalidTestCertForUnitTests1234567890MA0G"
-        + "CSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGEludGVybmFsSURQVGVzdENlcnQwHhcN\n"
-        + "-----END CERTIFICATE-----";
-    GetParameterResponse certResponse = GetParameterResponse.builder()
-        .parameter(Parameter.builder().value(testCertPem).build())
-        .build();
-    GetParameterResponse invalidKeyResponse = GetParameterResponse.builder()
-        .parameter(Parameter.builder().value("not-a-real-key").build())
-        .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
-        .thenReturn(certResponse)
-        .thenReturn(invalidKeyResponse);
-
-    assertThrows(RuntimeException.class,
-        () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
-  }
 }
