@@ -157,7 +157,7 @@ public class InternalIDPController {
   private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
 
     // Verify age limit if present in the session
-    if (idpSession.getMinAge() != null && idpSession.getMaxAge() != null) {
+    if (idpSession.getMinAge() != null) {
       try {
         internalIDPServiceImpl.verifyAge(idpSession.getClientId(), idpSession.getUsername(),
             idpSession.getMinAge(), idpSession.getMaxAge(), idpSession.getAgeParentAuth());

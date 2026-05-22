@@ -197,7 +197,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   public void verifyAge(String clientId, String username, Integer minAge, Integer maxAge,
       Integer ageParentAuth)
       throws OneIdentityException {
-    if (minAge == null || maxAge == null) {
+    if (minAge == null) {
       return;
     }
 
@@ -211,7 +211,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
     int age = user.getAge();
 
-    if (age < minAge || (maxAge != 99 && age > maxAge)) {
+    if (age < minAge || (maxAge != 999 && age > maxAge)) {
       String userName = user.getSamlAttributes().getOrDefault("name", username);
       throw new OneIdentityException(
           "Spiacente " + userName + ", non hai l'età richiesta per accedere al servizio.");
