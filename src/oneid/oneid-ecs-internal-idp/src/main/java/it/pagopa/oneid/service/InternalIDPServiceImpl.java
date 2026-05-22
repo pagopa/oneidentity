@@ -200,6 +200,12 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     if (minAge == null) {
       return;
     }
+    if (maxAge == null) {
+      maxAge = 999;
+    }
+    if (ageParentAuth == null) {
+      ageParentAuth = 0;
+    }
 
     IDPInternalUser user = internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace(username, clientId)
@@ -217,7 +223,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
           "Spiacente " + userName + ", non hai l'età richiesta per accedere al servizio.");
     }
 
-    if (ageParentAuth != null && ageParentAuth > 0 && age < ageParentAuth) {
+    if (ageParentAuth > 0 && age < ageParentAuth) {
       String userName = user.getSamlAttributes().getOrDefault("name", username);
       throw new OneIdentityException(
           "Spiacente " + userName + ", è necessaria l'autorizzazione dei genitori per accedere al servizio.");
