@@ -2,11 +2,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import {
   Footer as MuiItaliaFooter,
-  FooterLinksType,
   LangCode,
   PreLoginFooterLinksType,
 } from '@pagopa/mui-italia';
 import { ENV } from '../../utils/env';
+import { getPreLoginFooterLinkDefinitions } from '../../utils/constants';
 import { LANGUAGES, pagoPALink } from './FooterConfig';
 import i18n from '../../locale';
 import { useLoginData } from '../../hooks/useLoginData';
@@ -45,6 +45,11 @@ export default function Footer({
   );
   const localizedContent =
     clientQuery.data?.localizedContentMap?.[themeParam]?.[lang];
+  const preLoginFooterLinkDefinitions = getPreLoginFooterLinkDefinitions({
+    cookieHref: localizedContent?.cookieUri || ENV.FOOTER.LINK.COOKIE,
+    accessibilityHref:
+      clientQuery.data?.a11yUri || ENV.FOOTER.LINK.ACCESSIBILITY,
+  });
 
   useEffect(() => {
     if (lang) {
@@ -56,173 +61,30 @@ export default function Footer({
     // First column
     aboutUs: {
       title: undefined,
-      links: [
-        {
-          label: t('common.footer.preLoginLinks.aboutUs.links.aboutUs'),
-          href: ENV.FOOTER.LINK.ABOUTUS,
-          ariaLabel: 'Vai al link: Chi siamo',
-          linkType: 'internal',
-        },
-        {
-          label: t('common.footer.preLoginLinks.aboutUs.links.pnrr'),
-          href: ENV.FOOTER.LINK.PNRR,
-          ariaLabel: 'Vai al link: PNRR',
-          linkType: 'internal',
-        },
-        {
-          label: t('common.footer.preLoginLinks.aboutUs.links.media'),
-          href: ENV.FOOTER.LINK.MEDIA,
-          ariaLabel: 'Vai al link: Media',
-          linkType: 'internal',
-        },
-        {
-          label: t('common.footer.preLoginLinks.aboutUs.links.workwithud'),
-          href: ENV.FOOTER.LINK.WORKWITHUS,
-          ariaLabel: 'Vai al link: Lavora con noi',
-          linkType: 'internal',
-        },
-      ],
+      links: preLoginFooterLinkDefinitions.aboutUs.map((link) => ({
+        ...link,
+        label: t(link.translationKey),
+      })),
     },
     // Third column
     resources: {
       title: t('common.footer.preLoginLinks.resources.title'),
-      links: [
-        // TODO disabled since they are expressed under login buttons
-        // {
-        //   label: t('common.footer.preLoginLinks.resources.links.privacyPolicy'),
-        //   href:
-        //     clientQuery.data?.policyUri || ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
-        //   ariaLabel: 'Vai al link: Informativa Privacy',
-        //   linkType: 'internal',
-        // },
-        // {
-        //   label: t(
-        //     'common.footer.preLoginLinks.resources.links.termsandconditions'
-        //   ),
-        //   href: clientQuery.data?.tosUri || ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
-        //   ariaLabel: 'Vai al link: Termini e Condizioni',
-        //   linkType: 'internal',
-        // },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.certifications'
-          ),
-          href: ENV.FOOTER.LINK.CERTIFICATIONS,
-          ariaLabel: 'Vai al link: Certificazioni',
-          linkType: 'internal',
-        },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.informationsecurity'
-          ),
-          href: ENV.FOOTER.LINK.INFORMATIONSECURITY,
-          ariaLabel: 'Vai al link: Sicurezza delle informazioni',
-          linkType: 'internal',
-        },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.protectionofpersonaldata'
-          ),
-          href: ENV.FOOTER.LINK.PROTECTIONOFPERSONALDATA,
-          ariaLabel: 'Vai al link: Diritto alla protezione dei dati personali',
-          linkType: 'internal',
-        },
-        {
-          label: t('common.footer.preLoginLinks.resources.links.cookies'),
-          // onClick: () => window.OneTrust.ToggleInfoDisplay(),
-          href: localizedContent?.cookieUri || ENV.FOOTER.LINK.COOKIE,
-          ariaLabel: 'Vai al link: Preferenze Cookie',
-          linkType: 'internal',
-        },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.transparentcompany'
-          ),
-          href: ENV.FOOTER.LINK.TRANSPARENTCOMPANY,
-          ariaLabel: 'Vai al link: Società trasparente',
-          linkType: 'internal',
-        },
-        {
-          label: t(
-            'common.footer.preLoginLinks.resources.links.disclosurePolicy'
-          ),
-          href: ENV.FOOTER.LINK.DISCLOSUREPOLICY,
-          ariaLabel: 'Vai al link: Responsible Disclosure Policy',
-          linkType: 'internal',
-        },
-        {
-          label: t('common.footer.preLoginLinks.resources.links.model231'),
-          href: ENV.FOOTER.LINK.MODEL231,
-          ariaLabel: 'Vai al link: Modello 231',
-          linkType: 'internal',
-        },
-      ],
+      links: preLoginFooterLinkDefinitions.resources.map((link) => ({
+        ...link,
+        label: t(link.translationKey),
+      })),
     },
     // Fourth column
     followUs: {
       title: t('common.footer.preLoginLinks.followUs.title'),
-      socialLinks: [
-        {
-          icon: 'linkedin',
-          title: 'LinkedIn',
-          href: ENV.FOOTER.LINK.LINKEDIN,
-          ariaLabel: 'Link: vai al sito LinkedIn di PagoPA S.p.A.',
-        },
-        {
-          icon: 'instagram',
-          title: 'Instagram',
-          href: ENV.FOOTER.LINK.INSTAGRAM,
-          ariaLabel: 'Link: vai al sito Instagram di PagoPA S.p.A.',
-        },
-        {
-          icon: 'threads',
-          title: 'Threads',
-          href: ENV.FOOTER.LINK.THREADS,
-          ariaLabel: 'Link: vai al sito Threads di PagoPA S.p.A.',
-        },
-        {
-          icon: 'youtube',
-          title: 'YouTube',
-          href: ENV.FOOTER.LINK.YOUTUBE,
-          ariaLabel: 'Link: vai al sito YouTube di PagoPA S.p.A.',
-        },
-      ],
-      links: [
-        {
-          label: t('common.footer.preLoginLinks.accessibility'),
-          href: clientQuery.data?.a11yUri || ENV.FOOTER.LINK.ACCESSIBILITY,
-          ariaLabel: 'Vai al link: Accessibilità',
-          linkType: 'internal',
-        },
-      ],
+      socialLinks: [...preLoginFooterLinkDefinitions.followUsSocial],
+      links: preLoginFooterLinkDefinitions.followUs.map((link) => ({
+        ...link,
+        label: t(link.translationKey),
+      })),
     },
   };
-  const postLoginLinks: Array<FooterLinksType> = [
-    {
-      label: t('common.footer.postLoginLinks.privacyPolicy'),
-      href: ENV.URL_FOOTER.PRIVACY_DISCLAIMER,
-      ariaLabel: 'Vai al link: Informativa Privacy',
-      linkType: 'internal',
-    },
-    {
-      label: t('common.footer.postLoginLinks.protectionofpersonaldata'),
-      href: ENV.FOOTER.LINK.PROTECTIONOFPERSONALDATA,
-      ariaLabel: 'Vai al link: Diritto alla protezione dei dati personali',
-      linkType: 'internal',
-    },
-    {
-      label: t('common.footer.postLoginLinks.termsandconditions'),
-      href: ENV.URL_FOOTER.TERMS_AND_CONDITIONS,
-      ariaLabel: 'Vai al link: Termini e condizioni',
-      linkType: 'internal',
-    },
-    {
-      label: t('common.footer.postLoginLinks.accessibility'),
-      href: ENV.FOOTER.LINK.ACCESSIBILITY,
-      ariaLabel: 'Vai al link: Accessibilità',
-      linkType: 'internal',
-    },
-  ];
+
   const companyLegalInfo = (
     <Trans i18nKey="common.footer.legalInfoText">
       <strong>PagoPA S.p.A.</strong> - Società per azioni con socio unico -
@@ -236,7 +98,7 @@ export default function Footer({
   return (
     <MuiItaliaFooter
       companyLink={pagoPALink}
-      postLoginLinks={postLoginLinks}
+      postLoginLinks={[]}
       preLoginLinks={preLoginLinks}
       legalInfo={companyLegalInfo}
       loggedUser={hidePreFooter}

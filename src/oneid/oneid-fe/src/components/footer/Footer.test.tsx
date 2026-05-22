@@ -3,6 +3,8 @@ import Footer from './Footer';
 import { useLoginData } from '../../hooks/useLoginData';
 import { Mock, vi } from 'vitest';
 import i18n from '../../locale';
+import { ENV } from '../../utils/env';
+import { getPreLoginFooterLinkDefinitions } from '../../utils/constants';
 
 vi.mock('../../hooks/useLoginData');
 vi.mock('../../locale', async () => {
@@ -35,20 +37,20 @@ describe('Footer Component', () => {
   it('renders links correctly', () => {
     render(<Footer />);
 
-    expect(
-      screen.getByLabelText('Vai al link: Informativa Privacy')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        'Vai al link: Diritto alla protezione dei dati personali'
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Vai al link: Termini e Condizioni')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Vai al link: Accessibilità')
-    ).toBeInTheDocument();
+    const preLoginFooterLinkDefinitions = getPreLoginFooterLinkDefinitions({
+      cookieHref: ENV.FOOTER.LINK.COOKIE,
+      accessibilityHref: ENV.FOOTER.LINK.ACCESSIBILITY,
+    });
+    const expectedFooterLinks = [
+      ...preLoginFooterLinkDefinitions.aboutUs,
+      ...preLoginFooterLinkDefinitions.resources,
+      ...preLoginFooterLinkDefinitions.followUsSocial,
+      ...preLoginFooterLinkDefinitions.followUs,
+    ];
+
+    expectedFooterLinks.forEach(({ ariaLabel, href }) => {
+      expect(screen.getByLabelText(ariaLabel)).toHaveAttribute('href', href);
+    });
   });
 
   it('changes language when a new language is selected', async () => {
