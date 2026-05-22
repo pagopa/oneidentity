@@ -580,4 +580,149 @@ describe('Dashboard SPID Minors', () => {
     expect(screen.getByLabelText(/Min Age/i)).toHaveValue(null);
     expect(screen.getByLabelText(/Age Parent Auth/i)).toHaveValue(null);
   });
+
+  it('opens confirm dialog when SPID Minors is toggled on in update mode', async () => {
+    const mockClientApiData = {
+      clientId: 'client-123',
+      clientName: 'Test Client',
+      redirectUris: ['https://example.com/callback'],
+      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      samlRequestedAttributes: ['fiscalNumber'],
+      spidMinors: false,
+      pairwise: false,
+      requiredSameIdp: false,
+    };
+
+    const mockedHookReturn = {
+      clientQuery: {
+        data: mockClientApiData,
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const hookModule = await import('../../hooks/useRegister');
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    // Attendo che il form venga popolato dai dati fetchati
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Client Name/i)).toHaveValue('Test Client');
+    });
+
+    // Abilito SPID Minors
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    // Compilo minAge (obbligatorio quando spidMinors è abilitato)
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '10' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+    fireEvent.click(submitButton);
+
+    // Il dialog di conferma deve apparire
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm changes/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    spy.mockRestore();
+  });
+
+  it('opens confirm dialog when Min Age is changed in update mode', async () => {
+    const mockClientApiData = {
+      clientId: 'client-123',
+      clientName: 'Test Client',
+      redirectUris: ['https://example.com/callback'],
+      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      samlRequestedAttributes: ['fiscalNumber'],
+      spidMinors: true,
+      minAge: 8,
+      pairwise: false,
+      requiredSameIdp: false,
+    };
+
+    const mockedHookReturn = {
+      clientQuery: {
+        data: mockClientApiData,
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const hookModule = await import('../../hooks/useRegister');
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Client Name/i)).toHaveValue('Test Client');
+    });
+
+    // Cambio il valore di Min Age
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '12' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+    fireEvent.click(submitButton);
+
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm changes/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    spy.mockRestore();
+  });
 });

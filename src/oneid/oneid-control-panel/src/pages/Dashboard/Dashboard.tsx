@@ -64,7 +64,7 @@ export const Dashboard = () => {
   const disablingPairWiseDialogContent =
     'Disabling PairWise pseudonymous will stop sharing communication from PDV Building Block and OI.';
   const metadataDialogContent =
-    'Updating SPID Level and SAML Attributes fields may require re-sharing them with the SPID and CIE authorities (AgID and IPZS).';
+    'Updating SPID Level or SAML Attributes or SPID Minors fields may require re-sharing them with the SPID and CIE authorities (AgID and IPZS).';
   const confirmText = 'Please confirm you want to proceed';
   const { setClientId, clientId } = useClientId();
 
@@ -230,7 +230,14 @@ export const Dashboard = () => {
         formData?.samlRequestedAttributes,
         fetchedClientData?.samlRequestedAttributes
       ) ||
-      !isEqual(formData?.defaultAcrValues, fetchedClientData?.defaultAcrValues);
+      !isEqual(
+        formData?.defaultAcrValues,
+        fetchedClientData?.defaultAcrValues
+      ) ||
+      !isEqual(formData?.spidMinors, fetchedClientData?.spidMinors) ||
+      !isEqual(formData?.minAge, fetchedClientData?.minAge) ||
+      !isEqual(formData?.maxAge, fetchedClientData?.maxAge) ||
+      !isEqual(formData?.ageParentAuth, fetchedClientData?.ageParentAuth);
 
     const pairWiseText =
       isPairwiseChanged &&
