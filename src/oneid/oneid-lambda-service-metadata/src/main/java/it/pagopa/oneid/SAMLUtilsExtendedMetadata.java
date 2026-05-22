@@ -241,11 +241,11 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return nameIDFormat;
   }
 
-  public AssertionConsumerService buildAssertionConsumerService() {
+  public AssertionConsumerService buildAssertionConsumerService(int index, boolean isDefault) {
     AssertionConsumerService assertionConsumerService = buildSAMLObject(
         AssertionConsumerService.class);
-    assertionConsumerService.setIndex(0); //TODO make this parametric in case of multiple ACS
-    assertionConsumerService.setIsDefault(true);
+    assertionConsumerService.setIndex(index);
+    assertionConsumerService.setIsDefault(isDefault);
     assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
     assertionConsumerService.setLocation(BASE_PATH + ACS_URL);
 

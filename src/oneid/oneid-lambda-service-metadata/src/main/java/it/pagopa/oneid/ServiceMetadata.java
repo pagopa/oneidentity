@@ -260,13 +260,20 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     SPSSODescriptor spssoDescriptor = samlUtils.buildSPSSODescriptor();
     spssoDescriptor.getKeyDescriptors().add(samlUtils.buildKeyDescriptor());
     spssoDescriptor.getNameIDFormats().add(samlUtils.buildNameIDFormat());
-    spssoDescriptor.getAssertionConsumerServices().add(samlUtils.buildAssertionConsumerService());
     spssoDescriptor.getSingleLogoutServices().add(samlUtils.buildSingleLogoutService());
     spssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 
     Map<String, Client> clientsMap = getClientsMap();
 
+    boolean firstAcs = true;
+    java.util.Set<Integer> addedAcsIndices = new java.util.HashSet<>();
     for (Client client : clientsMap.values()) {
+      int acsIndex = client.getAcsIndex();
+      if (addedAcsIndices.add(acsIndex)) {
+        spssoDescriptor.getAssertionConsumerServices()
+            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs));
+        firstAcs = false;
+      }
       spssoDescriptor.getAttributeConsumingServices()
           .add(samlUtils.buildAttributeConsumingService(client));
     }
