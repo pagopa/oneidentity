@@ -58,8 +58,8 @@ export const erroMap: Record<ERROR_CODE, ErrorData> = {
     haveRetryButton: false,
   },
   [ERROR_CODE.CANCELED_BY_USER]: {
-    title: t('loginError.canceledbyUser.title'),
-    description: t('loginError.canceledbyUser.description'),
+    title: t('loginError.canceledByUser.title'),
+    description: t('loginError.canceledByUser.description'),
     haveRetryButton: true,
   },
   [ERROR_CODE.ID_NOT_SUPPORTED]: GENERIC_ERROR_DATA,
