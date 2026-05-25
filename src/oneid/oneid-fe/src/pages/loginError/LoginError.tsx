@@ -49,7 +49,9 @@ export const LoginError = () => {
     (errorCode: ERROR_CODE) => {
       const { title, description, haveRetryButton } =
         handleErrorCode(errorCode);
-      setErrorData({ title, description, haveRetryButton });
+      // disable retry button if there are no stored OIDC parameters to retry the login flow
+      const canRetry = haveRetryButton && redirectToLoginToRetry() !== null;
+      setErrorData({ title, description, haveRetryButton: canRetry });
       setLoading(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
