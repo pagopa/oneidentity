@@ -12,6 +12,7 @@ import it.pagopa.oneid.exception.InvalidBearerTokenException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import java.text.ParseException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +121,13 @@ public class ClientUtils {
         input.getDefaultAcrValues().stream().findFirst().get());
     if (!authLevel.equals(existingClient.getAuthLevel())) {
       message += "DefaultAcrValues; ";
+    }
+    boolean inputSpidMinors = input.getSpidMinors() != null && input.getSpidMinors();
+    if (inputSpidMinors != existingClient.isSpidMinors()
+        || !Objects.equals(input.getMinAge(), existingClient.getMinAge())
+        || !Objects.equals(input.getMaxAge(), existingClient.getMaxAge())
+        || !Objects.equals(input.getAgeParentAuth(), existingClient.getAgeParentAuth())) {
+      message += "SpidMinors; ";
     }
     if (StringUtils.isNotBlank(message)) {
       return Optional.of(message);
