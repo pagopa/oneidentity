@@ -287,6 +287,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     updatedClientExtended.setClientId(clientExtended.getClientId());
     updatedClientExtended.setUserId(clientExtended.getUserId());
     updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
+    updatedClientExtended.setAcsIndex(clientExtended.getAcsIndex());
     updatedClientExtended.setClientIdIssuedAt(clientExtended.getClientIdIssuedAt());
     clientConnector.updateClientExtended(updatedClientExtended);
   }
