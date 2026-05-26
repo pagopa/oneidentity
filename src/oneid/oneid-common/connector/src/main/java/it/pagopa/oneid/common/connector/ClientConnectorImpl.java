@@ -48,6 +48,7 @@ public class ClientConnectorImpl implements ClientConnector {
         );
 
     if (!clients.isEmpty()) {
+      clients.sort(java.util.Comparator.comparingInt(Client::getAcsIndex));
       return Optional.of(clients);
     }
     Log.debug("table Client is empty");
