@@ -4,7 +4,7 @@ resource "random_integer" "metrics_archiver_bucket_suffix" {
 }
 
 module "s3_metrics_archiver_bucket" {
-  count   = var.create_metrics_archiver_bucket ? 1 : 0
+  count   = var.metrics_archiver_enabled ? 1 : 0
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 

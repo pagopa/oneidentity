@@ -466,6 +466,12 @@ variable "cert_exp_checker_lambda" {
   })
 }
 
+variable "metrics_archiver_enabled" {
+  type        = bool
+  description = "Enable metrics archiver lambda creation."
+  default     = false
+}
+
 variable "metrics_archiver_lambda" {
   type = object({
     name                               = string

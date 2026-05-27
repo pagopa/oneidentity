@@ -1284,7 +1284,7 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 ## Custom Metrics Archiver Lambda 
 
 data "archive_file" "metrics_archiver_lambda_package" {
-  for_each = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+  for_each = local.metrics_archiver_lambda_map
 
   type        = "zip"
   source_dir  = "${path.module}/../../../oneid/oneid-lambda-metrics-archiver"
@@ -1292,7 +1292,7 @@ data "archive_file" "metrics_archiver_lambda_package" {
 }
 
 data "aws_iam_policy_document" "metrics_archiver_lambda" {
-  for_each = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+  for_each = local.metrics_archiver_lambda_map
 
   statement {
     effect    = "Allow"
@@ -1321,7 +1321,7 @@ data "aws_iam_policy_document" "metrics_archiver_lambda" {
 }
 
 module "security_group_metrics_archiver_lambda" {
-  for_each = var.metrics_archiver_lambda != null && var.metrics_archiver_lambda.vpc_id != null ? { metrics_archiver = var.metrics_archiver_lambda } : {}
+  for_each = local.metrics_archiver_lambda_vpc_map
 
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.17.2"
@@ -1342,7 +1342,7 @@ module "security_group_metrics_archiver_lambda" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "metrics_archiver_https_rule" {
-  for_each = var.metrics_archiver_lambda != null && var.metrics_archiver_lambda.vpc_id != null ? { metrics_archiver = var.metrics_archiver_lambda } : {}
+  for_each = local.metrics_archiver_lambda_vpc_map
 
   security_group_id            = module.security_group_metrics_archiver_lambda[each.key].security_group_id
   from_port                    = 443
@@ -1353,7 +1353,7 @@ resource "aws_vpc_security_group_egress_rule" "metrics_archiver_https_rule" {
 
 
 module "metrics_archiver_lambda" {
-  for_each               = var.metrics_archiver_lambda == null ? {} : { metrics_archiver = var.metrics_archiver_lambda }
+  for_each               = local.metrics_archiver_lambda_map
   source                 = "terraform-aws-modules/lambda/aws"
   version                = "7.4.0"
   function_name          = each.value.name

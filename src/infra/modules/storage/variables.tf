@@ -43,23 +43,21 @@ variable "xsw_assertions_bucket" {
   })
 }
 
-variable "create_metrics_archiver_bucket" {
+variable "metrics_archiver_enabled" {
   type        = bool
-  description = "Create metrics archiver bucket."
+  description = "Enable metrics archiver bucket creation."
   default     = false
 }
 
 variable "metrics_archiver_bucket" {
   type = object({
-    name_prefix     = string
-    expiration_days = number
-    mfa_delete      = optional(bool, false)
+    name_prefix = string
+    mfa_delete  = optional(bool, false)
   })
   description = "Metrics archiver bucket configuration."
   default = {
-    name_prefix     = "metrics-archiver"
-    expiration_days = 100
-    mfa_delete      = false
+    name_prefix = "metrics-archiver"
+    mfa_delete  = false
   }
 }
 

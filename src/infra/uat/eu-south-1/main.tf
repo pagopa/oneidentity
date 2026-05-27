@@ -119,10 +119,9 @@ module "storage" {
 
   role_prefix = local.project
 
-  create_metrics_archiver_bucket = true
+  metrics_archiver_enabled = true
   metrics_archiver_bucket = {
-    name_prefix     = "metrics-archiver"
-    expiration_days = 100
+    name_prefix = "metrics-archiver"
   }
 
   assertion_bucket = {
@@ -171,6 +170,8 @@ module "backend" {
 
   role_prefix = local.project
   event_mode  = var.event_mode
+
+  metrics_archiver_enabled = true
 
   ecr_registers = [
     {
