@@ -708,6 +708,12 @@ module "monitoring" {
   api_name                        = module.frontend.api_name
   sessions_table                  = module.database.table_sessions_name
   client_registrations_table      = module.database.table_client_registrations_name
+  metric_stream_enabled           = true
+  metric_stream_resource_prefix   = local.project
+  metric_stream_bucket_arn        = module.storage.metrics_archiver_bucket_arn
+  metric_stream_namespace         = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
+  metric_stream_s3_prefix         = "cloudwatch-metrics-backfill"
+
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn
     arn_suffix              = module.backend.nlb_arn_suffix

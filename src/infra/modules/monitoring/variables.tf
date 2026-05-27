@@ -54,6 +54,47 @@ variable "client_registrations_table" {
   description = "Dynamodb ClientRegistrations table"
 }
 
+variable "metric_stream_enabled" {
+  type        = bool
+  description = "Whether to create the custom metrics stream resources."
+  default     = false
+}
+
+variable "metric_stream_resource_prefix" {
+  type        = string
+  description = "Prefix used for metric stream resource names."
+  default     = null
+}
+
+variable "metric_stream_bucket_arn" {
+  type        = string
+  description = "ARN of the S3 bucket used by the metrics archiver."
+  default     = null
+}
+
+variable "metric_stream_namespace" {
+  type        = string
+  description = "CloudWatch namespace for the custom metrics stream."
+  default     = null
+}
+
+variable "metric_stream_metric_names" {
+  type        = list(string)
+  description = "Custom metric names included in the stream."
+  default = [
+    "ClientSuccess",
+    "ClientError",
+    "IDPSuccess",
+    "IDPError",
+  ]
+}
+
+variable "metric_stream_s3_prefix" {
+  type        = string
+  description = "S3 prefix shared by the metrics archiver lambda and the continuous stream."
+  default     = "cloudwatch-metrics-backfill"
+}
+
 variable "ecs" {
   type = object({
     service_name   = string,

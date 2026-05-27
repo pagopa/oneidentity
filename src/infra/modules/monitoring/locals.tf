@@ -149,4 +149,36 @@ locals {
     }
   )
 
+  metric_stream_env_names = {
+    d = "dev"
+    u = "uat"
+    p = "prod"
+  }
+
+  metric_stream_enabled = var.metric_stream_enabled
+
+  metric_stream_export_env = lookup(local.metric_stream_env_names, var.env_short, var.env_short)
+
+  metric_stream_s3_prefix = trimsuffix(var.metric_stream_s3_prefix, "/")
+
+  metric_stream_name = var.metric_stream_resource_prefix == null ? null : format(
+    "%s-metrics-archiver-stream",
+    var.metric_stream_resource_prefix,
+  )
+
+  metric_stream_firehose_name = var.metric_stream_resource_prefix == null ? null : format(
+    "%s-metrics-archiver-delivery",
+    var.metric_stream_resource_prefix,
+  )
+
+  metric_stream_role_name = var.metric_stream_resource_prefix == null ? null : format(
+    "%s-metrics-archiver-stream-role",
+    var.metric_stream_resource_prefix,
+  )
+
+  metric_stream_firehose_role_name = var.metric_stream_resource_prefix == null ? null : format(
+    "%s-metrics-archiver-firehose-role",
+    var.metric_stream_resource_prefix,
+  )
+
 }
