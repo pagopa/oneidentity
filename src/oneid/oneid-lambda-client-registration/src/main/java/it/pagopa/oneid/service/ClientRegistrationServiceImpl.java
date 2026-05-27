@@ -175,6 +175,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     client.setClientId(new ClientID(32).getValue());
     client.setClientIdIssuedAt(System.currentTimeMillis());
     client.setAttributeIndex(maxAttributeIndex + 1);
+    client.setAcsIndex(maxAttributeIndex + 1);
     Log.debugf("Client converted from ClientRegistrationDTO: %s", client.getClientId());
 
     // 3. Client.Secret & Salt
@@ -246,6 +247,46 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         ).orElse(-1);
   }
 
+  private int resolveAcsIndex(ClientExtended clientExtended) {
+    int currentAcsIndex = clientExtended.getAcsIndex();
+    int attributeIndex = clientExtended.getAttributeIndex();
+
+    if (currentAcsIndex == 0 && isLastClientWithAcsIndexZero(clientExtended.getClientId())) {
+      return 0;
+    }
+    return attributeIndex;
+  }
+
+  private boolean isLastClientWithAcsIndexZero(String clientId) {
+    return clientConnector.findAll()
+        .map(clients -> clients.stream()
+            .filter(c -> c.getAcsIndex() == 0)
+            .allMatch(c -> c.getClientId().equals(clientId)))
+        .orElse(true);
+  }
+
+  private void resolveIndexesOnSpidMinorsEnabled(ClientExtended updatedClientExtended,
+      ClientExtended clientExtended) {
+    if (clientExtended.getAcsIndex() != 0) {
+      updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
+      updatedClientExtended.setAcsIndex(clientExtended.getAcsIndex());
+      return;
+    }
+
+    if (isLastClientWithAcsIndexZero(clientExtended.getClientId())) {
+      updatedClientExtended.setAttributeIndex(0);
+      updatedClientExtended.setAcsIndex(0);
+    } else if (clientExtended.getAttributeIndex() == 0) {
+      int newIndex = findMaxAttributeIndex() + 1;
+      updatedClientExtended.setAttributeIndex(newIndex);
+      updatedClientExtended.setAcsIndex(newIndex);
+    } else {
+      // maintain the same value for both attributeIndex and acsIndex 
+      updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
+      updatedClientExtended.setAcsIndex(clientExtended.getAttributeIndex());
+    }
+  }
+
   @Override
   public ClientExtended getClientExtendedByClientId(String clientId) {
     ClientExtended clientExtended = clientConnector.getClientExtendedById(clientId)
@@ -286,9 +327,15 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         clientExtended.getSalt());
     updatedClientExtended.setClientId(clientExtended.getClientId());
     updatedClientExtended.setUserId(clientExtended.getUserId());
-    updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
-    updatedClientExtended.setAcsIndex(clientExtended.getAcsIndex());
     updatedClientExtended.setClientIdIssuedAt(clientExtended.getClientIdIssuedAt());
+
+    if (!clientExtended.isSpidMinors() && updatedClient.isSpidMinors()) {
+      resolveIndexesOnSpidMinorsEnabled(updatedClientExtended, clientExtended);
+    } else {
+      updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
+      updatedClientExtended.setAcsIndex(resolveAcsIndex(clientExtended));
+    }
+
     clientConnector.updateClientExtended(updatedClientExtended);
   }
 
