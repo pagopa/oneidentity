@@ -12,7 +12,7 @@ module "s3_metrics_archiver_bucket" {
   acl    = "private"
 
   control_object_ownership = true
-  object_ownership         = "BucketOwnerEnforced"
+  object_ownership         = "ObjectWriter"
 
   tags = {
     Name = local.metrics_archiver_bucket
