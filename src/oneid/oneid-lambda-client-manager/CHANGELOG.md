@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.1.2
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
 ## 1.1.1
 
 ### Patch Changes

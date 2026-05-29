@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.4.1
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
 ## 2.4.0
 
 ### Minor Changes
