@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.2.2
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.6.1
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
 ## 1.6.0
 
 ### Minor Changes
