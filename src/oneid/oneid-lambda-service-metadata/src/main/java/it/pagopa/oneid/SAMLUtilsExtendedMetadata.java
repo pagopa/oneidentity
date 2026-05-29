@@ -2,8 +2,13 @@ package it.pagopa.oneid;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.IPA_CODE;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_AGE_LIMIT;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_AGE_PARENT_AUTH;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_ASSERTION_CONSUMER_SERVICE_INDEX;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_FISCAL_CODE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_IPA;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MAX_AGE;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MIN_AGE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_PUBLIC_SERVICE_FULL_OPERATOR;
@@ -11,6 +16,7 @@ import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.LOCAL_NAME_VAT_NUM
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.MUNICIPALITY;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_CIE;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_PREFIX_SPID;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAMESPACE_URI_SPID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.NAME_FORMAT;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_DISPLAY_NAME_XML_LANG;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.ORGANIZATION_NAME_XML_LANG;
@@ -24,6 +30,7 @@ import it.pagopa.oneid.common.utils.SAMLUtils;
 import it.pagopa.oneid.enums.IdType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.util.Map;
 import javax.xml.namespace.QName;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -135,6 +142,52 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return attribute;
   }
 
+  public XSAny buildAgeLimitExtension(int acsIndex, int minAge, int maxAge, int ageParentAuth) {
+    XSAny ageLimit = new XSAnyBuilder().buildObject(
+        NAMESPACE_URI_SPID, LOCAL_NAME_AGE_LIMIT, NAMESPACE_PREFIX_SPID);
+
+    XSAny acsIndexElement = new XSAnyBuilder().buildObject(
+        NAMESPACE_URI_SPID, LOCAL_NAME_ASSERTION_CONSUMER_SERVICE_INDEX, NAMESPACE_PREFIX_SPID);
+    acsIndexElement.setTextContent(String.valueOf(acsIndex));
+
+    XSAny minAgeElement = new XSAnyBuilder().buildObject(
+        NAMESPACE_URI_SPID, LOCAL_NAME_MIN_AGE, NAMESPACE_PREFIX_SPID);
+    minAgeElement.setTextContent(String.valueOf(minAge));
+
+    XSAny maxAgeElement = new XSAnyBuilder().buildObject(
+        NAMESPACE_URI_SPID, LOCAL_NAME_MAX_AGE, NAMESPACE_PREFIX_SPID);
+    maxAgeElement.setTextContent(String.valueOf(maxAge));
+
+    XSAny ageParentAuthElement = new XSAnyBuilder().buildObject(
+        NAMESPACE_URI_SPID, LOCAL_NAME_AGE_PARENT_AUTH, NAMESPACE_PREFIX_SPID);
+    ageParentAuthElement.setTextContent(String.valueOf(ageParentAuth));
+
+    ageLimit.getUnknownXMLObjects().add(acsIndexElement);
+    ageLimit.getUnknownXMLObjects().add(minAgeElement);
+    ageLimit.getUnknownXMLObjects().add(maxAgeElement);
+    ageLimit.getUnknownXMLObjects().add(ageParentAuthElement);
+
+    return ageLimit;
+  }
+
+  public Extensions buildEntityExtensions(Map<String, Client> clientsMap) {
+    Extensions extensions = buildSAMLObject(Extensions.class);
+    boolean hasAgeLimitClients = false;
+
+    for (Client client : clientsMap.values()) {
+      if (client.isSpidMinors()) {
+        int maxAge = client.getMaxAge() != null ? client.getMaxAge() : 999;
+        int ageParentAuth = client.getAgeParentAuth() != null ? client.getAgeParentAuth() : 0;
+        extensions.getUnknownXMLObjects().add(
+            buildAgeLimitExtension(client.getAcsIndex(), client.getMinAge(), maxAge,
+                ageParentAuth));
+        hasAgeLimitClients = true;
+      }
+    }
+
+    return hasAgeLimitClients ? extensions : null;
+  }
+
   public Extensions buildExtensions(String namespacePrefix, String namespaceUri) {
     Extensions extensions = buildSAMLObject(Extensions.class);
 
@@ -188,11 +241,11 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return nameIDFormat;
   }
 
-  public AssertionConsumerService buildAssertionConsumerService() {
+  public AssertionConsumerService buildAssertionConsumerService(int index, boolean isDefault) {
     AssertionConsumerService assertionConsumerService = buildSAMLObject(
         AssertionConsumerService.class);
-    assertionConsumerService.setIndex(0);
-    assertionConsumerService.setIsDefault(true);
+    assertionConsumerService.setIndex(index);
+    assertionConsumerService.setIsDefault(isDefault);
     assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
     assertionConsumerService.setLocation(BASE_PATH + ACS_URL);
 

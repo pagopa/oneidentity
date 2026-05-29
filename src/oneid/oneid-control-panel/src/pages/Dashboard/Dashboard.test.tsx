@@ -467,14 +467,15 @@ describe('Dashboard SPID Minors', () => {
     expect(toggle).not.toBeChecked();
   });
 
-  it('does not show Min Age / Max Age fields when SPID Minors is disabled', () => {
+  it('does not show Min Age / Max Age / Age Parent Auth fields when SPID Minors is disabled', () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
     expect(screen.queryByLabelText(/Min Age/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Max Age/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Age Parent Auth/i)).not.toBeInTheDocument();
   });
 
-  it('shows Min Age and Max Age fields when SPID Minors is enabled', () => {
+  it('shows Min Age, Max Age and Age Parent Auth fields when SPID Minors is enabled', () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
     const toggle = screen.getByLabelText(/SPID Minors/i);
@@ -482,6 +483,7 @@ describe('Dashboard SPID Minors', () => {
 
     expect(screen.getByLabelText(/Min Age/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Max Age/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Age Parent Auth/i)).toBeInTheDocument();
   });
 
   it('disables the submit button when SPID Minors is enabled but Min Age is empty', () => {
@@ -511,7 +513,7 @@ describe('Dashboard SPID Minors', () => {
     await waitFor(() => expect(submitButton).not.toBeDisabled());
   });
 
-  it('hides Min Age and Max Age fields when SPID Minors is toggled off', () => {
+  it('hides all SPID Minors fields when toggle is turned off', () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
     const toggle = screen.getByLabelText(/SPID Minors/i);
@@ -523,6 +525,7 @@ describe('Dashboard SPID Minors', () => {
 
     expect(screen.queryByLabelText(/Min Age/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Max Age/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Age Parent Auth/i)).not.toBeInTheDocument();
   });
 
   it('shows the SPID Minors tooltip with the RFC link', async () => {
@@ -540,5 +543,186 @@ describe('Dashboard SPID Minors', () => {
         )
       ).toBeInTheDocument();
     });
+  });
+
+  it('Age Parent Auth is optional: submit is enabled without it', async () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    fillRequiredFields();
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '10' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+  });
+
+  it('resets values and errors of SPID Minors fields when toggle is turned off and back on', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    fireEvent.change(screen.getByLabelText(/Min Age/i), {
+      target: { value: '10' },
+    });
+    fireEvent.change(screen.getByLabelText(/Age Parent Auth/i), {
+      target: { value: '12' },
+    });
+
+    // toggle off then on
+    fireEvent.click(toggle);
+    fireEvent.click(toggle);
+
+    expect(screen.getByLabelText(/Min Age/i)).toHaveValue(null);
+    expect(screen.getByLabelText(/Age Parent Auth/i)).toHaveValue(null);
+  });
+
+  it('opens confirm dialog when SPID Minors is toggled on in update mode', async () => {
+    const mockClientApiData = {
+      clientId: 'client-123',
+      clientName: 'Test Client',
+      redirectUris: ['https://example.com/callback'],
+      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      samlRequestedAttributes: ['fiscalNumber'],
+      spidMinors: false,
+      pairwise: false,
+      requiredSameIdp: false,
+    };
+
+    const mockedHookReturn = {
+      clientQuery: {
+        data: mockClientApiData,
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const hookModule = await import('../../hooks/useRegister');
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    // Attendo che il form venga popolato dai dati fetchati
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Client Name/i)).toHaveValue('Test Client');
+    });
+
+    // Abilito SPID Minors
+    const toggle = screen.getByLabelText(/SPID Minors/i);
+    fireEvent.click(toggle);
+
+    // Compilo minAge (obbligatorio quando spidMinors è abilitato)
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '10' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+    fireEvent.click(submitButton);
+
+    // Il dialog di conferma deve apparire
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm changes/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    spy.mockRestore();
+  });
+
+  it('opens confirm dialog when Min Age is changed in update mode', async () => {
+    const mockClientApiData = {
+      clientId: 'client-123',
+      clientName: 'Test Client',
+      redirectUris: ['https://example.com/callback'],
+      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      samlRequestedAttributes: ['fiscalNumber'],
+      spidMinors: true,
+      minAge: 8,
+      pairwise: false,
+      requiredSameIdp: false,
+    };
+
+    const mockedHookReturn = {
+      clientQuery: {
+        data: mockClientApiData,
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const hookModule = await import('../../hooks/useRegister');
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Client Name/i)).toHaveValue('Test Client');
+    });
+
+    // Cambio il valore di Min Age
+    const minAgeInput = screen.getByLabelText(/Min Age/i);
+    fireEvent.change(minAgeInput, { target: { value: '12' } });
+
+    const submitButton = screen.getByTestId('submit-button');
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+    fireEvent.click(submitButton);
+
+    const confirmDialog = await screen.findByRole('dialog', {
+      name: /confirm changes/i,
+    });
+    expect(confirmDialog).toBeInTheDocument();
+
+    spy.mockRestore();
   });
 });

@@ -15,7 +15,7 @@ import org.opensaml.saml.saml2.core.Response;
 public interface SAMLService {
 
   AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String spidLevel, Integer minAge, Integer maxAge)
+      int attributeConsumingServiceIndex, String spidLevel)
       throws OneIdentityException;
 
   void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes,

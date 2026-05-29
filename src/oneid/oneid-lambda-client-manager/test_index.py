@@ -138,7 +138,7 @@ class TestUpdateIdpInternalUserAge(unittest.TestCase):
             "httpMethod": "PATCH",
             "path": "/client-manager/client-users/testuser",
             "headers": {"Authorization": "Bearer dummy"},
-            "body": '{"age":18}',
+            "body": '{"samlAttributes":{"name":"Mario"},"age":18}',
             "requestContext": {"stage": "test"},
             "resource": "/client-manager/client-users/{username}",
             "pathParameters": {"username": "testuser"},

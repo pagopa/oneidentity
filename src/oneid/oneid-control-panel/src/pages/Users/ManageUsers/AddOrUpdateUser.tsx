@@ -263,7 +263,7 @@ export const AddOrUpdateUser = () => {
             fullWidth
             label="Age"
             type="number"
-            inputProps={{ min: 1, max: 99 }}
+            inputProps={{ min: 1, max: 999 }}
             value={formData?.age ?? ''}
             onChange={(e) => {
               const val = e.target.value;

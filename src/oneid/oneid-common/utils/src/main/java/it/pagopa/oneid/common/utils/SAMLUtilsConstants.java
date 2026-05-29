@@ -22,7 +22,9 @@ public class SAMLUtilsConstants {
   public static String MUNICIPALITY = "H501";
   public static String SPID_AGGREGATOR = "aggregator";
   public static String LOCAL_NAME_AGE_LIMIT = "AgeLimit";
+  public static String LOCAL_NAME_ASSERTION_CONSUMER_SERVICE_INDEX = "AssertionConsumerServiceIndex";
   public static String LOCAL_NAME_MIN_AGE = "MinAge";
   public static String LOCAL_NAME_MAX_AGE = "MaxAge";
+  public static String LOCAL_NAME_AGE_PARENT_AUTH = "AgeParentAuth";
   
 }

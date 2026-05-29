@@ -36,6 +36,10 @@ export default tseslint.config([
       'functional/immutable-data': 'error',
       '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
       '@typescript-eslint/array-type': ['warn', { default: 'generic' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
   {
