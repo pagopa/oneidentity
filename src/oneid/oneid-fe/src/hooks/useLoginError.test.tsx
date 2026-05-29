@@ -50,8 +50,8 @@ describe('useLoginError', () => {
     {
       errorCode: ERROR_CODE.CANCELED_BY_USER,
       expected: {
-        title: t('loginError.canceledbyUser.title'),
-        description: t('loginError.canceledbyUser.description'),
+        title: t('loginError.canceledByUser.title'),
+        description: t('loginError.canceledByUser.description'),
         haveRetryButton: true,
       },
     },
