@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.0.5
+
+### Patch Changes
+
+- 59d45c8: remove retry button with api call flow
+
 ## 1.0.4
 
 ### Patch Changes
