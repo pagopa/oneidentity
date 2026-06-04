@@ -42,4 +42,6 @@ public class IDPSession {
   private Integer minAge;
 
   private Integer maxAge;
+
+  private Integer ageParentAuth;
 }

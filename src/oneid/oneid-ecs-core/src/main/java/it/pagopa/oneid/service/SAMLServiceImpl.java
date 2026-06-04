@@ -478,21 +478,20 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel, Integer minAge, Integer maxAge)
+      int attributeConsumingServiceIndex, String authLevel)
       throws OneIdentityException {
     return this.buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, "", authLevel, minAge, maxAge);
+        attributeConsumingServiceIndex, "", authLevel);
   }
 
   private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel,
-      Integer minAge, Integer maxAge)
+      int attributeConsumingServiceIndex, String purpose, String authLevel)
       throws OneIdentityException {
     validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex);
 
     AuthnRequest authnRequest = createAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, authLevel, minAge, maxAge);
+        attributeConsumingServiceIndex, authLevel);
     try {
       Signature signature = samlUtils.buildSignature(authnRequest);
       authnRequest.setSignature(signature);
@@ -505,7 +504,7 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private AuthnRequest createAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel, Integer minAge, Integer maxAge) {
+      int attributeConsumingServiceIndex, String authLevel) {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
@@ -516,10 +515,6 @@ public class SAMLServiceImpl implements SAMLService {
     authnRequest.setDestination(idpSSOEndpoint);
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
-
-    if (minAge != null && maxAge != null) {
-      authnRequest.setExtensions(samlUtils.buildAgeLimitExtensions(minAge, maxAge));
-    }
 
     return authnRequest;
   }

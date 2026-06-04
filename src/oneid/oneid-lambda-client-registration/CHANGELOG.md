@@ -1,5 +1,23 @@
 # oneid-lambda-client-registration
 
+## 2.4.1
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
+## 2.4.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+## 2.3.1
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 2.3.0
 
 ### Minor Changes

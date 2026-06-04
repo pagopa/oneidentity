@@ -114,7 +114,7 @@ export default {
       description:
         'La tua identità SPID risulta sospesa o revocata. Per maggiori informazioni, contatta il tuo fornitore di identità SPID.',
     },
-    canceledbyUser: {
+    canceledByUser: {
       title: 'Hai annullato l’accesso',
       description: 'Per entrare, riprova quando vuoi.',
     },

@@ -23,9 +23,6 @@ public class SessionServiceImpl implements SessionService {
   @Inject
   SessionConnectorImpl sessionConnectorImpl;
 
-  @Inject
-  InternalIDPServiceImpl internalIDPServiceImpl;
-
   @Override
   public void saveIDPSession(AuthnRequest authnRequest, Client client) {
     Log.debug("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
@@ -45,11 +42,11 @@ public class SessionServiceImpl implements SessionService {
         .timestampEnd(0)
         .build();
 
-    Optional<int[]> ageLimit = internalIDPServiceImpl.extractAgeLimit(authnRequest);
-    ageLimit.ifPresent(ages -> {
-      idpSession.setMinAge(ages[0]);
-      idpSession.setMaxAge(ages[1]);
-    });
+    if (client.isSpidMinors()) {
+      idpSession.setMinAge(client.getMinAge());
+      idpSession.setMaxAge(client.getMaxAge());
+      idpSession.setAgeParentAuth(client.getAgeParentAuth());
+    }
 
     sessionConnectorImpl.saveIDPSessionIfNotExists(idpSession);
     Log.debug("End saveIDPSession for authnRequestId: " + authnRequest.getID());
@@ -74,7 +71,7 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public void setSessionAsAuthenticated(IDPSession idpSession) {
+  public void setSessionAsAuthenticatedOrDenied(IDPSession idpSession) {
     sessionConnectorImpl.updateIDPSession(idpSession,
         Optional.of(IDPSessionStatus.CREDENTIALS_VALIDATED));
   }

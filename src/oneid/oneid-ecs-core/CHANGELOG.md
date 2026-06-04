@@ -1,5 +1,28 @@
 # oneid-ecs-core
 
+## 1.6.1
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
+## 1.6.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+## 1.5.0
+
+### Minor Changes
+
+- 8d7893e: enable cors for /idps route
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+- a6b0a05: update org.bouncycastle:bcpkix ecs core
+
 ## 1.4.0
 
 ### Minor Changes

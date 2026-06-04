@@ -95,7 +95,7 @@ public class SessionServiceImplTest {
   }
 
   @Test
-  void setSessionAsAuthenticated_success() {
+  void setSessionAsAuthenticated_OrDenied_success() {
     // Given
     IDPSession idpSession = IDPSession.builder()
         .authnRequestId("testAuthnRequestId")
@@ -105,7 +105,7 @@ public class SessionServiceImplTest {
         .build();
 
     // When
-    sessionServiceImpl.setSessionAsAuthenticated(idpSession);
+    sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
     // Then
     Mockito.verify(sessionConnectorImpl, Mockito.times(1))

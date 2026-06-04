@@ -38,11 +38,12 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge) {
+      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      Integer ageParentAuth) {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
         attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
         a11yUri, backButtonEnabled, localizedContentMap, spidMinors, spidProfessionals,
-        pairwise, minAge, maxAge);
+        pairwise, minAge, maxAge, ageParentAuth);
     this.secret = secret;
     this.salt = salt;
   }
@@ -56,7 +57,7 @@ public class ClientExtended extends Client {
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
         client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isSpidMinors(),
         client.isSpidProfessionals(), client.isPairwise(), client.getMinAge(),
-        client.getMaxAge());
+        client.getMaxAge(), client.getAgeParentAuth());
     this.secret = secret;
     this.salt = salt;
   }

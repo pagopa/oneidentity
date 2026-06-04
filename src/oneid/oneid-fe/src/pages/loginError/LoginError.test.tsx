@@ -37,7 +37,7 @@ describe('LoginError Component', () => {
   beforeEach(() => {
     const mockStorage = {
       setItem: vi.fn(),
-      getItem: vi.fn(),
+      getItem: vi.fn().mockReturnValue(null),
       length: 0,
     };
     Object.defineProperty(window, 'location', {
@@ -287,7 +287,7 @@ describe('LoginError Component', () => {
     expect(window.location.assign).toHaveBeenCalledWith(redirectRetryRoute);
   });
 
-  it('should not redirect to login to make retry possible with inconsistent params', () => {
+  it('should not show retry button with inconsistent params in storage', () => {
     const value = '{"scope":"openid","client_id":"client_1"}';
 
     (window.sessionStorage.getItem as Mock).mockReturnValue(value);
@@ -298,12 +298,6 @@ describe('LoginError Component', () => {
       </MemoryRouter>
     );
     const retryButton = screen.queryByRole('button', { name: /retry/i });
-    expect(retryButton).toBeInTheDocument();
-    if (!retryButton) {
-      throw new Error('Retry button not found');
-    }
-    fireEvent.click(retryButton);
-
-    expect(window.location.assign).not.toHaveBeenCalled();
+    expect(retryButton).not.toBeInTheDocument();
   });
 });

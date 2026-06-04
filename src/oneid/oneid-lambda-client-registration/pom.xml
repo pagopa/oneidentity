@@ -97,35 +97,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>it.pagopa.maven</groupId>
-                <artifactId>depcheck</artifactId>
-                <executions>
-                    <execution>
-                        <id>verify-phase</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>generate-phase</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <fileName>dep-sha256.json</fileName>
-                    <addFileName>dep-sha256-man.json</addFileName>
-                    <includePlugins>false</includePlugins>
-                    <includeParent>false</includeParent>
-                    <excludes>
-                        <it.pagopa.oneid.common>connector,model,utils,producer
-                        </it.pagopa.oneid.common>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <executions>
                     <execution>
@@ -186,6 +157,56 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>depcheck</id>
+            <activation>
+                <property>
+                    <name>!skipDepcheck</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>it.pagopa.maven</groupId>
+                        <artifactId>depcheck</artifactId>
+                        <executions>
+                            <execution>
+                                <id>verify-phase</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-phase</id>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <fileName>dep-sha256.json</fileName>
+                            <addFileName>dep-sha256-man.json</addFileName>
+                            <includePlugins>false</includePlugins>
+                            <includeParent>false</includeParent>
+                            <excludes>
+                                <it.pagopa.oneid.common>connector,model,utils,producer
+                                </it.pagopa.oneid.common>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>skip-depcheck</id>
+            <activation>
+                <property>
+                    <name>skipDepcheck</name>
+                    <value>true</value>
+                </property>
+            </activation>
+        </profile>
         <profile>
             <activation>
                 <property>

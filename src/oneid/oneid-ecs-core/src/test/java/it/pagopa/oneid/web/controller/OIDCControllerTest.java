@@ -141,7 +141,7 @@ class OIDCControllerTest {
 
     Mockito.when(
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any(), Mockito.any()))
+                Mockito.anyString()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -309,7 +309,7 @@ class OIDCControllerTest {
 
     Mockito.when(
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any(), Mockito.any()))
+                Mockito.anyString()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -448,7 +448,7 @@ class OIDCControllerTest {
     // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
     Mockito.when(
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any(), Mockito.any()))
+                Mockito.anyString()))
         .thenThrow(OneIdentityException.class);
 
     //then
@@ -499,7 +499,7 @@ class OIDCControllerTest {
 
     Mockito.when(
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any(), Mockito.any()))
+                Mockito.anyString()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -565,7 +565,7 @@ class OIDCControllerTest {
 
     Mockito.when(
             samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any(), Mockito.any()))
+                Mockito.anyString()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");

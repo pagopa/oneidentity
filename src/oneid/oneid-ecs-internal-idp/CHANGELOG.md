@@ -1,5 +1,33 @@
 # oneid-ecs-internal-idp
 
+## 1.2.2
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
+## 1.2.1
+
+### Patch Changes
+
+- 2031943: internal idp deny redirect
+
+## 1.2.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+### Patch Changes
+
+- 7593252: Fix environment variables flow building container
+
+## 1.1.1
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.1.0
 
 ### Minor Changes

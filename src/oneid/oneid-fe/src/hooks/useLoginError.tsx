@@ -31,7 +31,7 @@ export const GENERIC_ERROR_DATA = {
   haveRetryButton: true,
 };
 
-export const erroMap: Record<ERROR_CODE, ErrorData> = {
+export const errorMap: Record<ERROR_CODE, ErrorData> = {
   [ERROR_CODE.TOO_MANY_ATTEMPTS]: {
     title: t('loginError.tooManyAttempts.title'),
     description: t('loginError.tooManyAttempts.description'),
@@ -58,8 +58,8 @@ export const erroMap: Record<ERROR_CODE, ErrorData> = {
     haveRetryButton: false,
   },
   [ERROR_CODE.CANCELED_BY_USER]: {
-    title: t('loginError.canceledbyUser.title'),
-    description: t('loginError.canceledbyUser.description'),
+    title: t('loginError.canceledByUser.title'),
+    description: t('loginError.canceledByUser.description'),
     haveRetryButton: true,
   },
   [ERROR_CODE.ID_NOT_SUPPORTED]: GENERIC_ERROR_DATA,
@@ -75,8 +75,8 @@ export const erroMap: Record<ERROR_CODE, ErrorData> = {
 
 export const useLoginError = () => {
   const handleErrorCode = (errorCode: ERROR_CODE): ErrorData => {
-    if (errorCode in erroMap) {
-      return erroMap[errorCode];
+    if (errorCode in errorMap) {
+      return errorMap[errorCode];
     } else {
       return GENERIC_ERROR_DATA;
     }

@@ -1,5 +1,17 @@
 # oi-control-panel
 
+## 1.6.3
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
+## 1.6.2
+
+### Patch Changes
+
+- 8ffef47: Update axios
+
 ## 1.6.1
 
 ### Patch Changes

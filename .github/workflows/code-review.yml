@@ -46,7 +46,9 @@ jobs:
       - name: Set up Maven settings.xml
         shell: bash
         run: |
-          echo "<settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>" >> src/oneid/settings.xml
+          cat <<EOF > "$RUNNER_TEMP/maven-settings.xml"
+          <settings><servers><server><id>github</id><username>${GH_TOKEN_READ_PACKAGES_USER}</username><password>${GH_TOKEN_READ_PACKAGES}</password></server></servers></settings>
+          EOF
         env:
           GH_TOKEN_READ_PACKAGES: ${{ secrets.GH_TOKEN_READ_PACKAGES }}
           GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
@@ -55,7 +57,7 @@ jobs:
           src/oneid/mvnw -Bclean verify
           -f src/oneid/pom.xml
           -P oneid-all
-          -s src/oneid/settings.xml
+          -s $RUNNER_TEMP/maven-settings.xml
           -DpublishJUnitResults=true
           -DjavaHomeOption='JDKVersion'
           -DmavenVersionOption='Default'
@@ -73,6 +75,7 @@ jobs:
           src/oneid/mvnw -B sonar:sonar
           -f src/oneid/pom.xml
           -P oneid-all
+          -s $RUNNER_TEMP/maven-settings.xml
           -Dsonar.coverage.jacoco.xmlReportPaths=$XML_REPORT_PATHS
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY

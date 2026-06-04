@@ -1,5 +1,23 @@
 # oneid-lambda-service-metadata
 
+## 1.1.1
+
+### Patch Changes
+
+- c86ef5f: implement newest agid specs for spid minor
+
+## 1.1.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+## 1.0.5
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.0.4
 
 ### Patch Changes

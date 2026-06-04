@@ -1,5 +1,15 @@
 # oneidentity
 
+## 4.12.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+### Patch Changes
+
+- 7593252: Fix environment variables flow building container
+
 ## 4.11.0
 
 ### Minor Changes

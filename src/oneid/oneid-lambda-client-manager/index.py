@@ -293,11 +293,10 @@ def update_idp_internal_user(username: str):
 
         # Extract the samlAttributes from the request body
         saml_attributes = body.get("samlAttributes", {})
-        age = body.get("age")
 
-        if not saml_attributes and age is None:
-            logger.error("[update_idp_internal_user]: samlAttributes or age are required")
-            return {"message": "samlAttributes or age are required"}, 400
+        if not saml_attributes:
+            logger.error("[update_idp_internal_user]: samlAttributes is required")
+            return {"message": "samlAttributes is required"}, 400
 
         # Ensure that samlAttributes only contains valid keys
         if saml_attributes:
@@ -309,11 +308,12 @@ def update_idp_internal_user(username: str):
                 }, 400
 
         # Build update expression dynamically
-        update_parts = []
+        set_parts = []
+        remove_parts = []
         expression_values = {}
 
         if saml_attributes:
-            update_parts.append("samlAttributes = :samlAttributes")
+            set_parts.append("samlAttributes = :samlAttributes")
             expression_values[":samlAttributes"] = {
                 "M": {
                     k: {"N": str(v)} if k == "spidLevel" else {"S": str(v)}
@@ -321,21 +321,33 @@ def update_idp_internal_user(username: str):
                 }
             }
 
-        if age is not None:
-            update_parts.append("age = :age")
-            expression_values[":age"] = {"N": str(int(age))}
+        if "age" in body and body["age"] is not None:
+            set_parts.append("age = :age")
+            expression_values[":age"] = {"N": str(int(body["age"]))}
+        else:
+            remove_parts.append("age")
 
-        # Update user in Internal IDP
-        response = dynamodb_client.update_item(
-            TableName=os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
-            Key={
+        # Build UpdateExpression
+        update_expression = ""
+        if set_parts:
+            update_expression += "SET " + ", ".join(set_parts)
+        if remove_parts:
+            update_expression += " REMOVE " + ", ".join(remove_parts)
+
+        update_kwargs = {
+            "TableName": os.getenv("IDP_INTERNAL_USERS_TABLE_NAME"),
+            "Key": {
                 "username": {"S": username},
                 "namespace": {"S": client_id},
             },
-            ConditionExpression="attribute_exists(username) AND attribute_exists(namespace)",
-            UpdateExpression="SET " + ", ".join(update_parts),
-            ExpressionAttributeValues=expression_values,
-        )
+            "ConditionExpression": "attribute_exists(username) AND attribute_exists(namespace)",
+            "UpdateExpression": update_expression,
+        }
+        if expression_values:
+            update_kwargs["ExpressionAttributeValues"] = expression_values
+
+        # Update user in Internal IDP
+        response = dynamodb_client.update_item(**update_kwargs)
         logger.info("[update_idp_internal_user]: %s", response)
 
         # Check if the response indicates success

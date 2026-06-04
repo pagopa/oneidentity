@@ -1,0 +1,18 @@
+[
+  {
+    "IndexName": "gsi_namespace_idx",
+    "KeySchema": [
+      {
+        "AttributeName": "namespace",
+        "KeyType": "HASH"
+      }
+    ],
+    "Projection": {
+      "ProjectionType": "ALL"
+    },
+    "ProvisionedThroughput": {
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 5
+    }
+  }
+]

@@ -14,9 +14,21 @@ USER quarkus
 EXPOSE 8080
 
 WORKDIR /code
+ARG SKIP_DEPCHECK=false
+ENV SKIP_DEPCHECK=${SKIP_DEPCHECK}
 
 # Build oneid-lambda-service-metadata using oneid-lambda-service-metadata-aggregate
 # Start downloading dependencies
-RUN ["./mvnw", "clean", "compile", "-P", "oneid-lambda-service-metadata-aggregate"]
+RUN \
+	--mount=type=secret,id=maven_settings,target=/run/secrets/maven_settings,required=false \
+	if [ "$SKIP_DEPCHECK" = "true" ]; then \
+		./mvnw clean compile -P oneid-lambda-service-metadata-aggregate -DskipDepcheck=true; \
+	else \
+		if [ ! -f /run/secrets/maven_settings ]; then \
+			echo "ERROR: depcheck is enabled but Maven settings secret is missing. Provide BuildKit secret id=maven_settings."; \
+			exit 1; \
+		fi; \
+		./mvnw clean compile -P oneid-lambda-service-metadata-aggregate -s /run/secrets/maven_settings; \
+	fi
 
-ENTRYPOINT ["./mvnw", "-f", "pom.xml", "-B", "quarkus:dev", "-P", "oneid-lambda-service-metadata-aggregate"]
+ENTRYPOINT ["/bin/sh", "-c", "if [ \"$SKIP_DEPCHECK\" = \"true\" ]; then exec ./mvnw -f pom.xml -B quarkus:dev -P oneid-lambda-service-metadata-aggregate -DskipDepcheck=true; else exec ./mvnw -f pom.xml -B quarkus:dev -P oneid-lambda-service-metadata-aggregate; fi"]

@@ -1,5 +1,17 @@
 # oneid-lambda-is-gh-integration
 
+## 1.2.0
+
+### Minor Changes
+
+- 626c6ec: Refactor docker local develop environment, removed Quarkus quinoa
+
+## 1.1.4
+
+### Patch Changes
+
+- 00551ce: update logging.log4j:log4j-core dep
+
 ## 1.1.3
 
 ### Patch Changes

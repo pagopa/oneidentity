@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
@@ -150,21 +151,19 @@ public class InternalIDPController {
         consentRequestDto.getUsername());
 
     return consentRequestDto.isConsent() ? handleConsentGiven(idpSession)
-        : handleConsentDenied(consentRequestDto);
+        : handleConsentDenied(idpSession);
   }
 
   private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
 
     // Verify age limit if present in the session
-    if (idpSession.getMinAge() != null && idpSession.getMaxAge() != null) {
+    if (idpSession.getMinAge() != null) {
       try {
         internalIDPServiceImpl.verifyAge(idpSession.getClientId(), idpSession.getUsername(),
-            idpSession.getMinAge(), idpSession.getMaxAge());
+            idpSession.getMinAge(), idpSession.getMaxAge(), idpSession.getAgeParentAuth());
       } catch (OneIdentityException e) {
-        // Age verification failed - return failure SAML Response to SP
         return Response.status(Status.OK)
-            .entity(error.data("errorMessage",
-                "Spiacente " + idpSession.getUsername() + ", ma non hai l’età richiesta per accedere al servizio"))
+            .entity(error.data("errorMessage", e.getMessage()))
             .type(MediaType.TEXT_HTML)
             .build();
       }
@@ -176,22 +175,28 @@ public class InternalIDPController {
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
             idpSession.getUsername());
 
+    return buildSamlRedirectResponse(response, idpSession, Optional.of(IDPSessionStatus.AUTHENTICATED));
+  }
+
+  private Response handleConsentDenied(IDPSession idpSession) throws SAMLUtilsException {
+    org.opensaml.saml.saml2.core.Response samlResponse =
+        internalIDPServiceImpl.createConsentDeniedSamlResponse(idpSession.getAuthnRequestId());
+
+    return buildSamlRedirectResponse(samlResponse, idpSession, Optional.of(IDPSessionStatus.DENIED));
+  }
+
+  private Response buildSamlRedirectResponse(org.opensaml.saml.saml2.core.Response samlResponse,
+      IDPSession idpSession, Optional<IDPSessionStatus> status) {
     String encodedSamlResponse = Base64.getEncoder()
         .encodeToString(internalIDPServiceImpl.getStringValue(
-            internalIDPServiceImpl.getElementValueFromSamlResponse(response)).getBytes());
+            internalIDPServiceImpl.getElementValueFromSamlResponse(samlResponse)).getBytes());
 
-    idpSession.setStatus(IDPSessionStatus.AUTHENTICATED);
+    status.ifPresent(idpSession::setStatus);
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
-    sessionServiceImpl.setSessionAsAuthenticated(idpSession);
+    sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
     return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
         .type(MediaType.TEXT_HTML)
-        .build();
-  }
-
-  private Response handleConsentDenied(ConsentRequestDTO consentRequestDto) {
-    // TODO: implement the logic to handle the case where consent is denied. If the consent is not given, proceed with the appropriate SAML Response with the corresponding state value to communicate the denying that will be sent back to the SP (Service Provider) via POST binding using Redirect-POST through the browser.
-    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, "")).type(MediaType.TEXT_HTML)
         .build();
   }
 
