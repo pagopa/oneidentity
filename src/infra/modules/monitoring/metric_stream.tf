@@ -104,6 +104,7 @@ resource "aws_kinesis_firehose_delivery_stream" "metrics_archiver" {
   extended_s3_configuration {
     role_arn           = aws_iam_role.firehose_to_s3[0].arn
     bucket_arn         = var.metric_stream_bucket_arn
+    buffering_size     = 64
     compression_format = "UNCOMPRESSED"
     custom_time_zone   = "UTC"
     file_extension     = ".json"
@@ -144,15 +145,14 @@ resource "aws_kinesis_firehose_delivery_stream" "metrics_archiver" {
 
         parameters {
           parameter_name = "MetadataExtractionQuery"
-          parameter_value = trimspace(<<-QUERY
-            {
-              metric_name: .metric_name,
-              date: (.timestamp / 1000 | floor | strftime("%Y-%m-%d")),
-              dimension_name: (if (.dimensions | length) > 0 then (.dimensions | keys[0]) else "NoDimension" end),
-              dimension_value: (if (.dimensions | length) > 0 then (.dimensions[(.dimensions | keys[0])] | @uri) else "all" end)
-            }
-          QUERY
-          )
+          parameter_value = join(" ", [
+            "{",
+            "metric_name: .metric_name,",
+            "date: (.timestamp / 1000 | floor | strftime(\"%Y-%m-%d\")),",
+            "dimension_name: (if (.dimensions | length) > 0 then (.dimensions | keys[0]) else \"NoDimension\" end),",
+            "dimension_value: (if (.dimensions | length) > 0 then (.dimensions[(.dimensions | keys[0])] | @uri) else \"all\" end)",
+            "}",
+          ])
         }
       }
 
