@@ -14,6 +14,14 @@ output "xsw_assertions_bucket_name" {
   value = module.s3_xsw_assertions_bucket.s3_bucket_id
 }
 
+output "metrics_archiver_bucket_arn" {
+  value = try(module.s3_metrics_archiver_bucket[0].s3_bucket_arn, null)
+}
+
+output "metrics_archiver_bucket_name" {
+  value = try(module.s3_metrics_archiver_bucket[0].s3_bucket_id, null)
+}
+
 output "idp_metadata_bucket_arn" {
   value = try(module.s3_idp_metadata_bucket[0].s3_bucket_arn, null)
 }

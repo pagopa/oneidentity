@@ -466,6 +466,29 @@ variable "cert_exp_checker_lambda" {
   })
 }
 
+variable "metrics_archiver_enabled" {
+  type        = bool
+  description = "Enable metrics archiver lambda creation."
+  default     = false
+}
+
+variable "metrics_archiver_lambda" {
+  type = object({
+    name                               = string
+    s3_metrics_archiver_bucket_arn     = string
+    table_client_registrations_arn     = string
+    table_idp_metadata_arn             = string
+    cloudwatch_logs_retention_in_days  = number
+    environment_variables              = map(string)
+    vpc_id                             = optional(string, null)
+    vpc_subnet_ids                     = optional(list(string), [])
+    vpc_s3_prefix_id                   = optional(string, null)
+    vpc_endpoint_dynamodb_prefix_id    = optional(string, null)
+    vpc_tls_security_group_endpoint_id = optional(string, null)
+  })
+  default = null
+}
+
 variable "rest_api_id" {
   type = string
 }

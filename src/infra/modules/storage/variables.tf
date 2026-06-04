@@ -43,6 +43,24 @@ variable "xsw_assertions_bucket" {
   })
 }
 
+variable "metrics_archiver_enabled" {
+  type        = bool
+  description = "Enable metrics archiver bucket creation."
+  default     = false
+}
+
+variable "metrics_archiver_bucket" {
+  type = object({
+    name_prefix = string
+    mfa_delete  = optional(bool, false)
+  })
+  description = "Metrics archiver bucket configuration."
+  default = {
+    name_prefix = "metrics-archiver"
+    mfa_delete  = false
+  }
+}
+
 variable "create_assets_bucket" {
   type        = bool
   description = "Create assets bucket."
