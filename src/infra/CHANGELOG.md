@@ -1,5 +1,11 @@
 # infra
 
+## 2.2.0
+
+### Minor Changes
+
+- 33abe8b: Custom metrics archiver properties fix
+
 ## 2.1.0
 
 ### Minor Changes
