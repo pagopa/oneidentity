@@ -1,5 +1,11 @@
 # infra
 
+## 2.1.0
+
+### Minor Changes
+
+- 9f0d442: CloudWatch Custom Metrics extend expiration
+
 ## 2.0.0
 
 ### Major Changes

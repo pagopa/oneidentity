@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.13.0
+
+### Minor Changes
+
+- 9f0d442: CloudWatch Custom Metrics extend expiration
+
 ## 4.12.0
 
 ### Minor Changes
