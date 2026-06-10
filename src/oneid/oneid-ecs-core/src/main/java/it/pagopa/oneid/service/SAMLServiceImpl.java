@@ -587,8 +587,14 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public List<AttributeDTO> getAttributesFromSAMLAssertion(Assertion assertion)
       throws OneIdentityException {
-    return samlUtils.getAttributeDTOListFromAssertion(assertion)
+    List<AttributeDTO> attributes = samlUtils.getAttributeDTOListFromAssertion(assertion)
         .orElseThrow(OneIdentityException::new);
+
+    String acr = assertion.getAuthnStatements().getFirst()
+        .getAuthnContext().getAuthnContextClassRef().getDOM().getTextContent().strip();
+    attributes.add(AttributeDTO.builder().attributeName("acr").attributeValue(acr).build());
+
+    return attributes;
   }
 
   @Override

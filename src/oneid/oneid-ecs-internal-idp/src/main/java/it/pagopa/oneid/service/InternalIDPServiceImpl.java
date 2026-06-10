@@ -239,6 +239,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
         .orElseThrow(() -> new RuntimeException("Client not found"));
 
     Set<String> requestedParameters = client.getRequestedParameters();
+    AuthLevel authLevel = client.getAuthLevel();
 
     // Retrieve the user attributes from the internal IDP users connector
 
@@ -246,7 +247,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
             username, clientId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
-    return buildSAMLResponse(authnRequestId, StatusCode.SUCCESS, user, requestedParameters);
+    return buildSAMLResponse(authnRequestId, StatusCode.SUCCESS, user, requestedParameters,
+        authLevel);
 
   }
 
@@ -361,7 +363,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   private Response buildSAMLResponse(String authnRequestId, String statusCodeResponse,
       IDPInternalUser user,
-      Set<String> requestedParameters)
+      Set<String> requestedParameters, AuthLevel authLevel)
       throws SAMLUtilsException {
     Response samlResponse = buildSAMLObject(Response.class);
 
@@ -449,7 +451,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     AuthnContext authnContext = buildSAMLObject(AuthnContext.class);
     AuthnContextClassRef authnContextClassRef = buildSAMLObject(
         AuthnContextClassRef.class);
-    authnContextClassRef.setURI(AuthLevel.L2.getValue());
+    authnContextClassRef.setURI(authLevel.getValue());
     authnContext.setAuthnContextClassRef(authnContextClassRef);
     authnStatement.setAuthnContext(authnContext);
     assertion.getAuthnStatements().add(authnStatement);

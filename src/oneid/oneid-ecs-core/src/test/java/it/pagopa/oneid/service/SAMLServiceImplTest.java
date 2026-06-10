@@ -184,10 +184,15 @@ import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.opensaml.saml.saml2.core.AuthnContext;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml.saml2.core.AuthnStatement;
+import org.w3c.dom.Element;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
@@ -555,19 +560,51 @@ public class SAMLServiceImplTest {
   }
 
   @Test
-  void getAttributesFromSAMLAssertion() {
+  void getAttributesFromSAMLAssertion() throws OneIdentityException {
     // given
     samlUtils = Mockito.mock(SAMLUtilsExtendedCore.class);
     AttributeDTO attributeDTO = Mockito.mock(AttributeDTO.class);
     Assertion assertion = Mockito.mock(Assertion.class);
+
     when(samlUtils.getAttributeDTOListFromAssertion(Mockito.any()))
-        .thenReturn(Optional.of(List.of(attributeDTO)));
+        .thenReturn(Optional.of(new ArrayList<>(List.of(attributeDTO))));
+
+    AuthnStatement authnStatement = Mockito.mock(AuthnStatement.class);
+    AuthnContext authnContext = Mockito.mock(AuthnContext.class);
+    AuthnContextClassRef authnContextClassRef = Mockito.mock(AuthnContextClassRef.class);
+    Element element = Mockito.mock(Element.class);
+
+    when(assertion.getAuthnStatements()).thenReturn(List.of(authnStatement));
+    when(authnStatement.getAuthnContext()).thenReturn(authnContext);
+    when(authnContext.getAuthnContextClassRef()).thenReturn(authnContextClassRef);
+    when(authnContextClassRef.getDOM()).thenReturn(element);
+    when(element.getTextContent()).thenReturn("https://www.spid.gov.it/SpidL2");
 
     QuarkusMock.installMockForType(samlUtils, SAMLUtilsExtendedCore.class);
 
     // then
+    List<AttributeDTO> result = samlServiceImpl.getAttributesFromSAMLAssertion(assertion);
 
-    assertDoesNotThrow(() -> samlServiceImpl.getAttributesFromSAMLAssertion(assertion));
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(a ->
+        "acr".equals(a.getAttributeName())
+            && "https://www.spid.gov.it/SpidL2".equals(a.getAttributeValue())));
+  }
+
+  @Test
+  @SneakyThrows
+  void getAttributesFromSAMLAssertion_withRealSAMLResponse_L2() {
+    // given — real Base64 SAML response with AuthnContextClassRef = SpidL2
+    Response response = samlUtils.getSAMLResponseFromString(
+        AUTH_CONTEXT_CLASS_REF_WITH_L2_VALUE_SAML_RESPONSE_95);
+    Assertion assertion = response.getAssertions().getFirst();
+
+    // then
+    List<AttributeDTO> result = samlServiceImpl.getAttributesFromSAMLAssertion(assertion);
+
+    assertTrue(result.stream().anyMatch(a ->
+        "acr".equals(a.getAttributeName())
+            && "https://www.spid.gov.it/SpidL2".equals(a.getAttributeValue())));
   }
 
   @Test
