@@ -1,5 +1,11 @@
 # oneid-lambda-update-status
 
+## 1.3.0
+
+### Minor Changes
+
+- 8f83ccb: add update to status of /idps route
+
 ## 1.2.0
 
 ### Minor Changes

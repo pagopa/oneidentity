@@ -1,5 +1,11 @@
 # infra
 
+## 2.3.0
+
+### Minor Changes
+
+- 8f83ccb: add update to status of /idps route
+
 ## 2.2.0
 
 ### Minor Changes
