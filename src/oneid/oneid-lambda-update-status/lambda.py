@@ -163,7 +163,7 @@ def update_status(alarm_type, key, alarm_state) -> bool:
 
 def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
     """
-    Update the idpStatus field in IDPMetadata table for the affected entity.
+    Update the status field in IDPMetadata table for the affected entity.
     """
     if not IDP_METADATA_DYNAMODB_TABLE:
         logger.error("Missing IDP_METADATA_DYNAMODB_TABLE environment variable")
@@ -175,11 +175,11 @@ def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
         dynamodb_client.update_item(
             TableName=IDP_METADATA_DYNAMODB_TABLE,
             Key={"entityID": {"S": entity_id}, "pointer": {"S": IDP_METADATA_POINTER}},
-            UpdateExpression="SET idpStatus = :idp_status",
-            ExpressionAttributeValues={":idp_status": {"S": new_status}},
+            UpdateExpression="SET status = :status",
+            ExpressionAttributeValues={":status": {"S": new_status}},
             ConditionExpression="attribute_exists(entityID) AND attribute_exists(pointer)",
         )
-        logger.info("Updated IDPMetadata idpStatus for entityID %s to %s", entity_id, new_status)
+        logger.info("Updated IDPMetadata status for entityID %s to %s", entity_id, new_status)
         return True
     except dynamodb_client.exceptions.ConditionalCheckFailedException:
         logger.error(
