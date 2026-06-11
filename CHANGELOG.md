@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.14.0
+
+### Minor Changes
+
+- 8f83ccb: add update to status of /idps route
+
 ## 4.13.0
 
 ### Minor Changes
