@@ -2,6 +2,7 @@
 Lambda update status
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import json
 import logging
 import os
@@ -14,6 +15,12 @@ AWS_REGION = os.getenv("AWS_REGION")
 
 # S3 bucket name for storing assets
 ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
+
+# DynamoDB table name for IDP metadata
+IDP_METADATA_DYNAMODB_TABLE = os.getenv("IDP_METADATA_DYNAMODB_TABLE")
+
+# IDP metadata pointer used by /idps latest snapshot
+IDP_METADATA_POINTER = "LATEST_SPID"
 
 # Pointer value for the latest status
 LATEST_POINTER = "latest"
@@ -98,13 +105,16 @@ def update_status(alarm_type, key, alarm_state) -> bool:
 
     new_status = ALARM_STATE_MAP[alarm_state]
 
+    status_attribute = IDS_MAP[alarm_type]["statusId"]
+    key_attribute = IDS_MAP[alarm_type]["keyId"]
+
     # Remove the latest key status
     try:
         response = dynamodb_client.delete_item(
             TableName=IDS_MAP[alarm_type]["tableName"],
-            Key={f"{IDS_MAP[alarm_type]["keyId"]}": {"S": key}, "pointer": {"S": LATEST_POINTER}},
-            ConditionExpression=f"{IDS_MAP[alarm_type]["statusId"]} <> :{IDS_MAP[alarm_type]["statusId"]}",
-            ExpressionAttributeValues={f":{IDS_MAP[alarm_type]["statusId"]}": {"S": new_status}},
+            Key={key_attribute: {"S": key}, "pointer": {"S": LATEST_POINTER}},
+            ConditionExpression=f"{status_attribute} <> :status_value",
+            ExpressionAttributeValues={":status_value": {"S": new_status}},
             ReturnValues="ALL_OLD",
         )
         old_item = response["Attributes"]
@@ -149,6 +159,39 @@ def update_status(alarm_type, key, alarm_state) -> bool:
 
     logger.info("Updated key status: %s, from %s to %s", key, old_status, new_status)
     return True
+
+
+def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
+    """
+    Update the status field in IDPMetadata table for the affected entity.
+    """
+    if not IDP_METADATA_DYNAMODB_TABLE:
+        logger.error("Missing IDP_METADATA_DYNAMODB_TABLE environment variable")
+        return False
+
+    new_status = ALARM_STATE_MAP[alarm_state]
+
+    try:
+        dynamodb_client.update_item(
+            TableName=IDP_METADATA_DYNAMODB_TABLE,
+            Key={"entityID": {"S": entity_id}, "pointer": {"S": IDP_METADATA_POINTER}},
+            UpdateExpression="SET #status = :status",
+            ExpressionAttributeNames={"#status": "status"},
+            ExpressionAttributeValues={":status": {"S": new_status}},
+            ConditionExpression="attribute_exists(entityID) AND attribute_exists(pointer)",
+        )
+        logger.info("Updated IDPMetadata status for entityID %s to %s", entity_id, new_status)
+        return True
+    except dynamodb_client.exceptions.ConditionalCheckFailedException:
+        logger.error(
+            "IDPMetadata item not found for entityID %s and pointer %s",
+            entity_id,
+            IDP_METADATA_POINTER,
+        )
+        return False
+    except Exception as e:
+        logger.error("Error updating IDPMetadata for entityID %s: %s", entity_id, e)
+        return False
 
 
 def get_all_latest_status(alarm_type):
@@ -214,8 +257,18 @@ def lambda_handler(event, context):
         logger.error("Invalid alarm type: %s", alarm_type)
         return {"statusCode": 400, "body": json.dumps("Invalid alarm type")}
 
-    if not update_status(alarm_type, key, alarm_state):
-        logger.error("Error updating %s status",IDS_MAP[alarm_type])
+    logger.info("Processing %s alarm for key %s", alarm_type, key)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(update_status, alarm_type, key, alarm_state)]
+
+        if IDS_MAP[alarm_type]["type"] == "IDP":
+            futures.append(executor.submit(update_idp_metadata_status, key, alarm_state))
+
+        update_results = [future.result() for future in futures]
+
+    if not all(update_results):
+        logger.error("Error updating status for alarm type %s", alarm_type)
         return {"statusCode": 500, "body": json.dumps(f"Error updating {IDS_MAP[alarm_type]} status")}
 
     # Update the S3 asset file with latest status info
@@ -223,7 +276,7 @@ def lambda_handler(event, context):
     # Get the latest status from DynamoDB
     latest_status = get_all_latest_status(alarm_type)
 
-    if update_s3_asset_file(alarm_type,latest_status):
+    if update_s3_asset_file(alarm_type, latest_status):
         return {
             "statusCode": 200,
             "body": json.dumps("Status updated successfully"),

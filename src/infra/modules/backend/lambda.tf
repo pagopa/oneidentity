@@ -674,13 +674,15 @@ data "aws_iam_policy_document" "update_status_lambda" {
       "dynamodb:GetItem",
       "dynamodb:DeleteItem",
       "dynamodb:Query",
-      "dynamodb:PutItem"
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem"
     ]
     resources = [
       var.dynamodb_table_idpStatus.table_arn,
       var.dynamodb_table_idpStatus.gsi_pointer_arn,
       var.dynamodb_table_clientStatus.table_arn,
-      var.dynamodb_table_clientStatus.gsi_pointer_arn
+      var.dynamodb_table_clientStatus.gsi_pointer_arn,
+      var.dynamodb_table_idpMetadata.table_arn
     ]
   }
 }
