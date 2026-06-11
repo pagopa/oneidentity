@@ -556,6 +556,7 @@ module "backend" {
       IDP_STATUS_DYNAMODB_IDX      = module.database.table_idp_status_history_idx_name
       CLIENT_STATUS_DYNAMODB_TABLE = module.database.table_client_status_history_name
       CLIENT_STATUS_DYNAMODB_IDX   = module.database.table_client_status_history_idx_name
+      IDP_METADATA_DYNAMODB_TABLE  = module.database.table_idp_metadata_name
       ASSETS_S3_BUCKET             = module.storage.assets_bucket_name
       IDP_STATUS_S3_FILE_NAME      = "idp_status_history.json"
       CLIENT_STATUS_S3_FILE_NAME   = "client_status_history.json"
