@@ -175,7 +175,8 @@ def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
         dynamodb_client.update_item(
             TableName=IDP_METADATA_DYNAMODB_TABLE,
             Key={"entityID": {"S": entity_id}, "pointer": {"S": IDP_METADATA_POINTER}},
-            UpdateExpression="SET status = :status",
+            UpdateExpression="SET #status = :status",
+            ExpressionAttributeNames={"#status": "status"},
             ExpressionAttributeValues={":status": {"S": new_status}},
             ConditionExpression="attribute_exists(entityID) AND attribute_exists(pointer)",
         )
