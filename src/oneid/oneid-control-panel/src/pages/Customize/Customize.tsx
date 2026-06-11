@@ -350,7 +350,6 @@ function CustomizeDashboard() {
     setUnsavedChangesReminder(true);
     setClientData((prev) => {
       if (!prev?.localizedContentMap) return prev;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [activeThemeKey]: _, ...newMap } = prev.localizedContentMap;
       setActiveThemeKey(Object.keys(newMap)[0] || '');
       return { ...prev, localizedContentMap: newMap };
