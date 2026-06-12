@@ -266,7 +266,8 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       int acsIndex = client.getAcsIndex();
       if (addedAcsIndices.add(acsIndex)) {
         spssoDescriptor.getAssertionConsumerServices()
-            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs));
+            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs,
+                client.getSamlBinding().getValue()));
         firstAcs = false;
       }
       spssoDescriptor.getAttributeConsumingServices()
@@ -281,7 +282,8 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         .registerNamespaceDeclaration(
             new Namespace(idType.getNamespaceUri(), idType.getNamespacePrefix()));
 
-    org.opensaml.saml.saml2.metadata.Extensions entityExtensions = samlUtils.buildEntityExtensions(clientsMap);
+    org.opensaml.saml.saml2.metadata.Extensions entityExtensions = samlUtils.buildEntityExtensions(
+        clientsMap);
     if (entityExtensions != null) {
       entityDescriptor.setExtensions(entityExtensions);
       if (!idType.getNamespacePrefix().equals("spid")) {
