@@ -5,25 +5,28 @@ import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import java.text.ParseException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 @CustomLogging
 public class ClientUtils {
 
-
   public static void checkUserId(String inputUserId, String existingUserId) {
     // Check if the userId matches the client userId on db
-    if (!StringUtils.equals(inputUserId, existingUserId)) {
+    if (!Strings.CS.equals(inputUserId, existingUserId)) {
       Log.errorf("userId in input %s does not match existing userId on db %s",
           inputUserId, existingUserId);
       throw new UserIdMismatchException();
@@ -32,6 +35,12 @@ public class ClientUtils {
 
   public static Client convertClientRegistrationDTOToClient(
       ClientRegistrationDTO clientRegistrationDTO, String userId) {
+    return convertClientRegistrationDTOToClient(clientRegistrationDTO, userId, null);
+  }
+
+  public static Client convertClientRegistrationDTOToClient(
+      ClientRegistrationDTO clientRegistrationDTO, String userId,
+      @Nullable SamlBinding missingBindingFallback) {
     Log.debug("start");
 
     Set<String> requestedParameters = clientRegistrationDTO.getSamlRequestedAttributes();
@@ -53,7 +62,7 @@ public class ClientUtils {
       ageParentAuth = clientRegistrationDTO.getAgeParentAuth();
     }
 
-    //clientID, attributeIndex and clientIdIssuedAt are set outside this method
+    // clientID, attributeIndex and clientIdIssuedAt are set outside this method
     return Client.builder()
         .userId(userId)
         .friendlyName(clientRegistrationDTO.getClientName())
@@ -62,6 +71,7 @@ public class ClientUtils {
         .authLevel(AuthLevel.authLevelFromValue(
             clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
                 .orElseThrow(() -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))))
+        .samlBinding(resolveSamlBinding(clientRegistrationDTO, missingBindingFallback))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .isActive(true)
         .logoUri(clientRegistrationDTO.getLogoUri())
@@ -70,18 +80,34 @@ public class ClientUtils {
         .a11yUri(clientRegistrationDTO.getA11yUri())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
         .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
-            ? clientRegistrationDTO.getBackButtonEnabled() : false)
+            ? clientRegistrationDTO.getBackButtonEnabled()
+            : false)
         .spidMinors(spidMinors)
         .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
-            ? clientRegistrationDTO.getSpidProfessionals() : false)
+            ? clientRegistrationDTO.getSpidProfessionals()
+            : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
-            ? clientRegistrationDTO.getPairwise() : false)
+            ? clientRegistrationDTO.getPairwise()
+            : false)
         .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
-            ? clientRegistrationDTO.getRequiredSameIdp() : false)
+            ? clientRegistrationDTO.getRequiredSameIdp()
+            : false)
         .minAge(minAge)
         .maxAge(maxAge)
         .ageParentAuth(ageParentAuth)
         .build();
+  }
+
+  private static SamlBinding resolveSamlBinding(ClientRegistrationDTO clientRegistrationDTO,
+      @Nullable SamlBinding missingBindingFallback) {
+    ClientSamlBinding dtoBinding = clientRegistrationDTO.getSamlBinding();
+    if (dtoBinding != null) {
+      return dtoBinding.toSamlBinding();
+    }
+    if (missingBindingFallback != null) {
+      return missingBindingFallback;
+    }
+    return SamlBinding.HTTP_POST;
   }
 
   public static ClientRegistrationDTO convertClientToClientRegistrationDTO(Client client) {
@@ -90,6 +116,7 @@ public class ClientUtils {
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
         .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
+        .samlBinding(ClientSamlBinding.fromSamlBinding(client.getSamlBinding()))
         .samlRequestedAttributes(client.getRequestedParameters())
         .requiredSameIdp(client.isRequiredSameIdp())
         .spidMinors(client.isSpidMinors())
@@ -121,6 +148,13 @@ public class ClientUtils {
         input.getDefaultAcrValues().stream().findFirst().get());
     if (!authLevel.equals(existingClient.getAuthLevel())) {
       message += "DefaultAcrValues; ";
+    }
+    SamlBinding inputSamlBinding = resolveSamlBinding(input,
+        Optional.ofNullable(existingClient.getSamlBinding()).orElse(SamlBinding.HTTP_POST));
+    SamlBinding existingSamlBinding = Optional.ofNullable(existingClient.getSamlBinding())
+        .orElse(SamlBinding.HTTP_POST);
+    if (!inputSamlBinding.equals(existingSamlBinding)) {
+      message += "SamlBinding; ";
     }
     boolean inputSpidMinors = input.getSpidMinors() != null && input.getSpidMinors();
     if (inputSpidMinors != existingClient.isSpidMinors()

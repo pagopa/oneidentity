@@ -24,6 +24,7 @@ import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVPlanDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
@@ -32,6 +33,7 @@ import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -57,6 +59,7 @@ class ClientRegistrationServiceImplTest {
 
   @InjectMock
   @RestClient
+  @Inject
   PDVApiPlanClient pdvApiClientMock;
   @InjectMock
   SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
@@ -189,18 +192,13 @@ class ClientRegistrationServiceImplTest {
 
     when(ssmConnectorUtilsImplMock.getParameter(anyString()))
         .thenReturn(Optional.of(masterKey));
-    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
-        .valid(false)
-        .build();
     when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
         .thenThrow(new PDVException(
             "PDV response not ok",
             NOT_FOUND.getStatusCode(),
             Optional.of("not found"),
             new WebApplicationException(
-                Response.status(NOT_FOUND).entity("not found").build()
-            )
-        ));
+                Response.status(NOT_FOUND).entity("not found").build())));
 
     assertThrows(PDVException.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
@@ -252,7 +250,6 @@ class ClientRegistrationServiceImplTest {
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
             clientRegistrationDTO, "", "dummy-plan"));
   }
-
 
   @Test
   void testValidateClientRegistrationInfo_WithMultipleUris() {
@@ -401,6 +398,51 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
+  void saveClient_defaultsSamlBindingToHttpPost_whenMissingInRequest() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .pairwise(false)
+        .build();
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+        clientRegistrationDTO, "userId", null, null));
+
+    verify(clientConnectorImpl)
+        .saveClientIfNotExists(Mockito.argThat(saved -> SamlBinding.HTTP_POST.equals(saved.getSamlBinding())));
+  }
+
+  @Test
+  void saveClient_persistsHttpRedirectBinding_whenProvidedInRequest() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .samlBinding(ClientSamlBinding.HTTP_REDIRECT)
+        .pairwise(false)
+        .build();
+
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+        clientRegistrationDTO, "userId", null, null));
+
+    verify(clientConnectorImpl)
+        .saveClientIfNotExists(Mockito.argThat(saved -> SamlBinding.HTTP_REDIRECT.equals(saved.getSamlBinding())));
+  }
+
+  @Test
   void saveClient_withSpidMinorsNoMaxAge_ok() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -425,11 +467,9 @@ class ClientRegistrationServiceImplTest {
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO, "userId", null, null));
 
-    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
-        saved.isSpidMinors()
-            && saved.getMinAge() == 14
-            && saved.getMaxAge() == null
-    ));
+    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
+        && saved.getMinAge() == 14
+        && saved.getMaxAge() == null));
   }
 
   @Test
@@ -458,11 +498,9 @@ class ClientRegistrationServiceImplTest {
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO, "userId", null, null));
 
-    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
-        saved.isSpidMinors()
-            && saved.getMinAge() == 14
-            && saved.getMaxAge() == 18
-    ));
+    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
+        && saved.getMinAge() == 14
+        && saved.getMaxAge() == 18));
   }
 
   @Test
@@ -570,7 +608,6 @@ class ClientRegistrationServiceImplTest {
             clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
   }
 
-
   @Test
   void saveClient_existingUserId_ko() {
 
@@ -627,7 +664,7 @@ class ClientRegistrationServiceImplTest {
   @Test
   void getClientExtendedByClientId() {
 
-    //given
+    // given
     String clientId = "test";
     String userId = "userId-test";
     ClientExtended returnClient = ClientExtended.builder()
@@ -654,7 +691,7 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
 
-    //when
+    // when
     when(clientConnectorImpl.getClientExtendedById(anyString()))
         .thenReturn(Optional.of(returnClient));
 
@@ -663,7 +700,7 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void getClientByClientId_ko() {
-    //when
+    // when
     when(clientConnectorImpl.getClientById(anyString()))
         .thenReturn(Optional.empty());
 
@@ -675,7 +712,7 @@ class ClientRegistrationServiceImplTest {
   @Test
   void getClientByUserId() {
 
-    //given
+    // given
     String clientId = "test";
     String userId = "userId-test";
     Client returnClient = Client.builder()
@@ -700,7 +737,7 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
 
-    //when
+    // when
     when(clientConnectorImpl.getClientByUserId(anyString()))
         .thenReturn(Optional.of(returnClient));
 
@@ -709,7 +746,7 @@ class ClientRegistrationServiceImplTest {
 
   @Test
   void getClientByUserId_ko() {
-    //when
+    // when
     when(clientConnectorImpl.getClientByUserId(anyString()))
         .thenReturn(Optional.empty());
 
@@ -730,7 +767,6 @@ class ClientRegistrationServiceImplTest {
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
   }
-
 
   @Test
   void updateClient() {
@@ -793,32 +829,71 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("name"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == 0
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && !updated.isRequiredSameIdp() // default false
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && updated.isSpidProfessionals()
-            && !updated.isPairwise()
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals(secret) // unchanged
-            && updated.getSalt().equals(salt) // unchanged
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+        && updated.getUserId().equals(userId)
+        && updated.getFriendlyName().equals("test")
+        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+        && updated.getRequestedParameters().equals(Set.of("name"))
+        && updated.getAuthLevel() == AuthLevel.L2
+        && updated.getAcsIndex() == 0
+        && updated.getAttributeIndex() == attributeIndex
+        && updated.isActive()
+        && updated.getClientIdIssuedAt() == originalIssuedAt
+        && updated.getLogoUri().equals("newLogo")
+        && updated.getPolicyUri().equals("newPolicy")
+        && updated.getTosUri().equals("newTos")
+        && !updated.isRequiredSameIdp() // default false
+        && updated.getA11yUri().equals("newA11y")
+        && updated.isBackButtonEnabled()
+        && updated.getLocalizedContentMap().equals(new HashMap<>())
+        && updated.isSpidMinors()
+        && updated.isSpidProfessionals()
+        && !updated.isPairwise()
+        && updated.getMinAge() == 14
+        && updated.getMaxAge() == null // maxAge not specified
+        && updated.getSecret().equals(secret) // unchanged
+        && updated.getSalt().equals(salt) // unchanged
     ));
+  }
+
+  @Test
+  void updateClient_preservesExistingSamlBinding_whenMissingInRequest() {
+    String clientId = "client-123";
+    String userId = "userIdTest";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret("secret")
+        .salt("salt")
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("Old Name")
+        .callbackURI(Set.of("https://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .samlBinding(SamlBinding.HTTP_REDIRECT)
+        .acsIndex(0)
+        .attributeIndex(42)
+        .isActive(true)
+        .clientIdIssuedAt(987654321L)
+        .pairwise(false)
+        .build();
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://updated.example.com"))
+        .clientName("Updated Name")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .pairwise(false)
+        .build();
+
+    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended, null, null));
+
+    verify(clientConnectorImpl)
+        .updateClientExtended(Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())));
   }
 
   @Test
@@ -883,31 +958,30 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended, "dummy-key", "dummy-plan"));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("name"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == 0
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && !updated.isRequiredSameIdp() // default false
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && updated.isSpidProfessionals()
-            && updated.isPairwise()
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals(secret) // unchanged
-            && updated.getSalt().equals(salt) // unchanged
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+        && updated.getUserId().equals(userId)
+        && updated.getFriendlyName().equals("test")
+        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+        && updated.getRequestedParameters().equals(Set.of("name"))
+        && updated.getAuthLevel() == AuthLevel.L2
+        && updated.getAcsIndex() == 0
+        && updated.getAttributeIndex() == attributeIndex
+        && updated.isActive()
+        && updated.getClientIdIssuedAt() == originalIssuedAt
+        && updated.getLogoUri().equals("newLogo")
+        && updated.getPolicyUri().equals("newPolicy")
+        && updated.getTosUri().equals("newTos")
+        && !updated.isRequiredSameIdp() // default false
+        && updated.getA11yUri().equals("newA11y")
+        && updated.isBackButtonEnabled()
+        && updated.getLocalizedContentMap().equals(new HashMap<>())
+        && updated.isSpidMinors()
+        && updated.isSpidProfessionals()
+        && updated.isPairwise()
+        && updated.getMinAge() == 14
+        && updated.getMaxAge() == null // maxAge not specified
+        && updated.getSecret().equals(secret) // unchanged
+        && updated.getSalt().equals(salt) // unchanged
     ));
   }
 
@@ -933,8 +1007,8 @@ class ClientRegistrationServiceImplTest {
         .spidMinors(true)
         .spidProfessionals(false)
         .minAge(14)
-        //.pairwise() default false
-        //.requiredSameIdp() default false
+        // .pairwise() default false
+        // .requiredSameIdp() default false
         .build();
 
     ClientExtended existingClientExtended = ClientExtended.builder()
@@ -947,37 +1021,36 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-    
+
     // when
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
         clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("spidCode"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == 0
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && !updated.isSpidProfessionals()
-            && !updated.isRequiredSameIdp() // default false
-            && !updated.isPairwise() // default false
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals("originalSecret") // unchanged
-            && updated.getSalt().equals("originalSalt") // unchanged
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+        && updated.getUserId().equals(userId)
+        && updated.getFriendlyName().equals("test")
+        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+        && updated.getRequestedParameters().equals(Set.of("spidCode"))
+        && updated.getAuthLevel() == AuthLevel.L2
+        && updated.getAcsIndex() == 0
+        && updated.getAttributeIndex() == attributeIndex
+        && updated.isActive()
+        && updated.getClientIdIssuedAt() == originalIssuedAt
+        && updated.getLogoUri().equals("newLogo")
+        && updated.getPolicyUri().equals("newPolicy")
+        && updated.getTosUri().equals("newTos")
+        && updated.getA11yUri().equals("newA11y")
+        && updated.isBackButtonEnabled()
+        && updated.getLocalizedContentMap().equals(new HashMap<>())
+        && updated.isSpidMinors()
+        && !updated.isSpidProfessionals()
+        && !updated.isRequiredSameIdp() // default false
+        && !updated.isPairwise() // default false
+        && updated.getMinAge() == 14
+        && updated.getMaxAge() == null // maxAge not specified
+        && updated.getSecret().equals("originalSecret") // unchanged
+        && updated.getSalt().equals("originalSalt") // unchanged
     ));
   }
 
@@ -1043,12 +1116,10 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        updated.getClientId().equals(clientId)
-            && updated.isSpidMinors()
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == 18
-    ));
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+        && updated.isSpidMinors()
+        && updated.getMinAge() == 14
+        && updated.getMaxAge() == 18));
   }
 
   @Test
@@ -1115,8 +1186,7 @@ class ClientRegistrationServiceImplTest {
     // when
     NoMasterKeyException ex = assertThrows(
         NoMasterKeyException.class,
-        () -> clientRegistrationServiceImpl.getPDVPlanList()
-    );
+        () -> clientRegistrationServiceImpl.getPDVPlanList());
 
     // then
     assertTrue(ex.getMessage().toLowerCase().contains("api key"), "check message");
@@ -1137,8 +1207,7 @@ class ClientRegistrationServiceImplTest {
     // when
     PDVException ex = assertThrows(
         PDVException.class,
-        () -> clientRegistrationServiceImpl.getPDVPlanList()
-    );
+        () -> clientRegistrationServiceImpl.getPDVPlanList());
 
     // then
     assertTrue(ex.getMessage().contains("PDV response not ok"));

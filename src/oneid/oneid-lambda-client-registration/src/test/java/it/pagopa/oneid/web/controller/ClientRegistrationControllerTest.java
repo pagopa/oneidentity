@@ -39,7 +39,7 @@ class ClientRegistrationControllerTest {
   @InjectMock
   ClientRegistrationServiceImpl clientRegistrationServiceImpl;
 
-  //Register
+  // Register
 
   @Test
   void register_ok() {
@@ -78,7 +78,7 @@ class ClientRegistrationControllerTest {
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString(),
-            Mockito.notNull(), Mockito.notNull()))
+        Mockito.notNull(), Mockito.notNull()))
         .thenReturn(mockResponse);
 
     given()
@@ -131,7 +131,7 @@ class ClientRegistrationControllerTest {
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString(),
-            Mockito.notNull(), Mockito.notNull()))
+        Mockito.notNull(), Mockito.notNull()))
         .thenReturn(mockResponse);
 
     given()
@@ -203,7 +203,7 @@ class ClientRegistrationControllerTest {
   void register_differentContentType() {
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString(),
-            Mockito.notNull(), Mockito.notNull()))
+        Mockito.notNull(), Mockito.notNull()))
         .thenReturn(mockResponse);
 
     given()
@@ -218,15 +218,15 @@ class ClientRegistrationControllerTest {
   void register_missingRequiredField_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        //.redirectUris(Set.of("https://test.com"))
-        //.clientName("test")
-        //.defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
-        //.samlRequestedAttributes(Set.of(Identifier.name))
+        // .redirectUris(Set.of("https://test.com"))
+        // .clientName("test")
+        // .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        // .samlRequestedAttributes(Set.of(Identifier.name))
         .build();
 
     ClientRegistrationResponseDTO mockResponse = Mockito.mock(ClientRegistrationResponseDTO.class);
     Mockito.when(clientRegistrationServiceImpl.saveClient(Mockito.any(), Mockito.anyString(),
-            Mockito.notNull(), Mockito.notNull()))
+        Mockito.notNull(), Mockito.notNull()))
         .thenReturn(mockResponse);
 
     given()
@@ -281,6 +281,29 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
+  void register_withInvalidSamlBinding_ko() {
+    String invalidPayload = """
+        {
+            "redirectUris": ["https://valid.uri/callback"],
+            "clientName": "Test Client",
+            "defaultAcrValues": ["https://www.spid.gov.it/SpidL2"],
+            "samlRequestedAttributes": ["name"],
+            "samlBinding": "HTTP-INVALID"
+        }
+        """;
+
+    given()
+        .contentType("application/json")
+        .header(new Header("Authorization",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+        .body(invalidPayload)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
   void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -296,7 +319,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a empty map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a empty map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(new HashMap<>())
         .build();
 
@@ -334,7 +358,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(localizedContentMap)
         .build();
 
@@ -367,7 +392,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(localizedContentMap)
         .build();
 
@@ -404,7 +430,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(localizedContentMap)
         .build();
 
@@ -441,7 +468,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(localizedContentMap)
         .build();
 
@@ -475,7 +503,8 @@ class ClientRegistrationControllerTest {
         .spidMinors(false)
         .spidProfessionals(false)
         .pairwise(false)
-        // The payload contains a map which fails the @LocalizedContentMapCheck validation
+        // The payload contains a map which fails the @LocalizedContentMapCheck
+        // validation
         .localizedContentMap(localizedContentMap)
         .build();
 
@@ -501,11 +530,11 @@ class ClientRegistrationControllerTest {
         .statusCode(400);
   }
 
-  //Get Client Info
+  // Get Client Info
 
   @Test
   void getClient_ok() {
-    //userId "1234567890" in the bearer token
+    // userId "1234567890" in the bearer token
     String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     String userId = "1234567890";
 
@@ -522,7 +551,7 @@ class ClientRegistrationControllerTest {
         .build();
 
     Mockito.when(
-            clientRegistrationServiceImpl.getClientByUserId(Mockito.eq(userId)))
+        clientRegistrationServiceImpl.getClientByUserId(Mockito.eq(userId)))
         .thenReturn(mockClient);
 
     given()
@@ -547,7 +576,7 @@ class ClientRegistrationControllerTest {
 
   @Test
   void getClient_clientNotFound_ko() {
-    //userId "1234567890" in the bearer token
+    // userId "1234567890" in the bearer token
     String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     String userId = "1234567890";
 
@@ -563,11 +592,11 @@ class ClientRegistrationControllerTest {
         .statusCode(404); // NotFound due to client not found
   }
 
-  //Update Client
+  // Update Client
 
   @Test
   void updateClient_ok() {
-    //userId "1234567890" in the bearer token
+    // userId "1234567890" in the bearer token
     String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     String userId = "1234567890";
     // given
@@ -604,9 +633,7 @@ class ClientRegistrationControllerTest {
                     new Client.LocalizedContent("Title of minimum 10 characters",
                         "Description of minimum 20 characters to pass the constraint",
                         "https://test.com",
-                        "test", "test")
-                )
-            ))
+                        "test", "test"))))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
@@ -617,8 +644,7 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(localizedContentMap)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)
-        ))
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
         .thenReturn(existingClientExtended);
 
     given()
@@ -634,7 +660,7 @@ class ClientRegistrationControllerTest {
 
   @Test
   void updateClient_pairWise_ok() {
-    //userId "1234567890" in the bearer token
+    // userId "1234567890" in the bearer token
     String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
     String userId = "1234567890";
     // given
@@ -671,9 +697,7 @@ class ClientRegistrationControllerTest {
                     new Client.LocalizedContent("Title of minimum 10 characters",
                         "Description of minimum 20 characters to pass the constraint",
                         "https://test.com",
-                        "test", "test")
-                )
-            ))
+                        "test", "test"))))
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
@@ -685,8 +709,7 @@ class ClientRegistrationControllerTest {
         .pairwise(true)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)
-        ))
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
         .thenReturn(existingClientExtended);
 
     given()
@@ -720,13 +743,12 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        //.userId(userId) // Intentionally missing userId to simulate error
+        // .userId(userId) // Intentionally missing userId to simulate error
         .clientName("newName")
         .redirectUris(Set.of("https://new.com"))
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)
-        ))
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
         .thenReturn(existingClientExtended);
 
     given()
@@ -757,7 +779,7 @@ class ClientRegistrationControllerTest {
         .statusCode(200);
   }
 
-  //Get PDV Plan
+  // Get PDV Plan
 
   @Test
   void getPDVPlan_ok() {
@@ -787,7 +809,6 @@ class ClientRegistrationControllerTest {
         .body("api_keys.name", org.hamcrest.Matchers.contains(plan1.getName(), plan2.getName()));
   }
 
-
   @Test
   void getPDVPlan_NotFound_ko() {
     Mockito.when(clientRegistrationServiceImpl.getPDVPlanList()).thenThrow(
@@ -796,9 +817,7 @@ class ClientRegistrationControllerTest {
             NOT_FOUND.getStatusCode(),
             Optional.of("not found"),
             new WebApplicationException(
-                Response.status(NOT_FOUND).entity("not found").build()
-            )
-        ));
+                Response.status(NOT_FOUND).entity("not found").build())));
 
     given()
         .contentType("application/json")
@@ -848,8 +867,7 @@ class ClientRegistrationControllerTest {
             "PDV response not ok",
             NOT_FOUND.getStatusCode(),
             Optional.of("not found"),
-            new WebApplicationException(Response.status(NOT_FOUND).entity("not found").build())
-        ));
+            new WebApplicationException(Response.status(NOT_FOUND).entity("not found").build())));
 
     given()
         .contentType("application/json")
