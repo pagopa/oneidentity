@@ -60,7 +60,7 @@ import org.opensaml.security.x509.BasicX509Credential;
 
 @ApplicationScoped
 public class SAMLUtilsExtendedMetadata extends SAMLUtils {
-  
+
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
 
@@ -241,12 +241,13 @@ public class SAMLUtilsExtendedMetadata extends SAMLUtils {
     return nameIDFormat;
   }
 
-  public AssertionConsumerService buildAssertionConsumerService(int index, boolean isDefault) {
+  public AssertionConsumerService buildAssertionConsumerService(int index, boolean isDefault,
+      String binding) {
     AssertionConsumerService assertionConsumerService = buildSAMLObject(
         AssertionConsumerService.class);
     assertionConsumerService.setIndex(index);
     assertionConsumerService.setIsDefault(isDefault);
-    assertionConsumerService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+    assertionConsumerService.setBinding(binding);
     assertionConsumerService.setLocation(BASE_PATH + ACS_URL);
 
     return assertionConsumerService;
