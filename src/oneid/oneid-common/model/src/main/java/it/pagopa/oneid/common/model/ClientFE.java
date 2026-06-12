@@ -18,6 +18,7 @@ public class ClientFE {
   public String tosUri;
   public String a11yUri;
   public boolean backButtonEnabled;
+  public String samlBinding;
   public Set<String> callbackURI;
   Map<String, Map<String, Client.LocalizedContent>> localizedContentMap;
 
@@ -29,6 +30,9 @@ public class ClientFE {
     this.tosUri = Optional.ofNullable(client.getTosUri()).orElse("");
     this.a11yUri = Optional.ofNullable(client.getA11yUri()).orElse("");
     this.backButtonEnabled = Optional.of(client.isBackButtonEnabled()).orElse(false);
+    this.samlBinding = Optional.ofNullable(client.getSamlBinding())
+        .orElse(it.pagopa.oneid.common.model.enums.SamlBinding.HTTP_POST)
+        .getValue();
     this.localizedContentMap = Optional.ofNullable(client.getLocalizedContentMap())
         .orElse(Map.of());
 
