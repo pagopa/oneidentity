@@ -57,6 +57,8 @@ maven-wrapper.jar
 **/builds
 **/__pycache__
 **/.pytest_cache
+**/.venv
+**/venv
 
 # Ignore Gradle GUI config
 gradle-app.setting
