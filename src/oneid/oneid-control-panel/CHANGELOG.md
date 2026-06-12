@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.6.4
+
+### Patch Changes
+
+- e3d23a8: react router bump to 7.15.0
+
 ## 1.6.3
 
 ### Patch Changes
