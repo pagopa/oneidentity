@@ -9,6 +9,14 @@ export default defineConfig({
     clearMocks: true,
     watch: false,
     silent: true,
+    // @pagopa/mui-italia v2 uses bare directory imports (export * from "./components")
+    // which Node.js native ESM does not support. Inlining forces Vitest to bundle
+    // it through Vite, which resolves directory imports correctly.
+    server: {
+      deps: {
+        inline: ['@pagopa/mui-italia'],
+      },
+    },
     coverage: {
       provider: 'v8',
       skipFull: true,

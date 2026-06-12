@@ -7,7 +7,7 @@ import {
   ButtonOwnProps,
   TypographyOwnProps,
 } from '@mui/material';
-import { theme } from '@pagopa/mui-italia/dist/theme';
+import { theme } from '@pagopa/mui-italia';
 import { FunctionComponent, ReactElement, SVGProps } from 'react';
 
 type EndingPageProps = {

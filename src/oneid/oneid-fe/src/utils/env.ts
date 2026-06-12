@@ -49,6 +49,7 @@ export const ENV = {
   FOOTER: {
     LINK: {
       ABOUTUS: import.meta.env.VITE_FOOTER_LINK_ABOUTUS as string,
+      PNRR: import.meta.env.VITE_FOOTER_LINK_PNRR as string,
       MEDIA: import.meta.env.VITE_FOOTER_LINK_MEDIA as string,
       WORKWITHUS: import.meta.env.VITE_FOOTER_LINK_WORKWITHUS as string,
       ACCESSIBILITY: import.meta.env.VITE_FOOTER_LINK_ACCESSIBILITY as string,
@@ -64,9 +65,9 @@ export const ENV = {
         .VITE_FOOTER_LINK_DISCLOSUREPOLICY as string,
       MODEL231: import.meta.env.VITE_FOOTER_LINK_MODEL231 as string,
       LINKEDIN: import.meta.env.VITE_FOOTER_LINK_LINKEDIN as string,
-      TWITTER: import.meta.env.VITE_FOOTER_LINK_TWITTER as string,
+      THREADS: import.meta.env.VITE_FOOTER_LINK_THREADS as string,
       INSTAGRAM: import.meta.env.VITE_FOOTER_LINK_INSTAGRAM as string,
-      MEDIUM: import.meta.env.VITE_FOOTER_LINK_MEDIUM as string,
+      YOUTUBE: import.meta.env.VITE_FOOTER_LINK_YOUTUBE as string,
       PAGOPALINK: import.meta.env.VITE_FOOTER_LINK_PAGOPALINK as string,
     },
   },

@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6 https://github.com/actions/checkout/releases/tag/v4.1.6
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2 https://github.com/actions/setup-node/releases/tag/v4.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 https://github.com/actions/checkout/releases/tag/v6.0.2
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0 https://github.com/actions/setup-node/releases/tag/v6.4.0
         with:
-          node-version: 20.x
+          node-version: 24.x
       - name: Run yarn install, lint and test
         working-directory: src/oneid/oneid-fe
         run: |

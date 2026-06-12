@@ -1,6 +1,6 @@
 [
   {
-    "label": "App IO",
+    "label": "IO, l’app dei servizi pubblici",
     "href": "https://www.pagopa.it/it/prodotti-e-servizi/app-io",
     "ariaLabel": "Vai al link: IO",
     "linkType": "internal"
@@ -12,9 +12,15 @@
     "linkType": "internal"
   },
   {
-    "label": "Centro stella",
-    "href": "https://www.pagopa.it/it/prodotti-e-servizi/centro-stella-pagamenti-elettronici",
-    "ariaLabel": "Vai al link: Centro stella",
+    "label": "SEND",
+    "href": "https://www.pagopa.it/it/prodotti-e-servizi/send-notifiche-digitali/",
+    "ariaLabel": "Vai al link: SEND",
+    "linkType": "internal"
+  },
+  {
+    "label": "PARI",
+    "href": "https://www.pagopa.it/it/prodotti-e-servizi/pari/",
+    "ariaLabel": "Vai al link: PARI",
     "linkType": "internal"
   },
   {
@@ -24,9 +30,9 @@
     "linkType": "internal"
   },
   {
-    "label": "Piattaforma Notifiche Digitali",
-    "href": "https://www.pagopa.it/it/prodotti-e-servizi/piattaforma-notifiche-digitali",
-    "ariaLabel": "Vai al link: Piattaforma Notifiche Digitali",
+    "label": "Piattaforma Digitale Nazionale Dati",
+    "href": "https://www.pagopa.it/it/prodotti-e-servizi/piattaforma-digitale-nazionale-dati",
+    "ariaLabel": "Vai al link: Piattaforma Digitale Nazionale Dati",
     "linkType": "internal"
   }
 ]

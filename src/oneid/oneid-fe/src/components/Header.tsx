@@ -1,14 +1,13 @@
 import { Fragment } from 'react';
-import { HeaderProduct } from '@pagopa/mui-italia/dist/components/HeaderProduct/HeaderProduct';
-import { HeaderAccount } from '@pagopa/mui-italia/dist/components/HeaderAccount/HeaderAccount';
 import {
   RootLinkType,
   UserAction,
   ProductSwitchItem,
   ProductEntity,
   LangCode,
+  HeaderAccount,
+  HeaderProduct,
 } from '@pagopa/mui-italia';
-import { PartySwitchItem } from '@pagopa/mui-italia/dist/components/PartySwitch';
 import { ENV } from '../utils/env';
 import { buildAssistanceURI } from '../services/assistanceService';
 import { useLoginData } from '../hooks/useLoginData';
@@ -20,6 +19,7 @@ import {
   ROUTE_LOGOUT,
 } from '../utils/constants';
 import i18n from '../locale';
+import { PartySwitchItem } from '@pagopa/mui-italia/components/PartySwitch';
 
 type PartyEntity = PartySwitchItem;
 type HeaderProps = {
