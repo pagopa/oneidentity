@@ -65,9 +65,19 @@ No modules.
 | [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.detailed_metrics_dashboard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
 | [aws_cloudwatch_dashboard.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
+| [aws_cloudwatch_metric_stream.metrics_archiver](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_stream) | resource |
 | [aws_cloudwatch_query_definition.client_registration_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 | [aws_cloudwatch_query_definition.ecs_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 | [aws_cloudwatch_query_definition.metadata_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
+| [aws_iam_role.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_kinesis_firehose_delivery_stream.metrics_archiver](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kinesis_firehose_delivery_stream) | resource |
+| [aws_iam_policy_document.firehose_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.streams_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
@@ -89,6 +99,12 @@ No modules.
 | <a name="input_lambda_client_registration"></a> [lambda\_client\_registration](#input\_lambda\_client\_registration) | n/a | <pre>object({<br/>    log_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_lambda_metadata"></a> [lambda\_metadata](#input\_lambda\_metadata) | n/a | <pre>object({<br/>    log_group_name = string<br/>  })</pre> | n/a | yes |
 | <a name="input_main_dashboard_name"></a> [main\_dashboard\_name](#input\_main\_dashboard\_name) | Name of the main dashboard. | `string` | n/a | yes |
+| <a name="input_metric_stream_bucket_arn"></a> [metric\_stream\_bucket\_arn](#input\_metric\_stream\_bucket\_arn) | ARN of the S3 bucket used by the metrics archiver. | `string` | `null` | no |
+| <a name="input_metric_stream_enabled"></a> [metric\_stream\_enabled](#input\_metric\_stream\_enabled) | Whether to create the custom metrics stream resources. | `bool` | `false` | no |
+| <a name="input_metric_stream_metric_names"></a> [metric\_stream\_metric\_names](#input\_metric\_stream\_metric\_names) | Custom metric names included in the stream. | `list(string)` | <pre>[<br/>  "ClientSuccess",<br/>  "ClientError",<br/>  "IDPSuccess",<br/>  "IDPError"<br/>]</pre> | no |
+| <a name="input_metric_stream_namespace"></a> [metric\_stream\_namespace](#input\_metric\_stream\_namespace) | CloudWatch namespace for the custom metrics stream. | `string` | `null` | no |
+| <a name="input_metric_stream_resource_prefix"></a> [metric\_stream\_resource\_prefix](#input\_metric\_stream\_resource\_prefix) | Prefix used for metric stream resource names. | `string` | `null` | no |
+| <a name="input_metric_stream_s3_prefix"></a> [metric\_stream\_s3\_prefix](#input\_metric\_stream\_s3\_prefix) | S3 prefix shared by the metrics archiver lambda and the continuous stream. | `string` | `"cloudwatch-metrics-backfill"` | no |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br/>    arn_suffix              = string<br/>    target_group_arn_suffix = string<br/>  })</pre> | n/a | yes |
 | <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |
 | <a name="input_region_short"></a> [region\_short](#input\_region\_short) | AWS Region short format. | `string` | n/a | yes |
