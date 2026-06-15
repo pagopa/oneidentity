@@ -10,6 +10,7 @@ on:
     branches: [ main, master ]
 jobs:
   test:
+    if: ${{ vars.SKIP_E2E_TESTS != 'true' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     defaults:
