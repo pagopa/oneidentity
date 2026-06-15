@@ -1,7 +1,7 @@
 ---
 description: Execute mixed-stack oneidentity changes using the repository's actual Terraform, workflow, frontend, service, and lambda conventions.
 name: internal-oneidentity-repo-specialist
-tools: ["search", "usages", "problems", "editFiles", "runTerminal", "fetch"]
+tools: ["search", "search/usages", "read/problems", "edit/editFiles", "runTerminal", "web/fetch"]
 ---
 
 # internal oneidentity Repo Specialist Agent

@@ -1,7 +1,7 @@
 ---
 description: Execute implementation tasks with safe edits, repository conventions, and validation-first delivery.
 name: TechAIImplementer
-tools: ["search", "usages", "problems", "editFiles", "runTerminal", "fetch"]
+tools: ["search", "search/usages", "read/problems", "edit/editFiles", "runTerminal", "web/fetch"]
 ---
 
 # TechAI Implementer Agent
