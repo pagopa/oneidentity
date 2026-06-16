@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.1.0
+
+### Minor Changes
+
+- d4b2a54: Bump mui-italia to latest and update footer links
+
 ## 1.0.5
 
 ### Patch Changes

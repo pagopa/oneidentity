@@ -1,5 +1,11 @@
 # infra
 
+## 2.3.1
+
+### Patch Changes
+
+- 09255c8: update lib metrics archiver lambda
+
 ## 2.3.0
 
 ### Minor Changes
