@@ -1,7 +1,7 @@
 ---
 description: Perform structured code reviews with severity ordering and actionable findings.
 name: TechAIReviewer
-tools: ["search", "usages", "problems", "fetch"]
+tools: ["search", "search/usages", "read/problems", "web/fetch"]
 ---
 
 # TechAI Reviewer Agent

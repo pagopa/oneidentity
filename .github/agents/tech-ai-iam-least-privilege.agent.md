@@ -1,7 +1,7 @@
 ---
 description: Analyze IAM and policy changes for least-privilege compliance across AWS, Azure, and GCP.
 name: TechAIIAMLeastPrivilege
-tools: ["search", "usages", "problems", "fetch"]
+tools: ["search", "search/usages", "read/problems", "web/fetch"]
 ---
 
 # TechAI IAM Least Privilege Agent

@@ -1,7 +1,7 @@
 ---
 description: Analyze requirements and produce implementation plans without file mutations.
 name: TechAIPlanner
-tools: ["search", "usages", "problems", "fetch"]
+tools: ["search", "search/usages", "read/problems", "web/fetch"]
 ---
 
 # TechAI Planner Agent

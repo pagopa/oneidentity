@@ -1,7 +1,7 @@
 ---
 description: Create or update pull request title/body using repository template and real diff context.
 name: TechAIPREditor
-tools: ["search", "usages", "problems", "fetch", "githubRepo"]
+tools: ["search", "search/usages", "read/problems", "web/fetch", "web/githubRepo"]
 ---
 
 # TechAI PR Writer Agent

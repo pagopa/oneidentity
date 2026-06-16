@@ -1,7 +1,7 @@
 ---
 description: Review GitHub Actions workflows for supply-chain risk, quality, and reusable CI/CD design.
 name: TechAIWorkflowSupplyChain
-tools: ["search", "usages", "problems", "fetch"]
+tools: ["search", "search/usages", "read/problems", "web/fetch"]
 ---
 
 # TechAI Workflow Supply Chain Agent

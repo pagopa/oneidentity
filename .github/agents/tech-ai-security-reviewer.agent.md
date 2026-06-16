@@ -1,7 +1,7 @@
 ---
 description: Perform security-focused code and configuration reviews with severity-based findings.
 name: TechAISecurityReviewer
-tools: ["search", "usages", "problems", "fetch"]
+tools: ["search", "search/usages", "read/problems", "web/fetch"]
 ---
 
 # TechAI Security Reviewer Agent
