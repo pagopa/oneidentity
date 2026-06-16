@@ -16,7 +16,6 @@ import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGener
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
-import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallerFactory;
@@ -120,7 +119,7 @@ public class SAMLUtils {
   public String buildRedirectQueryString(String samlRequest, String relayState, String sigAlg) {
     StringBuilder queryString = new StringBuilder();
     queryString.append("SAMLRequest=").append(URLEncoder.encode(samlRequest, StandardCharsets.UTF_8));
-    if (relayState != null) {
+    if (relayState != null && !relayState.isBlank()) {
       queryString.append("&RelayState=").append(URLEncoder.encode(relayState,
           StandardCharsets.UTF_8));
     }

@@ -128,7 +128,7 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
     Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -180,13 +180,13 @@ class OIDCControllerTest {
 
     AuthnRequest authnRequest = buildAuthnRequest("https://redirect.idp");
     Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
     Mockito.when(samlServiceImpl.encodeAuthnRequestForRedirect(Mockito.any()))
         .thenReturn("encoded");
     Mockito.when(samlServiceImpl.buildRedirectQueryString(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString()))
-        .thenReturn("SAMLRequest=encoded&RelayState=&SigAlg=sigalg");
+        Mockito.anyString()))
+        .thenReturn("SAMLRequest=encoded&SigAlg=sigalg");
     Mockito.when(samlServiceImpl.signRedirectQueryString(Mockito.anyString()))
         .thenReturn("signature");
 
@@ -205,7 +205,7 @@ class OIDCControllerTest {
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsString("SAMLRequest=encoded"))
+        .header("Location", containsString("?SAMLRequest=encoded&SigAlg=sigalg&Signature=signature"))
         .header("Location", containsString("Signature=signature"));
   }
 
@@ -385,8 +385,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -521,8 +521,8 @@ class OIDCControllerTest {
         .thenReturn(Optional.of(testIDP));
     // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenThrow(OneIdentityException.class);
 
     // then
@@ -571,8 +571,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -636,8 +636,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString(), Mockito.any()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");

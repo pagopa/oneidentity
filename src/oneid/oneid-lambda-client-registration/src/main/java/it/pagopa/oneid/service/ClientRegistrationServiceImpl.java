@@ -223,6 +223,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .policyUri(clientRegistrationDTO.getPolicyUri())
         .tosUri(clientRegistrationDTO.getTosUri())
         .defaultAcrValues(clientRegistrationDTO.getDefaultAcrValues())
+        .samlBinding(ClientSamlBinding.fromSamlBinding(client.getSamlBinding()))
         .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
         .a11yUri(clientRegistrationDTO.getA11yUri())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())

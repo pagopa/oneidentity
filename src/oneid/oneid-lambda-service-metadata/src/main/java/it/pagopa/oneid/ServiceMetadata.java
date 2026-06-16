@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -146,8 +145,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     if (hasDynamoScalarFieldChanged(nodeRecord, "ageParentAuth", "N")) {
       return true;
     }
-    return hasDynamoScalarFieldChanged(nodeRecord, "samlBinding", "S",
-        SamlBinding.HTTP_POST.getValue());
+    return false;
   }
 
   private boolean hasDynamoScalarFieldChanged(JsonNode nodeRecord, String fieldName, String type) {
@@ -266,8 +264,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       int acsIndex = client.getAcsIndex();
       if (addedAcsIndices.add(acsIndex)) {
         spssoDescriptor.getAssertionConsumerServices()
-            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs,
-                client.getSamlBinding().getValue()));
+            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs));
         firstAcs = false;
       }
       spssoDescriptor.getAttributeConsumingServices()

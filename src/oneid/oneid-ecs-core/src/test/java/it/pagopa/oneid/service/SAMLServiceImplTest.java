@@ -369,6 +369,24 @@ public class SAMLServiceImplTest {
   }
 
   @Test
+  void buildRedirectQueryString_omitsRelayStateWhenBlank() {
+    String queryString = samlServiceImpl.buildRedirectQueryString("encoded", "", "sigalg");
+
+    assertEquals("SAMLRequest=encoded&SigAlg=sigalg", queryString);
+    assertFalse(queryString.contains("RelayState="));
+    assertFalse(queryString.startsWith("?"));
+  }
+
+  @Test
+  void buildRedirectQueryString_includesRelayStateWhenPresent() {
+    String queryString = samlServiceImpl.buildRedirectQueryString("encoded", "relay-state",
+        "sigalg");
+
+    assertEquals("SAMLRequest=encoded&RelayState=relay-state&SigAlg=sigalg", queryString);
+    assertFalse(queryString.startsWith("?"));
+  }
+
+  @Test
   void checkSAMLStatus_StatusCodeSuccess() throws OneIdentityException {
     // given
     Response response = Mockito.mock(Response.class);

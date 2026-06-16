@@ -33,6 +33,7 @@ import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
+import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -412,12 +413,13 @@ class ClientRegistrationServiceImplTest {
 
     when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", null, null));
+    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+        .saveClient(clientRegistrationDTO, "userId", null, null));
 
     verify(clientConnectorImpl)
         .saveClientIfNotExists(
             Mockito.argThat(saved -> SamlBinding.HTTP_POST.equals(saved.getSamlBinding())));
+    assertEquals(ClientSamlBinding.HTTP_POST, response.getSamlBinding());
   }
 
   @Test
@@ -436,12 +438,13 @@ class ClientRegistrationServiceImplTest {
 
     when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", null, null));
+    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+        .saveClient(clientRegistrationDTO, "userId", null, null));
 
     verify(clientConnectorImpl)
         .saveClientIfNotExists(
             Mockito.argThat(saved -> SamlBinding.HTTP_REDIRECT.equals(saved.getSamlBinding())));
+    assertEquals(ClientSamlBinding.HTTP_REDIRECT, response.getSamlBinding());
   }
 
   @Test
