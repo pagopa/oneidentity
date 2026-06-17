@@ -125,14 +125,18 @@ export const AddOrUpdateUser = () => {
     }
   }, [isUserCreated, isUserUpdated, navigate]);
 
-  const isFormValid = () => idpUserSchema.safeParse(formData).success;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData || !isFormValid()) {
+    const validationResult = idpUserSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      setErrorUi(validationResult.error.format() as UserErrors);
       console.error('Form is not valid');
       return;
     }
+
+    setErrorUi(null);
+
     if (isEditMode) {
       updateClientUsersMutation({
         data: formData as IdpUser,
@@ -152,7 +156,7 @@ export const AddOrUpdateUser = () => {
 
   return (
     <PageContainer>
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleSubmit} noValidate>
         <ContentBox>
           <Typography variant="h5" gutterBottom>
             User Data
@@ -165,6 +169,8 @@ export const AddOrUpdateUser = () => {
             value={formData?.username || ''}
             margin="normal"
             onChange={handleChange('username')}
+            error={!!(errorUi as UserErrors)?.username?._errors}
+            helperText={(errorUi as UserErrors)?.username?._errors}
             disabled={isEditMode}
             onKeyDown={(e) => {
               if (e.key === ' ') {
@@ -284,7 +290,7 @@ export const AddOrUpdateUser = () => {
           sx={{ mt: 3 }}
           data-testid="submit-button"
           startIcon={isEditMode ? <SaveIcon /> : <AddIcon />}
-          disabled={!isFormValid() || isCreatingUser || isUpdatingUser}
+          disabled={isCreatingUser || isUpdatingUser}
         >
           {isEditMode ? 'Update User' : 'Add User'}
         </Button>

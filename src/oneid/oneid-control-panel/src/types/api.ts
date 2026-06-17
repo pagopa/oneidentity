@@ -113,7 +113,7 @@ export const SamlBindingSchema = z.enum([
 ]);
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
-
+const nameRegex = /^^(?!_)(?!.*[#@]).*(?<!_)$/;
 const httpsUrlSchema = z
   .string()
   .url()
@@ -168,7 +168,10 @@ export const clientSchema = z
     clientSecret: z.string().nullish(),
     clientIdIssuedAt: z.number().optional(),
     clientSecretExpiresAt: z.number().optional(),
-    clientName: z.string().optional(),
+    clientName: z
+      .string()
+      .regex(nameRegex, 'Cannot start with _ or # and cannot contain @')
+      .optional(),
     policyUri: httpsUrlSchema.nullish(),
     tosUri: httpsUrlSchema.nullish(),
     redirectUris: z.array(httpsUrlSchema).min(1),
@@ -248,8 +251,16 @@ export const idpUserCreateOrUpdateResponseSchema = z.object({
 });
 
 export const idpUserSchema = z.object({
-  username: z.string().trim().min(1),
-  password: z.string().trim().min(1),
+  username: z
+    .string()
+    .trim()
+    .min(1, 'Username is required')
+    .regex(nameRegex, 'Username cannot start with _ or # and cannot contain @'),
+  password: z
+    .string()
+    .trim()
+    .min(1, 'Password is required')
+    .regex(nameRegex, 'Password cannot start with _ or # and cannot contain @'),
   samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
   age: z.number().int().min(1).max(999).optional(),
 });
