@@ -24,7 +24,8 @@ public class SessionServiceImpl implements SessionService {
   SessionConnectorImpl sessionConnectorImpl;
 
   @Override
-  public void saveIDPSession(AuthnRequest authnRequest, Client client) {
+  public void saveIDPSession(AuthnRequest authnRequest, Client client,
+      String relayStateToReturn) {
     Log.debug("Start saveIDPSession for authnRequestId: " + authnRequest.getID());
     if (client == null) {
       Log.error("Client not found for AttributeConsumingServiceIndex: "
@@ -40,6 +41,7 @@ public class SessionServiceImpl implements SessionService {
         .username("")
         .timestampStart(Instant.now().toEpochMilli())
         .timestampEnd(0)
+        .relayStateToReturn(relayStateToReturn)
         .build();
 
     if (client.isSpidMinors()) {
@@ -86,14 +88,14 @@ public class SessionServiceImpl implements SessionService {
     // Check if the session exists
     if (optionalIdpSession.isEmpty()) {
       throw new OneIdentityException(
-          "No session with this authnRequestId found: " + authnRequestId); //todo check
+          "No session with this authnRequestId found: " + authnRequestId); // todo check
     }
 
     IDPSession idpSession = optionalIdpSession.get();
 
     // Check if the status matches the session's status
     if (!status.equals(idpSession.getStatus())) {
-      throw new OneIdentityException("Invalid status"); //todo check
+      throw new OneIdentityException("Invalid status"); // todo check
     }
 
     return idpSession;

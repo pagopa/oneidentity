@@ -98,14 +98,13 @@ public class InternalIDPController {
     // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
     Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
         authnRequest);
-    sessionServiceImpl.saveIDPSession(authnRequest, client);
+    sessionServiceImpl.saveIDPSession(authnRequest, client, relayStateToReturn);
 
     // Set authnRequestId and clientId as hidden form fields instead of cookies
     TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
         .data("authnRequestId", authnRequest.getID())
         .data("clientId", client.getClientId())
-        .data("clientName", client.getFriendlyName())
-        .data("relayStateToReturn", relayStateToReturn);
+        .data("clientName", client.getFriendlyName());
 
     return Response.status(Status.OK)
         .entity(instance.render())
@@ -164,8 +163,6 @@ public class InternalIDPController {
         .data("authnRequestId", idpSession.getAuthnRequestId())
         .data("clientId", idpSession.getClientId())
         .data("username", idpSession.getUsername())
-        .data("relayStateToReturn",
-            resolveRelayState(loginRequestDTO.getRelayStateToReturn(), false))
         .data("dataList", friendlyRequestedParameters);
 
     return Response.status(Status.OK)
@@ -184,7 +181,7 @@ public class InternalIDPController {
         consentRequestDto.getClientId(),
         consentRequestDto.getUsername());
 
-    String relayStateToReturn = resolveRelayState(consentRequestDto.getRelayStateToReturn(), false);
+    String relayStateToReturn = idpSession.getRelayStateToReturn();
     return consentRequestDto.isConsent() ? handleConsentGiven(idpSession, relayStateToReturn)
         : handleConsentDenied(idpSession, relayStateToReturn);
   }
@@ -242,11 +239,24 @@ public class InternalIDPController {
 
   private String getRedirectAutoSubmitPOSTForm(String url, String samlResponse,
       String relayStateToReturn) {
+    String escapedRelayStateToReturn = escapeHtmlAttribute(relayStateToReturn);
     return "<form id='samlResponseForm' action='" + url + "' method='POST'>"
         + "<input type='hidden' name='SAMLResponse' value='" + samlResponse + "'/>"
-        + "<input type='hidden' name='RelayState' value='" + relayStateToReturn + "'/>"
+        + "<input type='hidden' name='RelayState' value='" + escapedRelayStateToReturn + "'/>"
         + "</form>"
         + "<script>document.getElementById('samlResponseForm').submit();</script>";
+  }
+
+  private String escapeHtmlAttribute(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;");
   }
 
   private String resolveRelayState(String relayStateFromRequest, boolean isRedirectBinding) {

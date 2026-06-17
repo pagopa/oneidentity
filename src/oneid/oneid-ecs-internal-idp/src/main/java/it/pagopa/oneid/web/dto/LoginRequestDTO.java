@@ -26,7 +26,4 @@ public class LoginRequestDTO {
   @RestForm("password")
   @NotBlank
   private String password;
-
-  @RestForm("relayStateToReturn")
-  private String relayStateToReturn;
 }
