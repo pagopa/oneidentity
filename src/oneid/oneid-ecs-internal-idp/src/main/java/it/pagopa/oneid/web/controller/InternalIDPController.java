@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.Strings;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -260,7 +261,7 @@ public class InternalIDPController {
   }
 
   private String resolveRelayState(String relayStateFromRequest, boolean isRedirectBinding) {
-    if (relayStateFromRequest == null || relayStateFromRequest.isBlank()) {
+    if (relayStateFromRequest == null || relayStateFromRequest.isBlank() || Strings.CS.equals(relayStateFromRequest, "/")) {
       return isRedirectBinding ? REDIRECT_RELAY_STATE : POST_RELAY_STATE;
     }
     return relayStateFromRequest;
