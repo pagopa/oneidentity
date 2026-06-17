@@ -27,6 +27,7 @@ import {
   ClientThemeEntry,
   ClientWithoutSensitiveData,
   Languages,
+  themeKeySchema,
 } from '../../types/api';
 import { LocalizedContentEditor } from './components/LocalizedContentEditor';
 import { ThemeManager } from './components/ThemeManager';
@@ -44,6 +45,9 @@ function isEqualOrNullish(a: unknown, b: unknown): boolean {
   // Check if equal
   return a === b;
 }
+
+const normalizeThemeKey = (value: string): string =>
+  value.trim().toLowerCase().replace(/\s+/g, '-');
 
 function CustomizeDashboard() {
   const { clientId } = useClientId();
@@ -90,6 +94,17 @@ function CustomizeDashboard() {
     ? (Object.keys(activeTheme) as Array<keyof typeof allLanguages>)
     : [];
 
+  const defaultThemeExists = useMemo(
+    () =>
+      !!clientData &&
+      !!clientData.localizedContentMap &&
+      Object.prototype.hasOwnProperty.call(
+        clientData.localizedContentMap,
+        'default'
+      ),
+    [clientData]
+  );
+
   const [activeTab, setActiveTab] = useState<string>(activeLanguages[0] || '');
 
   // Modals state
@@ -100,6 +115,30 @@ function CustomizeDashboard() {
   // Modal inputs state
   const [languageToAdd, setLanguageToAdd] = useState('');
   const [newThemeKey, setNewThemeKey] = useState('');
+  const normalizedNewThemeKey = useMemo(
+    () => normalizeThemeKey(newThemeKey),
+    [newThemeKey]
+  );
+
+  const newThemeKeyError = useMemo(() => {
+    if (!defaultThemeExists || !normalizedNewThemeKey) {
+      return null;
+    }
+
+    if (clientData?.localizedContentMap?.[normalizedNewThemeKey]) {
+      return 'Theme key already exists';
+    }
+
+    if (!themeKeySchema.safeParse(normalizedNewThemeKey).success) {
+      return 'Theme key is invalid';
+    }
+
+    return null;
+  }, [
+    clientData?.localizedContentMap,
+    defaultThemeExists,
+    normalizedNewThemeKey,
+  ]);
 
   // --- Effects ---
   useEffect(() => {
@@ -291,24 +330,15 @@ function CustomizeDashboard() {
       };
     });
   };
-  const defaultThemeExists = useMemo(
-    () =>
-      !!clientData &&
-      !!clientData.localizedContentMap &&
-      Object.prototype.hasOwnProperty.call(
-        clientData.localizedContentMap,
-        'default'
-      ),
-    [clientData]
-  );
-
   // force user to create at least one theme called "default"
   const handleAddTheme = () => {
     // If 'default' doesn't exist, the new theme MUST be 'default'.
     // Otherwise, create a key from the user's input.
-    const key = !defaultThemeExists
-      ? 'default'
-      : newThemeKey.trim().toLowerCase().replace(/\s+/g, '-');
+    const key = !defaultThemeExists ? 'default' : normalizedNewThemeKey;
+
+    if (defaultThemeExists && (newThemeKeyError || !key)) {
+      return;
+    }
 
     // Prevent adding a theme if the key is empty or already exists.
     if (!key || clientData?.localizedContentMap?.[key]) {
@@ -483,11 +513,18 @@ function CustomizeDashboard() {
             fullWidth
             autoFocus
             disabled={!defaultThemeExists}
+            error={!!newThemeKeyError}
+            helperText={newThemeKeyError || ' '}
           />
           <ModalActions
             onCancel={() => setThemeModalOpen(false)}
             onConfirm={handleAddTheme}
             confirmText="Create"
+            confirmDisabled={
+              defaultThemeExists
+                ? !normalizedNewThemeKey || !!newThemeKeyError
+                : false
+            }
           />
         </Box>
       </Modal>
@@ -518,10 +555,11 @@ const ModalActions: React.FC<{
   onCancel: () => void;
   onConfirm: () => void;
   confirmText: string;
-}> = ({ onCancel, onConfirm, confirmText }) => (
+  confirmDisabled?: boolean;
+}> = ({ onCancel, onConfirm, confirmText, confirmDisabled = false }) => (
   <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
     <Button onClick={onCancel}>Cancel</Button>
-    <Button variant="contained" onClick={onConfirm}>
+    <Button variant="contained" onClick={onConfirm} disabled={confirmDisabled}>
       {confirmText}
     </Button>
   </Box>

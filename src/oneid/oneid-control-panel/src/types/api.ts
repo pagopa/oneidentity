@@ -158,6 +158,12 @@ const ThemeSchema = z.object({
   supportAddress: z.string().email().nullish(),
 });
 
+export const themeKeySchema = z
+  .string()
+  .trim()
+  .min(1, 'Theme key is invalid')
+  .regex(nameRegex, 'Theme key is invalid');
+
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 // TODO: check and eventually remove optional from required fields
@@ -191,7 +197,7 @@ export const clientSchema = z
     a11yUri: httpsUrlSchema.nullish(),
     backButtonEnabled: z.boolean().optional().default(false),
     localizedContentMap: z
-      .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+      .record(themeKeySchema, ThemeLocalizedSchema)
       .nullish(),
   })
   .superRefine((data, ctx) => {
