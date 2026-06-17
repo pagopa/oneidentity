@@ -28,9 +28,7 @@ import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
-import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
-import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
@@ -65,8 +63,19 @@ class ClientRegistrationServiceImplTest {
   @InjectMock
   SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
 
+    private void stubFindAllWithAnotherAcsZeroClient(Client existingClient) {
+        ArrayList<Client> allClient = new ArrayList<>();
+        allClient.add(existingClient);
+        allClient.add(Client.builder()
+                .clientId(existingClient.getClientId() + "-other")
+                .acsIndex(0)
+                .build());
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+    }
+
   @Test
-  void validateClientRegistrationInfo() {
+    void validatePairwiseClientRegistrationInfo() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -83,12 +92,12 @@ class ClientRegistrationServiceImplTest {
         .pairwise(false)
         .build();
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -105,12 +114,12 @@ class ClientRegistrationServiceImplTest {
         .pairwise(true)
         .build();
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_ok() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -136,12 +145,12 @@ class ClientRegistrationServiceImplTest {
     when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
         .thenReturn(validResp);
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTO, "dummy-key", "dummy-plan"));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -168,12 +177,12 @@ class ClientRegistrationServiceImplTest {
         .thenReturn(validResp);
 
     assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
             clientRegistrationDTO, "dummy-key", "dummy-plan"));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -202,12 +211,12 @@ class ClientRegistrationServiceImplTest {
                 Response.status(NOT_FOUND).entity("not found").build())));
 
     assertThrows(PDVException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
             clientRegistrationDTO, "dummy-key", "dummy-plan"));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -225,12 +234,12 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
             clientRegistrationDTO, "dummy-key", ""));
   }
 
   @Test
-  void validateClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -248,12 +257,12 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
             clientRegistrationDTO, "", "dummy-plan"));
   }
 
   @Test
-  void testValidateClientRegistrationInfo_WithMultipleUris() {
+    void testValidatePairwiseClientRegistrationInfo_WithMultipleUris() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://valid.it", "https://valid.com"))
         .clientName("test")
@@ -264,48 +273,35 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .build();
 
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_invalid_client_name() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of(".error"))
-        .build();
-
-    assertThrows(InvalidClientInput.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validateClientRegistrationInfo_invalid_redirectUri() {
+    void validatePairwiseClientRegistrationInfo_invalid_redirectUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .clientName("test")
         .redirectUris(Set.of(".error"))
         .build();
 
-    assertThrows(InvalidUriException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_invalid_logoUri() {
+    void validatePairwiseClientRegistrationInfo_invalid_logoUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
         .logoUri("error")
         .build();
 
-    assertThrows(InvalidUriException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_invalid_policyUri() {
+    void validatePairwiseClientRegistrationInfo_invalid_policyUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -313,13 +309,12 @@ class ClientRegistrationServiceImplTest {
         .policyUri("error")
         .build();
 
-    assertThrows(InvalidUriException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_invalid_tosUri() {
+    void validatePairwiseClientRegistrationInfo_invalid_tosUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -328,13 +323,12 @@ class ClientRegistrationServiceImplTest {
         .tosUri("error")
         .build();
 
-    assertThrows(InvalidUriException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
   }
 
   @Test
-  void validateClientRegistrationInfo_invalid_a11yUri() {
+    void validatePairwiseClientRegistrationInfo_invalid_a11yUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -344,9 +338,8 @@ class ClientRegistrationServiceImplTest {
         .a11yUri("error")
         .build();
 
-    assertThrows(InvalidUriException.class,
-        () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
-            clientRegistrationDTO, null, null));
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+        clientRegistrationDTO, null, null));
   }
 
   @Test
@@ -813,6 +806,7 @@ class ClientRegistrationServiceImplTest {
         .build();
     when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(existingClientExtended));
+    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
@@ -845,8 +839,8 @@ class ClientRegistrationServiceImplTest {
             && updated.getCallbackURI().equals(Set.of("https://test.com"))
             && updated.getRequestedParameters().equals(Set.of("name"))
             && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == 0
-            && updated.getAttributeIndex() == 0
+            && updated.getAcsIndex() == attributeIndex
+            && updated.getAttributeIndex() == attributeIndex
             && updated.isActive()
             && updated.getClientIdIssuedAt() == originalIssuedAt
             && updated.getLogoUri().equals("newLogo")
@@ -943,6 +937,7 @@ class ClientRegistrationServiceImplTest {
         .build();
     when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(existingClientExtended));
+    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
@@ -1035,6 +1030,8 @@ class ClientRegistrationServiceImplTest {
         .clientIdIssuedAt(originalIssuedAt)
         .build();
 
+    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
+
     when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
 
     // when
@@ -1049,8 +1046,8 @@ class ClientRegistrationServiceImplTest {
             && updated.getCallbackURI().equals(Set.of("https://test.com"))
             && updated.getRequestedParameters().equals(Set.of("spidCode"))
             && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == 0
-            && updated.getAttributeIndex() == 0
+            && updated.getAcsIndex() == attributeIndex
+            && updated.getAttributeIndex() == attributeIndex
             && updated.isActive()
             && updated.getClientIdIssuedAt() == originalIssuedAt
             && updated.getLogoUri().equals("newLogo")
@@ -1107,6 +1104,7 @@ class ClientRegistrationServiceImplTest {
         .build();
     when(clientConnectorImpl.getClientById(clientId))
         .thenReturn(Optional.of(existingClientExtended));
+    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
@@ -1134,12 +1132,30 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(
-        Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+        updated.getClientId().equals(clientId)
+            && updated.getUserId().equals(userId)
+            && updated.getFriendlyName().equals("test")
+            && updated.getCallbackURI().equals(Set.of("https://test.com"))
+            && updated.getRequestedParameters().equals(Set.of("name"))
+            && updated.getAuthLevel() == AuthLevel.L2
+            && updated.getAcsIndex() == attributeIndex
+            && updated.getAttributeIndex() == attributeIndex
+            && updated.isActive()
+            && updated.getClientIdIssuedAt() == originalIssuedAt
+            && updated.getLogoUri().equals("newLogo")
+            && updated.getPolicyUri().equals("newPolicy")
+            && updated.getTosUri().equals("newTos")
+            && !updated.isRequiredSameIdp() // default false
+            && updated.getA11yUri().equals("newA11y")
+            && updated.isBackButtonEnabled()
+            && updated.getLocalizedContentMap().equals(new HashMap<>())
             && updated.isSpidMinors()
             && updated.getMinAge() == 14
-            && updated.getAgeParentAuth() == 16
-            && updated.getMaxAge() == 18));
+            && updated.getMaxAge() == 18
+            && updated.getSecret().equals(secret) // unchanged
+            && updated.getSalt().equals(salt) // unchanged
+    ));
   }
 
   @Test
