@@ -244,6 +244,67 @@ describe('Dashboard UI', () => {
     });
   });
 
+  it('highlights client name when backend validation returns a field detail', async () => {
+    const hookModule = await import('../../hooks/useRegister');
+    const detailMessage =
+      'updateClient.clientRegistrationDTOInput.clientName: Invalid clientName';
+
+    const mockedHookReturn = {
+      clientQuery: {
+        data: {
+          clientId: 'client-123',
+          clientName: 'Test Client',
+          redirectUris: ['https://example.com/callback'],
+          defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+          samlRequestedAttributes: ['fiscalNumber'],
+          spidMinors: false,
+          pairwise: false,
+          requiredSameIdp: false,
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: new Error(detailMessage),
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Invalid clientName/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Client Name/i)).toHaveAttribute(
+        'aria-invalid',
+        'true'
+      );
+    });
+
+    spy.mockRestore();
+  });
+
   it('shows a success notification after update changes', async () => {
     render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
 
