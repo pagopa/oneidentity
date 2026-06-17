@@ -9,20 +9,20 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
+import it.pagopa.oneid.exception.MalformedAuthnRequestException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.inject.Inject;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.core.Extensions;
-import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
@@ -44,6 +44,52 @@ class InternalIDPServiceImplTest {
 
   @Test
   void getAuthnRequestFromString() {
+  }
+
+  @Test
+  @DisplayName("given_malformed_redirect_request_when_getAuthnRequestFromRedirectString_then_throws")
+  void getAuthnRequestFromRedirectString_malformed() {
+    assertThrows(MalformedAuthnRequestException.class,
+        () -> internalIDPServiceImpl.getAuthnRequestFromRedirectString("invalid-base64"));
+  }
+
+  @Test
+  @DisplayName("given_valid_redirect_signature_when_validateRedirectSignature_then_no_exception")
+  void validateRedirectSignature_validSignature() throws SAMLUtilsException {
+    String samlRequest = "encodedSamlRequest";
+    String relayState = "relay-state";
+    String sigAlg = SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512;
+
+    String queryString = internalIDPServiceImpl.buildRedirectQueryString(samlRequest, relayState,
+        sigAlg);
+    String signature = internalIDPServiceImpl.signRedirectQueryString(queryString);
+
+    assertDoesNotThrow(() -> internalIDPServiceImpl.validateRedirectSignature(samlRequest,
+        relayState, sigAlg, signature));
+  }
+
+  @Test
+  @DisplayName("given_invalid_redirect_signature_when_validateRedirectSignature_then_throws")
+  void validateRedirectSignature_invalidSignature() {
+    assertThrows(SAMLValidationException.class,
+        () -> internalIDPServiceImpl.validateRedirectSignature("encodedSamlRequest", "relay",
+            SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512, "invalid-signature"));
+  }
+
+  @Test
+  @DisplayName("given_unsigned_redirect_authn_request_when_validateRedirectAuthnRequest_then_no_exception")
+  void validateRedirectAuthnRequest_unsignedRequest() {
+    AuthnRequest authnRequest = internalIDPServiceImpl.buildSAMLObject(AuthnRequest.class);
+    authnRequest.setID("test-request-id");
+    authnRequest.setIssueInstant(Instant.now());
+    authnRequest.setAttributeConsumingServiceIndex(0);
+    authnRequest.setDestination("https://localhost/samlsso");
+
+    Issuer issuer = internalIDPServiceImpl.buildSAMLObject(Issuer.class);
+    issuer.setValue("https://localhost/issuer");
+    authnRequest.setIssuer(issuer);
+
+    assertDoesNotThrow(() -> internalIDPServiceImpl.validateRedirectAuthnRequest(authnRequest));
   }
 
   @Test
@@ -244,7 +290,8 @@ class InternalIDPServiceImplTest {
     GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value("not-a-real-cert").build())
         .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class))).thenReturn(invalidCertResponse);
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+        .thenReturn(invalidCertResponse);
 
     assertThrows(RuntimeException.class,
         () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
@@ -253,7 +300,7 @@ class InternalIDPServiceImplTest {
   @Test
   @DisplayName("given_cert_ok_but_invalid_key_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
   void createConsentDeniedSamlResponse_invalidKey_throwsRuntimeException() {
-    //  first getParameter (cert) ok, second getParameter (key) not valid
+    // first getParameter (cert) ok, second getParameter (key) not valid
     String testCertPem = "-----BEGIN CERTIFICATE-----\n"
         + "MIIBpDCCAQ2gAwIBAgIUYz1234InvalidTestCertForUnitTests1234567890MA0G"
         + "CSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGEludGVybmFsSURQVGVzdENlcnQwHhcN\n"

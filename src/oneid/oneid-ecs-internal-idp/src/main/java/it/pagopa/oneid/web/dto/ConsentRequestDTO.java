@@ -22,4 +22,7 @@ public class ConsentRequestDTO {
   @RestForm("consent")
   private boolean consent;
 
+  @RestForm("relayStateToReturn")
+  private String relayStateToReturn;
+
 }
