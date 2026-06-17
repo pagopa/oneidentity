@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import type * as ReactRouterDom from 'react-router-dom';
 import { vi, describe, it, beforeEach, afterEach, expect, Mock } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
@@ -285,15 +285,24 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
-  it('should not submit if form is invalid', async () => {
+  it('shows validation errors when the form is submitted invalid', async () => {
+    const user = userEvent.setup();
+
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
     const submitBtn = screen.getByTestId(submitBtnId);
-    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).not.toBeDisabled();
 
-    fireEvent.click(submitBtn);
+    await user.click(submitBtn);
 
     await waitFor(() => {
+      expect(screen.getAllByText('Required')).toHaveLength(2);
+      expect(
+        screen.getByLabelText(/Username/i, { selector: 'input' })
+      ).toHaveAttribute('aria-invalid', 'true');
+      expect(
+        screen.getByLabelText(/Password/i, { selector: 'input' })
+      ).toHaveAttribute('aria-invalid', 'true');
       expect(mockCreate).not.toHaveBeenCalled();
     });
   });
@@ -359,7 +368,7 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
-  it('disables submit when age is out of range (e.g. 0)', async () => {
+  it('shows an age validation error when age is out of range (e.g. 0)', async () => {
     const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
@@ -378,6 +387,15 @@ describe('AddOrUpdateUser', () => {
     await user.type(ageInput, '0');
 
     const submitBtn = screen.getByTestId(submitBtnId);
-    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).not.toBeDisabled();
+
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/Age/i, { selector: 'input' })
+      ).toHaveAttribute('aria-invalid', 'true');
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
   });
 });
