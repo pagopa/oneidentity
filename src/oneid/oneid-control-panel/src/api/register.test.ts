@@ -213,6 +213,24 @@ describe('createOrUpdateClient', () => {
     );
   });
 
+  it('throws the backend validation detail if present', async () => {
+    axiosMock.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        data: {
+          status: 400,
+          title: 'Bad Request',
+          detail:
+            'updateClient.clientRegistrationDTOInput.clientName: Invalid clientName',
+        },
+      },
+    });
+
+    await expect(createOrUpdateClient(mockClientData)).rejects.toThrow(
+      'updateClient.clientRegistrationDTOInput.clientName: Invalid clientName'
+    );
+  });
+
   it('throws a generic error if the API call fails unexpectedly', async () => {
     const mockError = { isAxiosError: false, message: unexpectedError };
     axiosMock.post.mockRejectedValueOnce(mockError);

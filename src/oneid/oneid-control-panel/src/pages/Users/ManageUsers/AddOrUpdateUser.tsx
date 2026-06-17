@@ -27,6 +27,47 @@ import SaveIcon from '@mui/icons-material/Save';
 import { PageContainer } from '../../../components/PageContainer';
 import { ContentBox } from '../../../components/ContentBox';
 
+const mapUserValidationError = (message: string): UserErrors | null => {
+  const normalizedMessage = message.toLowerCase();
+
+  if (
+    normalizedMessage === 'username, password and saml_attributes are required'
+  ) {
+    return {
+      _errors: [],
+      username: { _errors: [message] },
+      password: { _errors: [message] },
+      samlAttributes: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (normalizedMessage.includes('username format is invalid')) {
+    return {
+      _errors: [],
+      username: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (normalizedMessage.includes('password format is invalid')) {
+    return {
+      _errors: [],
+      password: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (
+    normalizedMessage.includes('samlattributes') ||
+    normalizedMessage.includes('saml_attributes')
+  ) {
+    return {
+      _errors: [],
+      samlAttributes: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  return null;
+};
+
 const SamlAttributeValueFields = ({
   attributes,
   onChange,
@@ -86,7 +127,10 @@ export const AddOrUpdateUser = () => {
   useEffect(() => {
     if (addClientUsersError) {
       console.error('Error adding user:', addClientUsersError);
-      setErrorUi(addClientUsersError as unknown as UserErrors);
+      setErrorUi(
+        mapUserValidationError(addClientUsersError.message) ??
+          (addClientUsersError as unknown as UserErrors)
+      );
       showNotification(
         addClientUsersError.message === 'User already exists'
           ? 'User already exists'
@@ -96,7 +140,10 @@ export const AddOrUpdateUser = () => {
     }
     if (updateClientUsersError) {
       console.error('Error update user:', updateClientUsersError);
-      setErrorUi(updateClientUsersError as unknown as UserErrors);
+      setErrorUi(
+        mapUserValidationError(updateClientUsersError.message) ??
+          (updateClientUsersError as unknown as UserErrors)
+      );
       showNotification('Error updating user', 'error');
     }
   }, [addClientUsersError, updateClientUsersError, showNotification]);

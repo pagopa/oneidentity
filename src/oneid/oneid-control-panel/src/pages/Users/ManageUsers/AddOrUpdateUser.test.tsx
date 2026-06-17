@@ -35,6 +35,8 @@ let mockUpdateMutation: {
   isPending: boolean;
 };
 
+const ariaInvalid = 'aria-invalid';
+
 vi.mock('../../../hooks/useClient', () => ({
   useClient: () => ({
     createClientUsersMutation: mockCreateMutation,
@@ -83,7 +85,8 @@ const createWrapper = () => {
 };
 
 const submitBtnId = 'submit-button';
-
+const usernameInvalidError = 'username format is invalid';
+const passwordInvalidError = 'password format is invalid';
 vi.mock('react-router-dom', async () => {
   const actual =
     await vi.importActual<typeof ReactRouterDom>('react-router-dom');
@@ -213,6 +216,79 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
+  it('highlights username when backend validation returns a field message', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: new Error(usernameInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(usernameInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Username/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
+  it('highlights password when backend validation returns a field message', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: new Error(passwordInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(passwordInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Password/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
+  it('highlights username in edit mode when backend validation returns a field message', async () => {
+    mockUpdateMutation = {
+      mutate: mockUpdate,
+      error: new Error(usernameInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    const rr = await import('react-router-dom');
+    vi.spyOn(rr, 'useParams').mockReturnValue({ id: 'existing_user' });
+    vi.spyOn(rr, 'useLocation').mockReturnValue({
+      state: {
+        userToEdit: {
+          username: 'existing_user',
+          password: 'password',
+          samlAttributes: { name: 'OldValue' },
+        },
+      },
+      key: '',
+      pathname: '',
+      search: '',
+      hash: '',
+    });
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(usernameInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Username/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
   it('navigates to user list on successful user creation', async () => {
     mockCreateMutation = {
       mutate: mockCreate,
@@ -299,10 +375,10 @@ describe('AddOrUpdateUser', () => {
       expect(screen.getAllByText('Required')).toHaveLength(2);
       expect(
         screen.getByLabelText(/Username/i, { selector: 'input' })
-      ).toHaveAttribute('aria-invalid', 'true');
+      ).toHaveAttribute(ariaInvalid, 'true');
       expect(
         screen.getByLabelText(/Password/i, { selector: 'input' })
-      ).toHaveAttribute('aria-invalid', 'true');
+      ).toHaveAttribute(ariaInvalid, 'true');
       expect(mockCreate).not.toHaveBeenCalled();
     });
   });
@@ -394,7 +470,7 @@ describe('AddOrUpdateUser', () => {
     await waitFor(() => {
       expect(
         screen.getByLabelText(/Age/i, { selector: 'input' })
-      ).toHaveAttribute('aria-invalid', 'true');
+      ).toHaveAttribute(ariaInvalid, 'true');
       expect(mockCreate).not.toHaveBeenCalled();
     });
   });
