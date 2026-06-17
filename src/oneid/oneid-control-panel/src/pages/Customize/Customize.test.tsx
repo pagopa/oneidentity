@@ -64,6 +64,9 @@ const mockClientData = {
   },
 };
 
+const invalidThemeKey = '_marketing';
+const invalidThemeKeyError = 'Theme key is invalid';
+
 vi.mock('../../hooks/useRegister', () => ({
   useRegister: () => ({
     clientQuery: {
@@ -227,6 +230,20 @@ describe('Refactored ReservedAreaForm Component', () => {
 
     // It should have one default language (Italiano)
     expect(screen.getByRole('tab', { name: /Italiano/i })).toBeInTheDocument();
+  });
+
+  it('should prevent adding a new theme with an invalid key', async () => {
+    const user = userEvent.setup();
+    render(<Customize />, { wrapper: createWrapper() });
+
+    await user.click(screen.getByRole('button', { name: /Add New Theme/i }));
+
+    const themeNameInput = await screen.findByLabelText(/New Theme Key/i);
+    await user.type(themeNameInput, invalidThemeKey);
+
+    expect(await screen.findByText(invalidThemeKeyError)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Create/i })).toBeDisabled();
+    expect(screen.getByTestId('theme-select')).toHaveTextContent('default');
   });
 
   it('should prevent deleting the "default" theme', async () => {

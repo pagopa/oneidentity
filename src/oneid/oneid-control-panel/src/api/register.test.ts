@@ -8,6 +8,7 @@ import {
 import { ENV } from '../utils/env';
 import {
   Client,
+  clientSchema,
   SamlAttribute,
   SamlBinding,
   SpidLevel,
@@ -200,6 +201,25 @@ describe('createOrUpdateClient', () => {
   it('throws validation errors for invalid client data', async () => {
     const invalidData = { ...mockClientData, client_name: '' }; // Invalid client_name
     await expect(createOrUpdateClient(invalidData)).rejects.toThrow();
+  });
+
+  it('rejects invalid theme keys in localizedContentMap', () => {
+    const invalidThemeKeyData = {
+      ...mockClientData,
+      localizedContentMap: {
+        _marketing: {
+          it: {
+            title: 'Valid title',
+            description: 'Valid description with enough chars',
+            docUri: 'https://example.com/doc',
+            cookieUri: 'https://example.com/cookie',
+            supportAddress: 'support@example.com',
+          },
+        },
+      },
+    };
+
+    expect(clientSchema.safeParse(invalidThemeKeyData).success).toBe(false);
   });
 
   it('throws an error if the API call fails', async () => {
