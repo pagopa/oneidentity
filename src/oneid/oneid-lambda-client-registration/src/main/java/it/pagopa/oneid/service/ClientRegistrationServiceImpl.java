@@ -21,6 +21,7 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -37,7 +38,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -69,7 +69,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // validate client name
     if (!(clientRegistrationDTO.getClientName() != null && ValidationUtils.isSafeTitle(
         clientRegistrationDTO.getClientName()))) {
-      throw new InvalidParameterException("Invalid Client name");
+      throw new InvalidClientInput("Invalid Client name");
     }
 
     // Validate redirectUris
