@@ -28,6 +28,7 @@ import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
+import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -38,7 +39,6 @@ import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -274,7 +274,7 @@ class ClientRegistrationServiceImplTest {
         .redirectUris(Set.of(".error"))
         .build();
 
-    assertThrows(InvalidParameterException.class,
+    assertThrows(InvalidClientInput.class,
         () -> clientRegistrationServiceImpl.validateClientRegistrationInfo(
             clientRegistrationDTO, null, null));
   }
