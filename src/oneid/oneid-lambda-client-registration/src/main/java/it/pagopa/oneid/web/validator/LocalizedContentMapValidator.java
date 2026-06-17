@@ -39,8 +39,10 @@ public class LocalizedContentMapValidator implements
 
       boolean themeValid = theme != null && !theme.isEmpty();
       boolean langMapValid = langMap != null && !langMap.isEmpty();
+      boolean themeNameValid = isSafeTitle(theme, 1);
 
       return themeValid
+          && themeNameValid
           && langMapValid
           && langMap.entrySet().stream().allMatch(langEntry -> {
 
