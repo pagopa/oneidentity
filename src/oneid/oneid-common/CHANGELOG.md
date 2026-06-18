@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.3.0
+
+### Minor Changes
+
+- 09a8418: feat: add http-redirect binding
+
 ## 1.2.0
 
 ### Minor Changes

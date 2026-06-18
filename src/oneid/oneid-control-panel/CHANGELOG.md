@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.7.0
+
+### Minor Changes
+
+- 09a8418: feat: add http-redirect binding
+
 ## 1.6.4
 
 ### Patch Changes
