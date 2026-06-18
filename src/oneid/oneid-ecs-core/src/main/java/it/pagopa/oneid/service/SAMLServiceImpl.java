@@ -7,6 +7,7 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.Identifier;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -53,12 +54,11 @@ import org.w3c.dom.Element;
 public class SAMLServiceImpl implements SAMLService {
 
   private final static Set<String> eidasMinimumDataSet = Set.of(
-      //Mandatory attributes
+      // Mandatory attributes
       Identifier.name.name(),
       Identifier.familyName.name(),
       Identifier.dateOfBirth.name(),
-      Identifier.fiscalNumber.name()
-  );
+      Identifier.fiscalNumber.name());
 
   private final Clock clock;
 
@@ -88,7 +88,6 @@ public class SAMLServiceImpl implements SAMLService {
 
   @ConfigProperty(name = "clock_skew_ms")
   long CLOCK_SKEW_MS;
-
 
   @Inject
   SAMLServiceImpl(Clock clock) {
@@ -126,7 +125,7 @@ public class SAMLServiceImpl implements SAMLService {
     SubjectConfirmation subjectConfirmation = subjectConfirmations.getFirst();
     if (subjectConfirmation.getMethod() == null
         || !subjectConfirmation.getMethod()
-        .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
+            .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
       throw new SAMLValidationException(
           ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE);
     }
@@ -165,8 +164,7 @@ public class SAMLServiceImpl implements SAMLService {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_EMPTY);
     }
     AuthLevel authLevelResponse = AuthLevel.authLevelFromValue(element.getTextContent().strip());
-    if (authLevelResponse
-        == null) {
+    if (authLevelResponse == null) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF,
           ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF.getErrorMessage()
               + element.getTextContent().strip());
@@ -313,7 +311,8 @@ public class SAMLServiceImpl implements SAMLService {
     }
     Instant instant = Instant.now(clock).plusMillis(CLOCK_SKEW_MS);
     if (!issueInstant.isBefore(instant)) {
-      // TODO: remove this log and compact if statement without defining external variable
+      // TODO: remove this log and compact if statement without defining external
+      // variable
       Log.error(
           "isBefore not valid -> IDP issueInstant: " + issueInstant + "OI instant: " + instant);
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUE_INSTANT_IN_THE_FUTURE);
@@ -409,9 +408,8 @@ public class SAMLServiceImpl implements SAMLService {
         .collect(
             Collectors.toSet());
 
-    //SPID
-    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID
-    )) {
+    // SPID
+    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
       if (!requestedAttributes.equals(obtainedAttributes)) {
         throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
@@ -447,16 +445,15 @@ public class SAMLServiceImpl implements SAMLService {
         throw new OneIdentityException("Status Code not set.");
       }
       StatusMessage statusMessageObject = response.getStatus().getStatusMessage();
-      if (statusMessageObject != null) {
-        if (statusMessageObject.getValue() != null) {
-          statusMessage = response.getStatus().getStatusMessage().getValue();
-        }
+      if (statusMessageObject != null && statusMessageObject.getValue() != null) {
+        statusMessage = response.getStatus().getStatusMessage().getValue();
       }
     }
 
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (StringUtils.isNotBlank(statusMessage)) {
-        Log.info("SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
+        Log.info(
+            "SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
         ErrorCode errorCode = null;
         try {
           errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));
@@ -481,26 +478,51 @@ public class SAMLServiceImpl implements SAMLService {
       int attributeConsumingServiceIndex, String authLevel)
       throws OneIdentityException {
     return this.buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, "", authLevel);
+        attributeConsumingServiceIndex, authLevel, SamlBinding.HTTP_POST);
+  }
+
+  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType)
+      throws OneIdentityException {
+    return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
+        attributeConsumingServiceIndex, "", authLevel, samlBindingType);
   }
 
   private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel)
+      int attributeConsumingServiceIndex, String purpose, String authLevel,
+      SamlBinding samlBindingType)
       throws OneIdentityException {
     validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex);
 
     AuthnRequest authnRequest = createAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex, authLevel);
-    try {
-      Signature signature = samlUtils.buildSignature(authnRequest);
-      authnRequest.setSignature(signature);
-      samlUtils.marshallAndSign(authnRequest, signature);
-    } catch (SAMLUtilsException e) {
-      throw new GenericAuthnRequestCreationException(e);
+
+    // Check if samlBindingType is null or HTTP_POST, then sign the AuthnRequest
+    if (samlBindingType == null || SamlBinding.HTTP_POST.equals(samlBindingType)) {
+      try {
+        Signature signature = samlUtils.buildSignature(authnRequest);
+        authnRequest.setSignature(signature);
+        samlUtils.marshallAndSign(authnRequest, signature);
+      } catch (SAMLUtilsException e) {
+        throw new GenericAuthnRequestCreationException(e);
+      }
     }
 
     return authnRequest;
+  }
+
+  public String encodeAuthnRequestForRedirect(AuthnRequest authnRequest)
+      throws OneIdentityException {
+    return samlUtils.encodeAuthnRequestForRedirect(authnRequest);
+  }
+
+  public String buildRedirectQueryString(String samlRequest, String relayState, String sigAlg) {
+    return samlUtils.buildRedirectQueryString(samlRequest, relayState, sigAlg);
+  }
+
+  public String signRedirectQueryString(String queryString) throws OneIdentityException {
+    return samlUtils.signRedirectQueryString(queryString);
   }
 
   private AuthnRequest createAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,

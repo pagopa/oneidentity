@@ -44,4 +44,6 @@ public class IDPSession {
   private Integer maxAge;
 
   private Integer ageParentAuth;
+
+  private String relayStateToReturn;
 }

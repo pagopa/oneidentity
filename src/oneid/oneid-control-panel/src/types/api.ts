@@ -56,6 +56,11 @@ export enum SamlAttribute {
   STREET = 'street',
 }
 
+export enum SamlBinding {
+  HTTP_POST = 'HTTP-POST',
+  HTTP_REDIRECT = 'HTTP-Redirect',
+}
+
 export const SpidLevelSchema = z.enum([SpidLevel.L2, SpidLevel.L3]);
 export const SamlAttributeSchema = z.enum([
   SamlAttribute.SPID_CODE,
@@ -102,6 +107,10 @@ export const SamlAttributeSchema = z.enum([
 
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
 export const SpidLevelArraySchema = z.array(SpidLevelSchema);
+export const SamlBindingSchema = z.enum([
+  SamlBinding.HTTP_POST,
+  SamlBinding.HTTP_REDIRECT,
+]);
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
 
@@ -164,6 +173,7 @@ export const clientSchema = z
     tosUri: httpsUrlSchema.nullish(),
     redirectUris: z.array(httpsUrlSchema).min(1),
     samlRequestedAttributes: SamlAttributeArraySchema.min(1),
+    samlBinding: SamlBindingSchema.default(SamlBinding.HTTP_POST),
     logoUri: httpsUrlSchema.nullish(),
     defaultAcrValues: SpidLevelArraySchema.min(1),
     requiredSameIdp: z.boolean().optional(),

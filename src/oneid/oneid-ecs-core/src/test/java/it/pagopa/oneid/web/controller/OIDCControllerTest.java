@@ -2,6 +2,8 @@ package it.pagopa.oneid.web.controller;
 
 import static io.restassured.RestAssured.given;
 import static it.pagopa.oneid.model.session.enums.ResponseType.CODE;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -19,11 +21,9 @@ import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
-import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
-import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import it.pagopa.oneid.web.controller.mock.OIDCControllerTestProfile;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
@@ -60,13 +60,8 @@ class OIDCControllerTest {
 
   private final String CLIENT_ID = "test";
 
-
   @InjectMock
   private SAMLServiceImpl samlServiceImpl;
-
-  // This will be mocked using @Alternative construct because of @Dependant scope
-  @Inject
-  private SessionServiceImpl<SAMLSession> samlSessionServiceImpl;
 
   @InjectMock
   private OIDCServiceImpl oidcServiceImpl;
@@ -77,18 +72,18 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void getObject_Exception() {
-    //given
+    // given
 
-    //Class
+    // Class
     OIDCController oidcController = new OIDCController();
-    //Method
+    // Method
     Method getObject = OIDCController.class.getDeclaredMethod("getObject", Object.class);
     getObject.setAccessible(true);
 
-    //when
+    // when
     Executable executable = () -> getObject.invoke(oidcController, "test");
 
-    //then
+    // then
     InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
         executable);
     Assertions.assertTrue(
@@ -108,18 +103,12 @@ class OIDCControllerTest {
         .body(notNullValue());
   }
 
-  //region /authorize
+  // region /authorize
   @Test
   @SneakyThrows
   void authorizePost() {
-    //given
-
-    // AuthorizationDTO Creation
+    // given
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    //when
-
-    // Mock "2. Check if idp exists"
 
     IDP testIDP = IDP.builder()
         .entityID("https://localhost:8443")
@@ -136,12 +125,10 @@ class OIDCControllerTest {
     Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
         .thenReturn(Optional.of(testIDP));
 
-    // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
-    Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString()))
+    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -149,7 +136,7 @@ class OIDCControllerTest {
     Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
         .thenReturn(elementMock);
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -160,8 +147,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(200)
@@ -169,8 +155,103 @@ class OIDCControllerTest {
   }
 
   @Test
+  @SneakyThrows
+  void authorizePost_redirectBinding() {
+    // given
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setClientId("testRedirect");
+    authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://redirect.idp")
+        .certificates(Set.of("certificate"))
+        .friendlyName("Redirect IDP")
+        .idpSSOEndpoints(Map.of(
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso",
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+            "https://localhost:8443/samlsso/redirect"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+
+    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+
+    AuthnRequest authnRequest = buildAuthnRequest("https://redirect.idp");
+    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        .thenReturn(authnRequest);
+    Mockito.when(samlServiceImpl.encodeAuthnRequestForRedirect(Mockito.any()))
+        .thenReturn("encoded");
+    Mockito.when(samlServiceImpl.buildRedirectQueryString(Mockito.anyString(), Mockito.anyString(),
+        Mockito.anyString()))
+        .thenReturn("SAMLRequest=encoded&SigAlg=sigalg");
+    Mockito.when(samlServiceImpl.signRedirectQueryString(Mockito.anyString()))
+        .thenReturn("signature");
+
+    // then
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode())
+        .header("Location", containsString("?SAMLRequest=encoded&SigAlg=sigalg&Signature=signature"))
+        .header("Location", containsString("Signature=signature"));
+  }
+
+  @Test
+  @SneakyThrows
+  void authorizePost_redirectBindingMissingEndpoint() {
+    // given
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setClientId("testRedirect");
+    authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://redirect.idp")
+        .certificates(Set.of("certificate"))
+        .friendlyName("Redirect IDP")
+        .idpSSOEndpoints(Map.of(
+            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+
+    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+
+    // then
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode())
+        .header("Location", containsStringIgnoringCase("error=invalid_request"));
+  }
+
+  @Test
   void authorizePost_ClientNotFound() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
@@ -186,8 +267,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -198,13 +278,13 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_RedirectUriNotFound() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setRedirectUri("test");
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -215,8 +295,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -226,12 +305,12 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_idpEmpty() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -242,8 +321,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -253,12 +331,12 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_getEntityDescriptorFromEntityID_Exception() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -269,8 +347,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -280,13 +357,13 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_authorizePost_ScopeNull() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setScope("");
 
-    //when
+    // when
 
     // Mock "2. Check if idp exists"
     IDP testIDP = IDP.builder()
@@ -308,8 +385,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -317,7 +394,7 @@ class OIDCControllerTest {
     Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
         .thenReturn(elementMock);
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -328,8 +405,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(302)
@@ -339,7 +415,7 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_InvalidScopeException_NotOpenid() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
@@ -360,7 +436,7 @@ class OIDCControllerTest {
 
     Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -371,8 +447,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -382,7 +457,7 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_UnsupportedResponseTypeException() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
@@ -403,7 +478,7 @@ class OIDCControllerTest {
 
     Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -414,8 +489,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -425,7 +499,7 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_buildAuthnRequest_Exception() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
@@ -447,11 +521,11 @@ class OIDCControllerTest {
         .thenReturn(Optional.of(testIDP));
     // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenThrow(OneIdentityException.class);
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -462,8 +536,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -473,7 +546,7 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizePost_SessionException() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
@@ -498,8 +571,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -507,7 +580,7 @@ class OIDCControllerTest {
     Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
         .thenReturn(elementMock);
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
@@ -518,8 +591,7 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedPost.getScope(),
             "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()
-        ))
+            "state", authorizationRequestDTOExtendedPost.getState()))
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
@@ -529,7 +601,7 @@ class OIDCControllerTest {
   @Test
   @SneakyThrows
   void authorizeGet() {
-    //given
+    // given
 
     // AuthorizationDTO Creation
     AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet = new AuthorizationRequestDTOExtendedGet();
@@ -542,7 +614,7 @@ class OIDCControllerTest {
     authorizationRequestDTOExtendedGet.setNonce("test");
     authorizationRequestDTOExtendedGet.setState("test");
 
-    //when
+    // when
 
     // Mock "2. Check if idp exists"
     IDP testIDP = IDP.builder()
@@ -564,8 +636,8 @@ class OIDCControllerTest {
     AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
     Mockito.when(
-            samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-                Mockito.anyString()))
+        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+            Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
     Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -573,7 +645,7 @@ class OIDCControllerTest {
     Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
         .thenReturn(elementMock);
 
-    //then
+    // then
     given()
         .contentType("application/x-www-form-urlencoded")
         .header("X-Forwarded-For", authorizationRequestDTOExtendedGet.getIpAddress())
@@ -584,16 +656,15 @@ class OIDCControllerTest {
             "redirect_uri", authorizationRequestDTOExtendedGet.getRedirectUri(),
             "scope", authorizationRequestDTOExtendedGet.getScope(),
             "nonce", authorizationRequestDTOExtendedGet.getNonce(),
-            "state", authorizationRequestDTOExtendedGet.getState()
-        ))
+            "state", authorizationRequestDTOExtendedGet.getState()))
         .when().get("/authorize")
         .then()
         .statusCode(200)
         .body(notNullValue());
   }
-  //endregion
+  // endregion
 
-  //region /token
+  // region /token
   @Test
   @SneakyThrows
   void token() {
@@ -629,7 +700,8 @@ class OIDCControllerTest {
     TokenDataDTO tokenDataDTO = mock(TokenDataDTO.class);
     when(
         oidcServiceImpl.getOIDCTokens(anyString(), anyString(), Mockito.anyList(),
-            anyString(), anyString())).thenReturn(tokenDataDTO);
+            anyString(), anyString()))
+        .thenReturn(tokenDataDTO);
 
     given()
         .contentType("application/x-www-form-urlencoded")
@@ -698,8 +770,7 @@ class OIDCControllerTest {
         .when().post("/token")
         .then()
         .statusCode(Status.BAD_REQUEST.getStatusCode())
-        .body(notNullValue())
-    ;
+        .body(notNullValue());
 
   }
 
@@ -773,10 +844,9 @@ class OIDCControllerTest {
         .body(notNullValue());
 
   }
-  //endregion
+  // endregion
 
-  //region private methods
-
+  // region private methods
 
   private AuthorizationRequestDTOExtendedPost getAuthorizationRequestDTOExtendedPost() {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
@@ -800,5 +870,5 @@ class OIDCControllerTest {
     return authnRequest;
   }
 
-  //endregion
+  // endregion
 }

@@ -19,8 +19,7 @@ public class ClientProducer {
   @Produces
   Map<String, Client> clientsMap() {
     Map<String, Client> map = new HashMap<>();
-    ArrayList<Client> clients =
-        clientConnectorImpl.findAll().orElse(new ArrayList<>());
+    ArrayList<Client> clients = clientConnectorImpl.findAll().orElse(new ArrayList<>());
 
     clients.forEach(client -> map.put(client.getClientId(), client));
 

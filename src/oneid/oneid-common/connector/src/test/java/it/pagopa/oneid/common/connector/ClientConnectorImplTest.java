@@ -12,6 +12,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
@@ -52,12 +53,12 @@ class ClientConnectorImplTest {
     System.setProperty("sqlite4java.library.path", "target/test/native-libs");
   }
 
-  //region Before & After
+  // region Before & After
   @BeforeAll
   public static void setupClass() throws Exception {
     String port = "8000";
     server = ServerRunner.createServerFromCommandLineArgs(
-        new String[]{"-inMemory", "-port", port});
+        new String[] { "-inMemory", "-port", port });
     server.start();
   }
 
@@ -73,30 +74,28 @@ class ClientConnectorImplTest {
     clientExtendedMapper.createTable();
   }
 
-
   @AfterEach
   public void afterEach() {
     clientExtendedMapper.deleteTable();
   }
 
-  //endregion
-
+  // endregion
 
   @Test
   void findAllEmpty() {
-    //then
+    // then
     assertTrue(clientConnectorImpl.findAll().isEmpty());
   }
 
   @Test
   void saveClientIfNotExists() {
 
-    //given
+    // given
     String clientId = "test";
     String userId = "test";
     String friendlyName = "test";
-    Set<String> callbackURI = CollectionUtils.toSet(new String[]{"test"});
-    Set<String> requestedParameters = CollectionUtils.toSet(new String[]{"test"});
+    Set<String> callbackURI = CollectionUtils.toSet(new String[] { "test" });
+    Set<String> requestedParameters = CollectionUtils.toSet(new String[] { "test" });
     AuthLevel authLevel = AuthLevel.L2;
     int acsIndex = 0;
     int attributeIndex = 0;
@@ -110,14 +109,13 @@ class ClientConnectorImplTest {
     boolean isRequiredSameIdp = false;
 
     ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName, callbackURI,
-        requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-        clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
-        false, false, null, null, null
-    );
+        requestedParameters, authLevel, SamlBinding.HTTP_POST, acsIndex, attributeIndex,
+        isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp,
+        "", false, null, false, false, false, null, null, null);
 
     Executable executable = () -> clientConnectorImpl.saveClientIfNotExists(clientExtended);
 
-    //then
+    // then
     assertDoesNotThrow(executable);
   }
 
@@ -134,6 +132,7 @@ class ClientConnectorImplTest {
         .callbackURI(Set.of("test.com"))
         .requestedParameters(Set.of("test.com"))
         .authLevel(AuthLevel.L2)
+        .samlBinding(SamlBinding.HTTP_POST)
         .acsIndex(0)
         .attributeIndex(0)
         .isActive(false)
@@ -157,7 +156,7 @@ class ClientConnectorImplTest {
 
   @Test
   void updateClientExtended() {
-    //given
+    // given
     ClientExtended oldClient = ClientExtended.builder()
         .secret("originalSecret") // This field must not be overwritten
         .salt("originalSalt") // This field must not be overwritten
@@ -169,6 +168,7 @@ class ClientConnectorImplTest {
         .callbackURI(Set.of("test.com"))
         .requestedParameters(Set.of("test.com"))
         .authLevel(AuthLevel.L2)
+        .samlBinding(SamlBinding.HTTP_POST)
         .acsIndex(0)
         .attributeIndex(0)
         .isActive(false)
@@ -179,7 +179,7 @@ class ClientConnectorImplTest {
     ClientExtended newClientExtended = ClientExtended.builder()
         .secret("originalSecret") // This field must not be overwritten
         .salt("originalSalt") // This field must not be overwritten
-        //.logoUri("") //Empty logoUri to check that it is overwritten
+        // .logoUri("") //Empty logoUri to check that it is overwritten
         .clientId("clientId") // same clientId to update
         .userId("newClient") // new userId
         .requiredSameIdp(true)
@@ -195,13 +195,10 @@ class ClientConnectorImplTest {
             Map.of("default",
                 Map.of("en",
                     new Client.LocalizedContent("Title", "Description", "http://test.com",
-                        null, "")
-                )
-            )
-        )
+                        null, ""))))
         .build();
 
-    //then
+    // then
     Executable executable = () -> clientConnectorImpl.updateClientExtended(newClientExtended);
     assertDoesNotThrow(executable);
 
@@ -221,7 +218,7 @@ class ClientConnectorImplTest {
 
   @Test
   void checkUniqueUserId_alreadyExistingUser() {
-    //given
+    // given
     String userId = "testUserId";
     Client client = Client.builder()
         .userId(userId)
@@ -232,6 +229,7 @@ class ClientConnectorImplTest {
         .callbackURI(Set.of("test.com"))
         .requestedParameters(Set.of("test.com"))
         .authLevel(AuthLevel.L2)
+        .samlBinding(SamlBinding.HTTP_POST)
         .acsIndex(0)
         .attributeIndex(0)
         .isActive(false)
@@ -239,10 +237,10 @@ class ClientConnectorImplTest {
         .build();
     clientExtendedMapper.putItem(new ClientExtended(client, "test", "test"));
 
-    //when
+    // when
     Optional<Client> result = clientConnectorImpl.getClientByUserId(userId);
 
-    //then
+    // then
     assertTrue(result.isPresent());
     assertEquals(result.get().getClientId(), client.getClientId());
     assertEquals(result.get().getUserId(), client.getUserId());
@@ -256,8 +254,8 @@ class ClientConnectorImplTest {
       String clientId = "test";
       String userId = "test";
       String friendlyName = "test";
-      Set<String> callbackURI = CollectionUtils.toSet(new String[]{"test"});
-      Set<String> requestedParameters = CollectionUtils.toSet(new String[]{"test"});
+      Set<String> callbackURI = CollectionUtils.toSet(new String[] { "test" });
+      Set<String> requestedParameters = CollectionUtils.toSet(new String[] { "test" });
       AuthLevel authLevel = AuthLevel.L2;
       int acsIndex = 0;
       int attributeIndex = 0;
@@ -271,36 +269,34 @@ class ClientConnectorImplTest {
       boolean isRequiredSameIdp = false;
 
       ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName,
-          callbackURI,
-          requestedParameters, authLevel, acsIndex, attributeIndex, isActive, secret, salt,
-          clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp, "", false, null, false,
-          false, false, null, null, null
-      );
+          callbackURI, requestedParameters, authLevel, SamlBinding.HTTP_POST, acsIndex,
+          attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri, tosURi,
+          isRequiredSameIdp, "", false, null, false, false, false, null, null, null);
 
       clientConnectorImpl.saveClientIfNotExists(clientExtended);
     }
 
     @Test
     void findAllNotEmpty() {
-      //then
+      // then
       assertFalse(clientConnectorImpl.findAll().isEmpty());
     }
 
     @Test
     void getClientSecret() {
-      //then
+      // then
       assertFalse(clientConnectorImpl.getClientSecret("test").isEmpty());
     }
 
     @Test
     void getClientById() {
-      //then
+      // then
       assertFalse(clientConnectorImpl.getClientById("test").isEmpty());
     }
 
     @Test
     void getClientExtendedById() {
-      //then
+      // then
       assertFalse(clientConnectorImpl.getClientExtendedById("test").isEmpty());
     }
 

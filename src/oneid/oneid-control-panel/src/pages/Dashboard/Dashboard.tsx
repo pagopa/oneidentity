@@ -17,6 +17,7 @@ import {
 import {
   SpidLevel,
   SamlAttribute,
+  SamlBinding,
   ClientErrors,
   ClientWithoutSensitiveData,
   ValidatePlanSchema,
@@ -41,11 +42,15 @@ import ToggleSection from '../../components/ToggleSection';
 import TooltipContentWithLink from '../../components/TooltipContent';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
+const defaultFormData: Partial<ClientWithoutSensitiveData> = {
+  samlBinding: SamlBinding.HTTP_POST,
+};
+
 export const Dashboard = () => {
   type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
 
   const [formData, setFormData] =
-    useState<Partial<ClientWithoutSensitiveData> | null>(null);
+    useState<Partial<ClientWithoutSensitiveData> | null>(defaultFormData);
   const [pairWiseData, setPairWiseData] = useState<Partial<ValidatePlanSchema>>(
     {
       apiKeyId: '',
@@ -101,7 +106,11 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (isUpdatePhase && fetchedClientData) {
-      setFormData(clientDataWithoutSensitiveData(fetchedClientData));
+      setFormData({
+        ...clientDataWithoutSensitiveData(fetchedClientData),
+        // set default value for samlBinding if not present in the fetched data
+        samlBinding: fetchedClientData.samlBinding ?? SamlBinding.HTTP_POST,
+      });
 
       if (
         fetchedClientData.clientId &&
@@ -187,7 +196,8 @@ export const Dashboard = () => {
       !!formData?.clientName &&
       !!formData?.redirectUris?.length &&
       !!formData?.defaultAcrValues?.length &&
-      !!formData?.samlRequestedAttributes?.length
+      !!formData?.samlRequestedAttributes?.length &&
+      !!formData?.samlBinding
     );
   };
 
@@ -467,6 +477,41 @@ export const Dashboard = () => {
               (errorUi as ClientErrors)?.samlRequestedAttributes?._errors
             }
           />
+
+          <FormControl
+            fullWidth
+            margin="normal"
+            required
+            error={!!(errorUi as ClientErrors)?.samlBinding?._errors}
+          >
+            <InputLabel id="saml-binding-label">Saml Binding</InputLabel>
+            <Select
+              labelId="saml-binding-label"
+              id="saml-binding-select"
+              value={formData?.samlBinding || SamlBinding.HTTP_POST}
+              label="Saml Binding"
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  samlBinding: e.target.value as SamlBinding,
+                }))
+              }
+            >
+              <MenuItem value={SamlBinding.HTTP_POST}>
+                {SamlBinding.HTTP_POST}
+              </MenuItem>
+              <MenuItem value={SamlBinding.HTTP_REDIRECT}>
+                {SamlBinding.HTTP_REDIRECT}
+              </MenuItem>
+            </Select>
+            <FormHelperText>
+              {(errorUi as ClientErrors)?.samlBinding?._errors}
+            </FormHelperText>
+            <FormHelperText>
+              Method used to send the SAML authentication request to Identity
+              Providers.
+            </FormHelperText>
+          </FormControl>
 
           <ToggleSection
             name="requiredSameIdp"

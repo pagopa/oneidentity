@@ -17,9 +17,12 @@ import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
+import java.security.PublicKey;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -29,7 +32,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -130,7 +136,17 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     return unmarshallAuthnRequest(decodedAuthnRequest);
   }
 
+  public AuthnRequest getAuthnRequestFromRedirectString(String authnRequest) {
+    byte[] decodedAuthnRequest = decodeBase64(authnRequest);
+    byte[] inflatedAuthnRequest = inflate(decodedAuthnRequest);
+    return unmarshallAuthnRequest(inflatedAuthnRequest);
+  }
+
   private byte[] decodeBase64(String authnRequest) {
+    if (authnRequest == null || authnRequest.isBlank()) {
+      throw new MalformedAuthnRequestException(
+          "Malformed AuthnRequest: Base64 payload is missing.");
+    }
     try {
       return Base64.getDecoder().decode(authnRequest);
     } catch (IllegalArgumentException e) {
@@ -151,8 +167,100 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
+  private byte[] inflate(byte[] compressedAuthnRequest) {
+    Inflater inflater = new Inflater(true);
+    inflater.setInput(compressedAuthnRequest);
+
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[1024];
+      while (!inflater.finished()) {
+        int bytesRead = inflater.inflate(buffer);
+        if (bytesRead == 0 && inflater.needsInput()) {
+          break;
+        }
+        outputStream.write(buffer, 0, bytesRead);
+      }
+      return outputStream.toByteArray();
+    } catch (DataFormatException | java.io.IOException e) {
+      Log.error("Inflate error: " + e.getMessage());
+      throw new MalformedAuthnRequestException(
+          "Malformed AuthnRequest: Inflate failed.");
+    } finally {
+      inflater.end();
+    }
+  }
+
   @Override
   public void validateAuthnRequest(AuthnRequest authnRequest) {
+    validateAuthnRequestFields(authnRequest);
+
+    // Validate Signature
+    if (authnRequest.getSignature() == null) {
+      throw new SAMLValidationException("AuthnRequest Signature is missing");
+    }
+    Signature requestSignature = authnRequest.getSignature();
+    try {
+      SignatureValidator.validate(Objects.requireNonNull(requestSignature),
+          Objects.requireNonNull(basicX509Credential));
+    } catch (SignatureException e) {
+      throw new SAMLValidationException("AuthnRequest Signature is invalid");
+    }
+  }
+
+  public void validateRedirectAuthnRequest(AuthnRequest authnRequest) {
+    validateAuthnRequestFields(authnRequest);
+  }
+
+  public void validateRedirectSignature(String samlRequest, String relayState,
+      String sigAlg, String signature) {
+    if (samlRequest == null || samlRequest.isBlank()) {
+      throw new SAMLValidationException("AuthnRequest Redirect SAMLRequest is missing");
+    }
+    if (sigAlg == null || sigAlg.isBlank()) {
+      throw new SAMLValidationException("AuthnRequest Redirect SigAlg is missing");
+    }
+    if (signature == null || signature.isBlank()) {
+      throw new SAMLValidationException("AuthnRequest Redirect Signature is missing");
+    }
+
+    String queryString = buildRedirectQueryString(samlRequest, relayState, sigAlg);
+    byte[] decodedSignature;
+    try {
+      decodedSignature = Base64.getDecoder().decode(signature.replace(" ", "+"));
+    } catch (IllegalArgumentException e) {
+      throw new SAMLValidationException("AuthnRequest Redirect Signature is malformed");
+    }
+
+    String javaAlgorithm = mapRedirectSigAlgToJavaAlgorithm(sigAlg);
+    PublicKey publicKey = basicX509Credential.getEntityCertificate().getPublicKey();
+
+    try {
+      java.security.Signature verifier = java.security.Signature.getInstance(javaAlgorithm);
+      verifier.initVerify(publicKey);
+      verifier.update(queryString.getBytes(StandardCharsets.UTF_8));
+      if (!verifier.verify(decodedSignature)) {
+        throw new SAMLValidationException("AuthnRequest Redirect Signature is invalid");
+      }
+    } catch (java.security.NoSuchAlgorithmException | java.security.InvalidKeyException
+        | java.security.SignatureException e) {
+      throw new SAMLValidationException("AuthnRequest Redirect Signature validation error");
+    }
+  }
+
+  private String mapRedirectSigAlgToJavaAlgorithm(String sigAlg) {
+    if (SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256.equals(sigAlg)) {
+      return "SHA256withRSA";
+    }
+    if (SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA384.equals(sigAlg)) {
+      return "SHA384withRSA";
+    }
+    if (SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512.equals(sigAlg)) {
+      return "SHA512withRSA";
+    }
+    throw new SAMLValidationException("AuthnRequest Redirect SigAlg is not supported");
+  }
+
+  private void validateAuthnRequestFields(AuthnRequest authnRequest) {
     // validation of AuthnRequest fields
     if (authnRequest == null) {
       throw new SAMLValidationException("AuthnRequest is null");
@@ -163,30 +271,19 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
           "AuthnRequest AttributeConsumingServiceIndex is missing or empty");
     }
     // Validate Issuer
-    if (authnRequest.getIssuer() == null || authnRequest.getIssuer().getValue() == null
-        || authnRequest.getIssuer().getValue().isEmpty()) {
+    String issuerValue = authnRequest.getIssuer() == null ? null : authnRequest.getIssuer().getValue();
+    if (issuerValue == null || issuerValue.isEmpty()) {
       throw new SAMLValidationException("AuthnRequest Issuer is missing or empty");
     }
     // Validate Destination
     if (authnRequest.getDestination() == null || authnRequest.getDestination().isEmpty()) {
       throw new SAMLValidationException("AuthnRequest Destination is missing or empty");
     }
-    // Validate Signature
-    if (authnRequest.getSignature() == null) {
-      throw new SAMLValidationException("AuthnRequest Signature is missing");
-    }
-    try {
-      SignatureValidator.validate(authnRequest.getSignature(), basicX509Credential);
-    } catch (SignatureException e) {
-      throw new SAMLValidationException("AuthnRequest Signature is invalid");
-    }
-
-
   }
 
   public Client getClientByAttributeConsumingServiceIndex(AuthnRequest authnRequest) {
     return clientConnectorImpl.getClientByAttributeConsumingServiceIndex(
-            authnRequest.getAttributeConsumingServiceIndex())
+        authnRequest.getAttributeConsumingServiceIndex())
         .orElseThrow(() -> new ClientNotFoundException(
             "Client not found for AttributeConsumingServiceIndex: "
                 + authnRequest.getAttributeConsumingServiceIndex()));
@@ -230,7 +327,6 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
   }
 
-
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
       String clientId, String username) throws SAMLUtilsException {
@@ -244,7 +340,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     // Retrieve the user attributes from the internal IDP users connector
 
     IDPInternalUser user = internalIDPUsersConnectorImpl.getIDPInternalUserByUsernameAndNamespace(
-            username, clientId)
+        username, clientId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     return buildSAMLResponse(authnRequestId, StatusCode.SUCCESS, user, requestedParameters,
@@ -321,13 +417,13 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   private void marshallAndSignResponse(Response samlResponse, Signature signature) {
     Marshaller out = marshallerFactory
-        .getMarshaller(samlResponse);
+        .getMarshaller(Objects.requireNonNull(samlResponse));
     if (out == null) {
       throw new RuntimeException();
     }
     try {
-      out.marshall(samlResponse);
-      Signer.signObject(signature);
+      out.marshall(Objects.requireNonNull(samlResponse));
+      Signer.signObject(Objects.requireNonNull(signature));
     } catch (SignatureException | MarshallingException e) {
       throw new RuntimeException();
     }
@@ -335,11 +431,14 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   @Override
   public Element getElementValueFromSamlResponse(Response samlResponse) {
-    Marshaller out = marshallerFactory.getMarshaller(samlResponse);
+    Marshaller out = marshallerFactory.getMarshaller(Objects.requireNonNull(samlResponse));
+    if (out == null) {
+      throw new RuntimeException();
+    }
 
     Element plaintextElement = null;
     try {
-      plaintextElement = out.marshall(samlResponse);
+      plaintextElement = out.marshall(Objects.requireNonNull(samlResponse));
     } catch (MarshallingException | NullPointerException e) {
       throw new RuntimeException(e);
     }
@@ -349,13 +448,13 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   private void marshallAndSignAssertion(Assertion samlAssertion, Signature signature) {
     Marshaller out = marshallerFactory
-        .getMarshaller(samlAssertion);
+        .getMarshaller(Objects.requireNonNull(samlAssertion));
     if (out == null) {
       throw new RuntimeException();
     }
     try {
-      out.marshall(samlAssertion);
-      Signer.signObject(signature);
+      out.marshall(Objects.requireNonNull(samlAssertion));
+      Signer.signObject(Objects.requireNonNull(signature));
     } catch (SignatureException | MarshallingException e) {
       throw new RuntimeException();
     }
@@ -374,22 +473,22 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
     samlResponse.setDestination(ACS_ENDPOINT);
 
-    //region Issuer
+    // region Issuer
     Issuer issuer = buildSAMLObject(Issuer.class);
     issuer.setValue(ISSUER);
     issuer.setNameQualifier(
         ISSUER);
     issuer.setFormat(NameIDType.ENTITY);
     samlResponse.setIssuer(issuer);
-    //endregion
+    // endregion
 
-    //region Status
+    // region Status
     Status status = buildSAMLObject(Status.class);
     StatusCode statusCode = buildSAMLObject(StatusCode.class);
     statusCode.setValue(statusCodeResponse);
     status.setStatusCode(statusCode);
     samlResponse.setStatus(status);
-    //endregion
+    // endregion
 
     // Start of Assertion
     Issuer issuerAssertion = buildSAMLObject(Issuer.class);
@@ -406,7 +505,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     assertion.setIssueInstant(Instant.now());
     assertion.setIssuer(issuerAssertion);
 
-    //region Subject
+    // region Subject
     Subject subject = buildSAMLObject(Subject.class);
     NameID nameID = buildSAMLObject(NameID.class);
     nameID.setFormat(NameIDType.TRANSIENT);
@@ -427,9 +526,9 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
     subject.getSubjectConfirmations().add(subjectConfirmation);
     assertion.setSubject(subject);
-    //endregion
+    // endregion
 
-    //region Conditions
+    // region Conditions
     Conditions conditions = buildSAMLObject(Conditions.class);
     conditions.setNotBefore(samlResponse.getIssueInstant());
     conditions.setNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
@@ -441,9 +540,9 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     conditions.getAudienceRestrictions().add(audienceRestriction);
 
     assertion.setConditions(conditions);
-    //endregion
+    // endregion
 
-    //region AuthnStatement
+    // region AuthnStatement
     AuthnStatement authnStatement = buildSAMLObject(AuthnStatement.class);
     authnStatement.setAuthnInstant(samlResponse.getIssueInstant());
     authnStatement.setSessionIndex(generateSecureRandomId());
@@ -455,10 +554,11 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     authnContext.setAuthnContextClassRef(authnContextClassRef);
     authnStatement.setAuthnContext(authnContext);
     assertion.getAuthnStatements().add(authnStatement);
-    //endregion
+    // endregion
 
-    // TODO handle the case where the user does not have any attributes when the SAML Response is not a successful one.
-    //region AttributeStatements
+    // TODO handle the case where the user does not have any attributes when the
+    // SAML Response is not a successful one.
+    // region AttributeStatements
     AttributeStatement attributeStatement = buildSAMLObject(AttributeStatement.class);
 
     // Add attributes based on the requested parameters
@@ -476,16 +576,16 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
 
     assertion.getAttributeStatements().add(attributeStatement);
-    //endregion
+    // endregion
 
-    //region Signature
+    // region Signature
     BasicX509Credential idpX509Credential = getIdpbasicX509Credential(ssmClient);
 
     Signature signatureSamlResponse = buildSignature(samlResponse, idpX509Credential);
     Signature signatureSamlAssertion = buildSignature(assertion, idpX509Credential);
     samlResponse.setSignature(signatureSamlResponse);
     assertion.setSignature(signatureSamlAssertion);
-    //endregion
+    // endregion
 
     marshallAndSignAssertion(assertion, signatureSamlAssertion);
 
@@ -513,7 +613,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   public Signature buildSignature(SignableSAMLObject signableSAMLObject,
       BasicX509Credential idpX509Credential) throws SAMLUtilsException {
     Signature signature = buildSAMLObject(Signature.class);
-    signature.setSigningCredential(idpX509Credential);
+    signature.setSigningCredential(Objects.requireNonNull(idpX509Credential));
     signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
     signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
@@ -524,7 +624,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
 
     SAMLObjectContentReference contentReference = new SAMLObjectContentReference(
-        signableSAMLObject);
+        Objects.requireNonNull(signableSAMLObject));
     contentReference.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA512);
     signature.getContentReferences().add(contentReference);
 
@@ -579,8 +679,8 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     }
     // endregion
 
-    basicX509Credential = new BasicX509Credential(x509Cert);
-    basicX509Credential.setPrivateKey(rsaPrivateKey);
+    basicX509Credential = new BasicX509Credential(Objects.requireNonNull(x509Cert));
+    basicX509Credential.setPrivateKey(Objects.requireNonNull(rsaPrivateKey));
 
     return basicX509Credential;
   }
@@ -588,7 +688,7 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
   private String getParameter(SsmClient ssmClient, String parameterName) {
     GetParameterRequest request = GetParameterRequest.builder()
         .name(parameterName)
-        .withDecryption(true)  // Set to true if the parameter is encrypted
+        .withDecryption(true) // Set to true if the parameter is encrypted
         .build();
 
     GetParameterResponse response = ssmClient.getParameter(request);

@@ -18,6 +18,7 @@ import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
+import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -32,6 +33,7 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import java.util.Optional;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -72,6 +74,16 @@ public class ExceptionMapper {
     Response.Status status = INTERNAL_SERVER_ERROR;
     String message = "Error during Service execution";
     return RestResponse.status(status, buildErrorResponse(status, message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<ErrorResponse> mapInvalidClientInput(
+      InvalidClientInput invalidClientInput) {
+    Log.error(ExceptionUtils.getStackTrace(invalidClientInput));
+    Response.Status status = BAD_REQUEST;
+    return RestResponse.status(status,
+        buildErrorResponse(status, Optional.ofNullable(invalidClientInput.getMessage())
+            .orElse("Invalid parameter")));
   }
 
   @ServerExceptionMapper
@@ -166,11 +178,12 @@ public class ExceptionMapper {
       PDVException exception) {
     Log.error(ExceptionUtils.getStackTrace(exception));
     Response.Status status = INTERNAL_SERVER_ERROR;
-    if (exception.getStatus()!=null) {
+    if (exception.getStatus() != null) {
       status = Response.Status.fromStatusCode(exception.getStatus());
     }
     if (exception.getPayload().isPresent()) {
-      return RestResponse.status(status, buildErrorResponse(status, exception.getPayload().orElseThrow()));
+      return RestResponse.status(status,
+          buildErrorResponse(status, exception.getPayload().orElseThrow()));
     }
     return RestResponse.status(status, buildErrorResponse(status, exception.getMessage()));
   }

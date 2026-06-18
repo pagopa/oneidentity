@@ -14,9 +14,11 @@ import it.pagopa.oneid.web.dto.ConsentRequestDTO;
 import it.pagopa.oneid.web.dto.LoginRequestDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -24,12 +26,16 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.Strings;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.RestForm;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @Path(("/"))
 public class InternalIDPController {
+
+  private static final String POST_RELAY_STATE = "internal-idp-post";
+  private static final String REDIRECT_RELAY_STATE = "internal-idp-redirect";
 
   @ConfigProperty(name = "acs_endpoint")
   String ACS_ENDPOINT;
@@ -58,16 +64,42 @@ public class InternalIDPController {
   @POST
   @Path("/samlsso")
   @Produces(MediaType.TEXT_HTML)
-  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString) {
+  public Response samlSso(@RestForm("SAMLRequest") String authnRequestString,
+      @RestForm("RelayState") String relayState) {
     // Parse and validate AuthnRequest
     AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromString(
         authnRequestString);
     internalIDPServiceImpl.validateAuthnRequest(authnRequest);
 
+    String relayStateToReturn = resolveRelayState(relayState, false);
+
+    return buildLoginResponse(authnRequest, relayStateToReturn);
+  }
+
+  @GET
+  @Path("/samlsso")
+  @Produces(MediaType.TEXT_HTML)
+  public Response samlSsoRedirect(@QueryParam("SAMLRequest") String authnRequestString,
+      @QueryParam("RelayState") String relayState,
+      @QueryParam("SigAlg") String sigAlg,
+      @QueryParam("Signature") String signature) {
+    AuthnRequest authnRequest = internalIDPServiceImpl.getAuthnRequestFromRedirectString(
+        authnRequestString);
+    internalIDPServiceImpl.validateRedirectAuthnRequest(authnRequest);
+    internalIDPServiceImpl.validateRedirectSignature(authnRequestString, relayState, sigAlg,
+        signature);
+
+    String relayStateToReturn = resolveRelayState(relayState, true);
+
+    return buildLoginResponse(authnRequest, relayStateToReturn);
+  }
+
+  private Response buildLoginResponse(AuthnRequest authnRequest, String relayStateToReturn) {
+
     // Get client by AttributeConsumingServiceIndex from AuthnRequest and save it
     Client client = internalIDPServiceImpl.getClientByAttributeConsumingServiceIndex(
         authnRequest);
-    sessionServiceImpl.saveIDPSession(authnRequest, client);
+    sessionServiceImpl.saveIDPSession(authnRequest, client, relayStateToReturn);
 
     // Set authnRequestId and clientId as hidden form fields instead of cookies
     TemplateInstance instance = login.data("loginAction", IDP_LOGIN_ENDPOINT)
@@ -81,15 +113,14 @@ public class InternalIDPController {
         .build();
   }
 
-
   @POST
   @Path("/login")
   @Produces(MediaType.TEXT_HTML)
   public Response login(@Valid LoginRequestDTO loginRequestDTO) {
 
     // 1. check authnRequest
-    //  a. AuthnRequestId presents in IdPSession Table
-    //  b. Status == "PENDING"
+    // a. AuthnRequestId presents in IdPSession Table
+    // b. Status == "PENDING"
     IDPSession idpSession;
     try {
       idpSession = sessionServiceImpl.validateAuthnRequestIdStatus(
@@ -103,7 +134,7 @@ public class InternalIDPController {
     }
 
     // 2. validate login information
-    //  a. correct username and password in User Table for the retrieved ClientId
+    // a. correct username and password in User Table for the retrieved ClientId
     try {
       internalIDPServiceImpl.validateUserInformation(
           idpSession.getClientId(),
@@ -117,8 +148,8 @@ public class InternalIDPController {
     }
 
     // 3. Update IdPSession
-    //  a. insert username
-    //  b. update status to "CREDENTIAL_VALIDATED"
+    // a. insert username
+    // b. update status to "CREDENTIAL_VALIDATED"
     idpSession.setStatus(IDPSessionStatus.CREDENTIALS_VALIDATED);
     idpSession.setUsername(loginRequestDTO.getUsername());
     sessionServiceImpl.updateIdPSession(idpSession);
@@ -126,7 +157,8 @@ public class InternalIDPController {
     Set<String> friendlyRequestedParameters = RequestedParameterUtils.mapToFriendlyNames(
         internalIDPServiceImpl.retrieveClientRequestedParameters(idpSession.getClientId()));
 
-    // Pass authnRequestId, username, and clientId as hidden form fields to consent template
+    // Pass authnRequestId, username, and clientId as hidden form fields to consent
+    // template
     TemplateInstance instance = consent
         .data("consentAction", IDP_CONSENT_ENDPOINT)
         .data("authnRequestId", idpSession.getAuthnRequestId())
@@ -150,11 +182,13 @@ public class InternalIDPController {
         consentRequestDto.getClientId(),
         consentRequestDto.getUsername());
 
-    return consentRequestDto.isConsent() ? handleConsentGiven(idpSession)
-        : handleConsentDenied(idpSession);
+    String relayStateToReturn = idpSession.getRelayStateToReturn();
+    return consentRequestDto.isConsent() ? handleConsentGiven(idpSession, relayStateToReturn)
+        : handleConsentDenied(idpSession, relayStateToReturn);
   }
 
-  private Response handleConsentGiven(IDPSession idpSession) throws SAMLUtilsException {
+  private Response handleConsentGiven(IDPSession idpSession, String relayStateToReturn)
+      throws SAMLUtilsException {
 
     // Verify age limit if present in the session
     if (idpSession.getMinAge() != null) {
@@ -175,18 +209,21 @@ public class InternalIDPController {
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
             idpSession.getUsername());
 
-    return buildSamlRedirectResponse(response, idpSession, Optional.of(IDPSessionStatus.AUTHENTICATED));
+    return buildSamlRedirectResponse(response, idpSession,
+        Optional.of(IDPSessionStatus.AUTHENTICATED), relayStateToReturn);
   }
 
-  private Response handleConsentDenied(IDPSession idpSession) throws SAMLUtilsException {
-    org.opensaml.saml.saml2.core.Response samlResponse =
-        internalIDPServiceImpl.createConsentDeniedSamlResponse(idpSession.getAuthnRequestId());
+  private Response handleConsentDenied(IDPSession idpSession, String relayStateToReturn)
+      throws SAMLUtilsException {
+    org.opensaml.saml.saml2.core.Response samlResponse = internalIDPServiceImpl
+        .createConsentDeniedSamlResponse(idpSession.getAuthnRequestId());
 
-    return buildSamlRedirectResponse(samlResponse, idpSession, Optional.of(IDPSessionStatus.DENIED));
+    return buildSamlRedirectResponse(samlResponse, idpSession, Optional.of(IDPSessionStatus.DENIED),
+        relayStateToReturn);
   }
 
   private Response buildSamlRedirectResponse(org.opensaml.saml.saml2.core.Response samlResponse,
-      IDPSession idpSession, Optional<IDPSessionStatus> status) {
+      IDPSession idpSession, Optional<IDPSessionStatus> status, String relayStateToReturn) {
     String encodedSamlResponse = Base64.getEncoder()
         .encodeToString(internalIDPServiceImpl.getStringValue(
             internalIDPServiceImpl.getElementValueFromSamlResponse(samlResponse)).getBytes());
@@ -195,18 +232,39 @@ public class InternalIDPController {
     idpSession.setTimestampEnd(Instant.now().getEpochSecond());
     sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
-    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse))
+    return Response.ok(getRedirectAutoSubmitPOSTForm(ACS_ENDPOINT, encodedSamlResponse,
+        relayStateToReturn))
         .type(MediaType.TEXT_HTML)
         .build();
   }
 
-  private String getRedirectAutoSubmitPOSTForm(String url, String samlResponse) {
+  private String getRedirectAutoSubmitPOSTForm(String url, String samlResponse,
+      String relayStateToReturn) {
+    String escapedRelayStateToReturn = escapeHtmlAttribute(relayStateToReturn);
     return "<form id='samlResponseForm' action='" + url + "' method='POST'>"
         + "<input type='hidden' name='SAMLResponse' value='" + samlResponse + "'/>"
-        + "<input type='hidden' name='RelayState' value='internal-idp'/>"
+        + "<input type='hidden' name='RelayState' value='" + escapedRelayStateToReturn + "'/>"
         + "</form>"
         + "<script>document.getElementById('samlResponseForm').submit();</script>";
   }
 
+  private String escapeHtmlAttribute(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\"", "&quot;")
+        .replace("'", "&#39;");
+  }
+
+  private String resolveRelayState(String relayStateFromRequest, boolean isRedirectBinding) {
+    if (relayStateFromRequest == null || relayStateFromRequest.isBlank() || Strings.CS.equals(relayStateFromRequest, "/")) {
+      return isRedirectBinding ? REDIRECT_RELAY_STATE : POST_RELAY_STATE;
+    }
+    return relayStateFromRequest;
+  }
 
 }

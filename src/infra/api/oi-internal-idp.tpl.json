@@ -22,9 +22,7 @@
       "url": "${server_url}"
     }
   ],
-  "x-amazon-apigateway-binary-media-types": [
-    "*/*"
-  ],
+  "x-amazon-apigateway-binary-media-types": ["*/*"],
   "paths": {
     "/assets/{proxy+}": {
       "get": {
@@ -80,19 +78,106 @@
             "integration.request.path.proxy": "method.request.path.proxy"
           },
           "passthroughBehavior": "when_no_match",
-          "timeoutInMillis" : 10000,
-          "cacheKeyParameters": [
-            "method.request.path.proxy"
-          ]
+          "timeoutInMillis": 10000,
+          "cacheKeyParameters": ["method.request.path.proxy"]
         }
       }
     },
     "/samlsso": {
-      "post": {
-        "tags": [
-          "Internal IDP APIs"
+      "get": {
+        "tags": ["Internal IDP APIs"],
+        "description": "This route handles SAML AuthnRequests using HTTP-Redirect binding.",
+        "parameters": [
+          {
+            "name": "SAMLRequest",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SigAlg",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Signature",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "RelayState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
-        "description": "This route will handle all SAML AuthnRequests",
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "GET",
+          "uri": "${uri}/samlsso",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis": 10000,
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.querystring.SAMLRequest": "method.request.querystring.SAMLRequest",
+            "integration.request.querystring.SigAlg": "method.request.querystring.SigAlg",
+            "integration.request.querystring.Signature": "method.request.querystring.Signature",
+            "integration.request.querystring.RelayState": "method.request.querystring.RelayState"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.content-type": "integration.response.header.Content-Type"
+              }
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/responseOkHtml"
+          },
+          "400": {
+            "$ref": "#/components/responses/invalidParameters"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Internal IDP APIs"],
+        "description": "This route handles SAML AuthnRequests using HTTP-POST binding.",
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
@@ -100,7 +185,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "timeoutInMillis" : 10000,
+          "timeoutInMillis": 10000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
@@ -140,10 +225,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "SAMLResponse",
-                  "RelayState"
-                ]
+                "required": ["SAMLRequest"]
               }
             }
           }
@@ -169,9 +251,7 @@
     },
     "/login": {
       "post": {
-        "tags": [
-          "Internal IDP APIs"
-        ],
+        "tags": ["Internal IDP APIs"],
         "description": "This route will handle login requests for the internal IDP.",
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
@@ -180,7 +260,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "timeoutInMillis" : 10000,
+          "timeoutInMillis": 10000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
@@ -226,14 +306,17 @@
                   "clientId": {
                     "description": "This is the clientId related to the login flow.",
                     "type": "string"
+                  },
+                  "clientName": {
+                    "description": "This is the clientName related to the login flow.",
+                    "type": "string"
+                  },
+                  "relayStateToReturn": {
+                    "description": "This is the RelayState that must be sent back to the ACS endpoint.",
+                    "type": "string"
                   }
                 },
-                "required": [
-                  "username",
-                  "password",
-                  "authnRequestId",
-                  "clientId"
-                ]
+                "required": ["username", "password", "authnRequestId", "clientId", "clientName"]
               }
             }
           }
@@ -259,9 +342,7 @@
     },
     "/consent": {
       "post": {
-        "tags": [
-          "Internal IDP APIs"
-        ],
+        "tags": ["Internal IDP APIs"],
         "description": "This route will handle the consent request after a successful authentication.",
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
@@ -270,7 +351,7 @@
           "connectionType": "VPC_LINK",
           "connectionId": "${connection_id}",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "timeoutInMillis" : 10000,
+          "timeoutInMillis": 10000,
           "requestParameters": {
             "integration.request.header.accept": "'*/*'"
           },
@@ -316,14 +397,13 @@
                   "username": {
                     "description": "This is the username for the internal idp.",
                     "type": "string"
+                  },
+                  "relayStateToReturn": {
+                    "description": "This is the RelayState that must be sent back to the ACS endpoint.",
+                    "type": "string"
                   }
                 },
-                "required": [
-                  "consent",
-                  "authnRequestId",
-                  "clientId",
-                  "username"
-                ]
+                "required": ["consent", "authnRequestId", "clientId", "username"]
               }
             }
           }

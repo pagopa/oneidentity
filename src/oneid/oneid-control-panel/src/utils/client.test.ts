@@ -1,4 +1,4 @@
-import { Client, SamlAttribute, SpidLevel } from '../types/api';
+import { Client, SamlAttribute, SamlBinding, SpidLevel } from '../types/api';
 import { clientDataWithoutSensitiveData } from './client';
 
 describe('clientDataWithoutSensitiveData', () => {
@@ -14,6 +14,7 @@ describe('clientDataWithoutSensitiveData', () => {
       tosUri: 'https://example.com/tos',
       redirectUris: ['https://example.com/callback'],
       samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
+      samlBinding: SamlBinding.HTTP_POST,
       logoUri: 'https://example.com/logo.png',
       defaultAcrValues: [SpidLevel.L2],
       requiredSameIdp: true,
@@ -52,6 +53,7 @@ describe('clientDataWithoutSensitiveData', () => {
       tosUri: 'https://example.com/tos',
       redirectUris: ['https://example.com/callback'],
       samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
+      samlBinding: SamlBinding.HTTP_POST,
       logoUri: 'https://example.com/logo.png',
       defaultAcrValues: [SpidLevel.L2],
       requiredSameIdp: true,
@@ -82,6 +84,7 @@ describe('clientDataWithoutSensitiveData', () => {
       clientName: 'Another Client',
       redirectUris: ['https://example.com/redirect'],
       samlRequestedAttributes: [SamlAttribute.EMAIL],
+      samlBinding: SamlBinding.HTTP_POST,
       defaultAcrValues: [SpidLevel.L2],
     };
 

@@ -5,6 +5,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
+import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
@@ -20,34 +21,39 @@ import lombok.experimental.SuperBuilder;
 import org.eclipse.microprofile.openapi.annotations.enums.Explode;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @RegisterForReflection
 @SuperBuilder
-@SpidMinorsCheck(groups = {Registration.class, UpdateClient.class})
+@SpidMinorsCheck(groups = { Registration.class, UpdateClient.class })
 public class ClientRegistrationDTO {
 
-  @NotEmpty(groups = {Registration.class, UpdateClient.class})
+  @NotEmpty(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  private Set<String> redirectUris; //Client.callbackURI
+  private Set<String> redirectUris; // Client.callbackURI
 
-  @NotBlank(groups = {Registration.class, UpdateClient.class})
+  @NotBlank(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("clientName")
-  private String clientName; //Client.friendlyName
+  private String clientName; // Client.friendlyName
 
-  @NotEmpty(groups = {Registration.class, UpdateClient.class})
+  @NotEmpty(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("defaultAcrValues")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @AuthLevelCheck(groups = {Registration.class, UpdateClient.class})
+  @AuthLevelCheck(groups = { Registration.class, UpdateClient.class })
   private Set<String> defaultAcrValues;
 
-  @NotEmpty(groups = {Registration.class, UpdateClient.class})
+  @JsonProperty("samlBinding")
+  @Schema(enumeration = { "HTTP-POST", "HTTP-Redirect" })
+  private ClientSamlBinding samlBinding;
+
+  @NotEmpty(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("samlRequestedAttributes")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
-  @SamlRequestedAttributeCheck(groups = {Registration.class, UpdateClient.class})
+  @SamlRequestedAttributeCheck(groups = { Registration.class, UpdateClient.class })
   private Set<String> samlRequestedAttributes;
 
   @JsonProperty("requiredSameIdp")
@@ -69,7 +75,7 @@ public class ClientRegistrationDTO {
   private Boolean backButtonEnabled;
 
   @JsonProperty("localizedContentMap")
-  @LocalizedContentMapCheck(groups = {Registration.class, UpdateClient.class})
+  @LocalizedContentMapCheck(groups = { Registration.class, UpdateClient.class })
   private Map<String, Map<String, LocalizedContent>> localizedContentMap;
 
   @JsonProperty("spidMinors")
@@ -94,6 +100,7 @@ public class ClientRegistrationDTO {
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
     this.defaultAcrValues = clientRegistrationDTO.defaultAcrValues;
+    this.samlBinding = clientRegistrationDTO.samlBinding;
     this.samlRequestedAttributes = clientRegistrationDTO.samlRequestedAttributes;
     this.requiredSameIdp = clientRegistrationDTO.requiredSameIdp;
     this.logoUri = clientRegistrationDTO.logoUri;

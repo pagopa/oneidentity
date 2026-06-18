@@ -2,6 +2,7 @@ package it.pagopa.oneid.common.model;
 
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
@@ -34,24 +35,42 @@ public class ClientExtended extends Client {
       @NotNull String friendlyName,
       @NotNull Set<String> callbackURI,
       @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
+      @NotNull SamlBinding samlBinding, @NotNull int acsIndex,
+      @NotNull int attributeIndex, @NotNull boolean isActive,
+      String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
+      String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
+      Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
+      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      Integer ageParentAuth) {
+    super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
+        samlBinding, acsIndex, attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri,
+        tosURi, requiredSameIdp, a11yUri, backButtonEnabled, localizedContentMap, spidMinors,
+        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth);
+    this.secret = secret;
+    this.salt = salt;
+  }
+
+  public ClientExtended(@NotNull String clientId, String userId,
+      @NotNull String friendlyName,
+      @NotNull Set<String> callbackURI,
+      @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
       @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
       boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth) {
-    super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, acsIndex,
-        attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp,
-        a11yUri, backButtonEnabled, localizedContentMap, spidMinors, spidProfessionals,
-        pairwise, minAge, maxAge, ageParentAuth);
-    this.secret = secret;
-    this.salt = salt;
+    this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
+        SamlBinding.HTTP_POST, acsIndex, attributeIndex, isActive, secret, salt,
+        clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp, a11yUri,
+        backButtonEnabled, localizedContentMap, spidMinors, spidProfessionals, pairwise, minAge,
+        maxAge, ageParentAuth);
   }
 
   public ClientExtended(Client client, String secret, String salt) {
     super(client.getClientId(), client.getUserId(), client.getFriendlyName(),
         client.getCallbackURI(),
-        client.getRequestedParameters(), client.getAuthLevel(), client.getAcsIndex(),
+        client.getRequestedParameters(), client.getAuthLevel(), client.getSamlBinding(), client.getAcsIndex(),
         client.getAttributeIndex(), client.isActive(),
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),

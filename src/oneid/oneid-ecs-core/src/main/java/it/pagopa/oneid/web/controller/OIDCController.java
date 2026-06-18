@@ -5,6 +5,7 @@ import io.quarkus.runtime.Startup;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -47,9 +48,9 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 @Path(("/oidc"))
 @Startup
@@ -117,7 +118,7 @@ public class OIDCController {
 
   @POST
   @Path("/authorize")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_HTML })
   public Response authorizePost(
       @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
     Log.debug("start");
@@ -130,7 +131,7 @@ public class OIDCController {
 
   @GET
   @Path("/authorize")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_HTML })
   public Response authorizeGet(
       @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
     Log.debug("start");
@@ -168,7 +169,7 @@ public class OIDCController {
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 4. Check if scope is "openid"
+    // 3. Check if scope is "openid"
     if (StringUtils.isBlank(authorizationRequestDTOExtended.getScope())
         || !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error("scope not supported");
@@ -177,7 +178,7 @@ public class OIDCController {
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 5. Check if response type is "code"
+    // 4. Check if response type is "code"
     if (!authorizationRequestDTOExtended.getResponseType().equals(ResponseType.CODE)) {
       Log.error("response type not supported");
       throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
@@ -185,27 +186,42 @@ public class OIDCController {
           authorizationRequestDTOExtended.getClientId());
     }
 
+    // 5. Get SSO Endpoint corresponding to client's samlBinding
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
-
-    String idpSSOEndpoint = idp.get().getIdpSSOEndpoints()
-        .get(SAMLConstants.SAML2_POST_BINDING_URI);
+    SamlBinding samlBinding = Optional.ofNullable(client.getSamlBinding())
+        .orElse(SamlBinding.HTTP_POST);
+    String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
+    if (StringUtils.isBlank(idpSSOEndpoint)) {
+      throw new IDPSSOEndpointNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState(), authorizationRequestDTOExtended.getClientId());
+    }
 
     // 6. Create SAML Authn Request using SAMLServiceImpl
-
+    // (without signature if binding is HTTP-REDIRECT)
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint, client.getAcsIndex(),
-          client.getAttributeIndex(), client.getAuthLevel().getValue());
-    } catch (GenericAuthnRequestCreationException | IDPSSOEndpointNotFoundException |
-             OneIdentityException e) {
+          client.getAttributeIndex(), client.getAuthLevel().getValue(), samlBinding);
+    } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
       Log.error("error building authorization request: " + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState());
     }
 
-    String encodedAuthnRequest = Base64.getEncoder().encodeToString(oidcServiceImpl.getStringValue(
-        oidcServiceImpl.getElementValueFromAuthnRequest(authnRequest)).getBytes());
     String encodedRelayStateString = "";
+    String encodedAuthnRequest;
+    try {
+      if (samlBinding.equals(SamlBinding.HTTP_REDIRECT)) {
+        encodedAuthnRequest = samlServiceImpl.encodeAuthnRequestForRedirect(authnRequest);
+      } else {
+        encodedAuthnRequest = Base64.getEncoder().encodeToString(oidcServiceImpl.getStringValue(
+            oidcServiceImpl.getElementValueFromAuthnRequest(authnRequest)).getBytes());
+      }
+    } catch (OneIdentityException e) {
+      Log.error("error encoding authorization request: " + e.getMessage());
+      throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
+          authorizationRequestDTOExtended.getState());
+    }
 
     // 7. Persist SAMLSession
 
@@ -226,13 +242,29 @@ public class OIDCController {
           authorizationRequestDTOExtended.getState());
     }
 
-    String redirectAutoSubmitPOSTForm =
-        "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
-            + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
-            + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
-            + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
-            + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
-            + "document.getElementById('SAMLRequestForm').submit();</script>";
+    if (samlBinding.equals(SamlBinding.HTTP_REDIRECT)) {
+      try {
+        String queryString = samlServiceImpl.buildRedirectQueryString(encodedAuthnRequest,
+            encodedRelayStateString, SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
+        String signature = samlServiceImpl.signRedirectQueryString(queryString);
+        String redirectLocation = idpSSOEndpoint + "?" + queryString + "&Signature="
+            + java.net.URLEncoder.encode(signature, java.nio.charset.StandardCharsets.UTF_8);
+        return Response.status(Response.Status.FOUND)
+            .location(java.net.URI.create(redirectLocation))
+            .build();
+      } catch (OneIdentityException e) {
+        Log.error("error building redirect authorization request: " + e.getMessage());
+        throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
+            authorizationRequestDTOExtended.getState());
+      }
+    }
+
+    String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
+        + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
+        + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
+        + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
+        + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
+        + "document.getElementById('SAMLRequestForm').submit();</script>";
 
     return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
   }
@@ -249,7 +281,8 @@ public class OIDCController {
     SAMLSession session = currentAuthDTO.getSamlSession();
     String clientId = session.getAuthorizationRequestDTOExtended().getClientId();
 
-    // check if redirect uri corresponds to session's redirect uri, needs to be mapped as InvalidGrantException
+    // check if redirect uri corresponds to session's redirect uri, needs to be
+    // mapped as InvalidGrantException
     if (!tokenRequestDTOExtended.getRedirectUri()
         .equals(session.getAuthorizationRequestDTOExtended().getRedirectUri())) {
       Log.error("provided redirect URI does not correspond to session redirect URI");

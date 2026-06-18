@@ -13,6 +13,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -20,6 +21,7 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
+import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
@@ -27,6 +29,7 @@ import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
 import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
+import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import it.pagopa.oneid.service.utils.ClientUtils;
 import it.pagopa.oneid.service.utils.CustomURIUtils;
 import it.pagopa.oneid.service.utils.ValidationUtils;
@@ -35,7 +38,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -67,7 +69,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     // validate client name
     if (!(clientRegistrationDTO.getClientName() != null && ValidationUtils.isSafeTitle(
         clientRegistrationDTO.getClientName()))) {
-      throw new InvalidParameterException("Invalid Client name");
+      throw new InvalidClientInput("Invalid Client name");
     }
 
     // Validate redirectUris
@@ -162,7 +164,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
   }
 
-
   @Override
   public ClientRegistrationResponseDTO saveClient(
       ClientRegistrationDTO clientRegistrationDTO, String userId, @Nullable String pdvApiKey,
@@ -204,11 +205,14 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     clientConnector.saveClientIfNotExists(clientExtended);
     Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
-    // 8. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its first value
+    // 8. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its
+    // first value
     clientRegistrationDTO.setDefaultAcrValues(Set.of(
         clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
             .orElseThrow(
                 () -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))));
+    clientRegistrationDTO.setSamlBinding(
+        ClientSamlBinding.fromSamlBinding(client.getSamlBinding()));
 
     // 9. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
@@ -219,17 +223,22 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .policyUri(clientRegistrationDTO.getPolicyUri())
         .tosUri(clientRegistrationDTO.getTosUri())
         .defaultAcrValues(clientRegistrationDTO.getDefaultAcrValues())
+        .samlBinding(ClientSamlBinding.fromSamlBinding(client.getSamlBinding()))
         .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
         .a11yUri(clientRegistrationDTO.getA11yUri())
         .localizedContentMap(clientRegistrationDTO.getLocalizedContentMap())
         .backButtonEnabled(clientRegistrationDTO.getBackButtonEnabled() != null
-            ? clientRegistrationDTO.getBackButtonEnabled() : false)
+            ? clientRegistrationDTO.getBackButtonEnabled()
+            : false)
         .spidMinors(clientRegistrationDTO.getSpidMinors() != null
-            ? clientRegistrationDTO.getSpidMinors() : false)
+            ? clientRegistrationDTO.getSpidMinors()
+            : false)
         .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
-            ? clientRegistrationDTO.getSpidProfessionals() : false)
+            ? clientRegistrationDTO.getSpidProfessionals()
+            : false)
         .pairwise(clientRegistrationDTO.getPairwise() != null
-            ? clientRegistrationDTO.getPairwise() : false)
+            ? clientRegistrationDTO.getPairwise()
+            : false)
         .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
         .clientIdIssuedAt(client.getClientIdIssuedAt())
@@ -243,8 +252,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
             .stream()
             .max(Comparator.comparing(Client::getAttributeIndex))
             .map(Client::getAttributeIndex)
-            .orElse(-1)
-        ).orElse(-1);
+            .orElse(-1))
+        .orElse(-1);
   }
 
   private int resolveAcsIndex(ClientExtended clientExtended) {
@@ -281,7 +290,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       updatedClientExtended.setAttributeIndex(newIndex);
       updatedClientExtended.setAcsIndex(newIndex);
     } else {
-      // maintain the same value for both attributeIndex and acsIndex 
+      // maintain the same value for both attributeIndex and acsIndex
       updatedClientExtended.setAttributeIndex(clientExtended.getAttributeIndex());
       updatedClientExtended.setAcsIndex(clientExtended.getAttributeIndex());
     }
@@ -305,7 +314,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       @Nullable String pdvApiKey,
       @Nullable String planName) {
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
-        clientExtended.getUserId());
+        clientExtended.getUserId(), Optional.ofNullable(clientExtended.getSamlBinding())
+            .orElse(SamlBinding.HTTP_POST));
 
     String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
 

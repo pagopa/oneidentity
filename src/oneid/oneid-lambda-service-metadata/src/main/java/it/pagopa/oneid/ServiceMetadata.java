@@ -48,6 +48,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @CustomLogging
+
 public class ServiceMetadata implements RequestHandler<Object, String> {
 
   static {
@@ -79,7 +80,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return result.getWriter().toString();
   }
 
-
   @Override
   public String handleRequest(Object event, Context context) {
 
@@ -103,10 +103,9 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         return "SPID and CIE metadata uploaded successfully";
       }
 
-      //ScheduledEvent
+      // ScheduledEvent
       processMetadataAndUpload();
       Log.info("SPID and CIE metadata uploaded successfully");
-
 
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
@@ -115,86 +114,80 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     return "SPID and CIE metadata uploaded successfully";
   }
 
-
   private boolean hasMetadataChanged(JsonNode nodeRecord) {
-
-    String acsIndexOld = nodeRecord.get("dynamodb").get("OldImage").get("acsIndex").get("N")
-        .asText();
-    String acsIndexNew = nodeRecord.get("dynamodb").get("NewImage").get("acsIndex").get("N")
-        .asText();
-    if (!acsIndexNew.equals(acsIndexOld)) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "acsIndex", "N")) {
       return true;
     }
-    String friendlyNameOld = nodeRecord.get("dynamodb").get("OldImage").get("friendlyName").get("S")
-        .asText();
-    String friendlyNameNew = nodeRecord.get("dynamodb").get("NewImage").get("friendlyName").get("S")
-        .asText();
-    if (!friendlyNameNew.equals(friendlyNameOld)) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "friendlyName", "S")) {
       return true;
     }
-
-    List<String> requestedParametersOld = new ArrayList<>();
-    nodeRecord.get("dynamodb").get("OldImage")
-        .get("requestedParameters").get("SS").forEach(parameterOld -> {
-          requestedParametersOld.add(parameterOld.asText());
-        });
-    List<String> requestedParametersNew = new ArrayList<>();
-    nodeRecord.get("dynamodb").get("NewImage")
-        .get("requestedParameters").get("SS").forEach(parameterNew -> {
-          requestedParametersNew.add(parameterNew.asText());
-        });
-    if (!requestedParametersNew.equals(requestedParametersOld)) {
+    if (hasDynamoStringSetFieldChanged(nodeRecord, "requestedParameters")) {
       return true;
     }
-    String authLevelOld = nodeRecord.get("dynamodb").get("OldImage").get("authLevel").get("S")
-        .asText();
-    String authLevelNew = nodeRecord.get("dynamodb").get("NewImage").get("authLevel").get("S")
-        .asText();
-    if (!authLevelNew.equals(authLevelOld)) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "authLevel", "S")) {
       return true;
     }
-    String attributeIndexOld = nodeRecord.get("dynamodb").get("OldImage").get("attributeIndex")
-        .get("N")
-        .asText();
-    String attributeIndexNew = nodeRecord.get("dynamodb").get("NewImage").get("attributeIndex")
-        .get("N")
-        .asText();
-    if (!attributeIndexNew.equals(attributeIndexOld)) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "attributeIndex", "N")) {
       return true;
     }
-    boolean isActiveOld = nodeRecord.get("dynamodb").get("OldImage").get("active").get("BOOL")
-        .asBoolean();
-    boolean isActiveNew = nodeRecord.get("dynamodb").get("NewImage").get("active").get("BOOL")
-        .asBoolean();
-    if (isActiveNew != isActiveOld) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "active", "BOOL")) {
       return true;
     }
-    if (hasDynamoFieldChanged(nodeRecord, "spidMinors", "BOOL")) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "spidMinors", "BOOL")) {
       return true;
     }
-    if (hasDynamoFieldChanged(nodeRecord, "minAge", "N")) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "minAge", "N")) {
       return true;
     }
-    if (hasDynamoFieldChanged(nodeRecord, "maxAge", "N")) {
+    if (hasDynamoScalarFieldChanged(nodeRecord, "maxAge", "N")) {
       return true;
     }
-    return hasDynamoFieldChanged(nodeRecord, "ageParentAuth", "N");
+    if (hasDynamoScalarFieldChanged(nodeRecord, "ageParentAuth", "N")) {
+      return true;
+    }
+    return false;
   }
 
-  private boolean hasDynamoFieldChanged(JsonNode nodeRecord, String fieldName, String type) {
+  private boolean hasDynamoScalarFieldChanged(JsonNode nodeRecord, String fieldName, String type) {
+    return hasDynamoScalarFieldChanged(nodeRecord, fieldName, type, null);
+  }
+
+  private boolean hasDynamoScalarFieldChanged(JsonNode nodeRecord, String fieldName, String type,
+      String defaultValue) {
     JsonNode oldImage = nodeRecord.get("dynamodb").get("OldImage");
     JsonNode newImage = nodeRecord.get("dynamodb").get("NewImage");
 
-    JsonNode oldField = oldImage.get(fieldName);
-    JsonNode newField = newImage.get(fieldName);
+    String oldFieldValue = extractScalarFieldValue(oldImage.get(fieldName), type, defaultValue);
+    String newFieldValue = extractScalarFieldValue(newImage.get(fieldName), type, defaultValue);
+    return !Objects.equals(oldFieldValue, newFieldValue);
+  }
 
-    if (oldField == null && newField == null) {
-      return false;
+  private boolean hasDynamoStringSetFieldChanged(JsonNode nodeRecord, String fieldName) {
+    JsonNode oldImage = nodeRecord.get("dynamodb").get("OldImage");
+    JsonNode newImage = nodeRecord.get("dynamodb").get("NewImage");
+
+    return !extractStringSetFieldValues(oldImage.get(fieldName))
+        .equals(extractStringSetFieldValues(newImage.get(fieldName)));
+  }
+
+  private String extractScalarFieldValue(JsonNode fieldNode, String type, String defaultValue) {
+    if (fieldNode == null || fieldNode.get(type) == null || fieldNode.get(type).isNull()) {
+      return defaultValue;
     }
-    if (oldField == null || newField == null) {
-      return true;
+    String value = fieldNode.get(type).asText();
+    if (value == null || value.isBlank()) {
+      return defaultValue;
     }
-    return !Objects.equals(oldField.get(type), newField.get(type));
+    return value;
+  }
+
+  private List<String> extractStringSetFieldValues(JsonNode fieldNode) {
+    List<String> values = new ArrayList<>();
+    if (fieldNode == null || fieldNode.get("SS") == null) {
+      return values;
+    }
+    fieldNode.get("SS").forEach(value -> values.add(value.asText()));
+    return values;
   }
 
   private void uploadToS3(String objectKey, String content) {
@@ -286,8 +279,8 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
         .registerNamespaceDeclaration(
             new Namespace(idType.getNamespaceUri(), idType.getNamespacePrefix()));
 
-    org.opensaml.saml.saml2.metadata.Extensions entityExtensions =
-        samlUtils.buildEntityExtensions(clientsMap);
+    org.opensaml.saml.saml2.metadata.Extensions entityExtensions = samlUtils.buildEntityExtensions(
+        clientsMap);
     if (entityExtensions != null) {
       entityDescriptor.setExtensions(entityExtensions);
       if (!idType.getNamespacePrefix().equals("spid")) {
@@ -310,7 +303,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     }
 
     try {
-      Signer.signObject(signature);
+      Signer.signObject(Objects.requireNonNull(signature));
     } catch (SignatureException e) {
       throw new OneIdentityException(e);
     }
@@ -320,8 +313,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
   private Map<String, Client> getClientsMap() {
     Map<String, Client> map = new HashMap<>();
-    ArrayList<Client> clients =
-        clientConnectorImpl.findAll().orElse(new ArrayList<>());
+    ArrayList<Client> clients = clientConnectorImpl.findAll().orElse(new ArrayList<>());
 
     clients.forEach(client -> map.put(client.getClientId(), client));
 

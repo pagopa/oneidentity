@@ -405,12 +405,16 @@ class ExceptionMapperTest {
     // given
     IDPSSOEndpointNotFoundException exceptionMock = Mockito.mock(
         IDPSSOEndpointNotFoundException.class);
-    String message = "IDPSSO endpoint not found for selected idp.";
+    Mockito.when(exceptionMock.getCallbackUri()).thenReturn("https://client.example.com/callback");
+    Mockito.when(exceptionMock.getErrorMessage()).thenReturn("IDP SSO endpoint not found");
+    Mockito.when(exceptionMock.getOAuth2errorCode()).thenReturn("invalid_request");
+    Mockito.when(exceptionMock.getState()).thenReturn("dummyState");
     // when
-    RestResponse<ErrorResponse> restResponse = exceptionMapper.mapIDPSSOEndpointNotFoundException(
+    RestResponse<Object> restResponse = exceptionMapper.mapIDPSSOEndpointNotFoundException(
         exceptionMock);
     // then
-    checkErrorWithBuildErrorResponse(INTERNAL_SERVER_ERROR, message, restResponse);
+    checkErrorWithAuthenticationErrorResponse(FOUND, "invalid_request", restResponse);
+    assertTrue(restResponse.getLocation().toString().contains("state=dummyState"));
   }
 
   @Test
@@ -598,7 +602,6 @@ class ExceptionMapperTest {
   @Test
   void mapInvalidClientException() {
     // given
-    String message = "The authorization header is malformed.";
     InvalidClientException exceptionMock = Mockito.mock(
         InvalidClientException.class);
     Mockito.when(exceptionMock.getMessage())

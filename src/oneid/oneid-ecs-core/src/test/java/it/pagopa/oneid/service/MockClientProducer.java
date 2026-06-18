@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
@@ -12,36 +13,116 @@ import java.util.Map;
 import java.util.Set;
 import producers.ClientProducer;
 
-
 @Alternative
 @Dependent
 public class MockClientProducer extends ClientProducer {
 
   @ApplicationScoped
   @Produces
-  Map<String, Client> clientsMap() {
+  public Map<String, Client> clientsMap() {
     Map<String, Client> map = new HashMap<>();
     ArrayList<Client> clients = new ArrayList<>();
     clients.add(
-        new Client("test", "test", "test", Set.of("foo.bar"), Set.of("test"), AuthLevel.L2, 0, 0,
-            true, 0,
-            "test", "test", "test", true, "test", false, null, false, false, false,
-            null, null, null));
+        Client.builder()
+            .clientId("test")
+            .userId("test")
+            .friendlyName("test")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_POST)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(true)
+            .a11yUri("test")
+            .backButtonEnabled(false)
+            .build());
     clients.add(
-        new Client("testIsRequiredSameIdpFalse", "test", "test", Set.of("foo.bar"), Set.of("test"),
-            AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", false, "test", false, null, false, false, false,
-            null, null, null));
+        Client.builder()
+            .clientId("testRedirect")
+            .userId("test")
+            .friendlyName("test")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_REDIRECT)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(true)
+            .a11yUri("test")
+            .backButtonEnabled(false)
+            .build());
     clients.add(
-        new Client("testIsRequiredSameIdpTrue", "test", "test", Set.of("foo.bar"), Set.of("test"),
-            AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", true, "test", false, null, false, false, false,
-            null, null, null));
+        Client.builder()
+            .clientId("testIsRequiredSameIdpFalse")
+            .userId("test")
+            .friendlyName("test")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_POST)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(false)
+            .a11yUri("test")
+            .backButtonEnabled(false)
+            .build());
     clients.add(
-        new Client("testPairwiseTrue", "test", "test", Set.of("foo.bar"), Set.of("test"),
-            AuthLevel.L2, 0, 0, true, 0,
-            "test", "test", "test", false, "test", false, null, false, false, true,
-            null, null, null));
+        Client.builder()
+            .clientId("testIsRequiredSameIdpTrue")
+            .userId("test")
+            .friendlyName("test")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_POST)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(true)
+            .a11yUri("test")
+            .backButtonEnabled(false)
+            .build());
+    clients.add(
+        Client.builder()
+            .clientId("testPairwiseTrue")
+            .userId("test")
+            .friendlyName("test")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_POST)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(false)
+            .a11yUri("test")
+            .backButtonEnabled(false)
+            .pairwise(true)
+            .build());
     clients.forEach(client -> map.put(client.getClientId(), client));
 
     return map;

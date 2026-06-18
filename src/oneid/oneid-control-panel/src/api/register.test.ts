@@ -9,6 +9,7 @@ import { ENV } from '../utils/env';
 import {
   Client,
   SamlAttribute,
+  SamlBinding,
   SpidLevel,
   ValidateApiKeySchema,
   ValidatePlanSchema,
@@ -120,6 +121,7 @@ describe('createOrUpdateClient', () => {
     tosUri: 'https://example.com/tos',
     defaultAcrValues: [SpidLevel.L2],
     samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
+    samlBinding: SamlBinding.HTTP_POST,
     backButtonEnabled: false, // aggiungi il default manualmente
   };
 
