@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.5.0
+
+### Minor Changes
+
+- 09a8418: feat: add http-redirect binding
+
 ## 2.4.1
 
 ### Patch Changes

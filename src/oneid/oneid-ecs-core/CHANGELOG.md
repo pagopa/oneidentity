@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.7.0
+
+### Minor Changes
+
+- 09a8418: feat: add http-redirect binding
+
 ## 1.6.1
 
 ### Patch Changes
