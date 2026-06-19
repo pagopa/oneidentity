@@ -19,8 +19,9 @@ ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
 # DynamoDB table name for IDP metadata
 IDP_METADATA_DYNAMODB_TABLE = os.getenv("IDP_METADATA_DYNAMODB_TABLE")
 
-# IDP metadata pointer used by /idps latest snapshot
-IDP_METADATA_POINTER = "LATEST_SPID"
+# IDP metadata pointers used by /idps latest snapshot
+IDP_METADATA_POINTER_SPID = "LATEST_SPID"
+IDP_METADATA_POINTER_CIE = "LATEST_CIE"
 
 # Pointer value for the latest status
 LATEST_POINTER = "latest"
@@ -171,10 +172,16 @@ def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
 
     new_status = ALARM_STATE_MAP[alarm_state]
 
+    # Determine correct pointer value dynamically
+    if "servizicie" in entity_id.lower():
+        pointer = IDP_METADATA_POINTER_CIE
+    else:
+        pointer = IDP_METADATA_POINTER_SPID
+
     try:
         dynamodb_client.update_item(
             TableName=IDP_METADATA_DYNAMODB_TABLE,
-            Key={"entityID": {"S": entity_id}, "pointer": {"S": IDP_METADATA_POINTER}},
+            Key={"entityID": {"S": entity_id}, "pointer": {"S": pointer}},
             UpdateExpression="SET #status = :status",
             ExpressionAttributeNames={"#status": "status"},
             ExpressionAttributeValues={":status": {"S": new_status}},
@@ -186,7 +193,7 @@ def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
         logger.error(
             "IDPMetadata item not found for entityID %s and pointer %s",
             entity_id,
-            IDP_METADATA_POINTER,
+            pointer,
         )
         return False
     except Exception as e:
