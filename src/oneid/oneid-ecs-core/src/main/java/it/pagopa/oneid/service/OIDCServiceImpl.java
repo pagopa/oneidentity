@@ -159,10 +159,12 @@ public class OIDCServiceImpl implements OIDCService {
     URI jwksURI;
     URI authEndpointURI;
     URI tokenEndpointURI;
+    URI userInfoEndpointURI;
     try {
       jwksURI = new URI(BASE_PATH + "/oidc/keys");
       authEndpointURI = new URI(BASE_PATH + "/oidc/authorize");
       tokenEndpointURI = new URI(BASE_PATH + "/oidc/token");
+      userInfoEndpointURI = new URI(BASE_PATH + "/oidc/userinfo");
     } catch (URISyntaxException e) {
       Log.error("error during endpoints URI creation: "
           + e.getMessage());
@@ -170,13 +172,17 @@ public class OIDCServiceImpl implements OIDCService {
     }
 
     /* Required */
+    List<SubjectType> supportedSubjectTypes = pairwiseEnabled
+        ? List.of(SubjectType.PUBLIC, SubjectType.PAIRWISE)
+        : List.of(SubjectType.PUBLIC);
     OIDCProviderMetadata oidcProviderMetadata = new OIDCProviderMetadata(issuer,
-        List.of(SubjectType.PUBLIC), jwksURI);
+        supportedSubjectTypes, jwksURI);
 
     oidcProviderMetadata.setAuthorizationEndpointURI(authEndpointURI);
     oidcProviderMetadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.RS256));
     oidcProviderMetadata.setResponseTypes(List.of(ResponseType.CODE));
     oidcProviderMetadata.setTokenEndpointURI(tokenEndpointURI);
+    oidcProviderMetadata.setUserInfoEndpointURI(userInfoEndpointURI);
 
     /* Not required */
     oidcProviderMetadata.setScopes(new Scope("openid"));
