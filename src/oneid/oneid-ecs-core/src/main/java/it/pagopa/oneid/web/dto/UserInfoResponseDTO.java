@@ -1,4 +1,4 @@
-package it.pagopa.oneid.common.model.dto;
+package it.pagopa.oneid.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

@@ -22,6 +22,7 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.InvalidAccessTokenException;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.InvalidGrantException;
 import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
@@ -307,6 +308,25 @@ public class ExceptionMapper {
     return RestResponse.status(BAD_REQUEST,
         buildTokenRequestErrorDTO(
             invalidRequestMalformedHeaderException.getMessage(), message));
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapInvalidAccessTokenException(
+      InvalidAccessTokenException invalidAccessTokenException) {
+    String message = "The access token is invalid or expired.";
+    String header = "Bearer error=\""
+      + invalidAccessTokenException.getMessage()
+      + "\", error_description=\""
+      + message
+      + "\"";
+    return ResponseBuilder
+        .create(UNAUTHORIZED)
+        .header("WWW-Authenticate", header)
+        .entity(buildTokenRequestErrorDTO(
+            invalidAccessTokenException.getMessage(),
+            message))
+        .type(MediaType.APPLICATION_JSON_TYPE)
+        .build();
   }
 
   @ServerExceptionMapper
