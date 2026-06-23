@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 public class ValidationUtils {
   private static final Pattern DANGEROUS_PROTOCOL_PREFIX =
       Pattern.compile("^\\s*(javascript|data|vbscript)\\s*:", Pattern.CASE_INSENSITIVE);
+  private static final Pattern SAFE_TITLE_PATTERN =
+      Pattern.compile("^[\\p{L}\\p{N} .,'’\"()_\\-]+$");
 
   public static boolean isSafeTitle(String value) {
     return isSafeTitle(value, null);
@@ -17,9 +19,12 @@ public class ValidationUtils {
 
     String v = value.trim();
 
-    if (v.contains("\n") || v.contains("\r") || (minLen != null && v.length() < minLen)) return false;
+    if (v.contains("\n")
+        || v.contains("\r")
+        || (minLen != null && v.length() < minLen)
+        || DANGEROUS_PROTOCOL_PREFIX.matcher(v).find()) return false;
 
-    return v.matches("^[\\p{L}\\p{N} .,'’\"()\\-]+$");
+    return SAFE_TITLE_PATTERN.matcher(v).matches();
   }
 
   public static boolean isSafeDescription(String value) {

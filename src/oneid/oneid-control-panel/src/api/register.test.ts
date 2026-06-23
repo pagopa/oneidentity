@@ -8,6 +8,7 @@ import {
 import { ENV } from '../utils/env';
 import {
   Client,
+  clientSchema,
   SamlAttribute,
   SamlBinding,
   SpidLevel,
@@ -202,6 +203,25 @@ describe('createOrUpdateClient', () => {
     await expect(createOrUpdateClient(invalidData)).rejects.toThrow();
   });
 
+  it('rejects invalid theme keys in localizedContentMap', () => {
+    const invalidThemeKeyData = {
+      ...mockClientData,
+      localizedContentMap: {
+        _marketing: {
+          it: {
+            title: 'Valid title',
+            description: 'Valid description with enough chars',
+            docUri: 'https://example.com/doc',
+            cookieUri: 'https://example.com/cookie',
+            supportAddress: 'support@example.com',
+          },
+        },
+      },
+    };
+
+    expect(clientSchema.safeParse(invalidThemeKeyData).success).toBe(false);
+  });
+
   it('throws an error if the API call fails', async () => {
     axiosMock.post.mockRejectedValueOnce({
       isAxiosError: true,
@@ -210,6 +230,24 @@ describe('createOrUpdateClient', () => {
 
     await expect(createOrUpdateClient(mockClientData)).rejects.toThrow(
       'Failed to create client'
+    );
+  });
+
+  it('throws the backend validation detail if present', async () => {
+    axiosMock.post.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: {
+        data: {
+          status: 400,
+          title: 'Bad Request',
+          detail:
+            'updateClient.clientRegistrationDTOInput.clientName: Invalid clientName',
+        },
+      },
+    });
+
+    await expect(createOrUpdateClient(mockClientData)).rejects.toThrow(
+      'updateClient.clientRegistrationDTOInput.clientName: Invalid clientName'
     );
   });
 

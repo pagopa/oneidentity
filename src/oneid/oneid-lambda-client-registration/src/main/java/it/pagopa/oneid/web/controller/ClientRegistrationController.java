@@ -68,7 +68,7 @@ public class ClientRegistrationController {
     Log.debug("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
-    clientRegistrationService.validateClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
+    clientRegistrationService.validatePairwiseClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
         planName);
     Log.debug("client info validated successfully");
 
@@ -150,7 +150,7 @@ public class ClientRegistrationController {
     Log.debug("userId retrieved from bearer token successfully");
 
     //2. Validate client infos
-    clientRegistrationService.validateClientRegistrationInfo(
+    clientRegistrationService.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTOInput, pdvApiKey, planName);
     Log.debug("client info validated successfully");
 
