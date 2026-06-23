@@ -13,5 +13,7 @@ public interface SessionConnector<T extends Session> {
 
   void updateSAMLSession(String samlRequestID, String SAMLResponse) throws SessionException;
 
+  void updateAccessTokenPairwise(String accessToken, String pairwise) throws SessionException;
+
 
 }
