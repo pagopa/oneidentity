@@ -40,6 +40,11 @@ public class SessionServiceImpl<T extends Session> implements SessionService<T> 
   }
 
   @Override
+  public void setAccessTokenPairwise(String accessToken, String pairwise) throws SessionException {
+    sessionConnectorImpl.updateAccessTokenPairwise(accessToken, pairwise);
+  }
+
+  @Override
   public SAMLSession getSAMLSessionByCode(String code) throws SessionException {
     return getSAMLSessionByCodeAndRecord(code, RecordType.OIDC);
   }
