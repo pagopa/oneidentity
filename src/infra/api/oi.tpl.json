@@ -1154,6 +1154,228 @@
         }
       }
     },
+    "/oidc/userinfo": {
+      "options": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "operationId": "Options_userinfo",
+        "description": "CORS preflight request",
+        "x-amazon-apigateway-integration": {
+          "type": "mock",
+          "requestParameters": {},
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 2000,
+          "contentHandling": "CONVERT_TO_TEXT",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Requested-With'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CORS preflight response",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        },
+        "summary": "CORS preflight for /oidc/userinfo endpoint"
+      },
+      "get": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "operationId": "Get_userinfo",
+        "description": "Returns the claims for the authenticated end-user as defined by OpenID Connect UserInfo.",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "description": "The HTTP Bearer authorization header containing the access token (authorization: Bearer <access_token>).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "GET",
+          "uri": "${uri}/oidc/userinfo",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.authorization": "method.request.header.authorization"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "UserInfo response containing claims for the authenticated user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "summary": "OpenID Connect userinfo endpoint"
+      },
+      "post": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "operationId": "Post_userinfo",
+        "description": "Returns the claims for the authenticated end-user as defined by OpenID Connect UserInfo.",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "description": "The HTTP Bearer authorization header containing the access token (authorization: Bearer <access_token>).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-amazon-apigateway-integration": {
+          "type": "HTTP",
+          "httpMethod": "POST",
+          "uri": "${uri}/oidc/userinfo",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 10000,
+          "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
+            "integration.request.header.authorization": "method.request.header.authorization"
+          },
+          "responses": {
+            "200": {
+              "statusCode": "200",
+              "responseParameters": {}
+            },
+            "400": {
+              "statusCode": "400",
+              "responseParameters": {}
+            },
+            "401": {
+              "statusCode": "401",
+              "responseParameters": {}
+            },
+            "403": {
+              "statusCode": "403",
+              "responseParameters": {}
+            },
+            "405": {
+              "statusCode": "405",
+              "responseParameters": {}
+            },
+            "500": {
+              "statusCode": "500",
+              "responseParameters": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "UserInfo response containing claims for the authenticated user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/methodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/rateLimit"
+          },
+          "500": {
+            "$ref": "#/components/responses/serverError"
+          }
+        },
+        "summary": "OpenID Connect userinfo endpoint"
+      }
+    },
     "/oidc/keys": {
       "options": {
         "tags": [
