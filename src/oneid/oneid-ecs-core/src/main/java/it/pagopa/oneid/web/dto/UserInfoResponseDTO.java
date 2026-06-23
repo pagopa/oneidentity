@@ -2,6 +2,7 @@ package it.pagopa.oneid.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class UserInfoResponseDTO {
     return getPairwiseClaim().isPresent();
   }
 
+  @JsonIgnore
   public Optional<String> getPairwiseClaim() {
     Object pairwise = claims.get(PAIRWISE_CLAIM);
     if (!(pairwise instanceof String pairwiseValue) || pairwiseValue.isBlank()) {
