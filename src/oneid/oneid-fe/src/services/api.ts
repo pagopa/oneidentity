@@ -28,6 +28,7 @@ export type Client = {
   a11yUri: string;
   callbackURI: Array<string>;
   backButtonEnabled: boolean;
+  eidasButtonEnabled?: boolean;
   localizedContentMap: Record<'default' | string, Theme>;
 };
 

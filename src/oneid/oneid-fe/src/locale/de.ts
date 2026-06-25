@@ -77,6 +77,7 @@ export default {
     loginBox: {
       spidLogin: 'Zugriff mit SPID',
       cieLogin: 'Zugriff mit CIE',
+      eidasLogin: 'Zugriff mit eIDAS',
     },
     privacyAndCondition: {
       text: 'Wenn du dich anmeldest, akzeptierst du die {{termsLink}} des Dienstes und bestätigst, die {{privacyLink}} gelesen zu haben.',
