@@ -17,9 +17,11 @@ public class ValidationUtils {
 
     String v = value.trim();
 
-    if (v.contains("\n") || v.contains("\r") || (minLen != null && v.length() < minLen)) return false;
+    if (v.isEmpty() || (minLen != null && v.length() < minLen)) return false;
 
-    return v.matches("^[\\p{L}\\p{N} .,'’\"()\\-]+$");
+    return v.codePoints().noneMatch(Character::isISOControl)
+        && v.indexOf('<') < 0
+        && v.indexOf('>') < 0;
   }
 
   public static boolean isSafeDescription(String value) {

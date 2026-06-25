@@ -25,13 +25,23 @@ class ValidationUtilsTest {
   }
 
   @Test
+  void testIsSafeTitle_WithQuestionMark() {
+    assertTrue(ValidationUtils.isSafeTitle("How do you want to log in?"));
+  }
+
+  @Test
   void testIsSafeTitle_WithNewline() {
     assertFalse(ValidationUtils.isSafeTitle("Title with\nnewline"));
   }
 
   @Test
-  void testIsSafeTitle_WithInvalidChars() {
-    assertFalse(ValidationUtils.isSafeTitle("Title with @ or #"));
+  void testIsSafeTitle_WithCommonPunctuation() {
+    assertTrue(ValidationUtils.isSafeTitle("Title with @ # & / ! : ;"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithAngularBrackets() {
+    assertFalse(ValidationUtils.isSafeTitle("Title with <html>"));
   }
 
   @Test
