@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.1.1
+
+### Patch Changes
+
+- 5c920b3: feat: add dark-mode idp logo
+
 ## 1.1.0
 
 ### Minor Changes

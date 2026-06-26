@@ -1,5 +1,11 @@
 # oneid-lambda-update-status
 
+## 1.3.1
+
+### Patch Changes
+
+- 279d85a: fix: add LATEST_CIE pointer
+
 ## 1.3.0
 
 ### Minor Changes

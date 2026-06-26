@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.1.3
+
+### Patch Changes
+
+- 65ace08: update pyjwt
+
 ## 1.1.2
 
 ### Patch Changes
