@@ -1,22 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, vi } from 'vitest';
-import { CieButtonProps, CieButton } from '../CieButton';
+import { beforeEach, describe, it, vi } from 'vitest';
+import { CieButton, CieButtonProps } from './CieButton';
 import { i18nTestSetup } from '../../../../__tests__/i18nTestSetup';
 
 describe('CieButton', () => {
-  const BUTTON_TEXT = 'CIE Login';
+  const CIE_BUTTON_TEXT = 'CIE Login';
   const onClickMock = vi.fn();
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   const renderComponent = (props: Partial<CieButtonProps> = {}) => {
-    i18nTestSetup({ 'loginPage.loginBox.cieLogin': BUTTON_TEXT });
+    i18nTestSetup({
+      'loginPage.loginBox.cieLogin': CIE_BUTTON_TEXT,
+    });
     render(<CieButton onClick={onClickMock} {...props} />);
   };
 
-  it('renders the button with the correct text', () => {
+  it('renders the cie button with the correct text', () => {
     renderComponent();
     expect(
-      screen.getByRole('button', { name: BUTTON_TEXT })
+      screen.getByRole('button', { name: CIE_BUTTON_TEXT })
     ).toBeInTheDocument();
   });
 
@@ -27,9 +33,9 @@ describe('CieButton', () => {
     expect(icon).toHaveAttribute('src', expect.stringContaining('CIEIcon'));
   });
 
-  it('calls the onClick handler when clicked', async () => {
+  it('calls the cie onClick handler when clicked', async () => {
     renderComponent();
-    const button = screen.getByRole('button', { name: BUTTON_TEXT });
+    const button = screen.getByRole('button', { name: CIE_BUTTON_TEXT });
     await userEvent.click(button);
     expect(onClickMock).toHaveBeenCalledTimes(1);
   });
