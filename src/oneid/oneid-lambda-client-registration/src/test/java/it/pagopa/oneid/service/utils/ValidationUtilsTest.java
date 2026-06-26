@@ -25,13 +25,33 @@ class ValidationUtilsTest {
   }
 
   @Test
+  void testIsSafeTitle_WithQuestionMark() {
+    assertTrue(ValidationUtils.isSafeTitle("How do you want to log in?"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithDangerousProtocolJavascript() {
+    assertFalse(ValidationUtils.isSafeTitle("javascript:alert()"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithJavascriptProtocolInMiddle() {
+    assertFalse(ValidationUtils.isSafeTitle("Guide javascript: basics"));
+  }
+
+  @Test
   void testIsSafeTitle_WithNewline() {
     assertFalse(ValidationUtils.isSafeTitle("Title with\nnewline"));
   }
 
   @Test
-  void testIsSafeTitle_WithInvalidChars() {
-    assertFalse(ValidationUtils.isSafeTitle("Title with @ or #"));
+  void testIsSafeTitle_WithCommonPunctuation() {
+    assertTrue(ValidationUtils.isSafeTitle("Title with @ # & / ! : ;"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithAngularBrackets() {
+    assertFalse(ValidationUtils.isSafeTitle("Title with <html>"));
   }
 
   @Test
@@ -116,6 +136,12 @@ class ValidationUtilsTest {
   @Test
   void testIsSafeDescription_WithDangerousProtocolCaseInsensitive() {
     String description = "JaVaScRiPt: protocol and twenty chars";
+    assertFalse(ValidationUtils.isSafeDescription(description));
+  }
+
+  @Test
+  void testIsSafeDescription_WithDangerousProtocolInMiddle() {
+    String description = "This description contains javascript:alert() in the middle and is long enough";
     assertFalse(ValidationUtils.isSafeDescription(description));
   }
 
