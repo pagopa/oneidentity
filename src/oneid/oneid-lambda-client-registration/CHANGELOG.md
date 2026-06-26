@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.5.1
+
+### Patch Changes
+
+- 650cc2d: fix: change validation logic for content map
+
 ## 2.5.0
 
 ### Minor Changes
