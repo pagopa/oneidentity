@@ -6,7 +6,11 @@ import java.util.regex.Pattern;
 @CustomLogging
 public class ValidationUtils {
   private static final Pattern DANGEROUS_PROTOCOL_PREFIX =
-      Pattern.compile("^\\s*(javascript|data|vbscript)\\s*:", Pattern.CASE_INSENSITIVE);
+      Pattern.compile("\\b(?:javascript|data|vbscript)\\s*:", Pattern.CASE_INSENSITIVE);
+
+  private static boolean containsDangerousProtocol(String value) {
+    return DANGEROUS_PROTOCOL_PREFIX.matcher(value).find();
+  }
 
   public static boolean isSafeTitle(String value) {
     return isSafeTitle(value, null);
@@ -22,7 +26,7 @@ public class ValidationUtils {
     return v.codePoints().noneMatch(Character::isISOControl)
         && v.indexOf('<') < 0
       && v.indexOf('>') < 0
-      && (!DANGEROUS_PROTOCOL_PREFIX.matcher(v).find());
+      && !containsDangerousProtocol(v);
   }
 
   public static boolean isSafeDescription(String value) {
@@ -31,6 +35,6 @@ public class ValidationUtils {
     return (v.length() >= 20)
         && (v.indexOf('\u0000') < 0)
         && (v.indexOf('<') < 0 && v.indexOf('>') < 0)
-        && (!DANGEROUS_PROTOCOL_PREFIX.matcher(v).find());
+        && !containsDangerousProtocol(v);
   }
 }

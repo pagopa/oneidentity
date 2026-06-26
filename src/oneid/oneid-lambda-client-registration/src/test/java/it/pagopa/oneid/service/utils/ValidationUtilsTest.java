@@ -36,7 +36,7 @@ class ValidationUtilsTest {
 
   @Test
   void testIsSafeTitle_WithJavascriptProtocolInMiddle() {
-    assertTrue(ValidationUtils.isSafeTitle("Guide javascript: basics"));
+    assertFalse(ValidationUtils.isSafeTitle("Guide javascript: basics"));
   }
 
   @Test
@@ -142,7 +142,7 @@ class ValidationUtilsTest {
   @Test
   void testIsSafeDescription_WithDangerousProtocolInMiddle() {
     String description = "This description contains javascript:alert() in the middle and is long enough";
-    assertTrue(ValidationUtils.isSafeDescription(description));
+    assertFalse(ValidationUtils.isSafeDescription(description));
   }
 
   @Test
