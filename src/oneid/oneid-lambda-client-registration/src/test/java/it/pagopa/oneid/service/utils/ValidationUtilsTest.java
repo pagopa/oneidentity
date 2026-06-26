@@ -30,6 +30,16 @@ class ValidationUtilsTest {
   }
 
   @Test
+  void testIsSafeTitle_WithDangerousProtocolJavascript() {
+    assertFalse(ValidationUtils.isSafeTitle("javascript:alert()"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithJavascriptProtocolInMiddle() {
+    assertTrue(ValidationUtils.isSafeTitle("Guide javascript: basics"));
+  }
+
+  @Test
   void testIsSafeTitle_WithNewline() {
     assertFalse(ValidationUtils.isSafeTitle("Title with\nnewline"));
   }
@@ -127,6 +137,12 @@ class ValidationUtilsTest {
   void testIsSafeDescription_WithDangerousProtocolCaseInsensitive() {
     String description = "JaVaScRiPt: protocol and twenty chars";
     assertFalse(ValidationUtils.isSafeDescription(description));
+  }
+
+  @Test
+  void testIsSafeDescription_WithDangerousProtocolInMiddle() {
+    String description = "This description contains javascript:alert() in the middle and is long enough";
+    assertTrue(ValidationUtils.isSafeDescription(description));
   }
 
   @Test

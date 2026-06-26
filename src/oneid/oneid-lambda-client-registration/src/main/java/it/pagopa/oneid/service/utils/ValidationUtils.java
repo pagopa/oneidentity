@@ -21,7 +21,8 @@ public class ValidationUtils {
 
     return v.codePoints().noneMatch(Character::isISOControl)
         && v.indexOf('<') < 0
-        && v.indexOf('>') < 0;
+      && v.indexOf('>') < 0
+      && (!DANGEROUS_PROTOCOL_PREFIX.matcher(v).find());
   }
 
   public static boolean isSafeDescription(String value) {
