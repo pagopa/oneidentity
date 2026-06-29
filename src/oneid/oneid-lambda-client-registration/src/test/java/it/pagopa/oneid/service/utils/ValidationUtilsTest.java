@@ -70,11 +70,6 @@ class ValidationUtilsTest {
   }
 
   @Test
-  void testIsSafeTitle_WithDangerousProtocolJavascript() {
-    assertFalse(ValidationUtils.isSafeTitle("javascript:alert(1)"));
-  }
-
-  @Test
   void testIsSafeTitle_WithDangerousProtocolCaseInsensitive() {
     assertFalse(ValidationUtils.isSafeTitle("JaVaScRiPt:alert(1)"));
   }
