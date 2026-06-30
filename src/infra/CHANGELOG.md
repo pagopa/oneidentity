@@ -1,5 +1,11 @@
 # infra
 
+## 2.3.3
+
+### Patch Changes
+
+- 144a0d8: add notifiche digitali in csp
+
 ## 2.3.2
 
 ### Patch Changes
