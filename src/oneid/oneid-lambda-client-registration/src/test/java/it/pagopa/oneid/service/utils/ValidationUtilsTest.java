@@ -64,6 +64,16 @@ class ValidationUtilsTest {
     assertTrue(ValidationUtils.isSafeTitle("Title with àèé"));
   }
 
+  @Test
+  void testIsSafeTitle_WithUnderscore() {
+    assertTrue(ValidationUtils.isSafeTitle("Title_with_underscore"));
+  }
+
+  @Test
+  void testIsSafeTitle_WithDangerousProtocolCaseInsensitive() {
+    assertFalse(ValidationUtils.isSafeTitle("JaVaScRiPt:alert(1)"));
+  }
+
   // isSafeTitle tests (with min)
   @Test
   void testIsSafeTitleWithMin_WithValidTitle() {

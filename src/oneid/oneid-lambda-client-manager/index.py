@@ -4,6 +4,7 @@ import logging
 import os
 import json
 import base64
+import re
 import jwt
 from typing import Optional
 
@@ -74,6 +75,38 @@ valid_saml_attributes = set(
         "street",
     ]
 )
+
+DANGEROUS_PROTOCOL_PREFIX = re.compile(
+    r"^\s*(javascript|data|vbscript)\s*:",
+    re.IGNORECASE,
+)
+SAFE_TITLE_ALLOWED_CHARS = set(" .,'’\"()_-")
+
+
+def is_safe_title_value(value: Optional[str], min_len: int = 1) -> bool:
+    """Mirror ValidationUtils.isSafeTitle behavior used in Java service."""
+    if not isinstance(value, str):
+        return False
+
+    v = value.strip()
+
+    if len(v) < min_len or "\n" in v or "\r" in v:
+        return False
+
+    if DANGEROUS_PROTOCOL_PREFIX.search(v):
+        return False
+
+    return all(ch.isalnum() or ch in SAFE_TITLE_ALLOWED_CHARS for ch in v)
+
+
+def is_valid_username(username: Optional[str]) -> bool:
+    """Validate username with the same safety semantics used for title values."""
+    return is_safe_title_value(username, min_len=1)
+
+
+def is_valid_password(password: Optional[str]) -> bool:
+    """Validate password with the same safety semantics used for title values."""
+    return is_safe_title_value(password, min_len=1)
 
 
 def get_user_id_from_bearer(bearer: str) -> Optional[str]:
@@ -203,10 +236,22 @@ def create_idp_internal_user():
         # Extract the samlAttributes from the request body
         saml_attributes = body.get("samlAttributes", {})
 
+        if not isinstance(saml_attributes, dict):
+            logger.error("[create_idp_internal_user]: samlAttributes type is invalid")
+            return {"message": "saml_attributes must be an object"}, 400
+
         if not username or not password or not saml_attributes:
             logger.error("[create_idp_internal_user]: Missing required fields")
             # Return an error response indicating the missing fields
             return {"message": "username, password and saml_attributes are required"}, 400
+
+        if not is_valid_username(username):
+            logger.error("[create_idp_internal_user]: Invalid username format")
+            return {"message": "username format is invalid"}, 400
+
+        if not is_valid_password(password):
+            logger.error("[create_idp_internal_user]: Invalid password format")
+            return {"message": "password format is invalid"}, 400
 
         # Ensure that samlAttributes only contains valid keys
 
@@ -284,6 +329,10 @@ def update_idp_internal_user(username: str):
             logger.error("[update_idp_internal_user]: Request body is required")
             return {"message": "Request body is required"}, 400
 
+        if not is_valid_username(username):
+            logger.error("[update_idp_internal_user]: Invalid username format")
+            return {"message": "username format is invalid"}, 400
+
         # Extract the client_id from the cognito user attributes
         client_id = extract_client_id_from_connected_user(user_id)
 
@@ -293,10 +342,31 @@ def update_idp_internal_user(username: str):
 
         # Extract the samlAttributes from the request body
         saml_attributes = body.get("samlAttributes", {})
+        has_saml_field = "samlAttributes" in body
 
-        if not saml_attributes:
+        if not isinstance(saml_attributes, dict):
+            logger.error("[update_idp_internal_user]: samlAttributes type is invalid")
+            return {"message": "samlAttributes must be an object"}, 400
+
+        # Keep samlAttributes validation separate from generic "updatable fields" check.
+        if has_saml_field and not saml_attributes:
             logger.error("[update_idp_internal_user]: samlAttributes is required")
             return {"message": "samlAttributes is required"}, 400
+
+        # Extract the optional password from the request body
+        password = body.get("password")
+
+        if password is not None and not is_valid_password(password):
+            logger.error("[update_idp_internal_user]: Invalid password format")
+            return {"message": "password format is invalid"}, 400
+
+        has_age_update = "age" in body
+        has_saml_update = bool(saml_attributes)
+        has_password_update = password is not None
+
+        if not has_saml_update and not has_age_update and not has_password_update:
+            logger.error("[update_idp_internal_user]: Missing fields to update")
+            return {"message": "At least one updatable field is required"}, 400
 
         # Ensure that samlAttributes only contains valid keys
         if saml_attributes:
@@ -321,10 +391,14 @@ def update_idp_internal_user(username: str):
                 }
             }
 
+        if password is not None:
+            set_parts.append("password = :password")
+            expression_values[":password"] = {"S": password}
+
         if "age" in body and body["age"] is not None:
             set_parts.append("age = :age")
             expression_values[":age"] = {"N": str(int(body["age"]))}
-        else:
+        elif "age" in body:
             remove_parts.append("age")
 
         # Build UpdateExpression

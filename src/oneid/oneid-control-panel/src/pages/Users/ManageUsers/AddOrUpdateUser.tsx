@@ -27,6 +27,47 @@ import SaveIcon from '@mui/icons-material/Save';
 import { PageContainer } from '../../../components/PageContainer';
 import { ContentBox } from '../../../components/ContentBox';
 
+const mapUserValidationError = (message: string): UserErrors | null => {
+  const normalizedMessage = message.toLowerCase();
+
+  if (
+    normalizedMessage === 'username, password and saml_attributes are required'
+  ) {
+    return {
+      _errors: [],
+      username: { _errors: [message] },
+      password: { _errors: [message] },
+      samlAttributes: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (normalizedMessage.includes('username format is invalid')) {
+    return {
+      _errors: [],
+      username: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (normalizedMessage.includes('password format is invalid')) {
+    return {
+      _errors: [],
+      password: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  if (
+    normalizedMessage.includes('samlattributes') ||
+    normalizedMessage.includes('saml_attributes')
+  ) {
+    return {
+      _errors: [],
+      samlAttributes: { _errors: [message] },
+    } as unknown as UserErrors;
+  }
+
+  return null;
+};
+
 const SamlAttributeValueFields = ({
   attributes,
   onChange,
@@ -86,7 +127,10 @@ export const AddOrUpdateUser = () => {
   useEffect(() => {
     if (addClientUsersError) {
       console.error('Error adding user:', addClientUsersError);
-      setErrorUi(addClientUsersError as unknown as UserErrors);
+      setErrorUi(
+        mapUserValidationError(addClientUsersError.message) ??
+          (addClientUsersError as unknown as UserErrors)
+      );
       showNotification(
         addClientUsersError.message === 'User already exists'
           ? 'User already exists'
@@ -96,7 +140,10 @@ export const AddOrUpdateUser = () => {
     }
     if (updateClientUsersError) {
       console.error('Error update user:', updateClientUsersError);
-      setErrorUi(updateClientUsersError as unknown as UserErrors);
+      setErrorUi(
+        mapUserValidationError(updateClientUsersError.message) ??
+          (updateClientUsersError as unknown as UserErrors)
+      );
       showNotification('Error updating user', 'error');
     }
   }, [addClientUsersError, updateClientUsersError, showNotification]);
@@ -125,14 +172,18 @@ export const AddOrUpdateUser = () => {
     }
   }, [isUserCreated, isUserUpdated, navigate]);
 
-  const isFormValid = () => idpUserSchema.safeParse(formData).success;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData || !isFormValid()) {
+    const validationResult = idpUserSchema.safeParse(formData);
+
+    if (!validationResult.success) {
+      setErrorUi(validationResult.error.format() as UserErrors);
       console.error('Form is not valid');
       return;
     }
+
+    setErrorUi(null);
+
     if (isEditMode) {
       updateClientUsersMutation({
         data: formData as IdpUser,
@@ -152,7 +203,7 @@ export const AddOrUpdateUser = () => {
 
   return (
     <PageContainer>
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleSubmit} noValidate>
         <ContentBox>
           <Typography variant="h5" gutterBottom>
             User Data
@@ -165,6 +216,8 @@ export const AddOrUpdateUser = () => {
             value={formData?.username || ''}
             margin="normal"
             onChange={handleChange('username')}
+            error={!!(errorUi as UserErrors)?.username?._errors}
+            helperText={(errorUi as UserErrors)?.username?._errors}
             disabled={isEditMode}
             onKeyDown={(e) => {
               if (e.key === ' ') {
@@ -284,7 +337,7 @@ export const AddOrUpdateUser = () => {
           sx={{ mt: 3 }}
           data-testid="submit-button"
           startIcon={isEditMode ? <SaveIcon /> : <AddIcon />}
-          disabled={!isFormValid() || isCreatingUser || isUpdatingUser}
+          disabled={isCreatingUser || isUpdatingUser}
         >
           {isEditMode ? 'Update User' : 'Add User'}
         </Button>

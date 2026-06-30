@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 public interface ClientRegistrationService {
 
-  void validateClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO,
+    void validatePairwiseClientRegistrationInfo(ClientRegistrationDTO clientRegistrationDTO,
       @Nullable String pdvApiKey,
       @Nullable String planName);
 
