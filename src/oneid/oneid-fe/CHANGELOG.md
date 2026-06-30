@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.1.2
+
+### Patch Changes
+
+- 07e1fcd: feat: add idp dark-logo fallback
+
 ## 1.1.1
 
 ### Patch Changes
