@@ -26,7 +26,7 @@ variable "allowed_security_group_ids" {
 variable "major_engine_version" {
   type        = string
   description = "Valkey major engine version for ElastiCache Serverless."
-  default     = "7"
+  default     = "8"
 }
 
 variable "snapshot_retention_limit" {
