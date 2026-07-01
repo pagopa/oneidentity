@@ -14,6 +14,10 @@ output "ecs_service_name" {
   value = module.ecs_core_service.name
 }
 
+output "ecs_core_security_group_id" {
+  value = module.ecs_core_service.security_group_id
+}
+
 output "ecs_deploy_iam_role_arn" {
   value = aws_iam_role.githubecsdeploy.arn
 }
@@ -58,6 +62,14 @@ output "metadata_lambda_arn" {
 
 output "metadata_lambda_log_group_name" {
   value = module.metadata_lambda.lambda_cloudwatch_log_group_name
+}
+
+output "invalidate_cache_pipe_dlq_arn" {
+  value = aws_sqs_queue.invalidate_cache_dlq.arn
+}
+
+output "invalidate_cache_pipe_dlq_name" {
+  value = aws_sqs_queue.invalidate_cache_dlq.name
 }
 
 ## Client registration lambda

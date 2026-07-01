@@ -524,6 +524,16 @@ module "frontend" {
 
 }
 
+module "client_cache" {
+  source = "../../modules/cache"
+
+  cache_name                 = format("%s-client-cache", local.project)
+  vpc_id                     = module.network.vpc_id
+  subnet_ids                 = module.network.private_subnet_ids
+  allowed_security_group_ids = [module.backend.ecs_core_security_group_id]
+  alarm_sns_topic_arn        = module.sns.sns_topic_arn
+}
+
 
 ## Monitoring / Dashboard ##
 
