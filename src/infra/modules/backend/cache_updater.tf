@@ -115,28 +115,7 @@ resource "aws_pipes_pipe" "cache_updater" {
         pattern = jsonencode({ "eventName" : ["INSERT"] })
       }
       filter {
-        pattern = jsonencode([
-          {
-            "eventName" : ["MODIFY"],
-            "dynamodb" : { "NewImage" : { "pairwise" : { "BOOL" : [true, false] } } }
-          },
-          {
-            "eventName" : ["MODIFY"],
-            "dynamodb" : { "NewImage" : { "spidMinors" : { "BOOL" : [true, false] } } }
-          },
-          {
-            "eventName" : ["MODIFY"],
-            "dynamodb" : { "NewImage" : { "spidProfessionals" : { "BOOL" : [true, false] } } }
-          },
-          {
-            "eventName" : ["MODIFY"],
-            "dynamodb" : { "NewImage" : { "samlBinding" : { "S" : [{ "prefix" : "" }] } } }
-          },
-          {
-            "eventName" : ["MODIFY"],
-            "dynamodb" : { "NewImage" : { "authLevel" : { "S" : [{ "prefix" : "" }] } } }
-          }
-        ])
+        pattern = jsonencode({ "eventName" : ["MODIFY"] })
       }
       filter {
         pattern = jsonencode({ "eventName" : ["REMOVE"] })
