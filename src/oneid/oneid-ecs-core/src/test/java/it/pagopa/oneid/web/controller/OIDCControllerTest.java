@@ -24,12 +24,14 @@ import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.UserInfoService;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import it.pagopa.oneid.web.controller.mock.OIDCControllerTestProfile;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
+import it.pagopa.oneid.web.dto.UserInfoResponseDTO;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
 import java.lang.reflect.InvocationTargetException;
@@ -65,6 +67,9 @@ class OIDCControllerTest {
 
   @InjectMock
   private OIDCServiceImpl oidcServiceImpl;
+
+    @InjectMock
+    private UserInfoService userInfoService;
 
   @Inject
   private SAMLUtilsExtendedCore samlUtilsExtendedCore;
@@ -715,6 +720,36 @@ class OIDCControllerTest {
         .body(notNullValue());
 
   }
+
+    @Test
+    void userInfoGet_acceptsCaseInsensitiveBearer() {
+        UserInfoResponseDTO userInfoResponseDTO = new UserInfoResponseDTO();
+        userInfoResponseDTO.addClaim("sub", "subject-123");
+        when(userInfoService.getUserInfo("access-token")).thenReturn(userInfoResponseDTO);
+
+        given()
+                .header("Authorization", "bearer access-token")
+                .when().get("/userinfo")
+                .then()
+                .statusCode(200)
+                .body("sub", org.hamcrest.Matchers.equalTo("subject-123"));
+    }
+
+    @Test
+    void userInfoPost_returnsUserInfoPayload() {
+        UserInfoResponseDTO userInfoResponseDTO = new UserInfoResponseDTO();
+        userInfoResponseDTO.addClaim("sub", "subject-456");
+        userInfoResponseDTO.addClaim("fiscalNumber", "ABCDEF12G34H567I");
+        when(userInfoService.getUserInfo("access-token")).thenReturn(userInfoResponseDTO);
+
+        given()
+                .header("Authorization", "Bearer access-token")
+                .when().post("/userinfo")
+                .then()
+                .statusCode(200)
+                .body("sub", org.hamcrest.Matchers.equalTo("subject-456"))
+                .body("fiscalNumber", org.hamcrest.Matchers.equalTo("ABCDEF12G34H567I"));
+    }
 
   @Test
   @SneakyThrows

@@ -298,4 +298,30 @@ public class SessionConnectorImpl<T extends Session> implements SessionConnector
       throw new SessionException("Existing SAMLResponse for the specified samlRequestID");
     }
   }
+
+  @Override
+  public void updateAccessTokenPairwise(String accessToken, String pairwise) throws SessionException {
+    AccessTokenSession accessTokenSession = (AccessTokenSession) findSession(accessToken,
+        RecordType.ACCESS_TOKEN).orElseThrow(SessionException::new);
+
+    AccessTokenSession partialUpdate = new AccessTokenSession();
+    partialUpdate.setSamlRequestID(accessTokenSession.getSamlRequestID());
+    partialUpdate.setRecordType(RecordType.ACCESS_TOKEN);
+    partialUpdate.setPairwise(pairwise);
+
+    try {
+      accessTokenSessionMapper.updateItem(
+          UpdateItemEnhancedRequest.builder(AccessTokenSession.class)
+              .item(partialUpdate)
+              .ignoreNulls(true)
+              .conditionExpression(Expression.builder()
+                  .expression("attribute_exists(samlRequestID) AND attribute_not_exists(pairwise)")
+                  .build())
+              .build()
+      );
+      Log.info("access token session pairwise successfully updated");
+    } catch (ConditionalCheckFailedException e) {
+      Log.info("pairwise already present on access token session, skip update");
+    }
+  }
 }

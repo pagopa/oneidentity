@@ -14,6 +14,8 @@ public interface SessionService<T extends Session> {
 
   void setSAMLResponse(String samlRequestID, String response) throws SessionException;
 
+  void setAccessTokenPairwise(String accessToken, String pairwise) throws SessionException;
+
   SAMLSession getSAMLSessionByCode(String code) throws SessionException;
 
   String getSAMLResponseByCode(String code) throws SessionException;
