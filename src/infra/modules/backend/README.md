@@ -338,6 +338,7 @@
 |------|-------------|
 | <a name="output_assertion_lambda_arn"></a> [assertion\_lambda\_arn](#output\_assertion\_lambda\_arn) | # Metadata lambda ## |
 | <a name="output_cache_updater_lambda_arn"></a> [cache\_updater\_lambda\_arn](#output\_cache\_updater\_lambda\_arn) | n/a |
+| <a name="output_cache_updater_security_group_id"></a> [cache\_updater\_security\_group\_id](#output\_cache\_updater\_security\_group\_id) | n/a |
 | <a name="output_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#output\_client\_manager\_lambda\_arn) | # Client manager lambda |
 | <a name="output_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#output\_client\_registration\_lambda\_arn) | # Client registration lambda |
 | <a name="output_client_registration_log_group_name"></a> [client\_registration\_log\_group\_name](#output\_client\_registration\_log\_group\_name) | n/a |

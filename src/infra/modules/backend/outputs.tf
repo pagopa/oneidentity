@@ -103,3 +103,7 @@ output "s3_lambda_code_bucket" {
 output "ecs_core_log_group_name" {
   value = aws_cloudwatch_log_group.ecs_core.name
 }
+
+output "cache_updater_security_group_id" {
+  value = try(module.security_group_lambda_cache_updater[0].security_group_id, null)
+}
