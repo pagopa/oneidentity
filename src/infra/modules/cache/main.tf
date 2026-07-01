@@ -41,8 +41,8 @@ resource "aws_elasticache_serverless_cache" "client_cache" {
 
   cache_usage_limits {
     data_storage {
-      maximum = var.data_storage_maximum_mb
-      unit    = "MB"
+      maximum = var.data_storage_maximum_gb
+      unit    = "GB"
     }
 
     ecpu_per_second {

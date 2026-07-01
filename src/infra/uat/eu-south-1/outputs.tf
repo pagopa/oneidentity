@@ -66,6 +66,4 @@ output "client_cache_security_group_id" {
   value = module.client_cache.cache_security_group_id
 }
 
-output "invalidate_cache_pipe_dlq_name" {
-  value = module.backend.invalidate_cache_pipe_dlq_name
-}
+

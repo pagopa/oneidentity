@@ -64,14 +64,6 @@ output "metadata_lambda_log_group_name" {
   value = module.metadata_lambda.lambda_cloudwatch_log_group_name
 }
 
-output "invalidate_cache_pipe_dlq_arn" {
-  value = aws_sqs_queue.invalidate_cache_dlq.arn
-}
-
-output "invalidate_cache_pipe_dlq_name" {
-  value = aws_sqs_queue.invalidate_cache_dlq.name
-}
-
 ## Client registration lambda
 output "client_registration_lambda_arn" {
   value = module.client_registration_lambda.lambda_function_arn

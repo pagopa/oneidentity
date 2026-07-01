@@ -41,14 +41,14 @@ variable "daily_snapshot_time" {
   default     = "03:00"
 }
 
-variable "data_storage_maximum_mb" {
+variable "data_storage_maximum_gb" {
   type        = number
-  description = "Maximum data storage in MB for the serverless cache."
-  default     = 100
+  description = "Maximum data storage in GB for the serverless cache."
+  default     = 1
 
   validation {
-    condition     = var.data_storage_maximum_mb >= 100
-    error_message = "data_storage_maximum_mb must be greater than or equal to 100 MB."
+    condition     = var.data_storage_maximum_gb <= 1
+    error_message = "data_storage_maximum_gb must be 1 GB."
   }
 }
 
