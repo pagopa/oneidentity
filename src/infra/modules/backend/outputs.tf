@@ -91,6 +91,9 @@ output "metrics_archiver_lambda_arn" {
   value = try(module.metrics_archiver_lambda["metrics_archiver"].lambda_function_arn, null)
 }
 
+output "cache_updater_lambda_arn" {
+  value = try(module.cache_updater_lambda[0].lambda_function_arn, null)
+}
 
 ## S3 buket for lambda code ##
 output "s3_lambda_code_bucket" {
