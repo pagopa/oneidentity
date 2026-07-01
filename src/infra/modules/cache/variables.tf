@@ -99,15 +99,6 @@ variable "cache_alarms" {
       statistic           = "Sum"
       treat_missing_data  = "notBreaching"
     }
-    cache_hit_rate_low = {
-      metric_name         = "CacheHitRate"
-      threshold           = 80
-      comparison_operator = "LessThanThreshold"
-      evaluation_periods  = 2
-      period              = 300
-      statistic           = "Average"
-      treat_missing_data  = "notBreaching"
-    }
   }
 }
 
