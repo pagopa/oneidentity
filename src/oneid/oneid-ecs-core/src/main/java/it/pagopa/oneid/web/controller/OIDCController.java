@@ -9,7 +9,6 @@ import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
-import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -199,7 +198,7 @@ public class OIDCController {
 
     // 6. Check if IDP is eIDAS and if so, update indexes with the eIDAS reference
     // client indexes
-    if (idp.get().getEntityID().equalsIgnoreCase(SAMLUtilsConstants.EIDAS_ENTITY_ID)) {
+    if (samlServiceImpl.isEidasEntityId(idp.get().getEntityID())) {
       assertionConsumerServiceIndex = client.getEidasIndex();
       attributeConsumingServiceIndex = client.getEidasIndex();
     }

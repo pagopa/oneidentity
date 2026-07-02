@@ -60,6 +60,7 @@ import org.w3c.dom.Element;
 class OIDCControllerTest {
 
   private final String CLIENT_ID = "test";
+  private static final String EIDAS_ENTITY_ID = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit";
 
   @InjectMock
   private SAMLServiceImpl samlServiceImpl;
@@ -162,10 +163,10 @@ class OIDCControllerTest {
   @SneakyThrows
   void authorizePost_EidasIdpUsesIndex99() {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIdp(SAMLUtilsConstants.EIDAS_ENTITY_ID);
+    authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
 
     IDP testIDP = IDP.builder()
-        .entityID(SAMLUtilsConstants.EIDAS_ENTITY_ID)
+        .entityID(EIDAS_ENTITY_ID)
         .certificates(Set.of("certificate"))
         .friendlyName("eIDAS")
         .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
@@ -177,8 +178,10 @@ class OIDCControllerTest {
 
     Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
         .thenReturn(Optional.of(testIDP));
+    Mockito.when(samlServiceImpl.isEidasEntityId(Mockito.eq(EIDAS_ENTITY_ID)))
+        .thenReturn(true);
 
-    AuthnRequest authnRequest = buildAuthnRequest(SAMLUtilsConstants.EIDAS_ENTITY_ID);
+    AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
     Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
         Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);

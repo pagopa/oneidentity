@@ -164,6 +164,10 @@ module "backend" {
         value = var.cie_entity_id
       },
       {
+        name  = "EIDAS_ENTITY_ID"
+        value = var.eidas_entity_id
+      },
+      {
         name  = "CERTIFICATE_NAME"
         value = var.ssm_cert_key.cert_pem
       },

@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service;
 
-import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_ENTITY_ID;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_100;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99;
 import io.quarkus.logging.Log;
@@ -94,6 +93,9 @@ public class SAMLServiceImpl implements SAMLService {
 
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
+
+  @ConfigProperty(name = "eidas_entity_id")
+  String EIDAS_ENTITY_ID;
 
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
@@ -439,7 +441,7 @@ public class SAMLServiceImpl implements SAMLService {
     }
 
     // eIDAS node
-    if (entityID.equalsIgnoreCase(EIDAS_ENTITY_ID)) {
+    if (isEidasEntityId(entityID)) {
       Set<String> expectedEidasDataSet = getEidasMinimumDataSet(eidasIndex);
       if (!expectedEidasDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
@@ -474,6 +476,10 @@ public class SAMLServiceImpl implements SAMLService {
     Log.warn("Unsupported eIDAS index configured: " + eidasIndex
         + ". Falling back to index 99 minimum data set.");
     return eidasMinimumDataSetForIndex99;
+  }
+
+  public boolean isEidasEntityId(String entityID) {
+    return StringUtils.isNotBlank(entityID) && entityID.equalsIgnoreCase(EIDAS_ENTITY_ID);
   }
 
   @Override
