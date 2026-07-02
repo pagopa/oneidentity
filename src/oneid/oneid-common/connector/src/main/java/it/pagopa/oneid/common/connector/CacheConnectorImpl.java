@@ -1,0 +1,82 @@
+package it.pagopa.oneid.common.connector;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.keys.KeyCommands;
+import io.quarkus.redis.datasource.value.ValueCommands;
+import it.pagopa.oneid.common.model.Client;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import java.util.Optional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+@ApplicationScoped
+public class CacheConnectorImpl implements CacheConnector {
+
+  private final ValueCommands<String, String> valueCommands;
+  private final KeyCommands<String> keyCommands;
+  private final ObjectMapper objectMapper;
+  private final String cacheKeyPrefix;
+
+  @Inject
+  CacheConnectorImpl(
+      RedisDataSource redisDataSource,
+      ObjectMapper objectMapper,
+      @ConfigProperty(name = "cache.key-prefix") String cacheKeyPrefix
+  ) {
+    this.valueCommands = redisDataSource.value(String.class);
+    this.keyCommands = redisDataSource.key();
+    this.objectMapper = objectMapper;
+    this.cacheKeyPrefix = cacheKeyPrefix;
+  }
+
+  @Override
+  public Optional<Client> getByClientId(String clientId) {
+    if (clientId==null || clientId.isBlank()) {
+      return Optional.empty();
+    }
+
+    String payload = valueCommands.get(cacheKey(clientId));
+    if (payload==null || payload.isBlank()) {
+      return Optional.empty();
+    }
+
+    try {
+      return Optional.of(objectMapper.readValue(payload, Client.class));
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Unable to deserialize client from Redis cache", e);
+    }
+  }
+
+  @Override
+  public void setClient(Client client) {
+    if (client==null || client.getClientId()==null || client.getClientId().isBlank()) {
+      return;
+    }
+
+    String key = cacheKey(client.getClientId());
+    String payload;
+    try {
+      payload = objectMapper.writeValueAsString(client);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Unable to serialize client for Redis cache", e);
+    }
+
+    valueCommands.set(key, payload);
+  }
+
+  @Override
+  public void deleteClient(String clientId) {
+    if (clientId==null || clientId.isBlank()) {
+      return;
+    }
+
+    keyCommands.del(cacheKey(clientId));
+  }
+
+  private String cacheKey(String clientId) {
+    return cacheKeyPrefix + clientId;
+  }
+
+}
