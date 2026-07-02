@@ -60,6 +60,8 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 @RunOnVirtualThread
 public class OIDCController {
 
+  private static final String APPLICATION_JWT = "application/jwt";
+
   @Inject
   SAMLServiceImpl samlServiceImpl;
 
@@ -326,18 +328,22 @@ public class OIDCController {
 
   @GET
   @Path("/userinfo")
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(APPLICATION_JWT)
   public Response userInfoGet(@HeaderParam("Authorization") String authorization) {
     Log.debug("start");
-    return Response.ok(userInfoService.getUserInfo(BearerTokenExtractor.extract(authorization))).build();
+    return Response.ok(userInfoService.getSignedUserInfo(
+            BearerTokenExtractor.extract(authorization)),
+        APPLICATION_JWT).build();
   }
 
   @POST
   @Path("/userinfo")
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(APPLICATION_JWT)
   public Response userInfoPost(@HeaderParam("Authorization") String authorization) {
     Log.debug("start");
-    return Response.ok(userInfoService.getUserInfo(BearerTokenExtractor.extract(authorization))).build();
+    return Response.ok(userInfoService.getSignedUserInfo(
+            BearerTokenExtractor.extract(authorization)),
+        APPLICATION_JWT).build();
   }
 
 }

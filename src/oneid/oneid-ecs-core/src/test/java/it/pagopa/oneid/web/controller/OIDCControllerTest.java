@@ -31,7 +31,6 @@ import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import it.pagopa.oneid.web.dto.TokenRequestDTOExtended;
-import it.pagopa.oneid.web.dto.UserInfoResponseDTO;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response.Status;
 import java.lang.reflect.InvocationTargetException;
@@ -723,32 +722,28 @@ class OIDCControllerTest {
 
     @Test
     void userInfoGet_acceptsCaseInsensitiveBearer() {
-        UserInfoResponseDTO userInfoResponseDTO = new UserInfoResponseDTO();
-        userInfoResponseDTO.addClaim("sub", "subject-123");
-        when(userInfoService.getUserInfo("access-token")).thenReturn(userInfoResponseDTO);
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
 
         given()
                 .header("Authorization", "bearer access-token")
                 .when().get("/userinfo")
                 .then()
                 .statusCode(200)
-                .body("sub", org.hamcrest.Matchers.equalTo("subject-123"));
+            .contentType("application/jwt")
+            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
     }
 
     @Test
     void userInfoPost_returnsUserInfoPayload() {
-        UserInfoResponseDTO userInfoResponseDTO = new UserInfoResponseDTO();
-        userInfoResponseDTO.addClaim("sub", "subject-456");
-        userInfoResponseDTO.addClaim("fiscalNumber", "ABCDEF12G34H567I");
-        when(userInfoService.getUserInfo("access-token")).thenReturn(userInfoResponseDTO);
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
 
         given()
                 .header("Authorization", "Bearer access-token")
                 .when().post("/userinfo")
                 .then()
                 .statusCode(200)
-                .body("sub", org.hamcrest.Matchers.equalTo("subject-456"))
-                .body("fiscalNumber", org.hamcrest.Matchers.equalTo("ABCDEF12G34H567I"));
+            .contentType("application/jwt")
+            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
     }
 
   @Test
