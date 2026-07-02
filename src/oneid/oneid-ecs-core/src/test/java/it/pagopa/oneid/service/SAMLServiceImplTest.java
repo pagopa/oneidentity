@@ -773,7 +773,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));

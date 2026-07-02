@@ -45,7 +45,7 @@ public class ClientExtended extends Client {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         samlBinding, acsIndex, attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri,
         tosURi, requiredSameIdp, a11yUri, backButtonEnabled, localizedContentMap, spidMinors,
-        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth);
+        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth, null);
     this.secret = secret;
     this.salt = salt;
   }
@@ -76,7 +76,7 @@ public class ClientExtended extends Client {
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
         client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isSpidMinors(),
         client.isSpidProfessionals(), client.isPairwise(), client.getMinAge(),
-        client.getMaxAge(), client.getAgeParentAuth());
+        client.getMaxAge(), client.getAgeParentAuth(), client.getEidasIndex());
     this.secret = secret;
     this.salt = salt;
   }

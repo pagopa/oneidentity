@@ -20,6 +20,7 @@ import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
@@ -152,6 +153,61 @@ class OIDCControllerTest {
         .then()
         .statusCode(200)
         .body(notNullValue());
+
+    Mockito.verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+  void authorizePost_EidasIdpUsesIndex99() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setIdp(SAMLUtilsConstants.EIDAS_ENTITY_ID);
+
+    IDP testIDP = IDP.builder()
+        .entityID(SAMLUtilsConstants.EIDAS_ENTITY_ID)
+        .certificates(Set.of("certificate"))
+        .friendlyName("eIDAS")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+
+    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+
+    AuthnRequest authnRequest = buildAuthnRequest(SAMLUtilsConstants.EIDAS_ENTITY_ID);
+    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        .thenReturn(authnRequest);
+
+    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = Mockito.mock(Element.class);
+    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(200)
+        .body(notNullValue());
+
+    Mockito.verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
+        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
+        Mockito.any());
   }
 
   @Test

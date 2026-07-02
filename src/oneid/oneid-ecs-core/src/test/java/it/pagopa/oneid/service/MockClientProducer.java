@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import producers.ClientProducer;
 
 @Alternative
 @Dependent
-public class MockClientProducer extends ClientProducer {
+public class MockClientProducer {
 
   @ApplicationScoped
   @Produces
@@ -33,6 +32,7 @@ public class MockClientProducer extends ClientProducer {
             .samlBinding(SamlBinding.HTTP_POST)
             .acsIndex(0)
             .attributeIndex(0)
+            .eidasIndex(99)
             .isActive(true)
             .clientIdIssuedAt(0)
             .logoUri("test")
@@ -122,6 +122,27 @@ public class MockClientProducer extends ClientProducer {
             .a11yUri("test")
             .backButtonEnabled(false)
             .pairwise(true)
+            .build());
+    clients.add(
+        Client.builder()
+            .clientId("eidasReferenceClient")
+            .userId("test")
+            .friendlyName("eidasReferenceClient")
+            .callbackURI(Set.of("foo.bar"))
+            .requestedParameters(Set.of("test"))
+            .authLevel(AuthLevel.L2)
+            .samlBinding(SamlBinding.HTTP_POST)
+            .acsIndex(0)
+            .attributeIndex(0)
+            .eidasIndex(99)
+            .isActive(true)
+            .clientIdIssuedAt(0)
+            .logoUri("test")
+            .policyUri("test")
+            .tosUri("test")
+            .requiredSameIdp(true)
+            .a11yUri("test")
+            .backButtonEnabled(false)
             .build());
     clients.forEach(client -> map.put(client.getClientId(), client));
 

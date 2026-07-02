@@ -9,6 +9,7 @@ import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
@@ -78,6 +79,7 @@ public class OIDCController {
   @Inject
   CurrentAuthDTO currentAuthDTO;
 
+
   private <T> AuthorizationRequestDTOExtended getObject(T object) throws OneIdentityException {
     switch (object) {
       case AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet -> {
@@ -118,7 +120,7 @@ public class OIDCController {
 
   @POST
   @Path("/authorize")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_HTML })
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizePost(
       @BeanParam @Valid AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost) {
     Log.debug("start");
@@ -131,7 +133,7 @@ public class OIDCController {
 
   @GET
   @Path("/authorize")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_HTML })
+  @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
   public Response authorizeGet(
       @BeanParam @Valid AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet) {
     Log.debug("start");
@@ -190,18 +192,34 @@ public class OIDCController {
     Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
     SamlBinding samlBinding = Optional.ofNullable(client.getSamlBinding())
         .orElse(SamlBinding.HTTP_POST);
+
+    int assertionConsumerServiceIndex = client.getAcsIndex();
+    int attributeConsumingServiceIndex = client.getAttributeIndex();
+    String authLevel = client.getAuthLevel().getValue();
+
+    // 6. Check if IDP is eIDAS and if so, update indexes with the eIDAS reference
+    // client indexes
+    if (idp.get().getEntityID().equalsIgnoreCase(SAMLUtilsConstants.EIDAS_ENTITY_ID)) {
+      assertionConsumerServiceIndex = client.getEidasIndex();
+      attributeConsumingServiceIndex = client.getEidasIndex();
+    }
+
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
     if (StringUtils.isBlank(idpSSOEndpoint)) {
       throw new IDPSSOEndpointNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
-          authorizationRequestDTOExtended.getState(), authorizationRequestDTOExtended.getClientId());
+          authorizationRequestDTOExtended.getState(),
+          authorizationRequestDTOExtended.getClientId());
     }
 
-    // 6. Create SAML Authn Request using SAMLServiceImpl
+    // 7. Create SAML Authn Request using SAMLServiceImpl
     // (without signature if binding is HTTP-REDIRECT)
     AuthnRequest authnRequest = null;
     try {
-      authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint, client.getAcsIndex(),
-          client.getAttributeIndex(), client.getAuthLevel().getValue(), samlBinding);
+      authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint,
+          assertionConsumerServiceIndex,
+          attributeConsumingServiceIndex,
+          authLevel,
+          samlBinding);
     } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
       Log.error("error building authorization request: " + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
@@ -223,7 +241,7 @@ public class OIDCController {
           authorizationRequestDTOExtended.getState());
     }
 
-    // 7. Persist SAMLSession
+    // 8. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = authnRequest.getIssueInstant().getEpochSecond();
@@ -259,12 +277,13 @@ public class OIDCController {
       }
     }
 
-    String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
-        + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
-        + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
-        + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
-        + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
-        + "document.getElementById('SAMLRequestForm').submit();</script>";
+    String redirectAutoSubmitPOSTForm =
+        "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
+            + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
+            + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
+            + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
+            + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
+            + "document.getElementById('SAMLRequestForm').submit();</script>";
 
     return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
   }

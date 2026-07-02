@@ -1,12 +1,14 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_ENTITY_ID;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_100;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -53,12 +55,28 @@ import org.w3c.dom.Element;
 @Startup
 public class SAMLServiceImpl implements SAMLService {
 
-  private final static Set<String> eidasMinimumDataSet = Set.of(
+  private final static Set<String> cieMinimumDataSet = Set.of(
       // Mandatory attributes
-      Identifier.name.name(),
-      Identifier.familyName.name(),
-      Identifier.dateOfBirth.name(),
-      Identifier.fiscalNumber.name());
+      "name",
+      "familyName",
+      "dateOfBirth",
+      "fiscalNumber");
+
+  private final static Set<String> eidasMinimumDataSetForIndex99 = Set.of(
+      // Mandatory attributes for index 99
+      "spidCode",
+      "name",
+      "familyName",
+      "dateOfBirth");
+  private final static Set<String> eidasMinimumDataSetForIndex100 = Set.of(
+      // Mandatory attributes for index 100
+      "spidCode",
+      "name",
+      "familyName",
+      "dateOfBirth",
+      "placeOfBirth",
+      "address",
+      "gender");
 
   private final Clock clock;
 
@@ -125,7 +143,7 @@ public class SAMLServiceImpl implements SAMLService {
     SubjectConfirmation subjectConfirmation = subjectConfirmations.getFirst();
     if (subjectConfirmation.getMethod() == null
         || !subjectConfirmation.getMethod()
-            .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
+        .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
       throw new SAMLValidationException(
           ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE);
     }
@@ -359,7 +377,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   private void validateAssertion(Assertion assertion, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest) {
+      AuthLevel authLevelRequest, Integer eidasIndex) {
 
     // Check if assertion id is valid
     if (StringUtils.isBlank(assertion.getID())) {
@@ -377,12 +395,12 @@ public class SAMLServiceImpl implements SAMLService {
     validateAssertionIssuer(assertion.getIssuer(), entityID);
     validateConditions(assertion.getConditions());
     validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
-    validateAttributeStatements(assertion, requestedAttributes, entityID);
+    validateAttributeStatements(assertion, requestedAttributes, entityID, eidasIndex);
 
   }
 
   private void validateAttributeStatements(Assertion assertion, Set<String> requestedAttributes,
-      String entityID) {
+      String entityID, Integer eidasIndex) {
     List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
     if (attributeStatements == null || attributeStatements.isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT);
@@ -408,25 +426,54 @@ public class SAMLServiceImpl implements SAMLService {
         .collect(
             Collectors.toSet());
 
-    // SPID
-    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
-      if (!requestedAttributes.equals(obtainedAttributes)) {
-        throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
-            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
-                obtainedAttributes + " vs. " + requestedAttributes);
-      }
-    }
     // CIE
-    else {
-
-      if (!eidasMinimumDataSet.equals(obtainedAttributes)) {
+    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+      if (!cieMinimumDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage() + ": "
                 + obtainedAttributes
-                + " vs. " + eidasMinimumDataSet);
+                + " vs. " + cieMinimumDataSet);
       }
+      return;
     }
+
+    // eIDAS node
+    if (entityID.equalsIgnoreCase(EIDAS_ENTITY_ID)) {
+      Set<String> expectedEidasDataSet = getEidasMinimumDataSet(eidasIndex);
+      if (!expectedEidasDataSet.equals(obtainedAttributes)) {
+        throw new SAMLValidationException(
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": "
+                + obtainedAttributes + " vs. " + expectedEidasDataSet);
+      }
+      return;
+    }
+
+    // SPID
+    if (!requestedAttributes.equals(obtainedAttributes)) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
+          ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
+              obtainedAttributes + " vs. " + requestedAttributes);
+    }
+  }
+
+  private Set<String> getEidasMinimumDataSet(Integer eidasIndex) {
+    if (eidasIndex == null) {
+      return eidasMinimumDataSetForIndex99;
+    }
+
+    if (eidasIndex.equals(EIDAS_SERVICE_INDEX_99)) {
+      return eidasMinimumDataSetForIndex99;
+    }
+
+    if (eidasIndex.equals(EIDAS_SERVICE_INDEX_100)) {
+      return eidasMinimumDataSetForIndex100;
+    }
+
+    Log.warn("Unsupported eIDAS index configured: " + eidasIndex
+        + ". Falling back to index 99 minimum data set.");
+    return eidasMinimumDataSetForIndex99;
   }
 
   @Override
@@ -453,7 +500,8 @@ public class SAMLServiceImpl implements SAMLService {
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (StringUtils.isNotBlank(statusMessage)) {
         Log.info(
-            "SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
+            "SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage
+                + ", state: " + state);
         ErrorCode errorCode = null;
         try {
           errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));
@@ -484,13 +532,13 @@ public class SAMLServiceImpl implements SAMLService {
   public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType)
       throws OneIdentityException {
-    return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, "", authLevel, samlBindingType);
+    return buildAuthnRequestInternal(idpSSOEndpoint, assertionConsumerServiceIndex,
+        attributeConsumingServiceIndex, authLevel, samlBindingType);
   }
 
-  private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel,
-      SamlBinding samlBindingType)
+  private AuthnRequest buildAuthnRequestInternal(String idpSSOEndpoint,
+      int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType)
       throws OneIdentityException {
     validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex);
@@ -552,7 +600,8 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
+      AuthLevel authLevelRequest, String redirectUri, String state, String clientId,
+      Integer eidasIndex) {
 
     try {
 
@@ -565,7 +614,7 @@ public class SAMLServiceImpl implements SAMLService {
       validateDestination(samlResponse.getDestination());
       validateResponseIssuer(samlResponse.getIssuer(), entityID);
       validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
-          authLevelRequest);
+          authLevelRequest, eidasIndex);
 
       validateSignature(samlResponse, entityID);
     } catch (SAMLValidationException e) {
@@ -576,6 +625,13 @@ public class SAMLServiceImpl implements SAMLService {
       throw (e);
     }
 
+  }
+
+  public void validateSAMLResponse(Response samlResponse, String entityID,
+      Set<String> requestedAttributes, Instant samlRequestIssueInstant,
+      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
+    validateSAMLResponse(samlResponse, entityID, requestedAttributes, samlRequestIssueInstant,
+        authLevelRequest, redirectUri, state, clientId, null);
   }
 
   private Assertion extractAssertion(Response samlResponse) {
