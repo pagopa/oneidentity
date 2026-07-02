@@ -92,6 +92,7 @@ public class ClientUtils {
         .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
             ? clientRegistrationDTO.getRequiredSameIdp()
             : false)
+        .eidasIndex(clientRegistrationDTO.getEidasIndex())
         .minAge(minAge)
         .maxAge(maxAge)
         .ageParentAuth(ageParentAuth)
@@ -122,6 +123,7 @@ public class ClientUtils {
         .spidMinors(client.isSpidMinors())
         .spidProfessionals(client.isSpidProfessionals())
         .pairwise(client.isPairwise())
+        .eidasIndex(client.getEidasIndex())
         .tosUri(client.getTosUri())
         .logoUri(client.getLogoUri())
         .policyUri(client.getPolicyUri())

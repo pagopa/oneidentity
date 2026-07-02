@@ -7,6 +7,7 @@ import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
+import it.pagopa.oneid.web.validator.annotations.EidasIndexCheck;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
 import it.pagopa.oneid.web.validator.annotations.SpidMinorsCheck;
@@ -87,6 +88,10 @@ public class ClientRegistrationDTO {
   @JsonProperty("pairwise")
   private Boolean pairwise;
 
+  @JsonProperty("eidasIndex")
+  @EidasIndexCheck(groups = { Registration.class, UpdateClient.class })
+  private Integer eidasIndex;
+
   @JsonProperty("minAge")
   private Integer minAge;
 
@@ -112,6 +117,7 @@ public class ClientRegistrationDTO {
     this.spidMinors = clientRegistrationDTO.spidMinors;
     this.spidProfessionals = clientRegistrationDTO.spidProfessionals;
     this.pairwise = clientRegistrationDTO.pairwise;
+    this.eidasIndex = clientRegistrationDTO.eidasIndex;
     this.minAge = clientRegistrationDTO.minAge;
     this.maxAge = clientRegistrationDTO.maxAge;
     this.ageParentAuth = clientRegistrationDTO.ageParentAuth;

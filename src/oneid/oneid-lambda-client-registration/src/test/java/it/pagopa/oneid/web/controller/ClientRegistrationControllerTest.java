@@ -304,6 +304,30 @@ class ClientRegistrationControllerTest {
   }
 
   @Test
+  void register_withInvalidEidasIndex_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .eidasIndex(101)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .header(new Header("Authorization",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+        .body(clientRegistrationDTO)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
   void register_withEmptyLocalizedContentMap_ko() {
     // given
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -723,6 +747,46 @@ class ClientRegistrationControllerTest {
         .put("/register/client_id/{client_id}")
         .then()
         .statusCode(204);
+  }
+
+  @Test
+  void updateClient_withInvalidEidasIndex_ko() {
+    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String userId = "1234567890";
+    String clientId = "testClientId";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .clientId("testClientId")
+        .userId(userId)
+        .friendlyName("oldName")
+        .callbackURI(Set.of("https://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .clientIdIssuedAt(111)
+        .build();
+
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
+        .clientName("updatedName")
+        .redirectUris(Set.of("https://updated.com"))
+        .samlRequestedAttributes(Set.of("spidCode"))
+        .eidasIndex(101)
+        .build();
+
+    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+        .thenReturn(existingClientExtended);
+
+    given()
+        .header(HttpHeaders.AUTHORIZATION, bearer)
+        .contentType("application/json")
+        .pathParam("client_id", clientId)
+        .body(updatedDto)
+        .when()
+        .put("/register/client_id/{client_id}")
+        .then()
+        .statusCode(400);
   }
 
   @Test
