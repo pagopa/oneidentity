@@ -1,5 +1,9 @@
 name: Deploy Lambda cache-updater
 
+permissions:
+  contents: read
+  packages: read
+
 on:
   push:
     branches:
