@@ -1,22 +1,27 @@
 package it.pagopa.oneid.service;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
 
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.InvalidAccessTokenException;
 import it.pagopa.oneid.web.dto.UserInfoResponseDTO;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.List;
-import org.junit.jupiter.api.Test;
 
 class UserInfoServiceImplTest {
 
@@ -63,6 +68,11 @@ class UserInfoServiceImplTest {
   @Test
   void buildUserInfoResponse_invalidJwtThrowsInvalidAccessTokenException() throws Exception {
     UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
+    Field cloudWatchConnectorField = UserInfoServiceImpl.class.getDeclaredField(
+      "cloudWatchConnectorImpl");
+    cloudWatchConnectorField.setAccessible(true);
+    cloudWatchConnectorField.set(userInfoService, mock(CloudWatchConnectorImpl.class));
+
     Method buildUserInfoResponse = UserInfoServiceImpl.class.getDeclaredMethod(
         "buildUserInfoResponse", String.class);
     buildUserInfoResponse.setAccessible(true);

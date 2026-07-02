@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.common.model.dto.SavePDVUserDTO;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.InvalidAccessTokenException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
@@ -30,6 +31,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
   private static final String PDV_API_KEY_PREFIX = "/pdv/";
   private static final String FISCAL_NUMBER_CLAIM = "fiscalNumber";
+  private static final String UNKNOWN_CLIENT_ID = "UNKNOWN";
 
   // flag to enable/disable pairwise globally
   @ConfigProperty(name = "pairwise_enabled")
@@ -51,31 +53,38 @@ public class UserInfoServiceImpl implements UserInfoService {
   @Inject
   Map<String, Client> clientsMap;
 
+  @Inject
+  CloudWatchConnectorImpl cloudWatchConnectorImpl;
+
   @Override
   public UserInfoResponseDTO getUserInfo(String accessToken) {
     AccessTokenSession accessTokenSession = getValidatedAccessTokenSession(accessToken);
+    String clientId = resolveClientId(accessTokenSession);
     UserInfoResponseDTO userInfoResponseDTO = buildUserInfoResponse(accessTokenSession.getIdToken());
 
     if (userInfoResponseDTO.hasPairwiseClaim()) {
+      cloudWatchConnectorImpl.sendUserInfoSuccessMetricData(clientId);
       return userInfoResponseDTO;
     }
 
     if (StringUtils.isNotBlank(accessTokenSession.getPairwise())) {
       userInfoResponseDTO.setPairwiseClaim(accessTokenSession.getPairwise());
+      cloudWatchConnectorImpl.sendUserInfoSuccessMetricData(clientId);
       return userInfoResponseDTO;
     }
 
-    String clientId = resolveClientId(accessTokenSession);
     Client client = clientsMap.get(clientId);
     if (!pairwiseEnabled || client == null || !client.isPairwise()) {
+      cloudWatchConnectorImpl.sendUserInfoSuccessWithoutPairwiseMetricData(clientId);
       return userInfoResponseDTO;
     }
 
     Optional<String> pairwiseToken = fetchPairwiseTokenFromPDV(clientId, userInfoResponseDTO);
-    pairwiseToken.ifPresent(pairwise -> {
+    pairwiseToken.ifPresentOrElse(pairwise -> {
       userInfoResponseDTO.setPairwiseClaim(pairwise);
       persistPairwiseOnAccessTokenSession(accessToken, pairwise);
-    });
+      cloudWatchConnectorImpl.sendUserInfoSuccessMetricData(clientId);
+    }, () -> cloudWatchConnectorImpl.sendUserInfoSuccessWithoutPairwiseMetricData(clientId));
 
     return userInfoResponseDTO;
   }
@@ -84,6 +93,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     try {
       return accessTokenSessionService.getSession(accessToken, RecordType.ACCESS_TOKEN);
     } catch (SessionException e) {
+        cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
       Log.warn("access token not found or expired");
       throw new InvalidAccessTokenException();
     }
@@ -95,7 +105,8 @@ public class UserInfoServiceImpl implements UserInfoService {
       UserInfoResponseDTO userInfoResponseDTO = new UserInfoResponseDTO();
       claimsSet.getClaims().forEach(userInfoResponseDTO::addClaim);
       return userInfoResponseDTO;
-    } catch (ParseException e) {
+    } catch (ParseException | RuntimeException e) {
+        cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
       Log.error("unable to parse id token claims for userinfo");
       throw new InvalidAccessTokenException();
     }
@@ -109,6 +120,7 @@ public class UserInfoServiceImpl implements UserInfoService {
       );
       return samlSession.getAuthorizationRequestDTOExtended().getClientId();
     } catch (SessionException e) {
+        cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
       Log.warn("saml session linked to access token not found");
       throw new InvalidAccessTokenException();
     }
