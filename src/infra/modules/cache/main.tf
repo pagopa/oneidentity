@@ -21,13 +21,6 @@ resource "aws_vpc_security_group_ingress_rule" "client_cache" {
   description                  = "Allow Valkey traffic from trusted application security groups."
 }
 
-resource "aws_vpc_security_group_egress_rule" "client_cache" {
-  security_group_id = aws_security_group.client_cache.id
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
-  description       = "Allow all outbound traffic."
-}
-
 resource "aws_elasticache_serverless_cache" "client_cache" {
   engine = "valkey"
   name   = var.cache_name
