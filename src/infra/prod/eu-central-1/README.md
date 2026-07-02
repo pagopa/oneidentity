@@ -92,7 +92,6 @@ No outputs.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
-| <a name="module_client_cache"></a> [client\_cache](#module\_client\_cache) | ../../modules/cache | n/a |
 | <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
 | <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../modules/monitoring | n/a |
