@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.1.4
+
+### Patch Changes
+
+- d59ced9: validation using quarkus annotation, increase input check be and fe admin control panel
+
 ## 1.1.3
 
 ### Patch Changes
