@@ -26,7 +26,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagError = "Error";
   private final String tagSuccess = "Success";
   private final String tagXSW = "XSW";
-  private final String tagWithoutPairwise = "WithoutPairwise";
+  private final String tagUserInfo = "UserInfo";
   private final String tagClientID = "Client ID";
 
   @Inject
@@ -184,7 +184,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private void sendUserInfoMetricData(String metricName, String clientID) {
     List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagClient + tagAggregated)
+        .name(tagUserInfo)
         .value(clientID)
         .build());
 
