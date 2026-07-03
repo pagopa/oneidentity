@@ -636,7 +636,7 @@ module "backend" {
       LOG_LEVEL              = var.app_log_level
       CACHE_ENDPOINT_ADDRESS = module.client_cache.cache_endpoint_address
       CACHE_ENDPOINT_PORT    = tostring(module.client_cache.cache_endpoint_port)
-      REDIS_TIMEOUT          = "PT5S"
+      CACHE_TIMEOUT          = "PT5S"
       CACHE_KEY_PREFIX       = "oneid:client:v1:"
     }
   }
