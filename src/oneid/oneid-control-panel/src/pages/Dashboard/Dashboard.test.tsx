@@ -579,9 +579,9 @@ describe('Dashboard SPID Minors', () => {
     const spidMinorsSection = spidMinorsToggle.closest('.MuiFormGroup-root');
     expect(spidMinorsSection).toBeInTheDocument();
 
-    const spidMinorsInfoIcon = within(spidMinorsSection as HTMLElement).getByTestId(
-      'info-icon'
-    );
+    const spidMinorsInfoIcon = within(
+      spidMinorsSection as HTMLElement
+    ).getByTestId('info-icon');
     fireEvent.mouseOver(spidMinorsInfoIcon);
 
     await waitFor(() => {
@@ -597,7 +597,9 @@ describe('Dashboard SPID Minors', () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
     const toggle = screen.getByLabelText(/eIDAS support/i);
-    expect(screen.queryByLabelText(/eIDAS attribute set/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/eIDAS attribute set/i)
+    ).not.toBeInTheDocument();
 
     fireEvent.click(toggle);
 
@@ -605,7 +607,9 @@ describe('Dashboard SPID Minors', () => {
 
     fireEvent.click(toggle);
 
-    expect(screen.queryByLabelText(/eIDAS attribute set/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/eIDAS attribute set/i)
+    ).not.toBeInTheDocument();
   });
 
   it('Age Parent Auth is optional: submit is enabled without it', async () => {
