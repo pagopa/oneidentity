@@ -14,6 +14,10 @@ output "ecs_service_name" {
   value = module.ecs_core_service.name
 }
 
+output "ecs_core_security_group_id" {
+  value = module.ecs_core_service.security_group_id
+}
+
 output "ecs_deploy_iam_role_arn" {
   value = aws_iam_role.githubecsdeploy.arn
 }
@@ -87,6 +91,9 @@ output "metrics_archiver_lambda_arn" {
   value = try(module.metrics_archiver_lambda["metrics_archiver"].lambda_function_arn, null)
 }
 
+output "cache_updater_lambda_arn" {
+  value = try(module.cache_updater_lambda[0].lambda_function_arn, null)
+}
 
 ## S3 buket for lambda code ##
 output "s3_lambda_code_bucket" {
@@ -95,4 +102,8 @@ output "s3_lambda_code_bucket" {
 
 output "ecs_core_log_group_name" {
   value = aws_cloudwatch_log_group.ecs_core.name
+}
+
+output "cache_updater_security_group_id" {
+  value = try(module.security_group_lambda_cache_updater[0].security_group_id, null)
 }

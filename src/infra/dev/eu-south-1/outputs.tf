@@ -56,3 +56,17 @@ output "table_saml_responses_name" {
 output "table_client_registrations_name" {
   value = module.database.table_client_registrations_name
 }
+
+output "client_cache_endpoint_address" {
+  value = module.client_cache.cache_endpoint_address
+}
+
+output "client_cache_endpoint_port" {
+  value = module.client_cache.cache_endpoint_port
+}
+
+output "client_cache_security_group_id" {
+  value = module.client_cache.cache_security_group_id
+}
+
+

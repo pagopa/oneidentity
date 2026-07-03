@@ -512,6 +512,27 @@ variable "eventbridge_pipe_invalidate_cache" {
   default = null
 }
 
+variable "eventbridge_pipe_cache_updater" {
+  type = object({
+    pipe_name                     = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+  default = null
+}
+
+variable "cache_updater_lambda" {
+  type = object({
+    name                              = string
+    filename                          = string
+    cloudwatch_logs_retention_in_days = number
+    environment_variables             = map(string)
+    vpc_id                            = string
+    vpc_subnet_ids                    = list(string)
+  })
+  default = null
+}
+
 variable "sns_topic_arn" {
   type = string
 }

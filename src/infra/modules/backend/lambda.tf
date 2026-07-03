@@ -1382,3 +1382,82 @@ module "metrics_archiver_lambda" {
   cloudwatch_logs_retention_in_days = each.value.cloudwatch_logs_retention_in_days
 
 }
+
+## Lambda cache updater
+
+data "aws_iam_policy_document" "cache_updater_lambda" {
+  count = var.cache_updater_lambda != null ? 1 : 0
+
+  statement {
+    sid    = "ReadFromClientRegistrationsStream"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams",
+    ]
+    resources = [var.dynamodb_table_stream_registrations_arn]
+  }
+}
+
+module "cache_updater_lambda" {
+  count   = var.cache_updater_lambda != null ? 1 : 0
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.cache_updater_lambda.name
+  description             = "Lambda function cache updater."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.cache_updater_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.cache_updater_lambda[0].json
+  attach_network_policy = true
+
+  environment_variables = var.cache_updater_lambda.environment_variables
+
+  vpc_subnet_ids         = var.cache_updater_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_cache_updater[0].security_group_id]
+
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_pipes_pipe.cache_updater[0].arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+  cloudwatch_logs_retention_in_days = var.cache_updater_lambda.cloudwatch_logs_retention_in_days
+}
+
+module "security_group_lambda_cache_updater" {
+  count   = var.cache_updater_lambda != null ? 1 : 0
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.cache_updater_lambda.name}-sg"
+  description = "Security Group for Lambda Cache Updater"
+
+  vpc_id = var.cache_updater_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+}
+
+resource "aws_vpc_security_group_egress_rule" "cache_updater_valkey_rule" {
+  count             = var.cache_updater_lambda != null ? 1 : 0
+  security_group_id = module.security_group_lambda_cache_updater[0].security_group_id
+  from_port         = 6379
+  ip_protocol       = "tcp"
+  to_port           = 6379
+  cidr_ipv4         = var.vpc_cidr_block
+}

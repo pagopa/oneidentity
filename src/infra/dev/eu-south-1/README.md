@@ -112,6 +112,7 @@
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
 | <a name="module_backup"></a> [backup](#module\_backup) | ../../modules/backup | n/a |
+| <a name="module_client_cache"></a> [client\_cache](#module\_client\_cache) | ../../modules/cache | n/a |
 | <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../modules/cognito | n/a |
 | <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
@@ -149,7 +150,7 @@
 | <a name="input_aws_region_short"></a> [aws\_region\_short](#input\_aws\_region\_short) | AWS region short format. | `string` | `"es-1"` | no |
 | <a name="input_cie_entity_id"></a> [cie\_entity\_id](#input\_cie\_entity\_id) | n/a | `string` | `"https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"` | no |
 | <a name="input_client_ids"></a> [client\_ids](#input\_client\_ids) | n/a | `list(string)` | <pre>[<br/>  "bxMiPVktuZ5lBNbZYJ3ODosXL57ltrLp7BgyOkw-0v4"<br/>]</pre> | no |
-| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations table. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false<br/>}</pre> | no |
+| <a name="input_client_registrations_table"></a> [client\_registrations\_table](#input\_client\_registrations\_table) | Client configurations table. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>    stream_enabled                 = optional(bool, false)<br/>    stream_view_type               = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false,<br/>  "stream_enabled": true,<br/>  "stream_view_type": "NEW_AND_OLD_IMAGES"<br/>}</pre> | no |
 | <a name="input_client_status_history_table"></a> [client\_status\_history\_table](#input\_client\_status\_history\_table) | Client Status History configurations table. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false<br/>}</pre> | no |
 | <a name="input_dlq_alarms"></a> [dlq\_alarms](#input\_dlq\_alarms) | n/a | <pre>object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = optional(number)<br/>    evaluation_periods  = optional(number)<br/>    period              = optional(number)<br/>    statistic           = optional(string)<br/>    comparison_operator = optional(string)<br/>    sns_topic_alarm_arn = optional(string, null)<br/>  })</pre> | <pre>{<br/>  "comparison_operator": "GreaterThanThreshold",<br/>  "evaluation_periods": 2,<br/>  "metric_name": "ApproximateNumberOfMessagesVisible",<br/>  "namespace": "AWS/SQS",<br/>  "period": 300,<br/>  "statistic": "Sum",<br/>  "threshold": 0<br/>}</pre> | no |
 | <a name="input_dlq_assertion_setting"></a> [dlq\_assertion\_setting](#input\_dlq\_assertion\_setting) | n/a | <pre>object({<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | <pre>{<br/>  "maximum_record_age_in_seconds": 259200,<br/>  "maximum_retry_attempts": 3<br/>}</pre> | no |
@@ -199,6 +200,9 @@
 | <a name="output_assertions_bucket_arn"></a> [assertions\_bucket\_arn](#output\_assertions\_bucket\_arn) | n/a |
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | Storage |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
+| <a name="output_client_cache_endpoint_address"></a> [client\_cache\_endpoint\_address](#output\_client\_cache\_endpoint\_address) | n/a |
+| <a name="output_client_cache_endpoint_port"></a> [client\_cache\_endpoint\_port](#output\_client\_cache\_endpoint\_port) | n/a |
+| <a name="output_client_cache_security_group_id"></a> [client\_cache\_security\_group\_id](#output\_client\_cache\_security\_group\_id) | n/a |
 | <a name="output_deploy_assets_role"></a> [deploy\_assets\_role](#output\_deploy\_assets\_role) | n/a |
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | # DNS ## |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
