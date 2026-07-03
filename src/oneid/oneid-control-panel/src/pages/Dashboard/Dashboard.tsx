@@ -46,6 +46,53 @@ const defaultFormData: Partial<ClientWithoutSensitiveData> = {
   samlBinding: SamlBinding.HTTP_POST,
 };
 
+const CLIENT_VALIDATION_DETAIL_PATTERN =
+  /clientRegistrationDTOInput\.([A-Za-z0-9_]+):\s*(.+)$/;
+
+const getErrorMessage = (error: unknown): string | null => {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+
+  return null;
+};
+
+const mapClientValidationError = (error: unknown): ClientErrors | null => {
+  const message = getErrorMessage(error);
+
+  if (!message) {
+    return null;
+  }
+
+  const match = message.match(CLIENT_VALIDATION_DETAIL_PATTERN);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, fieldName, fieldMessage] = match;
+
+  return {
+    _errors: [],
+    [fieldName]: {
+      _errors: [fieldMessage],
+    },
+  } as unknown as ClientErrors;
+};
+
 export const Dashboard = () => {
   type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
 
@@ -153,7 +200,8 @@ export const Dashboard = () => {
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientErrors);
+      const validationError = mapClientValidationError(updateError);
+      setErrorUi(validationError ?? (updateError as unknown as ClientErrors));
       showNotification('Error updating client', 'error');
     }
     if (isUpdated) {

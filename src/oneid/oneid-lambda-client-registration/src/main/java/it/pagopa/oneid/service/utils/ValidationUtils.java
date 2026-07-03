@@ -25,12 +25,12 @@ public class ValidationUtils {
 
     return v.codePoints().noneMatch(Character::isISOControl)
         && v.indexOf('<') < 0
-      && v.indexOf('>') < 0
-      && !containsDangerousProtocol(v);
+        && v.indexOf('>') < 0
+        && !containsDangerousProtocol(v);
   }
 
   public static boolean isSafeDescription(String value) {
-    if (value==null) return false;
+    if (value == null) return false;
     String v = value.trim();
     return (v.length() >= 20)
         && (v.indexOf('\u0000') < 0)

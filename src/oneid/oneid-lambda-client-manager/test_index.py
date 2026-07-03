@@ -123,6 +123,60 @@ class TestCreateIdpInternalUserAge(unittest.TestCase):
         item = call_args[1]["Item"] if "Item" in call_args[1] else call_args.kwargs["Item"]
         self.assertNotIn("age", item)
 
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_create_user_invalid_username_returns_400(self, mock_getenv, mock_dynamodb,
+                                                      mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "POST",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"username":"javascript:alert","password":"pass","samlAttributes":{"name":"Mario"}}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_create_user_dangerous_password_returns_400(self, mock_getenv, mock_dynamodb,
+                                                        mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "POST",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"username":"testuser","password":"javascript:alert","samlAttributes":{"name":"Mario"}}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_create_user_blank_password_returns_400(self, mock_getenv, mock_dynamodb,
+                                                    mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "POST",
+            "path": "/client-manager/client-users",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"username":"testuser","password":"   ","samlAttributes":{"name":"Mario"}}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users",
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
 
 class TestUpdateIdpInternalUserAge(unittest.TestCase):
     """Tests for age field in update_idp_internal_user."""
@@ -174,6 +228,88 @@ class TestUpdateIdpInternalUserAge(unittest.TestCase):
         kwargs = call_args[1] if call_args[1] else call_args.kwargs
         self.assertIn("samlAttributes = :samlAttributes", kwargs["UpdateExpression"])
         self.assertIn("age = :age", kwargs["UpdateExpression"])
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_with_password_only(self, mock_getenv, mock_dynamodb, mock_get_user,
+                                            mock_extract):
+        mock_dynamodb.update_item.return_value = {"ResponseMetadata": {"HTTPStatusCode": 200}}
+
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"password":"new-password"}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 200)
+        call_args = mock_dynamodb.update_item.call_args
+        kwargs = call_args[1] if call_args[1] else call_args.kwargs
+        self.assertIn("password = :password", kwargs["UpdateExpression"])
+        self.assertEqual(kwargs["ExpressionAttributeValues"][":password"], {"S": "new-password"})
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_invalid_username_returns_400(self, mock_getenv, mock_dynamodb,
+                                                      mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/javascript:alert",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"password":"new-password"}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "javascript:alert"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_dangerous_password_returns_400(self, mock_getenv, mock_dynamodb,
+                                                        mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"password":"javascript:alert"}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
+
+    @patch("index.extract_client_id_from_connected_user", return_value="client-123")
+    @patch("index.get_user_id_from_bearer", return_value="user-123")
+    @patch("index.dynamodb_client")
+    @patch("os.getenv", return_value="test_table")
+    def test_update_user_blank_password_returns_400(self, mock_getenv, mock_dynamodb,
+                                                    mock_get_user, mock_extract):
+        event = {
+            "httpMethod": "PATCH",
+            "path": "/client-manager/client-users/testuser",
+            "headers": {"Authorization": "Bearer dummy"},
+            "body": '{"password":"   "}',
+            "requestContext": {"stage": "test"},
+            "resource": "/client-manager/client-users/{username}",
+            "pathParameters": {"username": "testuser"},
+        }
+
+        response = app.resolve(event, {})
+        self.assertEqual(response["statusCode"], 400)
 
     @patch("index.extract_client_id_from_connected_user", return_value="client-123")
     @patch("index.get_user_id_from_bearer", return_value="user-123")

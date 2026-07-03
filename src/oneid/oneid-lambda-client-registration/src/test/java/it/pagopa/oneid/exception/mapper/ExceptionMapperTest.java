@@ -19,7 +19,6 @@ import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
-import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
 import it.pagopa.oneid.model.ErrorResponse;
@@ -143,20 +142,6 @@ class ExceptionMapperTest {
     assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
     assertEquals(INVALID_CLIENT_REGISTRATION.getErrorMessage(),
         restResponse.getEntity().getErrorDescription());
-  }
-
-  @Test
-  void mapInvalidURIException() {
-    // given
-    String message = "Invalid URI";
-    InvalidUriException exceptionMock = new InvalidUriException(
-        message);
-    // when
-    RestResponse<ClientRegistrationErrorDTO> restResponse = exceptionMapper.mapInvalidURIException(
-        exceptionMock);
-    // then
-    assertEquals(BAD_REQUEST.getStatusCode(), restResponse.getStatus());
-    assertEquals(message, restResponse.getEntity().getErrorDescription());
   }
 
   @Test

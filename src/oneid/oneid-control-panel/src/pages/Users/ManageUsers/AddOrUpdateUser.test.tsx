@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import type * as ReactRouterDom from 'react-router-dom';
 import { vi, describe, it, beforeEach, afterEach, expect, Mock } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
@@ -34,6 +34,8 @@ let mockUpdateMutation: {
   isSuccess: boolean;
   isPending: boolean;
 };
+
+const ariaInvalid = 'aria-invalid';
 
 vi.mock('../../../hooks/useClient', () => ({
   useClient: () => ({
@@ -83,7 +85,8 @@ const createWrapper = () => {
 };
 
 const submitBtnId = 'submit-button';
-
+const usernameInvalidError = 'username format is invalid';
+const passwordInvalidError = 'password format is invalid';
 vi.mock('react-router-dom', async () => {
   const actual =
     await vi.importActual<typeof ReactRouterDom>('react-router-dom');
@@ -213,6 +216,79 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
+  it('highlights username when backend validation returns a field message', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: new Error(usernameInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(usernameInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Username/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
+  it('highlights password when backend validation returns a field message', async () => {
+    mockCreateMutation = {
+      mutate: mockCreate,
+      error: new Error(passwordInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(passwordInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Password/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
+  it('highlights username in edit mode when backend validation returns a field message', async () => {
+    mockUpdateMutation = {
+      mutate: mockUpdate,
+      error: new Error(usernameInvalidError),
+      isSuccess: false,
+      isPending: false,
+    };
+
+    const rr = await import('react-router-dom');
+    vi.spyOn(rr, 'useParams').mockReturnValue({ id: 'existing_user' });
+    vi.spyOn(rr, 'useLocation').mockReturnValue({
+      state: {
+        userToEdit: {
+          username: 'existing_user',
+          password: 'password',
+          samlAttributes: { name: 'OldValue' },
+        },
+      },
+      key: '',
+      pathname: '',
+      search: '',
+      hash: '',
+    });
+
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText(usernameInvalidError)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Username/i)).toHaveAttribute(
+        ariaInvalid,
+        'true'
+      );
+    });
+  });
+
   it('navigates to user list on successful user creation', async () => {
     mockCreateMutation = {
       mutate: mockCreate,
@@ -285,15 +361,24 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
-  it('should not submit if form is invalid', async () => {
+  it('shows validation errors when the form is submitted invalid', async () => {
+    const user = userEvent.setup();
+
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
     const submitBtn = screen.getByTestId(submitBtnId);
-    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).not.toBeDisabled();
 
-    fireEvent.click(submitBtn);
+    await user.click(submitBtn);
 
     await waitFor(() => {
+      expect(screen.getAllByText('Required')).toHaveLength(2);
+      expect(
+        screen.getByLabelText(/Username/i, { selector: 'input' })
+      ).toHaveAttribute(ariaInvalid, 'true');
+      expect(
+        screen.getByLabelText(/Password/i, { selector: 'input' })
+      ).toHaveAttribute(ariaInvalid, 'true');
       expect(mockCreate).not.toHaveBeenCalled();
     });
   });
@@ -359,7 +444,7 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
-  it('disables submit when age is out of range (e.g. 0)', async () => {
+  it('shows an age validation error when age is out of range (e.g. 0)', async () => {
     const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
@@ -378,6 +463,15 @@ describe('AddOrUpdateUser', () => {
     await user.type(ageInput, '0');
 
     const submitBtn = screen.getByTestId(submitBtnId);
-    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).not.toBeDisabled();
+
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/Age/i, { selector: 'input' })
+      ).toHaveAttribute(ariaInvalid, 'true');
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
   });
 });

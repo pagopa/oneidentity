@@ -1,7 +1,6 @@
 package it.pagopa.oneid.service;
 
 import static com.nimbusds.oauth2.sdk.util.StringUtils.isBlank;
-import com.nimbusds.oauth2.sdk.client.RedirectURIValidator;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
@@ -21,28 +20,21 @@ import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.ClientRegistrationServiceException;
-import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
-import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.model.dto.ClientRegistrationDTO;
 import it.pagopa.oneid.model.dto.ClientRegistrationResponseDTO;
-import it.pagopa.oneid.model.enums.ClientRegistrationErrorCode;
 import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import it.pagopa.oneid.service.utils.ClientUtils;
-import it.pagopa.oneid.service.utils.CustomURIUtils;
-import it.pagopa.oneid.service.utils.ValidationUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -62,77 +54,9 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   SSMConnectorUtilsImpl ssmConnectorUtilsImpl;
 
   @Override
-  public void validateClientRegistrationInfo(
+  public void validatePairwiseClientRegistrationInfo(
       ClientRegistrationDTO clientRegistrationDTO, @Nullable String pdvApiKey,
       @Nullable String planName) {
-
-    // validate client name
-    if (!(clientRegistrationDTO.getClientName() != null && ValidationUtils.isSafeTitle(
-        clientRegistrationDTO.getClientName()))) {
-      throw new InvalidClientInput("Invalid Client name");
-    }
-
-    // Validate redirectUris
-    if (clientRegistrationDTO.getRedirectUris() != null) {
-      if (clientRegistrationDTO.getRedirectUris().isEmpty()) {
-        throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
-      }
-      for (String redirectUri : clientRegistrationDTO.getRedirectUris()) {
-        try {
-          CustomURIUtils.validateURI(redirectUri);
-          RedirectURIValidator.ensureLegal(URI.create(redirectUri));
-        } catch (IllegalArgumentException ex) {
-          throw new InvalidUriException(ClientRegistrationErrorCode.INVALID_URI);
-        } catch (NullPointerException ex) {
-          throw new InvalidUriException(ClientRegistrationErrorCode.EMPTY_URI);
-        }
-      }
-    }
-
-    // Validate policyUri
-    String policyUri = clientRegistrationDTO.getPolicyUri();
-    try {
-      if (!StringUtils.isBlank(policyUri)) {
-        CustomURIUtils.validateURI(policyUri);
-      }
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid Policy URI");
-    }
-
-    // Validate logoUri
-    String logoUri = clientRegistrationDTO.getLogoUri();
-    try {
-      if (!StringUtils.isBlank(logoUri)) {
-        CustomURIUtils.validateURI(logoUri);
-      }
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid Logo URI");
-    }
-
-    // Validate tosUri
-    String tosUri = clientRegistrationDTO.getTosUri();
-    try {
-      if (!StringUtils.isBlank(tosUri)) {
-        CustomURIUtils.validateURI(tosUri);
-      }
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid TOS URI");
-    }
-
-    // Validate a11yUri
-    String a11yUri = clientRegistrationDTO.getA11yUri();
-    try {
-      if (!StringUtils.isBlank(a11yUri)) {
-        CustomURIUtils.validateURI(a11yUri);
-      }
-
-    } catch (InvalidUriException e) {
-      throw new InvalidUriException("Invalid a11y URI");
-    }
-
     // Validate pairWise
     Boolean pairWise = clientRegistrationDTO.getPairwise();
     if (Boolean.TRUE.equals(pairWise)) {
