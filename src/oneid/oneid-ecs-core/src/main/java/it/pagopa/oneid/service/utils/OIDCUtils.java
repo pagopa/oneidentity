@@ -92,6 +92,8 @@ public class OIDCUtils {
     byte[] headerBytes = jwsHeader.toString().getBytes();
     byte[] encodedHeader = base64UrlEncoder.encodeToString(headerBytes).getBytes();
 
+    // Prepare claims set for JWT
+
     byte[] payloadBytes = claimsSet.toPayload().toBytes();
     byte[] encodedPayload = base64UrlEncoder.encodeToString(payloadBytes).getBytes();
 

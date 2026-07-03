@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 
+
 @ApplicationScoped
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
@@ -29,12 +30,11 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagUserInfo = "UserInfo";
   private final String tagClientID = "Client ID";
 
+
   @Inject
   CloudWatchAsyncClient cloudWatchAsyncClient;
-
   @Inject
   Clock clock;
-
   @ConfigProperty(name = "cloudwatch_custom_metric_namespace")
   String CLOUDWATCH_METRIC_NAMESPACE;
 
@@ -54,10 +54,13 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(IDP)
         .build());
 
+    // Specific error
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagIDP + tagError, specificErrorDimensions));
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagIDP + tagError, totalErrorDimensions));
+
+    // Aggregated for IDP
+    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
+        tagIDP + tagError, totalErrorDimensions));
   }
 
   @Override
@@ -82,16 +85,22 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
             .value(errorCode)
             .build());
 
+    // Specific IDP SAMLStatus related error
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagSAMLStatus + tagIDP + tagError,
             specificUserIDPErrorDimensions));
+
+    // Specific Client SAMLStatus related error
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagSAMLStatus + tagClient + tagError,
             specificUserClientErrorDimensions));
+
+
   }
 
   @Override
   public void sendIDPSuccessMetricData(String IDP) {
+
     List<Dimension> dimensions = List.of(Dimension.builder()
         .name(tagIDP + tagAggregated)
         .value(IDP)
@@ -103,6 +112,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendOIDynamoDBErrorMetricData(int numAttempts) {
+
     List<Dimension> dimensions = List.of(Dimension.builder()
         .name(tagDynamoDB)
         .value(String.valueOf(numAttempts))
@@ -114,6 +124,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendOISQSErrorMetricData() {
+
     List<Dimension> dimensions = List.of(Dimension.builder()
         .name(tagOIError)
         .value(tagSQS)
@@ -150,8 +161,11 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .value(clientID)
         .build());
 
+    // Specific error
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagClient + tagError, specificErrorDimensions));
+
+    // Aggregated for Client
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
         tagClient + tagError, totalErrorDimensions));
   }
@@ -193,11 +207,11 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendXSWAssertionErrorMetricData() {
+
     List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
         .name(tagXSW)
         .value(tagAggregated)
         .build());
-
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagXSW + tagError,
             totalErrorDimensions)).join();
