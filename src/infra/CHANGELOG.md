@@ -1,5 +1,11 @@
 # infra
 
+## 2.3.4
+
+### Patch Changes
+
+- 6cad980: elasticache valkey setup with event pipe dlq and cache updater lambda template
+
 ## 2.3.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.1.3
+
+### Patch Changes
+
+- 54a9819: feat: add base64url idp logo name
+
 ## 1.1.2
 
 ### Patch Changes
