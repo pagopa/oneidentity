@@ -79,7 +79,6 @@ public class UserInfoServiceImpl implements UserInfoService {
           RecordType.SAML
       );
     } catch (SessionException e) {
-      cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
       Log.warn("saml session linked to access token not found");
       throw new InvalidAccessTokenException();
     }
@@ -91,7 +90,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     try {
       claimsSet = SignedJWT.parse(accessTokenSession.getIdToken()).getJWTClaimsSet();
     } catch (ParseException | RuntimeException e) {
-      cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
+      cloudWatchConnectorImpl.sendUserInfoErrorMetricData(clientId);
       Log.error("unable to parse id token claims for userinfo");
       throw new InvalidAccessTokenException();
     }
@@ -139,7 +138,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     try {
       return accessTokenSessionService.getSession(accessToken, RecordType.ACCESS_TOKEN);
     } catch (SessionException e) {
-      cloudWatchConnectorImpl.sendUserInfoErrorMetricData(UNKNOWN_CLIENT_ID);
       Log.warn("access token not found or expired");
       throw new InvalidAccessTokenException();
     }
@@ -191,6 +189,8 @@ public class UserInfoServiceImpl implements UserInfoService {
       return Optional.of(response.getUserId());
     } catch (WebApplicationException | ProcessingException e) {
       Log.warn("pdv /users call failed, proceeding without pairwise claim");
+      cloudWatchConnectorImpl.sendPDVErrorMetricData(e instanceof WebApplicationException ? ((WebApplicationException) e).getResponse()
+                  .getStatus() : 504);
       return Optional.empty();
     }
   }
