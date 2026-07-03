@@ -122,4 +122,50 @@ resource "aws_pipes_pipe" "cache_updater" {
       }
     }
   }
+
+  target_parameters {
+    input_template = <<EOF
+{
+  "eventName": <$.eventName>,
+  "dynamodb": {
+    "NewImage": {
+      "clientId":            <$.dynamodb.NewImage.clientId>,
+      "friendlyName":        <$.dynamodb.NewImage.friendlyName>,
+      "authLevel":           <$.dynamodb.NewImage.authLevel>,
+      "samlBinding":         <$.dynamodb.NewImage.samlBinding>,
+      "acsIndex":            <$.dynamodb.NewImage.acsIndex>,
+      "attributeIndex":      <$.dynamodb.NewImage.attributeIndex>,
+      "active":              <$.dynamodb.NewImage.active>,
+      "pairwise":            <$.dynamodb.NewImage.pairwise>,
+      "spidMinors":          <$.dynamodb.NewImage.spidMinors>,
+      "spidProfessionals":   <$.dynamodb.NewImage.spidProfessionals>,
+      "requiredSameIdp":     <$.dynamodb.NewImage.requiredSameIdp>,
+      "callbackURI":         <$.dynamodb.NewImage.callbackURI>,
+      "requestedParameters": <$.dynamodb.NewImage.requestedParameters>,
+      "minAge":              <$.dynamodb.NewImage.minAge>,
+      "maxAge":              <$.dynamodb.NewImage.maxAge>,
+      "ageParentAuth":       <$.dynamodb.NewImage.ageParentAuth>
+    },
+    "OldImage": {
+      "clientId":            <$.dynamodb.OldImage.clientId>,
+      "friendlyName":        <$.dynamodb.OldImage.friendlyName>,
+      "authLevel":           <$.dynamodb.OldImage.authLevel>,
+      "samlBinding":         <$.dynamodb.OldImage.samlBinding>,
+      "acsIndex":            <$.dynamodb.OldImage.acsIndex>,
+      "attributeIndex":      <$.dynamodb.OldImage.attributeIndex>,
+      "active":              <$.dynamodb.OldImage.active>,
+      "pairwise":            <$.dynamodb.OldImage.pairwise>,
+      "spidMinors":          <$.dynamodb.OldImage.spidMinors>,
+      "spidProfessionals":   <$.dynamodb.OldImage.spidProfessionals>,
+      "requiredSameIdp":     <$.dynamodb.OldImage.requiredSameIdp>,
+      "callbackURI":         <$.dynamodb.OldImage.callbackURI>,
+      "requestedParameters": <$.dynamodb.OldImage.requestedParameters>,
+      "minAge":              <$.dynamodb.OldImage.minAge>,
+      "maxAge":              <$.dynamodb.OldImage.maxAge>,
+      "ageParentAuth":       <$.dynamodb.OldImage.ageParentAuth>
+    }
+  }
+}
+EOF
+  }
 }
