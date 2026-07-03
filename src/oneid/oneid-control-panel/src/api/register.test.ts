@@ -8,6 +8,7 @@ import {
 import { ENV } from '../utils/env';
 import {
   Client,
+  EidasAttributeSet,
   SamlAttribute,
   SamlBinding,
   SpidLevel,
@@ -122,6 +123,7 @@ describe('createOrUpdateClient', () => {
     defaultAcrValues: [SpidLevel.L2],
     samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
     samlBinding: SamlBinding.HTTP_POST,
+    eidasIndex: EidasAttributeSet.MINIMUM,
     backButtonEnabled: false, // aggiungi il default manualmente
   };
 
