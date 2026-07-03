@@ -1257,9 +1257,9 @@
         },
         "responses": {
           "200": {
-            "description": "UserInfo response containing claims for the authenticated user.",
+            "description": "UserInfo response containing a signed JWT for the authenticated user.",
             "content": {
-              "application/json": {
+              "application/jwt": {
                 "schema": {
                   "$ref": "#/components/schemas/IdToken"
                 }
@@ -1345,9 +1345,9 @@
         },
         "responses": {
           "200": {
-            "description": "UserInfo response containing claims for the authenticated user.",
+            "description": "UserInfo response containing a signed JWT for the authenticated user.",
             "content": {
-              "application/json": {
+              "application/jwt": {
                 "schema": {
                   "$ref": "#/components/schemas/IdToken"
                 }
