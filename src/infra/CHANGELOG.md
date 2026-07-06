@@ -1,5 +1,11 @@
 # infra
 
+## 2.4.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
 ## 2.3.4
 
 ### Patch Changes

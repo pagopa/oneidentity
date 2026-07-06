@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.8.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
 ## 1.7.0
 
 ### Minor Changes
