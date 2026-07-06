@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.15.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
 ## 4.14.0
 
 ### Minor Changes
