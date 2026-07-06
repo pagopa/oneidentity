@@ -7,6 +7,9 @@ import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class RecordUtilsImpl implements RecordUtils {
+  private static final String RECORDS = "Records";
+  private static final String RECORDS_LOWERCASE = "records";
+
   @Override
   public List<JsonNode> readRecords(JsonNode root) {
     if (root == null || root.isNull()) {
@@ -17,12 +20,12 @@ public class RecordUtilsImpl implements RecordUtils {
       return readRecordArray(root);
     }
 
-    if (root.has("Records") && root.get("Records").isArray()) {
-      return readRecordArray(root.get("Records"));
+    if (root.has(RECORDS) && root.get(RECORDS).isArray()) {
+      return readRecordArray(root.get(RECORDS));
     }
 
-    if (root.has("records") && root.get("records").isArray()) {
-      return readRecordArray(root.get("records"));
+    if (root.has(RECORDS_LOWERCASE) && root.get(RECORDS_LOWERCASE).isArray()) {
+      return readRecordArray(root.get(RECORDS_LOWERCASE));
     }
 
     return List.of(root);
