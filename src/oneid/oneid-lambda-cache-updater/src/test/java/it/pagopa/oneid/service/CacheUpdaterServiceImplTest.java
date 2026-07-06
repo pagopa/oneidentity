@@ -2,7 +2,6 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -46,10 +45,10 @@ class CacheUpdaterServiceImplTest {
   void given_insert_record_when_process_input_then_upsert_client_to_cache() {
     JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
       null);
-    JsonNode record = input.get(0);
+    JsonNode streamRecord = input.get(0);
     Client client = Client.builder().clientId("client-test").build();
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(dynamoStreamService.extractClient(eq(record), eq(false))).thenReturn(Optional.of(client));
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
@@ -60,10 +59,10 @@ class CacheUpdaterServiceImplTest {
   @DisplayName("given modify record without images when process input then skip and return OK")
   void given_modify_record_without_images_when_process_input_then_skip_and_return_ok() {
     JsonNode input = buildArray("MODIFY", null, null);
-    JsonNode record = input.get(0);
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(recordUtils.isIncompleteModifyRecord(record)).thenReturn(true);
-    when(dynamoStreamService.extractClientId(eq(record), eq(false))).thenReturn(Optional.of("client-test"));
+    JsonNode streamRecord = input.get(0);
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(recordUtils.isIncompleteModifyRecord(streamRecord)).thenReturn(true);
+    when(dynamoStreamService.extractClientId(streamRecord, false)).thenReturn(Optional.of("client-test"));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
@@ -77,11 +76,11 @@ class CacheUpdaterServiceImplTest {
         "{\"clientId\":{\"S\":\"client-test\"}}",
         "{\"clientId\":{\"S\":\"client-test\"}}"
     );
-    JsonNode record = input.get(0);
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(recordUtils.isIncompleteModifyRecord(record)).thenReturn(false);
-    when(dynamoStreamService.hasCacheRelevantChanges(record)).thenReturn(false);
-    when(dynamoStreamService.extractClientId(eq(record), eq(false)))
+    JsonNode streamRecord = input.get(0);
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(recordUtils.isIncompleteModifyRecord(streamRecord)).thenReturn(false);
+    when(dynamoStreamService.hasCacheRelevantChanges(streamRecord)).thenReturn(false);
+    when(dynamoStreamService.extractClientId(streamRecord, false))
         .thenReturn(Optional.of("client-test"));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
@@ -96,12 +95,12 @@ class CacheUpdaterServiceImplTest {
         "{\"clientId\":{\"S\":\"client-test\"}}",
         "{\"clientId\":{\"S\":\"client-test\"},\"pairwise\":{\"BOOL\":true}}"
     );
-    JsonNode record = input.get(0);
+    JsonNode streamRecord = input.get(0);
     Client client = Client.builder().clientId("client-test").build();
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(recordUtils.isIncompleteModifyRecord(record)).thenReturn(false);
-    when(dynamoStreamService.hasCacheRelevantChanges(record)).thenReturn(true);
-    when(dynamoStreamService.extractClient(eq(record), eq(false))).thenReturn(Optional.of(client));
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(recordUtils.isIncompleteModifyRecord(streamRecord)).thenReturn(false);
+    when(dynamoStreamService.hasCacheRelevantChanges(streamRecord)).thenReturn(true);
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
@@ -112,9 +111,9 @@ class CacheUpdaterServiceImplTest {
   @DisplayName("given remove record when process input then delete from cache")
   void given_remove_record_when_process_input_then_delete_from_cache() {
     JsonNode input = buildArray("REMOVE", "{\"clientId\":{\"S\":\"client-test\"}}", null);
-    JsonNode record = input.get(0);
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(dynamoStreamService.extractClientId(eq(record), eq(true)))
+    JsonNode streamRecord = input.get(0);
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, true))
         .thenReturn(Optional.of("client-test"));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
@@ -147,8 +146,8 @@ class CacheUpdaterServiceImplTest {
   @DisplayName("given unsupported event name when process input then skip record")
   void given_unsupported_event_name_when_process_input_then_skip_record() {
     JsonNode input = buildArray("UNKNOWN", null, null);
-    JsonNode record = input.get(0);
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
+    JsonNode streamRecord = input.get(0);
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
@@ -161,10 +160,10 @@ class CacheUpdaterServiceImplTest {
     JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
         "{\"clientId\":{\"S\":\"client-test\"}}"
     );
-    JsonNode record = input.get(0);
+    JsonNode streamRecord = input.get(0);
     Client client = Client.builder().clientId(" ").build();
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(dynamoStreamService.extractClient(eq(record), eq(false))).thenReturn(Optional.of(client));
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
     assertThrows(IllegalArgumentException.class,
       () -> cacheUpdaterService.processInput(input));
@@ -174,9 +173,9 @@ class CacheUpdaterServiceImplTest {
   @DisplayName("given remove record without client id when process input then throw")
   void given_remove_record_without_client_id_when_process_input_then_throw() {
     JsonNode input = buildArray("REMOVE", "{\"clientId\":{\"S\":\"client-test\"}}", null);
-    JsonNode record = input.get(0);
-    when(recordUtils.readRecords(input)).thenReturn(List.of(record));
-    when(dynamoStreamService.extractClientId(eq(record), eq(true))).thenReturn(Optional.empty());
+    JsonNode streamRecord = input.get(0);
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, true)).thenReturn(Optional.empty());
 
     assertThrows(IllegalStateException.class,
         () -> cacheUpdaterService.processInput(input));
@@ -184,16 +183,16 @@ class CacheUpdaterServiceImplTest {
 
   private JsonNode buildArray(String eventName, String oldImageJson, String newImageJson) {
     try {
-      ObjectNode record = objectMapper.createObjectNode();
-      record.put("eventName", eventName);
-      ObjectNode dynamodb = record.putObject("dynamodb");
+      ObjectNode streamRecord = objectMapper.createObjectNode();
+      streamRecord.put("eventName", eventName);
+      ObjectNode dynamodb = streamRecord.putObject("dynamodb");
       if (oldImageJson != null) {
         dynamodb.set("OldImage", objectMapper.readTree(oldImageJson));
       }
       if (newImageJson != null) {
         dynamodb.set("NewImage", objectMapper.readTree(newImageJson));
       }
-      return objectMapper.createArrayNode().add(record);
+      return objectMapper.createArrayNode().add(streamRecord);
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

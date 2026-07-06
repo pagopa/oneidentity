@@ -6,9 +6,9 @@ import java.util.Optional;
 
 public interface DynamoStreamService {
 
-  Optional<Client> extractClient(JsonNode record, boolean preferOldImage);
+  Optional<Client> extractClient(JsonNode streamRecord, boolean preferOldImage);
 
-  Optional<String> extractClientId(JsonNode record, boolean preferOldImage);
+  Optional<String> extractClientId(JsonNode streamRecord, boolean preferOldImage);
 
-  boolean hasCacheRelevantChanges(JsonNode record);
+  boolean hasCacheRelevantChanges(JsonNode streamRecord);
 }

@@ -27,9 +27,9 @@ class RecordUtilsImplTest {
   @Test
   @DisplayName("given array root when reading records then return array entries")
   void given_array_root_when_reading_records_then_return_array_entries() {
-    ObjectNode record = buildRecord();
+    ObjectNode streamRecord = buildRecord();
 
-    List<JsonNode> records = recordUtils.readRecords(objectMapper.createArrayNode().add(record));
+    List<JsonNode> records = recordUtils.readRecords(objectMapper.createArrayNode().add(streamRecord));
 
     assertEquals(1, records.size());
     assertEquals("INSERT", records.get(0).path("eventName").asText());
@@ -38,9 +38,9 @@ class RecordUtilsImplTest {
   @Test
   @DisplayName("given Records wrapper when reading records then return wrapper entries")
   void given_records_wrapper_when_reading_records_then_return_wrapper_entries() {
-    ObjectNode record = buildRecord();
+    ObjectNode streamRecord = buildRecord();
     ObjectNode root = objectMapper.createObjectNode();
-    root.putArray("Records").add(record);
+    root.putArray("Records").add(streamRecord);
 
     List<JsonNode> records = recordUtils.readRecords(root);
 
@@ -51,9 +51,9 @@ class RecordUtilsImplTest {
   @Test
   @DisplayName("given records wrapper when reading records then return lowercase wrapper entries")
   void given_records_wrapper_when_reading_records_then_return_lowercase_wrapper_entries() {
-    ObjectNode record = buildRecord();
+    ObjectNode streamRecord = buildRecord();
     ObjectNode root = objectMapper.createObjectNode();
-    root.putArray("records").add(record);
+    root.putArray("records").add(streamRecord);
 
     List<JsonNode> records = recordUtils.readRecords(root);
 
@@ -64,9 +64,9 @@ class RecordUtilsImplTest {
   @Test
   @DisplayName("given single object when reading records then return singleton list")
   void given_single_object_when_reading_records_then_return_singleton_list() {
-    ObjectNode record = buildRecord();
+    ObjectNode streamRecord = buildRecord();
 
-    List<JsonNode> records = recordUtils.readRecords(record);
+    List<JsonNode> records = recordUtils.readRecords(streamRecord);
 
     assertEquals(1, records.size());
     assertEquals("INSERT", records.get(0).path("eventName").asText());
@@ -97,14 +97,14 @@ class RecordUtilsImplTest {
   }
 
   private ObjectNode buildRecord() {
-    ObjectNode record = objectMapper.createObjectNode();
-    record.put("eventName", "INSERT");
-    return record;
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    streamRecord.put("eventName", "INSERT");
+    return streamRecord;
   }
 
   private ObjectNode buildModifyRecord(boolean includeOldImage, boolean includeNewImage) {
-    ObjectNode record = objectMapper.createObjectNode();
-    ObjectNode dynamodb = record.putObject("dynamodb");
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
 
     if (includeOldImage) {
       dynamodb.set("OldImage", objectMapper.createObjectNode().put("clientId", "client-test"));
@@ -114,6 +114,6 @@ class RecordUtilsImplTest {
       dynamodb.set("NewImage", objectMapper.createObjectNode().put("clientId", "client-test"));
     }
 
-    return record;
+    return streamRecord;
   }
 }

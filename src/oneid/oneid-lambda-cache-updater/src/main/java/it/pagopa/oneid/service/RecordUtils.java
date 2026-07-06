@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface RecordUtils {
   List<JsonNode> readRecords(JsonNode root);
-  boolean isIncompleteModifyRecord(JsonNode record);
+  boolean isIncompleteModifyRecord(JsonNode streamRecord);
 }

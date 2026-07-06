@@ -33,8 +33,8 @@ public class RecordUtilsImpl implements RecordUtils {
   }
 
   @Override
-  public boolean isIncompleteModifyRecord(JsonNode record) {
-    JsonNode dynamodbNode = record.path("dynamodb");
+  public boolean isIncompleteModifyRecord(JsonNode streamRecord) {
+    JsonNode dynamodbNode = streamRecord.path("dynamodb");
     if (dynamodbNode.isMissingNode() || dynamodbNode.isNull()) {
       return true;
     }

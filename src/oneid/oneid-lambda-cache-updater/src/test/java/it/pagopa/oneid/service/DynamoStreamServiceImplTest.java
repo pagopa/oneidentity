@@ -30,9 +30,9 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given new image when extracting client then build client from stream payload")
   void given_new_image_when_extracting_client_then_build_client_from_stream_payload() {
-    JsonNode record = buildRecord("INSERT", null, baseImage());
+    JsonNode streamRecord = buildRecord("INSERT", null, baseImage());
 
-    Optional<Client> result = dynamoStreamService.extractClient(record, false);
+    Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
     assertTrue(result.isPresent());
     assertEquals("client-test", result.get().getClientId());
@@ -49,9 +49,9 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given old image when extracting client id then return id from old image")
   void given_old_image_when_extracting_client_id_then_return_id_from_old_image() {
-    JsonNode record = buildRecord("REMOVE", imageWithClientId("client-old"), null);
+    JsonNode streamRecord = buildRecord("REMOVE", imageWithClientId("client-old"), null);
 
-    Optional<String> clientId = dynamoStreamService.extractClientId(record, true);
+    Optional<String> clientId = dynamoStreamService.extractClientId(streamRecord, true);
 
     assertTrue(clientId.isPresent());
     assertEquals("client-old", clientId.get());
@@ -68,9 +68,9 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given blank client id when extracting client id then return empty")
   void given_blank_client_id_when_extracting_client_id_then_return_empty() {
-    JsonNode record = buildRecord("REMOVE", imageWithClientId(" "), null);
+    JsonNode streamRecord = buildRecord("REMOVE", imageWithClientId(" "), null);
 
-    Optional<String> clientId = dynamoStreamService.extractClientId(record, true);
+    Optional<String> clientId = dynamoStreamService.extractClientId(streamRecord, true);
 
     assertTrue(clientId.isEmpty());
   }
@@ -82,9 +82,9 @@ class DynamoStreamServiceImplTest {
     ObjectNode newImage = baseImage();
     newImage.set("pairwise", boolValue(false));
 
-    JsonNode record = buildRecord("MODIFY", oldImage, newImage);
+    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
-    assertTrue(dynamoStreamService.hasCacheRelevantChanges(record));
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
 
   @Test
@@ -95,9 +95,9 @@ class DynamoStreamServiceImplTest {
     oldImage.set("logoUri", stringValue("https://logo.old"));
     newImage.set("logoUri", stringValue("https://logo.new"));
 
-    JsonNode record = buildRecord("MODIFY", oldImage, newImage);
+    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
-    assertFalse(dynamoStreamService.hasCacheRelevantChanges(record));
+    assertFalse(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
 
   @Test
@@ -115,9 +115,9 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given insert record with pipe-injected null old image when extracting client from new image then succeed")
   void given_insert_record_with_pipe_injected_null_old_image_when_extracting_client_from_new_image_then_succeed() {
-    JsonNode record = buildRecord("INSERT", buildNullOldImage(), baseImage());
+    JsonNode streamRecord = buildRecord("INSERT", buildNullOldImage(), baseImage());
 
-    Optional<Client> result = dynamoStreamService.extractClient(record, false);
+    Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
     assertTrue(result.isPresent());
     assertEquals("client-test", result.get().getClientId());
@@ -126,9 +126,9 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given empty image when extracting client then return empty")
   void given_empty_image_when_extracting_client_then_return_empty() {
-    JsonNode record = buildRecord("INSERT", null, objectMapper.createObjectNode());
+    JsonNode streamRecord = buildRecord("INSERT", null, objectMapper.createObjectNode());
 
-    Optional<Client> result = dynamoStreamService.extractClient(record, false);
+    Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
     assertTrue(result.isEmpty());
   }
@@ -160,9 +160,9 @@ class DynamoStreamServiceImplTest {
 
     image.set("rawUnhandled", objectMapper.createObjectNode());
 
-    JsonNode record = buildRecord("INSERT", null, image);
+    JsonNode streamRecord = buildRecord("INSERT", null, image);
 
-    Optional<Client> result = dynamoStreamService.extractClient(record, false);
+    Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
     assertTrue(result.isPresent());
     assertEquals("client-test", result.get().getClientId());
@@ -174,10 +174,10 @@ class DynamoStreamServiceImplTest {
     ObjectNode image = baseImage();
     image.set("authLevel", stringValue("invalid-auth-level"));
 
-    JsonNode record = buildRecord("INSERT", null, image);
+    JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-        () -> dynamoStreamService.extractClient(record, false));
+      () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
@@ -186,9 +186,9 @@ class DynamoStreamServiceImplTest {
     ObjectNode image = baseImage();
     image.set("samlBinding", stringValue("invalid-saml-binding"));
 
-    JsonNode record = buildRecord("INSERT", null, image);
+    JsonNode streamRecord = buildRecord("INSERT", null, image);
 
-    Optional<Client> result = dynamoStreamService.extractClient(record, false);
+    Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
     assertTrue(result.isPresent());
     assertEquals(SamlBinding.HTTP_POST, result.get().getSamlBinding());
@@ -200,10 +200,10 @@ class DynamoStreamServiceImplTest {
     ObjectNode image = baseImage();
     image.set("clientId", stringValue(" "));
 
-    JsonNode record = buildRecord("INSERT", null, image);
+    JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-        () -> dynamoStreamService.extractClient(record, false));
+      () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
@@ -214,16 +214,16 @@ class DynamoStreamServiceImplTest {
     oldImage.set("friendlyName", stringValue("Old Name"));
     newImage.set("friendlyName", stringValue("New Name"));
 
-    JsonNode record = buildRecord("MODIFY", oldImage, newImage);
+    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
-    assertTrue(dynamoStreamService.hasCacheRelevantChanges(record));
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
 
   private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {
-    ObjectNode record = objectMapper.createObjectNode();
-    record.put("eventName", eventName);
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    streamRecord.put("eventName", eventName);
 
-    ObjectNode dynamodb = record.putObject("dynamodb");
+    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
     if (oldImage != null) {
       dynamodb.set("OldImage", oldImage);
     }
@@ -231,13 +231,13 @@ class DynamoStreamServiceImplTest {
       dynamodb.set("NewImage", newImage);
     }
 
-    return record;
+    return streamRecord;
   }
 
   private JsonNode buildRecordWithoutDynamodb(String eventName) {
-    ObjectNode record = objectMapper.createObjectNode();
-    record.put("eventName", eventName);
-    return record;
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    streamRecord.put("eventName", eventName);
+    return streamRecord;
   }
 
   private ObjectNode baseImage() {

@@ -13,20 +13,25 @@ import software.amazon.awssdk.services.sns.SnsClient;
 @ApplicationScoped
 public class CacheUpdaterServiceImpl implements CacheUpdaterService {
 
-  @Inject
-  CacheConnector cacheConnector;
+  private final CacheConnector cacheConnector;
+  private final DynamoStreamService dynamoStreamService;
+  private final RecordUtils recordUtils;
+  private final SnsClient sns;
+  private final String snsTopicArn;
 
   @Inject
-  DynamoStreamService dynamoStreamService;
-
-  @Inject
-  RecordUtils recordUtils;
-
-  @Inject
-  SnsClient sns;
-
-  @ConfigProperty(name = "sns_topic_arn")
-  String snsTopicArn;
+  CacheUpdaterServiceImpl(
+      CacheConnector cacheConnector,
+      DynamoStreamService dynamoStreamService,
+      RecordUtils recordUtils,
+      SnsClient sns,
+      @ConfigProperty(name = "sns_topic_arn") String snsTopicArn) {
+    this.cacheConnector = cacheConnector;
+    this.dynamoStreamService = dynamoStreamService;
+    this.recordUtils = recordUtils;
+    this.sns = sns;
+    this.snsTopicArn = snsTopicArn;
+  }
 
   @Override
   public void processInput(JsonNode input) {
@@ -36,9 +41,9 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
       return;
     }
 
-    for (JsonNode record : records) {
+    for (JsonNode streamRecord : records) {
       try {
-        processRecord(record);
+        processRecord(streamRecord);
       } catch (RuntimeException processingException) {
         Log.error("Cache update from DynamoDB stream failed. Record will be retried and may reach "
             + "DLQ after max attempts.", processingException);
@@ -47,46 +52,48 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
   }
 
-  private void processRecord(JsonNode record) {
-    if (record == null || record.isNull() || !record.isObject()) {
+  private void processRecord(JsonNode streamRecord) {
+    if (streamRecord == null || streamRecord.isNull() || !streamRecord.isObject()) {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
-    String eventName = record.path("eventName").asText();
+    String eventName = streamRecord.path("eventName").asText();
     if (eventName.isBlank()) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
     }
 
     switch (eventName) {
-      case "INSERT" -> dynamoStreamService.extractClient(record, false)
+      case "INSERT" -> dynamoStreamService.extractClient(streamRecord, false)
           .ifPresentOrElse(this::upsertClient,
               () -> {
                 throw new IllegalStateException(
                     "Unable to build client from NEW_IMAGE for eventName=" + eventName);
               });
       case "MODIFY" -> {
-        if (recordUtils.isIncompleteModifyRecord(record)) {
-          String clientId = dynamoStreamService.extractClientId(record, false).orElse("unknown");
+        if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
+          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
+              .orElse("unknown");
           Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
               clientId);
           return;
         }
 
-        if (!dynamoStreamService.hasCacheRelevantChanges(record)) {
-          String clientId = dynamoStreamService.extractClientId(record, false).orElse("unknown");
+        if (!dynamoStreamService.hasCacheRelevantChanges(streamRecord)) {
+          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
+              .orElse("unknown");
           Log.infof("Skipping cache update for clientId=%s because no cache-relevant fields "
               + "changed", clientId);
           return;
         }
 
-        dynamoStreamService.extractClient(record, false)
+        dynamoStreamService.extractClient(streamRecord, false)
             .ifPresentOrElse(this::upsertClient,
                 () -> {
                   throw new IllegalStateException(
                       "Unable to build client from NEW_IMAGE for eventName=" + eventName);
                 });
       }
-      case "REMOVE" -> dynamoStreamService.extractClientId(record, true)
+      case "REMOVE" -> dynamoStreamService.extractClientId(streamRecord, true)
           .ifPresentOrElse(this::deleteClient,
               () -> {
                 throw new IllegalStateException(

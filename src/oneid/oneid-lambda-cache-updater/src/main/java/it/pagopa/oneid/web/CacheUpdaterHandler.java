@@ -16,8 +16,12 @@ import jakarta.inject.Named;
 @Named("cache-updater")
 public class CacheUpdaterHandler implements RequestHandler<JsonNode, Void> {
 
+  private final CacheUpdaterService cacheUpdaterService;
+
   @Inject
-  CacheUpdaterService cacheUpdaterService;
+  CacheUpdaterHandler(CacheUpdaterService cacheUpdaterService) {
+    this.cacheUpdaterService = cacheUpdaterService;
+  }
 
   @Override
   public Void handleRequest(JsonNode input, Context context) {

@@ -14,9 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
+import io.quarkus.redis.datasource.value.SetArgs;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 class CacheConnectorImplTest {
+
+  private static final long CACHE_TTL_SECONDS = 86_400L;
 
   @Mock
   RedisDataSource redisDataSource;
@@ -45,7 +49,7 @@ class CacheConnectorImplTest {
     when(redisDataSource.value(String.class)).thenReturn(valueCommands);
     when(redisDataSource.key()).thenReturn(keyCommands);
     cacheConnector = new CacheConnectorImpl(redisDataSource, new ObjectMapper(),
-        "oneid:client:v1:");
+      "oneid:client:v1:", CACHE_TTL_SECONDS);
   }
 
   @Test
@@ -91,7 +95,7 @@ class CacheConnectorImplTest {
     when(valueCommands.get("oneid:client:v1:client-test")).thenReturn("{broken-json}");
 
     CacheConnectorImpl failingCacheConnector = new CacheConnectorImpl(redisDataSource,
-        failingObjectMapper, "oneid:client:v1:");
+      failingObjectMapper, "oneid:client:v1:", CACHE_TTL_SECONDS);
 
     assertThrows(IllegalStateException.class,
         () -> failingCacheConnector.getByClientId("client-test"));
@@ -105,10 +109,16 @@ class CacheConnectorImplTest {
     cacheConnector.setClient(client);
 
     ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
-    verify(valueCommands).set(eq("oneid:client:v1:client-test"), payloadCaptor.capture());
+    ArgumentCaptor<SetArgs> setArgsCaptor = ArgumentCaptor.forClass(SetArgs.class);
+    verify(valueCommands).set(eq("oneid:client:v1:client-test"), payloadCaptor.capture(),
+        setArgsCaptor.capture());
 
     Client storedClient = new ObjectMapper().readValue(payloadCaptor.getValue(), Client.class);
     assertEquals("client-test", storedClient.getClientId());
+
+    List<Object> args = setArgsCaptor.getValue().toArgs();
+    assertEquals("EX", args.get(0));
+    assertEquals(String.valueOf(CACHE_TTL_SECONDS), args.get(1));
   }
 
   @Test
@@ -138,10 +148,11 @@ class CacheConnectorImplTest {
         });
 
     CacheConnectorImpl failingCacheConnector = new CacheConnectorImpl(redisDataSource,
-        failingObjectMapper, "oneid:client:v1:");
+      failingObjectMapper, "oneid:client:v1:", CACHE_TTL_SECONDS);
+    Client client = buildClient("client-test");
 
     assertThrows(IllegalStateException.class,
-        () -> failingCacheConnector.setClient(buildClient("client-test")));
+      () -> failingCacheConnector.setClient(client));
   }
 
   @Test

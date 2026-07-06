@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
+import io.quarkus.redis.datasource.value.SetArgs;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,17 +19,20 @@ public class CacheConnectorImpl implements CacheConnector {
   private final KeyCommands<String> keyCommands;
   private final ObjectMapper objectMapper;
   private final String cacheKeyPrefix;
+  private final long cacheTtlSeconds;
 
   @Inject
   CacheConnectorImpl(
       RedisDataSource redisDataSource,
       ObjectMapper objectMapper,
-      @ConfigProperty(name = "cache.key-prefix") String cacheKeyPrefix
+      @ConfigProperty(name = "cache.key-prefix") String cacheKeyPrefix,
+      @ConfigProperty(name = "cache.ttl.seconds") long cacheTtlSeconds
   ) {
     this.valueCommands = redisDataSource.value(String.class);
     this.keyCommands = redisDataSource.key();
     this.objectMapper = objectMapper;
     this.cacheKeyPrefix = cacheKeyPrefix;
+    this.cacheTtlSeconds = cacheTtlSeconds;
   }
 
   @Override
@@ -63,7 +67,7 @@ public class CacheConnectorImpl implements CacheConnector {
       throw new IllegalStateException("Unable to serialize client for Redis cache", e);
     }
 
-    valueCommands.set(key, payload);
+    valueCommands.set(key, payload, new SetArgs().ex(cacheTtlSeconds));
   }
 
   @Override
