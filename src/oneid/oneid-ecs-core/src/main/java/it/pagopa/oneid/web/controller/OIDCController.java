@@ -26,8 +26,10 @@ import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.service.UserInfoService;
 import it.pagopa.oneid.web.controller.interceptors.ControllerCustomInterceptor;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
+import it.pagopa.oneid.web.controller.utils.BearerTokenExtractor;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
@@ -37,6 +39,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -56,6 +59,8 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 @Startup
 @RunOnVirtualThread
 public class OIDCController {
+
+  private static final String APPLICATION_JWT = "application/jwt";
 
   @Inject
   SAMLServiceImpl samlServiceImpl;
@@ -77,6 +82,9 @@ public class OIDCController {
 
   @Inject
   CurrentAuthDTO currentAuthDTO;
+
+  @Inject
+  UserInfoService userInfoService;
 
   private <T> AuthorizationRequestDTOExtended getObject(T object) throws OneIdentityException {
     switch (object) {
@@ -316,6 +324,26 @@ public class OIDCController {
     Log.debug("end");
 
     return tokenDataDTO;
+  }
+
+  @GET
+  @Path("/userinfo")
+  @Produces(APPLICATION_JWT)
+  public Response userInfoGet(@HeaderParam("Authorization") String authorization) {
+    Log.debug("start");
+    return Response.ok(userInfoService.getSignedUserInfo(
+            BearerTokenExtractor.extract(authorization)),
+        APPLICATION_JWT).build();
+  }
+
+  @POST
+  @Path("/userinfo")
+  @Produces(APPLICATION_JWT)
+  public Response userInfoPost(@HeaderParam("Authorization") String authorization) {
+    Log.debug("start");
+    return Response.ok(userInfoService.getSignedUserInfo(
+            BearerTokenExtractor.extract(authorization)),
+        APPLICATION_JWT).build();
   }
 
 }

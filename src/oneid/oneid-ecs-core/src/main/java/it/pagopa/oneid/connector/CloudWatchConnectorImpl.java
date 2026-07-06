@@ -27,6 +27,8 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagError = "Error";
   private final String tagSuccess = "Success";
   private final String tagXSW = "XSW";
+  private final String tagUserInfo = "UserInfo";
+  private final String tagClientID = "Client ID";
 
 
   @Inject
@@ -146,7 +148,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   @Override
   public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
     List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name("Client ID")
+            .name(tagClientID)
             .value(clientID)
             .build(),
         Dimension.builder()
@@ -177,6 +179,30 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagClient + tagSuccess, dimensions));
+  }
+
+  @Override
+  public void sendUserInfoSuccessMetricData(String clientID) {
+    sendUserInfoMetricData("UserInfoSuccess", clientID);
+  }
+
+  @Override
+  public void sendUserInfoSuccessWithoutPairwiseMetricData(String clientID) {
+    sendUserInfoMetricData("UserInfoSuccessWithoutPairwise", clientID);
+  }
+
+  @Override
+  public void sendUserInfoErrorMetricData(String clientID) {
+    sendUserInfoMetricData("Error", clientID);
+  }
+
+  private void sendUserInfoMetricData(String metricName, String clientID) {
+    List<Dimension> dimensions = List.of(Dimension.builder()
+        .name(tagUserInfo)
+        .value(clientID)
+        .build());
+
+    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
   }
 
   @Override

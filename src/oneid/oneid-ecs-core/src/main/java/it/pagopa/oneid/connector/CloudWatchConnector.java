@@ -22,4 +22,10 @@ public interface CloudWatchConnector {
 
   void sendClientSuccessMetricData(String ClientID);
 
+  void sendUserInfoSuccessMetricData(String clientID);
+
+  void sendUserInfoSuccessWithoutPairwiseMetricData(String clientID);
+
+  void sendUserInfoErrorMetricData(String clientID);
+
 }
