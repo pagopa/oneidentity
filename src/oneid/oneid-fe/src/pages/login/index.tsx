@@ -251,7 +251,10 @@ const Login = () => {
             <EidasButton
               onClick={goEidas}
               disabled={!eidasIdentityProvider}
-              visible={clientQuery.data?.eidasButtonEnabled ?? false}
+              visible={
+                clientQuery.data?.eidasIndex !== null &&
+                clientQuery.data?.eidasIndex !== undefined
+              }
             />
           </Grid>
         </Grid>

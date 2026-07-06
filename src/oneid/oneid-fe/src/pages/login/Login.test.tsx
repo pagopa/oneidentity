@@ -73,7 +73,7 @@ describe('<Login />', () => {
       logoUri: 'https://example.com/logo.png',
       localizedContentMap: {},
       backButtonEnabled: true,
-      eidasButtonEnabled: false,
+      eidasIndex: null,
     },
   };
   const mockIdpQuery = {
@@ -199,7 +199,7 @@ describe('<Login />', () => {
         ...mockClientQuery,
         data: {
           ...mockClientQuery.data,
-          eidasButtonEnabled: true,
+          eidasIndex: 99,
         },
       },
       idpQuery: mockIdpQuery,
