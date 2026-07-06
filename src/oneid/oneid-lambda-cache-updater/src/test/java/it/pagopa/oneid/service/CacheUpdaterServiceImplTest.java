@@ -18,6 +18,7 @@ import jakarta.inject.Inject;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @QuarkusTest
 class CacheUpdaterServiceImplTest {
@@ -32,6 +33,9 @@ class CacheUpdaterServiceImplTest {
 
   @InjectMock
   CacheConnector cacheConnector;
+
+  @InjectMock
+  SnsClient sns;
 
   @Test
   @DisplayName("given insert record when process input then upsert client to cache")

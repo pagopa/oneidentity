@@ -7,6 +7,8 @@ import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @ApplicationScoped
 public class CacheUpdaterServiceImpl implements CacheUpdaterService {
@@ -19,6 +21,12 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
 
   @Inject
   RecordUtils recordUtils;
+
+  @Inject
+  SnsClient sns;
+
+  @ConfigProperty(name = "sns_topic_arn")
+  String snsTopicArn;
 
   @Override
   public void processInput(JsonNode input) {
@@ -94,10 +102,22 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
     cacheConnector.setClient(client);
     Log.infof("Cache upsert completed for clientId=%s", client.getClientId());
+    publishNotification("Cache updated", client.getClientId(), "UPSERT");
   }
 
   private void deleteClient(String clientId) {
     cacheConnector.deleteClient(clientId);
     Log.infof("Cache delete completed for clientId=%s", clientId);
+    publishNotification("Cache updated", clientId, "DELETE");
+  }
+
+  private void publishNotification(String subject, String clientId, String action) {
+    String message = "Action: " + action + "\nClient ID: " + clientId;
+    try {
+      sns.publish(p -> p.topicArn(snsTopicArn).subject(subject).message(message));
+      Log.debugf("SNS notification sent for clientId=%s action=%s", clientId, action);
+    } catch (Exception e) {
+      Log.warnf(e, "Failed to send SNS notification for clientId=%s action=%s", clientId, action);
+    }
   }
 }
