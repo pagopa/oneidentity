@@ -35,7 +35,6 @@ public class UserInfoServiceImpl implements UserInfoService {
 
   private static final String PDV_API_KEY_PREFIX = "/pdv/";
   private static final String FISCAL_NUMBER_CLAIM = "fiscalNumber";
-  private static final String UNKNOWN_CLIENT_ID = "UNKNOWN";
   private static final String PAIRWISE_CLAIM = "pairwise";
 
   // flag to enable/disable pairwise globally
@@ -95,24 +94,7 @@ public class UserInfoServiceImpl implements UserInfoService {
       throw new InvalidAccessTokenException();
     }
 
-    String pairwise = claimsSet.getClaim(PAIRWISE_CLAIM) instanceof String pairwiseClaim
-        ? pairwiseClaim : null;
-
-    // check if pairwise is in the access token session
-    if (StringUtils.isBlank(pairwise) && StringUtils.isNotBlank(accessTokenSession.getPairwise())) {
-      pairwise = accessTokenSession.getPairwise();
-    }
-
-    // fetch pairwise from PDV if needed
-    if (StringUtils.isBlank(pairwise)) {
-      Client client = clientsMap.get(clientId);
-      if (pairwiseEnabled && client != null && client.isPairwise()) {
-        pairwise = fetchPairwiseTokenFromPDV(clientId, claimsSet).orElse(null);
-        if (StringUtils.isNotBlank(pairwise)) {
-          persistPairwiseOnAccessTokenSession(accessToken, pairwise);
-        }
-      }
-    }
+    String pairwise = resolvePairwise(accessToken, clientId, accessTokenSession, claimsSet);
 
     if (StringUtils.isNotBlank(pairwise)) {
       cloudWatchConnectorImpl.sendUserInfoSuccessMetricData(clientId);
@@ -193,6 +175,28 @@ public class UserInfoServiceImpl implements UserInfoService {
                   .getStatus() : 504);
       return Optional.empty();
     }
+  }
+
+  private String resolvePairwise(String accessToken, String clientId,
+      AccessTokenSession accessTokenSession, JWTClaimsSet claimsSet) {
+    String pairwise = claimsSet.getClaim(PAIRWISE_CLAIM) instanceof String pairwiseClaim
+        ? pairwiseClaim : null;
+
+    if (StringUtils.isBlank(pairwise) && StringUtils.isNotBlank(accessTokenSession.getPairwise())) {
+      pairwise = accessTokenSession.getPairwise();
+    }
+
+    if (StringUtils.isBlank(pairwise)) {
+      Client client = clientsMap.get(clientId);
+      if (pairwiseEnabled && client != null && client.isPairwise()) {
+        pairwise = fetchPairwiseTokenFromPDV(clientId, claimsSet).orElse(null);
+        if (StringUtils.isNotBlank(pairwise)) {
+          persistPairwiseOnAccessTokenSession(accessToken, pairwise);
+        }
+      }
+    }
+
+    return pairwise;
   }
 
   private void persistPairwiseOnAccessTokenSession(String accessToken, String pairwise) {
