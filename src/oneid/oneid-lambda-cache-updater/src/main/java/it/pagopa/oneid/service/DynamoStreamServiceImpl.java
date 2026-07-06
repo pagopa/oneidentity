@@ -26,6 +26,25 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private static final String FIELD_DYNAMODB = "dynamodb";
   private static final String IMAGE_OLD = "OldImage";
   private static final String IMAGE_NEW = "NewImage";
+  private static final List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = List.of(
+      new DynamoField("acsIndex", "N"),
+      new DynamoField("authLevel", "S"),
+      new DynamoField("samlBinding", "S"),
+      new DynamoField("attributeIndex", "N"),
+      new DynamoField("active", "BOOL"),
+      new DynamoField("requiredSameIdp", "BOOL"),
+      new DynamoField("pairwise", "BOOL"),
+      new DynamoField("spidMinors", "BOOL"),
+      new DynamoField("spidProfessionals", "BOOL"),
+      new DynamoField("minAge", "N"),
+      new DynamoField("maxAge", "N"),
+      new DynamoField("ageParentAuth", "N"),
+      new DynamoField("friendlyName", "S")
+  );
+  private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(
+      "requestedParameters",
+      "callbackURI"
+  );
 
   private final ObjectMapper clientPayloadObjectMapper;
 
@@ -77,50 +96,16 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return true;
     }
 
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "acsIndex", "N")) {
-      return true;
+    for (DynamoField field : CACHE_RELEVANT_SCALAR_FIELDS) {
+      if (hasDynamoScalarFieldChanged(oldImage, newImage, field.name(), field.type())) {
+        return true;
+      }
     }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "authLevel", "S")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "samlBinding", "S")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "attributeIndex", "N")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "active", "BOOL")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "requiredSameIdp", "BOOL")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "pairwise", "BOOL")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "spidMinors", "BOOL")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "spidProfessionals", "BOOL")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "minAge", "N")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "maxAge", "N")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "ageParentAuth", "N")) {
-      return true;
-    }
-    if (hasDynamoStringSetFieldChanged(oldImage, newImage, "requestedParameters")) {
-      return true;
-    }
-    if (hasDynamoStringSetFieldChanged(oldImage, newImage, "callbackURI")) {
-      return true;
-    }
-    if (hasDynamoScalarFieldChanged(oldImage, newImage, "friendlyName", "S")) {
-      return true;
+
+    for (String fieldName : CACHE_RELEVANT_STRING_SET_FIELDS) {
+      if (hasDynamoStringSetFieldChanged(oldImage, newImage, fieldName)) {
+        return true;
+      }
     }
 
     return false;
@@ -317,5 +302,8 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return Double.parseDouble(numericValue);
     }
     return Long.parseLong(numericValue);
+  }
+
+  private record DynamoField(String name, String type) {
   }
 }
