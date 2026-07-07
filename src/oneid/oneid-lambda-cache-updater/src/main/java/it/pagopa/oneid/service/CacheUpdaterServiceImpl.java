@@ -7,6 +7,7 @@ import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -104,7 +105,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   }
 
   private void upsertClient(Client client) {
-    if (client.getClientId() == null || client.getClientId().isBlank()) {
+    if (client==null || StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("client must include clientId");
     }
     cacheConnector.setClient(client);

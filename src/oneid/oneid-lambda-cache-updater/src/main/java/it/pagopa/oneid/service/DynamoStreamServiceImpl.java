@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 public class DynamoStreamServiceImpl implements DynamoStreamService {
@@ -67,7 +68,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     String clientId = extractScalarFieldValue(streamImage.get(FIELD_CLIENT_ID), "S");
-    if (clientId == null || clientId.isBlank()) {
+    if (StringUtils.isBlank(clientId)) {
       return Optional.empty();
     }
 
@@ -167,7 +168,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   }
 
   private void validateClientPayload(Client client) {
-    if (client.getClientId() == null || client.getClientId().isBlank()) {
+    if (StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("Stream payload without clientId");
     }
 
@@ -209,7 +210,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     String value = typedValue.asText();
-    if (value == null || value.isBlank()) {
+    if (StringUtils.isBlank(value)) {
       return null;
     }
 

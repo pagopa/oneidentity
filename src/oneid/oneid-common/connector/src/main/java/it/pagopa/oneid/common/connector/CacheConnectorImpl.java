@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.apache.commons.lang3.StringUtils;
 
 @ApplicationScoped
 public class CacheConnectorImpl implements CacheConnector {
@@ -37,7 +38,7 @@ public class CacheConnectorImpl implements CacheConnector {
 
   @Override
   public Optional<Client> getByClientId(String clientId) {
-    if (clientId==null || clientId.isBlank()) {
+    if (StringUtils.isBlank(clientId)) {
       return Optional.empty();
     }
 
@@ -55,7 +56,7 @@ public class CacheConnectorImpl implements CacheConnector {
 
   @Override
   public void setClient(Client client) {
-    if (client==null || client.getClientId()==null || client.getClientId().isBlank()) {
+    if (client == null || StringUtils.isBlank(client.getClientId())) {
       return;
     }
 
@@ -72,7 +73,7 @@ public class CacheConnectorImpl implements CacheConnector {
 
   @Override
   public void deleteClient(String clientId) {
-    if (clientId==null || clientId.isBlank()) {
+    if (StringUtils.isBlank(clientId)) {
       return;
     }
 
