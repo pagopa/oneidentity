@@ -266,6 +266,14 @@ resource "aws_iam_policy" "ecs_core_task" {
           "${var.pdv_reconciler_lambda.pdv_errors_queue_arn}"
         ]
       },
+      {
+        Sid    = "SNSPublishCacheNotifications"
+        Effect = "Allow"
+        Action = ["sns:Publish"]
+        Resource = [
+          var.sns_topic_arn
+        ]
+      },
     ]
   })
 
@@ -424,6 +432,10 @@ module "ecs_core_service" {
         {
           name  = "SIGN_JWT_KEY_ID"
           value = module.jwt_sign.aliases.sign-jwt.target_key_id
+        },
+        {
+          name  = "SNS_TOPIC_ARN_CACHE"
+          value = var.sns_topic_arn
         }
       ])
 
