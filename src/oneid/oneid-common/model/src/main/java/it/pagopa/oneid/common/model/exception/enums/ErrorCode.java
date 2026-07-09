@@ -134,6 +134,8 @@ public enum ErrorCode {
   OI_ERROR_IDP_NOT_FOUND(FeErrorCode.FE_OI_ERROR.getFeErrorCode(), "IDP not found"),
   OI_ERROR_VALIDATE_SIGNATURE_ERROR(FeErrorCode.FE_OI_ERROR.getFeErrorCode(),
       "Error validating signature"),
+  OI_ERROR_INVALID_ASSERTION_REF("OI_ERROR_INVALID_ASSERTION_REF",
+      "Invalid x-pagopa-lollipop-assertion-ref header format"),
   IDP_ERROR_RESPONSE_INVALID_SIGNATURE(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "Response invalid signature"),
   IDP_ERROR_ASSERTION_INVALID_SIGNATURE(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
@@ -157,7 +159,6 @@ public enum ErrorCode {
   CLIENT_REGISTRATION_SERVICE_ERROR("CLIENT_REGISTRATION_SERVICE_ERROR",
       "Error during ClientRegistrationService method"),
   USER_ID_MISMATCH_ERROR("USER_ID_MISMATCH_ERROR", "Error during check of userId");
-
 
   private final String errorCode;
   private final String errorMessage;

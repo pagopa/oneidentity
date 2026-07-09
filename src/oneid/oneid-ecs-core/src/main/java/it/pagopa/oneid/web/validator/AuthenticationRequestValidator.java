@@ -1,6 +1,7 @@
 package it.pagopa.oneid.web.validator;
 
 import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
@@ -13,9 +14,13 @@ import jakarta.inject.Inject;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class AuthenticationRequestValidator implements
     ConstraintValidator<AuthenticationRequestCheck, Object> {
+
+  private static final Pattern ASSERTION_REF_PATTERN = Pattern.compile("^(sha256|sha384|sha512)-[A-Za-z0-9\\-_]+$");
+  private static final int ASSERTION_REF_MAX_LENGTH = 160;
 
   @Inject
   Map<String, Client> clientsMap;
@@ -32,6 +37,7 @@ public class AuthenticationRequestValidator implements
     String clientId;
     String state;
     String idp;
+    String assertionRef;
 
     switch (o) {
       case AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet -> {
@@ -40,6 +46,7 @@ public class AuthenticationRequestValidator implements
         clientId = authorizationRequestDTOExtendedGet.getClientId();
         state = authorizationRequestDTOExtendedGet.getState();
         idp = authorizationRequestDTOExtendedGet.getIdp();
+        assertionRef = authorizationRequestDTOExtendedGet.getAssertionRef();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
         responseType = authorizationRequestDTOExtendedPost.getResponseType();
@@ -47,6 +54,7 @@ public class AuthenticationRequestValidator implements
         clientId = authorizationRequestDTOExtendedPost.getClientId();
         state = authorizationRequestDTOExtendedPost.getState();
         idp = authorizationRequestDTOExtendedPost.getIdp();
+        assertionRef = authorizationRequestDTOExtendedPost.getAssertionRef();
       }
       default -> throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -79,11 +87,28 @@ public class AuthenticationRequestValidator implements
         throw new GenericHTMLException(ErrorCode.AUTHORIZATION_ERROR_STATE);
       }
     }
+    if (assertionRef != null && !assertionRef.isBlank() && !isValidAssertionRefFormat(assertionRef)) {
+      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
+          .getCallbackURI().contains(callbackUri)) {
+        throw new AuthorizationErrorException(
+            ErrorCode.OI_ERROR_INVALID_ASSERTION_REF.getErrorMessage(),
+            callbackUri,
+            OAuth2Error.INVALID_REQUEST_CODE,
+            ErrorCode.OI_ERROR_INVALID_ASSERTION_REF.getErrorMessage(),
+            state);
+      } else {
+        throw new GenericHTMLException(ErrorCode.OI_ERROR_INVALID_ASSERTION_REF);
+      }
+    }
+
     // Set MDC properties
     updateMDCClientAndStateProperties(clientId,
         state);
     return true;
   }
+
+  private static boolean isValidAssertionRefFormat(String assertionRef) {
+    return assertionRef.length() <= ASSERTION_REF_MAX_LENGTH
+        && ASSERTION_REF_PATTERN.matcher(assertionRef).matches();
+  }
 }
-
-

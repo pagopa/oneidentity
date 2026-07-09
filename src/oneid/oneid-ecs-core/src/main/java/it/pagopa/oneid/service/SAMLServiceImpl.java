@@ -482,21 +482,29 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType,
+      String assertionRef)
+      throws OneIdentityException {
+    return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
+        attributeConsumingServiceIndex, assertionRef, authLevel, samlBindingType);
+  }
+
+  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType)
       throws OneIdentityException {
     return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, "", authLevel, samlBindingType);
+        attributeConsumingServiceIndex, null, authLevel, samlBindingType);
   }
 
   private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String purpose, String authLevel,
+      int attributeConsumingServiceIndex, String customId, String authLevel,
       SamlBinding samlBindingType)
       throws OneIdentityException {
     validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex);
 
     AuthnRequest authnRequest = createAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, authLevel);
+        attributeConsumingServiceIndex, authLevel, customId);
 
     // Check if samlBindingType is null or HTTP_POST, then sign the AuthnRequest
     if (samlBindingType == null || SamlBinding.HTTP_POST.equals(samlBindingType)) {
@@ -526,11 +534,12 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private AuthnRequest createAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel) {
+      int attributeConsumingServiceIndex, String authLevel, String customId) {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
-    authnRequest.setID(samlUtils.generateSecureRandomId());
+    authnRequest.setID(
+        customId != null && !customId.isBlank() ? customId : samlUtils.generateSecureRandomId());
     authnRequest.setIssuer(samlUtils.buildIssuer());
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
     authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));

@@ -89,7 +89,8 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedGet.getNonce())
             .scope(authorizationRequestDTOExtendedGet.getScope())
             .state(authorizationRequestDTOExtendedGet.getState())
-            .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress()).build();
+            .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress())
+            .assertionRef(authorizationRequestDTOExtendedGet.getAssertionRef()).build();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
         return AuthorizationRequestDTOExtended.builder()
@@ -100,7 +101,8 @@ public class OIDCController {
             .nonce(authorizationRequestDTOExtendedPost.getNonce())
             .scope(authorizationRequestDTOExtendedPost.getScope())
             .state(authorizationRequestDTOExtendedPost.getState())
-            .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress()).build();
+            .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress())
+            .assertionRef(authorizationRequestDTOExtendedPost.getAssertionRef()).build();
       }
       default -> {
         throw new OneIdentityException("Invalid object for /oidc/authorize route");
@@ -198,10 +200,13 @@ public class OIDCController {
 
     // 6. Create SAML Authn Request using SAMLServiceImpl
     // (without signature if binding is HTTP-REDIRECT)
+
+    String assertionRef = authorizationRequestDTOExtended.getAssertionRef();
+
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint, client.getAcsIndex(),
-          client.getAttributeIndex(), client.getAuthLevel().getValue(), samlBinding);
+          client.getAttributeIndex(), client.getAuthLevel().getValue(), samlBinding, assertionRef);
     } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
       Log.error("error building authorization request: " + e.getMessage());
       throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),

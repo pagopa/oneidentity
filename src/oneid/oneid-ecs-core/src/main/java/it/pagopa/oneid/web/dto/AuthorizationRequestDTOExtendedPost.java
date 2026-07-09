@@ -18,6 +18,9 @@ public class AuthorizationRequestDTOExtendedPost {
   @ConditionalNotBlank(field = "ipAddress")
   String ipAddress;
 
+  @HeaderParam("x-pagopa-lollipop-assertion-ref")
+  String assertionRef;
+
   @NotBlank
   @RestForm
   private String idp;

@@ -23,12 +23,15 @@ public class AuthorizationRequestDTOExtended extends AuthorizationRequestDTO {
   private String idp;
   @NotBlank
   private String ipAddress;
+  private String assertionRef;
 
   @Builder
   public AuthorizationRequestDTOExtended(String idp, String clientId, ResponseType responseType,
-      String redirectUri, String scope, String nonce, String state, String ipAddress) {
+      String redirectUri, String scope, String nonce, String state, String ipAddress,
+      String assertionRef) {
     super(clientId, responseType, redirectUri, scope, nonce, state);
     this.idp = idp;
     this.ipAddress = ipAddress;
+    this.assertionRef = assertionRef;
   }
 }
