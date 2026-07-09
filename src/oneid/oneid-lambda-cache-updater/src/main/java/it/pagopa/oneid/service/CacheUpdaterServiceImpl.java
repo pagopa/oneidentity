@@ -8,8 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 @ApplicationScoped
 public class CacheUpdaterServiceImpl implements CacheUpdaterService {
@@ -17,21 +15,15 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   private final CacheConnector cacheConnector;
   private final DynamoStreamService dynamoStreamService;
   private final RecordUtils recordUtils;
-  private final SnsClient sns;
-  private final String snsTopicArn;
 
   @Inject
   CacheUpdaterServiceImpl(
       CacheConnector cacheConnector,
       DynamoStreamService dynamoStreamService,
-      RecordUtils recordUtils,
-      SnsClient sns,
-      @ConfigProperty(name = "sns_topic_arn") String snsTopicArn) {
+      RecordUtils recordUtils) {
     this.cacheConnector = cacheConnector;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
-    this.sns = sns;
-    this.snsTopicArn = snsTopicArn;
   }
 
   @Override
@@ -105,27 +97,15 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   }
 
   private void upsertClient(Client client) {
-    if (client==null || StringUtils.isBlank(client.getClientId())) {
+    if (client == null || StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("client must include clientId");
     }
     cacheConnector.setClient(client);
     Log.infof("Cache upsert completed for clientId=%s", client.getClientId());
-    publishNotification("Cache updated", client.getClientId(), "UPSERT");
   }
 
   private void deleteClient(String clientId) {
     cacheConnector.deleteClient(clientId);
     Log.infof("Cache delete completed for clientId=%s", clientId);
-    publishNotification("Cache updated", clientId, "DELETE");
-  }
-
-  private void publishNotification(String subject, String clientId, String action) {
-    String message = "Action: " + action + "\nClient ID: " + clientId;
-    try {
-      sns.publish(p -> p.topicArn(snsTopicArn).subject(subject).message(message));
-      Log.debugf("SNS notification sent for clientId=%s action=%s", clientId, action);
-    } catch (Exception e) {
-      Log.warnf(e, "Failed to send SNS notification for clientId=%s action=%s", clientId, action);
-    }
   }
 }

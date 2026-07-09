@@ -29,10 +29,6 @@
             <artifactId>quarkus-redis-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkiverse.amazonservices</groupId>
-            <artifactId>quarkus-amazon-sns</artifactId>
-        </dependency>
-        <dependency>
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>connector</artifactId>
             <exclusions>

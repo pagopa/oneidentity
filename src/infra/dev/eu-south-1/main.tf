@@ -658,7 +658,6 @@ module "backend" {
       CACHE_ENDPOINT_PORT    = tostring(module.client_cache.cache_endpoint_port)
       CACHE_TIMEOUT          = "PT5S"
       CACHE_KEY_PREFIX       = "oneid:client:v1:"
-      SNS_TOPIC_ARN          = module.sns.sns_topic_arn
     }
   }
 
