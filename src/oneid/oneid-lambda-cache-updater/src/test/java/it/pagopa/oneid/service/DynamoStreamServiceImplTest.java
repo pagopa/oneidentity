@@ -5,15 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -22,15 +24,13 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 class DynamoStreamServiceImplTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-
   @Inject
   DynamoStreamService dynamoStreamService;
 
   @Test
   @DisplayName("given new image when extracting client then build client from stream payload")
   void given_new_image_when_extracting_client_then_build_client_from_stream_payload() {
-    JsonNode streamRecord = buildRecord("INSERT", null, baseImage());
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, baseImage());
 
     Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
@@ -49,7 +49,8 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given old image when extracting client id then return id from old image")
   void given_old_image_when_extracting_client_id_then_return_id_from_old_image() {
-    JsonNode streamRecord = buildRecord("REMOVE", imageWithClientId("client-old"), null);
+    DynamodbStreamRecord streamRecord = buildRecord("REMOVE", imageWithClientId("client-old"),
+        null);
 
     Optional<String> clientId = dynamoStreamService.extractClientId(streamRecord, true);
 
@@ -68,7 +69,7 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given blank client id when extracting client id then return empty")
   void given_blank_client_id_when_extracting_client_id_then_return_empty() {
-    JsonNode streamRecord = buildRecord("REMOVE", imageWithClientId(" "), null);
+    DynamodbStreamRecord streamRecord = buildRecord("REMOVE", imageWithClientId(" "), null);
 
     Optional<String> clientId = dynamoStreamService.extractClientId(streamRecord, true);
 
@@ -78,11 +79,11 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given modify stream with relevant changes when checking diff then return true")
   void given_modify_stream_with_relevant_changes_when_checking_diff_then_return_true() {
-    ObjectNode oldImage = baseImage();
-    ObjectNode newImage = baseImage();
-    newImage.set("pairwise", boolValue(false));
+    Map<String, AttributeValue> oldImage = baseImage();
+    Map<String, AttributeValue> newImage = new HashMap<>(baseImage());
+    newImage.put("pairwise", new AttributeValue().withBOOL(false));
 
-    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
+    DynamodbStreamRecord streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
@@ -90,12 +91,12 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given modify stream with only non relevant changes when checking diff then return false")
   void given_modify_stream_with_only_non_relevant_changes_when_checking_diff_then_return_false() {
-    ObjectNode oldImage = baseImage();
-    ObjectNode newImage = baseImage();
-    oldImage.set("logoUri", stringValue("https://logo.old"));
-    newImage.set("logoUri", stringValue("https://logo.new"));
+    Map<String, AttributeValue> oldImage = new HashMap<>(baseImage());
+    Map<String, AttributeValue> newImage = new HashMap<>(baseImage());
+    oldImage.put("logoUri", new AttributeValue().withS("https://logo.old"));
+    newImage.put("logoUri", new AttributeValue().withS("https://logo.new"));
 
-    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
+    DynamodbStreamRecord streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
     assertFalse(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
@@ -113,9 +114,11 @@ class DynamoStreamServiceImplTest {
   }
 
   @Test
-  @DisplayName("given insert record with pipe-injected null old image when extracting client from new image then succeed")
+  @DisplayName("given insert record with null-valued old image when extracting client from new image then succeed")
   void given_insert_record_with_pipe_injected_null_old_image_when_extracting_client_from_new_image_then_succeed() {
-    JsonNode streamRecord = buildRecord("INSERT", buildNullOldImage(), baseImage());
+    Map<String, AttributeValue> nullOldImage = new HashMap<>();
+    nullOldImage.put("clientId", new AttributeValue().withNULL(true));
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", nullOldImage, baseImage());
 
     Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
@@ -126,7 +129,7 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given empty image when extracting client then return empty")
   void given_empty_image_when_extracting_client_then_return_empty() {
-    JsonNode streamRecord = buildRecord("INSERT", null, objectMapper.createObjectNode());
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, Map.of());
 
     Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
@@ -134,33 +137,19 @@ class DynamoStreamServiceImplTest {
   }
 
   @Test
-  @DisplayName("given rich dynamo payload when extracting client then ignore extra attribute shapes")
-  void given_rich_dynamo_payload_when_extracting_client_then_ignore_extra_attribute_shapes() {
-    ObjectNode image = baseImage();
-    image.put("rawText", "text");
-    image.put("rawNumber", 7);
-    image.put("rawBoolean", false);
+  @DisplayName("given rich dynamo payload when extracting client then handle all attribute types")
+  void given_rich_dynamo_payload_when_extracting_client_then_handle_all_attribute_types() {
+    Map<String, AttributeValue> image = new HashMap<>(baseImage());
+    image.put("rawList", new AttributeValue().withL(
+        List.of(new AttributeValue().withS("nested"), new AttributeValue().withN("9"))
+    ));
+    Map<String, AttributeValue> nestedMap = new HashMap<>();
+    nestedMap.put("nestedText", new AttributeValue().withS("nested"));
+    nestedMap.put("nestedNumber", new AttributeValue().withN("9"));
+    image.put("rawMap", new AttributeValue().withM(nestedMap));
+    image.put("rawNull", new AttributeValue().withNULL(true));
 
-    ObjectNode rawList = objectMapper.createObjectNode();
-    ArrayNode listValues = rawList.putArray("L");
-    listValues.addObject().put("S", "nested");
-    listValues.addObject().put("N", "9");
-    image.set("rawList", rawList);
-
-    ObjectNode rawMap = objectMapper.createObjectNode();
-    ObjectNode mapValues = objectMapper.createObjectNode();
-    mapValues.putObject("nestedText").put("S", "nested");
-    mapValues.putObject("nestedNumber").put("N", "9");
-    rawMap.set("M", mapValues);
-    image.set("rawMap", rawMap);
-
-    ObjectNode rawNull = objectMapper.createObjectNode();
-    rawNull.put("NULL", true);
-    image.set("rawNull", rawNull);
-
-    image.set("rawUnhandled", objectMapper.createObjectNode());
-
-    JsonNode streamRecord = buildRecord("INSERT", null, image);
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, image);
 
     Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
@@ -171,22 +160,22 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given invalid auth level when extracting client then throw")
   void given_invalid_auth_level_when_extracting_client_then_throw() {
-    ObjectNode image = baseImage();
-    image.set("authLevel", stringValue("invalid-auth-level"));
+    Map<String, AttributeValue> image = new HashMap<>(baseImage());
+    image.put("authLevel", new AttributeValue().withS("invalid-auth-level"));
 
-    JsonNode streamRecord = buildRecord("INSERT", null, image);
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-      () -> dynamoStreamService.extractClient(streamRecord, false));
+        () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
   @DisplayName("given invalid saml binding when extracting client then default to HTTP_POST")
   void given_invalid_saml_binding_when_extracting_client_then_default_to_http_post() {
-    ObjectNode image = baseImage();
-    image.set("samlBinding", stringValue("invalid-saml-binding"));
+    Map<String, AttributeValue> image = new HashMap<>(baseImage());
+    image.put("samlBinding", new AttributeValue().withS("invalid-saml-binding"));
 
-    JsonNode streamRecord = buildRecord("INSERT", null, image);
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, image);
 
     Optional<Client> result = dynamoStreamService.extractClient(streamRecord, false);
 
@@ -197,116 +186,77 @@ class DynamoStreamServiceImplTest {
   @Test
   @DisplayName("given blank client id when extracting client then throw")
   void given_blank_client_id_when_extracting_client_then_throw() {
-    ObjectNode image = baseImage();
-    image.set("clientId", stringValue(" "));
+    Map<String, AttributeValue> image = new HashMap<>(baseImage());
+    image.put("clientId", new AttributeValue().withS(" "));
 
-    JsonNode streamRecord = buildRecord("INSERT", null, image);
+    DynamodbStreamRecord streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-      () -> dynamoStreamService.extractClient(streamRecord, false));
+        () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
   @DisplayName("given modify stream with only friendly name change when checking diff then return true")
   void given_modify_stream_with_only_friendly_name_change_when_checking_diff_then_return_true() {
-    ObjectNode oldImage = baseImage();
-    ObjectNode newImage = baseImage();
-    oldImage.set("friendlyName", stringValue("Old Name"));
-    newImage.set("friendlyName", stringValue("New Name"));
+    Map<String, AttributeValue> oldImage = new HashMap<>(baseImage());
+    Map<String, AttributeValue> newImage = new HashMap<>(baseImage());
+    oldImage.put("friendlyName", new AttributeValue().withS("Old Name"));
+    newImage.put("friendlyName", new AttributeValue().withS("New Name"));
 
-    JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
+    DynamodbStreamRecord streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
 
-  private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {
-    ObjectNode streamRecord = objectMapper.createObjectNode();
-    streamRecord.put("eventName", eventName);
-
-    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
+  private DynamodbStreamRecord buildRecord(String eventName,
+                                            Map<String, AttributeValue> oldImage,
+                                            Map<String, AttributeValue> newImage) {
+    DynamodbStreamRecord record = new DynamodbStreamRecord();
+    record.setEventName(eventName);
+    StreamRecord streamRecord = new StreamRecord();
     if (oldImage != null) {
-      dynamodb.set("OldImage", oldImage);
+      streamRecord.setOldImage(oldImage);
     }
     if (newImage != null) {
-      dynamodb.set("NewImage", newImage);
+      streamRecord.setNewImage(newImage);
     }
-
-    return streamRecord;
+    record.setDynamodb(streamRecord);
+    return record;
   }
 
-  private JsonNode buildRecordWithoutDynamodb(String eventName) {
-    ObjectNode streamRecord = objectMapper.createObjectNode();
-    streamRecord.put("eventName", eventName);
-    return streamRecord;
+  private DynamodbStreamRecord buildRecordWithoutDynamodb(String eventName) {
+    DynamodbStreamRecord record = new DynamodbStreamRecord();
+    record.setEventName(eventName);
+    return record;
   }
 
-  private ObjectNode baseImage() {
-    ObjectNode image = objectMapper.createObjectNode();
-    image.set("clientId", stringValue("client-test"));
-    image.set("callbackURI", stringSetValue("https://callback.example"));
-    image.set("requestedParameters", stringSetValue("fiscalNumber"));
-    image.set("authLevel", stringValue("https://www.spid.gov.it/SpidL2"));
-    image.set("samlBinding", stringValue("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"));
-    image.set("acsIndex", numberValue(1));
-    image.set("attributeIndex", numberValue(2));
-    image.set("active", boolValue(true));
-    image.set("requiredSameIdp", boolValue(true));
-    image.set("pairwise", boolValue(true));
-    image.set("spidMinors", boolValue(false));
-    image.set("spidProfessionals", boolValue(false));
-    image.set("minAge", numberValue(0));
-    image.set("maxAge", numberValue(0));
-    image.set("ageParentAuth", numberValue(0));
+  private Map<String, AttributeValue> baseImage() {
+    Map<String, AttributeValue> image = new HashMap<>();
+    image.put("clientId", new AttributeValue().withS("client-test"));
+    image.put("callbackURI",
+        new AttributeValue().withSS(List.of("https://callback.example")));
+    image.put("requestedParameters",
+        new AttributeValue().withSS(List.of("fiscalNumber")));
+    image.put("authLevel",
+        new AttributeValue().withS("https://www.spid.gov.it/SpidL2"));
+    image.put("samlBinding",
+        new AttributeValue().withS("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"));
+    image.put("acsIndex", new AttributeValue().withN("1"));
+    image.put("attributeIndex", new AttributeValue().withN("2"));
+    image.put("active", new AttributeValue().withBOOL(true));
+    image.put("requiredSameIdp", new AttributeValue().withBOOL(true));
+    image.put("pairwise", new AttributeValue().withBOOL(true));
+    image.put("spidMinors", new AttributeValue().withBOOL(false));
+    image.put("spidProfessionals", new AttributeValue().withBOOL(false));
+    image.put("minAge", new AttributeValue().withN("0"));
+    image.put("maxAge", new AttributeValue().withN("0"));
+    image.put("ageParentAuth", new AttributeValue().withN("0"));
     return image;
   }
 
-  private ObjectNode imageWithClientId(String clientId) {
-    ObjectNode image = objectMapper.createObjectNode();
-    image.set("clientId", stringValue(clientId));
-    return image;
-  }
-
-  private ObjectNode stringValue(String value) {
-    ObjectNode attributeValue = objectMapper.createObjectNode();
-    attributeValue.put("S", value);
-    return attributeValue;
-  }
-
-  private ObjectNode numberValue(long value) {
-    ObjectNode attributeValue = objectMapper.createObjectNode();
-    attributeValue.put("N", String.valueOf(value));
-    return attributeValue;
-  }
-
-  private ObjectNode boolValue(boolean value) {
-    ObjectNode attributeValue = objectMapper.createObjectNode();
-    attributeValue.put("BOOL", value);
-    return attributeValue;
-  }
-
-  private ObjectNode stringSetValue(String value) {
-    ObjectNode attributeValue = objectMapper.createObjectNode();
-    attributeValue.putArray("SS").add(value);
-    return attributeValue;
-  }
-
-  private ObjectNode buildNullOldImage() {
-    ObjectNode image = objectMapper.createObjectNode();
-    image.putNull("clientId");
-    image.putNull("authLevel");
-    image.putNull("samlBinding");
-    image.putNull("acsIndex");
-    image.putNull("attributeIndex");
-    image.putNull("active");
-    image.putNull("requiredSameIdp");
-    image.putNull("pairwise");
-    image.putNull("spidMinors");
-    image.putNull("spidProfessionals");
-    image.putNull("callbackURI");
-    image.putNull("requestedParameters");
-    image.putNull("minAge");
-    image.putNull("maxAge");
-    image.putNull("ageParentAuth");
+  private Map<String, AttributeValue> imageWithClientId(String clientId) {
+    Map<String, AttributeValue> image = new HashMap<>();
+    image.put("clientId", new AttributeValue().withS(clientId));
     return image;
   }
 }
