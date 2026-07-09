@@ -1,9 +1,7 @@
 package it.pagopa.oneid.service;
 
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
@@ -26,20 +24,23 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private static final String FIELD_CLIENT_ID = "clientId";
   private static final String FIELD_AUTH_LEVEL = "authLevel";
   private static final String FIELD_SAML_BINDING = "samlBinding";
-  private static final List<String> CACHE_RELEVANT_SCALAR_FIELDS = List.of(
-      "acsIndex",
-      FIELD_AUTH_LEVEL,
-      FIELD_SAML_BINDING,
-      "attributeIndex",
-      "active",
-      "requiredSameIdp",
-      "pairwise",
-      "spidMinors",
-      "spidProfessionals",
-      "minAge",
-      "maxAge",
-      "ageParentAuth",
-      "friendlyName"
+  private static final String FIELD_DYNAMODB = "dynamodb";
+  private static final String IMAGE_OLD = "OldImage";
+  private static final String IMAGE_NEW = "NewImage";
+  private static final List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = List.of(
+      new DynamoField("acsIndex", "N"),
+      new DynamoField(FIELD_AUTH_LEVEL, "S"),
+      new DynamoField(FIELD_SAML_BINDING, "S"),
+      new DynamoField("attributeIndex", "N"),
+      new DynamoField("active", "BOOL"),
+      new DynamoField("requiredSameIdp", "BOOL"),
+      new DynamoField("pairwise", "BOOL"),
+      new DynamoField("spidMinors", "BOOL"),
+      new DynamoField("spidProfessionals", "BOOL"),
+      new DynamoField("minAge", "N"),
+      new DynamoField("maxAge", "N"),
+      new DynamoField("ageParentAuth", "N"),
+      new DynamoField("friendlyName", "S")
   );
   private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(
       "requestedParameters",
@@ -55,18 +56,18 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   }
 
   @Override
-  public Optional<Client> extractClient(DynamodbStreamRecord streamRecord, boolean preferOldImage) {
+  public Optional<Client> extractClient(JsonNode streamRecord, boolean preferOldImage) {
     return mapImageToClient(extractImage(streamRecord, preferOldImage));
   }
 
   @Override
-  public Optional<String> extractClientId(DynamodbStreamRecord streamRecord, boolean preferOldImage) {
-    Map<String, AttributeValue> image = extractImage(streamRecord, preferOldImage);
-    if (image == null) {
+  public Optional<String> extractClientId(JsonNode streamRecord, boolean preferOldImage) {
+    JsonNode streamImage = extractImage(streamRecord, preferOldImage);
+    if (streamImage == null || streamImage.isNull() || !streamImage.isObject()) {
       return Optional.empty();
     }
 
-    String clientId = extractScalarString(image.get(FIELD_CLIENT_ID));
+    String clientId = extractScalarFieldValue(streamImage.get(FIELD_CLIENT_ID), "S");
     if (StringUtils.isBlank(clientId)) {
       return Optional.empty();
     }
@@ -75,34 +76,35 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   }
 
   @Override
-  public boolean hasCacheRelevantChanges(DynamodbStreamRecord streamRecord) {
-    if (streamRecord == null) {
+  public boolean hasCacheRelevantChanges(JsonNode streamRecord) {
+    if (streamRecord == null || streamRecord.isNull() || !streamRecord.isObject()) {
       return false;
     }
 
-    if (!"MODIFY".equals(streamRecord.getEventName())) {
+    if (!"MODIFY".equals(streamRecord.path("eventName").asText())) {
       return true;
     }
 
-    StreamRecord dynamodb = streamRecord.getDynamodb();
-    if (dynamodb == null) {
+    JsonNode dynamodbNode = streamRecord.path(FIELD_DYNAMODB);
+    if (dynamodbNode.isMissingNode() || dynamodbNode.isNull()) {
       return false;
     }
 
-    Map<String, AttributeValue> oldImage = dynamodb.getOldImage();
-    Map<String, AttributeValue> newImage = dynamodb.getNewImage();
-    if (oldImage == null || newImage == null) {
+    JsonNode oldImage = dynamodbNode.path(IMAGE_OLD);
+    JsonNode newImage = dynamodbNode.path(IMAGE_NEW);
+    if (oldImage.isMissingNode() || oldImage.isNull() || newImage.isMissingNode()
+        || newImage.isNull()) {
       return true;
     }
 
-    for (String fieldName : CACHE_RELEVANT_SCALAR_FIELDS) {
-      if (hasScalarFieldChanged(oldImage, newImage, fieldName)) {
+    for (DynamoField field : CACHE_RELEVANT_SCALAR_FIELDS) {
+      if (hasDynamoScalarFieldChanged(oldImage, newImage, field.name(), field.type())) {
         return true;
       }
     }
 
     for (String fieldName : CACHE_RELEVANT_STRING_SET_FIELDS) {
-      if (hasStringSetFieldChanged(oldImage, newImage, fieldName)) {
+      if (hasDynamoStringSetFieldChanged(oldImage, newImage, fieldName)) {
         return true;
       }
     }
@@ -110,34 +112,32 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     return false;
   }
 
-  private Map<String, AttributeValue> extractImage(DynamodbStreamRecord streamRecord,
-                                                    boolean preferOldImage) {
-    if (streamRecord == null) {
+  private JsonNode extractImage(JsonNode streamRecord, boolean preferOldImage) {
+    if (streamRecord == null || streamRecord.isNull() || !streamRecord.isObject()) {
       return null;
     }
 
-    StreamRecord dynamodb = streamRecord.getDynamodb();
-    if (dynamodb == null) {
+    JsonNode dynamodbNode = streamRecord.path(FIELD_DYNAMODB);
+    if (dynamodbNode.isMissingNode() || dynamodbNode.isNull()) {
       return null;
     }
 
-    Map<String, AttributeValue> image = preferOldImage
-        ? dynamodb.getOldImage()
-        : dynamodb.getNewImage();
-    if (image == null || image.isEmpty()) {
+    JsonNode imageNode = preferOldImage ? dynamodbNode.path(IMAGE_OLD) : dynamodbNode.path(IMAGE_NEW);
+    if (imageNode.isMissingNode() || imageNode.isNull()) {
       return null;
     }
 
-    return image;
+    return imageNode;
   }
 
-  private Optional<Client> mapImageToClient(Map<String, AttributeValue> image) {
-    if (image == null || image.isEmpty()) {
+  private Optional<Client> mapImageToClient(JsonNode streamImage) {
+    if (streamImage == null || streamImage.isNull() || !streamImage.isObject() || streamImage.size() == 0) {
       return Optional.empty();
     }
 
     Map<String, Object> payload = new HashMap<>();
-    image.forEach((key, value) -> payload.put(key, fromAttributeValue(value)));
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
+        fromDynamoAttribute(entry.getValue())));
 
     normalizeEnums(payload);
 
@@ -185,82 +185,172 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
   }
 
-  private boolean hasScalarFieldChanged(Map<String, AttributeValue> oldImage,
-                                         Map<String, AttributeValue> newImage, String fieldName) {
-    return !Objects.equals(
-        extractScalarString(oldImage.get(fieldName)),
-        extractScalarString(newImage.get(fieldName)));
+  private boolean hasDynamoScalarFieldChanged(JsonNode oldImage,
+                                              JsonNode newImage, String fieldName, String type) {
+    String oldValue = extractScalarFieldValue(oldImage.get(fieldName), type);
+    String newValue = extractScalarFieldValue(newImage.get(fieldName), type);
+    return !Objects.equals(oldValue, newValue);
   }
 
-  private boolean hasStringSetFieldChanged(Map<String, AttributeValue> oldImage,
-                                            Map<String, AttributeValue> newImage,
-                                            String fieldName) {
-    return !extractStringSet(oldImage.get(fieldName))
-        .equals(extractStringSet(newImage.get(fieldName)));
+  private boolean hasDynamoStringSetFieldChanged(JsonNode oldImage,
+                                                 JsonNode newImage, String fieldName) {
+    return !extractStringSetFieldValues(oldImage.get(fieldName))
+        .equals(extractStringSetFieldValues(newImage.get(fieldName)));
   }
 
-  private String extractScalarString(AttributeValue attributeValue) {
-    if (attributeValue == null) {
+  private String extractScalarFieldValue(JsonNode fieldNode,
+                                         String type) {
+    if (fieldNode == null || fieldNode.isNull() || fieldNode.isMissingNode()) {
       return null;
     }
 
-    if (attributeValue.getS() != null) {
-      return StringUtils.isBlank(attributeValue.getS()) ? null : attributeValue.getS();
-    }
-
-    if (attributeValue.getN() != null) {
-      return attributeValue.getN();
-    }
-
-    if (attributeValue.getBOOL() != null) {
-      return String.valueOf(attributeValue.getBOOL());
-    }
-
-    return null;
-  }
-
-  private Set<String> extractStringSet(AttributeValue attributeValue) {
-    if (attributeValue == null || attributeValue.getSS() == null) {
-      return Set.of();
-    }
-    return new HashSet<>(attributeValue.getSS());
-  }
-
-  private Object fromAttributeValue(AttributeValue attributeValue) {
-    if (attributeValue == null) {
+    JsonNode typedValue = fieldNode.get(type);
+    if (typedValue == null || typedValue.isNull()) {
       return null;
     }
 
-    if (Boolean.TRUE.equals(attributeValue.getNULL())) {
+    String value = typedValue.asText();
+    if (StringUtils.isBlank(value)) {
       return null;
     }
 
-    if (attributeValue.getS() != null) {
-      return attributeValue.getS();
+    return value;
+  }
+
+  private Set<String> extractStringSetFieldValues(JsonNode fieldNode) {
+    Set<String> values = new HashSet<>();
+    if (fieldNode == null || fieldNode.isNull() || fieldNode.isMissingNode()) {
+      return values;
     }
 
-    if (attributeValue.getN() != null) {
-      return parseNumeric(attributeValue.getN());
+    JsonNode stringSetValues = fieldNode.get("SS");
+    if (stringSetValues == null || !stringSetValues.isArray()) {
+      return values;
     }
 
-    if (attributeValue.getBOOL() != null) {
-      return attributeValue.getBOOL();
+    stringSetValues.forEach(value -> values.add(value.asText()));
+    return values;
+  }
+
+  private Object fromDynamoAttribute(JsonNode attributeNode) {
+    if (attributeNode == null || attributeNode.isNull() || attributeNode.isMissingNode()) {
+      return null;
     }
 
-    if (attributeValue.getSS() != null) {
-      return new HashSet<>(attributeValue.getSS());
+    Object stringValue = readStringAttribute(attributeNode);
+    if (stringValue != null) {
+      return stringValue;
     }
 
-    if (attributeValue.getL() != null) {
-      List<Object> list = new ArrayList<>();
-      attributeValue.getL().forEach(item -> list.add(fromAttributeValue(item)));
-      return list;
+    Object numberValue = readNumberAttribute(attributeNode);
+    if (numberValue != null) {
+      return numberValue;
     }
 
-    if (attributeValue.getM() != null) {
-      Map<String, Object> map = new HashMap<>();
-      attributeValue.getM().forEach((k, v) -> map.put(k, fromAttributeValue(v)));
-      return map;
+    Object booleanValue = readBooleanAttribute(attributeNode);
+    if (booleanValue != null) {
+      return booleanValue;
+    }
+
+    Object stringSetValue = readStringSetAttribute(attributeNode);
+    if (stringSetValue != null) {
+      return stringSetValue;
+    }
+
+    Object listValue = readListAttribute(attributeNode);
+    if (listValue != null) {
+      return listValue;
+    }
+
+    Object mapValue = readMapAttribute(attributeNode);
+    if (mapValue != null) {
+      return mapValue;
+    }
+
+    if (hasExplicitNullAttribute(attributeNode)) {
+      return null;
+    }
+
+    return readFallbackAttributeValue(attributeNode);
+  }
+
+  private Object readStringAttribute(JsonNode attributeNode) {
+    JsonNode stringValue = attributeNode.get("S");
+    if (stringValue == null || stringValue.isNull()) {
+      return null;
+    }
+
+    return stringValue.asText();
+  }
+
+  private Object readNumberAttribute(JsonNode attributeNode) {
+    JsonNode numberValue = attributeNode.get("N");
+    if (numberValue == null || numberValue.isNull()) {
+      return null;
+    }
+
+    return parseNumeric(numberValue.asText());
+  }
+
+  private Object readBooleanAttribute(JsonNode attributeNode) {
+    JsonNode booleanValue = attributeNode.get("BOOL");
+    if (booleanValue == null || booleanValue.isNull()) {
+      return null;
+    }
+
+    return booleanValue.asBoolean();
+  }
+
+  private Object readStringSetAttribute(JsonNode attributeNode) {
+    JsonNode stringSetValues = attributeNode.get("SS");
+    if (stringSetValues == null || !stringSetValues.isArray()) {
+      return null;
+    }
+
+    Set<String> values = new HashSet<>();
+    stringSetValues.forEach(value -> values.add(value.asText()));
+    return values;
+  }
+
+  private Object readListAttribute(JsonNode attributeNode) {
+    JsonNode listValues = attributeNode.get("L");
+    if (listValues == null || !listValues.isArray()) {
+      return null;
+    }
+
+    List<Object> values = new ArrayList<>();
+    listValues.forEach(item -> values.add(fromDynamoAttribute(item)));
+    return values;
+  }
+
+  private Object readMapAttribute(JsonNode attributeNode) {
+    JsonNode mapValues = attributeNode.get("M");
+    if (mapValues == null || !mapValues.isObject()) {
+      return null;
+    }
+
+    Map<String, Object> map = new HashMap<>();
+    mapValues.fields().forEachRemaining(entry -> map.put(entry.getKey(),
+        fromDynamoAttribute(entry.getValue())));
+    return map;
+  }
+
+  private boolean hasExplicitNullAttribute(JsonNode attributeNode) {
+    JsonNode nullValue = attributeNode.get("NULL");
+    return nullValue != null && nullValue.asBoolean(false);
+  }
+
+  private Object readFallbackAttributeValue(JsonNode attributeNode) {
+    if (attributeNode.isTextual()) {
+      return attributeNode.asText();
+    }
+
+    if (attributeNode.isNumber()) {
+      return attributeNode.numberValue();
+    }
+
+    if (attributeNode.isBoolean()) {
+      return attributeNode.asBoolean();
     }
 
     return null;
@@ -271,5 +361,8 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return Double.parseDouble(numericValue);
     }
     return Long.parseLong(numericValue);
+  }
+
+  private record DynamoField(String name, String type) {
   }
 }

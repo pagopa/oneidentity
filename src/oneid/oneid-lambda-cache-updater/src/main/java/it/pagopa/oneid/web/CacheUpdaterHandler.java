@@ -2,20 +2,19 @@ package it.pagopa.oneid.web;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.fasterxml.jackson.databind.JsonNode;
 import it.pagopa.oneid.service.CacheUpdaterService;
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.List;
 
 /**
  * Lambda bootstrap entrypoint for cache update events from DynamoDB Streams.
  */
 @ApplicationScoped
 @Named("cache-updater")
-public class CacheUpdaterHandler implements RequestHandler<List<DynamodbStreamRecord>, Void> {
+public class CacheUpdaterHandler implements RequestHandler<JsonNode, Void> {
 
   private final CacheUpdaterService cacheUpdaterService;
 
@@ -25,11 +24,9 @@ public class CacheUpdaterHandler implements RequestHandler<List<DynamodbStreamRe
   }
 
   @Override
-  public Void handleRequest(List<DynamodbStreamRecord> input, Context context) {
+  public Void handleRequest(JsonNode input, Context context) {
     Log.info("CacheUpdaterHandler invoked");
-    List<DynamodbStreamRecord> records = input == null ? List.of() : input;
-    Log.infof("CacheUpdaterHandler received %d DynamoDB record(s): %s", records.size(), records);
-    cacheUpdaterService.processInput(records);
+    cacheUpdaterService.processInput(input);
     return null;
   }
 }
