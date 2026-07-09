@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -146,5 +147,86 @@ class AuthenticationRequestValidatorTest {
 
     assertEquals(ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE,
         ErrorCode.valueOf(exception.getMessage()));
+  }
+
+  // --- assertionRef format validation ---
+
+  private AuthorizationRequestDTOExtendedGet validGetRequestWithAssertionRef(String assertionRef) {
+    AuthorizationRequestDTOExtendedGet request = mock(AuthorizationRequestDTOExtendedGet.class);
+    when(request.getResponseType()).thenReturn(ResponseType.CODE);
+    when(request.getRedirectUri()).thenReturn("http://callback");
+    when(request.getClientId()).thenReturn("client1");
+    when(request.getState()).thenReturn("state");
+    when(request.getIdp()).thenReturn("idp1");
+    when(request.getAssertionRef()).thenReturn(assertionRef);
+    Client client = mock(Client.class);
+    when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
+    clientsMap.put("client1", client);
+    return request;
+  }
+
+  @Test
+  @DisplayName("given valid sha256 assertion-ref, when isValid, then no exception")
+  void assertionRef_validSha256() {
+    assertTrue(validator.isValid(
+        validGetRequestWithAssertionRef("sha256-3f2a9c7f4b1d8e6c5a2f9b7d4c1e8a6f3"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given valid sha384 assertion-ref, when isValid, then no exception")
+  void assertionRef_validSha384() {
+    assertTrue(validator.isValid(
+        validGetRequestWithAssertionRef("sha384-abcDEF123-_xyz"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given valid sha512 assertion-ref, when isValid, then no exception")
+  void assertionRef_validSha512() {
+    assertTrue(validator.isValid(
+        validGetRequestWithAssertionRef("sha512-AABBCCDD1122"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given unsupported algorithm prefix, when isValid, then AuthorizationErrorException")
+  void assertionRef_invalidAlgorithm() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        validGetRequestWithAssertionRef("md5-3f2a9c7f4b1d8e6c5a2f9b7d4c1e8a6f3"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given missing thumbprint after dash, when isValid, then AuthorizationErrorException")
+  void assertionRef_missingThumbprint() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        validGetRequestWithAssertionRef("sha256-"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given value exceeding max length 160 chars, when isValid, then AuthorizationErrorException")
+  void assertionRef_exceedsMaxLength() {
+    String longValue = "sha256-" + "a".repeat(154);
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        validGetRequestWithAssertionRef(longValue),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given colon in value, when isValid, then AuthorizationErrorException")
+  void assertionRef_colonNotAllowed() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        validGetRequestWithAssertionRef("sha256-abc:def"),
+        Mockito.mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given null assertion-ref, when isValid, then no exception")
+  void assertionRef_null_skipsValidation() {
+    assertTrue(validator.isValid(
+        validGetRequestWithAssertionRef(null),
+        Mockito.mock(ConstraintValidatorContext.class)));
   }
 }
