@@ -1,26 +1,27 @@
 package it.pagopa.oneid.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.oneid.common.connector.IDPConnectorImpl;
-import it.pagopa.oneid.common.model.IDP;
-import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
-import it.pagopa.oneid.common.model.enums.LatestTAG;
-import it.pagopa.oneid.common.model.enums.MetadataType;
-import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
-import jakarta.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.common.connector.IDPConnectorImpl;
+import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
+import it.pagopa.oneid.connector.PublicIdpsBucketConnector;
+import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
+import jakarta.inject.Inject;
 
 @QuarkusTest
 public class IDPMetadataServiceImplTest {
@@ -30,6 +31,9 @@ public class IDPMetadataServiceImplTest {
 
   @InjectMock
   IDPConnectorImpl idpConnectorImpl;
+
+  @InjectMock
+  PublicIdpsBucketConnector publicIdpsBucketConnector;
 
   @Inject
   IDPMetadataServiceImpl idpMetadataServiceImpl;
@@ -52,10 +56,31 @@ public class IDPMetadataServiceImplTest {
     idpList.add(new IDP());
 
     IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO("spid-11111.xml");
-    idpS3FileDTO.setLatestTAG(LatestTAG.LATEST_SPID);
 
     // then
     assertDoesNotThrow(() -> idpMetadataServiceImpl.updateIDPMetadata(idpList, idpS3FileDTO));
+  }
+
+  @Test
+  void publishPublicIdps_spid() {
+    IDP firstIdp = new IDP();
+    IDP secondIdp = new IDP();
+    ArrayList<IDP> idpMetadata = new ArrayList<>(java.util.List.of(firstIdp, secondIdp));
+
+    Mockito.doNothing().when(publicIdpsBucketConnector)
+        .uploadIdpsJson(Mockito.anyString(), Mockito.anyString());
+
+    idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
+
+    Mockito.verify(publicIdpsBucketConnector).uploadIdpsJson(Mockito.anyString(),
+      Mockito.anyString());
+  }
+
+  @Test
+  void publishPublicIdps_cie_skipsUpload() {
+    idpMetadataServiceImpl.publishPublicIdps(new ArrayList<>(), new IdpS3FileDTO("cie-11111.xml"));
+
+    Mockito.verifyNoInteractions(publicIdpsBucketConnector);
   }
 
   @Test
@@ -65,9 +90,6 @@ public class IDPMetadataServiceImplTest {
     String fileName = "spid-3223456.xml";
 
     IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO(fileName);
-    idpS3FileDTO.setMetadataType(MetadataType.SPID);
-    idpS3FileDTO.setLatestTAG(LatestTAG.LATEST_SPID);
-    idpS3FileDTO.setTimestamp(System.currentTimeMillis());
 
     ClassLoader classLoader = getClass().getClassLoader();
 
@@ -83,7 +105,7 @@ public class IDPMetadataServiceImplTest {
       }
 
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
     String content = stringBuilder.toString();
@@ -102,9 +124,6 @@ public class IDPMetadataServiceImplTest {
     String fileName = "cie-23456.xml";
 
     IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO(fileName);
-    idpS3FileDTO.setMetadataType(MetadataType.CIE);
-    idpS3FileDTO.setLatestTAG(LatestTAG.LATEST_CIE);
-    idpS3FileDTO.setTimestamp(System.currentTimeMillis());
 
     ClassLoader classLoader = getClass().getClassLoader();
 
@@ -120,7 +139,7 @@ public class IDPMetadataServiceImplTest {
       }
 
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
     String content = stringBuilder.toString();
@@ -138,8 +157,7 @@ public class IDPMetadataServiceImplTest {
     // given
     String fileName = "bogus.xml";
 
-    IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO(MetadataType.SPID,
-        System.currentTimeMillis(), LatestTAG.LATEST_SPID);
+    IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO("spid-11111.xml");
 
     ClassLoader classLoader = getClass().getClassLoader();
 
@@ -155,7 +173,7 @@ public class IDPMetadataServiceImplTest {
       }
 
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
     String content = stringBuilder.toString();

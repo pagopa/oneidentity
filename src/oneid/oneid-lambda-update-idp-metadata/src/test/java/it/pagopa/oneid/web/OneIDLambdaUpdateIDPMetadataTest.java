@@ -1,20 +1,23 @@
 package it.pagopa.oneid.web;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3Entity;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3ObjectEntity;
+
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.IDPMetadataServiceImpl;
 import jakarta.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 @QuarkusTest
 public class OneIDLambdaUpdateIDPMetadataTest {
@@ -50,9 +53,13 @@ public class OneIDLambdaUpdateIDPMetadataTest {
         .thenReturn(idps);
     Mockito.doNothing().when(idPMetadataServiceImpl)
         .updateIDPMetadata(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(idPMetadataServiceImpl)
+      .publishPublicIdps(Mockito.any(), Mockito.any());
 
     // then
     oneIDLambdaUpdateIDPMetadata.handleRequest(s3Event, context);
+
+    Mockito.verify(idPMetadataServiceImpl).publishPublicIdps(Mockito.same(idps), Mockito.any());
 
   }
 
@@ -81,9 +88,13 @@ public class OneIDLambdaUpdateIDPMetadataTest {
         .thenReturn(idps);
     Mockito.doNothing().when(idPMetadataServiceImpl)
         .updateIDPMetadata(Mockito.any(), Mockito.any());
+    Mockito.doNothing().when(idPMetadataServiceImpl)
+      .publishPublicIdps(Mockito.any(), Mockito.any());
 
     // then
     oneIDLambdaUpdateIDPMetadata.handleRequest(s3Event, context);
+
+    Mockito.verify(idPMetadataServiceImpl).publishPublicIdps(Mockito.same(idps), Mockito.any());
 
   }
 }

@@ -1,9 +1,13 @@
 package it.pagopa.oneid.web;
 
+import java.util.ArrayList;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
+
+import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.service.IDPMetadataServiceImpl;
 import jakarta.inject.Inject;
@@ -25,10 +29,12 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<S3Event, Str
     String metadataContent = idpMetadataServiceImpl.getMetadataFile(srcKey);
 
     IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO(srcKey);
+    ArrayList<IDP> idpMetadata = idpMetadataServiceImpl.parseIDPMetadata(metadataContent,
+      idpS3FileDTO);
 
     // Update IDP Metadata table with parsed IDPMetadata information
-    idpMetadataServiceImpl.updateIDPMetadata(
-        idpMetadataServiceImpl.parseIDPMetadata(metadataContent, idpS3FileDTO), idpS3FileDTO);
+    idpMetadataServiceImpl.updateIDPMetadata(idpMetadata, idpS3FileDTO);
+    idpMetadataServiceImpl.publishPublicIdps(idpMetadata, idpS3FileDTO);
 
     return "Ok";
   }

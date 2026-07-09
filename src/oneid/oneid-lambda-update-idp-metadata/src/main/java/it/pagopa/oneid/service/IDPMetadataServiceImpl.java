@@ -1,11 +1,14 @@
 package it.pagopa.oneid.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
+import it.pagopa.oneid.connector.PublicIdpsBucketConnector;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -33,6 +37,15 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Inject
   IDPConnectorImpl idpConnectorImpl;
+
+  @Inject
+  PublicIdpsBucketConnector publicIdpsBucketConnector;
+
+  @Inject
+  ObjectMapper objectMapper;
+
+  @ConfigProperty(name = "public_idps.object.key")
+  String publicIdpsObjectKey;
 
   @Override
   public ArrayList<IDP> parseIDPMetadata(String idpMetadata, IdpS3FileDTO idpS3FileDTO) {
@@ -199,7 +212,31 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
+  public void publishPublicIdps(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
+    if (!idpS3FileDTO.toString().startsWith("spid-")) {
+      return;
+    }
+
+    if (idpMetadata.isEmpty()) {
+      Log.warn("IDPs not found for public snapshot publish");
+      return;
+    }
+
+    publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey,
+        serializePublicIdps(idpMetadata));
+  }
+
+  @Override
   public String getMetadataFile(String fileName) {
     return s3BucketIDPMetadataConnector.getMetadataFile(fileName);
+  }
+
+  private String serializePublicIdps(ArrayList<IDP> idps) {
+    try {
+      return objectMapper.writeValueAsString(idps);
+    } catch (JsonProcessingException e) {
+      Log.error("error serializing public IDPs snapshot " + ExceptionUtils.getStackTrace(e));
+      throw new RuntimeException(e);
+    }
   }
 }
