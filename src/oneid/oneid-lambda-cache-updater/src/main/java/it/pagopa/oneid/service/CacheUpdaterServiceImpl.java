@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
@@ -16,7 +17,6 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
 
   private final CacheConnector cacheConnector;
   private final DynamoStreamService dynamoStreamService;
-  private final RecordUtils recordUtils;
   private final SnsClient sns;
   private final String snsTopicArn;
 
@@ -24,25 +24,22 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   CacheUpdaterServiceImpl(
       CacheConnector cacheConnector,
       DynamoStreamService dynamoStreamService,
-      RecordUtils recordUtils,
       SnsClient sns,
       @ConfigProperty(name = "sns_topic_arn") String snsTopicArn) {
     this.cacheConnector = cacheConnector;
     this.dynamoStreamService = dynamoStreamService;
-    this.recordUtils = recordUtils;
     this.sns = sns;
     this.snsTopicArn = snsTopicArn;
   }
 
   @Override
-  public void processInput(JsonNode input) {
-    List<JsonNode> records = recordUtils.readRecords(input);
-    if (records.isEmpty()) {
+  public void processInput(List<DynamodbStreamRecord> records) {
+    if (records == null || records.isEmpty()) {
       Log.info("No DynamoDB records to process");
       return;
     }
 
-    for (JsonNode streamRecord : records) {
+    for (DynamodbStreamRecord streamRecord : records) {
       try {
         processRecord(streamRecord);
       } catch (RuntimeException processingException) {
@@ -53,13 +50,13 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
   }
 
-  private void processRecord(JsonNode streamRecord) {
-    if (streamRecord == null || streamRecord.isNull() || !streamRecord.isObject()) {
+  private void processRecord(DynamodbStreamRecord streamRecord) {
+    if (streamRecord == null) {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
-    String eventName = streamRecord.path("eventName").asText();
-    if (eventName.isBlank()) {
+    String eventName = streamRecord.getEventName();
+    if (StringUtils.isBlank(eventName)) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
     }
 
@@ -71,7 +68,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
                     "Unable to build client from NEW_IMAGE for eventName=" + eventName);
               });
       case "MODIFY" -> {
-        if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
+        if (isIncompleteModifyRecord(streamRecord)) {
           String clientId = dynamoStreamService.extractClientId(streamRecord, false)
               .orElse("unknown");
           Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
@@ -104,8 +101,13 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
   }
 
+  private boolean isIncompleteModifyRecord(DynamodbStreamRecord streamRecord) {
+    StreamRecord dynamodb = streamRecord.getDynamodb();
+    return dynamodb == null || dynamodb.getOldImage() == null || dynamodb.getNewImage() == null;
+  }
+
   private void upsertClient(Client client) {
-    if (client==null || StringUtils.isBlank(client.getClientId())) {
+    if (client == null || StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("client must include clientId");
     }
     cacheConnector.setClient(client);

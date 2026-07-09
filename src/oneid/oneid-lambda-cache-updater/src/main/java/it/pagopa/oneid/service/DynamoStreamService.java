@@ -1,14 +1,14 @@
 package it.pagopa.oneid.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
 import it.pagopa.oneid.common.model.Client;
 import java.util.Optional;
 
 public interface DynamoStreamService {
 
-  Optional<Client> extractClient(JsonNode streamRecord, boolean preferOldImage);
+  Optional<Client> extractClient(DynamodbStreamRecord streamRecord, boolean preferOldImage);
 
-  Optional<String> extractClientId(JsonNode streamRecord, boolean preferOldImage);
+  Optional<String> extractClientId(DynamodbStreamRecord streamRecord, boolean preferOldImage);
 
-  boolean hasCacheRelevantChanges(JsonNode streamRecord);
+  boolean hasCacheRelevantChanges(DynamodbStreamRecord streamRecord);
 }

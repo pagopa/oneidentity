@@ -1,7 +1,8 @@
 package it.pagopa.oneid.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent.DynamodbStreamRecord;
+import java.util.List;
 
 public interface CacheUpdaterService {
-  void processInput(JsonNode input);
+  void processInput(List<DynamodbStreamRecord> records);
 }
