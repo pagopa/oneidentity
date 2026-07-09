@@ -195,6 +195,8 @@ module "backend" {
   ecs_alarms                = local.cloudwatch_ecs_alarms_without_sns
   lambda_alarms             = local.cloudwatch_lambda_alarms_without_sns
   dlq_alarms                = local.cloudwatch_dlq_alarms_without_sns
+  cache_endpoint_address    = module.client_cache.cache_endpoint_address
+  cache_endpoint_port       = module.client_cache.cache_endpoint_port
 
   fargate_capacity_providers = {
     FARGATE = {

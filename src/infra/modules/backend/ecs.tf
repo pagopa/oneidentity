@@ -436,6 +436,14 @@ module "ecs_core_service" {
         {
           name  = "SNS_TOPIC_ARN_CACHE"
           value = var.sns_topic_arn
+        },
+        {
+          name  = "CACHE_ENDPOINT_ADDRESS"
+          value = var.cache_endpoint_address
+        },
+        {
+          name  = "CACHE_ENDPOINT_PORT"
+          value = var.cache_endpoint_port
         }
       ])
 
