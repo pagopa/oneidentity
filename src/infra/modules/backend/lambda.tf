@@ -376,6 +376,12 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
   }
 
   statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.idp_metadata_lambda.assets_bucket_arn}/*"]
+  }
+
+  statement {
     effect = "Allow"
     actions = [
       "dynamodb:GetItem",

@@ -410,12 +410,14 @@ module "backend" {
     name     = format("%s-update-idp-metadata", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
+      ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
       LOG_LEVEL                = var.app_log_level
     }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
     vpc_id                            = module.network.vpc_id

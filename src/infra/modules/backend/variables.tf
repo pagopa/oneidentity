@@ -350,6 +350,7 @@ variable "idp_metadata_lambda" {
     name                              = string
     filename                          = string
     environment_variables             = map(string)
+    assets_bucket_arn                 = string
     s3_idp_metadata_bucket_arn        = string
     s3_idp_metadata_bucket_id         = string
     vpc_id                            = string
