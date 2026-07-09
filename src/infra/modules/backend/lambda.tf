@@ -1399,6 +1399,13 @@ data "aws_iam_policy_document" "cache_updater_lambda" {
     ]
     resources = [var.dynamodb_table_stream_registrations_arn]
   }
+
+  statement {
+    sid       = "PublishCacheUpdateNotification"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.sns_topic_arn]
+  }
 }
 
 module "cache_updater_lambda" {
