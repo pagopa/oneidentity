@@ -46,6 +46,7 @@ public class ClientLookupServiceImpl implements ClientLookupService {
 
   private Optional<Client> readFromCache(String clientId) {
     try {
+      Log.debugf("Try to read clientId=%s from cache", clientId);
       return cacheConnector.getByClientId(clientId);
     } catch (RuntimeException cacheReadException) {
       Log.warnf(cacheReadException,
