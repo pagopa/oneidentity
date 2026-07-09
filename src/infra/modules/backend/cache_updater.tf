@@ -165,7 +165,7 @@ resource "aws_pipes_pipe" "cache_updater" {
       "ageParentAuth":       <$.dynamodb.OldImage.ageParentAuth>
     }
   }
-}
+ }
 EOF
   }
 }

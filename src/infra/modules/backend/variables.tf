@@ -340,11 +340,13 @@ variable "dynamodb_clients_table_stream_arn" {
 variable "cache_endpoint_address" {
   type        = string
   description = "The address of the Redis cache endpoint"
+  default     = ""
 }
 
 variable "cache_endpoint_port" {
   type        = number # oppure string a seconda di cosa restituisce il modulo cache
   description = "The port of the Redis cache endpoint"
+  default     = 6379
 }
 
 variable "assertion_lambda" {
