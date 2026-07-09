@@ -1450,21 +1450,6 @@ data "aws_iam_policy_document" "cache_updater_lambda" {
     ]
     resources = [var.dynamodb_table_stream_registrations_arn]
   }
-
-  dynamic "statement" {
-    for_each = var.cache_updater_lambda != null && var.eventbridge_pipe_cache_updater != null ? [aws_sqs_queue.cache_updater_dlq[0].arn] : []
-
-    content {
-      sid    = "ConsumeCacheUpdaterDlq"
-      effect = "Allow"
-      actions = [
-        "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes",
-        "sqs:ReceiveMessage",
-      ]
-      resources = [statement.value]
-    }
-  }
 }
 
 module "cache_updater_lambda" {
@@ -1503,15 +1488,6 @@ module "cache_updater_lambda" {
   snap_start  = true
 
   cloudwatch_logs_retention_in_days = var.cache_updater_lambda.cloudwatch_logs_retention_in_days
-}
-
-resource "aws_lambda_event_source_mapping" "cache_updater_dlq" {
-  count = var.cache_updater_lambda != null && var.eventbridge_pipe_cache_updater != null ? 1 : 0
-
-  event_source_arn = aws_sqs_queue.cache_updater_dlq[0].arn
-  function_name    = module.cache_updater_lambda[0].lambda_function_arn
-  batch_size       = 1
-  enabled          = true
 }
 
 module "security_group_lambda_cache_updater" {
