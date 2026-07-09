@@ -4,31 +4,27 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 @ApplicationScoped
 public class ClientLookupServiceImpl implements ClientLookupService {
 
   private final CacheConnector cacheConnector;
   private final ClientConnector clientConnector;
-  private final SnsClient sns;
-  private final String snsTopicArn;
+  private final CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
   @Inject
   ClientLookupServiceImpl(
       CacheConnector cacheConnector,
       ClientConnector clientConnector,
-      SnsClient sns,
-      @ConfigProperty(name = "sns_topic_arn_cache") String snsTopicArn
+      CloudWatchConnectorImpl cloudWatchConnectorImpl
   ) {
     this.cacheConnector = cacheConnector;
     this.clientConnector = clientConnector;
-    this.sns = sns;
-    this.snsTopicArn = snsTopicArn;
+    this.cloudWatchConnectorImpl = cloudWatchConnectorImpl;
   }
 
   public Optional<Client> getClientById(String clientId) {
@@ -38,6 +34,7 @@ public class ClientLookupServiceImpl implements ClientLookupService {
 
     Optional<Client> cachedClient = readFromCache(clientId);
     if (cachedClient.isPresent()) {
+      Log.infof("Cache hit for clientId=%s", clientId);
       return cachedClient;
     }
 
@@ -64,8 +61,8 @@ public class ClientLookupServiceImpl implements ClientLookupService {
     }
 
     Client client = sourceClient.get();
+    cloudWatchConnectorImpl.sendClientCacheMissMetricData(clientId);
     Log.infof("Cache miss for clientId=%s, fetched from DynamoDB", clientId);
-    publishNotification("Cache miss: client fetched from DynamoDB", clientId, "DYNAMO_FALLBACK_READ");
     backfillCache(client);
     return sourceClient;
   }
@@ -74,21 +71,11 @@ public class ClientLookupServiceImpl implements ClientLookupService {
     try {
       cacheConnector.setClient(client);
       Log.infof("Cache backfill succeeded for clientId=%s", client.getClientId());
-      publishNotification("Cache backfill succeeded", client.getClientId(), "CACHE_BACKFILL_SUCCESS");
+      cloudWatchConnectorImpl.sendClientCacheBackfillSuccessMetricData(client.getClientId());
     } catch (RuntimeException cacheWriteException) {
       Log.warnf(cacheWriteException,
           "Unable to write client to Redis cache for clientId=%s.", client.getClientId());
-      publishNotification("Cache backfill failed", client.getClientId(), "CACHE_BACKFILL_FAILURE");
-    }
-  }
-
-  private void publishNotification(String subject, String clientId, String action) {
-    String message = "Action: " + action + "\nClient ID: " + clientId;
-    try {
-      sns.publish(p -> p.topicArn(snsTopicArn).subject(subject).message(message));
-      Log.debugf("SNS notification sent for clientId=%s action=%s", clientId, action);
-    } catch (Exception e) {
-      Log.warnf(e, "Failed to send SNS notification for clientId=%s action=%s", clientId, action);
+      cloudWatchConnectorImpl.sendClientCacheBackfillFailureMetricData(client.getClientId());
     }
   }
 }

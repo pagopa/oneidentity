@@ -2,20 +2,21 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import java.util.Optional;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 @QuarkusTest
 class ClientLookupServiceTest {
@@ -30,7 +31,7 @@ class ClientLookupServiceTest {
   ClientConnector clientConnector;
 
   @InjectMock
-  SnsClient sns;
+  CloudWatchConnectorImpl cloudWatchConnector;
 
   @Test
   @DisplayName("given cache hit when reading client then return cached value without dynamo call")
@@ -44,8 +45,6 @@ class ClientLookupServiceTest {
     assertEquals("client-test", result.get().getClientId());
     verify(cacheConnector).getByClientId("client-test");
     verify(clientConnector, never()).getClientById("client-test");
-    verify(sns, never()).publish(Mockito.any(
-        software.amazon.awssdk.services.sns.model.PublishRequest.class));
   }
 
   @Test
@@ -62,6 +61,8 @@ class ClientLookupServiceTest {
     verify(cacheConnector).getByClientId("client-test");
     verify(clientConnector).getClientById("client-test");
     verify(cacheConnector).setClient(sourceClient);
+    verify(cloudWatchConnector).sendClientCacheMissMetricData("client-test");
+    verify(cloudWatchConnector).sendClientCacheBackfillSuccessMetricData("client-test");
   }
 
   @Test
@@ -75,21 +76,22 @@ class ClientLookupServiceTest {
     assertTrue(result.isEmpty());
     verify(cacheConnector).getByClientId("client-missing");
     verify(clientConnector).getClientById("client-missing");
-    verify(sns, never()).publish(Mockito.any(
-        software.amazon.awssdk.services.sns.model.PublishRequest.class));
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test
-  @DisplayName("given dynamo fallback when reading client then publish sns notification")
-  void given_dynamo_fallback_when_reading_client_then_publish_sns_notification() {
+  @DisplayName("given cache write failure when reading client then emit backfill failure metric")
+  void given_cache_write_failure_when_reading_client_then_emit_backfill_failure_metric() {
     Client sourceClient = Client.builder().clientId("client-test").build();
     when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.empty());
     when(clientConnector.getClientById("client-test")).thenReturn(Optional.of(sourceClient));
+    doThrow(new RuntimeException("Redis write failed")).when(cacheConnector).setClient(sourceClient);
 
-    clientLookupService.getClientById("client-test");
+    Optional<Client> result = clientLookupService.getClientById("client-test");
 
-    verify(sns, Mockito.times(2)).publish(
-        Mockito.<java.util.function.Consumer<software.amazon.awssdk.services.sns.model.PublishRequest.Builder>>any());
+    assertTrue(result.isPresent());
+    verify(cloudWatchConnector).sendClientCacheMissMetricData("client-test");
+    verify(cloudWatchConnector).sendClientCacheBackfillFailureMetricData("client-test");
   }
 
   @Test
@@ -103,5 +105,7 @@ class ClientLookupServiceTest {
 
     assertTrue(result.isPresent());
     verify(clientConnector).getClientById("client-test");
+    verify(cloudWatchConnector).sendClientCacheMissMetricData("client-test");
+    verify(cloudWatchConnector).sendClientCacheBackfillSuccessMetricData("client-test");
   }
 }
