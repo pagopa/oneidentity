@@ -515,7 +515,7 @@ variable "ecs_alarms" {
       namespace           = "AWS/ECS"
       evaluation_periods  = 1
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      threshold           = 50
+      threshold           = 40
       period              = 60
       statistic           = "Average"
       scaling_policy      = "cpu_high"
