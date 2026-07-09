@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class RecordUtilsImplTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final RecordUtils recordUtils = new RecordUtilsImpl(objectMapper);
+  private final RecordUtils recordUtils = new RecordUtilsImpl();
 
   @Test
   @DisplayName("given null root when reading records then return empty list")
@@ -59,28 +59,6 @@ class RecordUtilsImplTest {
 
     assertEquals(1, records.size());
     assertEquals("INSERT", records.get(0).path("eventName").asText());
-  }
-
-  @Test
-  @DisplayName("given SQS wrapper when reading records then return parsed body entries")
-  void given_sqs_wrapper_when_reading_records_then_return_parsed_body_entries() throws Exception {
-    ObjectNode streamRecord = buildRecord();
-    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
-    ObjectNode newImage = dynamodb.putObject("NewImage");
-    newImage.putObject("clientId").put("S", "client-test");
-    newImage.putObject("callbackURI").put("S", "https://example.test/callback");
-
-    ObjectNode sqsMessage = objectMapper.createObjectNode();
-    sqsMessage.put("body", objectMapper.writeValueAsString(streamRecord));
-    ObjectNode root = objectMapper.createObjectNode();
-    root.putArray("Records").add(sqsMessage);
-
-    List<JsonNode> records = recordUtils.readRecords(root);
-
-    assertEquals(1, records.size());
-    assertEquals("INSERT", records.get(0).path("eventName").asText());
-    assertEquals("https://example.test/callback",
-        records.get(0).path("dynamodb").path("NewImage").path("callbackURI").path("S").asText());
   }
 
   @Test
