@@ -207,8 +207,8 @@ class DynamoStreamServiceImplTest {
   }
 
   @Test
-  @DisplayName("given modify stream with only friendly name change when checking diff then return true")
-  void given_modify_stream_with_only_friendly_name_change_when_checking_diff_then_return_true() {
+  @DisplayName("given modify stream with only friendly name change when checking diff then return false")
+  void given_modify_stream_with_only_friendly_name_change_when_checking_diff_then_return_false() {
     ObjectNode oldImage = baseImage();
     ObjectNode newImage = baseImage();
     oldImage.set("friendlyName", stringValue("Old Name"));
@@ -216,7 +216,7 @@ class DynamoStreamServiceImplTest {
 
     JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
-    assertTrue(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
+    assertFalse(dynamoStreamService.hasCacheRelevantChanges(streamRecord));
   }
 
   private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {

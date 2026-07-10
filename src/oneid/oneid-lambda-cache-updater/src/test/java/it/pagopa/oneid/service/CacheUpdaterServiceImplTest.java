@@ -2,7 +2,6 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -42,8 +41,8 @@ class CacheUpdaterServiceImplTest {
   CloudWatchConnector cloudWatchConnector;
 
   @Test
-  @DisplayName("given insert record when process input then upsert client to cache")
-  void given_insert_record_when_process_input_then_upsert_client_to_cache() {
+  @DisplayName("given insert record when process input then upsert client to cache and publish metric")
+  void given_insert_record_when_process_input_then_upsert_client_to_cache_and_publish_metric() {
     JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
       null);
     JsonNode streamRecord = input.get(0);
@@ -54,7 +53,7 @@ class CacheUpdaterServiceImplTest {
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
     verify(cacheConnector).setClient(client);
-    verify(cloudWatchConnector, never()).sendClientCacheUpdateMetricData("client-test");
+    verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
   }
 
   @Test

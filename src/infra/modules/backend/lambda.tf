@@ -696,7 +696,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_alarm" {
-  for_each = local.cache_updater_lambda_alarm != null && var.client_alarm != null ? { for client in var.client_alarm.clients : client.client_id => client } : {}
+  for_each = local.cache_updater_lambda_alarm != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
 
   alarm_name          = format("%s_%s_%s_%s", "ClientCacheUpdateAlarm", var.env_short, each.value.friendly_name, each.key)
   comparison_operator = local.cache_updater_lambda_alarm.comparison_operator

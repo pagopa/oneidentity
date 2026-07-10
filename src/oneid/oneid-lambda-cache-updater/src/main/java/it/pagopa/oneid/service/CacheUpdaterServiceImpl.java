@@ -61,7 +61,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
 
     switch (eventName) {
       case "INSERT" -> dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(this::upsertClient,
+          .ifPresentOrElse(this::upsertClientAndTrackUpdate,
               () -> {
                 throw new IllegalStateException(
                     "Unable to build client from NEW_IMAGE for eventName=" + eventName);

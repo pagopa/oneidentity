@@ -1,12 +1,13 @@
 package it.pagopa.oneid.connector;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
@@ -19,7 +20,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private static final String METRIC_CLIENT_CACHE_UPDATE = "ClientCacheUpdate";
 
   @Inject
-  CloudWatchAsyncClient cloudWatchAsyncClient;
+  CloudWatchClient cloudWatchClient;
 
   @Inject
   Clock clock;
@@ -29,26 +30,26 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendClientCacheUpdateMetricData(String clientID) {
+    Instant eventTime = Instant.now(clock);
     List<Dimension> dimensions = List.of(Dimension.builder()
         .name(TAG_CLIENT + TAG_AGGREGATED)
         .value(clientID)
         .build());
 
-    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(METRIC_CLIENT_CACHE_UPDATE,
-        dimensions));
-  }
-
-  private PutMetricDataRequest generatePutMetricRequest(String metricName,
-      List<Dimension> dimensions) {
-    return PutMetricDataRequest.builder()
-        .namespace(cloudWatchMetricNamespace)
-        .metricData(MetricDatum.builder()
-            .metricName(metricName)
-            .timestamp(Instant.now(clock))
-            .unit("Count")
-            .value(1.0)
-            .dimensions(dimensions)
-            .build())
-        .build();
+    try {
+      cloudWatchClient.putMetricData(PutMetricDataRequest.builder()
+          .namespace(cloudWatchMetricNamespace)
+          .metricData(
+              MetricDatum.builder()
+                  .metricName(METRIC_CLIENT_CACHE_UPDATE)
+                  .timestamp(eventTime)
+                  .unit("Count")
+                  .value(1.0)
+                  .dimensions(dimensions)
+                  .build())
+          .build());
+    } catch (Exception e) {
+      Log.errorf(e, "Failed to publish ClientCacheUpdate metric for clientId=%s", clientID);
+    }
   }
 }
