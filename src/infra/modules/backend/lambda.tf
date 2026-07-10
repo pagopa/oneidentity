@@ -1510,6 +1510,16 @@ module "security_group_lambda_cache_updater" {
   egress_ipv6_cidr_blocks = []
 }
 
+resource "aws_vpc_security_group_egress_rule" "cache_updater_https_rule" {
+  count = var.cache_updater_lambda != null && var.cache_updater_lambda.vpc_tls_security_group_endpoint_id != null ? 1 : 0
+
+  security_group_id            = module.security_group_lambda_cache_updater[0].security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.cache_updater_lambda.vpc_tls_security_group_endpoint_id
+}
+
 resource "aws_vpc_security_group_egress_rule" "cache_updater_valkey_rule" {
   count             = var.cache_updater_lambda != null ? 1 : 0
   security_group_id = module.security_group_lambda_cache_updater[0].security_group_id

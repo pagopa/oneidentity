@@ -647,11 +647,12 @@ module "backend" {
   }
 
   cache_updater_lambda = {
-    name                              = format("%s-cache-updater", local.project)
-    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    name                               = format("%s-cache-updater", local.project)
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
     environment_variables = {
       LOG_LEVEL                          = var.app_log_level
       CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address

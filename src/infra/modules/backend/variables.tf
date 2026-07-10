@@ -553,12 +553,13 @@ variable "eventbridge_pipe_cache_updater" {
 
 variable "cache_updater_lambda" {
   type = object({
-    name                              = string
-    filename                          = string
-    cloudwatch_logs_retention_in_days = number
-    environment_variables             = map(string)
-    vpc_id                            = string
-    vpc_subnet_ids                    = list(string)
+    name                               = string
+    filename                           = string
+    cloudwatch_logs_retention_in_days  = number
+    environment_variables              = map(string)
+    vpc_id                             = string
+    vpc_subnet_ids                     = list(string)
+    vpc_tls_security_group_endpoint_id = optional(string, null)
   })
   default = null
 }
