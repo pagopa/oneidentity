@@ -199,6 +199,9 @@
 | <a name="output_assertions_bucket_arn"></a> [assertions\_bucket\_arn](#output\_assertions\_bucket\_arn) | n/a |
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | Storage |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
+| <a name="output_client_cache_endpoint_address"></a> [client\_cache\_endpoint\_address](#output\_client\_cache\_endpoint\_address) | n/a |
+| <a name="output_client_cache_endpoint_port"></a> [client\_cache\_endpoint\_port](#output\_client\_cache\_endpoint\_port) | n/a |
+| <a name="output_client_cache_security_group_id"></a> [client\_cache\_security\_group\_id](#output\_client\_cache\_security\_group\_id) | n/a |
 | <a name="output_deploy_assets_role"></a> [deploy\_assets\_role](#output\_deploy\_assets\_role) | n/a |
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | # DNS ## |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |

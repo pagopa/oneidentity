@@ -52,17 +52,16 @@ output "table_client_registrations_name" {
   value = module.database.table_client_registrations_name
 }
 
-# TODO: enable this when the cache updater lambda is implemented and ecs service is updated to use it
-# output "client_cache_endpoint_address" {
-#   value = module.client_cache.cache_endpoint_address
-# }
+output "client_cache_endpoint_address" {
+  value = module.client_cache.cache_endpoint_address
+}
 
-# output "client_cache_endpoint_port" {
-#   value = module.client_cache.cache_endpoint_port
-# }
+output "client_cache_endpoint_port" {
+  value = module.client_cache.cache_endpoint_port
+}
 
-# output "client_cache_security_group_id" {
-#   value = module.client_cache.cache_security_group_id
-# }
+output "client_cache_security_group_id" {
+  value = module.client_cache.cache_security_group_id
+}
 
 

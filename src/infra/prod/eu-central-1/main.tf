@@ -109,13 +109,15 @@ module "backend" {
     }
   }
 
-  sns_topic_arn   = module.sns.sns_topic_arn
-  ecs_alarms      = local.cloudwatch_ecs_alarms_with_sns
-  lambda_alarms   = local.cloudwatch_lambda_alarms_with_sns
-  dlq_alarms      = local.cloudwatch_dlq_alarms_with_sns
-  vpc_id          = module.network.vpc_id
-  private_subnets = module.network.private_subnet_ids
-  vpc_cidr_block  = module.network.vpc_cidr_block
+  sns_topic_arn          = module.sns.sns_topic_arn
+  ecs_alarms             = local.cloudwatch_ecs_alarms_with_sns
+  lambda_alarms          = local.cloudwatch_lambda_alarms_with_sns
+  dlq_alarms             = local.cloudwatch_dlq_alarms_with_sns
+  vpc_id                 = module.network.vpc_id
+  private_subnets        = module.network.private_subnet_ids
+  vpc_cidr_block         = module.network.vpc_cidr_block
+  cache_endpoint_address = module.client_cache.cache_endpoint_address
+  cache_endpoint_port    = module.client_cache.cache_endpoint_port
 
   service_core = {
     service_name                = format("%s-core", local.project)
@@ -224,25 +226,28 @@ module "backend" {
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
-  # TODO: enable cache updater lambda and pipe when the cache updater lambda and ecs core updates are ready to be deployed
-  # eventbridge_pipe_cache_updater = {
-  #   pipe_name                     = format("%s-cache-updater-pipe", local.project)
-  #   maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
-  #   maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
-  # }
+  eventbridge_pipe_cache_updater = {
+    pipe_name                     = format("%s-cache-updater-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
 
-  # cache_updater_lambda = {
-  #   name                              = format("%s-cache-updater", local.project)
-  #   filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-  #   cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-  #   vpc_id                            = module.network.vpc_id
-  #   vpc_subnet_ids                    = module.network.intra_subnets_ids
-  #   environment_variables = {
-  #     LOG_LEVEL              = var.app_log_level
-  #     CACHE_ENDPOINT_ADDRESS = module.client_cache.cache_endpoint_address
-  #     CACHE_ENDPOINT_PORT    = tostring(module.client_cache.cache_endpoint_port)
-  #   }
-  # }
+  cache_updater_lambda = {
+    name                               = format("%s-cache-updater", local.project)
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    environment_variables = {
+      LOG_LEVEL                          = var.app_log_level
+      CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address
+      CACHE_ENDPOINT_PORT                = tostring(module.client_cache.cache_endpoint_port)
+      CACHE_TIMEOUT                      = "PT5S"
+      CACHE_KEY_PREFIX                   = "oneid:client:v1:"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-cache-updater", local.project), var.app_cloudwatch_custom_metric_namespace)
+    }
+  }
 
   invalidate_cache_lambda = {
     name     = format("%s-invalidate-cache", local.project)
@@ -563,15 +568,14 @@ module "frontend" {
 
 }
 
-# TODO: enable cache updater lambda and pipe when the cache updater lambda and ecs core updates are ready to be deployed
-# module "client_cache" {
-#   source = "../../modules/cache"
-#   cache_name                 = format("%s-client-cache", local.project)
-#   vpc_id                     = module.network.vpc_id
-#   subnet_ids                 = module.network.private_subnet_ids
-#   allowed_security_group_ids = [module.backend.ecs_core_security_group_id, module.backend.cache_updater_security_group_id]
-#   alarm_sns_topic_arn        = module.sns.sns_topic_arn
-# }
+module "client_cache" {
+  source                     = "../../modules/cache"
+  cache_name                 = format("%s-client-cache", local.project)
+  vpc_id                     = module.network.vpc_id
+  subnet_ids                 = module.network.private_subnet_ids
+  allowed_security_group_ids = [module.backend.ecs_core_security_group_id, module.backend.cache_updater_security_group_id]
+  alarm_sns_topic_arn        = module.sns.sns_topic_arn
+}
 
 
 ## Monitoring / Dashboard ##
