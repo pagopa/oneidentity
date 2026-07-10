@@ -548,7 +548,16 @@ variable "lambda_alarms" {
     "oneid-es-1-d-metadata" = {},
     "oneid-es-1-d-client-registration" = {
     },
-    "oneid-es-1-d-update-idp-metadata" = {}
+    "oneid-es-1-d-update-idp-metadata" = {},
+    "oneid-es-1-d-cache-updater" = {
+      metric_name         = "ClientCacheUpdate"
+      namespace           = "oneid-es-1-d-cache-updater/ApplicationMetrics"
+      evaluation_periods  = 1
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+    }
   }
 }
 

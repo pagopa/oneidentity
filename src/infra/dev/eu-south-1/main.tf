@@ -653,11 +653,12 @@ module "backend" {
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     environment_variables = {
-      LOG_LEVEL              = var.app_log_level
-      CACHE_ENDPOINT_ADDRESS = module.client_cache.cache_endpoint_address
-      CACHE_ENDPOINT_PORT    = tostring(module.client_cache.cache_endpoint_port)
-      CACHE_TIMEOUT          = "PT5S"
-      CACHE_KEY_PREFIX       = "oneid:client:v1:"
+      LOG_LEVEL                          = var.app_log_level
+      CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address
+      CACHE_ENDPOINT_PORT                = tostring(module.client_cache.cache_endpoint_port)
+      CACHE_TIMEOUT                      = "PT5S"
+      CACHE_KEY_PREFIX                   = "oneid:client:v1:"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-cache-updater", local.project), var.app_cloudwatch_custom_metric_namespace)
     }
   }
 

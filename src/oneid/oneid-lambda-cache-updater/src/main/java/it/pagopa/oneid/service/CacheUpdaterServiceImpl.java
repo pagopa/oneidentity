@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.connector.CloudWatchConnector;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,15 +16,18 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   private final CacheConnector cacheConnector;
   private final DynamoStreamService dynamoStreamService;
   private final RecordUtils recordUtils;
+  private final CloudWatchConnector cloudWatchConnector;
 
   @Inject
   CacheUpdaterServiceImpl(
       CacheConnector cacheConnector,
       DynamoStreamService dynamoStreamService,
-      RecordUtils recordUtils) {
+      RecordUtils recordUtils,
+      CloudWatchConnector cloudWatchConnector) {
     this.cacheConnector = cacheConnector;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
+    this.cloudWatchConnector = cloudWatchConnector;
   }
 
   @Override
@@ -80,7 +84,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
         }
 
         dynamoStreamService.extractClient(streamRecord, false)
-            .ifPresentOrElse(this::upsertClient,
+          .ifPresentOrElse(this::upsertClientAndTrackUpdate,
                 () -> {
                   throw new IllegalStateException(
                       "Unable to build client from NEW_IMAGE for eventName=" + eventName);
@@ -102,6 +106,11 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
     cacheConnector.setClient(client);
     Log.infof("Cache upsert completed for clientId=%s", client.getClientId());
+  }
+
+  private void upsertClientAndTrackUpdate(Client client) {
+    upsertClient(client);
+    cloudWatchConnector.sendClientCacheUpdateMetricData(client.getClientId());
   }
 
   private void deleteClient(String clientId) {

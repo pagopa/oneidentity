@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.connector.CloudWatchConnector;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
 import jakarta.inject.Inject;
@@ -36,6 +38,9 @@ class CacheUpdaterServiceImplTest {
   @InjectMock
   CacheConnector cacheConnector;
 
+  @InjectMock
+  CloudWatchConnector cloudWatchConnector;
+
   @Test
   @DisplayName("given insert record when process input then upsert client to cache")
   void given_insert_record_when_process_input_then_upsert_client_to_cache() {
@@ -49,6 +54,7 @@ class CacheUpdaterServiceImplTest {
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
     verify(cacheConnector).setClient(client);
+    verify(cloudWatchConnector, never()).sendClientCacheUpdateMetricData("client-test");
   }
 
   @Test
@@ -101,6 +107,7 @@ class CacheUpdaterServiceImplTest {
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
     verify(cacheConnector).setClient(client);
+    verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
   }
 
   @Test
@@ -115,6 +122,7 @@ class CacheUpdaterServiceImplTest {
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
 
     verify(cacheConnector).deleteClient("client-test");
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test
