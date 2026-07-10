@@ -513,9 +513,9 @@ variable "ecs_alarms" {
     "cpu_high" = {
       metric_name         = "CPUUtilization"
       namespace           = "AWS/ECS"
-      evaluation_periods  = 1
+      evaluation_periods  = 2
       comparison_operator = "GreaterThanOrEqualToThreshold"
-      threshold           = 50
+      threshold           = 40
       period              = 60
       statistic           = "Average"
       scaling_policy      = "cpu_high"
