@@ -684,7 +684,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   threshold           = each.value.threshold
   treat_missing_data  = each.value.treat_missing_data
 
-  dimensions = {
+  dimensions = each.value.metric_name == "ClientCacheUpdate" ? {} : {
     FunctionName = each.key
   }
 
