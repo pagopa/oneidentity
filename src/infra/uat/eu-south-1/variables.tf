@@ -602,7 +602,7 @@ variable "lambda_alarms" {
       comparison_operator = "GreaterThanOrEqualToThreshold"
       period              = 300
       statistic           = "Sum"
-      threshold           = 1
+      threshold           = 2
     }
   }
 }
