@@ -1450,6 +1450,12 @@ data "aws_iam_policy_document" "cache_updater_lambda" {
     ]
     resources = [var.dynamodb_table_stream_registrations_arn]
   }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
+  }
 }
 
 module "cache_updater_lambda" {
