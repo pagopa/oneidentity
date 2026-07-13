@@ -1765,7 +1765,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type",
+                "method.response.header.Content-Type": "integration.response.header.Content-Type",
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               }
             },
@@ -1781,6 +1781,11 @@
           "200": {
             "description": "Find all Idps",
             "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Access-Control-Allow-Origin": {
                 "schema": {
                   "type": "string"
