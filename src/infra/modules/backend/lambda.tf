@@ -671,10 +671,6 @@ module "assertion_lambda" {
 
 }
 
-locals {
-  cache_updater_lambda_alarm = try([for alarm in var.lambda_alarms : alarm if alarm.metric_name == "ClientCacheUpdate"][0], null)
-}
-
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   for_each = { for alarm_name, alarm in var.lambda_alarms : alarm_name => alarm if alarm.metric_name != "ClientCacheUpdate" }
   alarm_name = lower(format("%s-%s-lambda-%s", each.key, each.value.metric_name,
@@ -695,18 +691,18 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
 }
 
-resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_alarm" {
-  for_each = local.cache_updater_lambda_alarm != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
+resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_failure_alarm" {
+  for_each = var.cache_updater_lambda != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
 
-  alarm_name          = format("%s_%s_%s_%s", "ClientCacheUpdateAlarm", var.env_short, each.value.friendly_name, each.key)
-  comparison_operator = local.cache_updater_lambda_alarm.comparison_operator
-  evaluation_periods  = local.cache_updater_lambda_alarm.evaluation_periods
-  metric_name         = local.cache_updater_lambda_alarm.metric_name
-  namespace           = local.cache_updater_lambda_alarm.namespace
-  period              = local.cache_updater_lambda_alarm.period
-  statistic           = local.cache_updater_lambda_alarm.statistic
-  threshold           = local.cache_updater_lambda_alarm.threshold
-  treat_missing_data  = try(local.cache_updater_lambda_alarm.treat_missing_data, "notBreaching")
+  alarm_name          = format("%s_%s_%s_%s", "ClientCacheUpdateFailureAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ClientCacheUpdateFailure"
+  namespace           = try(var.cache_updater_lambda.environment_variables["CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"], "")
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
 
   dimensions = {
     ClientAggregated = each.key

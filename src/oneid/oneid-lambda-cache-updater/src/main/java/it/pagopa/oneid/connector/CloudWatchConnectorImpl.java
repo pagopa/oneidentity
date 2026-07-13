@@ -16,6 +16,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   private static final String TAG_CLIENT_AGGREGATED = "ClientAggregated";
   private static final String METRIC_CLIENT_CACHE_UPDATE = "ClientCacheUpdate";
+  private static final String METRIC_CLIENT_CACHE_UPDATE_FAILURE = "ClientCacheUpdateFailure";
 
   private final CloudWatchClient cloudWatchClient;
 
@@ -31,26 +32,44 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendClientCacheUpdateMetricData(String clientID) {
+    MetricDatum metricDatum = buildMetricDatum(METRIC_CLIENT_CACHE_UPDATE, clientID);
+    try {
+      cloudWatchClient.putMetricData(PutMetricDataRequest.builder()
+          .namespace(cloudWatchMetricNamespace)
+          .metricData(metricDatum)
+          .build());
+    } catch (Exception e) {
+      Log.errorf(e, "Failed to publish ClientCacheUpdate metric for clientId=%s", clientID);
+    }
+  }
+
+  @Override
+  public void sendClientCacheUpdateFailureMetricData(String clientID) {
+    MetricDatum metricDatum = buildMetricDatum(METRIC_CLIENT_CACHE_UPDATE_FAILURE, clientID);
+    try {
+      cloudWatchClient.putMetricData(PutMetricDataRequest.builder()
+          .namespace(cloudWatchMetricNamespace)
+          .metricData(metricDatum)
+          .build());
+    } catch (Exception e) {
+      Log.errorf(e, "Failed to publish ClientCacheUpdateFailure metric for clientId=%s",
+          clientID);
+    }
+  }
+
+  private MetricDatum buildMetricDatum(String metricName, String clientID) {
     Instant eventTime = Instant.now(clock);
     List<Dimension> dimensions = List.of(Dimension.builder()
         .name(TAG_CLIENT_AGGREGATED)
         .value(clientID)
         .build());
 
-    try {
-      cloudWatchClient.putMetricData(PutMetricDataRequest.builder()
-          .namespace(cloudWatchMetricNamespace)
-          .metricData(
-              MetricDatum.builder()
-                  .metricName(METRIC_CLIENT_CACHE_UPDATE)
-                  .timestamp(eventTime)
-                  .unit("Count")
-                  .value(1.0)
-                  .dimensions(dimensions)
-                  .build())
-          .build());
-    } catch (Exception e) {
-      Log.errorf(e, "Failed to publish ClientCacheUpdate metric for clientId=%s", clientID);
-    }
+    return MetricDatum.builder()
+        .metricName(metricName)
+        .timestamp(eventTime)
+        .unit("Count")
+        .value(1.0)
+        .dimensions(dimensions)
+        .build();
   }
 }

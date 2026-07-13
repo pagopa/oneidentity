@@ -47,4 +47,24 @@ class CloudWatchConnectorImplTest {
     assertEquals("ClientAggregated", request.metricData().getFirst().dimensions().getFirst().name());
     assertEquals("client-test", request.metricData().getFirst().dimensions().getFirst().value());
   }
+
+  @Test
+  void sendClientCacheUpdateFailureMetricData_shouldPublishDimensionedMetric() {
+    when(clock.instant()).thenReturn(Instant.parse("2026-07-13T10:15:30Z"));
+    when(clock.getZone()).thenReturn(ZoneOffset.UTC);
+    when(cloudWatchClient.putMetricData(any(PutMetricDataRequest.class)))
+        .thenReturn(PutMetricDataResponse.builder().build());
+
+    cloudWatchConnector.sendClientCacheUpdateFailureMetricData("client-test");
+
+    ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(PutMetricDataRequest.class);
+    verify(cloudWatchClient).putMetricData(captor.capture());
+
+    PutMetricDataRequest request = captor.getValue();
+    assertEquals(1, request.metricData().size());
+    assertEquals("ClientCacheUpdateFailure", request.metricData().getFirst().metricName());
+    assertEquals(1, request.metricData().getFirst().dimensions().size());
+    assertEquals("ClientAggregated", request.metricData().getFirst().dimensions().getFirst().name());
+    assertEquals("client-test", request.metricData().getFirst().dimensions().getFirst().value());
+  }
 }

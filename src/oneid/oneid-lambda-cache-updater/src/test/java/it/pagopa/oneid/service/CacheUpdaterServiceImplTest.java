@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -54,6 +55,22 @@ class CacheUpdaterServiceImplTest {
 
     verify(cacheConnector).setClient(client);
     verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
+  }
+
+  @Test
+  @DisplayName("given insert record when cache update fails then publish failure metric")
+  void given_insert_record_when_cache_update_fails_then_publish_failure_metric() {
+    JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
+      null);
+    JsonNode streamRecord = input.get(0);
+    Client client = Client.builder().clientId("client-test").build();
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
+    doThrow(new IllegalStateException("cache unavailable")).when(cacheConnector).setClient(client);
+
+    assertThrows(IllegalStateException.class, () -> cacheUpdaterService.processInput(input));
+
+    verify(cloudWatchConnector).sendClientCacheUpdateFailureMetricData("client-test");
   }
 
   @Test

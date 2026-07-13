@@ -54,6 +54,8 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
+    Log.infof("Processing DynamoDB stream record: %s", streamRecord.toPrettyString());
+
     String eventName = streamRecord.path("eventName").asText();
     if (eventName.isBlank()) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
@@ -61,7 +63,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
 
     switch (eventName) {
       case "INSERT" -> dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(this::upsertClientAndTrackUpdate,
+          .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, client.getClientId()),
               () -> {
                 throw new IllegalStateException(
                     "Unable to build client from NEW_IMAGE for eventName=" + eventName);
@@ -84,7 +86,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
         }
 
         dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(this::upsertClientAndTrackUpdate,
+          .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, client.getClientId()),
                 () -> {
                   throw new IllegalStateException(
                       "Unable to build client from NEW_IMAGE for eventName=" + eventName);
@@ -108,13 +110,27 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     Log.infof("Cache upsert completed for clientId=%s", client.getClientId());
   }
 
-  private void upsertClientAndTrackUpdate(Client client) {
-    upsertClient(client);
-    cloudWatchConnector.sendClientCacheUpdateMetricData(client.getClientId());
+  private void upsertClientAndTrackUpdate(Client client, String clientId) {
+    try {
+      upsertClient(client);
+      cloudWatchConnector.sendClientCacheUpdateMetricData(client.getClientId());
+    } catch (RuntimeException runtimeException) {
+      publishClientCacheUpdateFailureMetric(clientId);
+      throw runtimeException;
+    }
   }
 
   private void deleteClient(String clientId) {
     cacheConnector.deleteClient(clientId);
     Log.infof("Cache delete completed for clientId=%s", clientId);
+  }
+
+  private void publishClientCacheUpdateFailureMetric(String clientId) {
+    try {
+      cloudWatchConnector.sendClientCacheUpdateFailureMetricData(clientId);
+    } catch (RuntimeException metricException) {
+      Log.warnf(metricException,
+          "Failed to publish ClientCacheUpdateFailure metric for clientId=%s", clientId);
+    }
   }
 }

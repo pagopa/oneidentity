@@ -512,15 +512,7 @@ variable "lambda_alarms" {
     },
     "oneid-ec-1-p-update-idp-metadata"      = {},
     "oneid-ec-1-p-is-gh-integration-lambda" = {},
-    "oneid-ec-1-p-cache-updater" = {
-      metric_name         = "ClientCacheUpdate"
-      namespace           = "oneid-ec-1-p-cache-updater/ApplicationMetrics"
-      evaluation_periods  = 1
-      comparison_operator = "GreaterThanOrEqualToThreshold"
-      period              = 300
-      statistic           = "Sum"
-      threshold           = 2
-    }
+    "oneid-ec-1-p-cache-updater"            = {}
   }
 }
 
