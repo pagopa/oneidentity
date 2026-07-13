@@ -623,6 +623,10 @@ module "backend" {
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
+  eventbridge_pipe_update_idp_metadata = {
+    pipe_name = format("%s-idp-metadata-invalid-status-pipe", local.project)
+  }
+
   eventbridge_pipe_cache_updater = {
     pipe_name                     = format("%s-cache-updater-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts

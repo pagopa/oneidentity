@@ -514,6 +514,14 @@ variable "eventbridge_pipe_invalidate_cache" {
   default = null
 }
 
+variable "eventbridge_pipe_update_idp_metadata" {
+  type = object({
+    pipe_name = string
+  })
+  description = "EventBridge Pipe configuration for invalid IDP metadata statuses."
+  default     = null
+}
+
 variable "eventbridge_pipe_cache_updater" {
   type = object({
     pipe_name                     = string

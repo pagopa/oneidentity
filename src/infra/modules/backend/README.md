@@ -205,10 +205,12 @@
 | [aws_iam_role.pipe_cache_updater](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pipe_invalidate_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pipe_sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.pipe_update_idp_metadata](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.switch_region_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.pipe_cache_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pipe_cache_updater_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pipe_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.pipe_update_idp_metadata](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.deploy_ecs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.deploy_ecs_internal_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.deploy_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -222,6 +224,7 @@
 | [aws_pipes_pipe.cache_updater](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.invalidate_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
+| [aws_pipes_pipe.update_idp_metadata](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_security_group_rule.metadata_vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_sns_topic_subscription.is-gh-integration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
@@ -295,6 +298,7 @@
 | <a name="input_eventbridge_pipe_cache_updater"></a> [eventbridge\_pipe\_cache\_updater](#input\_eventbridge\_pipe\_cache\_updater) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_pipe_invalidate_cache"></a> [eventbridge\_pipe\_invalidate\_cache](#input\_eventbridge\_pipe\_invalidate\_cache) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_pipe_sessions"></a> [eventbridge\_pipe\_sessions](#input\_eventbridge\_pipe\_sessions) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    kms_sessions_table_alias      = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
+| <a name="input_eventbridge_pipe_update_idp_metadata"></a> [eventbridge\_pipe\_update\_idp\_metadata](#input\_eventbridge\_pipe\_update\_idp\_metadata) | EventBridge Pipe configuration for invalid IDP metadata statuses. | <pre>object({<br/>    pipe_name = string<br/>  })</pre> | `null` | no |
 | <a name="input_fargate_capacity_providers"></a> [fargate\_capacity\_providers](#input\_fargate\_capacity\_providers) | n/a | <pre>map(object({<br/>    default_capacity_provider_strategy = object({<br/>      weight = number<br/>      base   = number<br/>    })<br/>  }))</pre> | n/a | yes |
 | <a name="input_github_repository"></a> [github\_repository](#input\_github\_repository) | Github repository responsible to deploy ECS tasks in the form <organization\|user/repository>. | `string` | n/a | yes |
 | <a name="input_hosted_zone_id"></a> [hosted\_zone\_id](#input\_hosted\_zone\_id) | Hosted zone id for IAM Role | `string` | `"Z065844519UG4CA4QH19U"` | no |
