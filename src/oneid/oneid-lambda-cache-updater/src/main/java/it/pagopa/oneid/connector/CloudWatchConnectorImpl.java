@@ -2,7 +2,6 @@ package it.pagopa.oneid.connector;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -15,15 +14,17 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 @ApplicationScoped
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
-  private static final String TAG_CLIENT = "Client";
-  private static final String TAG_AGGREGATED = "Aggregated";
+  private static final String TAG_CLIENT_AGGREGATED = "ClientAggregated";
   private static final String METRIC_CLIENT_CACHE_UPDATE = "ClientCacheUpdate";
 
-  @Inject
-  CloudWatchClient cloudWatchClient;
+  private final CloudWatchClient cloudWatchClient;
 
-  @Inject
-  Clock clock;
+  private final Clock clock;
+
+  public CloudWatchConnectorImpl(CloudWatchClient cloudWatchClient, Clock clock) {
+    this.cloudWatchClient = cloudWatchClient;
+    this.clock = clock;
+  }
 
   @ConfigProperty(name = "cloudwatch_custom_metric_namespace")
   String cloudWatchMetricNamespace;
@@ -32,7 +33,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   public void sendClientCacheUpdateMetricData(String clientID) {
     Instant eventTime = Instant.now(clock);
     List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(TAG_CLIENT + TAG_AGGREGATED)
+        .name(TAG_CLIENT_AGGREGATED)
         .value(clientID)
         .build());
 
