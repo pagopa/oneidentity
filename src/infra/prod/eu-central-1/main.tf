@@ -397,6 +397,7 @@ module "backend" {
   dynamodb_table_idpMetadata = {
     gsi_pointer_arn = local.table_idpMetadata_gsi_pointer_arn
     table_arn       = local.table_idp_metadata_arn
+    stream_arn      = module.database.table_idp_metadata_stream_arn
   }
 
   dynamodb_table_idpStatus = {

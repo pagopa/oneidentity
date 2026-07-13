@@ -395,6 +395,15 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
     ]
   }
 
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+    ]
+    resources = [var.dynamodb_table_idpMetadata.stream_arn]
+  }
 }
 
 module "security_group_lambda_idp_metadata" {
@@ -447,6 +456,10 @@ module "idp_metadata_lambda" {
       principal  = "s3.amazonaws.com"
       source_arn = var.idp_metadata_lambda.s3_idp_metadata_bucket_arn
     }
+    dynamodb = {
+      principal  = "dynamodb.amazonaws.com"
+      source_arn = var.dynamodb_table_idpMetadata.stream_arn
+    }
   }
 
   memory_size = 512
@@ -463,6 +476,16 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     lambda_function_arn = module.idp_metadata_lambda.lambda_function_arn
     events              = ["s3:ObjectCreated:Put"]
   }
+}
+
+resource "aws_lambda_event_source_mapping" "idp_metadata_stream" {
+  depends_on = [module.idp_metadata_lambda.lambda_function_name]
+
+  event_source_arn  = var.dynamodb_table_idpMetadata.stream_arn
+  function_name     = module.idp_metadata_lambda.lambda_function_arn
+  starting_position = "LATEST"
+  batch_size        = 100
+  enabled           = true
 }
 
 

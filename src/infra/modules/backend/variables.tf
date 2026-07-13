@@ -176,15 +176,16 @@ variable "dynamodb_table_sessions" {
     table_arn    = string
     gsi_code_arn = string
   })
-  description = "Dynamodb table sessions anrs"
+  description = "Dynamodb table sessions arns"
 }
 
 variable "dynamodb_table_idpMetadata" {
   type = object({
     table_arn       = string
     gsi_pointer_arn = string
+    stream_arn      = string
   })
-  description = "Dynamodb table idpMetadata anrs"
+  description = "Dynamodb table idpMetadata arns"
 }
 
 variable "dynamodb_table_idpStatus" {
