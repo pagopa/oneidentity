@@ -10,6 +10,7 @@ import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotificatio
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.service.IDPMetadataServiceImpl;
@@ -25,6 +26,10 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
 
   @Override
   public String handleRequest(JsonNode input, Context context) {
+    //TODO remove after tests
+    Log.infof("IDP metadata Lambda handler invoked, requestId=%s",
+        context == null ? "unknown" : context.getAwsRequestId());
+
     if (input == null || !input.path("Records").isArray() || input.path("Records").isEmpty()) {
       return "Ignored";
     }
