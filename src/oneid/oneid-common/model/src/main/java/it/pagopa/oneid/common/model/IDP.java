@@ -1,6 +1,7 @@
 package it.pagopa.oneid.common.model;
 
 import it.pagopa.oneid.common.model.enums.IDPStatus;
+import it.pagopa.oneid.common.model.enums.converter.IDPStatusConverter;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
@@ -36,6 +38,7 @@ public class IDP {
   @NotNull
   private boolean isActive;
 
+  @Getter(onMethod_ = @DynamoDbConvertedBy(IDPStatusConverter.class))
   @NotNull
   private IDPStatus status;
 
