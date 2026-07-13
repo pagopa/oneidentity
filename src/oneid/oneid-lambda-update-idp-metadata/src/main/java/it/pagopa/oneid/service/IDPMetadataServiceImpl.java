@@ -1,5 +1,7 @@
 package it.pagopa.oneid.service;
 
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
@@ -7,6 +9,7 @@ import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
+import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.PublicIdpsBucketConnector;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
@@ -16,7 +19,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import javax.xml.parsers.DocumentBuilder;
@@ -227,8 +232,69 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
+  public void validateDynamodbStatus(DynamodbEvent.DynamodbStreamRecord record) {
+    if (record == null || (!"INSERT".equals(record.getEventName())
+        && !"MODIFY".equals(record.getEventName()))) {
+      return;
+    }
+
+    String status = readStringAttribute(record.getDynamodb().getNewImage(), "status");
+    if (isValidStatus(status)) {
+      return;
+    }
+
+    Log.errorf("Invalid IDP status in DynamoDB stream event: %s", status);
+    throw new IllegalArgumentException("Invalid IDP status in DynamoDB stream event: " + status);
+  }
+
+  @Override
+  public void refreshPublicIdps() {
+    ArrayList<IDP> idps = idpConnectorImpl
+        .findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString())
+        .orElseGet(ArrayList::new);
+    publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey, serializePublicIdps(idps));
+  }
+
+  @Override
   public String getMetadataFile(String fileName) {
     return s3BucketIDPMetadataConnector.getMetadataFile(fileName);
+  }
+
+  @Override
+  public boolean isPublicIdpsStatusChange(DynamodbEvent.DynamodbStreamRecord record) {
+    if (record == null || !"MODIFY".equals(record.getEventName())) {
+      return false;
+    }
+
+    Map<String, AttributeValue> newImage = record.getDynamodb().getNewImage();
+    if (!LatestTAG.LATEST_SPID.toString().equals(readStringAttribute(newImage, "pointer"))) {
+      return false;
+    }
+
+    String newStatus = readStringAttribute(newImage, "status");
+    String oldStatus = readStringAttribute(record.getDynamodb().getOldImage(), "status");
+    return !Objects.equals(newStatus, oldStatus);
+  }
+
+  private boolean isValidStatus(String status) {
+    if (status == null || status.isBlank()) {
+      return false;
+    }
+
+    try {
+      IDPStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+      return true;
+    } catch (IllegalArgumentException exception) {
+      return false;
+    }
+  }
+
+  private String readStringAttribute(Map<String, AttributeValue> image, String attributeName) {
+    if (image == null || image.get(attributeName) == null) {
+      return null;
+    }
+
+    return image.get(attributeName).getS();
   }
 
   private String serializePublicIdps(ArrayList<IDP> idps) {

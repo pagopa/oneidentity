@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,11 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
+import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
+
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
+import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.connector.PublicIdpsBucketConnector;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
 import jakarta.inject.Inject;
@@ -62,26 +70,50 @@ public class IDPMetadataServiceImplTest {
   }
 
   @Test
-  void publishPublicIdps_spid() {
-    IDP firstIdp = new IDP();
-    IDP secondIdp = new IDP();
-    ArrayList<IDP> idpMetadata = new ArrayList<>(java.util.List.of(firstIdp, secondIdp));
+  void refreshPublicIdps() {
+    Mockito.when(idpConnectorImpl.findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString()))
+        .thenReturn(Optional.of(new ArrayList<>()));
 
-    Mockito.doNothing().when(publicIdpsBucketConnector)
-        .uploadIdpsJson(Mockito.anyString(), Mockito.anyString());
-
-    idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
+    idpMetadataServiceImpl.refreshPublicIdps();
 
     Mockito.verify(publicIdpsBucketConnector).uploadIdpsJson(Mockito.anyString(),
-      Mockito.anyString());
+        Mockito.eq("[]"));
   }
 
   @Test
-  void publishPublicIdps_cie_skipsUpload() {
-    idpMetadataServiceImpl.publishPublicIdps(new ArrayList<>(), new IdpS3FileDTO("cie-11111.xml"));
+  void isPublicIdpsStatusChange_statusChanged() {
+    boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
+        dynamodbEvent("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO")
+            .getRecords().getFirst());
 
-    Mockito.verifyNoInteractions(publicIdpsBucketConnector);
+    assertTrue(statusChanged);
   }
+
+  @Test
+  void validateDynamodbStatus_invalidStatus() {
+    try {
+      idpMetadataServiceImpl.validateDynamodbStatus(
+          dynamodbEvent("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN")
+              .getRecords().getFirst());
+      throw new AssertionError("Expected an invalid IDP status to fail the invocation");
+    } catch (IllegalArgumentException exception) {
+      assertEquals("Invalid IDP status in DynamoDB stream event: UNKNOWN",
+          exception.getMessage());
+    }
+
+    Mockito.verifyNoInteractions(idpConnectorImpl, publicIdpsBucketConnector);
+  }
+
+        @Test
+        void publishPublicIdps_spid() {
+          ArrayList<IDP> idpMetadata = new ArrayList<>();
+          idpMetadata.add(new IDP());
+
+          idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
+
+          Mockito.verify(publicIdpsBucketConnector).uploadIdpsJson(Mockito.anyString(),
+          Mockito.anyString());
+        }
 
   @Test
   void parseIDPMetadata_SPID() {
@@ -182,5 +214,30 @@ public class IDPMetadataServiceImplTest {
 
     // then
     assertTrue(idps.isEmpty());
+  }
+
+  private DynamodbEvent dynamodbEvent(String eventName, String pointer, String oldStatus,
+      String newStatus) {
+    StreamRecord dynamodb = new StreamRecord();
+    dynamodb.setOldImage(Map.of(
+        "pointer", stringAttribute(pointer),
+        "status", stringAttribute(oldStatus)));
+    dynamodb.setNewImage(Map.of(
+        "pointer", stringAttribute(pointer),
+        "status", stringAttribute(newStatus)));
+
+    DynamodbEvent.DynamodbStreamRecord record = new DynamodbEvent.DynamodbStreamRecord();
+    record.setEventName(eventName);
+    record.setDynamodb(dynamodb);
+
+    DynamodbEvent event = new DynamodbEvent();
+    event.setRecords(List.of(record));
+    return event;
+  }
+
+  private AttributeValue stringAttribute(String value) {
+    AttributeValue attributeValue = new AttributeValue();
+    attributeValue.setS(value);
+    return attributeValue;
   }
 }
