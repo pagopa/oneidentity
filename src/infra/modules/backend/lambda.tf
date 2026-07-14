@@ -486,6 +486,21 @@ resource "aws_lambda_event_source_mapping" "idp_metadata_stream" {
   starting_position = "LATEST"
   batch_size        = 100
   enabled           = true
+
+  filter_criteria {
+    filter {
+      pattern = jsonencode({
+        "eventName" = ["MODIFY"]
+        "dynamodb" = {
+          "NewImage" = {
+            "pointer" = {
+              "S" = ["LATEST_SPID"]
+            }
+          }
+        }
+      })
+    }
+  }
 }
 
 
