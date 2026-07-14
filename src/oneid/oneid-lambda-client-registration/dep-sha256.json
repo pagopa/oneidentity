@@ -1072,27 +1072,6 @@
       "sha256": "8SF2Jj6iX054u0-ks20zWilzjd5qgSPhttqJplXRUP8="
     },
     {
-      "id": "io.quarkus:quarkus-redis-client:jar:3.11.3",
-      "artifactId": "quarkus-redis-client",
-      "groupId": "io.quarkus",
-      "version": "3.11.3",
-      "sha256": "c3JDebyAyfz5sqjuyP_15s6vgHFXoWz3OZB1fG7RVhM="
-    },
-    {
-      "id": "io.smallrye.reactive:smallrye-mutiny-vertx-redis-client:jar:3.12.0",
-      "artifactId": "smallrye-mutiny-vertx-redis-client",
-      "groupId": "io.smallrye.reactive",
-      "version": "3.12.0",
-      "sha256": "cN0dWAjsGKHL2TSPcEki82kTcsrFJbcszVjfvr5yzPI="
-    },
-    {
-      "id": "io.vertx:vertx-redis-client:jar:4.5.7",
-      "artifactId": "vertx-redis-client",
-      "groupId": "io.vertx",
-      "version": "4.5.7",
-      "sha256": "tvGUyciI7tWbMEjelXDu-gSwTIgwI3rRC_ReDUSCIY4="
-    },
-    {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
       "artifactId": "quarkus-amazon-dynamodb-enhanced",
       "groupId": "io.quarkiverse.amazonservices",
