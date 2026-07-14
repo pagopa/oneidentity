@@ -1,5 +1,23 @@
 # oi-frontend
 
+## 1.1.3
+
+### Patch Changes
+
+- 54a9819: feat: add base64url idp logo name
+
+## 1.1.2
+
+### Patch Changes
+
+- 07e1fcd: feat: add idp dark-logo fallback
+
+## 1.1.1
+
+### Patch Changes
+
+- 5c920b3: feat: add dark-mode idp logo
+
 ## 1.1.0
 
 ### Minor Changes

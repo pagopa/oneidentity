@@ -1,5 +1,17 @@
 # oneid-lambda-client-registration
 
+## 2.5.2
+
+### Patch Changes
+
+- d59ced9: validation using quarkus annotation, increase input check be and fe admin control panel
+
+## 2.5.1
+
+### Patch Changes
+
+- 650cc2d: fix: change validation logic for content map
+
 ## 2.5.0
 
 ### Minor Changes

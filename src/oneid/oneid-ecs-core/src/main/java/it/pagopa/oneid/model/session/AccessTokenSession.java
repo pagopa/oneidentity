@@ -27,6 +27,8 @@ public class AccessTokenSession extends Session {
 
   private String idToken;
 
+  private String pairwise;
+
   public AccessTokenSession(@NotNull String SAMLRequestID, @NotNull RecordType recordType,
       @NotNull long creationTime, @NotNull long ttl, String accessToken, String idToken) {
     super(SAMLRequestID, recordType, creationTime, ttl);

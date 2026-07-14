@@ -437,6 +437,134 @@
               "title": "IntegrationLatency, Latency",
               "stat": "Average"
           }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 49,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/userinfo (GET)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "GET" ]
+              ],
+              "region": "${aws_region}",
+              "title": "Count",
+              "stat": "Sum"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "GET" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "title": "4XXError, 5XXError",
+              "stat": "Sum"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 50,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "GET",  { "region": "${aws_region}", "id": "m1" } ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" } ]
+              ],
+              "region": "${aws_region}",
+              "title": "IntegrationLatency, Latency",
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 56,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "## /oidc/userinfo (POST)\n"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 57,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/ApiGateway", "Count", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "POST" ]
+              ],
+              "region": "${aws_region}",
+              "title": "Count",
+              "stat": "Sum"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 57,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${aws_region}",
+              "metrics": [
+                  [ "AWS/ApiGateway", "4XXError", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "POST" ],
+                  [ ".", "5XXError", ".", ".", ".", ".", ".", ".", ".", "." ]
+              ],
+              "title": "4XXError, 5XXError",
+              "stat": "Sum"
+          }
+      },
+      {
+          "height": 6,
+          "width": 8,
+          "y": 57,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ { "expression": "ANOMALY_DETECTION_BAND(m1, 2)", "label": "AnomalyDetection", "id": "e1", "region": "${aws_region}" } ],
+                  [ "AWS/ApiGateway", "IntegrationLatency", "ApiName", "${api_name}", "Resource", "/oidc/userinfo", "Stage", "v1", "Method", "POST",  { "region": "${aws_region}", "id": "m1" } ],
+                  [ ".", "Latency", ".", ".", ".", ".", ".", ".", ".", ".",  { "region": "${aws_region}", "id": "m2" } ]
+              ],
+              "region": "${aws_region}",
+              "title": "IntegrationLatency, Latency",
+              "stat": "Average"
+          }
       }
   ]
 }

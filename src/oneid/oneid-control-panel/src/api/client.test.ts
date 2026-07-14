@@ -144,6 +144,17 @@ describe('client api', () => {
         'Update failed'
       );
     });
+
+    it('throws backend validation message when update fails with axios error', async () => {
+      axiosMock.patch.mockRejectedValueOnce({
+        isAxiosError: true,
+        response: { data: { message: 'username format is invalid' } },
+      });
+
+      await expect(updateClientUser('testuser', mockUser)).rejects.toThrow(
+        'username format is invalid'
+      );
+    });
   });
 
   describe('addClientUser', () => {
@@ -182,6 +193,17 @@ describe('client api', () => {
       axiosMock.post.mockRejectedValueOnce(mockError);
 
       await expect(addClientUser(mockUser)).rejects.toThrow('Add failed');
+    });
+
+    it('throws backend validation message when addition fails with axios error', async () => {
+      axiosMock.post.mockRejectedValueOnce({
+        isAxiosError: true,
+        response: { data: { message: 'password format is invalid' } },
+      });
+
+      await expect(addClientUser(mockUser)).rejects.toThrow(
+        'password format is invalid'
+      );
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "oneidentity",
-  "version": "4.14.0",
+  "version": "4.15.0",
   "private": true,
   "repository": "https://github.com/pagopa/oneidentity.git",
   "devDependencies": {
@@ -16,6 +16,7 @@
     "src/oneid/oneid-ecs-core/",
     "src/oneid/oneid-ecs-internal-idp/",
     "src/oneid/oneid-fe/",
+    "src/oneid/oneid-lambda-cache-updater/",
     "src/oneid/oneid-lambda-assertion/",
     "src/oneid/oneid-lambda-cert-exp-checker/",
     "src/oneid/oneid-lambda-client-manager/",

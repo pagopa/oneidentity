@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service.utils;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import com.nimbusds.jwt.JWTClaimsSet;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
@@ -45,6 +46,29 @@ public class OIDCUtilsTest {
         nonce);
 
     // then
+    assertDoesNotThrow(executable);
+  }
+
+  @Test
+  void createSignedJWT_fromClaimsSet() {
+    JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+        .subject("requestId")
+        .issuer("https://issuer.example.com")
+        .audience("clientId")
+        .claim("nonce", "nonce")
+        .claim("fiscalNumber", "ABCDEF12G34H567I")
+        .build();
+
+    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+    SignResponse mockedSignResponse = Mockito.mock(SignResponse.class);
+    Mockito.when(mockedSignResponse.signature())
+        .thenReturn(SdkBytes.fromByteArray("test".getBytes()));
+    Mockito.when(kmsConnectorImpl.sign(Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(mockedSignResponse);
+    QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
+
+    Executable executable = () -> oidcUtils.createSignedJWT(claimsSet);
+
     assertDoesNotThrow(executable);
   }
 

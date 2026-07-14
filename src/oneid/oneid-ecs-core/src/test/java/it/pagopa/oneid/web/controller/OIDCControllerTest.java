@@ -25,6 +25,7 @@ import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.UserInfoService;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import it.pagopa.oneid.web.controller.mock.OIDCControllerTestProfile;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
@@ -67,6 +68,9 @@ class OIDCControllerTest {
 
   @InjectMock
   private OIDCServiceImpl oidcServiceImpl;
+
+    @InjectMock
+    private UserInfoService userInfoService;
 
   @Inject
   private SAMLUtilsExtendedCore samlUtilsExtendedCore;
@@ -774,6 +778,32 @@ class OIDCControllerTest {
         .body(notNullValue());
 
   }
+
+    @Test
+    void userInfoGet_acceptsCaseInsensitiveBearer() {
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+        given()
+                .header("Authorization", "bearer access-token")
+                .when().get("/userinfo")
+                .then()
+                .statusCode(200)
+            .contentType("application/jwt")
+            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+    }
+
+    @Test
+    void userInfoPost_returnsUserInfoPayload() {
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+        given()
+                .header("Authorization", "Bearer access-token")
+                .when().post("/userinfo")
+                .then()
+                .statusCode(200)
+            .contentType("application/jwt")
+            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+    }
 
   @Test
   @SneakyThrows

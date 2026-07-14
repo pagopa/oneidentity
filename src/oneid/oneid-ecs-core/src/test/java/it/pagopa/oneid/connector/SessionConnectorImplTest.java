@@ -1,7 +1,9 @@
 package it.pagopa.oneid.connector;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
@@ -24,10 +26,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.EnhancedGlobalSecondaryIndex;
+import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ProjectionType;
 import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
 
@@ -424,5 +428,47 @@ class SessionConnectorImplTest {
     //then
     assertThrows(SessionException.class, executable);
 
+  }
+
+  @Test
+  void updateAccessTokenPairwise() throws Exception {
+    // given
+    String requestId = "id";
+    long creationTime = Instant.now().getEpochSecond();
+    long ttl = 0;
+    String accessToken = "access-token";
+    String idToken = "id-token";
+    String pairwise = "pairwise-value";
+
+    AccessTokenSession accessTokenSession = new AccessTokenSession(requestId,
+        RecordType.ACCESS_TOKEN, creationTime, ttl, accessToken, idToken);
+
+    Executable executable = () -> accessTokenSessionConnectorImpl.saveSessionIfNotExists(
+        accessTokenSession);
+    assertDoesNotThrow(executable);
+    Thread.sleep(500);
+
+    // when
+    executable = () -> accessTokenSessionConnectorImpl.updateAccessTokenPairwise(accessToken,
+        pairwise);
+    assertDoesNotThrow(executable);
+
+    // then
+    DynamoDbTable<AccessTokenSession> accessTokenSessionMapper = dynamoDbEnhancedClient.table(
+      TABLE_NAME,
+      TableSchema.fromBean(AccessTokenSession.class));
+    AccessTokenSession updatedSession = accessTokenSessionMapper.getItem(
+      GetItemEnhancedRequest.builder()
+        .key(Key.builder()
+          .partitionValue(requestId)
+          .sortValue(RecordType.ACCESS_TOKEN.name())
+          .build())
+        .consistentRead(true)
+        .build());
+
+    assertNotNull(updatedSession);
+    assertEquals(pairwise, updatedSession.getPairwise());
+    assertEquals(idToken, updatedSession.getIdToken());
+    assertEquals(accessToken, updatedSession.getAccessToken());
   }
 }

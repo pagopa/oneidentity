@@ -10,6 +10,21 @@ import { handleApiError } from '../utils/errors';
 
 const userNameMessage = 'User Name is required';
 
+type ApiErrorResponse = {
+  message?: string;
+  detail?: string;
+};
+
+const getBackendErrorMessage = (error: unknown): string | null => {
+  if (!axios.isAxiosError(error)) {
+    return null;
+  }
+
+  const responseData = error.response?.data as ApiErrorResponse | undefined;
+
+  return responseData?.message || responseData?.detail || null;
+};
+
 export const getClientUsers = async (): Promise<IdpUserList> => {
   const ENDPOINT = ENV.URL_API.CLIENT_USERS;
 
@@ -53,6 +68,12 @@ export const updateClientUser = async (
     );
     return response.data;
   } catch (error) {
+    const backendErrorMessage = getBackendErrorMessage(error);
+
+    if (backendErrorMessage) {
+      throw new Error(backendErrorMessage);
+    }
+
     throw handleApiError(error);
   }
 };
@@ -75,6 +96,13 @@ export const addClientUser = async (
     if (axios.isAxiosError(error) && error.response?.status === 409) {
       throw new Error('User already exists');
     }
+
+    const backendErrorMessage = getBackendErrorMessage(error);
+
+    if (backendErrorMessage) {
+      throw new Error(backendErrorMessage);
+    }
+
     throw handleApiError(error);
   }
 };

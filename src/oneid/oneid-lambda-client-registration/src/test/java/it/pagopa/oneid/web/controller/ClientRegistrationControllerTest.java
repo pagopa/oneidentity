@@ -184,7 +184,7 @@ class ClientRegistrationControllerTest {
 
     doThrow(new InvalidPDVPlanException("Invalid PDV data"))
         .when(clientRegistrationServiceImpl)
-        .validateClientRegistrationInfo(Mockito.any(), Mockito.any(), Mockito.any());
+        .validatePairwiseClientRegistrationInfo(Mockito.any(), Mockito.any(), Mockito.any());
 
     given()
         .contentType("application/json")

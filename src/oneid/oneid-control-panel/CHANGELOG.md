@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.7.1
+
+### Patch Changes
+
+- d59ced9: validation using quarkus annotation, increase input check be and fe admin control panel
+
 ## 1.7.0
 
 ### Minor Changes

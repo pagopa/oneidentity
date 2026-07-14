@@ -1,5 +1,23 @@
 # infra
 
+## 2.4.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
+## 2.3.4
+
+### Patch Changes
+
+- 6cad980: elasticache valkey setup with event pipe dlq and cache updater lambda template
+
+## 2.3.3
+
+### Patch Changes
+
+- 144a0d8: add notifiche digitali in csp
+
 ## 2.3.2
 
 ### Patch Changes

@@ -1,31 +1,47 @@
 package it.pagopa.oneid.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import io.quarkus.test.junit.TestProfile;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.connector.PDVApiClient;
+import it.pagopa.oneid.common.model.dto.AttributeDTO;
+import it.pagopa.oneid.common.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
-import it.pagopa.oneid.common.connector.PDVApiClient;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.OIDCSignJWTException;
-import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.model.dto.AuthorizationRequestDTO;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
-import it.pagopa.oneid.common.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.utils.OIDCUtils;
 import it.pagopa.oneid.web.dto.TokenDataDTO;
 import jakarta.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -34,15 +50,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.kms.model.GetPublicKeyResponse;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestProfile(MyMockyTestProfile.class)
@@ -145,7 +152,11 @@ public class OIDCServiceImplTest {
 
   @Test
   void buildOIDCProviderMetadata() {
-    assertDoesNotThrow(() -> oidcServiceImpl.buildOIDCProviderMetadata());
+    OIDCProviderMetadata providerMetadata = assertDoesNotThrow(
+        () -> oidcServiceImpl.buildOIDCProviderMetadata());
+
+        assertEquals(URI.create(providerMetadata.getIssuer().getValue() + "/oidc/userinfo"),
+        providerMetadata.getUserInfoEndpointURI());
   }
 
   @Test
