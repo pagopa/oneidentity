@@ -824,7 +824,7 @@
       "artifactId": "connector",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "nlJKL67s8h6Y8S_YfRWb0-rxJaCnmjvAd0GJfYnI4k8="
+      "sha256": "lYFyJ9aRSYIzYDZ9J-iuBiXLPCDbRrf4DXwHXs8gnhg="
     },
     {
       "id": "io.quarkus:quarkus-config-yaml:jar:3.11.3",
@@ -873,7 +873,7 @@
       "artifactId": "utils",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "2qm8tjgy0870liBo5pEXKt_aQmggkhU-H14bhxt5CAk="
+      "sha256": "jJfB1m4WZHDE-acEXC9n4pTEAHsqTPe33-MlC1zUTP0="
     },
     {
       "id": "org.opensaml:opensaml-core:jar:4.3.0",
@@ -1377,56 +1377,7 @@
       "artifactId": "model",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "aA2rGZOUvCBpAPXn4vScrW4858Xbd2HBoAsJPIESr0U="
-    },
-    {
-      "id": "io.quarkus:quarkus-hibernate-validator:jar:3.11.3",
-      "artifactId": "quarkus-hibernate-validator",
-      "groupId": "io.quarkus",
-      "version": "3.11.3",
-      "sha256": "6iXe1etAN-XeZa4qaqv_0RDrsJkywPlGGk7yENmjGTg="
-    },
-    {
-      "id": "org.hibernate.validator:hibernate-validator:jar:8.0.1.Final",
-      "artifactId": "hibernate-validator",
-      "groupId": "org.hibernate.validator",
-      "version": "8.0.1.Final",
-      "sha256": "jBJEpJgjEJH-cj2WZqk0RO6fk2ByRcaymCncX-V6M1w="
-    },
-    {
-      "id": "jakarta.validation:jakarta.validation-api:jar:3.0.2",
-      "artifactId": "jakarta.validation-api",
-      "groupId": "jakarta.validation",
-      "version": "3.0.2",
-      "sha256": "KRwl5pEMxqfr2W1Ma66_bXw3Z2xUgsLZYUbpAbYsH8k="
-    },
-    {
-      "id": "com.fasterxml:classmate:jar:1.7.0",
-      "artifactId": "classmate",
-      "groupId": "com.fasterxml",
-      "version": "1.7.0",
-      "sha256": "y4aPIxxczrideV6gDm4bepO49Kwc4di-dt3jIt_0oEY="
-    },
-    {
-      "id": "org.glassfish.expressly:expressly:jar:5.0.0",
-      "artifactId": "expressly",
-      "groupId": "org.glassfish.expressly",
-      "version": "5.0.0",
-      "sha256": "sMhyc3u4OBkhswTQlShUZm0boyC5s8W_TXCgmoa2FSQ="
-    },
-    {
-      "id": "io.smallrye.config:smallrye-config-validator:jar:3.8.1",
-      "artifactId": "smallrye-config-validator",
-      "groupId": "io.smallrye.config",
-      "version": "3.8.1",
-      "sha256": "4t6cuI7fiIj29Rn2usPlCz6HBq1_5yDsXQ1t_uPsrKc="
-    },
-    {
-      "id": "jakarta.ws.rs:jakarta.ws.rs-api:jar:3.1.0",
-      "artifactId": "jakarta.ws.rs-api",
-      "groupId": "jakarta.ws.rs",
-      "version": "3.1.0",
-      "sha256": "azs2KLi0rt2g0kwzVDNemFSX2O88UQuPMCjpINW4Zj0="
+      "sha256": "Pkk8vjXTz5NnoSLJEabKR7gdXQ3IH53S2G7TIQ7R6Ic="
     },
     {
       "id": "org.apache.commons:commons-lang3:jar:3.18.0",
