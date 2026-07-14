@@ -497,9 +497,9 @@ module "backend" {
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
-  # eventbridge_pipe_update_idp_metadata = {
-  #   pipe_name                     = format("%s-idp-metadata-invalid-status-pipe", local.project)
-  # }
+  eventbridge_pipe_update_idp_metadata = {
+    pipe_name = format("%s-idp-metadata-invalid-status-pipe", local.project)
+  }
 
   # TODO: enable cache updater lambda and pipe when the cache updater lambda and ecs core updates are ready to be deployed
   # eventbridge_pipe_cache_updater = {

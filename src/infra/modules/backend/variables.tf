@@ -183,7 +183,7 @@ variable "dynamodb_table_idpMetadata" {
   type = object({
     table_arn       = string
     gsi_pointer_arn = string
-    stream_arn      = string
+    stream_arn      = optional(string, null)
   })
   description = "Dynamodb table idpMetadata arns"
 }
