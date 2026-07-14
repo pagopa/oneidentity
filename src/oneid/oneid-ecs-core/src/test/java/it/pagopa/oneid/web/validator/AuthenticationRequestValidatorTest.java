@@ -20,7 +20,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 @QuarkusTest
 class AuthenticationRequestValidatorTest {
@@ -48,7 +47,7 @@ class AuthenticationRequestValidatorTest {
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
     clientsMap.put("client1", client);
 
-    assertTrue(validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+    assertTrue(validator.isValid(request, mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -64,7 +63,7 @@ class AuthenticationRequestValidatorTest {
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
     clientsMap.put("client2", client);
 
-    assertTrue(validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+    assertTrue(validator.isValid(request, mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -81,7 +80,7 @@ class AuthenticationRequestValidatorTest {
     clientsMap.put("client1", client);
 
     Exception exception = assertThrows(AuthorizationErrorException.class,
-        () -> validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+        () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
 
     assertEquals(ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE.getErrorMessage(),
         exception.getMessage());
@@ -101,7 +100,7 @@ class AuthenticationRequestValidatorTest {
     clientsMap.put("client1", client);
 
     Exception exception = assertThrows(AuthorizationErrorException.class,
-        () -> validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+        () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
 
     assertEquals(ErrorCode.AUTHORIZATION_ERROR_IDP.getErrorMessage(), exception.getMessage());
   }
@@ -120,7 +119,7 @@ class AuthenticationRequestValidatorTest {
     clientsMap.put("client1", client);
 
     Exception exception = assertThrows(GenericHTMLException.class,
-        () -> validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+        () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
 
     assertEquals(ErrorCode.AUTHORIZATION_ERROR_IDP, ErrorCode.valueOf(exception.getMessage()));
   }
@@ -128,7 +127,7 @@ class AuthenticationRequestValidatorTest {
   @Test
   void testInvalidRequestTypeThrowsException() {
     Exception exception = assertThrows(GenericHTMLException.class,
-        () -> validator.isValid(new Object(), Mockito.mock(ConstraintValidatorContext.class)));
+        () -> validator.isValid(new Object(), mock(ConstraintValidatorContext.class)));
 
     assertEquals(ErrorCode.GENERIC_HTML_ERROR, ErrorCode.valueOf(exception.getMessage()));
   }
@@ -143,7 +142,7 @@ class AuthenticationRequestValidatorTest {
     when(request.getIdp()).thenReturn(null);
 
     Exception exception = assertThrows(GenericHTMLException.class,
-        () -> validator.isValid(request, Mockito.mock(ConstraintValidatorContext.class)));
+        () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
 
     assertEquals(ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE,
         ErrorCode.valueOf(exception.getMessage()));
@@ -170,7 +169,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_validSha256() {
     assertTrue(validator.isValid(
         validGetRequestWithAssertionRef("sha256-3f2a9c7f4b1d8e6c5a2f9b7d4c1e8a6f3"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -178,7 +177,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_validSha384() {
     assertTrue(validator.isValid(
         validGetRequestWithAssertionRef("sha384-abcDEF123-_xyz"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -186,7 +185,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_validSha512() {
     assertTrue(validator.isValid(
         validGetRequestWithAssertionRef("sha512-AABBCCDD1122"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -194,7 +193,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_invalidAlgorithm() {
     assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
         validGetRequestWithAssertionRef("md5-3f2a9c7f4b1d8e6c5a2f9b7d4c1e8a6f3"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -202,7 +201,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_missingThumbprint() {
     assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
         validGetRequestWithAssertionRef("sha256-"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -211,7 +210,7 @@ class AuthenticationRequestValidatorTest {
     String longValue = "sha256-" + "a".repeat(154);
     assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
         validGetRequestWithAssertionRef(longValue),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -219,7 +218,7 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_colonNotAllowed() {
     assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
         validGetRequestWithAssertionRef("sha256-abc:def"),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 
   @Test
@@ -227,6 +226,6 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_null_skipsValidation() {
     assertTrue(validator.isValid(
         validGetRequestWithAssertionRef(null),
-        Mockito.mock(ConstraintValidatorContext.class)));
+        mock(ConstraintValidatorContext.class)));
   }
 }
