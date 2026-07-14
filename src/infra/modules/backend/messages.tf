@@ -312,6 +312,10 @@ resource "aws_pipes_pipe" "update_idp_metadata" {
   source_parameters {
     dynamodb_stream_parameters {
       starting_position = "LATEST"
+
+      maximum_batching_window_in_seconds = 0
+      maximum_retry_attempts             = var.eventbridge_pipe_update_idp_metadata.maximum_retry_attempts
+      maximum_record_age_in_seconds      = var.eventbridge_pipe_update_idp_metadata.maximum_record_age_in_seconds
     }
 
     filter_criteria {
