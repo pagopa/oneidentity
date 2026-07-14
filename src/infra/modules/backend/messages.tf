@@ -249,7 +249,7 @@ EOF
 
 
 resource "aws_iam_role" "pipe_update_idp_metadata" {
-  count = var.eventbridge_pipe_update_idp_metadata != null && var.dynamodb_table_idpMetadata.stream_arn != null ? 1 : 0
+  count = var.eventbridge_pipe_update_idp_metadata != null ? 1 : 0
 
   name = "${var.eventbridge_pipe_update_idp_metadata.pipe_name}-role"
 
@@ -271,7 +271,7 @@ resource "aws_iam_role" "pipe_update_idp_metadata" {
 }
 
 resource "aws_iam_role_policy" "pipe_update_idp_metadata" {
-  count = var.eventbridge_pipe_update_idp_metadata != null && var.dynamodb_table_idpMetadata.stream_arn != null ? 1 : 0
+  count = var.eventbridge_pipe_update_idp_metadata != null ? 1 : 0
 
   name = "AllowReadIdpMetadataStreamAndPublishInvalidStatus"
 
@@ -301,7 +301,7 @@ resource "aws_iam_role_policy" "pipe_update_idp_metadata" {
 }
 
 resource "aws_pipes_pipe" "update_idp_metadata" {
-  count = var.eventbridge_pipe_update_idp_metadata != null && var.dynamodb_table_idpMetadata.stream_arn != null ? 1 : 0
+  count = var.eventbridge_pipe_update_idp_metadata != null ? 1 : 0
 
   name     = var.eventbridge_pipe_update_idp_metadata.pipe_name
   role_arn = aws_iam_role.pipe_update_idp_metadata[0].arn
