@@ -8,10 +8,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  OutlinedInput,
   CircularProgress,
   Alert,
-  Chip,
   FormHelperText,
 } from '@mui/material';
 import {
@@ -478,28 +476,14 @@ export const Dashboard = () => {
             <Select
               labelId="spid-level-label"
               id="spid-level-select"
-              multiple
-              value={formData?.defaultAcrValues || []}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip
-                      key={value}
-                      label={value.replace(
-                        'https://www.spid.gov.it/Spid',
-                        'Level '
-                      )}
-                    />
-                  ))}
-                </Box>
-              )}
+              value={formData?.defaultAcrValues?.[0] ?? ''}
+              label="SPID Level"
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  defaultAcrValues: e.target.value as Array<SpidLevel>,
+                  defaultAcrValues: [e.target.value as SpidLevel],
                 }))
               }
-              input={<OutlinedInput label={'SPID Level'} />}
               data-testid="spid-level-select"
             >
               {Object.values(SpidLevel).map((level) => (
