@@ -226,6 +226,12 @@ variable "lambda_client_registration_trigger_enabled" {
   default = true
 }
 
+variable "idp_metadata_stream_trigger_enabled" {
+  type        = bool
+  description = "Whether to create resources that consume the IDP metadata DynamoDB Stream."
+  default     = true
+}
+
 variable "kms_sessions_table_alias_arn" {
   type        = string
   description = "Kms key used to encrypt and decrypt session table."

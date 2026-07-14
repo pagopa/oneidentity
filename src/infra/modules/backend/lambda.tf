@@ -395,14 +395,18 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
     ]
   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "dynamodb:DescribeStream",
-      "dynamodb:GetRecords",
-      "dynamodb:GetShardIterator",
-    ]
-    resources = [var.dynamodb_table_idpMetadata.stream_arn]
+  dynamic "statement" {
+    for_each = var.idp_metadata_stream_trigger_enabled ? [1] : []
+
+    content {
+      effect = "Allow"
+      actions = [
+        "dynamodb:DescribeStream",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+      ]
+      resources = [var.dynamodb_table_idpMetadata.stream_arn]
+    }
   }
 }
 
@@ -451,16 +455,17 @@ module "idp_metadata_lambda" {
 
   cloudwatch_logs_retention_in_days = var.idp_metadata_lambda.cloudwatch_logs_retention_in_days
 
-  allowed_triggers = {
+  allowed_triggers = merge({
     s3 = {
       principal  = "s3.amazonaws.com"
       source_arn = var.idp_metadata_lambda.s3_idp_metadata_bucket_arn
     }
+    }, var.idp_metadata_stream_trigger_enabled ? {
     dynamodb = {
       principal  = "dynamodb.amazonaws.com"
       source_arn = var.dynamodb_table_idpMetadata.stream_arn
     }
-  }
+  } : {})
 
   memory_size = 512
   timeout     = 30
@@ -479,6 +484,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_lambda_event_source_mapping" "idp_metadata_stream" {
+  count = var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
   depends_on = [module.idp_metadata_lambda.lambda_function_name]
 
   event_source_arn  = var.dynamodb_table_idpMetadata.stream_arn

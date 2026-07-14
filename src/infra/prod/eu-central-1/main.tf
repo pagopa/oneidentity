@@ -354,6 +354,7 @@ module "backend" {
   dynamodb_table_stream_arn                  = module.database.dynamodb_table_stream_arn
   table_last_idp_used_arn                    = module.database.table_last_idp_used_arn
   lambda_client_registration_trigger_enabled = false
+  idp_metadata_stream_trigger_enabled        = false
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
