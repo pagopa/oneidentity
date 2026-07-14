@@ -317,7 +317,7 @@ resource "aws_pipes_pipe" "update_idp_metadata" {
     filter_criteria {
       filter {
         pattern = jsonencode({
-          "eventName" = ["INSERT", "MODIFY"]
+          "eventName" = ["MODIFY"]
           "dynamodb" = {
             "NewImage" = {
               "status" = {
@@ -330,5 +330,17 @@ resource "aws_pipes_pipe" "update_idp_metadata" {
         })
       }
     }
+  }
+
+  target_parameters {
+    input_template = <<EOF
+{
+  "table_name": "${element(split("/", var.dynamodb_table_idpMetadata.table_arn), 1)}",
+  "status": {
+    "previous": "<$.dynamodb.OldImage.status.S>",
+    "current": "<$.dynamodb.NewImage.status.S>"
+  }
+}
+EOF
   }
 }
