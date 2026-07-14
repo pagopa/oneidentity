@@ -23,6 +23,8 @@ public class PublicIdpsBucketConnectorImpl implements PublicIdpsBucketConnector 
 
   @Override
   public void uploadIdpsJson(String objectKey, String content) {
+    Log.info("Uploading public IDPs snapshot to S3: bucket=" + assetsBucketName + ", key="
+        + objectKey + ", size=" + content.length());
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(assetsBucketName)
         .contentType("application/json")
@@ -31,8 +33,11 @@ public class PublicIdpsBucketConnectorImpl implements PublicIdpsBucketConnector 
 
     try {
       s3.putObject(putObjectRequest, RequestBody.fromString(content));
+      Log.info("Public IDPs snapshot uploaded to S3: bucket=" + assetsBucketName + ", key="
+        + objectKey);
     } catch (S3Exception e) {
-      Log.error("error during public IDPs snapshot upload: " + e.getMessage());
+      Log.error("Error during public IDPs snapshot upload: bucket=" + assetsBucketName
+        + ", key=" + objectKey + ", message=" + e.getMessage());
       throw new RuntimeException(e);
     }
   }

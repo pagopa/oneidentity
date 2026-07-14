@@ -219,6 +219,7 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   @Override
   public void publishPublicIdps(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
     if (!idpS3FileDTO.toString().startsWith("spid-")) {
+      Log.info("Skipping public IDPs snapshot for non-SPID metadata: file=" + idpS3FileDTO);
       return;
     }
 
@@ -227,6 +228,8 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
       return;
     }
 
+    Log.info("Publishing public IDPs snapshot: key=" + publicIdpsObjectKey + ", count="
+      + idpMetadata.size());
     publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey,
         serializePublicIdps(idpMetadata));
   }
@@ -243,15 +246,18 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
       return;
     }
 
-    Log.errorf("Invalid IDP status in DynamoDB stream event: %s", status);
+    Log.error("Invalid IDP status in DynamoDB stream event: " + status);
     throw new IllegalArgumentException("Invalid IDP status in DynamoDB stream event: " + status);
   }
 
   @Override
   public void refreshPublicIdps() {
+    Log.debug("start");
     ArrayList<IDP> idps = idpConnectorImpl
         .findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString())
         .orElseGet(ArrayList::new);
+    Log.info("Refreshing public IDPs snapshot: key=" + publicIdpsObjectKey + ", count="
+      + idps.size());
     publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey, serializePublicIdps(idps));
   }
 

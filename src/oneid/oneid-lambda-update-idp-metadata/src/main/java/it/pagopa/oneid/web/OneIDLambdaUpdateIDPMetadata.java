@@ -26,15 +26,18 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
 
   @Override
   public String handleRequest(JsonNode input, Context context) {
-    //TODO remove after tests
-    Log.infof("IDP metadata Lambda handler invoked, requestId=%s",
-        context == null ? "unknown" : context.getAwsRequestId());
+    Log.debug("start");
+    Log.info("IDP metadata Lambda handler invoked, requestId="
+      + (context == null ? "unknown" : context.getAwsRequestId()));
 
     if (input == null || !input.path("Records").isArray() || input.path("Records").isEmpty()) {
+      Log.warn("Ignoring Lambda event without records");
       return "Ignored";
     }
 
     String eventSource = input.path("Records").get(0).path("eventSource").asText();
+    Log.info("Processing IDP metadata event: source=" + eventSource + ", records="
+      + input.path("Records").size());
     return switch (eventSource) {
       case "aws:s3" -> handleS3Event(objectMapper.convertValue(input, S3Event.class));
       case "aws:dynamodb" -> handleDynamodbEvent(objectMapper.convertValue(input,
@@ -44,10 +47,12 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
   }
 
   private String handleS3Event(S3Event s3Event) {
+    Log.debug("start");
     // Get notification record
     S3EventNotificationRecord record = s3Event.getRecords().getFirst();
     // Get file name
     String srcKey = record.getS3().getObject().getUrlDecodedKey();
+    Log.info("Processing metadata file from S3: key=" + srcKey);
 
     // Retrieve file content by file name
     String metadataContent = idpMetadataServiceImpl.getMetadataFile(srcKey);
@@ -60,11 +65,15 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
     idpMetadataServiceImpl.updateIDPMetadata(idpMetadata, idpS3FileDTO);
     // Publish the public SPID IDPs to S3
     idpMetadataServiceImpl.publishPublicIdps(idpMetadata, idpS3FileDTO);
+    Log.info("S3 metadata event processed: key=" + srcKey + ", parsedIdps="
+      + idpMetadata.size());
     return "Ok";
   }
 
   private String handleDynamodbEvent(DynamodbEvent dynamodbEvent) {
+    Log.debug("start");
     if (dynamodbEvent == null || dynamodbEvent.getRecords() == null) {
+      Log.warn("Ignoring DynamoDB event without records");
       return "Ignored";
     }
 
@@ -80,7 +89,10 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
 
     if (publicIdpsStatusChanged) {
       // Update the IDPs snapshot in S3
+      Log.info("DynamoDB status change detected for public IDPs; refreshing S3 snapshot");
       idpMetadataServiceImpl.refreshPublicIdps();
+    } else {
+      Log.info("No public IDPs status change detected; S3 snapshot was not refreshed");
     }
 
     return "Ok";
