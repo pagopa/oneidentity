@@ -2,6 +2,7 @@ package it.pagopa.oneid.common.connector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.redis.datasource.RedisDataSource;
 import io.quarkus.redis.datasource.keys.KeyCommands;
 import io.quarkus.redis.datasource.value.SetArgs;
@@ -10,10 +11,11 @@ import it.pagopa.oneid.common.model.Client;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.Optional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
+@IfBuildProperty(name = "cache.connector.enabled", stringValue = "true")
 public class CacheConnectorImpl implements CacheConnector {
 
   private final ValueCommands<String, String> valueCommands;
