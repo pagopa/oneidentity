@@ -2,18 +2,16 @@ package it.pagopa.oneid.web;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3Entity;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3ObjectEntity;
@@ -65,22 +63,23 @@ class OneIDLambdaUpdateIDPMetadataTest {
     void given_dynamodbStatusChange_when_handling_then_validatesAndRefreshesPublicIdps()
       throws Exception {
     IDPMetadataServiceImpl idpMetadataService = Mockito.mock(IDPMetadataServiceImpl.class);
-    ObjectMapper eventMapper = Mockito.mock(ObjectMapper.class);
-    JsonNode input = eventInput("aws:dynamodb");
-        DynamodbEvent dynamodbEvent = dynamodbEvent("MODIFY", LatestTAG.LATEST_SPID.toString(),
-                "OK", "KO");
-        DynamodbEvent.DynamodbStreamRecord record = dynamodbEvent.getRecords().getFirst();
-    Mockito.when(eventMapper.convertValue(input, DynamodbEvent.class)).thenReturn(dynamodbEvent);
-        Mockito.when(idpMetadataService.isPublicIdpsStatusChange(record)).thenReturn(true);
+        ObjectMapper eventMapper = new ObjectMapper();
+        JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO");
+        Mockito.when(idpMetadataService.isPublicIdpsStatusChange(Mockito.any())).thenReturn(true);
     OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
     handler.idpMetadataServiceImpl = idpMetadataService;
     handler.objectMapper = eventMapper;
 
     assertEquals("Ok", handler.handleRequest(input, null));
 
-    verify(idpMetadataService).validateDynamodbStatus(record);
-    verify(idpMetadataService).isPublicIdpsStatusChange(record);
+        ArgumentCaptor<DynamodbEvent.DynamodbStreamRecord> recordCaptor = ArgumentCaptor.forClass(
+            DynamodbEvent.DynamodbStreamRecord.class);
+        verify(idpMetadataService).validateDynamodbStatus(recordCaptor.capture());
+        verify(idpMetadataService).isPublicIdpsStatusChange(recordCaptor.getValue());
     verify(idpMetadataService).refreshPublicIdps();
+        assertEquals("MODIFY", recordCaptor.getValue().getEventName());
+        assertEquals(LatestTAG.LATEST_SPID.toString(),
+            recordCaptor.getValue().getDynamodb().getNewImage().get("pointer").getS());
   }
 
   private JsonNode eventInput(String eventSource) throws Exception {
@@ -89,29 +88,28 @@ class OneIDLambdaUpdateIDPMetadataTest {
         """.formatted(eventSource));
   }
 
-    private DynamodbEvent dynamodbEvent(String eventName, String pointer, String oldStatus,
-            String newStatus) {
-        StreamRecord dynamodb = new StreamRecord();
-        dynamodb.setOldImage(Map.of(
-                "pointer", stringAttribute(pointer),
-                "status", stringAttribute(oldStatus)));
-        dynamodb.setNewImage(Map.of(
-                "pointer", stringAttribute(pointer),
-                "status", stringAttribute(newStatus)));
-
-        DynamodbEvent.DynamodbStreamRecord record = new DynamodbEvent.DynamodbStreamRecord();
-        record.setEventName(eventName);
-        record.setDynamodb(dynamodb);
-
-        DynamodbEvent event = new DynamodbEvent();
-        event.setRecords(List.of(record));
-        return event;
-    }
-
-    private AttributeValue stringAttribute(String value) {
-        AttributeValue attributeValue = new AttributeValue();
-        attributeValue.setS(value);
-        return attributeValue;
+    private JsonNode dynamodbEventInput(String eventName, String pointer, String oldStatus,
+            String newStatus) throws Exception {
+        return new ObjectMapper().readTree("""
+                {
+                    "Records": [
+                        {
+                            "eventName": "%s",
+                            "eventSource": "aws:dynamodb",
+                            "dynamodb": {
+                                "OldImage": {
+                                    "pointer": { "S": "%s" },
+                                    "status": { "S": "%s" }
+                                },
+                                "NewImage": {
+                                    "pointer": { "S": "%s" },
+                                    "status": { "S": "%s" }
+                                }
+                            }
+                        }
+                    ]
+                }
+                """.formatted(eventName, pointer, oldStatus, pointer, newStatus));
     }
 
 }

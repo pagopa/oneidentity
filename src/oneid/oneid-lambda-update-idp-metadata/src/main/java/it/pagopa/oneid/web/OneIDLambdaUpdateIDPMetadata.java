@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
@@ -30,24 +31,34 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
     Log.info("IDP metadata Lambda handler invoked, requestId="
       + (context == null ? "unknown" : context.getAwsRequestId()));
 
-    if (input == null || !input.path("Records").isArray() || input.path("Records").isEmpty()) {
+    if (input == null || !input.isObject() || !input.path("Records").isArray()
+      || input.path("Records").isEmpty()) {
       Log.warn("Ignoring Lambda event without records");
       return "Ignored";
     }
+
+    //TODO remove
+    Log.info("\n\nInput event: " + input.toString());
 
     String eventSource = input.path("Records").get(0).path("eventSource").asText();
     Log.info("Processing IDP metadata event: source=" + eventSource + ", records="
       + input.path("Records").size());
     return switch (eventSource) {
       case "aws:s3" -> handleS3Event(objectMapper.convertValue(input, S3Event.class));
-      case "aws:dynamodb" -> handleDynamodbEvent(objectMapper.convertValue(input,
-          DynamodbEvent.class));
+      case "aws:dynamodb" -> handleDynamodbEvent(objectMapper.copy()
+          .setConfig(objectMapper.getDeserializationConfig()
+              .with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES))
+          .convertValue(input, DynamodbEvent.class));
       default -> throw new IllegalArgumentException("Unsupported event source: " + eventSource);
     };
   }
 
   private String handleS3Event(S3Event s3Event) {
     Log.debug("start");
+
+    //TODO remove
+    Log.info("\n\nS3 event: " + s3Event.toString());
+
     // Get notification record
     S3EventNotificationRecord record = s3Event.getRecords().getFirst();
     // Get file name
@@ -72,6 +83,10 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
 
   private String handleDynamodbEvent(DynamodbEvent dynamodbEvent) {
     Log.debug("start");
+
+    //TODO remove
+    Log.info("\n\nDynamoDB event: " + dynamodbEvent.toString());
+    
     if (dynamodbEvent == null || dynamodbEvent.getRecords() == null) {
       Log.warn("Ignoring DynamoDB event without records");
       return "Ignored";
