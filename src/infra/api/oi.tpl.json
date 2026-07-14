@@ -1753,41 +1753,62 @@
         "tags": [
           "Authorization Server APIs"
         ],
-        "operationId": "Get_finAllIdps",
+        "operationId": "Get_findAllIdps",
         "x-amazon-apigateway-integration": {
-          "type": "HTTP_PROXY",
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
           "httpMethod": "GET",
-          "uri": "${uri}/idps",
-          "connectionType": "VPC_LINK",
-          "connectionId": "${connection_id}",
-          "timeoutInMillis" : 5000,
-          "requestParameters": {
-            "integration.request.header.accept": "'*/*'"
-          },
+          "uri": "${assets_bucket_uri}/idps.json",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
           "responses": {
             "200": {
               "statusCode": "200",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             },
             "404": {
               "statusCode": "404",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Find all Idps",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {}
             }
           },
           "404": {
-            "$ref": "#/components/responses/notFound"
+            "description": "The server can not find requested resource",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "summary": "Find all idps endpoint",
-        "description": "This endpoint retrieves all ipds"
+        "description": "This endpoint retrieves all idps"
       }
     },
     "/clients/{client_id}": {
