@@ -337,14 +337,15 @@ resource "aws_pipes_pipe" "update_idp_metadata" {
   }
 
   target_parameters {
-    input_template = jsonencode(<<EOF
-IDP metadata status alert
-
-Table: ${element(split("/", var.dynamodb_table_idpMetadata.table_arn), 1)}
-IDP: <$.dynamodb.NewImage.entityID.S>
-Previous status: <$.dynamodb.OldImage.status.S>
-Current status: <$.dynamodb.NewImage.status.S>
+    input_template = <<EOF
+{
+  "table_name": "${element(split("/", var.dynamodb_table_idpMetadata.table_arn), 1)}",
+  "idp": "<$.dynamodb.NewImage.entityID.S>",
+  "status": {
+    "previous": "<$.dynamodb.OldImage.status.S>",
+    "current": "<$.dynamodb.NewImage.status.S>"
+  }
+}
 EOF
-    )
   }
 }
