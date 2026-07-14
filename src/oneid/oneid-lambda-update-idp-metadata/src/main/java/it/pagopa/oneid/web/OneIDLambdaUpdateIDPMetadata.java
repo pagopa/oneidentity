@@ -94,9 +94,6 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
         continue;
       }
 
-      // Validate the raw status before the model converter normalizes it
-        idpMetadataServiceImpl.validateDynamodbStatus(record);
-
       // Detect changes that affect the IDPs snapshot
       publicIdpsStatusChanged = publicIdpsStatusChanged
           || idpMetadataServiceImpl.isPublicIdpsStatusChange(record);

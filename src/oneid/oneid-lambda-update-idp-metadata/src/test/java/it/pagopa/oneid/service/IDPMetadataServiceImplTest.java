@@ -86,17 +86,11 @@ public class IDPMetadataServiceImplTest {
   }
 
   @Test
-  void validateDynamodbStatus_invalidStatus() {
-    try {
-      idpMetadataServiceImpl.validateDynamodbStatus(
-          dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN"));
-      throw new AssertionError("Expected an invalid IDP status to fail the invocation");
-    } catch (IllegalArgumentException exception) {
-      assertEquals("Invalid IDP status in DynamoDB stream event: UNKNOWN",
-          exception.getMessage());
-    }
+  void isPublicIdpsStatusChange_invalidManualStatus() {
+    boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN"));
 
-    Mockito.verifyNoInteractions(idpConnectorImpl, publicIdpsBucketConnector);
+    assertTrue(statusChanged);
   }
 
         @Test

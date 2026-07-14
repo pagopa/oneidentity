@@ -18,7 +18,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -234,22 +233,6 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
-  public void validateDynamodbStatus(JsonNode record) {
-    if (record == null || (!"INSERT".equals(record.path("eventName").asText())
-        && !"MODIFY".equals(record.path("eventName").asText()))) {
-      return;
-    }
-
-    String status = readStringAttribute(record.path("dynamodb").path("NewImage"), "status");
-    if (isValidStatus(status)) {
-      return;
-    }
-
-    Log.error("Invalid IDP status in DynamoDB stream event: " + status);
-    throw new IllegalArgumentException("Invalid IDP status in DynamoDB stream event: " + status);
-  }
-
-  @Override
   public void refreshPublicIdps() {
     Log.debug("start");
     ArrayList<IDP> idps = idpConnectorImpl
@@ -279,19 +262,6 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
     String newStatus = readStringAttribute(newImage, "status");
     String oldStatus = readStringAttribute(record.path("dynamodb").path("OldImage"), "status");
     return !Objects.equals(newStatus, oldStatus);
-  }
-
-  private boolean isValidStatus(String status) {
-    if (status == null || status.isBlank()) {
-      return false;
-    }
-
-    try {
-      IDPStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
-      return true;
-    } catch (IllegalArgumentException exception) {
-      return false;
-    }
   }
 
   private String readStringAttribute(JsonNode image, String attributeName) {

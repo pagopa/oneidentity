@@ -59,8 +59,7 @@ class OneIDLambdaUpdateIDPMetadataTest {
     assertEquals("Ok", handler.handleRequest(input, null));
 
         ArgumentCaptor<JsonNode> recordCaptor = ArgumentCaptor.forClass(JsonNode.class);
-        verify(idpMetadataService).validateDynamodbStatus(recordCaptor.capture());
-        verify(idpMetadataService).isPublicIdpsStatusChange(recordCaptor.getValue());
+        verify(idpMetadataService).isPublicIdpsStatusChange(recordCaptor.capture());
     verify(idpMetadataService).refreshPublicIdps();
         assertEquals("MODIFY", recordCaptor.getValue().path("eventName").asText());
         assertEquals(LatestTAG.LATEST_SPID.toString(),
