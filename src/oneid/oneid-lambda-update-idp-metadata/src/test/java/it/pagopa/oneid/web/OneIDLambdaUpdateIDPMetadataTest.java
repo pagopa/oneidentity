@@ -10,11 +10,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.verify;
 
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
-import com.amazonaws.services.lambda.runtime.events.S3Event;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3Entity;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3ObjectEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,29 +24,20 @@ class OneIDLambdaUpdateIDPMetadataTest {
   @DisplayName("given an S3 event when handling then update metadata and publish public IDPs")
   void given_s3Event_when_handling_then_updatesMetadataAndPublishesPublicIdps() throws Exception {
     IDPMetadataServiceImpl idpMetadataService = Mockito.mock(IDPMetadataServiceImpl.class);
-    ObjectMapper eventMapper = Mockito.mock(ObjectMapper.class);
-    S3Event s3Event = Mockito.mock(S3Event.class);
-    S3EventNotificationRecord s3EventNotificationRecord = Mockito.mock(
-        S3EventNotificationRecord.class);
-    S3Entity s3Entity = Mockito.mock(S3Entity.class);
-    S3ObjectEntity s3ObjectEntity = Mockito.mock(S3ObjectEntity.class);
-    Mockito.when(s3ObjectEntity.getUrlDecodedKey()).thenReturn("spid-11111.xml");
-    Mockito.when(s3Entity.getObject()).thenReturn(s3ObjectEntity);
-    Mockito.when(s3EventNotificationRecord.getS3()).thenReturn(s3Entity);
-    Mockito.when(s3Event.getRecords()).thenReturn(List.of(s3EventNotificationRecord));
+        ObjectMapper eventMapper = new ObjectMapper();
     Mockito.when(idpMetadataService.getMetadataFile(Mockito.any())).thenReturn("dummy");
 
     ArrayList<IDP> idps = new ArrayList<>(List.of(new IDP()));
     Mockito.when(idpMetadataService.parseIDPMetadata(Mockito.any(), Mockito.any()))
         .thenReturn(idps);
-    JsonNode input = eventInput("aws:s3");
-    Mockito.when(eventMapper.convertValue(input, S3Event.class)).thenReturn(s3Event);
+    JsonNode input = s3EventInput("spid-11111.xml");
     OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
     handler.idpMetadataServiceImpl = idpMetadataService;
     handler.objectMapper = eventMapper;
 
     assertEquals("Ok", handler.handleRequest(input, null));
 
+    verify(idpMetadataService).getMetadataFile("spid-11111.xml");
     verify(idpMetadataService).updateIDPMetadata(Mockito.same(idps), Mockito.any(
         IdpS3FileDTO.class));
     verify(idpMetadataService).publishPublicIdps(Mockito.same(idps), Mockito.any(
@@ -72,21 +58,32 @@ class OneIDLambdaUpdateIDPMetadataTest {
 
     assertEquals("Ok", handler.handleRequest(input, null));
 
-        ArgumentCaptor<DynamodbEvent.DynamodbStreamRecord> recordCaptor = ArgumentCaptor.forClass(
-            DynamodbEvent.DynamodbStreamRecord.class);
+        ArgumentCaptor<JsonNode> recordCaptor = ArgumentCaptor.forClass(JsonNode.class);
         verify(idpMetadataService).validateDynamodbStatus(recordCaptor.capture());
         verify(idpMetadataService).isPublicIdpsStatusChange(recordCaptor.getValue());
     verify(idpMetadataService).refreshPublicIdps();
-        assertEquals("MODIFY", recordCaptor.getValue().getEventName());
+        assertEquals("MODIFY", recordCaptor.getValue().path("eventName").asText());
         assertEquals(LatestTAG.LATEST_SPID.toString(),
-            recordCaptor.getValue().getDynamodb().getNewImage().get("pointer").getS());
+            recordCaptor.getValue().path("dynamodb").path("NewImage").path("pointer")
+                .path("S").asText());
   }
 
-  private JsonNode eventInput(String eventSource) throws Exception {
-    return new ObjectMapper().readTree("""
-        { "Records": [{ "eventSource": "%s" }] }
-        """.formatted(eventSource));
-  }
+    private JsonNode s3EventInput(String objectKey) throws Exception {
+        return new ObjectMapper().readTree("""
+                {
+                    "Records": [
+                        {
+                            "eventSource": "aws:s3",
+                            "s3": {
+                                "object": {
+                                    "key": "%s"
+                                }
+                            }
+                        }
+                    ]
+                }
+                """.formatted(objectKey));
+    }
 
     private JsonNode dynamodbEventInput(String eventName, String pointer, String oldStatus,
             String newStatus) throws Exception {
@@ -97,6 +94,7 @@ class OneIDLambdaUpdateIDPMetadataTest {
                             "eventName": "%s",
                             "eventSource": "aws:dynamodb",
                             "dynamodb": {
+                                "ApproximateCreationDateTime": 1720944000.123,
                                 "OldImage": {
                                     "pointer": { "S": "%s" },
                                     "status": { "S": "%s" }

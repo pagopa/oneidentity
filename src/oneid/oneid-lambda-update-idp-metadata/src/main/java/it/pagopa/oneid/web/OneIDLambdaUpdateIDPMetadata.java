@@ -1,14 +1,12 @@
 package it.pagopa.oneid.web;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
-import com.amazonaws.services.lambda.runtime.events.S3Event;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
@@ -17,7 +15,7 @@ import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.service.IDPMetadataServiceImpl;
 import jakarta.inject.Inject;
 
-public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, String> {
+public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, String> {
 
   @Inject
   IDPMetadataServiceImpl idpMetadataServiceImpl;
@@ -26,43 +24,43 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
   ObjectMapper objectMapper;
 
   @Override
-  public String handleRequest(JsonNode input, Context context) {
+  public String handleRequest(Object event, Context context) {
     Log.debug("start");
     Log.info("IDP metadata Lambda handler invoked, requestId="
       + (context == null ? "unknown" : context.getAwsRequestId()));
 
+    JsonNode input = objectMapper.valueToTree(event);
     if (input == null || !input.isObject() || !input.path("Records").isArray()
       || input.path("Records").isEmpty()) {
       Log.warn("Ignoring Lambda event without records");
       return "Ignored";
     }
 
-    //TODO remove
-    Log.info("\n\nInput event: " + input.toString());
-
     String eventSource = input.path("Records").get(0).path("eventSource").asText();
     Log.info("Processing IDP metadata event: source=" + eventSource + ", records="
       + input.path("Records").size());
     return switch (eventSource) {
-      case "aws:s3" -> handleS3Event(objectMapper.convertValue(input, S3Event.class));
-      case "aws:dynamodb" -> handleDynamodbEvent(objectMapper.copy()
-          .setConfig(objectMapper.getDeserializationConfig()
-              .with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES))
-          .convertValue(input, DynamodbEvent.class));
+      case "aws:s3" -> handleS3Event(input.path("Records").get(0));
+      case "aws:dynamodb" -> handleDynamodbEvent(input.path("Records"));
       default -> throw new IllegalArgumentException("Unsupported event source: " + eventSource);
     };
   }
 
-  private String handleS3Event(S3Event s3Event) {
+  private String handleS3Event(JsonNode record) {
     Log.debug("start");
 
-    //TODO remove
-    Log.info("\n\nS3 event: " + s3Event.toString());
+    if (!"aws:s3".equals(record.path("eventSource").asText())) {
+      Log.warn("Ignoring non-S3 record in S3 event");
+      return "Ignored";
+    }
 
-    // Get notification record
-    S3EventNotificationRecord record = s3Event.getRecords().getFirst();
-    // Get file name
-    String srcKey = record.getS3().getObject().getUrlDecodedKey();
+    String encodedKey = record.path("s3").path("object").path("key").asText();
+    if (encodedKey.isBlank()) {
+      Log.warn("Ignoring S3 event without object key");
+      return "Ignored";
+    }
+
+    String srcKey = URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
     Log.info("Processing metadata file from S3: key=" + srcKey);
 
     // Retrieve file content by file name
@@ -81,19 +79,21 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<JsonNode, St
     return "Ok";
   }
 
-  private String handleDynamodbEvent(DynamodbEvent dynamodbEvent) {
+  private String handleDynamodbEvent(JsonNode records) {
     Log.debug("start");
 
-    //TODO remove
-    Log.info("\n\nDynamoDB event: " + dynamodbEvent.toString());
-    
-    if (dynamodbEvent == null || dynamodbEvent.getRecords() == null) {
+    if (!records.isArray() || records.isEmpty()) {
       Log.warn("Ignoring DynamoDB event without records");
       return "Ignored";
     }
 
     boolean publicIdpsStatusChanged = false;
-    for (DynamodbEvent.DynamodbStreamRecord record : dynamodbEvent.getRecords()) {
+    for (JsonNode record : records) {
+      if (!"aws:dynamodb".equals(record.path("eventSource").asText())) {
+        Log.warn("Ignoring non-DynamoDB record in DynamoDB event");
+        continue;
+      }
+
       // Validate the raw status before the model converter normalizes it
         idpMetadataServiceImpl.validateDynamodbStatus(record);
 

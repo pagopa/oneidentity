@@ -1,8 +1,7 @@
 package it.pagopa.oneid.service;
 
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
@@ -235,13 +234,13 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
-  public void validateDynamodbStatus(DynamodbEvent.DynamodbStreamRecord record) {
-    if (record == null || (!"INSERT".equals(record.getEventName())
-        && !"MODIFY".equals(record.getEventName()))) {
+  public void validateDynamodbStatus(JsonNode record) {
+    if (record == null || (!"INSERT".equals(record.path("eventName").asText())
+        && !"MODIFY".equals(record.path("eventName").asText()))) {
       return;
     }
 
-    String status = readStringAttribute(record.getDynamodb().getNewImage(), "status");
+    String status = readStringAttribute(record.path("dynamodb").path("NewImage"), "status");
     if (isValidStatus(status)) {
       return;
     }
@@ -267,18 +266,18 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
-  public boolean isPublicIdpsStatusChange(DynamodbEvent.DynamodbStreamRecord record) {
-    if (record == null || !"MODIFY".equals(record.getEventName())) {
+  public boolean isPublicIdpsStatusChange(JsonNode record) {
+    if (record == null || !"MODIFY".equals(record.path("eventName").asText())) {
       return false;
     }
 
-    Map<String, AttributeValue> newImage = record.getDynamodb().getNewImage();
+    JsonNode newImage = record.path("dynamodb").path("NewImage");
     if (!LatestTAG.LATEST_SPID.toString().equals(readStringAttribute(newImage, "pointer"))) {
       return false;
     }
 
     String newStatus = readStringAttribute(newImage, "status");
-    String oldStatus = readStringAttribute(record.getDynamodb().getOldImage(), "status");
+    String oldStatus = readStringAttribute(record.path("dynamodb").path("OldImage"), "status");
     return !Objects.equals(newStatus, oldStatus);
   }
 
@@ -295,12 +294,13 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
     }
   }
 
-  private String readStringAttribute(Map<String, AttributeValue> image, String attributeName) {
-    if (image == null || image.get(attributeName) == null) {
+  private String readStringAttribute(JsonNode image, String attributeName) {
+    JsonNode value = image.path(attributeName).path("S");
+    if (value.isMissingNode() || value.isNull()) {
       return null;
     }
 
-    return image.get(attributeName).getS();
+    return value.asText();
   }
 
   private String serializePublicIdps(ArrayList<IDP> idps) {

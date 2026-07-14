@@ -2,7 +2,7 @@ package it.pagopa.oneid.service;
 
 import java.util.ArrayList;
 
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
@@ -15,9 +15,9 @@ public interface IDPMetadataService {
 
   void publishPublicIdps(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO);
 
-  void validateDynamodbStatus(DynamodbEvent.DynamodbStreamRecord record);
+  void validateDynamodbStatus(JsonNode record);
 
-  boolean isPublicIdpsStatusChange(DynamodbEvent.DynamodbStreamRecord record);
+  boolean isPublicIdpsStatusChange(JsonNode record);
 
   void refreshPublicIdps();
 

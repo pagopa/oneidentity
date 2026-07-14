@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -17,9 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
-import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -83,8 +80,7 @@ public class IDPMetadataServiceImplTest {
   @Test
   void isPublicIdpsStatusChange_statusChanged() {
     boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
-        dynamodbEvent("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO")
-            .getRecords().getFirst());
+      dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO"));
 
     assertTrue(statusChanged);
   }
@@ -93,8 +89,7 @@ public class IDPMetadataServiceImplTest {
   void validateDynamodbStatus_invalidStatus() {
     try {
       idpMetadataServiceImpl.validateDynamodbStatus(
-          dynamodbEvent("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN")
-              .getRecords().getFirst());
+          dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN"));
       throw new AssertionError("Expected an invalid IDP status to fail the invocation");
     } catch (IllegalArgumentException exception) {
       assertEquals("Invalid IDP status in DynamoDB stream event: UNKNOWN",
@@ -216,28 +211,26 @@ public class IDPMetadataServiceImplTest {
     assertTrue(idps.isEmpty());
   }
 
-  private DynamodbEvent dynamodbEvent(String eventName, String pointer, String oldStatus,
+  private JsonNode dynamodbRecord(String eventName, String pointer, String oldStatus,
       String newStatus) {
-    StreamRecord dynamodb = new StreamRecord();
-    dynamodb.setOldImage(Map.of(
-        "pointer", stringAttribute(pointer),
-        "status", stringAttribute(oldStatus)));
-    dynamodb.setNewImage(Map.of(
-        "pointer", stringAttribute(pointer),
-        "status", stringAttribute(newStatus)));
-
-    DynamodbEvent.DynamodbStreamRecord record = new DynamodbEvent.DynamodbStreamRecord();
-    record.setEventName(eventName);
-    record.setDynamodb(dynamodb);
-
-    DynamodbEvent event = new DynamodbEvent();
-    event.setRecords(List.of(record));
-    return event;
-  }
-
-  private AttributeValue stringAttribute(String value) {
-    AttributeValue attributeValue = new AttributeValue();
-    attributeValue.setS(value);
-    return attributeValue;
+    try {
+      return new ObjectMapper().readTree("""
+          {
+            "eventName": "%s",
+            "dynamodb": {
+              "OldImage": {
+                "pointer": { "S": "%s" },
+                "status": { "S": "%s" }
+              },
+              "NewImage": {
+                "pointer": { "S": "%s" },
+                "status": { "S": "%s" }
+              }
+            }
+          }
+          """.formatted(eventName, pointer, oldStatus, pointer, newStatus));
+    } catch (IOException exception) {
+      throw new RuntimeException(exception);
+    }
   }
 }
