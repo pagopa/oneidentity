@@ -234,7 +234,8 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public void refreshPublicIdps() {
-    Log.debug("start");
+    // TODO: consider refactoring this method in case 
+    // EIDAS will use LATEST_SPID as pointer
     ArrayList<IDP> idps = idpConnectorImpl
         .findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString())
         .orElseGet(ArrayList::new);

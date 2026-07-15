@@ -25,9 +25,6 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
 
   @Override
   public String handleRequest(Object event, Context context) {
-    Log.debug("start");
-    Log.info("IDP metadata Lambda handler invoked, requestId="
-      + (context == null ? "unknown" : context.getAwsRequestId()));
 
     JsonNode input = objectMapper.valueToTree(event);
     if (input == null || !input.isObject() || !input.path("Records").isArray()
@@ -47,7 +44,6 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
   }
 
   private String handleS3Event(JsonNode record) {
-    Log.debug("start");
 
     if (!"aws:s3".equals(record.path("eventSource").asText())) {
       Log.warn("Ignoring non-S3 record in S3 event");
@@ -80,7 +76,6 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
   }
 
   private String handleDynamodbEvent(JsonNode records) {
-    Log.debug("start");
 
     if (!records.isArray() || records.isEmpty()) {
       Log.warn("Ignoring DynamoDB event without records");
