@@ -96,17 +96,17 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       boolean skipPublish = false;
       switch (eventName) {
         case "INSERT", "MODIFY" -> {
-          Client client = dynamoStreamService.extractClient(record, false)
+            ClientFE client = dynamoStreamService.extractClientFE(record, false)
               .orElseThrow(() -> new IllegalStateException(
-                  "Unable to build client from NEW_IMAGE for eventName=" + eventName));
+                "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
 
           if ("MODIFY".equals(eventName)) {
             // ha senso?
-            if (dynamoStreamService.extractClient(record, true)
+            if (dynamoStreamService.extractClientFE(record, true)
                 .filter(oldClient -> oldClient.equals(client))
                 .isPresent()) {
               Log.infof("Skipping client republish for clientId=%s because only secret fields changed",
-                  client.getClientId());
+                  client.getClientID());
               skipPublish = true;
             }
           }
@@ -114,7 +114,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
           if (!skipPublish) {
             publishSingleClient(client);
             publishGlobalClients();
-            publishMetric(SUCCESS_METRIC_NAME, client.getClientId());
+            publishMetric(SUCCESS_METRIC_NAME, client.getClientID());
           }
         }
         case "REMOVE" -> {
@@ -132,11 +132,10 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     }
   }
 
-  private void publishSingleClient(Client client) {
-    ClientFE clientFE = new ClientFE(client);
-    String key = singleClientKeyPrefix + client.getClientId() + ".json";
+  private void publishSingleClient(ClientFE client) {
+    String key = singleClientKeyPrefix + client.getClientID() + ".json";
     try {
-      String payload = objectMapper.writeValueAsString(clientFE);
+      String payload = objectMapper.writeValueAsString(client);
       s3Client.putObject(PutObjectRequest.builder()
               .bucket(bucketName)
               .key(key)

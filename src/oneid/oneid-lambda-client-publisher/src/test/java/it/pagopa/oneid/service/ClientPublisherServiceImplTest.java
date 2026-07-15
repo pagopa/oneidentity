@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
+import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
@@ -68,8 +69,9 @@ class ClientPublisherServiceImplTest {
 
     when(recordUtils.readRecords(any())).thenReturn(List.of(record));
     when(dynamoStreamService.extractClientId(record, false)).thenReturn(java.util.Optional.of("client-1"));
-    when(dynamoStreamService.extractClient(record, false)).thenReturn(java.util.Optional.of(client));
-    when(dynamoStreamService.extractClient(record, true)).thenReturn(java.util.Optional.of(client));
+    ClientFE clientFE = new ClientFE(client);
+    when(dynamoStreamService.extractClientFE(record, false)).thenReturn(java.util.Optional.of(clientFE));
+    when(dynamoStreamService.extractClientFE(record, true)).thenReturn(java.util.Optional.of(clientFE));
 
     ClientPublisherServiceImpl service = new ClientPublisherServiceImpl(
         clientConnector,
@@ -114,8 +116,8 @@ class ClientPublisherServiceImplTest {
     when(recordUtils.readRecords(any())).thenReturn(List.of(record));
     when(dynamoStreamService.extractClientId(record, false))
         .thenReturn(java.util.Optional.of("client-1"));
-    when(dynamoStreamService.extractClient(record, false))
-        .thenReturn(java.util.Optional.of(client));
+    when(dynamoStreamService.extractClientFE(record, false))
+      .thenReturn(java.util.Optional.of(new ClientFE(client)));
     when(clientConnector.findAll()).thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
 
     ClientPublisherServiceImpl service = newService(
@@ -167,10 +169,10 @@ class ClientPublisherServiceImplTest {
     when(recordUtils.readRecords(any())).thenReturn(List.of(record));
     when(dynamoStreamService.extractClientId(record, false))
         .thenReturn(java.util.Optional.of("client-1"));
-    when(dynamoStreamService.extractClient(record, false))
-        .thenReturn(java.util.Optional.of(newClient));
-    when(dynamoStreamService.extractClient(record, true))
-        .thenReturn(java.util.Optional.of(oldClient));
+    when(dynamoStreamService.extractClientFE(record, false))
+      .thenReturn(java.util.Optional.of(new ClientFE(newClient)));
+    when(dynamoStreamService.extractClientFE(record, true))
+      .thenReturn(java.util.Optional.of(new ClientFE(oldClient)));
     when(clientConnector.findAll())
       .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(newClient))));
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -56,6 +57,27 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   @Override
   public Optional<Client> extractClient(JsonNode streamRecord, boolean preferOldImage) {
     return mapImageToClient(extractImage(streamRecord, preferOldImage));
+  }
+
+  @Override
+  public Optional<ClientFE> extractClientFE(JsonNode streamRecord, boolean preferOldImage) {
+    JsonNode streamImage = extractImage(streamRecord, preferOldImage);
+    if (streamImage == null || streamImage.isNull() || !streamImage.isObject()
+        || streamImage.size() == 0) {
+      return Optional.empty();
+    }
+
+    Map<String, Object> payload = new HashMap<>();
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
+        fromDynamoAttribute(entry.getValue())));
+    payload.put("clientID", payload.remove(FIELD_CLIENT_ID));
+
+    try {
+      return Optional.of(clientPayloadObjectMapper.convertValue(payload, ClientFE.class));
+    } catch (IllegalArgumentException conversionException) {
+      throw new IllegalArgumentException("Unable to convert DynamoDB stream image to ClientFE",
+          conversionException);
+    }
   }
 
   @Override
