@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.1.5
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+
 ## 1.1.4
 
 ### Patch Changes

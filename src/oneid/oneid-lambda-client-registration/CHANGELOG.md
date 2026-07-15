@@ -1,5 +1,12 @@
 # oneid-lambda-client-registration
 
+## 2.5.3
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+- 7285c39: add enable configuration for redis client
+
 ## 2.5.2
 
 ### Patch Changes

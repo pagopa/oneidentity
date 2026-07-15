@@ -1,5 +1,15 @@
 # infra
 
+## 2.5.0
+
+### Minor Changes
+
+- e5e331b: feat: update step scaling policy
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+
 ## 2.4.0
 
 ### Minor Changes
