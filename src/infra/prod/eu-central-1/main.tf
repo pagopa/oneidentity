@@ -210,6 +210,12 @@ module "backend" {
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
+  eventbridge_pipe_update_idp_metadata = {
+    pipe_name                     = format("%s-idp-metadata-invalid-status-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
   # TODO: enable cache updater lambda and pipe when the cache updater lambda and ecs core updates are ready to be deployed
   # eventbridge_pipe_cache_updater = {
   #   pipe_name                     = format("%s-cache-updater-pipe", local.project)
@@ -348,6 +354,7 @@ module "backend" {
   dynamodb_table_stream_arn                  = module.database.dynamodb_table_stream_arn
   table_last_idp_used_arn                    = module.database.table_last_idp_used_arn
   lambda_client_registration_trigger_enabled = false
+  idp_metadata_stream_trigger_enabled        = false
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
@@ -379,12 +386,14 @@ module "backend" {
     name     = format("%s-update-idp-metadata", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
+      ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
       LOG_LEVEL                = var.app_log_level
     }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
     vpc_id                            = module.network.vpc_id
@@ -395,6 +404,7 @@ module "backend" {
   dynamodb_table_idpMetadata = {
     gsi_pointer_arn = local.table_idpMetadata_gsi_pointer_arn
     table_arn       = local.table_idp_metadata_arn
+    stream_arn      = module.database.table_idp_metadata_stream_arn
   }
 
   dynamodb_table_idpStatus = {

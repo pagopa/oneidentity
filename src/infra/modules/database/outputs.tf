@@ -132,3 +132,7 @@ output "internal_idp_users_gsi_namespace_name" {
 output "internal_idp_session_arn" {
   value = try(module.dynamodb_table_internal_idp_sessions[0].dynamodb_table_arn, null)
 }
+
+output "table_idp_metadata_stream_arn" {
+  value = try(module.dynamodb_table_idpMetadata[0].dynamodb_table_stream_arn, null)
+}

@@ -12,7 +12,6 @@ import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.ClientServiceImpl;
 import it.pagopa.oneid.service.IdpServiceImpl;
 import it.pagopa.oneid.service.OIDCServiceImpl;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,6 @@ import org.mockito.Mockito;
 @ShouldNotPin
 class OneIDControllerTest {
 
-  @Inject
-  OneIDController oneIDController;
   @InjectMock
   ClientServiceImpl clientServiceImpl;
   @InjectMock
@@ -99,7 +96,7 @@ class OneIDControllerTest {
   void findAllClients() {
 
     //given
-    ArrayList<ClientFE> clients = Mockito.mock(ArrayList.class);
+    ArrayList<ClientFE> clients = new ArrayList<>();
     Mockito.when(clientServiceImpl.getAllClientsInformation())
         .thenReturn(Optional.of(clients));
 
@@ -140,7 +137,7 @@ class OneIDControllerTest {
   void findAllIdp() {
 
     //given
-    ArrayList<IDP> idps = Mockito.mock(ArrayList.class);
+    ArrayList<IDP> idps = new ArrayList<>();
     Mockito.when(idpServiceImpl.findAllIdpByTimestamp())
         .thenReturn(Optional.of(idps));
 
@@ -150,13 +147,12 @@ class OneIDControllerTest {
             .when().get("/idps")
             .then()
             .statusCode(200)
-        .header("Access-Control-Allow-Origin", "*")
+            .header("Access-Control-Allow-Origin", "*")
             .extract()
             .asString();
 
     //then
     assertNotNull(response);
-
   }
 
   @Test
@@ -172,7 +168,7 @@ class OneIDControllerTest {
             .when().get("/idps")
             .then()
             .statusCode(404)
-        .header("Access-Control-Allow-Origin", "*")
+            .header("Access-Control-Allow-Origin", "*")
             .extract()
             .asString();
 

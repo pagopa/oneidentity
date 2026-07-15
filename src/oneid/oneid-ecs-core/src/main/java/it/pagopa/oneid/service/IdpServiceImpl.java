@@ -14,6 +14,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @CustomLogging
 @Startup
 public class IdpServiceImpl implements IdpService {
+  //TODO: remove this service after idps.json is available in the assets bucket.
+
 
   @Inject
   IDPConnectorImpl idpConnectorImpl;

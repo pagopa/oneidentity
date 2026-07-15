@@ -1,89 +1,113 @@
 package it.pagopa.oneid.web;
 
-import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.events.S3Event;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3Entity;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3EventNotificationRecord;
-import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.S3ObjectEntity;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
-import it.pagopa.oneid.common.model.IDP;
-import it.pagopa.oneid.service.IDPMetadataServiceImpl;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@QuarkusTest
-public class OneIDLambdaUpdateIDPMetadataTest {
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-  @InjectMock
-  IDPMetadataServiceImpl idPMetadataServiceImpl;
+import it.pagopa.oneid.common.model.IDP;
+import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
+import it.pagopa.oneid.common.model.enums.LatestTAG;
+import it.pagopa.oneid.service.IDPMetadataServiceImpl;
 
-  @Inject
-  OneIDLambdaUpdateIDPMetadata oneIDLambdaUpdateIDPMetadata;
+class OneIDLambdaUpdateIDPMetadataTest {
 
   @Test
-  void handleRequest_spidIDP() {
+  @DisplayName("given an S3 event when handling then update metadata and publish public IDPs")
+  void given_s3Event_when_handling_then_updatesMetadataAndPublishesPublicIdps() throws Exception {
+        IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
+        ObjectMapper eventMapper = new ObjectMapper();
+        when(idpMetadataService.getMetadataFile(any())).thenReturn("dummy");
 
-    // given
-
-    Context context = Mockito.mock(Context.class);
-    S3Event s3Event = Mockito.mock(S3Event.class);
-    S3EventNotificationRecord s3EventNotificationRecord = Mockito.mock(
-        S3EventNotificationRecord.class);
-
-    S3Entity s3Entity = Mockito.mock(S3Entity.class);
-    S3ObjectEntity s3ObjectEntity = Mockito.mock(S3ObjectEntity.class);
-    Mockito.when(s3ObjectEntity.getUrlDecodedKey()).thenReturn("spid-11111.xml");
-    Mockito.when(s3Entity.getObject()).thenReturn(s3ObjectEntity);
-    Mockito.when(s3EventNotificationRecord.getS3()).thenReturn(s3Entity);
-    Mockito.when(s3Event.getRecords()).thenReturn(List.of(s3EventNotificationRecord));
-
-    Mockito.when(idPMetadataServiceImpl.getMetadataFile(Mockito.any())).thenReturn("dummy");
-
-    ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(new IDP()));
-
-    Mockito.when(idPMetadataServiceImpl.parseIDPMetadata(Mockito.any(), Mockito.any()))
+    ArrayList<IDP> idps = new ArrayList<>(List.of(new IDP()));
+        when(idpMetadataService.parseIDPMetadata(any(), any()))
         .thenReturn(idps);
-    Mockito.doNothing().when(idPMetadataServiceImpl)
-        .updateIDPMetadata(Mockito.any(), Mockito.any());
+    JsonNode input = s3EventInput("spid-11111.xml");
+    OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
+    handler.idpMetadataServiceImpl = idpMetadataService;
+    handler.objectMapper = eventMapper;
 
-    // then
-    oneIDLambdaUpdateIDPMetadata.handleRequest(s3Event, context);
+    assertEquals("Ok", handler.handleRequest(input, null));
 
+    verify(idpMetadataService).getMetadataFile("spid-11111.xml");
+    verify(idpMetadataService).updateIDPMetadata(same(idps), any(IdpS3FileDTO.class));
+    verify(idpMetadataService).publishPublicIdps(same(idps), any(IdpS3FileDTO.class));
   }
 
   @Test
-  void handleRequest_cieIDP() {
+    @DisplayName("given a DynamoDB status change when handling then validate and refresh public IDPs")
+    void given_dynamodbStatusChange_when_handling_then_validatesAndRefreshesPublicIdps()
+      throws Exception {
+        IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
+        ObjectMapper eventMapper = new ObjectMapper();
+        JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO");
+                when(idpMetadataService.isPublicIdpsStatusChange(any())).thenReturn(true);
+    OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
+    handler.idpMetadataServiceImpl = idpMetadataService;
+    handler.objectMapper = eventMapper;
 
-    // given
+    assertEquals("Ok", handler.handleRequest(input, null));
 
-    Context context = Mockito.mock(Context.class);
-    S3Event s3Event = Mockito.mock(S3Event.class);
-    S3EventNotificationRecord s3EventNotificationRecord = Mockito.mock(
-        S3EventNotificationRecord.class);
-
-    S3Entity s3Entity = Mockito.mock(S3Entity.class);
-    S3ObjectEntity s3ObjectEntity = Mockito.mock(S3ObjectEntity.class);
-    Mockito.when(s3ObjectEntity.getUrlDecodedKey()).thenReturn("cie-11111.xml");
-    Mockito.when(s3Entity.getObject()).thenReturn(s3ObjectEntity);
-    Mockito.when(s3EventNotificationRecord.getS3()).thenReturn(s3Entity);
-    Mockito.when(s3Event.getRecords()).thenReturn(List.of(s3EventNotificationRecord));
-
-    Mockito.when(idPMetadataServiceImpl.getMetadataFile(Mockito.any())).thenReturn("dummy");
-
-    ArrayList<IDP> idps = new ArrayList<>(Collections.singleton(new IDP()));
-
-    Mockito.when(idPMetadataServiceImpl.parseIDPMetadata(Mockito.any(), Mockito.any()))
-        .thenReturn(idps);
-    Mockito.doNothing().when(idPMetadataServiceImpl)
-        .updateIDPMetadata(Mockito.any(), Mockito.any());
-
-    // then
-    oneIDLambdaUpdateIDPMetadata.handleRequest(s3Event, context);
-
+        ArgumentCaptor<JsonNode> recordCaptor = ArgumentCaptor.forClass(JsonNode.class);
+        verify(idpMetadataService).isPublicIdpsStatusChange(recordCaptor.capture());
+    verify(idpMetadataService).refreshPublicIdps();
+        assertEquals("MODIFY", recordCaptor.getValue().path("eventName").asText());
+        assertEquals(LatestTAG.LATEST_SPID.toString(),
+            recordCaptor.getValue().path("dynamodb").path("NewImage").path("pointer")
+                .path("S").asText());
   }
+
+    private JsonNode s3EventInput(String objectKey) throws Exception {
+        return new ObjectMapper().readTree("""
+                {
+                    "Records": [
+                        {
+                            "eventSource": "aws:s3",
+                            "s3": {
+                                "object": {
+                                    "key": "%s"
+                                }
+                            }
+                        }
+                    ]
+                }
+                """.formatted(objectKey));
+    }
+
+    private JsonNode dynamodbEventInput(String eventName, String pointer, String oldStatus,
+            String newStatus) throws Exception {
+        return new ObjectMapper().readTree("""
+                {
+                    "Records": [
+                        {
+                            "eventName": "%s",
+                            "eventSource": "aws:dynamodb",
+                            "dynamodb": {
+                                "ApproximateCreationDateTime": 1720944000.123,
+                                "OldImage": {
+                                    "pointer": { "S": "%s" },
+                                    "status": { "S": "%s" }
+                                },
+                                "NewImage": {
+                                    "pointer": { "S": "%s" },
+                                    "status": { "S": "%s" }
+                                }
+                            }
+                        }
+                    ]
+                }
+                """.formatted(eventName, pointer, oldStatus, pointer, newStatus));
+    }
+
 }

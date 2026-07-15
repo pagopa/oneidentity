@@ -29,6 +29,7 @@ public class OneIDController {
   @Inject
   ClientServiceImpl clientServiceImpl;
 
+  // TODO: Remove this injection after idps.json is available in the assets bucket.
   @Inject
   IdpServiceImpl idpServiceImpl;
 
@@ -62,6 +63,7 @@ public class OneIDController {
         Response.ok(clients).build();
   }
 
+  // TODO: Remove this fallback after idps.json is available in the assets bucket.
   @GET
   @Path("/idps")
   @Produces(MediaType.APPLICATION_JSON)

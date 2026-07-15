@@ -505,11 +505,13 @@ module "backend" {
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     environment_variables = {
+      ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
       LOG_LEVEL                = var.app_log_level
     }
+    assets_bucket_arn          = module.storage.assets_bucket_arn
     s3_idp_metadata_bucket_arn = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id  = module.storage.s3_idp_metadata_bucket_name
     vpc_id                     = module.network.vpc_id
@@ -520,6 +522,7 @@ module "backend" {
   dynamodb_table_idpMetadata = {
     gsi_pointer_arn = module.database.table_idpMetadata_gsi_pointer_arn
     table_arn       = module.database.table_idp_metadata_arn
+    stream_arn      = module.database.table_idp_metadata_stream_arn
   }
 
   dynamodb_table_idpStatus = {
@@ -616,6 +619,12 @@ module "backend" {
 
   eventbridge_pipe_invalidate_cache = {
     pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  eventbridge_pipe_update_idp_metadata = {
+    pipe_name                     = format("%s-idp-metadata-invalid-status-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
