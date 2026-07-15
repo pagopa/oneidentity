@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.4.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
 ## 1.3.1
 
 ### Patch Changes

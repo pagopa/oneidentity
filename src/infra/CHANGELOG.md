@@ -1,5 +1,11 @@
 # infra
 
+## 2.6.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
 ## 2.5.0
 
 ### Minor Changes
