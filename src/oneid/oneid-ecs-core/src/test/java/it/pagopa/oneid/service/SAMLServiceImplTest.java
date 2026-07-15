@@ -805,7 +805,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_NOT_VALID_RESPONSE_ID.getErrorMessage()));
@@ -837,7 +837,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
@@ -869,7 +869,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
@@ -901,7 +901,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
@@ -934,7 +934,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -968,7 +968,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -1002,7 +1002,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
@@ -1035,7 +1035,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
@@ -1068,7 +1068,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
@@ -1101,7 +1101,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_DESTINATION_NOT_FOUND.getErrorMessage()));
@@ -1134,7 +1134,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_DESTINATION_MISMATCH.getErrorMessage()));
@@ -1167,7 +1167,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
@@ -1200,7 +1200,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
@@ -1233,7 +1233,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
@@ -1266,7 +1266,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
@@ -1299,7 +1299,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
   }
 
@@ -1330,7 +1330,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
     assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_NOT_FOUND.getErrorMessage()));
   }
 
@@ -1361,7 +1361,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
@@ -1393,7 +1393,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ASSERTION_ID_MISSING.getErrorMessage()));
   }
@@ -1425,7 +1425,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage()));
@@ -1458,7 +1458,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_ISSUE_INSTANT_MISSING.getErrorMessage()));
@@ -1491,7 +1491,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.plusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -1525,7 +1525,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -1559,7 +1559,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(40), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -1593,7 +1593,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
@@ -1626,7 +1626,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(ErrorCode.IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
@@ -1659,7 +1659,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
@@ -1691,7 +1691,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_SUBJECT_NOT_INITIALIZED.getErrorMessage()));
@@ -1724,7 +1724,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
@@ -1756,7 +1756,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_TYPE.getErrorMessage()));
   }
@@ -1788,7 +1788,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_ID_FORMAT.getErrorMessage()));
   }
@@ -1820,7 +1820,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
@@ -1852,7 +1852,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_INVALID_NAME_QUALIFIER.getErrorMessage()));
   }
@@ -1884,7 +1884,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
@@ -1917,7 +1917,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_NOT_INITIALIZED.getErrorMessage()));
@@ -1950,7 +1950,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
@@ -1983,7 +1983,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
@@ -2016,7 +2016,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE.getErrorMessage()));
@@ -2049,7 +2049,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_SUBJECT_CONFIRMATION_DATA_NOT_FOUND.getErrorMessage()));
@@ -2082,7 +2082,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
@@ -2115,7 +2115,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(ErrorCode.IDP_ERROR_RECIPIENT_NOT_FOUND.getErrorMessage()));
@@ -2148,7 +2148,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_RECIPIENT_MISMATCH.getErrorMessage()));
   }
@@ -2180,7 +2180,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
@@ -2212,7 +2212,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_IN_RESPONSE_TO_MISSING.getErrorMessage()));
   }
@@ -2244,7 +2244,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
@@ -2277,7 +2277,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
@@ -2310,7 +2310,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
@@ -2343,7 +2343,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_VALUE_BLANK.getErrorMessage()));
   }
@@ -2375,7 +2375,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_NOT_FOUND.getErrorMessage()));
   }
@@ -2407,7 +2407,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_MISMATCH.getErrorMessage()));
   }
@@ -2439,7 +2439,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
@@ -2471,7 +2471,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
@@ -2503,7 +2503,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(exception.getMessage().contains(IDP_ERROR_ISSUER_INVALID_FORMAT.getErrorMessage()));
   }
@@ -2535,7 +2535,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -2569,7 +2569,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_MISSING_CONDITIONS.getErrorMessage()));
@@ -2602,7 +2602,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
@@ -2635,7 +2635,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_NOT_FOUND.getErrorMessage()));
@@ -2668,7 +2668,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_BEFORE_IN_THE_FUTURE.getErrorMessage()));
@@ -2701,7 +2701,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
@@ -2734,7 +2734,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_NOT_FOUND.getErrorMessage()));
@@ -2767,7 +2767,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_NOT_ON_OR_AFTER_EXPIRED.getErrorMessage()));
@@ -2800,7 +2800,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -2834,7 +2834,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -2868,7 +2868,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
@@ -2901,7 +2901,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -2935,7 +2935,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_AUDIENCE_MISMATCH.getErrorMessage()));
@@ -2968,7 +2968,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
@@ -3001,7 +3001,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3035,7 +3035,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3069,7 +3069,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_AUTHN_CONTEXT_MISSING.getErrorMessage()));
@@ -3102,7 +3102,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3136,7 +3136,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3170,7 +3170,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L1,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3200,7 +3200,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3235,7 +3235,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L3,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3271,7 +3271,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L1,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3301,7 +3301,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3331,7 +3331,7 @@ public class SAMLServiceImplTest {
     SAMLValidationException exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L3,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getErrorCode().getErrorMessage()
@@ -3366,7 +3366,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L1,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3396,7 +3396,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3426,7 +3426,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L3,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3456,7 +3456,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   @Test
@@ -3486,7 +3486,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3520,7 +3520,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_PRESENT.getErrorMessage()));
@@ -3553,7 +3553,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3587,7 +3587,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage()));
@@ -3620,7 +3620,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
   }
 
@@ -3651,7 +3651,7 @@ public class SAMLServiceImplTest {
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
   }
 
   // CIE
@@ -3685,7 +3685,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("spidCode", "fiscalNumber"), // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
   }
 
   @Test
@@ -3718,7 +3718,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "familyName", "dateOfBirth"), // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3755,7 +3755,7 @@ public class SAMLServiceImplTest {
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "familyName", "dateOfBirth"), // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3793,7 +3793,7 @@ public class SAMLServiceImplTest {
             Set.of("fiscalNumber", "familyName", "dateOfBirth"),
             // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3831,7 +3831,7 @@ public class SAMLServiceImplTest {
             Set.of("fiscalNumber", "familyName", "dateOfBirth"),
             // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3869,7 +3869,7 @@ public class SAMLServiceImplTest {
             Set.of("fiscalNumber", "familyName", "dateOfBirth"),
             // requested
             mockInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
-            defaultClientId));
+            defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3913,7 +3913,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
     assertTrue(exception.getMessage()
         .contains(IDP_ERROR_MULTIPLE_SUBJECT_CONFIRMATIONS.getErrorMessage()));
   }
@@ -3945,7 +3945,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage()
@@ -3979,7 +3979,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_MULTIPLE_AUDIENCES.getErrorMessage()));
@@ -4012,7 +4012,7 @@ public class SAMLServiceImplTest {
     Exception exception = assertThrows(SAMLValidationException.class,
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
             Set.of("fiscalNumber", "dateOfBirth"), mockInstant.minusSeconds(10), AuthLevel.L2,
-            defaultFallbackUri, defaultState, defaultClientId));
+            defaultFallbackUri, defaultState, defaultClientId, null));
 
     assertTrue(
         exception.getMessage().contains(IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS.getErrorMessage()));
