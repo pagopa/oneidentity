@@ -13,7 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +50,7 @@ public class IDPMetadataServiceImplTest {
 
   @Test
   void getMetadataFile() {
-    Mockito.when(s3BucketIDPMetadataConnector.getMetadataFile(Mockito.any())).thenReturn("dummy");
+    when(s3BucketIDPMetadataConnector.getMetadataFile(any())).thenReturn("dummy");
 
     // then
     assertEquals("dummy", idpMetadataServiceImpl.getMetadataFile("foobar"));
@@ -53,8 +58,7 @@ public class IDPMetadataServiceImplTest {
 
   @Test
   void updateIDPMetadata() {
-    Mockito.doNothing().when(idpConnectorImpl)
-        .saveIDPs(Mockito.any(), Mockito.any(), Mockito.any());
+    doNothing().when(idpConnectorImpl).saveIDPs(any(), any(), any());
 
     // then
     ArrayList<IDP> idpList = new ArrayList<>();
@@ -68,13 +72,12 @@ public class IDPMetadataServiceImplTest {
 
   @Test
   void refreshPublicIdps() {
-    Mockito.when(idpConnectorImpl.findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString()))
+    when(idpConnectorImpl.findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString()))
         .thenReturn(Optional.of(new ArrayList<>()));
 
     idpMetadataServiceImpl.refreshPublicIdps();
 
-    Mockito.verify(publicIdpsBucketConnector).uploadIdpsJson(Mockito.anyString(),
-        Mockito.eq("[]"));
+    verify(publicIdpsBucketConnector).uploadIdpsJson(anyString(), eq("[]"));
   }
 
   @Test
@@ -100,8 +103,7 @@ public class IDPMetadataServiceImplTest {
 
           idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
 
-          Mockito.verify(publicIdpsBucketConnector).uploadIdpsJson(Mockito.anyString(),
-          Mockito.anyString());
+          verify(publicIdpsBucketConnector).uploadIdpsJson(anyString(), anyString());
         }
 
   @Test

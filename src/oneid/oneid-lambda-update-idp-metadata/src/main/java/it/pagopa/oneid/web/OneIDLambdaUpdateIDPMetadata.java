@@ -17,6 +17,10 @@ import jakarta.inject.Inject;
 
 public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, String> {
 
+  private static final String EVENT_SOURCE = "eventSource";
+  private static final String IGNORED = "Ignored";
+  private static final String RECORDS = "Records";
+
   @Inject
   IDPMetadataServiceImpl idpMetadataServiceImpl;
 
@@ -27,33 +31,38 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
   public String handleRequest(Object event, Context context) {
 
     JsonNode input = objectMapper.valueToTree(event);
-    if (input == null || !input.isObject() || !input.path("Records").isArray()
-      || input.path("Records").isEmpty()) {
+    if (input == null || !input.isObject()) {
       Log.warn("Ignoring Lambda event without records");
-      return "Ignored";
+      return IGNORED;
     }
 
-    String eventSource = input.path("Records").get(0).path("eventSource").asText();
+    JsonNode records = input.path(RECORDS);
+    if (!records.isArray() || records.isEmpty()) {
+      Log.warn("Ignoring Lambda event without records");
+      return IGNORED;
+    }
+
+    String eventSource = records.get(0).path(EVENT_SOURCE).asText();
     Log.info("Processing IDP metadata event: source=" + eventSource + ", records="
-      + input.path("Records").size());
+      + records.size());
     return switch (eventSource) {
-      case "aws:s3" -> handleS3Event(input.path("Records").get(0));
-      case "aws:dynamodb" -> handleDynamodbEvent(input.path("Records"));
+      case "aws:s3" -> handleS3Event(records.get(0));
+      case "aws:dynamodb" -> handleDynamodbEvent(records);
       default -> throw new IllegalArgumentException("Unsupported event source: " + eventSource);
     };
   }
 
-  private String handleS3Event(JsonNode record) {
+  private String handleS3Event(JsonNode s3EventRecord) {
 
-    if (!"aws:s3".equals(record.path("eventSource").asText())) {
+    if (!"aws:s3".equals(s3EventRecord.path(EVENT_SOURCE).asText())) {
       Log.warn("Ignoring non-S3 record in S3 event");
-      return "Ignored";
+      return IGNORED;
     }
 
-    String encodedKey = record.path("s3").path("object").path("key").asText();
+    String encodedKey = s3EventRecord.path("s3").path("object").path("key").asText();
     if (encodedKey.isBlank()) {
       Log.warn("Ignoring S3 event without object key");
-      return "Ignored";
+      return IGNORED;
     }
 
     String srcKey = URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
@@ -79,19 +88,19 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
 
     if (!records.isArray() || records.isEmpty()) {
       Log.warn("Ignoring DynamoDB event without records");
-      return "Ignored";
+      return IGNORED;
     }
 
     boolean publicIdpsStatusChanged = false;
-    for (JsonNode record : records) {
-      if (!"aws:dynamodb".equals(record.path("eventSource").asText())) {
+    for (JsonNode dynamodbEventRecord : records) {
+      if (!"aws:dynamodb".equals(dynamodbEventRecord.path(EVENT_SOURCE).asText())) {
         Log.warn("Ignoring non-DynamoDB record in DynamoDB event");
         continue;
       }
 
       // Detect changes that affect the IDPs snapshot
       publicIdpsStatusChanged = publicIdpsStatusChanged
-          || idpMetadataServiceImpl.isPublicIdpsStatusChange(record);
+          || idpMetadataServiceImpl.isPublicIdpsStatusChange(dynamodbEventRecord);
     }
 
     if (publicIdpsStatusChanged) {

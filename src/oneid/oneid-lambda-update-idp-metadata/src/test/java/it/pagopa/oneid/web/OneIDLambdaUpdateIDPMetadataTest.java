@@ -7,8 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,12 +26,12 @@ class OneIDLambdaUpdateIDPMetadataTest {
   @Test
   @DisplayName("given an S3 event when handling then update metadata and publish public IDPs")
   void given_s3Event_when_handling_then_updatesMetadataAndPublishesPublicIdps() throws Exception {
-    IDPMetadataServiceImpl idpMetadataService = Mockito.mock(IDPMetadataServiceImpl.class);
+        IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
         ObjectMapper eventMapper = new ObjectMapper();
-    Mockito.when(idpMetadataService.getMetadataFile(Mockito.any())).thenReturn("dummy");
+        when(idpMetadataService.getMetadataFile(any())).thenReturn("dummy");
 
     ArrayList<IDP> idps = new ArrayList<>(List.of(new IDP()));
-    Mockito.when(idpMetadataService.parseIDPMetadata(Mockito.any(), Mockito.any()))
+        when(idpMetadataService.parseIDPMetadata(any(), any()))
         .thenReturn(idps);
     JsonNode input = s3EventInput("spid-11111.xml");
     OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
@@ -38,20 +41,18 @@ class OneIDLambdaUpdateIDPMetadataTest {
     assertEquals("Ok", handler.handleRequest(input, null));
 
     verify(idpMetadataService).getMetadataFile("spid-11111.xml");
-    verify(idpMetadataService).updateIDPMetadata(Mockito.same(idps), Mockito.any(
-        IdpS3FileDTO.class));
-    verify(idpMetadataService).publishPublicIdps(Mockito.same(idps), Mockito.any(
-        IdpS3FileDTO.class));
+    verify(idpMetadataService).updateIDPMetadata(same(idps), any(IdpS3FileDTO.class));
+    verify(idpMetadataService).publishPublicIdps(same(idps), any(IdpS3FileDTO.class));
   }
 
   @Test
     @DisplayName("given a DynamoDB status change when handling then validate and refresh public IDPs")
     void given_dynamodbStatusChange_when_handling_then_validatesAndRefreshesPublicIdps()
       throws Exception {
-    IDPMetadataServiceImpl idpMetadataService = Mockito.mock(IDPMetadataServiceImpl.class);
+        IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
         ObjectMapper eventMapper = new ObjectMapper();
         JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO");
-        Mockito.when(idpMetadataService.isPublicIdpsStatusChange(Mockito.any())).thenReturn(true);
+                when(idpMetadataService.isPublicIdpsStatusChange(any())).thenReturn(true);
     OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
     handler.idpMetadataServiceImpl = idpMetadataService;
     handler.objectMapper = eventMapper;

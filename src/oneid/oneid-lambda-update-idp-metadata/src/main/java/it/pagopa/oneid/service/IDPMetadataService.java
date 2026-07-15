@@ -15,7 +15,7 @@ public interface IDPMetadataService {
 
   void publishPublicIdps(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO);
 
-  boolean isPublicIdpsStatusChange(JsonNode record);
+  boolean isPublicIdpsStatusChange(JsonNode dynamodbEventRecord);
 
   void refreshPublicIdps();
 

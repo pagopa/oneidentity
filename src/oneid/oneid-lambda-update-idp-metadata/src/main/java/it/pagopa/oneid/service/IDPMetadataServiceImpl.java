@@ -250,18 +250,20 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   }
 
   @Override
-  public boolean isPublicIdpsStatusChange(JsonNode record) {
-    if (record == null || !"MODIFY".equals(record.path("eventName").asText())) {
+  public boolean isPublicIdpsStatusChange(JsonNode dynamodbEventRecord) {
+    if (dynamodbEventRecord == null
+        || !"MODIFY".equals(dynamodbEventRecord.path("eventName").asText())) {
       return false;
     }
 
-    JsonNode newImage = record.path("dynamodb").path("NewImage");
+    JsonNode newImage = dynamodbEventRecord.path("dynamodb").path("NewImage");
     if (!LatestTAG.LATEST_SPID.toString().equals(readStringAttribute(newImage, "pointer"))) {
       return false;
     }
 
     String newStatus = readStringAttribute(newImage, "status");
-    String oldStatus = readStringAttribute(record.path("dynamodb").path("OldImage"), "status");
+    String oldStatus = readStringAttribute(
+        dynamodbEventRecord.path("dynamodb").path("OldImage"), "status");
     return !Objects.equals(newStatus, oldStatus);
   }
 
