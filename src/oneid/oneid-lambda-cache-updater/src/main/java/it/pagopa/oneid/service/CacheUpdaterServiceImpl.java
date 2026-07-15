@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
+import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
@@ -105,7 +107,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   }
 
   private void upsertClient(Client client) {
-    if (client==null || StringUtils.isBlank(client.getClientId())) {
+    if (client == null || StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("client must include clientId");
     }
     cacheConnector.setClient(client);

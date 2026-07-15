@@ -13,6 +13,8 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
+import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
