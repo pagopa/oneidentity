@@ -2,6 +2,14 @@ package it.pagopa.oneid.service;
 
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_100;
 import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99;
+import static it.pagopa.oneid.common.model.enums.Identifier.address;
+import static it.pagopa.oneid.common.model.enums.Identifier.dateOfBirth;
+import static it.pagopa.oneid.common.model.enums.Identifier.familyName;
+import static it.pagopa.oneid.common.model.enums.Identifier.fiscalNumber;
+import static it.pagopa.oneid.common.model.enums.Identifier.gender;
+import static it.pagopa.oneid.common.model.enums.Identifier.name;
+import static it.pagopa.oneid.common.model.enums.Identifier.placeOfBirth;
+import static it.pagopa.oneid.common.model.enums.Identifier.spidCode;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
@@ -56,26 +64,26 @@ public class SAMLServiceImpl implements SAMLService {
 
   private final static Set<String> cieMinimumDataSet = Set.of(
       // Mandatory attributes
-      "name",
-      "familyName",
-      "dateOfBirth",
-      "fiscalNumber");
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name(),
+      fiscalNumber.name());
 
   private final static Set<String> eidasMinimumDataSetForIndex99 = Set.of(
       // Mandatory attributes for index 99
-      "spidCode",
-      "name",
-      "familyName",
-      "dateOfBirth");
+      spidCode.name(),
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name());
   private final static Set<String> eidasMinimumDataSetForIndex100 = Set.of(
       // Mandatory attributes for index 100
-      "spidCode",
-      "name",
-      "familyName",
-      "dateOfBirth",
-      "placeOfBirth",
-      "address",
-      "gender");
+      spidCode.name(),
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name(),
+      placeOfBirth.name(),
+      address.name(),
+      gender.name());
 
   private final Clock clock;
 
@@ -145,7 +153,7 @@ public class SAMLServiceImpl implements SAMLService {
     SubjectConfirmation subjectConfirmation = subjectConfirmations.getFirst();
     if (subjectConfirmation.getMethod() == null
         || !subjectConfirmation.getMethod()
-        .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
+            .equals("urn:oasis:names:tc:SAML:2.0:cm:bearer")) {
       throw new SAMLValidationException(
           ErrorCode.IDP_ERROR_SUBJECT_CONFIRMATION_INVALID_METHOD_ATTRIBUTE);
     }
