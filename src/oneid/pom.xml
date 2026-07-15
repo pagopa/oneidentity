@@ -296,6 +296,13 @@
             </modules>
         </profile>
         <profile>
+            <id>oneid-lambda-client-publisher-aggregate</id>
+            <modules>
+                <module>oneid-common</module>
+                <module>oneid-lambda-client-publisher</module>
+            </modules>
+        </profile>
+        <profile>
             <id>oneid-ecs-internal-idp-aggregate</id>
             <modules>
                 <module>oneid-common</module>
@@ -312,6 +319,7 @@
                 <module>oneid-lambda-update-idp-metadata</module>
                 <module>oneid-lambda-is-gh-integration</module>
                 <module>oneid-lambda-cache-updater</module>
+                <module>oneid-lambda-client-publisher</module>
                 <module>oneid-ecs-internal-idp</module>
             </modules>
             <activation>

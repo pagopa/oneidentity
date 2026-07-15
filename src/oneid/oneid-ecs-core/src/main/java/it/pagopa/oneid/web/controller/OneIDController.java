@@ -3,15 +3,12 @@ package it.pagopa.oneid.web.controller;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import io.smallrye.common.annotation.RunOnVirtualThread;
-import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.IDP;
-import it.pagopa.oneid.service.ClientServiceImpl;
 import it.pagopa.oneid.service.IdpServiceImpl;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -27,10 +24,6 @@ public class OneIDController {
   OIDCServiceImpl oidcServiceImpl;
 
   @Inject
-  ClientServiceImpl clientServiceImpl;
-
-  // TODO: Remove this injection after idps.json is available in the assets bucket.
-  @Inject
   IdpServiceImpl idpServiceImpl;
 
   @GET
@@ -41,29 +34,6 @@ public class OneIDController {
     return Response.ok(oidcServiceImpl.buildOIDCProviderMetadata().toJSONObject()).build();
   }
 
-  @GET
-  @Path("/clients/{client_id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response findClientById(@PathParam("client_id") String clientID) {
-    Log.debug("start");
-    Optional<ClientFE> clientFE = clientServiceImpl.getClientInformation(clientID);
-    return clientFE.isEmpty() ?
-        Response.status(404).build() :
-        Response.ok(clientFE).build();
-  }
-
-  @GET
-  @Path("/clients")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllClients() {
-    Log.debug("start");
-    Optional<ArrayList<ClientFE>> clients = clientServiceImpl.getAllClientsInformation();
-    return clients.isEmpty() ?
-        Response.status(404).build() :
-        Response.ok(clients).build();
-  }
-
-  // TODO: Remove this fallback after idps.json is available in the assets bucket.
   @GET
   @Path("/idps")
   @Produces(MediaType.APPLICATION_JSON)
