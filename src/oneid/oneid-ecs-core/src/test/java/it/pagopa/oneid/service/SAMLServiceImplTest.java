@@ -4018,4 +4018,62 @@ public class SAMLServiceImplTest {
         exception.getMessage().contains(IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS.getErrorMessage()));
   }
 
+  @Test
+  void validateSAMLResponse_eidasIndex99_acceptsMinimumAttributeSet()
+      throws OneIdentityException {
+    assertDoesNotThrow(() -> validateEidasResponse(99,
+        List.of("spidCode", "name", "familyName", "dateOfBirth")));
+  }
+
+  @Test
+  void validateSAMLResponse_eidasIndex100_acceptsCompleteAttributeSet()
+      throws OneIdentityException {
+    assertDoesNotThrow(() -> validateEidasResponse(100,
+        List.of("spidCode", "name", "familyName", "dateOfBirth", "placeOfBirth", "address",
+            "gender")));
+  }
+
+  @Test
+  void validateSAMLResponse_eidasIndexMissing_fallsBackToMinimumAttributeSet()
+      throws OneIdentityException {
+    assertDoesNotThrow(() -> validateEidasResponse(null,
+        List.of("spidCode", "name", "familyName", "dateOfBirth")));
+  }
+
+  @Test
+  void validateSAMLResponse_unsupportedEidasIndex_fallsBackToMinimumAttributeSet()
+      throws OneIdentityException {
+    assertDoesNotThrow(() -> validateEidasResponse(101,
+        List.of("spidCode", "name", "familyName", "dateOfBirth")));
+  }
+
+  @Test
+  void isEidasEntityId_returnsFalseForBlankEntityId() {
+    assertFalse(samlServiceImpl.isEidasEntityId(" "));
+  }
+
+  private void validateEidasResponse(Integer eidasIndex, List<String> attributeNames)
+      throws OneIdentityException {
+    String eidasEntityId = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit";
+    Response response = samlUtils.getSAMLResponseFromString(
+        AUTH_CONTEXT_CLASS_REF_WITH_L3_VALUE_SAML_RESPONSE_96);
+    Assertion assertion = response.getAssertions().getFirst();
+    Instant responseIssueInstant = response.getIssueInstant();
+
+    response.getIssuer().setValue(eidasEntityId);
+    assertion.getIssuer().setValue(eidasEntityId);
+    Mockito.doNothing().when(samlUtils).validateSignature(Mockito.any(), Mockito.any());
+    when(samlUtils.getAttributeDTOListFromAssertion(assertion)).thenReturn(Optional.of(
+        attributeNames.stream()
+            .map(attributeName -> AttributeDTO.builder().attributeName(attributeName).build())
+            .toList()));
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(Mockito.any(), Mockito.any()))
+        .thenReturn(Optional.of(IDP.builder().entityID(eidasEntityId).build()));
+    when(clock.instant()).thenReturn(responseIssueInstant.plusMillis(10));
+
+    samlServiceImpl.validateSAMLResponse(response, eidasEntityId, Set.of(),
+        responseIssueInstant.minusSeconds(10), AuthLevel.L2, defaultFallbackUri, defaultState,
+        defaultClientId, eidasIndex);
+  }
+
 }
