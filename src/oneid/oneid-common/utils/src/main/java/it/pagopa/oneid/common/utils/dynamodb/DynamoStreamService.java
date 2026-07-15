@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service;
+package it.pagopa.oneid.common.utils.dynamodb;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import it.pagopa.oneid.common.model.Client;

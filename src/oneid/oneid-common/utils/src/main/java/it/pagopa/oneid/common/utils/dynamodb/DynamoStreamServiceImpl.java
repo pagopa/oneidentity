@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service;
+package it.pagopa.oneid.common.utils.dynamodb;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,10 +8,8 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,7 +25,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private static final String FIELD_DYNAMODB = "dynamodb";
   private static final String IMAGE_OLD = "OldImage";
   private static final String IMAGE_NEW = "NewImage";
-  private static final List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = List.of(
+  private static final java.util.List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = java.util.List.of(
       new DynamoField("acsIndex", "N"),
       new DynamoField(FIELD_AUTH_LEVEL, "S"),
       new DynamoField(FIELD_SAML_BINDING, "S"),
@@ -42,7 +40,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       new DynamoField("ageParentAuth", "N"),
       new DynamoField("friendlyName", "S")
   );
-  private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(
+  private static final java.util.List<String> CACHE_RELEVANT_STRING_SET_FIELDS = java.util.List.of(
       "requestedParameters",
       "callbackURI"
   );
@@ -50,7 +48,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private final ObjectMapper clientPayloadObjectMapper;
 
   @Inject
-  DynamoStreamServiceImpl(ObjectMapper objectMapper) {
+  public DynamoStreamServiceImpl(ObjectMapper objectMapper) {
     this.clientPayloadObjectMapper = objectMapper.copy()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
@@ -136,8 +134,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     Map<String, Object> payload = new HashMap<>();
-    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
-        fromDynamoAttribute(entry.getValue())));
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
 
     normalizeEnums(payload);
 
@@ -257,110 +254,67 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return stringSetValue;
     }
 
-    Object listValue = readListAttribute(attributeNode);
-    if (listValue != null) {
-      return listValue;
-    }
-
     Object mapValue = readMapAttribute(attributeNode);
     if (mapValue != null) {
       return mapValue;
     }
 
-    if (hasExplicitNullAttribute(attributeNode)) {
-      return null;
-    }
-
-    return readFallbackAttributeValue(attributeNode);
-  }
-
-  private Object readStringAttribute(JsonNode attributeNode) {
-    JsonNode stringValue = attributeNode.get("S");
-    if (stringValue == null || stringValue.isNull()) {
-      return null;
-    }
-
-    return stringValue.asText();
-  }
-
-  private Object readNumberAttribute(JsonNode attributeNode) {
-    JsonNode numberValue = attributeNode.get("N");
-    if (numberValue == null || numberValue.isNull()) {
-      return null;
-    }
-
-    return parseNumeric(numberValue.asText());
-  }
-
-  private Object readBooleanAttribute(JsonNode attributeNode) {
-    JsonNode booleanValue = attributeNode.get("BOOL");
-    if (booleanValue == null || booleanValue.isNull()) {
-      return null;
-    }
-
-    return booleanValue.asBoolean();
-  }
-
-  private Object readStringSetAttribute(JsonNode attributeNode) {
-    JsonNode stringSetValues = attributeNode.get("SS");
-    if (stringSetValues == null || !stringSetValues.isArray()) {
-      return null;
-    }
-
-    Set<String> values = new HashSet<>();
-    stringSetValues.forEach(value -> values.add(value.asText()));
-    return values;
-  }
-
-  private Object readListAttribute(JsonNode attributeNode) {
-    JsonNode listValues = attributeNode.get("L");
-    if (listValues == null || !listValues.isArray()) {
-      return null;
-    }
-
-    List<Object> values = new ArrayList<>();
-    listValues.forEach(item -> values.add(fromDynamoAttribute(item)));
-    return values;
-  }
-
-  private Object readMapAttribute(JsonNode attributeNode) {
-    JsonNode mapValues = attributeNode.get("M");
-    if (mapValues == null || !mapValues.isObject()) {
-      return null;
-    }
-
-    Map<String, Object> map = new HashMap<>();
-    mapValues.fields().forEachRemaining(entry -> map.put(entry.getKey(),
-        fromDynamoAttribute(entry.getValue())));
-    return map;
-  }
-
-  private boolean hasExplicitNullAttribute(JsonNode attributeNode) {
-    JsonNode nullValue = attributeNode.get("NULL");
-    return nullValue != null && nullValue.asBoolean(false);
-  }
-
-  private Object readFallbackAttributeValue(JsonNode attributeNode) {
-    if (attributeNode.isTextual()) {
-      return attributeNode.asText();
-    }
-
-    if (attributeNode.isNumber()) {
-      return attributeNode.numberValue();
-    }
-
-    if (attributeNode.isBoolean()) {
-      return attributeNode.asBoolean();
-    }
-
     return null;
   }
 
-  private Number parseNumeric(String numericValue) {
-    if (numericValue.contains(".")) {
-      return Double.parseDouble(numericValue);
+  private String readStringAttribute(JsonNode attributeNode) {
+    JsonNode value = attributeNode.get("S");
+    if (value != null && !value.isNull()) {
+      return value.asText();
     }
-    return Long.parseLong(numericValue);
+    return null;
+  }
+
+  private Object readNumberAttribute(JsonNode attributeNode) {
+    JsonNode value = attributeNode.get("N");
+    if (value != null && !value.isNull()) {
+      String number = value.asText();
+      try {
+        if (number.contains(".")) {
+          return Double.parseDouble(number);
+        }
+        return Integer.parseInt(number);
+      } catch (NumberFormatException e) {
+        return number;
+      }
+    }
+    return null;
+  }
+
+  private Object readBooleanAttribute(JsonNode attributeNode) {
+    JsonNode value = attributeNode.get("BOOL");
+    if (value != null && !value.isNull() && value.isBoolean()) {
+      return value.asBoolean();
+    }
+    return null;
+  }
+
+  private Object readStringSetAttribute(JsonNode attributeNode) {
+    JsonNode values = attributeNode.get("SS");
+    if (values == null || !values.isArray()) {
+      return null;
+    }
+
+    Set<String> result = new HashSet<>();
+    values.forEach(value -> result.add(value.asText()));
+    return result;
+  }
+
+  private Map<String, Object> readMapAttribute(JsonNode attributeNode) {
+    JsonNode values = attributeNode.get("M");
+    if (values == null || !values.isObject()) {
+      return null;
+    }
+
+    Map<String, Object> result = new HashMap<>();
+    values.fields().forEachRemaining(
+        entry -> result.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
+    return result;
   }
 
   private record DynamoField(String name, String type) {
