@@ -1,5 +1,11 @@
 # infra
 
+## 2.7.0
+
+### Minor Changes
+
+- 6a8192e: switch idps endpoint to s3 and api gw
+
 ## 2.6.0
 
 ### Minor Changes
