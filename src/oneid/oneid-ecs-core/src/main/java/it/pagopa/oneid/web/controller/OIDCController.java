@@ -62,6 +62,10 @@ public class OIDCController {
 
   private static final String APPLICATION_JWT = "application/jwt";
 
+  private record ServiceIndexes(int assertionConsumerServiceIndex,
+      int attributeConsumingServiceIndex) {
+  }
+
   @Inject
   SAMLServiceImpl samlServiceImpl;
 
@@ -199,16 +203,8 @@ public class OIDCController {
     SamlBinding samlBinding = Optional.ofNullable(client.getSamlBinding())
         .orElse(SamlBinding.HTTP_POST);
 
-    int assertionConsumerServiceIndex = client.getAcsIndex();
-    int attributeConsumingServiceIndex = client.getAttributeIndex();
+    ServiceIndexes serviceIndexes = getServiceIndexes(client, idp.get());
     String authLevel = client.getAuthLevel().getValue();
-
-    // 6. Check if IDP is eIDAS and if so, update indexes with the eIDAS reference
-    // client indexes
-    if (samlServiceImpl.isEidasEntityId(idp.get().getEntityID())) {
-      assertionConsumerServiceIndex = client.getEidasIndex();
-      attributeConsumingServiceIndex = client.getEidasIndex();
-    }
 
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
     if (StringUtils.isBlank(idpSSOEndpoint)) {
@@ -217,13 +213,13 @@ public class OIDCController {
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 7. Create SAML Authn Request using SAMLServiceImpl
+    // 6. Create SAML Authn Request using SAMLServiceImpl
     // (without signature if binding is HTTP-REDIRECT)
     AuthnRequest authnRequest = null;
     try {
       authnRequest = samlServiceImpl.buildAuthnRequest(idpSSOEndpoint,
-          assertionConsumerServiceIndex,
-          attributeConsumingServiceIndex,
+          serviceIndexes.assertionConsumerServiceIndex(),
+          serviceIndexes.attributeConsumingServiceIndex(),
           authLevel,
           samlBinding);
     } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
@@ -247,7 +243,7 @@ public class OIDCController {
           authorizationRequestDTOExtended.getState());
     }
 
-    // 8. Persist SAMLSession
+    // 7. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = authnRequest.getIssueInstant().getEpochSecond();
@@ -283,15 +279,21 @@ public class OIDCController {
       }
     }
 
-    String redirectAutoSubmitPOSTForm =
-        "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
-            + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
-            + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
-            + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
-            + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
-            + "document.getElementById('SAMLRequestForm').submit();</script>";
+    String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
+        + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
+        + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
+        + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
+        + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
+        + "document.getElementById('SAMLRequestForm').submit();</script>";
 
     return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
+  }
+
+  private ServiceIndexes getServiceIndexes(Client client, IDP idp) {
+    if (samlServiceImpl.isEidasEntityId(idp.getEntityID())) {
+      return new ServiceIndexes(client.getEidasIndex(), client.getEidasIndex());
+    }
+    return new ServiceIndexes(client.getAcsIndex(), client.getAttributeIndex());
   }
 
   @POST
@@ -349,7 +351,7 @@ public class OIDCController {
   public Response userInfoGet(@HeaderParam("Authorization") String authorization) {
     Log.debug("start");
     return Response.ok(userInfoService.getSignedUserInfo(
-            BearerTokenExtractor.extract(authorization)),
+        BearerTokenExtractor.extract(authorization)),
         APPLICATION_JWT).build();
   }
 
@@ -359,7 +361,7 @@ public class OIDCController {
   public Response userInfoPost(@HeaderParam("Authorization") String authorization) {
     Log.debug("start");
     return Response.ok(userInfoService.getSignedUserInfo(
-            BearerTokenExtractor.extract(authorization)),
+        BearerTokenExtractor.extract(authorization)),
         APPLICATION_JWT).build();
   }
 

@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -69,8 +70,8 @@ class OIDCControllerTest {
   @InjectMock
   private OIDCServiceImpl oidcServiceImpl;
 
-    @InjectMock
-    private UserInfoService userInfoService;
+  @InjectMock
+  private UserInfoService userInfoService;
 
   @Inject
   private SAMLUtilsExtendedCore samlUtilsExtendedCore;
@@ -159,7 +160,7 @@ class OIDCControllerTest {
         .statusCode(200)
         .body(notNullValue());
 
-    Mockito.verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
         Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any());
   }
 
@@ -180,19 +181,19 @@ class OIDCControllerTest {
         .status(IDPStatus.OK)
         .build();
 
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
         .thenReturn(Optional.of(testIDP));
-    Mockito.when(samlServiceImpl.isEidasEntityId(Mockito.eq(EIDAS_ENTITY_ID)))
+    when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
         .thenReturn(true);
 
     AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
-    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
         Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
         .thenReturn(authnRequest);
 
-    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = Mockito.mock(Element.class);
-    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = mock(Element.class);
+    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
         .thenReturn(elementMock);
 
     given()
@@ -211,7 +212,7 @@ class OIDCControllerTest {
         .statusCode(200)
         .body(notNullValue());
 
-    Mockito.verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
         Mockito.any());
@@ -779,31 +780,31 @@ class OIDCControllerTest {
 
   }
 
-    @Test
-    void userInfoGet_acceptsCaseInsensitiveBearer() {
-        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+  @Test
+  void userInfoGet_acceptsCaseInsensitiveBearer() {
+    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
 
-        given()
-                .header("Authorization", "bearer access-token")
-                .when().get("/userinfo")
-                .then()
-                .statusCode(200)
-            .contentType("application/jwt")
-            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
-    }
+    given()
+        .header("Authorization", "bearer access-token")
+        .when().get("/userinfo")
+        .then()
+        .statusCode(200)
+        .contentType("application/jwt")
+        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+  }
 
-    @Test
-    void userInfoPost_returnsUserInfoPayload() {
-        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+  @Test
+  void userInfoPost_returnsUserInfoPayload() {
+    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
 
-        given()
-                .header("Authorization", "Bearer access-token")
-                .when().post("/userinfo")
-                .then()
-                .statusCode(200)
-            .contentType("application/jwt")
-            .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
-    }
+    given()
+        .header("Authorization", "Bearer access-token")
+        .when().post("/userinfo")
+        .then()
+        .statusCode(200)
+        .contentType("application/jwt")
+        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+  }
 
   @Test
   @SneakyThrows

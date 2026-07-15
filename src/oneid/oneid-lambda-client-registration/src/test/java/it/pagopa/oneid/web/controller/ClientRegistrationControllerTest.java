@@ -3,6 +3,7 @@ package it.pagopa.oneid.web.controller;
 import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -668,7 +669,7 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(localizedContentMap)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
         .thenReturn(existingClientExtended);
 
     given()
@@ -733,7 +734,7 @@ class ClientRegistrationControllerTest {
         .pairwise(true)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
         .thenReturn(existingClientExtended);
 
     given()
@@ -775,7 +776,7 @@ class ClientRegistrationControllerTest {
         .eidasIndex(101)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
         .thenReturn(existingClientExtended);
 
     given()

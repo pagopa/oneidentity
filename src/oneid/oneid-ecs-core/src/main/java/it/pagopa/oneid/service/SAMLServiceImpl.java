@@ -62,20 +62,20 @@ import org.w3c.dom.Element;
 @Startup
 public class SAMLServiceImpl implements SAMLService {
 
-  private final static Set<String> cieMinimumDataSet = Set.of(
+  private static final Set<String> cieMinimumDataSet = Set.of(
       // Mandatory attributes
       name.name(),
       familyName.name(),
       dateOfBirth.name(),
       fiscalNumber.name());
 
-  private final static Set<String> eidasMinimumDataSetForIndex99 = Set.of(
+  private static final Set<String> eidasMinimumDataSetForIndex99 = Set.of(
       // Mandatory attributes for index 99
       spidCode.name(),
       name.name(),
       familyName.name(),
       dateOfBirth.name());
-  private final static Set<String> eidasMinimumDataSetForIndex100 = Set.of(
+  private static final Set<String> eidasMinimumDataSetForIndex100 = Set.of(
       // Mandatory attributes for index 100
       spidCode.name(),
       name.name(),
@@ -639,13 +639,6 @@ public class SAMLServiceImpl implements SAMLService {
       throw (e);
     }
 
-  }
-
-  public void validateSAMLResponse(Response samlResponse, String entityID,
-      Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
-    validateSAMLResponse(samlResponse, entityID, requestedAttributes, samlRequestIssueInstant,
-        authLevelRequest, redirectUri, state, clientId, null);
   }
 
   private Assertion extractAssertion(Response samlResponse) {
