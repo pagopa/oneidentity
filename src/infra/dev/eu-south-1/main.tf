@@ -673,7 +673,6 @@ module "backend" {
     clients_bucket_arn                 = module.storage.assets_bucket_arn
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     cloudwatch_custom_metric_namespace = "${local.project}-client-publisher/ApplicationMetrics"
-    alarm_sns_topic_arn                = module.sns.sns_topic_arn
     vpc_id                             = module.network.vpc_id
     vpc_subnet_ids                     = module.network.intra_subnets_ids
     vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
