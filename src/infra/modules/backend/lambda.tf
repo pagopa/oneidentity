@@ -1431,7 +1431,100 @@ module "metrics_archiver_lambda" {
   timeout     = 900
 
   cloudwatch_logs_retention_in_days = each.value.cloudwatch_logs_retention_in_days
+}
 
+## Lambda client publisher
+
+data "aws_iam_policy_document" "client_publisher_lambda" {
+  count = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
+
+  statement {
+    sid    = "ReadFromClientRegistrations"
+    effect = "Allow"
+    actions = [
+      "dynamodb:Scan",
+      "dynamodb:GetItem",
+    ]
+    resources = [var.client_publisher_lambda.table_client_registrations_arn]
+  }
+
+  statement {
+    sid    = "PublishClientsToS3"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+    resources = ["${var.client_publisher_lambda.clients_bucket_arn}/*"]
+  }
+
+  statement {
+    sid    = "PublishCustomMetrics"
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData",
+    ]
+    resources = ["*"]
+  }
+}
+
+module "security_group_lambda_client_publisher" {
+  count   = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.client_publisher_lambda.name}-sg"
+  description = "Security Group for Lambda Client Publisher"
+
+  vpc_id = var.client_publisher_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+
+  egress_prefix_list_ids = [
+    var.client_publisher_lambda.vpc_endpoint_dynamodb_prefix_id,
+    var.client_publisher_lambda.vpc_s3_prefix_id,
+  ]
+
+  egress_rules = ["https-443-tcp"]
+}
+
+module "client_publisher_lambda" {
+  count   = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.client_publisher_lambda.name
+  description             = "Lambda function client publisher."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.client_publisher_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.client_publisher_lambda[0].json
+  attach_network_policy = true
+
+  environment_variables = var.client_publisher_lambda.environment_variables
+
+  vpc_subnet_ids         = var.client_publisher_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_client_publisher[0].security_group_id]
+
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_pipes_pipe.client_publisher[0].arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+  cloudwatch_logs_retention_in_days = var.client_publisher_lambda.cloudwatch_logs_retention_in_days
 }
 
 ## Lambda cache updater

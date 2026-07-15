@@ -644,6 +644,12 @@ module "backend" {
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
+  eventbridge_pipe_client_publisher = {
+    pipe_name                     = format("%s-client-publisher-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
   cache_updater_lambda = {
     name                              = format("%s-cache-updater", local.project)
     filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
@@ -657,6 +663,28 @@ module "backend" {
       CACHE_TIMEOUT          = "PT5S"
       CACHE_KEY_PREFIX       = "oneid:client:v1:"
       SNS_TOPIC_ARN          = module.sns.sns_topic_arn
+    }
+  }
+
+  client_publisher_lambda = {
+    name                               = format("%s-client-publisher", local.project)
+    filename                           = "${path.module}/../../oneid/oneid-lambda-client-publisher/target/oneid-lambda-client-publisher-1.0.0-SNAPSHOT-runner.jar"
+    table_client_registrations_arn     = module.database.table_client_registrations_arn
+    clients_bucket_arn                 = module.storage.assets_bucket_arn
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    cloudwatch_custom_metric_namespace = "${local.project}-client-publisher/ApplicationMetrics"
+    alarm_sns_topic_arn                = module.sns.sns_topic_arn
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_s3_prefix_id                   = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    environment_variables = {
+      LOG_LEVEL                          = var.app_log_level
+      CLIENT_REGISTRATIONS_TABLE_NAME    = module.database.table_client_registrations_name
+      CLIENTS_BUCKET_NAME                = module.storage.assets_bucket_name
+      SINGLE_CLIENT_KEY_PREFIX           = "clients/"
+      GLOBAL_CLIENTS_KEY                 = "clients.json"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = "${local.project}-client-publisher/ApplicationMetrics"
     }
   }
 

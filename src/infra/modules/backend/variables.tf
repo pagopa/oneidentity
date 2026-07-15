@@ -539,6 +539,15 @@ variable "eventbridge_pipe_cache_updater" {
   default = null
 }
 
+variable "eventbridge_pipe_client_publisher" {
+  type = object({
+    pipe_name                     = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+  default = null
+}
+
 variable "cache_updater_lambda" {
   type = object({
     name                              = string
@@ -547,6 +556,23 @@ variable "cache_updater_lambda" {
     environment_variables             = map(string)
     vpc_id                            = string
     vpc_subnet_ids                    = list(string)
+  })
+  default = null
+}
+
+variable "client_publisher_lambda" {
+  type = object({
+    name                               = string
+    filename                           = string
+    table_client_registrations_arn     = string
+    clients_bucket_arn                 = string
+    cloudwatch_logs_retention_in_days  = number
+    cloudwatch_custom_metric_namespace = string
+    vpc_id                             = string
+    vpc_subnet_ids                     = list(string)
+    vpc_endpoint_dynamodb_prefix_id    = string
+    vpc_s3_prefix_id                   = string
+    environment_variables              = map(string)
   })
   default = null
 }
