@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.2.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
 ## 1.1.1
 
 ### Patch Changes

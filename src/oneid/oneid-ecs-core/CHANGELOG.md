@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.9.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
 ## 1.8.1
 
 ### Patch Changes
