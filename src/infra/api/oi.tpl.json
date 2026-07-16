@@ -1906,6 +1906,11 @@
           "200": {
             "description": "Find client information from a client_id",
             "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Access-Control-Allow-Origin": {
                 "schema": {
                   "type": "string"
@@ -2006,6 +2011,11 @@
           "200": {
             "description": "Find all clients information",
             "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Access-Control-Allow-Origin": {
                 "schema": {
                   "type": "string"
