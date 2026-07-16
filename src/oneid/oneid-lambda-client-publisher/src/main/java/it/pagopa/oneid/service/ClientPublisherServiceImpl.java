@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnector;
-import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -28,7 +28,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   private static final String ERROR_METRIC_NAME = "S3PublishError";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
 
-  private final ClientConnector clientConnector;
+  private final ClientService clientService;
   private final DynamoStreamService dynamoStreamService;
   private final RecordUtils recordUtils;
   private final S3Client s3Client;
@@ -41,7 +41,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   @Inject
   ClientPublisherServiceImpl(
-      ClientConnector clientConnector,
+      ClientService clientService,
       DynamoStreamService dynamoStreamService,
       RecordUtils recordUtils,
       S3Client s3Client,
@@ -51,7 +51,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       @ConfigProperty(name = "single_client_key_prefix") String singleClientKeyPrefix,
       @ConfigProperty(name = "global_clients_key") String globalClientsKey,
       @ConfigProperty(name = "cloudwatch_custom_metric_namespace") String namespace) {
-    this.clientConnector = clientConnector;
+    this.clientService = clientService;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
     this.s3Client = s3Client;
@@ -61,6 +61,42 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     this.singleClientKeyPrefix = singleClientKeyPrefix;
     this.globalClientsKey = globalClientsKey;
     this.namespace = namespace;
+  }
+
+  ClientPublisherServiceImpl(
+      ClientConnector clientConnector,
+      DynamoStreamService dynamoStreamService,
+      RecordUtils recordUtils,
+      S3Client s3Client,
+      CloudWatchClient cloudWatchClient,
+      ObjectMapper objectMapper,
+      String bucketName,
+      String singleClientKeyPrefix,
+      String globalClientsKey,
+      String namespace) {
+    this(new ClientServiceImpl(clientConnector), dynamoStreamService, recordUtils, s3Client,
+        cloudWatchClient, objectMapper, bucketName, singleClientKeyPrefix, globalClientsKey,
+        namespace);
+  }
+
+  @Override
+  public void runSelfBootstrap() {
+    try {
+        List<ClientFE> clients = clientService.getAllClientsInformation()
+          .map(List::copyOf)
+          .orElse(List.of());
+      Log.infof("Self-bootstrap retrieved %d clients", clients.size());
+
+      for (ClientFE client : clients) {
+        publishSingleClient(client);
+      }
+
+      publishGlobalClients(clients);
+      Log.infof("Self-bootstrap completed: published %d clients", clients.size());
+    } catch (Exception e) {
+      Log.error("Self-bootstrap failed", e);
+      throw new RuntimeException("Client publisher self-bootstrap failed", e);
+    }
   }
 
   @Override
@@ -101,7 +137,6 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
                 "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
 
           if ("MODIFY".equals(eventName)) {
-            // ha senso?
             if (dynamoStreamService.extractClientFE(record, true)
                 .filter(oldClient -> oldClient.equals(client))
                 .isPresent()) {
@@ -164,9 +199,13 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   }
 
   private void publishGlobalClients() {
-    List<ClientFE> clients = clientConnector.findAll()
-        .map(list -> list.stream().map(ClientFE::new).toList())
+    List<ClientFE> clients = clientService.getAllClientsInformation()
+      .map(List::copyOf)
         .orElse(List.of());
+    publishGlobalClients(clients);
+  }
+
+  private void publishGlobalClients(List<ClientFE> clients) {
     try {
       String payload = objectMapper.writeValueAsString(clients);
       s3Client.putObject(PutObjectRequest.builder()

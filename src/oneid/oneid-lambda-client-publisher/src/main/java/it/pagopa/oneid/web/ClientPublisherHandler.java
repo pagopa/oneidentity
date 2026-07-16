@@ -26,7 +26,19 @@ public class ClientPublisherHandler implements RequestHandler<JsonNode, Void> {
   @Override
   public Void handleRequest(JsonNode input, Context context) {
     Log.info("ClientPublisherHandler invoked");
+    if (isBootstrapEvent(input)) {
+      Log.info("Starting client publisher self-bootstrap");
+      clientPublisherService.runSelfBootstrap();
+      return null;
+    }
     clientPublisherService.processInput(input);
     return null;
+  }
+
+  private boolean isBootstrapEvent(JsonNode input) {
+    return input != null
+        && input.isArray()
+        && !input.isEmpty()
+        && "bootstrap".equals(input.get(0).path("action").asText());
   }
 }
