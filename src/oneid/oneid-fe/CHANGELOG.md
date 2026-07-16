@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.2.1
+
+### Patch Changes
+
+- e89f303: refactor EIDAS integration button
+
 ## 1.2.0
 
 ### Minor Changes
