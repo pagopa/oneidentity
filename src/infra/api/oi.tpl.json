@@ -1818,26 +1818,24 @@
         ],
         "operationId": "Get_ClientFromClientId",
         "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
+          "type": "HTTP_PROXY",
           "httpMethod": "GET",
-          "uri": "${assets_bucket_uri}/clients/{client_id}.json",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "timeoutInMillis" : 2000,
+          "uri": "${uri}/clients/{client_id}",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "timeoutInMillis" : 5000,
           "requestParameters": {
+            "integration.request.header.accept": "'*/*'",
             "integration.request.path.client_id": "method.request.path.client_id"
           },
-          "responseParameters": {},
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.Content-Type": "integration.response.header.Content-Type"
-              }
+              "requestParameters": {}
             },
             "404": {
               "statusCode": "404",
-              "responseParameters": {}
+              "requestParameters": {}
             }
           },
           "cacheKeyParameters": [
@@ -1858,13 +1856,6 @@
         "responses": {
           "200": {
             "description": "Find client information from a client_id",
-            "headers": {
-              "Content-Type": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1897,36 +1888,26 @@
         ],
         "operationId": "Get_AllClients",
         "x-amazon-apigateway-integration": {
-          "credentials": "${s3_apigateway_proxy_role}",
+          "type": "HTTP_PROXY",
           "httpMethod": "GET",
-          "uri": "${assets_bucket_uri}/clients.json",
-          "type": "aws",
-          "passthroughBehavior": "WHEN_NO_TEMPLATES",
-          "timeoutInMillis" : 2000,
-          "responseParameters": {},
+          "uri": "${uri}/clients",
+          "connectionType": "VPC_LINK",
+          "connectionId": "${connection_id}",
+          "timeoutInMillis" : 5000,
           "responses": {
             "200": {
               "statusCode": "200",
-              "responseParameters": {
-                "method.response.header.Content-Type": "integration.response.header.Content-Type"
-              }
+              "requestParameters": {}
             },
             "404": {
               "statusCode": "404",
-              "responseParameters": {}
+              "requestParameters": {}
             }
           }
         },
         "responses": {
           "200": {
             "description": "Find all clients information",
-            "headers": {
-              "Content-Type": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2403,12 +2384,7 @@
         "type": "openIdConnect",
         "openIdConnectUrl": "/.well-known/openid-configuration"
       },
-      "api_key": {
-        "type": "apiKey",
-        "name": "x-api-key",
-        "in": "header"
-      }
-      %{ if authorizer != "api_key"},
+      %{ if authorizer != "api_key" }
       "${ authorizer }": {
         "type": "apiKey",
         "name": "Authorization",
@@ -2420,8 +2396,13 @@
             "${ provider_arn }"
           ]
         }
-      }
+      },
       %{ endif }
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
     },
     "schemas": {
       "TokenData": {
