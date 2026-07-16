@@ -1489,6 +1489,16 @@ module "security_group_lambda_client_publisher" {
   egress_rules = ["https-443-tcp"]
 }
 
+resource "aws_vpc_security_group_egress_rule" "client_publisher_monitoring_endpoint" {
+  count = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
+
+  security_group_id            = module.security_group_lambda_client_publisher[0].security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.client_publisher_lambda.vpc_tls_security_group_endpoint_id
+}
+
 module "client_publisher_lambda" {
   count   = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
   source  = "terraform-aws-modules/lambda/aws"

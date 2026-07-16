@@ -572,6 +572,7 @@ variable "client_publisher_lambda" {
     vpc_subnet_ids                     = list(string)
     vpc_endpoint_dynamodb_prefix_id    = string
     vpc_s3_prefix_id                   = string
+    vpc_tls_security_group_endpoint_id = string
     environment_variables              = map(string)
   })
   default = null
