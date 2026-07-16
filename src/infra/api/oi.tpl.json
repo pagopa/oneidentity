@@ -1987,7 +1987,7 @@
           "type": "aws",
           "credentials": "${s3_apigateway_proxy_role}",
           "httpMethod": "GET",
-          "uri": "${assets_bucket_uri}/clients-publisher/clients.json",
+          "uri": "${assets_bucket_uri}/clients.json",
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "timeoutInMillis" : 2000,
           "responseParameters": {},
