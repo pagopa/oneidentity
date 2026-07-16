@@ -84,6 +84,7 @@ public class Client {
   private Integer minAge;
   private Integer maxAge;
   private Integer ageParentAuth;
+  private Integer eidasIndex;
 
   public record LocalizedContent(@NotEmpty String title, @NotEmpty String description,
                                  String docUri, String supportAddress, String cookieUri) {

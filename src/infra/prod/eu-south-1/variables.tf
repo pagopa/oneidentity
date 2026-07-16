@@ -256,6 +256,11 @@ variable "cie_entity_id" {
   default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
 }
 
+variable "eidas_entity_id" {
+  type    = string
+  default = "https://sp-proxy.eid.gov.it/spproxy/idpit"
+}
+
 ## Metadata Info variables##
 variable "metadata_info" {
   type = object({

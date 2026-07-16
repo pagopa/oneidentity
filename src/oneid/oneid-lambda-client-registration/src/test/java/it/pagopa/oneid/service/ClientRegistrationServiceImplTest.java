@@ -415,6 +415,30 @@ class ClientRegistrationServiceImplTest {
     assertEquals(ClientSamlBinding.HTTP_POST, response.getSamlBinding());
   }
 
+    @Test
+    void saveClient_withEidasIndex_persistsAndReturnsEidasIndex() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .defaultAcrValues(Set.of("test"))
+                .samlRequestedAttributes(Set.of("name"))
+                .pairwise(false)
+                .eidasIndex(99)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+                .saveClient(clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
+                Integer.valueOf(99).equals(saved.getEidasIndex())));
+        assertEquals(99, response.getEidasIndex());
+    }
+
   @Test
   void saveClient_persistsHttpRedirectBinding_whenProvidedInRequest() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -899,6 +923,46 @@ class ClientRegistrationServiceImplTest {
     verify(clientConnectorImpl)
         .updateClientExtended(
             Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())));
+  }
+
+  @Test
+  void updateClient_withEidasIndex_updatesEidasIndex() {
+    String clientId = "client-123";
+    String userId = "userIdTest";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .secret("secret")
+        .salt("salt")
+        .clientId(clientId)
+        .userId(userId)
+        .friendlyName("Old Name")
+        .callbackURI(Set.of("https://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .samlBinding(SamlBinding.HTTP_POST)
+        .acsIndex(42)
+        .attributeIndex(42)
+        .isActive(true)
+        .clientIdIssuedAt(987654321L)
+        .pairwise(false)
+        .build();
+
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://updated.example.com"))
+        .clientName("Updated Name")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .pairwise(false)
+        .eidasIndex(100)
+        .build();
+
+    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+        clientRegistrationDTO, existingClientExtended, null, null));
+
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
+        Integer.valueOf(100).equals(updated.getEidasIndex())));
   }
 
   @Test

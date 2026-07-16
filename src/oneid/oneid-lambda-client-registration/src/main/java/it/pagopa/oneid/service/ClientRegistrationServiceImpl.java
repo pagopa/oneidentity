@@ -163,6 +163,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise()
             : false)
+        .eidasIndex(client.getEidasIndex())
         .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
         .clientIdIssuedAt(client.getClientIdIssuedAt())

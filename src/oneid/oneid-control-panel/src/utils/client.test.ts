@@ -1,4 +1,10 @@
-import { Client, SamlAttribute, SamlBinding, SpidLevel } from '../types/api';
+import {
+  Client,
+  EidasAttributeSet,
+  SamlAttribute,
+  SamlBinding,
+  SpidLevel,
+} from '../types/api';
 import { clientDataWithoutSensitiveData } from './client';
 
 describe('clientDataWithoutSensitiveData', () => {
@@ -15,6 +21,7 @@ describe('clientDataWithoutSensitiveData', () => {
       redirectUris: ['https://example.com/callback'],
       samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
       samlBinding: SamlBinding.HTTP_POST,
+      eidasIndex: EidasAttributeSet.COMPLETE,
       logoUri: 'https://example.com/logo.png',
       defaultAcrValues: [SpidLevel.L2],
       requiredSameIdp: true,
@@ -54,6 +61,7 @@ describe('clientDataWithoutSensitiveData', () => {
       redirectUris: ['https://example.com/callback'],
       samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
       samlBinding: SamlBinding.HTTP_POST,
+      eidasIndex: EidasAttributeSet.COMPLETE,
       logoUri: 'https://example.com/logo.png',
       defaultAcrValues: [SpidLevel.L2],
       requiredSameIdp: true,
@@ -85,6 +93,7 @@ describe('clientDataWithoutSensitiveData', () => {
       redirectUris: ['https://example.com/redirect'],
       samlRequestedAttributes: [SamlAttribute.EMAIL],
       samlBinding: SamlBinding.HTTP_POST,
+      eidasIndex: EidasAttributeSet.MINIMUM,
       defaultAcrValues: [SpidLevel.L2],
     };
 

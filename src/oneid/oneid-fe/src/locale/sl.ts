@@ -71,6 +71,7 @@ export default {
     loginBox: {
       spidLogin: 'Dostopaj s SPID',
       cieLogin: 'Dostopaj s CIE',
+      eidasLogin: 'Dostopaj z eIDAS',
     },
     privacyAndCondition: {
       text: 'Z dostopom se strinjate s {{termsLink}} storitve in potrjujete, da ste prebrali {{privacyLink}}.',

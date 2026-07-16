@@ -61,6 +61,11 @@ export enum SamlBinding {
   HTTP_REDIRECT = 'HTTP-Redirect',
 }
 
+export enum EidasAttributeSet {
+  MINIMUM = 99,
+  COMPLETE = 100,
+}
+
 export const SpidLevelSchema = z.enum([SpidLevel.L2, SpidLevel.L3]);
 export const SamlAttributeSchema = z.enum([
   SamlAttribute.SPID_CODE,
@@ -110,6 +115,10 @@ export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 export const SamlBindingSchema = z.enum([
   SamlBinding.HTTP_POST,
   SamlBinding.HTTP_REDIRECT,
+]);
+export const EidasAttributeSetSchema = z.union([
+  z.literal(EidasAttributeSet.MINIMUM),
+  z.literal(EidasAttributeSet.COMPLETE),
 ]);
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
@@ -183,6 +192,7 @@ export const clientSchema = z
     redirectUris: z.array(httpsUrlSchema).min(1),
     samlRequestedAttributes: SamlAttributeArraySchema.min(1),
     samlBinding: SamlBindingSchema.default(SamlBinding.HTTP_POST),
+    eidasIndex: EidasAttributeSetSchema.nullish(),
     logoUri: httpsUrlSchema.nullish(),
     defaultAcrValues: SpidLevelArraySchema.min(1),
     requiredSameIdp: z.boolean().optional(),

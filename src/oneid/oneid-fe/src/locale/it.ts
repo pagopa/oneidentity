@@ -73,6 +73,7 @@ export default {
     loginBox: {
       spidLogin: 'Entra con SPID',
       cieLogin: 'Entra con CIE',
+      eidasLogin: 'Entra con eIDAS',
     },
     privacyAndCondition: {
       text: "Accedendo accetti i {{termsLink}} del servizio e confermi di avere letto l'{{privacyLink}}",

@@ -18,6 +18,7 @@ import {
   SpidLevel,
   SamlAttribute,
   SamlBinding,
+  EidasAttributeSet,
   ClientErrors,
   ClientWithoutSensitiveData,
   ValidatePlanSchema,
@@ -92,6 +93,20 @@ const mapClientValidationError = (error: unknown): ClientErrors | null => {
     },
   } as unknown as ClientErrors;
 };
+
+const EIDAS_ATTRIBUTE_SET_OPTIONS = [
+  {
+    value: EidasAttributeSet.MINIMUM,
+    label: 'Minimum set of attributes',
+    description: 'spidCode, name, familyName, dateOfBirth',
+  },
+  {
+    value: EidasAttributeSet.COMPLETE,
+    label: 'Complete set of attributes',
+    description:
+      'spidCode, name, familyName, dateOfBirth, placeOfBirth, address, gender',
+  },
+] as const;
 
 export const Dashboard = () => {
   type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
@@ -778,6 +793,73 @@ export const Dashboard = () => {
                 helperText={(errorUi as ClientErrors)?.ageParentAuth?._errors}
               />
             </Box>
+          )}
+
+          <ToggleSection
+            name="eidasIndex"
+            label="eIDAS support"
+            checked={!!formData?.eidasIndex}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData((prev) => ({
+                ...prev,
+                eidasIndex: checked
+                  ? (prev?.eidasIndex ?? EidasAttributeSet.MINIMUM)
+                  : undefined,
+              }));
+              if (!checked) {
+                setErrorUi((prev) => {
+                  if (!prev) return prev;
+                  const { eidasIndex: _eidasIndex, ...rest } = prev;
+                  return rest as ClientErrors;
+                });
+              }
+            }}
+            withDivider
+            tooltipText={
+              <TooltipContentWithLink
+                text="Enable access to the international services for citizens of EU member states."
+                infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/3013574677/RFC+OI-018+-+Supporto+nodo+europeo+eIDAS"
+              />
+            }
+          />
+          {!!formData?.eidasIndex && (
+            <FormControl
+              fullWidth
+              margin="normal"
+              required
+              error={!!(errorUi as ClientErrors)?.eidasIndex?._errors}
+            >
+              <InputLabel id="eidas-index-label">
+                eIDAS attribute set
+              </InputLabel>
+              <Select
+                labelId="eidas-index-label"
+                id="eidas-index-select"
+                value={formData?.eidasIndex ?? EidasAttributeSet.MINIMUM}
+                label="eIDAS attribute set"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    eidasIndex: Number(e.target.value) as EidasAttributeSet,
+                  }))
+                }
+              >
+                {EIDAS_ATTRIBUTE_SET_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="body1">{option.label}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.description}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                {(errorUi as ClientErrors)?.eidasIndex?._errors}
+              </FormHelperText>
+            </FormControl>
           )}
         </ContentBox>
 

@@ -136,6 +136,7 @@ describe('Dashboard UI', () => {
     expect(screen.getByLabelText(/Redirect URIs/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/SPID Level/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/SAML Attributes/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Saml Binding/i)).toBeInTheDocument();
   });
 
   it('disables the submit button when required fields are empty', async () => {
@@ -170,6 +171,14 @@ describe('Dashboard UI', () => {
     const fiscalNumberOption = screen.getByText('fiscalNumber');
     fireEvent.click(fiscalNumberOption);
 
+    const eidasToggle = screen.getByLabelText(/eIDAS support/i);
+    fireEvent.click(eidasToggle);
+    const eidasSelect = screen.getByLabelText(/eIDAS attribute set/i);
+    fireEvent.mouseDown(eidasSelect);
+    fireEvent.click(
+      screen.getByRole('option', { name: /Minimum set of attributes/i })
+    );
+
     // Ensure the submit button is enabled
     const submitButton = screen.getByTestId('submit-button');
     expect(submitButton).not.toBeDisabled();
@@ -196,6 +205,14 @@ describe('Dashboard UI', () => {
     fireEvent.mouseDown(samlSelect);
     const fiscalNumberOption = screen.getByText('fiscalNumber');
     fireEvent.click(fiscalNumberOption);
+
+    const eidasToggle = screen.getByLabelText(/eIDAS support/i);
+    fireEvent.click(eidasToggle);
+    const eidasSelect = screen.getByLabelText(/eIDAS attribute set/i);
+    fireEvent.mouseDown(eidasSelect);
+    fireEvent.click(
+      screen.getByRole('option', { name: /Complete set of attributes/i })
+    );
 
     // Ensure the submit button is enabled
     const submitButton = screen.getByTestId('submit-button');
@@ -232,6 +249,14 @@ describe('Dashboard UI', () => {
     fireEvent.mouseDown(samlSelect);
     const fiscalNumberOption = screen.getByText('fiscalNumber');
     fireEvent.click(fiscalNumberOption);
+
+    const eidasToggle = screen.getByLabelText(/eIDAS support/i);
+    fireEvent.click(eidasToggle);
+    const eidasSelect = screen.getByLabelText(/eIDAS attribute set/i);
+    fireEvent.mouseDown(eidasSelect);
+    fireEvent.click(
+      screen.getByRole('option', { name: /Minimum set of attributes/i })
+    );
 
     const submitButton = screen.getByTestId('submit-button');
     expect(submitButton).not.toBeDisabled();
@@ -330,6 +355,17 @@ describe('Dashboard UI', () => {
     const samlListbox = await screen.findByRole('listbox');
     fireEvent.click(
       within(samlListbox).getByRole('option', { name: /fiscalNumber/i })
+    );
+
+    const eidasToggle = screen.getByLabelText(/eIDAS support/i);
+    fireEvent.click(eidasToggle);
+    const eidasSelect = screen.getByLabelText(/eIDAS attribute set/i);
+    fireEvent.mouseDown(eidasSelect);
+    const eidasListbox = await screen.findByRole('listbox');
+    fireEvent.click(
+      within(eidasListbox).getByRole('option', {
+        name: /Complete set of attributes/i,
+      })
     );
 
     const submitButton = screen.getByTestId('submit-button');
@@ -519,6 +555,14 @@ describe('Dashboard SPID Minors', () => {
     const samlSelect = screen.getByLabelText(/SAML Attributes/i);
     fireEvent.mouseDown(samlSelect);
     fireEvent.click(screen.getByText('fiscalNumber'));
+
+    const eidasToggle = screen.getByLabelText(/eIDAS support/i);
+    fireEvent.click(eidasToggle);
+    const eidasSelect = screen.getByLabelText(/eIDAS attribute set/i);
+    fireEvent.mouseDown(eidasSelect);
+    fireEvent.click(
+      screen.getByRole('option', { name: /Minimum set of attributes/i })
+    );
   };
 
   it('renders the SPID Minors toggle initially unchecked', () => {
@@ -592,9 +636,13 @@ describe('Dashboard SPID Minors', () => {
   it('shows the SPID Minors tooltip with the RFC link', async () => {
     render(<Dashboard />, { wrapper: createWrapper() });
 
-    const infoButtons = screen.getAllByTestId('info-icon');
-    // SPID Minors is the last info icon
-    const spidMinorsInfoIcon = infoButtons[infoButtons.length - 1];
+    const spidMinorsToggle = screen.getByLabelText(/SPID Minors/i);
+    const spidMinorsSection = spidMinorsToggle.closest('.MuiFormGroup-root');
+    expect(spidMinorsSection).toBeInTheDocument();
+
+    const spidMinorsInfoIcon = within(
+      spidMinorsSection as HTMLElement
+    ).getByTestId('info-icon');
     fireEvent.mouseOver(spidMinorsInfoIcon);
 
     await waitFor(() => {
@@ -604,6 +652,25 @@ describe('Dashboard SPID Minors', () => {
         )
       ).toBeInTheDocument();
     });
+  });
+
+  it('shows eIDAS select when support is enabled and hides it when disabled', () => {
+    render(<Dashboard />, { wrapper: createWrapper() });
+
+    const toggle = screen.getByLabelText(/eIDAS support/i);
+    expect(
+      screen.queryByLabelText(/eIDAS attribute set/i)
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(screen.getByLabelText(/eIDAS attribute set/i)).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(
+      screen.queryByLabelText(/eIDAS attribute set/i)
+    ).not.toBeInTheDocument();
   });
 
   it('Age Parent Auth is optional: submit is enabled without it', async () => {
