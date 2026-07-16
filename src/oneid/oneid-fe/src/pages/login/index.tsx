@@ -60,11 +60,6 @@ const Login = () => {
     writeParamsToSessionStorage();
   }, []);
 
-  const eidasIdentityProvider = idpQuery.data?.identityProviders?.find(
-    ({ entityID, friendlyName }) =>
-      /eidas/i.test(entityID) || /eidas/i.test(friendlyName)
-  );
-
   const goCIE = () => {
     const params = forwardSearchParams(ENV.CIE_ENTITY_ID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
@@ -79,18 +74,22 @@ const Login = () => {
     );
   };
 
+  const isEidasEnabled =
+    clientQuery.data?.eidasIndex !== null &&
+    clientQuery.data?.eidasIndex !== undefined;
+
   const goEidas = () => {
-    if (!eidasIdentityProvider) {
+    if (!isEidasEnabled) {
       return;
     }
 
-    const params = forwardSearchParams(eidasIdentityProvider.entityID);
+    const params = forwardSearchParams(ENV.EIDAS_ENTITY_ID);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
-        SPID_IDP_NAME: eidasIdentityProvider.friendlyName,
-        SPID_IDP_ID: eidasIdentityProvider.entityID,
+        SPID_IDP_NAME: 'EIDAS',
+        SPID_IDP_ID: ENV.EIDAS_ENTITY_ID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -248,14 +247,7 @@ const Login = () => {
             <CieButton onClick={goCIE} />
           </Grid>
           <Grid item sx={{ width: '100%' }}>
-            <EidasButton
-              onClick={goEidas}
-              disabled={!eidasIdentityProvider}
-              visible={
-                clientQuery.data?.eidasIndex !== null &&
-                clientQuery.data?.eidasIndex !== undefined
-              }
-            />
+            <EidasButton onClick={goEidas} visible={isEidasEnabled} />
           </Grid>
         </Grid>
         <Grid container item justifyContent="center" mt={4}>
