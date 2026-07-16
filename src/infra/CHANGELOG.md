@@ -1,5 +1,11 @@
 # infra
 
+## 2.8.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
 ## 2.7.0
 
 ### Minor Changes

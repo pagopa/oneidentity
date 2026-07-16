@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.10.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
 ## 1.9.0
 
 ### Minor Changes
