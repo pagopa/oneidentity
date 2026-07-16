@@ -673,7 +673,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.Content-Type": "integration.response.header.Content-Type"
+                "method.response.header.content-type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -1866,15 +1866,6 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "Find client information from a client_id",
@@ -1921,15 +1912,6 @@
           },
           "404": {
             "$ref": "#/components/responses/notFound"
-          },
-          "405": {
-            "$ref": "#/components/responses/methodNotAllowed"
-          },
-          "429": {
-            "$ref": "#/components/responses/rateLimit"
-          },
-          "500": {
-            "$ref": "#/components/responses/serverError"
           }
         },
         "summary": "Find all clients information",
@@ -2384,7 +2366,12 @@
         "type": "openIdConnect",
         "openIdConnectUrl": "/.well-known/openid-configuration"
       },
-      %{ if authorizer != "api_key" }
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+      %{ if authorizer != "api_key"},
       "${ authorizer }": {
         "type": "apiKey",
         "name": "Authorization",
@@ -2396,13 +2383,9 @@
             "${ provider_arn }"
           ]
         }
-      },
-      %{ endif }
-      "api_key": {
-        "type": "apiKey",
-        "name": "x-api-key",
-        "in": "header"
       }
+        %{ endif
+        }
     },
     "schemas": {
       "TokenData": {
@@ -2816,4 +2799,3 @@
     }
   }
 }
-
