@@ -6,9 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.test.InjectMock;
+import jakarta.inject.Inject;
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
@@ -32,7 +34,69 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+@QuarkusTest
 class ClientPublisherServiceImplTest {
+
+  @Inject
+  ClientPublisherServiceImpl publisherService;
+
+  @InjectMock
+  ClientService clientService;
+
+  @InjectMock
+  S3Client s3Client;
+
+  @Test
+  @DisplayName("self-bootstrap publishes individual and aggregated client files")
+  void runSelfBootstrap_publishesIndividualAndAggregatedFiles() throws Exception {
+    ClientFE firstClient = new ClientFE(clientWithFrontendFields("client-1"));
+    ClientFE secondClient = new ClientFE(clientWithFrontendFields("client-2"));
+    when(clientService.getAllClientsInformation())
+        .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(firstClient, secondClient))));
+
+    publisherService.runSelfBootstrap();
+
+    ArgumentCaptor<PutObjectRequest> requestCaptor =
+        ArgumentCaptor.forClass(PutObjectRequest.class);
+    verify(s3Client, Mockito.times(3))
+        .putObject(requestCaptor.capture(), any(RequestBody.class));
+    List<String> keys = requestCaptor.getAllValues().stream()
+        .map(PutObjectRequest::key)
+        .toList();
+    assertEquals(List.of("clients-publisher/client-1.json", "clients-publisher/client-2.json",
+        "clients.json"), keys);
+    requestCaptor.getAllValues().forEach(request ->
+        assertEquals("application/json", request.contentType()));
+  }
+
+  @Test
+  @DisplayName("self-bootstrap publishes an empty aggregate when no clients exist")
+  void runSelfBootstrap_publishesEmptyAggregateWhenNoClientsExist() {
+    when(clientService.getAllClientsInformation()).thenReturn(java.util.Optional.empty());
+
+    publisherService.runSelfBootstrap();
+
+    ArgumentCaptor<PutObjectRequest> requestCaptor =
+        ArgumentCaptor.forClass(PutObjectRequest.class);
+    verify(s3Client).putObject(requestCaptor.capture(), any(RequestBody.class));
+    assertEquals("clients.json", requestCaptor.getValue().key());
+  }
+
+  @Test
+  @DisplayName("self-bootstrap fails when an S3 upload fails")
+  void runSelfBootstrap_throwsWhenS3UploadFails() {
+    ClientFE client = new ClientFE(clientWithFrontendFields("client-1"));
+    when(clientService.getAllClientsInformation())
+        .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
+    Mockito.when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+        .thenThrow(new RuntimeException("S3 unavailable"));
+
+    RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+      RuntimeException.class, publisherService::runSelfBootstrap);
+
+    assertEquals("Client publisher self-bootstrap failed", exception.getMessage());
+    verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+  }
 
   @Test
   @DisplayName("skips republish when a modify only touches secret fields")
