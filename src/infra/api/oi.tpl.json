@@ -673,7 +673,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type"
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -1832,7 +1832,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type"
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -1858,6 +1858,13 @@
         "responses": {
           "200": {
             "description": "Find client information from a client_id",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1901,7 +1908,7 @@
             "200": {
               "statusCode": "200",
               "responseParameters": {
-                "method.response.header.content-type": "integration.response.header.Content-Type"
+                "method.response.header.Content-Type": "integration.response.header.Content-Type"
               }
             },
             "404": {
@@ -1913,6 +1920,13 @@
         "responses": {
           "200": {
             "description": "Find all clients information",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
