@@ -2091,11 +2091,9 @@
               "type": "string"
             }
           },
-          "content-type": {
-            "application/xml": {
-              "schema": {
-                "type": "string"
-              }
+          "Content-Type": {
+            "schema": {
+              "type": "string"
             }
           }
         },
@@ -2403,7 +2401,12 @@
         "type": "openIdConnect",
         "openIdConnectUrl": "/.well-known/openid-configuration"
       },
-      %{ if authorizer != "api_key" }
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+      %{ if authorizer != "api_key"},
       "${ authorizer }": {
         "type": "apiKey",
         "name": "Authorization",
@@ -2415,13 +2418,8 @@
             "${ provider_arn }"
           ]
         }
-      },
-      %{ endif }
-      "api_key": {
-        "type": "apiKey",
-        "name": "x-api-key",
-        "in": "header"
       }
+      %{ endif }
     },
     "schemas": {
       "TokenData": {

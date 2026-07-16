@@ -261,10 +261,6 @@ module "backend" {
         value = var.cie_entity_id
       },
       {
-        name  = "EIDAS_ENTITY_ID"
-        value = var.eidas_entity_id
-      },
-      {
         name  = "CERTIFICATE_NAME"
         value = var.ssm_cert_key.cert_pem
       },
@@ -668,7 +664,7 @@ module "backend" {
 
   client_publisher_lambda = {
     name                               = format("%s-client-publisher", local.project)
-    filename                           = "${path.module}/../../oneid/oneid-lambda-client-publisher/target/oneid-lambda-client-publisher-1.0.0-SNAPSHOT-runner.jar"
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn     = module.database.table_client_registrations_arn
     clients_bucket_arn                 = module.storage.assets_bucket_arn
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
