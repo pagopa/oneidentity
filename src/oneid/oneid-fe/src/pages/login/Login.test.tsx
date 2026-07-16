@@ -213,8 +213,8 @@ describe('<Login />', () => {
       expect(trackEvent).toHaveBeenCalledWith(
         'LOGIN_IDP_SELECTED',
         {
-          SPID_IDP_NAME: 'eIDAS IDP',
-          SPID_IDP_ID: 'eidas-idp',
+          SPID_IDP_NAME: 'EIDAS',
+          SPID_IDP_ID: ENV.EIDAS_ENTITY_ID,
           FORWARD_PARAMETERS: expect.any(String),
         },
         expect.any(Function)
