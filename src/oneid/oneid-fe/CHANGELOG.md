@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.2.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
 ## 1.1.3
 
 ### Patch Changes
