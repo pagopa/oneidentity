@@ -2091,9 +2091,11 @@
               "type": "string"
             }
           },
-          "Content-Type": {
-            "schema": {
-              "type": "string"
+          "content-type": {
+            "application/xml": {
+              "schema": {
+                "type": "string"
+              }
             }
           }
         },
