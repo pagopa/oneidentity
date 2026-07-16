@@ -678,7 +678,7 @@ module "backend" {
       LOG_LEVEL                          = var.app_log_level
       CLIENT_REGISTRATIONS_TABLE_NAME    = module.database.table_client_registrations_name
       CLIENTS_BUCKET_NAME                = module.storage.assets_bucket_name
-      SINGLE_CLIENT_KEY_PREFIX           = "clients/"
+      SINGLE_CLIENT_KEY_PREFIX           = "clients-publisher/"
       GLOBAL_CLIENTS_KEY                 = "clients.json"
       CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = "${local.project}-client-publisher/ApplicationMetrics"
     }
