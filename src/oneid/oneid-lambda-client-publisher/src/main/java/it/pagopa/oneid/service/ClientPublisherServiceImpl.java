@@ -48,7 +48,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       CloudWatchClient cloudWatchClient,
       ObjectMapper objectMapper,
       @ConfigProperty(name = "clients_bucket_name") String bucketName,
-      @ConfigProperty(name = "single_client_key_prefix") String singleClientKeyPrefix,
+      @ConfigProperty(name = "clients_key_prefix") String singleClientKeyPrefix,
       @ConfigProperty(name = "global_clients_key") String globalClientsKey,
       @ConfigProperty(name = "cloudwatch_custom_metric_namespace") String namespace) {
     this.clientService = clientService;
@@ -132,6 +132,13 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       boolean skipPublish = false;
       switch (eventName) {
         case "INSERT", "MODIFY" -> {
+          if (!isActive(record)) {
+            deleteSingleClient(clientId);
+            publishGlobalClients();
+            publishMetric(SUCCESS_METRIC_NAME, clientId);
+            break;
+          }
+
             ClientFE client = dynamoStreamService.extractClientFE(record, false)
               .orElseThrow(() -> new IllegalStateException(
                 "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
@@ -182,6 +189,14 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       throw new RuntimeException(
           "Failed to publish client file s3://" + bucketName + "/" + key, e);
     }
+  }
+
+  private boolean isActive(JsonNode record) {
+    return record.path("dynamodb")
+        .path("NewImage")
+        .path("active")
+        .path("BOOL")
+        .asBoolean(true);
   }
 
   private void deleteSingleClient(String clientId) {

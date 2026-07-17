@@ -29,6 +29,7 @@ public class ClientServiceImpl implements ClientService {
     Optional<ArrayList<Client>> clients = clientConnector.findAll();
     return clients.map(cl ->
         cl.stream()
+          .filter(Client::isActive)
             .map(ClientFE::new)
             .collect(Collectors.toCollection(ArrayList::new)
             )
