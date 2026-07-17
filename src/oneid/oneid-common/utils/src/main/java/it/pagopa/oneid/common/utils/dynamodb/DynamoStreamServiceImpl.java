@@ -9,6 +9,8 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,7 +28,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private static final String FIELD_DYNAMODB = "dynamodb";
   private static final String IMAGE_OLD = "OldImage";
   private static final String IMAGE_NEW = "NewImage";
-  private static final java.util.List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = java.util.List.of(
+  private static final List<DynamoField> CACHE_RELEVANT_SCALAR_FIELDS = List.of(
       new DynamoField("acsIndex", "N"),
       new DynamoField(FIELD_AUTH_LEVEL, "S"),
       new DynamoField(FIELD_SAML_BINDING, "S"),
@@ -41,7 +43,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       new DynamoField("ageParentAuth", "N"),
       new DynamoField("friendlyName", "S")
   );
-  private static final java.util.List<String> CACHE_RELEVANT_STRING_SET_FIELDS = java.util.List.of(
+  private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(
       "requestedParameters",
       "callbackURI"
   );
@@ -71,6 +73,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
         fromDynamoAttribute(entry.getValue())));
     payload.put("clientID", payload.remove(FIELD_CLIENT_ID));
+    normalizeLocalizedContentMap(payload);
 
     try {
       return Optional.of(clientPayloadObjectMapper.convertValue(payload, ClientFE.class));
@@ -159,6 +162,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
 
     normalizeEnums(payload);
+    normalizeLocalizedContentMap(payload);
 
     try {
       Client client = clientPayloadObjectMapper.convertValue(payload, Client.class);
@@ -183,6 +187,13 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     Object samlBinding = payload.get(FIELD_SAML_BINDING);
     if (samlBinding instanceof String samlBindingValue && !samlBindingValue.isBlank()) {
       payload.put(FIELD_SAML_BINDING, SamlBinding.samlBindingTypeFromValue(samlBindingValue));
+    }
+  }
+
+  private void normalizeLocalizedContentMap(Map<String, Object> payload) {
+    Object localizedContentMap = payload.get("localizedContentMap");
+    if (localizedContentMap instanceof String value && value.isBlank()) {
+      payload.put("localizedContentMap", Map.of());
     }
   }
 
@@ -256,6 +267,10 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return null;
     }
 
+    if (hasExplicitNullAttribute(attributeNode)) {
+      return null;
+    }
+
     Object stringValue = readStringAttribute(attributeNode);
     if (stringValue != null) {
       return stringValue;
@@ -276,12 +291,17 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return stringSetValue;
     }
 
+    Object listValue = readListAttribute(attributeNode);
+    if (listValue != null) {
+      return listValue;
+    }
+
     Object mapValue = readMapAttribute(attributeNode);
     if (mapValue != null) {
       return mapValue;
     }
 
-    return null;
+    return readFallbackAttributeValue(attributeNode);
   }
 
   private String readStringAttribute(JsonNode attributeNode) {
@@ -297,10 +317,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     if (value != null && !value.isNull()) {
       String number = value.asText();
       try {
-        if (number.contains(".")) {
-          return Double.parseDouble(number);
-        }
-        return Integer.parseInt(number);
+        return parseNumeric(number);
       } catch (NumberFormatException e) {
         return number;
       }
@@ -327,6 +344,17 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     return result;
   }
 
+  private List<Object> readListAttribute(JsonNode attributeNode) {
+    JsonNode values = attributeNode.get("L");
+    if (values == null || !values.isArray()) {
+      return null;
+    }
+
+    List<Object> result = new ArrayList<>();
+    values.forEach(value -> result.add(fromDynamoAttribute(value)));
+    return result;
+  }
+
   private Map<String, Object> readMapAttribute(JsonNode attributeNode) {
     JsonNode values = attributeNode.get("M");
     if (values == null || !values.isObject()) {
@@ -337,6 +365,34 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     values.fields().forEachRemaining(
         entry -> result.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
     return result;
+  }
+
+  private boolean hasExplicitNullAttribute(JsonNode attributeNode) {
+    JsonNode nullValue = attributeNode.get("NULL");
+    return nullValue != null && nullValue.asBoolean(false);
+  }
+
+  private Object readFallbackAttributeValue(JsonNode attributeNode) {
+    if (attributeNode.isTextual()) {
+      return attributeNode.asText();
+    }
+
+    if (attributeNode.isNumber()) {
+      return attributeNode.numberValue();
+    }
+
+    if (attributeNode.isBoolean()) {
+      return attributeNode.asBoolean();
+    }
+
+    return null;
+  }
+
+  private Number parseNumeric(String numericValue) {
+    if (numericValue.contains(".")) {
+      return Double.parseDouble(numericValue);
+    }
+    return Long.parseLong(numericValue);
   }
 
   private record DynamoField(String name, String type) {

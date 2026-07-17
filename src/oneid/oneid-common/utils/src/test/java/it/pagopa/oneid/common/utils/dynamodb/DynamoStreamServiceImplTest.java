@@ -2,6 +2,7 @@ package it.pagopa.oneid.common.utils.dynamodb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -109,10 +110,49 @@ class DynamoStreamServiceImplTest {
     image.put("rawBoolean", false);
     ArrayNode values = objectMapper.createObjectNode().putArray("L");
     values.addObject().put("S", "nested");
-    image.set("rawList", values);
+    image.set("rawList", objectMapper.createObjectNode().set("L", values));
 
     assertTrue(dynamoStreamService.extractClient(
         buildRecord("INSERT", null, image), false).isPresent());
+  }
+
+  @Test
+  @DisplayName("given nested map and explicit null attributes when extracting client then preserve payload")
+  void given_nested_map_and_explicit_null_attributes_when_extracting_client_then_preserve_payload()
+      throws Exception {
+    ObjectNode image = baseImage();
+    ObjectNode localizedContent = objectMapper.createObjectNode();
+    localizedContent.put("title", "Welcome");
+    localizedContent.put("description", "Description");
+    ObjectNode languageContent = objectMapper.createObjectNode();
+    languageContent.set("home", objectMapper.createObjectNode()
+        .set("M", localizedContent));
+    image.set("localizedContentMap", objectMapper.createObjectNode()
+        .set("M", objectMapper.createObjectNode().set("en", objectMapper.createObjectNode()
+            .set("M", languageContent))));
+    image.set("logoUri", objectMapper.createObjectNode().put("NULL", true));
+    image.set("clientIdIssuedAt", objectMapper.createObjectNode().put("N", "2147483648"));
+
+    Client client = dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).orElseThrow();
+
+    assertEquals("Welcome", client.getLocalizedContentMap().get("en").get("home").title());
+    assertEquals(2147483648L, client.getClientIdIssuedAt());
+    assertNull(client.getLogoUri());
+  }
+
+  @Test
+  @DisplayName("given empty localized content map when extracting frontend client then use empty map")
+  void given_empty_localized_content_map_when_extracting_frontend_client_then_use_empty_map() {
+    ObjectNode image = baseImage();
+    image.set("localizedContentMap", stringValue(""));
+
+    assertTrue(dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).isPresent());
+
+    var clientFE = dynamoStreamService.extractClientFE(
+        buildRecord("INSERT", null, image), false).orElseThrow();
+    assertTrue(clientFE.getLocalizedContentMap().isEmpty());
   }
 
   private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {
