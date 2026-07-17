@@ -39,7 +39,8 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       new DynamoField("spidProfessionals", "BOOL"),
       new DynamoField("minAge", "N"),
       new DynamoField("maxAge", "N"),
-      new DynamoField("ageParentAuth", "N")
+      new DynamoField("ageParentAuth", "N"),
+      new DynamoField("eidasIndex", "N")
   );
   
   private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(

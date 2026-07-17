@@ -37,6 +37,7 @@ public class MockClientLookupService implements ClientLookupService {
         .samlBinding(samlBinding)
         .acsIndex(0)
         .attributeIndex(0)
+        .eidasIndex(99)
         .isActive(true)
         .clientIdIssuedAt(0)
         .logoUri("test")

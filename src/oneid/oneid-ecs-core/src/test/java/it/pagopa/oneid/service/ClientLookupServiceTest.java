@@ -36,7 +36,7 @@ class ClientLookupServiceTest {
   @Test
   @DisplayName("given cache hit when reading client then return cached value without dynamo call")
   void given_cache_hit_when_reading_client_then_return_cached_value() {
-    Client cachedClient = Client.builder().clientId("client-test").build();
+    Client cachedClient = Client.builder().clientId("client-test").isActive(true).build();
     when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.of(cachedClient));
 
     Optional<Client> result = clientLookupService.getClientById("client-test");
@@ -50,7 +50,7 @@ class ClientLookupServiceTest {
   @Test
   @DisplayName("given cache miss when reading client then fallback to dynamodb and backfill cache")
   void given_cache_miss_when_reading_client_then_fallback_to_dynamodb_and_backfill_cache() {
-    Client sourceClient = Client.builder().clientId("client-test").build();
+    Client sourceClient = Client.builder().clientId("client-test").isActive(true).build();
     when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.empty());
     when(clientConnector.getClientById("client-test")).thenReturn(Optional.of(sourceClient));
 
@@ -82,7 +82,7 @@ class ClientLookupServiceTest {
   @Test
   @DisplayName("given cache write failure when reading client then emit backfill failure metric")
   void given_cache_write_failure_when_reading_client_then_emit_backfill_failure_metric() {
-    Client sourceClient = Client.builder().clientId("client-test").build();
+    Client sourceClient = Client.builder().clientId("client-test").isActive(true).build();
     when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.empty());
     when(clientConnector.getClientById("client-test")).thenReturn(Optional.of(sourceClient));
     doThrow(new RuntimeException("Redis write failed")).when(cacheConnector).setClient(sourceClient);
@@ -97,7 +97,7 @@ class ClientLookupServiceTest {
   @Test
   @DisplayName("given cache read failure when reading client then fallback to dynamodb")
   void given_cache_read_failure_when_reading_client_then_fallback_to_dynamodb() {
-    Client sourceClient = Client.builder().clientId("client-test").build();
+    Client sourceClient = Client.builder().clientId("client-test").isActive(true).build();
     when(cacheConnector.getByClientId("client-test")).thenThrow(new RuntimeException("Redis down"));
     when(clientConnector.getClientById("client-test")).thenReturn(Optional.of(sourceClient));
 
@@ -107,5 +107,21 @@ class ClientLookupServiceTest {
     verify(clientConnector).getClientById("client-test");
     verify(cloudWatchConnector).sendClientCacheMissMetricData("client-test");
     verify(cloudWatchConnector).sendClientCacheBackfillSuccessMetricData("client-test");
+  }
+
+  @Test
+  @DisplayName("given inactive dynamodb client on cache miss when reading then do not backfill")
+  void given_inactive_dynamodb_client_on_cache_miss_when_reading_then_do_not_backfill() {
+    Client inactiveClient = Client.builder().clientId("client-test").isActive(false).build();
+    when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.empty());
+    when(clientConnector.getClientById("client-test")).thenReturn(Optional.of(inactiveClient));
+
+    Optional<Client> result = clientLookupService.getClientById("client-test");
+
+    assertTrue(result.isEmpty());
+    verify(cacheConnector).getByClientId("client-test");
+    verify(clientConnector).getClientById("client-test");
+    verify(cacheConnector, never()).setClient(inactiveClient);
+    verifyNoInteractions(cloudWatchConnector);
   }
 }

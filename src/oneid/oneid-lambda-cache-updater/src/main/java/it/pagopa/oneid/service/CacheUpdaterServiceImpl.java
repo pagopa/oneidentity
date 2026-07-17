@@ -62,35 +62,9 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
 
     switch (eventName) {
-      case "INSERT" -> dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, client.getClientId()),
-              () -> {
-                throw new IllegalStateException(
-                    "Unable to build client from NEW_IMAGE for eventName=" + eventName);
-              });
+      case "INSERT" -> processInsertOrModify(streamRecord, eventName);
       case "MODIFY" -> {
-        if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
-          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
-              .orElse("unknown");
-          Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
-              clientId);
-          return;
-        }
-
-        if (!dynamoStreamService.hasCacheRelevantChanges(streamRecord)) {
-          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
-              .orElse("unknown");
-          Log.infof("Skipping cache update for clientId=%s because no cache-relevant fields "
-              + "changed", clientId);
-          return;
-        }
-
-        dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, client.getClientId()),
-                () -> {
-                  throw new IllegalStateException(
-                      "Unable to build client from NEW_IMAGE for eventName=" + eventName);
-                });
+        processInsertOrModify(streamRecord, eventName);
       }
       case "REMOVE" -> dynamoStreamService.extractClientId(streamRecord, true)
           .ifPresentOrElse(this::deleteClient,
@@ -100,6 +74,46 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
               });
       default -> Log.infof("Unsupported DynamoDB stream eventName=%s", eventName);
     }
+  }
+
+  private void processInsertOrModify(JsonNode streamRecord, String eventName) {
+    String clientId = dynamoStreamService.extractClientId(streamRecord, false)
+        .orElseThrow(() -> new IllegalStateException(
+            "Unable to read clientId from NEW_IMAGE for eventName=" + eventName));
+
+    if (!isActive(streamRecord)) {
+      deleteClient(clientId);
+      return;
+    }
+
+    if ("MODIFY".equals(eventName)) {
+      if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
+        Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
+            clientId);
+        return;
+      }
+
+      if (!dynamoStreamService.hasCacheRelevantChanges(streamRecord)) {
+        Log.infof("Skipping cache update for clientId=%s because no cache-relevant fields "
+            + "changed", clientId);
+        return;
+      }
+    }
+
+    dynamoStreamService.extractClient(streamRecord, false)
+      .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, clientId),
+        () -> {
+          throw new IllegalStateException(
+              "Unable to build client from NEW_IMAGE for eventName=" + eventName);
+        });
+  }
+
+  private boolean isActive(JsonNode streamRecord) {
+    return streamRecord.path("dynamodb")
+        .path("NewImage")
+        .path("active")
+        .path("BOOL")
+        .asBoolean(true);
   }
 
   private void upsertClient(Client client) {

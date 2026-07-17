@@ -47,8 +47,10 @@ class CacheUpdaterServiceImplTest {
     JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
       null);
     JsonNode streamRecord = input.get(0);
-    Client client = Client.builder().clientId("client-test").build();
+    Client client = Client.builder().clientId("client-test").isActive(true).build();
     when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+      .thenReturn(Optional.of("client-test"));
     when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
     assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
@@ -63,8 +65,10 @@ class CacheUpdaterServiceImplTest {
     JsonNode input = buildArray("INSERT", "{\"clientId\":{\"S\":\"client-test\"}}",
       null);
     JsonNode streamRecord = input.get(0);
-    Client client = Client.builder().clientId("client-test").build();
+    Client client = Client.builder().clientId("client-test").isActive(true).build();
     when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+      .thenReturn(Optional.of("client-test"));
     when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
     doThrow(new IllegalStateException("cache unavailable")).when(cacheConnector).setClient(client);
 
@@ -114,9 +118,11 @@ class CacheUpdaterServiceImplTest {
         "{\"clientId\":{\"S\":\"client-test\"},\"pairwise\":{\"BOOL\":true}}"
     );
     JsonNode streamRecord = input.get(0);
-    Client client = Client.builder().clientId("client-test").build();
+    Client client = Client.builder().clientId("client-test").isActive(true).build();
     when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
     when(recordUtils.isIncompleteModifyRecord(streamRecord)).thenReturn(false);
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+      .thenReturn(Optional.of("client-test"));
     when(dynamoStreamService.hasCacheRelevantChanges(streamRecord)).thenReturn(true);
     when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
@@ -124,6 +130,24 @@ class CacheUpdaterServiceImplTest {
 
     verify(cacheConnector).setClient(client);
     verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
+  }
+
+  @Test
+  @DisplayName("given inactive insert record when process input then delete client from cache")
+  void given_inactive_insert_record_when_process_input_then_delete_client_from_cache() {
+    JsonNode input = buildArray("INSERT", null,
+      "{\"clientId\":{\"S\":\"client-test\"},\"active\":{\"BOOL\":false}}");
+    JsonNode streamRecord = input.get(0);
+    Client client = Client.builder().clientId("client-test").isActive(false).build();
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+      .thenReturn(Optional.of("client-test"));
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
+
+    assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
+
+    verify(cacheConnector).deleteClient("client-test");
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test
@@ -183,6 +207,8 @@ class CacheUpdaterServiceImplTest {
     JsonNode streamRecord = input.get(0);
     Client client = Client.builder().clientId(" ").build();
     when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+      .thenReturn(Optional.of("client-test"));
     when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
 
     assertThrows(IllegalArgumentException.class,
