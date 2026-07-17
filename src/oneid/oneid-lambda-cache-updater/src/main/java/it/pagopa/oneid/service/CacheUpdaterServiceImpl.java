@@ -54,9 +54,10 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
-    Log.infof("Processing DynamoDB stream record: %s", streamRecord.toPrettyString());
+    Log.infof("Processing DynamoDB stream record: %s", streamRecord.toString());
 
     String eventName = streamRecord.path("eventName").asText();
+
     if (eventName.isBlank()) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
     }
