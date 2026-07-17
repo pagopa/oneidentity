@@ -17,6 +17,7 @@
     "src/oneid/oneid-ecs-internal-idp/",
     "src/oneid/oneid-fe/",
     "src/oneid/oneid-lambda-cache-updater/",
+    "src/oneid/oneid-lambda-client-publisher/",
     "src/oneid/oneid-lambda-assertion/",
     "src/oneid/oneid-lambda-cert-exp-checker/",
     "src/oneid/oneid-lambda-client-manager/",
