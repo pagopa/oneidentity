@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.11.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
 ## 1.10.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # infra
 
+## 2.9.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
 ## 2.8.0
 
 ### Minor Changes

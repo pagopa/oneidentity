@@ -1,5 +1,11 @@
 # oneid-lambda-update-status
 
+## 1.4.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
 ## 1.3.1
 
 ### Patch Changes

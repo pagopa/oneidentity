@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.3.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
 ## 1.2.0
 
 ### Minor Changes
