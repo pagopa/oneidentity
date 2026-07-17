@@ -99,6 +99,9 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "timestamp_cie")
   String TIMESTAMP_CIE;
 
+  @ConfigProperty(name = "timestamp_eidas")
+  String TIMESTAMP_EIDAS;
+
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
 
@@ -686,6 +689,9 @@ public class SAMLServiceImpl implements SAMLService {
   public Optional<IDP> getIDPFromEntityID(String entityID) {
     if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
       return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_CIE);
+    }
+    if (entityID.equalsIgnoreCase(EIDAS_ENTITY_ID)) {
+      return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_EIDAS);
     }
     return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_SPID);
   }

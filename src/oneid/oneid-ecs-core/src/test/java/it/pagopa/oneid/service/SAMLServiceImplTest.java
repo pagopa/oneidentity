@@ -219,8 +219,12 @@ public class SAMLServiceImplTest {
   String TIMESTAMP_SPID;
   @ConfigProperty(name = "timestamp_cie")
   String TIMESTAMP_CIE;
+  @ConfigProperty(name = "timestamp_eidas")
+  String TIMESTAMP_EIDAS;
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
+  @ConfigProperty(name = "eidas_entity_id")
+  String EIDAS_ENTITY_ID;
   @Inject
   SAMLServiceImpl samlServiceImpl;
   @InjectSpy
@@ -730,6 +734,22 @@ public class SAMLServiceImplTest {
     // Assert
     assertFalse(result.isPresent());
     verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(CIE_ENTITY_ID, TIMESTAMP_CIE);
+  }
+
+  @Test
+  void testGetIDPFromEidasEntityId() {
+    IDP expectedIDP = new IDP();
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(EIDAS_ENTITY_ID, TIMESTAMP_EIDAS))
+        .thenReturn(Optional.of(expectedIDP));
+
+    Optional<IDP> result = samlServiceImpl.getIDPFromEntityID(EIDAS_ENTITY_ID);
+
+    assertTrue(result.isPresent());
+    assertEquals(expectedIDP, result.get());
+    verify(idpConnectorImpl, times(1)).getIDPByEntityIDAndTimestamp(EIDAS_ENTITY_ID,
+        TIMESTAMP_EIDAS);
+    verify(idpConnectorImpl, times(0)).getIDPByEntityIDAndTimestamp(anyString(),
+        eq(TIMESTAMP_SPID));
   }
 
   @Test

@@ -71,6 +71,19 @@ public class IDPMetadataServiceImplTest {
   }
 
   @Test
+  void updateIDPMetadata_eidas() {
+    doNothing().when(idpConnectorImpl).saveIDPs(any(), any(), any());
+
+    ArrayList<IDP> idpList = new ArrayList<>();
+    idpList.add(new IDP());
+    IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO("eidas-11111.xml");
+
+    idpMetadataServiceImpl.updateIDPMetadata(idpList, idpS3FileDTO);
+
+    verify(idpConnectorImpl).saveIDPs(idpList, LatestTAG.LATEST_EIDAS, "11111");
+  }
+
+  @Test
   void refreshPublicIdps() {
     when(idpConnectorImpl.findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString()))
         .thenReturn(Optional.of(new ArrayList<>()));
@@ -83,7 +96,7 @@ public class IDPMetadataServiceImplTest {
   @Test
   void isPublicIdpsStatusChange_statusChanged() {
     boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
-      dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO"));
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO"));
 
     assertTrue(statusChanged);
   }
@@ -96,15 +109,15 @@ public class IDPMetadataServiceImplTest {
     assertTrue(statusChanged);
   }
 
-        @Test
-        void publishPublicIdps_spid() {
-          ArrayList<IDP> idpMetadata = new ArrayList<>();
-          idpMetadata.add(new IDP());
+  @Test
+  void publishPublicIdps_spid() {
+    ArrayList<IDP> idpMetadata = new ArrayList<>();
+    idpMetadata.add(new IDP());
 
-          idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
+    idpMetadataServiceImpl.publishPublicIdps(idpMetadata, new IdpS3FileDTO("spid-11111.xml"));
 
-          verify(publicIdpsBucketConnector).uploadIdpsJson(anyString(), anyString());
-        }
+    verify(publicIdpsBucketConnector).uploadIdpsJson(anyString(), anyString());
+  }
 
   @Test
   void parseIDPMetadata_SPID() {

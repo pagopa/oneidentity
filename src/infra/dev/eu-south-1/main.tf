@@ -253,6 +253,10 @@ module "backend" {
         value = "LATEST_CIE"
       },
       {
+        name  = "TIMESTAMP_EIDAS"
+        value = "LATEST_EIDAS"
+      },
+      {
         name  = "CIE_ENTITY_ID"
         value = var.cie_entity_id
       },
@@ -569,6 +573,7 @@ module "backend" {
       ASSETS_S3_BUCKET             = module.storage.assets_bucket_name
       IDP_STATUS_S3_FILE_NAME      = "idp_status_history.json"
       CLIENT_STATUS_S3_FILE_NAME   = "client_status_history.json"
+      EIDAS_ENTITY_ID              = var.eidas_entity_id
     }
   }
 

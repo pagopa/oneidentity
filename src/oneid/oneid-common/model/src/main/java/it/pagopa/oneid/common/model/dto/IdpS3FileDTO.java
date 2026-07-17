@@ -24,8 +24,11 @@ public class IdpS3FileDTO {
 
     this.metadataType = MetadataType.valueOf(keyType.toUpperCase());
     this.timestamp = Long.parseLong(keyTimestamp);
-    this.latestTAG =
-        metadataType.equals(MetadataType.CIE) ? LatestTAG.LATEST_CIE : LatestTAG.LATEST_SPID;
+    this.latestTAG = switch (metadataType) {
+      case SPID -> LatestTAG.LATEST_SPID;
+      case CIE -> LatestTAG.LATEST_CIE;
+      case EIDAS -> LatestTAG.LATEST_EIDAS;
+    };
   }
 
   @Override

@@ -19,9 +19,13 @@ ASSETS_S3_BUCKET = os.getenv("ASSETS_S3_BUCKET")
 # DynamoDB table name for IDP metadata
 IDP_METADATA_DYNAMODB_TABLE = os.getenv("IDP_METADATA_DYNAMODB_TABLE")
 
+# Entity ID for the EIDAS identity provider
+EIDAS_ENTITY_ID = os.getenv("EIDAS_ENTITY_ID")
+
 # IDP metadata pointers used by /idps latest snapshot
 IDP_METADATA_POINTER_SPID = "LATEST_SPID"
 IDP_METADATA_POINTER_CIE = "LATEST_CIE"
+IDP_METADATA_POINTER_EIDAS = "LATEST_EIDAS"
 
 # Pointer value for the latest status
 LATEST_POINTER = "latest"
@@ -175,6 +179,8 @@ def update_idp_metadata_status(entity_id: str, alarm_state: str) -> bool:
     # Determine correct pointer value dynamically
     if "servizicie" in entity_id.lower():
         pointer = IDP_METADATA_POINTER_CIE
+    elif EIDAS_ENTITY_ID and entity_id.lower() == EIDAS_ENTITY_ID.lower():
+        pointer = IDP_METADATA_POINTER_EIDAS
     else:
         pointer = IDP_METADATA_POINTER_SPID
 
