@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.6.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
 ## 1.5.0
 
 ### Minor Changes
