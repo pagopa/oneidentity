@@ -144,7 +144,8 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
                 "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
 
           if ("MODIFY".equals(eventName)) {
-            if (dynamoStreamService.extractClientFE(record, true)
+            if (!hasActiveChanged(record)
+                && dynamoStreamService.extractClientFE(record, true)
                 .filter(oldClient -> oldClient.equals(client))
                 .isPresent()) {
               Log.infof("Skipping client republish for clientId=%s because only secret fields changed",
@@ -197,6 +198,21 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
         .path("active")
         .path("BOOL")
         .asBoolean(true);
+  }
+
+  private boolean hasActiveChanged(JsonNode record) {
+    JsonNode oldActive = record.path("dynamodb")
+        .path("OldImage")
+        .path("active")
+        .path("BOOL");
+    JsonNode newActive = record.path("dynamodb")
+        .path("NewImage")
+        .path("active")
+        .path("BOOL");
+
+    return !oldActive.isMissingNode()
+        && !newActive.isMissingNode()
+        && oldActive.asBoolean() != newActive.asBoolean();
   }
 
   private void deleteSingleClient(String clientId) {

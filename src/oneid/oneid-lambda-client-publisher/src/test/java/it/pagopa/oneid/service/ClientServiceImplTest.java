@@ -82,5 +82,32 @@ class ClientServiceImplTest {
     assertNotNull(result);
     assertTrue(result.isEmpty());
   }
+
+  @Test
+  void getAllClientsInformation_excludesInactiveClients() {
+    Client activeClient = Client.builder()
+        .clientId("active")
+        .friendlyName("active")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .isActive(true)
+        .build();
+    Client inactiveClient = Client.builder()
+        .clientId("inactive")
+        .friendlyName("inactive")
+        .callbackURI(Set.of("test"))
+        .requestedParameters(Set.of("test"))
+        .authLevel(AuthLevel.L2)
+        .isActive(false)
+        .build();
+    Mockito.when(clientConnector.findAll())
+        .thenReturn(Optional.of(new ArrayList<>(java.util.List.of(activeClient, inactiveClient))));
+
+    var result = clientServiceImpl.getAllClientsInformation().orElseThrow();
+
+    assertEquals(1, result.size());
+    assertEquals("active", result.get(0).getClientID());
+  }
 }
 	

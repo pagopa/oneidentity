@@ -32,6 +32,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @QuarkusTest
@@ -203,6 +204,95 @@ class ClientPublisherServiceImplTest {
     assertEquals(true, payload.path("backButtonEnabled").asBoolean());
     assertEquals("Welcome", payload.path("localizedContentMap").path("en")
       .path("home").path("title").asText());
+  }
+
+  @Test
+  @DisplayName("deletes inactive client without converting or publishing its frontend file")
+  void processInput_deletesInactiveClient() throws Exception {
+    ClientConnector clientConnector = Mockito.mock(ClientConnector.class);
+    DynamoStreamService dynamoStreamService = Mockito.mock(DynamoStreamService.class);
+    RecordUtils recordUtils = Mockito.mock(RecordUtils.class);
+    S3Client s3Client = Mockito.mock(S3Client.class);
+    CloudWatchClient cloudWatchClient = Mockito.mock(CloudWatchClient.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode record = objectMapper.readTree("""
+        {
+          "eventName": "MODIFY",
+          "dynamodb": {
+            "NewImage": {
+              "clientId": {"S": "client-1"},
+              "active": {"BOOL": false}
+            }
+          }
+        }
+        """);
+
+    when(recordUtils.readRecords(any())).thenReturn(List.of(record));
+    when(dynamoStreamService.extractClientId(record, false))
+        .thenReturn(java.util.Optional.of("client-1"));
+    when(clientConnector.findAll()).thenReturn(java.util.Optional.of(new ArrayList<>()));
+
+    ClientPublisherServiceImpl service = newService(
+        clientConnector, dynamoStreamService, recordUtils, s3Client, cloudWatchClient,
+        objectMapper);
+
+    service.processInput(record);
+
+    verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
+    verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(s3Client, never()).putObject(
+      org.mockito.ArgumentMatchers.<PutObjectRequest>argThat(
+        request -> request.key().contains("client-1")),
+        any(RequestBody.class));
+    verify(dynamoStreamService, never()).extractClientFE(record, false);
+  }
+
+  @Test
+  @DisplayName("republishes a client when active changes from false to true")
+  void processInput_republishesWhenClientIsReactivated() throws Exception {
+    ClientConnector clientConnector = Mockito.mock(ClientConnector.class);
+    DynamoStreamService dynamoStreamService = Mockito.mock(DynamoStreamService.class);
+    RecordUtils recordUtils = Mockito.mock(RecordUtils.class);
+    S3Client s3Client = Mockito.mock(S3Client.class);
+    CloudWatchClient cloudWatchClient = Mockito.mock(CloudWatchClient.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    Client client = clientWithFrontendFields("client-1");
+    ClientFE clientFE = new ClientFE(client);
+    JsonNode record = objectMapper.readTree("""
+        {
+          "eventName": "MODIFY",
+          "dynamodb": {
+            "NewImage": {
+              "clientId": {"S": "client-1"},
+              "active": {"BOOL": true}
+            },
+            "OldImage": {
+              "clientId": {"S": "client-1"},
+              "active": {"BOOL": false}
+            }
+          }
+        }
+        """);
+
+    when(recordUtils.readRecords(any())).thenReturn(List.of(record));
+    when(dynamoStreamService.extractClientId(record, false))
+        .thenReturn(java.util.Optional.of("client-1"));
+    when(dynamoStreamService.extractClientFE(record, false))
+        .thenReturn(java.util.Optional.of(clientFE));
+    when(dynamoStreamService.extractClientFE(record, true))
+        .thenReturn(java.util.Optional.of(clientFE));
+    when(clientConnector.findAll())
+        .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
+
+    ClientPublisherServiceImpl service = newService(
+        clientConnector, dynamoStreamService, recordUtils, s3Client, cloudWatchClient,
+        objectMapper);
+
+    service.processInput(record);
+
+    verify(s3Client, org.mockito.Mockito.times(2))
+        .putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(s3Client, never()).deleteObject(any(DeleteObjectRequest.class));
   }
 
   @Test
