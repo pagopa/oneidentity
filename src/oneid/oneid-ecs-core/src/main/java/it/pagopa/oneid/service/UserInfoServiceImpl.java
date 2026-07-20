@@ -24,7 +24,6 @@ import jakarta.ws.rs.WebApplicationException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -58,7 +57,7 @@ public class UserInfoServiceImpl implements UserInfoService {
   PDVApiClient pdvApiClient;
 
   @Inject
-  Map<String, Client> clientsMap;
+  ClientLookupService clientLookupService;
 
   @Inject
   CloudWatchConnectorImpl cloudWatchConnectorImpl;
@@ -187,8 +186,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     if (StringUtils.isBlank(pairwise)) {
-      Client client = clientsMap.get(clientId);
-      if (pairwiseEnabled && client != null && client.isPairwise()) {
+      Optional<Client> client = clientLookupService.getClientById(clientId);
+      if (pairwiseEnabled && client.isPresent() && client.get().isPairwise()) {
         pairwise = fetchPairwiseTokenFromPDV(clientId, claimsSet).orElse(null);
         if (StringUtils.isNotBlank(pairwise)) {
           persistPairwiseOnAccessTokenSession(accessToken, pairwise);

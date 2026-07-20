@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.service.CacheUpdaterService;
@@ -38,13 +39,25 @@ class CacheUpdaterHandlerTest {
   }
 
   @Test
-  @DisplayName("given valid input when handle request then delegate to service and return null")
-  void given_valid_input_when_handle_request_then_delegate_to_service_and_return_null() {
-    Void response = handleRequest(
-        "[{\"eventName\":\"INSERT\",\"dynamodb\":{\"NewImage\":{\"clientId\":{\"S\":\"client-test\"}}}}]");
+  @DisplayName("given valid SQS input when handle request then delegate to service and return null")
+  void given_valid_sqs_input_when_handle_request_then_delegate_to_service_and_return_null()
+      throws Exception {
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    streamRecord.put("eventName", "INSERT");
+    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
+    ObjectNode newImage = dynamodb.putObject("NewImage");
+    newImage.putObject("clientId").put("S", "client-test");
+    newImage.putObject("callbackURI").put("S", "https://example.test/callback");
+
+    ObjectNode sqsMessage = objectMapper.createObjectNode();
+    sqsMessage.put("body", objectMapper.writeValueAsString(streamRecord));
+    ObjectNode root = objectMapper.createObjectNode();
+    root.putArray("Records").add(sqsMessage);
+
+    Void response = lambdaHandler.handleRequest(root, null);
 
     assertNull(response);
-    verify(cacheUpdaterService).processInput(any());
+    verify(cacheUpdaterService).processInput(any(JsonNode.class));
   }
 
   @Test

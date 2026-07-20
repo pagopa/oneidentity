@@ -424,6 +424,14 @@ module "ecs_core_service" {
         {
           name  = "SIGN_JWT_KEY_ID"
           value = module.jwt_sign.aliases.sign-jwt.target_key_id
+        },
+        {
+          name  = "CACHE_ENDPOINT_ADDRESS"
+          value = var.cache_endpoint_address
+        },
+        {
+          name  = "CACHE_ENDPOINT_PORT"
+          value = var.cache_endpoint_port
         }
       ])
 
@@ -910,6 +918,50 @@ resource "aws_cloudwatch_metric_alarm" "client_no_traffic_alarm" {
       }
     }
     return_data = "false"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "client_cache_backfill_failure_alarm" {
+  for_each            = var.client_alarm != null && var.client_alarm.enabled ? { for c in var.client_alarm.clients : c.client_id => c } : {}
+  alarm_name          = format("%s_%s_%s_%s", "ClientCacheBackfillFailureAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions = [
+    var.sns_topic_arn,
+  ]
+
+  metric_name = "ClientCacheBackfillFailure"
+  namespace   = var.client_alarm.namespace
+  period      = 300
+  statistic   = "Sum"
+
+  dimensions = {
+    ClientAggregated = each.key
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "client_cache_backfill_success_alarm" {
+  for_each            = var.client_alarm != null && var.client_alarm.enabled ? { for c in var.client_alarm.clients : c.client_id => c } : {}
+  alarm_name          = format("%s_%s_%s_%s", "ClientCacheBackfillSuccessAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  threshold           = 8
+  treat_missing_data  = "notBreaching"
+
+  alarm_actions = [
+    var.sns_topic_arn,
+  ]
+
+  metric_name = "ClientCacheBackfillSuccess"
+  namespace   = var.client_alarm.namespace
+  period      = 300
+  statistic   = "Sum"
+
+  dimensions = {
+    ClientAggregated = each.key
   }
 }
 

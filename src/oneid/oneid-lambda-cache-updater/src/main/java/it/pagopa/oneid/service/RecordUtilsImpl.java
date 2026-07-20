@@ -31,10 +31,6 @@ public class RecordUtilsImpl implements RecordUtils {
     return List.of(root);
   }
 
-  private List<JsonNode> readRecordArray(JsonNode recordsNode) {
-    return StreamSupport.stream(recordsNode.spliterator(), false).toList();
-  }
-
   @Override
   public boolean isIncompleteModifyRecord(JsonNode streamRecord) {
     JsonNode dynamodbNode = streamRecord.path("dynamodb");
@@ -46,5 +42,9 @@ public class RecordUtilsImpl implements RecordUtils {
     JsonNode newImageNode = dynamodbNode.path("NewImage");
     return oldImageNode.isMissingNode() || oldImageNode.isNull()
         || newImageNode.isMissingNode() || newImageNode.isNull();
+  }
+
+  private List<JsonNode> readRecordArray(JsonNode recordsNode) {
+    return StreamSupport.stream(recordsNode.spliterator(), false).toList();
   }
 }

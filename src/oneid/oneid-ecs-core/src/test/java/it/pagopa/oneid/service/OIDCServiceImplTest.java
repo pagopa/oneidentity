@@ -542,7 +542,7 @@ class OIDCServiceImplRegistryEnabledTrueTest {
 
     @Override
     public Set<Class<?>> getEnabledAlternatives() {
-      return Set.of(MockSessionConnectorImpl.class, MockClientProducer.class,
+            return Set.of(MockSessionConnectorImpl.class, MockClientLookupService.class,
           MockLastIDPUsedConnectorImpl.class);
     }
   }

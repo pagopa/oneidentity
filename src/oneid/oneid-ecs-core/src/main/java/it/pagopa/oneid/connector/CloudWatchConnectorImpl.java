@@ -181,6 +181,21 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         generatePutMetricRequest(tagClient + tagSuccess, dimensions));
   }
 
+    @Override
+    public void sendClientCacheMissMetricData(String clientID) {
+        sendClientCacheMetricData("ClientCacheMiss", clientID);
+    }
+
+    @Override
+    public void sendClientCacheBackfillSuccessMetricData(String clientID) {
+        sendClientCacheMetricData("ClientCacheBackfillSuccess", clientID);
+    }
+
+    @Override
+    public void sendClientCacheBackfillFailureMetricData(String clientID) {
+        sendClientCacheMetricData("ClientCacheBackfillFailure", clientID);
+    }
+
   @Override
   public void sendUserInfoSuccessMetricData(String clientID) {
     sendUserInfoMetricData("UserInfoSuccess", clientID);
@@ -204,6 +219,15 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
   }
+
+    private void sendClientCacheMetricData(String metricName, String clientID) {
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagClient + tagAggregated)
+                .value(clientID)
+                .build());
+
+        cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
+    }
 
   @Override
   public void sendXSWAssertionErrorMetricData() {

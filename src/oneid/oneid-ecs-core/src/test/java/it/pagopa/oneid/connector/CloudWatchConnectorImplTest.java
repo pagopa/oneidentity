@@ -9,7 +9,6 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.inject.Inject;
-import java.time.Clock;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +23,6 @@ public class CloudWatchConnectorImplTest {
   CloudWatchConnectorImpl cloudWatchConnectorImpl;
   @InjectMock
   CloudWatchAsyncClient cloudWatchAsyncClient;
-  private Clock clock;
 
   @Test
   void sendIDPErrorMetricData_shouldCallPutMetricDataTwice() {
@@ -73,6 +71,57 @@ public class CloudWatchConnectorImplTest {
   void sendClientSuccessMetricData_shouldCallPutMetricDataOnce() {
     cloudWatchConnectorImpl.sendClientSuccessMetricData("clientId");
     verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
+  }
+
+  @Test
+  void sendClientCacheMissMetricData_shouldCallPutMetricDataOnce() {
+    cloudWatchConnectorImpl.sendClientCacheMissMetricData("clientId");
+    verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
+  }
+
+  @Test
+  void sendClientCacheBackfillSuccessMetricData_shouldCallPutMetricDataOnce() {
+    cloudWatchConnectorImpl.sendClientCacheBackfillSuccessMetricData("clientId");
+    verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
+  }
+
+  @Test
+  void sendClientCacheBackfillFailureMetricData_shouldCallPutMetricDataOnce() {
+    cloudWatchConnectorImpl.sendClientCacheBackfillFailureMetricData("clientId");
+    verify(cloudWatchAsyncClient, times(1)).putMetricData(any(PutMetricDataRequest.class));
+  }
+
+  @Test
+  void sendClientCacheMissMetricData_shouldUseExpectedMetricName() {
+    cloudWatchConnectorImpl.sendClientCacheMissMetricData("clientId");
+
+    ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(PutMetricDataRequest.class);
+    verify(cloudWatchAsyncClient).putMetricData(captor.capture());
+
+    PutMetricDataRequest req = captor.getValue();
+    assertEquals("ClientCacheMiss", req.metricData().getFirst().metricName());
+  }
+
+  @Test
+  void sendClientCacheBackfillSuccessMetricData_shouldUseExpectedMetricName() {
+    cloudWatchConnectorImpl.sendClientCacheBackfillSuccessMetricData("clientId");
+
+    ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(PutMetricDataRequest.class);
+    verify(cloudWatchAsyncClient).putMetricData(captor.capture());
+
+    PutMetricDataRequest req = captor.getValue();
+    assertEquals("ClientCacheBackfillSuccess", req.metricData().getFirst().metricName());
+  }
+
+  @Test
+  void sendClientCacheBackfillFailureMetricData_shouldUseExpectedMetricName() {
+    cloudWatchConnectorImpl.sendClientCacheBackfillFailureMetricData("clientId");
+
+    ArgumentCaptor<PutMetricDataRequest> captor = ArgumentCaptor.forClass(PutMetricDataRequest.class);
+    verify(cloudWatchAsyncClient).putMetricData(captor.capture());
+
+    PutMetricDataRequest req = captor.getValue();
+    assertEquals("ClientCacheBackfillFailure", req.metricData().getFirst().metricName());
   }
 
   @Test

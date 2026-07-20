@@ -2,7 +2,6 @@ package it.pagopa.oneid.service;
 
 import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -118,6 +117,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
     SAMLSession samlSession = mock(SAMLSession.class);
     AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
@@ -126,7 +126,8 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
-    setField(userInfoService, "clientsMap", Map.of());
+    setField(userInfoService, "clientLookupService", clientLookupService);
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.empty());
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
         .thenReturn(accessTokenSession);
@@ -150,6 +151,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
     SAMLSession samlSession = mock(SAMLSession.class);
     AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
@@ -158,7 +160,8 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
-    setField(userInfoService, "clientsMap", Map.of());
+    setField(userInfoService, "clientLookupService", clientLookupService);
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.empty());
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
         .thenReturn(accessTokenSession);
@@ -183,6 +186,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -197,9 +201,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
     setField(userInfoService, "registryEnabled", false);
 
@@ -211,6 +215,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
@@ -231,6 +236,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -245,9 +251,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
     setField(userInfoService, "registryEnabled", false);
 
@@ -259,6 +265,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
@@ -280,6 +287,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -294,9 +302,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
     setField(userInfoService, "registryEnabled", true);
 
@@ -308,6 +316,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
@@ -331,6 +340,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
     SAMLSession samlSession = mock(SAMLSession.class);
     AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
@@ -340,7 +350,7 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "pairwiseEnabled", true);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
@@ -351,6 +361,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(false);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
@@ -367,6 +378,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -378,9 +390,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
@@ -391,6 +403,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
@@ -408,6 +421,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -419,9 +433,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
     setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
@@ -432,6 +446,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.empty());
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
@@ -450,6 +465,7 @@ class UserInfoServiceImplTest {
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
     OIDCUtils oidcUtils = mock(OIDCUtils.class);
     CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
     SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
     PDVApiClient pdvApiClient = mock(PDVApiClient.class);
     AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
@@ -461,9 +477,9 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "samlSessionService", samlSessionService);
   setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
-    setField(userInfoService, "clientsMap", Map.of("client-id", client));
     setField(userInfoService, "pairwiseEnabled", true);
     setField(userInfoService, "registryEnabled", false);
 
@@ -475,6 +491,7 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
     when(client.isPairwise()).thenReturn(true);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(), anyString())).thenThrow(new ProcessingException("pdv down"));

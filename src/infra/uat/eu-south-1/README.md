@@ -111,6 +111,7 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
+| <a name="module_client_cache"></a> [client\_cache](#module\_client\_cache) | ../../modules/cache | n/a |
 | <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../modules/cognito | n/a |
 | <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
 | <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
@@ -166,7 +167,7 @@
 | <a name="input_internal_idp_sessions"></a> [internal\_idp\_sessions](#input\_internal\_idp\_sessions) | Internal IDP sessions table. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false<br/>}</pre> | no |
 | <a name="input_internal_idp_users_table"></a> [internal\_idp\_users\_table](#input\_internal\_idp\_users\_table) | Internal IDP users. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false<br/>}</pre> | no |
 | <a name="input_is_gh_sns_arn"></a> [is\_gh\_sns\_arn](#input\_is\_gh\_sns\_arn) | n/a | `string` | `null` | no |
-| <a name="input_lambda_alarms"></a> [lambda\_alarms](#input\_lambda\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = optional(string, "Errors")<br/>    namespace           = optional(string, "AWS/Lambda")<br/>    threshold           = optional(number, 1)<br/>    evaluation_periods  = optional(number, 1)<br/>    period              = optional(number, 300)<br/>    statistic           = optional(string, "Sum")<br/>    comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")<br/>    treat_missing_data  = optional(string, "notBreaching")<br/>  }))</pre> | <pre>{<br/>  "oneid-es-1-u-assertion": {},<br/>  "oneid-es-1-u-client-registration": {},<br/>  "oneid-es-1-u-metadata": {},<br/>  "oneid-es-1-u-update-idp-metadata": {}<br/>}</pre> | no |
+| <a name="input_lambda_alarms"></a> [lambda\_alarms](#input\_lambda\_alarms) | n/a | <pre>map(object({<br/>    metric_name         = optional(string, "Errors")<br/>    namespace           = optional(string, "AWS/Lambda")<br/>    threshold           = optional(number, 1)<br/>    evaluation_periods  = optional(number, 1)<br/>    period              = optional(number, 300)<br/>    statistic           = optional(string, "Sum")<br/>    comparison_operator = optional(string, "GreaterThanOrEqualToThreshold")<br/>    treat_missing_data  = optional(string, "notBreaching")<br/>  }))</pre> | <pre>{<br/>  "oneid-es-1-u-assertion": {},<br/>  "oneid-es-1-u-cache-updater": {},<br/>  "oneid-es-1-u-client-registration": {},<br/>  "oneid-es-1-u-metadata": {},<br/>  "oneid-es-1-u-update-idp-metadata": {}<br/>}</pre> | no |
 | <a name="input_lambda_cloudwatch_logs_retention_in_days"></a> [lambda\_cloudwatch\_logs\_retention\_in\_days](#input\_lambda\_cloudwatch\_logs\_retention\_in\_days) | Cloudwatch log group retention days. | `number` | `14` | no |
 | <a name="input_last_idp_used_table"></a> [last\_idp\_used\_table](#input\_last\_idp\_used\_table) | Last IDP used table configurations. | <pre>object({<br/>    point_in_time_recovery_enabled = optional(bool, false)<br/>    ttl_enabled                    = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "point_in_time_recovery_enabled": false,<br/>  "ttl_enabled": false<br/>}</pre> | no |
 | <a name="input_metadata_info"></a> [metadata\_info](#input\_metadata\_info) | # Metadata Info variables## | <pre>object({<br/>    acs_url = string<br/>    slo_url = string<br/>  })</pre> | <pre>{<br/>  "acs_url": "/saml/acs",<br/>  "slo_url": "/saml/slo"<br/>}</pre> | no |
@@ -198,6 +199,9 @@
 | <a name="output_assertions_bucket_arn"></a> [assertions\_bucket\_arn](#output\_assertions\_bucket\_arn) | n/a |
 | <a name="output_assertions_bucket_name"></a> [assertions\_bucket\_name](#output\_assertions\_bucket\_name) | Storage |
 | <a name="output_assets_bucket_name"></a> [assets\_bucket\_name](#output\_assets\_bucket\_name) | n/a |
+| <a name="output_client_cache_endpoint_address"></a> [client\_cache\_endpoint\_address](#output\_client\_cache\_endpoint\_address) | n/a |
+| <a name="output_client_cache_endpoint_port"></a> [client\_cache\_endpoint\_port](#output\_client\_cache\_endpoint\_port) | n/a |
+| <a name="output_client_cache_security_group_id"></a> [client\_cache\_security\_group\_id](#output\_client\_cache\_security\_group\_id) | n/a |
 | <a name="output_deploy_assets_role"></a> [deploy\_assets\_role](#output\_deploy\_assets\_role) | n/a |
 | <a name="output_dns_zone_name_servers"></a> [dns\_zone\_name\_servers](#output\_dns\_zone\_name\_servers) | # DNS ## |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
