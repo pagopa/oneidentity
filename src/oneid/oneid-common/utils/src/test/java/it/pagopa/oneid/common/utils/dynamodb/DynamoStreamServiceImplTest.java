@@ -116,12 +116,12 @@ class DynamoStreamServiceImplTest {
   }
 
   @Test
-  @DisplayName("given changed friendly name when checking diff then return true")
-  void given_changed_friendly_name_when_checking_diff_then_return_true() {
+  @DisplayName("given changed eidas index when checking diff then return true")
+  void given_changed_eidas_index_when_checking_diff_then_return_true() {
     ObjectNode oldImage = baseImage();
     ObjectNode newImage = baseImage();
-    oldImage.set("friendlyName", stringValue("Old name"));
-    newImage.set("friendlyName", stringValue("New name"));
+    oldImage.set("eidasIndex", numberValue(1));
+    newImage.set("eidasIndex", numberValue(2));
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(
         buildRecord("MODIFY", oldImage, newImage)));

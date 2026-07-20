@@ -372,48 +372,6 @@
       "sha256": "bJs90UKgncRo4jrTmq1vdaDyuFElEERp8CblKkdORk8="
     },
     {
-      "id": "io.quarkus:quarkus-jackson:jar:3.11.3",
-      "artifactId": "quarkus-jackson",
-      "groupId": "io.quarkus",
-      "version": "3.11.3",
-      "sha256": "_RMG_Hi0iH-T92t_GS9W6dMnAWMMFvsDnYqp9UzpLH0="
-    },
-    {
-      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.1",
-      "artifactId": "jackson-databind",
-      "groupId": "com.fasterxml.jackson.core",
-      "version": "2.17.1",
-      "sha256": "tsovfVsaskXOxUlewzl3PS2QVUxIWSWQZz-xj0QAqUg="
-    },
-    {
-      "id": "com.fasterxml.jackson.core:jackson-annotations:jar:2.17.1",
-      "artifactId": "jackson-annotations",
-      "groupId": "com.fasterxml.jackson.core",
-      "version": "2.17.1",
-      "sha256": "_MrYLhMXLA5DhNtxV3IZybhjHAgg9LGNqqVwFvtmHHY="
-    },
-    {
-      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.17.1",
-      "artifactId": "jackson-datatype-jsr310",
-      "groupId": "com.fasterxml.jackson.datatype",
-      "version": "2.17.1",
-      "sha256": "VnZdVayM_911fBpTTsll5wsBF29k39fnCw2zTYuryfo="
-    },
-    {
-      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.17.1",
-      "artifactId": "jackson-datatype-jdk8",
-      "groupId": "com.fasterxml.jackson.datatype",
-      "version": "2.17.1",
-      "sha256": "BoF7eF4z0iR3R6Ygglp1admIzyrtoq4h6z6t3-yzSw4="
-    },
-    {
-      "id": "com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.17.1",
-      "artifactId": "jackson-module-parameter-names",
-      "groupId": "com.fasterxml.jackson.module",
-      "version": "2.17.1",
-      "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
-    },
-    {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-ssm:jar:2.13.1",
       "artifactId": "quarkus-amazon-ssm",
       "groupId": "io.quarkiverse.amazonservices",
@@ -477,11 +435,46 @@
       "sha256": "57pKFYYxA0ab7Ix_Huca3Y44uLsCqrD9kx4gJBpznPI="
     },
     {
+      "id": "io.quarkus:quarkus-jackson:jar:3.11.3",
+      "artifactId": "quarkus-jackson",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "_RMG_Hi0iH-T92t_GS9W6dMnAWMMFvsDnYqp9UzpLH0="
+    },
+    {
+      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.17.1",
+      "artifactId": "jackson-datatype-jsr310",
+      "groupId": "com.fasterxml.jackson.datatype",
+      "version": "2.17.1",
+      "sha256": "VnZdVayM_911fBpTTsll5wsBF29k39fnCw2zTYuryfo="
+    },
+    {
+      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.17.1",
+      "artifactId": "jackson-datatype-jdk8",
+      "groupId": "com.fasterxml.jackson.datatype",
+      "version": "2.17.1",
+      "sha256": "BoF7eF4z0iR3R6Ygglp1admIzyrtoq4h6z6t3-yzSw4="
+    },
+    {
+      "id": "com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.17.1",
+      "artifactId": "jackson-module-parameter-names",
+      "groupId": "com.fasterxml.jackson.module",
+      "version": "2.17.1",
+      "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
+    },
+    {
       "id": "com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.17.1",
       "artifactId": "jackson-datatype-joda",
       "groupId": "com.fasterxml.jackson.datatype",
       "version": "2.17.1",
       "sha256": "do2-1-CYfClVJA9b8eKWBYH9b64EGjz5AhdzBQyIVtc="
+    },
+    {
+      "id": "com.fasterxml.jackson.core:jackson-annotations:jar:2.17.1",
+      "artifactId": "jackson-annotations",
+      "groupId": "com.fasterxml.jackson.core",
+      "version": "2.17.1",
+      "sha256": "_MrYLhMXLA5DhNtxV3IZybhjHAgg9LGNqqVwFvtmHHY="
     },
     {
       "id": "joda-time:joda-time:jar:2.10.14",
@@ -510,6 +503,13 @@
       "groupId": "io.quarkus.resteasy.reactive",
       "version": "3.11.3",
       "sha256": "LQFlM4RzbmY0za5c53ufMp-iAJnt0a2EriPp1Hluz2Y="
+    },
+    {
+      "id": "com.fasterxml.jackson.core:jackson-databind:jar:2.17.1",
+      "artifactId": "jackson-databind",
+      "groupId": "com.fasterxml.jackson.core",
+      "version": "2.17.1",
+      "sha256": "tsovfVsaskXOxUlewzl3PS2QVUxIWSWQZz-xj0QAqUg="
     },
     {
       "id": "jakarta.annotation:jakarta.annotation-api:jar:3.0.0",
