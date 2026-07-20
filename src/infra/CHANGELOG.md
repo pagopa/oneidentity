@@ -1,5 +1,11 @@
 # infra
 
+## 2.10.0
+
+### Minor Changes
+
+- 363f4ad: enable cache solution in all environments, remove local cache in ecs and use distributed cache, add mterics and alarms for ecs and lambda cache updeter
+
 ## 2.9.0
 
 ### Minor Changes

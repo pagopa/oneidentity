@@ -1,5 +1,15 @@
 # oneid-ecs-core
 
+## 1.12.0
+
+### Minor Changes
+
+- 363f4ad: enable cache solution in all environments, remove local cache in ecs and use distributed cache, add mterics and alarms for ecs and lambda cache updeter
+
+### Patch Changes
+
+- 098cca5: Remove unused code for /idps in ecs-core
+
 ## 1.11.0
 
 ### Minor Changes
