@@ -376,6 +376,12 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
   }
 
   statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${var.idp_metadata_lambda.assets_bucket_arn}/*"]
+  }
+
+  statement {
     effect = "Allow"
     actions = [
       "dynamodb:GetItem",
@@ -389,6 +395,19 @@ data "aws_iam_policy_document" "idp_metadata_lambda" {
     ]
   }
 
+  dynamic "statement" {
+    for_each = var.idp_metadata_stream_trigger_enabled ? [1] : []
+
+    content {
+      effect = "Allow"
+      actions = [
+        "dynamodb:DescribeStream",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+      ]
+      resources = [var.dynamodb_table_idpMetadata.stream_arn]
+    }
+  }
 }
 
 module "security_group_lambda_idp_metadata" {
@@ -436,12 +455,17 @@ module "idp_metadata_lambda" {
 
   cloudwatch_logs_retention_in_days = var.idp_metadata_lambda.cloudwatch_logs_retention_in_days
 
-  allowed_triggers = {
+  allowed_triggers = merge({
     s3 = {
       principal  = "s3.amazonaws.com"
       source_arn = var.idp_metadata_lambda.s3_idp_metadata_bucket_arn
     }
-  }
+    }, var.idp_metadata_stream_trigger_enabled ? {
+    dynamodb = {
+      principal  = "dynamodb.amazonaws.com"
+      source_arn = var.dynamodb_table_idpMetadata.stream_arn
+    }
+  } : {})
 
   memory_size = 512
   timeout     = 30
@@ -456,6 +480,33 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   lambda_function {
     lambda_function_arn = module.idp_metadata_lambda.lambda_function_arn
     events              = ["s3:ObjectCreated:Put"]
+  }
+}
+
+resource "aws_lambda_event_source_mapping" "idp_metadata_stream" {
+  count = var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
+  depends_on = [module.idp_metadata_lambda.lambda_function_name]
+
+  event_source_arn  = var.dynamodb_table_idpMetadata.stream_arn
+  function_name     = module.idp_metadata_lambda.lambda_function_arn
+  starting_position = "LATEST"
+  batch_size        = 100
+  enabled           = true
+
+  filter_criteria {
+    filter {
+      pattern = jsonencode({
+        "eventName" = ["MODIFY"]
+        "dynamodb" = {
+          "NewImage" = {
+            "pointer" = {
+              "S" = ["LATEST_SPID"]
+            }
+          }
+        }
+      })
+    }
   }
 }
 
@@ -621,7 +672,7 @@ module "assertion_lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  for_each = var.lambda_alarms
+  for_each = { for alarm_name, alarm in var.lambda_alarms : alarm_name => alarm if alarm.metric_name != "ClientCacheUpdate" }
   alarm_name = lower(format("%s-%s-lambda-%s", each.key, each.value.metric_name,
   each.value.threshold))
   comparison_operator = each.value.comparison_operator
@@ -638,6 +689,26 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   }
 
   alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
+}
+
+resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_failure_alarm" {
+  for_each = var.cache_updater_lambda != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
+
+  alarm_name          = format("%s_%s_%s_%s", "ClientCacheUpdateFailureAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ClientCacheUpdateFailure"
+  namespace           = try(var.cache_updater_lambda.environment_variables["CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"], "")
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    ClientAggregated = each.key
+  }
+
+  alarm_actions = [var.sns_topic_arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
@@ -1381,4 +1452,99 @@ module "metrics_archiver_lambda" {
 
   cloudwatch_logs_retention_in_days = each.value.cloudwatch_logs_retention_in_days
 
+}
+
+## Lambda cache updater
+
+data "aws_iam_policy_document" "cache_updater_lambda" {
+  count = var.cache_updater_lambda != null ? 1 : 0
+
+  statement {
+    sid    = "ReadFromClientRegistrationsStream"
+    effect = "Allow"
+    actions = [
+      "dynamodb:DescribeStream",
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:ListStreams",
+    ]
+    resources = [var.dynamodb_table_stream_registrations_arn]
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
+  }
+}
+
+module "cache_updater_lambda" {
+  count   = var.cache_updater_lambda != null ? 1 : 0
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "7.4.0"
+
+  function_name           = var.cache_updater_lambda.name
+  description             = "Lambda function cache updater."
+  runtime                 = "java21"
+  handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
+  create_package          = false
+  local_existing_package  = var.cache_updater_lambda.filename
+  ignore_source_code_hash = true
+
+  publish = true
+
+  attach_policy_json    = true
+  policy_json           = data.aws_iam_policy_document.cache_updater_lambda[0].json
+  attach_network_policy = true
+
+  environment_variables = var.cache_updater_lambda.environment_variables
+
+  vpc_subnet_ids         = var.cache_updater_lambda.vpc_subnet_ids
+  vpc_security_group_ids = [module.security_group_lambda_cache_updater[0].security_group_id]
+
+  allowed_triggers = {
+    events = {
+      principal  = "events.amazonaws.com"
+      source_arn = aws_pipes_pipe.cache_updater[0].arn
+    }
+  }
+
+  memory_size = 512
+  timeout     = 30
+  snap_start  = true
+
+  cloudwatch_logs_retention_in_days = var.cache_updater_lambda.cloudwatch_logs_retention_in_days
+}
+
+module "security_group_lambda_cache_updater" {
+  count   = var.cache_updater_lambda != null ? 1 : 0
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "4.17.2"
+
+  name        = "${var.cache_updater_lambda.name}-sg"
+  description = "Security Group for Lambda Cache Updater"
+
+  vpc_id = var.cache_updater_lambda.vpc_id
+
+  egress_cidr_blocks      = []
+  egress_ipv6_cidr_blocks = []
+}
+
+resource "aws_vpc_security_group_egress_rule" "cache_updater_https_rule" {
+  count = var.cache_updater_lambda != null && var.cache_updater_lambda.vpc_tls_security_group_endpoint_id != null ? 1 : 0
+
+  security_group_id            = module.security_group_lambda_cache_updater[0].security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.cache_updater_lambda.vpc_tls_security_group_endpoint_id
+}
+
+resource "aws_vpc_security_group_egress_rule" "cache_updater_valkey_rule" {
+  count             = var.cache_updater_lambda != null ? 1 : 0
+  security_group_id = module.security_group_lambda_cache_updater[0].security_group_id
+  from_port         = 6379
+  ip_protocol       = "tcp"
+  to_port           = 6379
+  cidr_ipv4         = var.vpc_cidr_block
 }

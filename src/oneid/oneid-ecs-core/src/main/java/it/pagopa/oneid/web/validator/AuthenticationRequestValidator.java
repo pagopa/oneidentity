@@ -7,14 +7,15 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.model.session.enums.ResponseType;
+import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import it.pagopa.oneid.web.validator.annotations.AuthenticationRequestCheck;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.Optional;
 
 public class AuthenticationRequestValidator implements
     ConstraintValidator<AuthenticationRequestCheck, Object> {
@@ -23,7 +24,7 @@ public class AuthenticationRequestValidator implements
   private static final int ASSERTION_REF_MAX_LENGTH = 160;
 
   @Inject
-  Map<String, Client> clientsMap;
+  ClientLookupService clientLookupService;
 
   @Override
   public void initialize(AuthenticationRequestCheck constraintAnnotation) {
@@ -59,9 +60,14 @@ public class AuthenticationRequestValidator implements
       default -> throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
+    Optional<Client> client = clientLookupService.getClientById(clientId);
+    boolean hasValidCallback = callbackUri != null
+        && client.isPresent()
+        && client.get().getCallbackURI() != null
+        && client.get().getCallbackURI().contains(callbackUri);
+
     if (responseType == null) {
-      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
-          .getCallbackURI().contains(callbackUri)) {
+      if (hasValidCallback) {
         throw new AuthorizationErrorException(
             ErrorCode.AUTHORIZATION_ERROR_RESPONSE_TYPE.getErrorMessage(), callbackUri, state,
             clientId);
@@ -70,8 +76,7 @@ public class AuthenticationRequestValidator implements
       }
     }
     if (idp == null) {
-      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
-          .getCallbackURI().contains(callbackUri)) {
+      if (hasValidCallback) {
         throw new AuthorizationErrorException(ErrorCode.AUTHORIZATION_ERROR_IDP.getErrorMessage(),
             callbackUri, state, clientId);
       } else {
@@ -79,8 +84,7 @@ public class AuthenticationRequestValidator implements
       }
     }
     if (state == null) {
-      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
-          .getCallbackURI().contains(callbackUri)) {
+      if (hasValidCallback) {
         throw new AuthorizationErrorException(ErrorCode.AUTHORIZATION_ERROR_STATE.getErrorMessage(),
             callbackUri, null, clientId);
       } else {
@@ -88,8 +92,7 @@ public class AuthenticationRequestValidator implements
       }
     }
     if (assertionRef != null && !assertionRef.isBlank() && !isValidAssertionRefFormat(assertionRef)) {
-      if (callbackUri != null && clientsMap.get(clientId) != null && clientsMap.get(clientId)
-          .getCallbackURI().contains(callbackUri)) {
+      if (hasValidCallback) {
         throw new AuthorizationErrorException(
             ErrorCode.OI_ERROR_INVALID_ASSERTION_REF.getErrorMessage(),
             callbackUri,

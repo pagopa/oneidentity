@@ -11,11 +11,11 @@ import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.model.session.enums.ResponseType;
+import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedPost;
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,13 +25,13 @@ import org.junit.jupiter.api.Test;
 class AuthenticationRequestValidatorTest {
 
   private AuthenticationRequestValidator validator;
-  private Map<String, Client> clientsMap;
+  private ClientLookupService clientLookupService;
 
   @BeforeEach
   void setUp() {
     validator = new AuthenticationRequestValidator();
-    clientsMap = new HashMap<>();
-    validator.clientsMap = clientsMap;
+    clientLookupService = mock(ClientLookupService.class);
+    validator.clientLookupService = clientLookupService;
   }
 
   @Test
@@ -45,7 +45,7 @@ class AuthenticationRequestValidatorTest {
 
     Client client = mock(Client.class);
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client1", client);
+    when(clientLookupService.getClientById("client1")).thenReturn(Optional.of(client));
 
     assertTrue(validator.isValid(request, mock(ConstraintValidatorContext.class)));
   }
@@ -61,7 +61,7 @@ class AuthenticationRequestValidatorTest {
 
     Client client = mock(Client.class);
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client2", client);
+    when(clientLookupService.getClientById("client2")).thenReturn(Optional.of(client));
 
     assertTrue(validator.isValid(request, mock(ConstraintValidatorContext.class)));
   }
@@ -77,7 +77,7 @@ class AuthenticationRequestValidatorTest {
 
     Client client = mock(Client.class);
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client1", client);
+    when(clientLookupService.getClientById("client1")).thenReturn(Optional.of(client));
 
     Exception exception = assertThrows(AuthorizationErrorException.class,
         () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
@@ -97,7 +97,7 @@ class AuthenticationRequestValidatorTest {
 
     Client client = mock(Client.class);
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client1", client);
+    when(clientLookupService.getClientById("client1")).thenReturn(Optional.of(client));
 
     Exception exception = assertThrows(AuthorizationErrorException.class,
         () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));
@@ -114,9 +114,7 @@ class AuthenticationRequestValidatorTest {
     when(request.getState()).thenReturn("state");
     when(request.getIdp()).thenReturn(null);
 
-    Client client = mock(Client.class);
-    when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client1", client);
+    when(clientLookupService.getClientById("client3")).thenReturn(Optional.empty());
 
     Exception exception = assertThrows(GenericHTMLException.class,
         () -> validator.isValid(request, mock(ConstraintValidatorContext.class)));

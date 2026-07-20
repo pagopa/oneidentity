@@ -7,8 +7,12 @@ import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.model.enums.ClientSamlBinding;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
+import it.pagopa.oneid.web.validator.annotations.EidasIndexCheck;
 import it.pagopa.oneid.web.validator.annotations.LocalizedContentMapCheck;
 import it.pagopa.oneid.web.validator.annotations.SamlRequestedAttributeCheck;
+import it.pagopa.oneid.web.validator.annotations.SafeRedirectUrisCheck;
+import it.pagopa.oneid.web.validator.annotations.SafeTitleCheck;
+import it.pagopa.oneid.web.validator.annotations.SafeUriCheck;
 import it.pagopa.oneid.web.validator.annotations.SpidMinorsCheck;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -34,9 +38,11 @@ public class ClientRegistrationDTO {
   @NotEmpty(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("redirectUris")
   @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  @SafeRedirectUrisCheck(groups = { Registration.class, UpdateClient.class })
   private Set<String> redirectUris; // Client.callbackURI
 
   @NotBlank(groups = { Registration.class, UpdateClient.class })
+  @SafeTitleCheck(groups = { Registration.class, UpdateClient.class }, minLen = 1)
   @JsonProperty("clientName")
   private String clientName; // Client.friendlyName
 
@@ -59,15 +65,19 @@ public class ClientRegistrationDTO {
   @JsonProperty("requiredSameIdp")
   private Boolean requiredSameIdp;
 
+  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("logoUri")
   private String logoUri;
 
+  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("policyUri")
   private String policyUri;
 
+  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("tosUri")
   private String tosUri;
 
+  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
   @JsonProperty("a11yUri")
   private String a11yUri;
 
@@ -86,6 +96,10 @@ public class ClientRegistrationDTO {
 
   @JsonProperty("pairwise")
   private Boolean pairwise;
+
+  @JsonProperty("eidasIndex")
+  @EidasIndexCheck(groups = { Registration.class, UpdateClient.class })
+  private Integer eidasIndex;
 
   @JsonProperty("minAge")
   private Integer minAge;
@@ -112,6 +126,7 @@ public class ClientRegistrationDTO {
     this.spidMinors = clientRegistrationDTO.spidMinors;
     this.spidProfessionals = clientRegistrationDTO.spidProfessionals;
     this.pairwise = clientRegistrationDTO.pairwise;
+    this.eidasIndex = clientRegistrationDTO.eidasIndex;
     this.minAge = clientRegistrationDTO.minAge;
     this.maxAge = clientRegistrationDTO.maxAge;
     this.ageParentAuth = clientRegistrationDTO.ageParentAuth;

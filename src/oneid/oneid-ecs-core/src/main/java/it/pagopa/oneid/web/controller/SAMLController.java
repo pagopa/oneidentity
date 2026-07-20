@@ -20,6 +20,7 @@ import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
+import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.web.controller.interceptors.ControllerCustomInterceptor;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.dto.AccessTokenDTO;
@@ -38,7 +39,6 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Map;
 
 @Path(("/saml"))
 @Startup
@@ -64,7 +64,7 @@ public class SAMLController {
   SessionServiceImpl<AccessTokenSession> accessTokenSessionService;
 
   @Inject
-  Map<String, Client> clientsMap;
+  ClientLookupService clientLookupService;
 
   @Inject
   CurrentAuthDTO currentAuthDTO;
@@ -90,7 +90,8 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
 
-    // 1d. Check status, will raise CustomException in case of error mapped to a custom html error page
+    // 1d. Check status, will raise CustomException in case of error mapped to a
+    // custom HTML error page
     try {
       samlServiceImpl.checkSAMLStatus(response,
           samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
@@ -105,14 +106,17 @@ public class SAMLController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    // 2. Check if Signatures are valid (Response and Assertion) and if SAML Response is formally correct
-    Client client = clientsMap.get(samlSession.getAuthorizationRequestDTOExtended().getClientId());
+    // 2. Check if Signatures are valid (Response and Assertion) and if SAML
+    // Response is formally correct
+    Client client = clientLookupService.getClientById(
+      samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
         Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel(),
         samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
         samlSession.getAuthorizationRequestDTOExtended().getState(),
-        samlSession.getAuthorizationRequestDTOExtended().getClientId());
+        samlSession.getAuthorizationRequestDTOExtended().getClientId(),
+        client.getEidasIndex());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(

@@ -4,9 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import it.pagopa.oneid.common.model.ClientFE;
-import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.ClientServiceImpl;
-import it.pagopa.oneid.service.IdpServiceImpl;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -28,9 +26,6 @@ public class OneIDController {
 
   @Inject
   ClientServiceImpl clientServiceImpl;
-
-  @Inject
-  IdpServiceImpl idpServiceImpl;
 
   @GET
   @Path("/.well-known/openid-configuration")
@@ -60,21 +55,6 @@ public class OneIDController {
     return clients.isEmpty() ?
         Response.status(404).build() :
         Response.ok(clients).build();
-  }
-
-  @GET
-  @Path("/idps")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllIdp() {
-    Log.debug("start");
-    Optional<ArrayList<IDP>> idps = idpServiceImpl.findAllIdpByTimestamp();
-    Response.ResponseBuilder responseBuilder = idps.isEmpty()
-        ? Response.status(404)
-        : Response.ok(idps);
-
-    return responseBuilder
-        .header("Access-Control-Allow-Origin", "*")
-        .build();
   }
 
 }

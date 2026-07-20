@@ -306,20 +306,28 @@ variable "sessions_table" {
 variable "client_registrations_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
   })
   description = "Client configurations table."
   default = {
     point_in_time_recovery_enabled = true
+    stream_enabled                 = true
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
   }
 }
 
 variable "idp_metadata_table" {
   type = object({
     point_in_time_recovery_enabled = optional(bool, false)
+    stream_enabled                 = optional(bool, false)
+    stream_view_type               = optional(string, null)
   })
   description = "IDP Metadata configurations table."
   default = {
     point_in_time_recovery_enabled = false
+    stream_enabled                 = true
+    stream_view_type               = "NEW_AND_OLD_IMAGES"
   }
 }
 
@@ -346,6 +354,11 @@ variable "client_status_history_table" {
 variable "cie_entity_id" {
   type    = string
   default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
+}
+
+variable "eidas_entity_id" {
+  type    = string
+  default = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit"
 }
 
 variable "last_idp_used_table" {
@@ -581,7 +594,8 @@ variable "lambda_alarms" {
     "oneid-es-1-u-metadata" = {},
     "oneid-es-1-u-client-registration" = {
     },
-    "oneid-es-1-u-update-idp-metadata" = {}
+    "oneid-es-1-u-update-idp-metadata" = {},
+    "oneid-es-1-u-cache-updater"       = {}
   }
 }
 
@@ -733,6 +747,50 @@ variable "api_alarms" {
       period              = 300
       statistic           = "Average"
       method              = "GET"
+      threshold           = 2000
+    },
+    "oidc-userinfo-get-5xx-error" = {
+      resource_name       = "/oidc/userinfo"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "GET"
+    },
+    "oidc-userinfo-get-latency-alarm" = {
+      resource_name       = "/oidc/userinfo"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "GET"
+      threshold           = 2000
+    },
+    "oidc-userinfo-post-5xx-error" = {
+      resource_name       = "/oidc/userinfo"
+      metric_name         = "5XXError"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Sum"
+      threshold           = 1
+      method              = "POST"
+    },
+    "oidc-userinfo-post-latency-alarm" = {
+      resource_name       = "/oidc/userinfo"
+      metric_name         = "Latency"
+      namespace           = "AWS/ApiGateway"
+      evaluation_periods  = 2
+      comparison_operator = "GreaterThanOrEqualToThreshold"
+      period              = 300
+      statistic           = "Average"
+      method              = "POST"
       threshold           = 2000
     },
     "oidc-register-5xx-error" = {

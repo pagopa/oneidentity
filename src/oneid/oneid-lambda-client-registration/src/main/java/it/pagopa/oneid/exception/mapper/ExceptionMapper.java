@@ -20,7 +20,6 @@ import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidBearerTokenException;
 import it.pagopa.oneid.exception.InvalidClientInput;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
-import it.pagopa.oneid.exception.InvalidUriException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
 import it.pagopa.oneid.exception.UserIdMismatchException;
@@ -105,7 +104,7 @@ public class ExceptionMapper {
   @ServerExceptionMapper
   public RestResponse<ClientRegistrationErrorDTO> mapValidationException(
       ValidationException validationException) {
-    if (!(validationException instanceof ResteasyReactiveViolationException resteasyViolationException)) {
+    if (!(validationException instanceof ResteasyReactiveViolationException)) {
       // Not a violation in a REST endpoint call, but rather in an internal component.
       // This is an internal error: handle through the QuarkusErrorHandler,
       // which will return HTTP status 500 and log the exception.
@@ -126,16 +125,6 @@ public class ExceptionMapper {
         buildClientRegistrationErrorDTO(
             ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION,
             ClientRegistrationErrorCode.INVALID_CLIENT_REGISTRATION.getErrorMessage()));
-  }
-
-  @ServerExceptionMapper
-  public RestResponse<ClientRegistrationErrorDTO> mapInvalidURIException(
-      InvalidUriException invalidUriException) {
-    Log.error(ExceptionUtils.getStackTrace(invalidUriException));
-    return RestResponse.status(BAD_REQUEST,
-        buildClientRegistrationErrorDTO(
-            invalidUriException.getClientRegistrationErrorCode(),
-            invalidUriException.getMessage()));
   }
 
   @ServerExceptionMapper

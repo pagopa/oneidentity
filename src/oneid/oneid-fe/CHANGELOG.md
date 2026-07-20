@@ -1,5 +1,29 @@
 # oi-frontend
 
+## 1.2.1
+
+### Patch Changes
+
+- e89f303: refactor EIDAS integration button
+
+## 1.2.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
+## 1.1.3
+
+### Patch Changes
+
+- 54a9819: feat: add base64url idp logo name
+
+## 1.1.2
+
+### Patch Changes
+
+- 07e1fcd: feat: add idp dark-logo fallback
+
 ## 1.1.1
 
 ### Patch Changes

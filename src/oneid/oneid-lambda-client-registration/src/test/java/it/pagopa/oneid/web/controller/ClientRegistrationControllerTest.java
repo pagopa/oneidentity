@@ -3,6 +3,7 @@ package it.pagopa.oneid.web.controller;
 import static io.restassured.RestAssured.given;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
@@ -35,6 +36,9 @@ import org.mockito.Mockito;
 @TestHTTPEndpoint(ClientRegistrationController.class)
 @QuarkusTest
 class ClientRegistrationControllerTest {
+
+  // Demo JWT from jwt.io — not a real secret
+  private static final String TEST_BEARER = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"; // gitleaks:allow
 
   @InjectMock
   ClientRegistrationServiceImpl clientRegistrationServiceImpl;
@@ -84,7 +88,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .header(new Header("Authorization",
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+            TEST_BEARER))
         .header(new Header("Plan-Api-Key", "dummy-key"))
         .header(new Header("Plan-Name", "dummy-name"))
         .body(clientRegistrationDTO)
@@ -137,7 +141,7 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .header(new Header("Authorization",
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+            TEST_BEARER))
         .header(new Header("Plan-Api-Key", "dummy-key"))
         .header(new Header("Plan-Name", "dummy-name"))
         .body(clientRegistrationDTO)
@@ -184,12 +188,12 @@ class ClientRegistrationControllerTest {
 
     doThrow(new InvalidPDVPlanException("Invalid PDV data"))
         .when(clientRegistrationServiceImpl)
-        .validateClientRegistrationInfo(Mockito.any(), Mockito.any(), Mockito.any());
+        .validatePairwiseClientRegistrationInfo(Mockito.any(), Mockito.any(), Mockito.any());
 
     given()
         .contentType("application/json")
         .header(new Header("Authorization",
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+            TEST_BEARER))
         .header(new Header("Plan-Api-Key", ""))
         .header(new Header("Plan-Name", ""))
         .body(clientRegistrationDTO)
@@ -295,8 +299,32 @@ class ClientRegistrationControllerTest {
     given()
         .contentType("application/json")
         .header(new Header("Authorization",
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"))
+            TEST_BEARER))
         .body(invalidPayload)
+        .when()
+        .post("/register")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void register_withInvalidEidasIndex_ko() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .samlRequestedAttributes(Set.of("name"))
+        .eidasIndex(101)
+        .build();
+
+    given()
+        .contentType("application/json")
+        .header(new Header("Authorization",
+            TEST_BEARER))
+        .body(clientRegistrationDTO)
         .when()
         .post("/register")
         .then()
@@ -535,7 +563,7 @@ class ClientRegistrationControllerTest {
   @Test
   void getClient_ok() {
     // userId "1234567890" in the bearer token
-    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String bearer = TEST_BEARER;
     String userId = "1234567890";
 
     Client mockClient = Client.builder()
@@ -577,7 +605,7 @@ class ClientRegistrationControllerTest {
   @Test
   void getClient_clientNotFound_ko() {
     // userId "1234567890" in the bearer token
-    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String bearer = TEST_BEARER;
     String userId = "1234567890";
 
     Mockito.when(clientRegistrationServiceImpl.getClientByUserId(Mockito.eq(userId)))
@@ -597,7 +625,7 @@ class ClientRegistrationControllerTest {
   @Test
   void updateClient_ok() {
     // userId "1234567890" in the bearer token
-    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String bearer = TEST_BEARER;
     String userId = "1234567890";
     // given
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
@@ -644,7 +672,7 @@ class ClientRegistrationControllerTest {
         .localizedContentMap(localizedContentMap)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
         .thenReturn(existingClientExtended);
 
     given()
@@ -661,7 +689,7 @@ class ClientRegistrationControllerTest {
   @Test
   void updateClient_pairWise_ok() {
     // userId "1234567890" in the bearer token
-    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String bearer = TEST_BEARER;
     String userId = "1234567890";
     // given
     Map<String, Map<String, Client.LocalizedContent>> localizedContentMap = new HashMap<>();
@@ -709,7 +737,7 @@ class ClientRegistrationControllerTest {
         .pairwise(true)
         .build();
 
-    Mockito.when(clientRegistrationServiceImpl.getClientExtendedByClientId(Mockito.eq(clientId)))
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
         .thenReturn(existingClientExtended);
 
     given()
@@ -723,6 +751,46 @@ class ClientRegistrationControllerTest {
         .put("/register/client_id/{client_id}")
         .then()
         .statusCode(204);
+  }
+
+  @Test
+  void updateClient_withInvalidEidasIndex_ko() {
+    String bearer = TEST_BEARER;
+    String userId = "1234567890";
+    String clientId = "testClientId";
+
+    ClientExtended existingClientExtended = ClientExtended.builder()
+        .clientId("testClientId")
+        .userId(userId)
+        .friendlyName("oldName")
+        .callbackURI(Set.of("https://old.com"))
+        .requestedParameters(Set.of("name"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .clientIdIssuedAt(111)
+        .build();
+
+    ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
+        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
+        .clientName("updatedName")
+        .redirectUris(Set.of("https://updated.com"))
+        .samlRequestedAttributes(Set.of("spidCode"))
+        .eidasIndex(101)
+        .build();
+
+    when(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId))
+        .thenReturn(existingClientExtended);
+
+    given()
+        .header(HttpHeaders.AUTHORIZATION, bearer)
+        .contentType("application/json")
+        .pathParam("client_id", clientId)
+        .body(updatedDto)
+        .when()
+        .put("/register/client_id/{client_id}")
+        .then()
+        .statusCode(400);
   }
 
   @Test
@@ -765,7 +833,7 @@ class ClientRegistrationControllerTest {
   void refreshClientSecret() {
     String clientId = "testClientId";
     String userId = "testUserId";
-    String bearer = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
+    String bearer = TEST_BEARER;
     Mockito.when(clientRegistrationServiceImpl.refreshClientSecret(clientId, userId))
         .thenReturn("NewSecret");
 

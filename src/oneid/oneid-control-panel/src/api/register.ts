@@ -91,7 +91,9 @@ export const createOrUpdateClient = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || 'Failed to save client information'
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          'Failed to save client information'
       );
     }
     throw error;

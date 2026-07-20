@@ -61,6 +61,11 @@ export enum SamlBinding {
   HTTP_REDIRECT = 'HTTP-Redirect',
 }
 
+export enum EidasAttributeSet {
+  MINIMUM = 99,
+  COMPLETE = 100,
+}
+
 export const SpidLevelSchema = z.enum([SpidLevel.L2, SpidLevel.L3]);
 export const SamlAttributeSchema = z.enum([
   SamlAttribute.SPID_CODE,
@@ -111,9 +116,13 @@ export const SamlBindingSchema = z.enum([
   SamlBinding.HTTP_POST,
   SamlBinding.HTTP_REDIRECT,
 ]);
+export const EidasAttributeSetSchema = z.union([
+  z.literal(EidasAttributeSet.MINIMUM),
+  z.literal(EidasAttributeSet.COMPLETE),
+]);
 
 const LanguagesSchema = z.enum(['it', 'en', 'de', 'fr', 'sl']);
-
+const nameRegex = /^^(?!_)(?!.*[#@]).*(?<!_)$/;
 const httpsUrlSchema = z
   .string()
   .url()
@@ -158,6 +167,12 @@ const ThemeSchema = z.object({
   supportAddress: z.string().email().nullish(),
 });
 
+export const themeKeySchema = z
+  .string()
+  .trim()
+  .min(1, 'Theme key is invalid')
+  .regex(nameRegex, 'Theme key is invalid');
+
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
 // TODO: check and eventually remove optional from required fields
@@ -168,12 +183,16 @@ export const clientSchema = z
     clientSecret: z.string().nullish(),
     clientIdIssuedAt: z.number().optional(),
     clientSecretExpiresAt: z.number().optional(),
-    clientName: z.string().optional(),
+    clientName: z
+      .string()
+      .regex(nameRegex, 'Cannot start with _ or # and cannot contain @')
+      .optional(),
     policyUri: httpsUrlSchema.nullish(),
     tosUri: httpsUrlSchema.nullish(),
     redirectUris: z.array(httpsUrlSchema).min(1),
     samlRequestedAttributes: SamlAttributeArraySchema.min(1),
     samlBinding: SamlBindingSchema.default(SamlBinding.HTTP_POST),
+    eidasIndex: EidasAttributeSetSchema.nullish(),
     logoUri: httpsUrlSchema.nullish(),
     defaultAcrValues: SpidLevelArraySchema.min(1),
     requiredSameIdp: z.boolean().optional(),
@@ -188,7 +207,7 @@ export const clientSchema = z
     a11yUri: httpsUrlSchema.nullish(),
     backButtonEnabled: z.boolean().optional().default(false),
     localizedContentMap: z
-      .record(z.union([z.literal('default'), z.string()]), ThemeLocalizedSchema)
+      .record(themeKeySchema, ThemeLocalizedSchema)
       .nullish(),
   })
   .superRefine((data, ctx) => {
@@ -248,8 +267,16 @@ export const idpUserCreateOrUpdateResponseSchema = z.object({
 });
 
 export const idpUserSchema = z.object({
-  username: z.string().trim().min(1),
-  password: z.string().trim().min(1),
+  username: z
+    .string()
+    .trim()
+    .min(1, 'Username is required')
+    .regex(nameRegex, 'Username cannot start with _ or # and cannot contain @'),
+  password: z
+    .string()
+    .trim()
+    .min(1, 'Password is required')
+    .regex(nameRegex, 'Password cannot start with _ or # and cannot contain @'),
   samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
   age: z.number().int().min(1).max(999).optional(),
 });

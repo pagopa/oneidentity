@@ -198,13 +198,15 @@ module "backend" {
     }
   }
 
-  sns_topic_arn   = module.sns.sns_topic_arn
-  ecs_alarms      = local.cloudwatch_ecs_alarms_with_sns
-  lambda_alarms   = local.cloudwatch_lambda_alarms_with_sns
-  dlq_alarms      = local.cloudwatch_dlq_alarms_with_sns
-  vpc_id          = module.network.vpc_id
-  private_subnets = module.network.private_subnet_ids
-  vpc_cidr_block  = module.network.vpc_cidr_block
+  sns_topic_arn          = module.sns.sns_topic_arn
+  ecs_alarms             = local.cloudwatch_ecs_alarms_with_sns
+  lambda_alarms          = local.cloudwatch_lambda_alarms_with_sns
+  dlq_alarms             = local.cloudwatch_dlq_alarms_with_sns
+  cache_endpoint_address = module.client_cache.cache_endpoint_address
+  cache_endpoint_port    = module.client_cache.cache_endpoint_port
+  vpc_id                 = module.network.vpc_id
+  private_subnets        = module.network.private_subnet_ids
+  vpc_cidr_block         = module.network.vpc_cidr_block
 
   service_core = {
     service_name                = format("%s-core", local.project)
@@ -250,8 +252,16 @@ module "backend" {
         value = "LATEST_CIE"
       },
       {
+        name  = "TIMESTAMP_EIDAS"
+        value = "LATEST_EIDAS"
+      },
+      {
         name  = "CIE_ENTITY_ID"
         value = var.cie_entity_id
+      },
+      {
+        name  = "EIDAS_ENTITY_ID"
+        value = var.eidas_entity_id
       },
       {
         name  = "CERTIFICATE_NAME"
@@ -503,12 +513,14 @@ module "backend" {
     name     = format("%s-update-idp-metadata", local.project)
     filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
+      ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name
       LOG_LEVEL                = var.app_log_level
     }
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    assets_bucket_arn                 = module.storage.assets_bucket_arn
     s3_idp_metadata_bucket_arn        = module.storage.idp_metadata_bucket_arn
     s3_idp_metadata_bucket_id         = module.storage.s3_idp_metadata_bucket_name
     vpc_id                            = module.network.vpc_id
@@ -519,6 +531,7 @@ module "backend" {
   dynamodb_table_idpMetadata = {
     gsi_pointer_arn = module.database.table_idpMetadata_gsi_pointer_arn
     table_arn       = module.database.table_idp_metadata_arn
+    stream_arn      = module.database.table_idp_metadata_stream_arn
   }
   dynamodb_table_idpStatus = {
     gsi_pointer_arn = module.database.table_idp_status_gsi_pointer_arn
@@ -560,6 +573,7 @@ module "backend" {
       ASSETS_S3_BUCKET             = module.storage.assets_bucket_name
       IDP_STATUS_S3_FILE_NAME      = "idp_status_history.json"
       CLIENT_STATUS_S3_FILE_NAME   = "client_status_history.json"
+      EIDAS_ENTITY_ID              = var.eidas_entity_id
     }
   }
 
@@ -588,6 +602,35 @@ module "backend" {
     pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  eventbridge_pipe_update_idp_metadata = {
+    pipe_name                     = format("%s-idp-metadata-invalid-status-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  eventbridge_pipe_cache_updater = {
+    pipe_name                     = format("%s-cache-updater-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  cache_updater_lambda = {
+    name                               = format("%s-cache-updater", local.project)
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    environment_variables = {
+      LOG_LEVEL                          = var.app_log_level
+      CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address
+      CACHE_ENDPOINT_PORT                = tostring(module.client_cache.cache_endpoint_port)
+      CACHE_TIMEOUT                      = "PT5S"
+      CACHE_KEY_PREFIX                   = "oneid:client:v1:"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-cache-updater", local.project), var.app_cloudwatch_custom_metric_namespace)
+    }
   }
 
   invalidate_cache_lambda = {
@@ -677,6 +720,16 @@ module "backend" {
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
+}
+
+module "client_cache" {
+  source = "../../modules/cache"
+
+  cache_name                 = format("%s-client-cache", local.project)
+  vpc_id                     = module.network.vpc_id
+  subnet_ids                 = module.network.private_subnet_ids
+  allowed_security_group_ids = [module.backend.ecs_core_security_group_id, module.backend.cache_updater_security_group_id]
+  alarm_sns_topic_arn        = module.sns.sns_topic_arn
 }
 
 module "database" {

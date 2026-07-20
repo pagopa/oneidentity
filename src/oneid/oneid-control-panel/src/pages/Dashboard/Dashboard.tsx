@@ -8,16 +8,15 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  OutlinedInput,
   CircularProgress,
   Alert,
-  Chip,
   FormHelperText,
 } from '@mui/material';
 import {
   SpidLevel,
   SamlAttribute,
   SamlBinding,
+  EidasAttributeSet,
   ClientErrors,
   ClientWithoutSensitiveData,
   ValidatePlanSchema,
@@ -45,6 +44,67 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 const defaultFormData: Partial<ClientWithoutSensitiveData> = {
   samlBinding: SamlBinding.HTTP_POST,
 };
+
+const CLIENT_VALIDATION_DETAIL_PATTERN =
+  /clientRegistrationDTOInput\.([A-Za-z0-9_]+):\s*(.+)$/;
+
+const getErrorMessage = (error: unknown): string | null => {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+
+  return null;
+};
+
+const mapClientValidationError = (error: unknown): ClientErrors | null => {
+  const message = getErrorMessage(error);
+
+  if (!message) {
+    return null;
+  }
+
+  const match = message.match(CLIENT_VALIDATION_DETAIL_PATTERN);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, fieldName, fieldMessage] = match;
+
+  return {
+    _errors: [],
+    [fieldName]: {
+      _errors: [fieldMessage],
+    },
+  } as unknown as ClientErrors;
+};
+
+const EIDAS_ATTRIBUTE_SET_OPTIONS = [
+  {
+    value: EidasAttributeSet.MINIMUM,
+    label: 'Minimum set of attributes',
+    description: 'spidCode, name, familyName, dateOfBirth',
+  },
+  {
+    value: EidasAttributeSet.COMPLETE,
+    label: 'Complete set of attributes',
+    description:
+      'spidCode, name, familyName, dateOfBirth, placeOfBirth, address, gender',
+  },
+] as const;
 
 export const Dashboard = () => {
   type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
@@ -153,7 +213,8 @@ export const Dashboard = () => {
   useEffect(() => {
     if (updateError) {
       console.error('Error updating client:', updateError);
-      setErrorUi(updateError as unknown as ClientErrors);
+      const validationError = mapClientValidationError(updateError);
+      setErrorUi(validationError ?? (updateError as unknown as ClientErrors));
       showNotification('Error updating client', 'error');
     }
     if (isUpdated) {
@@ -430,28 +491,14 @@ export const Dashboard = () => {
             <Select
               labelId="spid-level-label"
               id="spid-level-select"
-              multiple
-              value={formData?.defaultAcrValues || []}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip
-                      key={value}
-                      label={value.replace(
-                        'https://www.spid.gov.it/Spid',
-                        'Level '
-                      )}
-                    />
-                  ))}
-                </Box>
-              )}
+              value={formData?.defaultAcrValues?.[0] ?? ''}
+              label="SPID Level"
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  defaultAcrValues: e.target.value as Array<SpidLevel>,
+                  defaultAcrValues: [e.target.value as SpidLevel],
                 }))
               }
-              input={<OutlinedInput label={'SPID Level'} />}
               data-testid="spid-level-select"
             >
               {Object.values(SpidLevel).map((level) => (
@@ -730,6 +777,73 @@ export const Dashboard = () => {
                 helperText={(errorUi as ClientErrors)?.ageParentAuth?._errors}
               />
             </Box>
+          )}
+
+          <ToggleSection
+            name="eidasIndex"
+            label="eIDAS support"
+            checked={!!formData?.eidasIndex}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setFormData((prev) => ({
+                ...prev,
+                eidasIndex: checked
+                  ? (prev?.eidasIndex ?? EidasAttributeSet.MINIMUM)
+                  : undefined,
+              }));
+              if (!checked) {
+                setErrorUi((prev) => {
+                  if (!prev) return prev;
+                  const { eidasIndex: _eidasIndex, ...rest } = prev;
+                  return rest as ClientErrors;
+                });
+              }
+            }}
+            withDivider
+            tooltipText={
+              <TooltipContentWithLink
+                text="Enable access to the international services for citizens of EU member states."
+                infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/3013574677/RFC+OI-018+-+Supporto+nodo+europeo+eIDAS"
+              />
+            }
+          />
+          {!!formData?.eidasIndex && (
+            <FormControl
+              fullWidth
+              margin="normal"
+              required
+              error={!!(errorUi as ClientErrors)?.eidasIndex?._errors}
+            >
+              <InputLabel id="eidas-index-label">
+                eIDAS attribute set
+              </InputLabel>
+              <Select
+                labelId="eidas-index-label"
+                id="eidas-index-select"
+                value={formData?.eidasIndex ?? EidasAttributeSet.MINIMUM}
+                label="eIDAS attribute set"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    eidasIndex: Number(e.target.value) as EidasAttributeSet,
+                  }))
+                }
+              >
+                {EIDAS_ATTRIBUTE_SET_OPTIONS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="body1">{option.label}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.description}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                {(errorUi as ClientErrors)?.eidasIndex?._errors}
+              </FormHelperText>
+            </FormControl>
           )}
         </ContentBox>
 

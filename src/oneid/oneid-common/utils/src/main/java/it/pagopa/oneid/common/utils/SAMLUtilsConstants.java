@@ -21,10 +21,12 @@ public class SAMLUtilsConstants {
   public static String NAME_FORMAT = "urn:oasis:names:tc:SAML:2.0:attrname-format:basic";
   public static String MUNICIPALITY = "H501";
   public static String SPID_AGGREGATOR = "aggregator";
+  public static int EIDAS_SERVICE_INDEX_99 = 99;
+  public static int EIDAS_SERVICE_INDEX_100 = 100;
   public static String LOCAL_NAME_AGE_LIMIT = "AgeLimit";
   public static String LOCAL_NAME_ASSERTION_CONSUMER_SERVICE_INDEX = "AssertionConsumerServiceIndex";
   public static String LOCAL_NAME_MIN_AGE = "MinAge";
   public static String LOCAL_NAME_MAX_AGE = "MaxAge";
   public static String LOCAL_NAME_AGE_PARENT_AUTH = "AgeParentAuth";
-  
+
 }

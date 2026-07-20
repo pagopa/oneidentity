@@ -1,12 +1,21 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_100;
+import static it.pagopa.oneid.common.utils.SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99;
+import static it.pagopa.oneid.common.model.enums.Identifier.address;
+import static it.pagopa.oneid.common.model.enums.Identifier.dateOfBirth;
+import static it.pagopa.oneid.common.model.enums.Identifier.familyName;
+import static it.pagopa.oneid.common.model.enums.Identifier.fiscalNumber;
+import static it.pagopa.oneid.common.model.enums.Identifier.gender;
+import static it.pagopa.oneid.common.model.enums.Identifier.name;
+import static it.pagopa.oneid.common.model.enums.Identifier.placeOfBirth;
+import static it.pagopa.oneid.common.model.enums.Identifier.spidCode;
 import io.quarkus.logging.Log;
 import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.Identifier;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
@@ -53,12 +62,28 @@ import org.w3c.dom.Element;
 @Startup
 public class SAMLServiceImpl implements SAMLService {
 
-  private final static Set<String> eidasMinimumDataSet = Set.of(
+  private static final Set<String> cieMinimumDataSet = Set.of(
       // Mandatory attributes
-      Identifier.name.name(),
-      Identifier.familyName.name(),
-      Identifier.dateOfBirth.name(),
-      Identifier.fiscalNumber.name());
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name(),
+      fiscalNumber.name());
+
+  private static final Set<String> eidasMinimumDataSetForIndex99 = Set.of(
+      // Mandatory attributes for index 99
+      spidCode.name(),
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name());
+  private static final Set<String> eidasMinimumDataSetForIndex100 = Set.of(
+      // Mandatory attributes for index 100
+      spidCode.name(),
+      name.name(),
+      familyName.name(),
+      dateOfBirth.name(),
+      placeOfBirth.name(),
+      address.name(),
+      gender.name());
 
   private final Clock clock;
 
@@ -74,8 +99,14 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "timestamp_cie")
   String TIMESTAMP_CIE;
 
+  @ConfigProperty(name = "timestamp_eidas")
+  String TIMESTAMP_EIDAS;
+
   @ConfigProperty(name = "cie_entity_id")
   String CIE_ENTITY_ID;
+
+  @ConfigProperty(name = "eidas_entity_id")
+  String EIDAS_ENTITY_ID;
 
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
@@ -359,7 +390,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   private void validateAssertion(Assertion assertion, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest) {
+      AuthLevel authLevelRequest, Integer eidasIndex) {
 
     // Check if assertion id is valid
     if (StringUtils.isBlank(assertion.getID())) {
@@ -377,12 +408,12 @@ public class SAMLServiceImpl implements SAMLService {
     validateAssertionIssuer(assertion.getIssuer(), entityID);
     validateConditions(assertion.getConditions());
     validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
-    validateAttributeStatements(assertion, requestedAttributes, entityID);
+    validateAttributeStatements(assertion, requestedAttributes, entityID, eidasIndex);
 
   }
 
   private void validateAttributeStatements(Assertion assertion, Set<String> requestedAttributes,
-      String entityID) {
+      String entityID, Integer eidasIndex) {
     List<AttributeStatement> attributeStatements = assertion.getAttributeStatements();
     if (attributeStatements == null || attributeStatements.isEmpty()) {
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTE_STATEMENT_NOT_PRESENT);
@@ -408,25 +439,58 @@ public class SAMLServiceImpl implements SAMLService {
         .collect(
             Collectors.toSet());
 
-    // SPID
-    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
-      if (!requestedAttributes.equals(obtainedAttributes)) {
-        throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
-            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
-                obtainedAttributes + " vs. " + requestedAttributes);
-      }
-    }
     // CIE
-    else {
-
-      if (!eidasMinimumDataSet.equals(obtainedAttributes)) {
+    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+      if (!cieMinimumDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE.getErrorMessage() + ": "
                 + obtainedAttributes
-                + " vs. " + eidasMinimumDataSet);
+                + " vs. " + cieMinimumDataSet);
       }
+      return;
     }
+
+    // eIDAS node
+    if (isEidasEntityId(entityID)) {
+      Set<String> expectedEidasDataSet = getEidasMinimumDataSet(eidasIndex);
+      if (!expectedEidasDataSet.equals(obtainedAttributes)) {
+        throw new SAMLValidationException(
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
+            ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": "
+                + obtainedAttributes + " vs. " + expectedEidasDataSet);
+      }
+      return;
+    }
+
+    // SPID
+    if (!requestedAttributes.equals(obtainedAttributes)) {
+      throw new SAMLValidationException(ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING,
+          ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING.getErrorMessage() + ": " +
+              obtainedAttributes + " vs. " + requestedAttributes);
+    }
+  }
+
+  private Set<String> getEidasMinimumDataSet(Integer eidasIndex) {
+    if (eidasIndex == null) {
+      return eidasMinimumDataSetForIndex99;
+    }
+
+    if (eidasIndex.equals(EIDAS_SERVICE_INDEX_99)) {
+      return eidasMinimumDataSetForIndex99;
+    }
+
+    if (eidasIndex.equals(EIDAS_SERVICE_INDEX_100)) {
+      return eidasMinimumDataSetForIndex100;
+    }
+
+    Log.warn("Unsupported eIDAS index configured: " + eidasIndex
+        + ". Falling back to index 99 minimum data set.");
+    return eidasMinimumDataSetForIndex99;
+  }
+
+  public boolean isEidasEntityId(String entityID) {
+    return StringUtils.isNotBlank(entityID) && entityID.equalsIgnoreCase(EIDAS_ENTITY_ID);
   }
 
   @Override
@@ -453,7 +517,8 @@ public class SAMLServiceImpl implements SAMLService {
     if (!statusCode.equals(StatusCode.SUCCESS)) {
       if (StringUtils.isNotBlank(statusMessage)) {
         Log.info(
-            "SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage + ", state: " + state);
+            "SAML Response status code: " + statusCode + ", statusMessage: " + statusMessage
+                + ", state: " + state);
         ErrorCode errorCode = null;
         try {
           errorCode = ErrorCode.valueOf(statusMessage.toUpperCase().replaceAll(" ", "_"));
@@ -561,7 +626,8 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri, String state, String clientId) {
+      AuthLevel authLevelRequest, String redirectUri, String state, String clientId,
+      Integer eidasIndex) {
 
     try {
 
@@ -574,7 +640,7 @@ public class SAMLServiceImpl implements SAMLService {
       validateDestination(samlResponse.getDestination());
       validateResponseIssuer(samlResponse.getIssuer(), entityID);
       validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
-          authLevelRequest);
+          authLevelRequest, eidasIndex);
 
       validateSignature(samlResponse, entityID);
     } catch (SAMLValidationException e) {
@@ -632,6 +698,9 @@ public class SAMLServiceImpl implements SAMLService {
   public Optional<IDP> getIDPFromEntityID(String entityID) {
     if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
       return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_CIE);
+    }
+    if (entityID.equalsIgnoreCase(EIDAS_ENTITY_ID)) {
+      return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_EIDAS);
     }
     return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_SPID);
   }

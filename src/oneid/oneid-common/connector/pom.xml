@@ -14,6 +14,11 @@
             <artifactId>quarkus-config-yaml</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-redis-client</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>it.pagopa.oneid.common</groupId>
             <artifactId>model</artifactId>
         </dependency>

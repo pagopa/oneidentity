@@ -1,5 +1,36 @@
 # oneid-ecs-core
 
+## 1.11.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
+## 1.10.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
+## 1.9.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
+## 1.8.1
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+- 7285c39: add enable configuration for redis client
+
+## 1.8.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
 ## 1.7.0
 
 ### Minor Changes

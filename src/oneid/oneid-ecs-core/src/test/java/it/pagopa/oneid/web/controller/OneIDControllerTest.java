@@ -8,11 +8,8 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit5.virtual.ShouldNotPin;
 import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.ClientFE;
-import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.service.ClientServiceImpl;
-import it.pagopa.oneid.service.IdpServiceImpl;
 import it.pagopa.oneid.service.OIDCServiceImpl;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -23,14 +20,10 @@ import org.mockito.Mockito;
 @ShouldNotPin
 class OneIDControllerTest {
 
-  @Inject
-  OneIDController oneIDController;
   @InjectMock
   ClientServiceImpl clientServiceImpl;
   @InjectMock
   OIDCServiceImpl oidcServiceImpl;
-  @InjectMock
-  IdpServiceImpl idpServiceImpl;
 
 
   @Test
@@ -99,7 +92,7 @@ class OneIDControllerTest {
   void findAllClients() {
 
     //given
-    ArrayList<ClientFE> clients = Mockito.mock(ArrayList.class);
+    ArrayList<ClientFE> clients = new ArrayList<>();
     Mockito.when(clientServiceImpl.getAllClientsInformation())
         .thenReturn(Optional.of(clients));
 
@@ -136,47 +129,4 @@ class OneIDControllerTest {
     assertNotNull(response);
   }
 
-  @Test
-  void findAllIdp() {
-
-    //given
-    ArrayList<IDP> idps = Mockito.mock(ArrayList.class);
-    Mockito.when(idpServiceImpl.findAllIdpByTimestamp())
-        .thenReturn(Optional.of(idps));
-
-    //when
-    String response =
-        given()
-            .when().get("/idps")
-            .then()
-            .statusCode(200)
-        .header("Access-Control-Allow-Origin", "*")
-            .extract()
-            .asString();
-
-    //then
-    assertNotNull(response);
-
-  }
-
-  @Test
-  void findAllIdp_error() {
-
-    //given
-    Mockito.when(idpServiceImpl.findAllIdpByTimestamp())
-        .thenReturn(Optional.empty());
-
-    //when
-    String response =
-        given()
-            .when().get("/idps")
-            .then()
-            .statusCode(404)
-        .header("Access-Control-Allow-Origin", "*")
-            .extract()
-            .asString();
-
-    //then
-    assertNotNull(response);
-  }
 }

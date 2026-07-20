@@ -23,6 +23,7 @@ import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
 import it.pagopa.oneid.exception.IDPSSOEndpointNotFoundException;
+import it.pagopa.oneid.exception.InvalidAccessTokenException;
 import it.pagopa.oneid.exception.InvalidClientException;
 import it.pagopa.oneid.exception.InvalidGrantException;
 import it.pagopa.oneid.exception.InvalidRequestMalformedHeaderAuthorizationException;
@@ -635,6 +636,23 @@ class ExceptionMapperTest {
   }
 
   @Test
+  void mapInvalidAccessTokenException() {
+    String error = "invalid_token";
+    String message = "The access token is invalid or expired.";
+    InvalidAccessTokenException exceptionMock = Mockito.mock(InvalidAccessTokenException.class);
+    Mockito.when(exceptionMock.getMessage()).thenReturn(error);
+
+    RestResponse<Object> restResponse = exceptionMapper.mapInvalidAccessTokenException(
+        exceptionMock);
+
+    assertEquals(MediaType.APPLICATION_JSON_TYPE, restResponse.getMediaType());
+    assertTrue(restResponse.getHeaders().containsKey("WWW-Authenticate"));
+  assertTrue(restResponse.getHeaders().get("WWW-Authenticate").toString().contains(
+        "Bearer error=\"invalid_token\""));
+    checkErrorWithBuildTokenRequestErrorDTO(error, message, UNAUTHORIZED, restResponse);
+  }
+
+  @Test
   void mapInvalidGrantException() {
     // given
     String message = "The provided authorization grant is invalid.";
@@ -653,11 +671,18 @@ class ExceptionMapperTest {
   //region private methods
   private void checkErrorWithBuildTokenRequestErrorDTO(String message, Status status,
       RestResponse<TokenRequestErrorDTO> restResponse) {
+    checkErrorWithBuildTokenRequestErrorDTO(DETAIL_MESSAGE, message, status, restResponse);
+  }
+
+  private void checkErrorWithBuildTokenRequestErrorDTO(String error, String message,
+      Status status, RestResponse<?> restResponse) {
     assertNotNull(restResponse);
     assertEquals(status.getStatusCode(), restResponse.getStatus());
     assertNotNull(restResponse.getEntity());
-    assertEquals(DETAIL_MESSAGE, restResponse.getEntity().getError());
-    assertEquals(message, restResponse.getEntity().getErrorDescription());
+    assertTrue(restResponse.getEntity() instanceof TokenRequestErrorDTO);
+    TokenRequestErrorDTO entity = (TokenRequestErrorDTO) restResponse.getEntity();
+    assertEquals(error, entity.getError());
+    assertEquals(message, entity.getErrorDescription());
   }
 
   private void checkErrorWithBuildErrorResponse(Status status, String message,

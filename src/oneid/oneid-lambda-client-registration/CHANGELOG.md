@@ -1,5 +1,24 @@
 # oneid-lambda-client-registration
 
+## 2.6.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
+## 2.5.3
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+- 7285c39: add enable configuration for redis client
+
+## 2.5.2
+
+### Patch Changes
+
+- d59ced9: validation using quarkus annotation, increase input check be and fe admin control panel
+
 ## 2.5.1
 
 ### Patch Changes

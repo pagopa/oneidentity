@@ -176,15 +176,16 @@ variable "dynamodb_table_sessions" {
     table_arn    = string
     gsi_code_arn = string
   })
-  description = "Dynamodb table sessions anrs"
+  description = "Dynamodb table sessions arns"
 }
 
 variable "dynamodb_table_idpMetadata" {
   type = object({
     table_arn       = string
     gsi_pointer_arn = string
+    stream_arn      = optional(string, null)
   })
-  description = "Dynamodb table idpMetadata anrs"
+  description = "Dynamodb table idpMetadata arns"
 }
 
 variable "dynamodb_table_idpStatus" {
@@ -223,6 +224,12 @@ variable "table_client_registrations_arn" {
 variable "lambda_client_registration_trigger_enabled" {
   type    = bool
   default = true
+}
+
+variable "idp_metadata_stream_trigger_enabled" {
+  type        = bool
+  description = "Whether to create resources that consume the IDP metadata DynamoDB Stream."
+  default     = true
 }
 
 variable "kms_sessions_table_alias_arn" {
@@ -330,6 +337,18 @@ variable "dynamodb_clients_table_stream_arn" {
   default = null
 }
 
+variable "cache_endpoint_address" {
+  type        = string
+  description = "The address of the Redis cache endpoint"
+  default     = ""
+}
+
+variable "cache_endpoint_port" {
+  type        = number # oppure string a seconda di cosa restituisce il modulo cache
+  description = "The port of the Redis cache endpoint"
+  default     = 6379
+}
+
 variable "assertion_lambda" {
   type = object({
     name                              = string
@@ -350,6 +369,7 @@ variable "idp_metadata_lambda" {
     name                              = string
     filename                          = string
     environment_variables             = map(string)
+    assets_bucket_arn                 = string
     s3_idp_metadata_bucket_arn        = string
     s3_idp_metadata_bucket_id         = string
     vpc_id                            = string
@@ -508,6 +528,38 @@ variable "eventbridge_pipe_invalidate_cache" {
     pipe_name                     = string
     maximum_retry_attempts        = number
     maximum_record_age_in_seconds = number
+  })
+  default = null
+}
+
+variable "eventbridge_pipe_update_idp_metadata" {
+  type = object({
+    pipe_name                     = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+  description = "EventBridge Pipe configuration for invalid IDP metadata statuses."
+  default     = null
+}
+
+variable "eventbridge_pipe_cache_updater" {
+  type = object({
+    pipe_name                     = string
+    maximum_retry_attempts        = number
+    maximum_record_age_in_seconds = number
+  })
+  default = null
+}
+
+variable "cache_updater_lambda" {
+  type = object({
+    name                               = string
+    filename                           = string
+    cloudwatch_logs_retention_in_days  = number
+    environment_variables              = map(string)
+    vpc_id                             = string
+    vpc_subnet_ids                     = list(string)
+    vpc_tls_security_group_endpoint_id = optional(string, null)
   })
   default = null
 }

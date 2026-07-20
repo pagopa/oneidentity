@@ -20,6 +20,7 @@ public class ClientFE {
   public boolean backButtonEnabled;
   public String samlBinding;
   public Set<String> callbackURI;
+  public Integer eidasIndex;
   Map<String, Map<String, Client.LocalizedContent>> localizedContentMap;
 
   public ClientFE(@NotNull Client client) {
@@ -38,5 +39,6 @@ public class ClientFE {
 
     this.callbackURI = Optional.ofNullable(client.getCallbackURI())
         .orElse(Set.of());
+    this.eidasIndex = client.getEidasIndex();
   }
 }

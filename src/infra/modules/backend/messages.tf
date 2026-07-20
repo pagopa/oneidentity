@@ -246,3 +246,106 @@ resource "aws_pipes_pipe" "invalidate_cache" {
 EOF
   }
 }
+
+
+resource "aws_iam_role" "pipe_update_idp_metadata" {
+  count = var.eventbridge_pipe_update_idp_metadata != null && var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
+  name = "${var.eventbridge_pipe_update_idp_metadata.pipe_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = {
+      Effect = "Allow"
+      Action = "sts:AssumeRole"
+      Principal = {
+        Service = "pipes.amazonaws.com"
+      }
+      Condition = {
+        StringEquals = {
+          "aws:SourceAccount" = var.account_id
+        }
+      }
+    }
+  })
+}
+
+resource "aws_iam_role_policy" "pipe_update_idp_metadata" {
+  count = var.eventbridge_pipe_update_idp_metadata != null && var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
+  name = "AllowReadIdpMetadataStreamAndPublishInvalidStatus"
+
+  role = aws_iam_role.pipe_update_idp_metadata[0].id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadIdpMetadataStream"
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetRecords",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeStream",
+          "dynamodb:ListStreams"
+        ]
+        Resource = var.dynamodb_table_idpMetadata.stream_arn
+      },
+      {
+        Sid      = "PublishInvalidIdpStatus"
+        Effect   = "Allow"
+        Action   = "sns:Publish"
+        Resource = var.sns_topic_arn
+      }
+    ]
+  })
+}
+
+resource "aws_pipes_pipe" "update_idp_metadata" {
+  count = var.eventbridge_pipe_update_idp_metadata != null && var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
+  name     = var.eventbridge_pipe_update_idp_metadata.pipe_name
+  role_arn = aws_iam_role.pipe_update_idp_metadata[0].arn
+  source   = var.dynamodb_table_idpMetadata.stream_arn
+
+  target = var.sns_topic_arn
+
+  source_parameters {
+    dynamodb_stream_parameters {
+      starting_position = "LATEST"
+
+      maximum_batching_window_in_seconds = 0
+      maximum_retry_attempts             = var.eventbridge_pipe_update_idp_metadata.maximum_retry_attempts
+      maximum_record_age_in_seconds      = var.eventbridge_pipe_update_idp_metadata.maximum_record_age_in_seconds
+    }
+
+    filter_criteria {
+      filter {
+        pattern = jsonencode({
+          "eventName" = ["MODIFY"]
+          "dynamodb" = {
+            "NewImage" = {
+              "status" = {
+                "S" = [{
+                  "anything-but" = ["OK", "KO", "WARNING"]
+                }]
+              }
+            }
+          }
+        })
+      }
+    }
+  }
+
+  target_parameters {
+    input_template = <<EOF
+{
+  "table_name": "${element(split("/", var.dynamodb_table_idpMetadata.table_arn), 1)}",
+  "idp": "<$.dynamodb.NewImage.entityID.S>",
+  "status": {
+    "previous": "<$.dynamodb.OldImage.status.S>",
+    "current": "<$.dynamodb.NewImage.status.S>"
+  }
+}
+EOF
+  }
+}

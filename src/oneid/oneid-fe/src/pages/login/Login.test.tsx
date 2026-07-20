@@ -73,17 +73,26 @@ describe('<Login />', () => {
       logoUri: 'https://example.com/logo.png',
       localizedContentMap: {},
       backButtonEnabled: true,
+      eidasIndex: null,
     },
   };
   const mockIdpQuery = {
     isLoading: false,
-    data: [
-      {
-        entityID: 'idp1',
-        name: 'IDP 1',
-        imageUrl: 'https://example.com/idp1.png',
-      },
-    ],
+    data: {
+      identityProviders: [
+        {
+          entityID: 'idp1',
+          friendlyName: 'IDP 1',
+          imageUrl: 'https://example.com/idp1.png',
+        },
+        {
+          entityID: 'eidas-idp',
+          friendlyName: 'eIDAS IDP',
+          imageUrl: 'https://example.com/eidas.png',
+        },
+      ],
+      richiediSpid: 'https://example.com/spid',
+    },
   };
 
   beforeEach(() => {
@@ -171,6 +180,41 @@ describe('<Login />', () => {
         {
           SPID_IDP_NAME: 'CIE',
           SPID_IDP_ID: ENV.CIE_ENTITY_ID,
+          FORWARD_PARAMETERS: expect.any(String),
+        },
+        expect.any(Function)
+      );
+    });
+  });
+
+  it('does not render eIDAS login by default', () => {
+    render(<Login />);
+    expect(screen.queryByRole('button', { name: /eIDAS/i })).toBeNull();
+  });
+
+  it('navigates to eIDAS login on eIDAS button click', async () => {
+    (useLoginData as Mock).mockReturnValue({
+      bannerQuery: mockBannerQuery,
+      clientQuery: {
+        ...mockClientQuery,
+        data: {
+          ...mockClientQuery.data,
+          eidasIndex: 99,
+        },
+      },
+      idpQuery: mockIdpQuery,
+    });
+
+    render(<Login />);
+    const eidasButton = screen.getByRole('button', { name: /eIDAS/i });
+    fireEvent.click(eidasButton);
+
+    await waitFor(() => {
+      expect(trackEvent).toHaveBeenCalledWith(
+        'LOGIN_IDP_SELECTED',
+        {
+          SPID_IDP_NAME: 'EIDAS',
+          SPID_IDP_ID: ENV.EIDAS_ENTITY_ID,
           FORWARD_PARAMETERS: expect.any(String),
         },
         expect.any(Function)

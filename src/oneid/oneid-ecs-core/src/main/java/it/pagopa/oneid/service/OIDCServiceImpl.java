@@ -59,7 +59,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -115,7 +114,7 @@ public class OIDCServiceImpl implements OIDCService {
   @Inject
   SQSConnectorImpl sqsConnectorImpl;
   @Inject
-  Map<String, Client> clientsMap;
+  ClientLookupService clientLookupService;
   @Inject
   MarshallerFactory marshallerFactory;
 
@@ -159,10 +158,12 @@ public class OIDCServiceImpl implements OIDCService {
     URI jwksURI;
     URI authEndpointURI;
     URI tokenEndpointURI;
+    URI userInfoEndpointURI;
     try {
       jwksURI = new URI(BASE_PATH + "/oidc/keys");
       authEndpointURI = new URI(BASE_PATH + "/oidc/authorize");
       tokenEndpointURI = new URI(BASE_PATH + "/oidc/token");
+      userInfoEndpointURI = new URI(BASE_PATH + "/oidc/userinfo");
     } catch (URISyntaxException e) {
       Log.error("error during endpoints URI creation: "
           + e.getMessage());
@@ -170,13 +171,17 @@ public class OIDCServiceImpl implements OIDCService {
     }
 
     /* Required */
+    List<SubjectType> supportedSubjectTypes = pairwiseEnabled
+        ? List.of(SubjectType.PUBLIC, SubjectType.PAIRWISE)
+        : List.of(SubjectType.PUBLIC);
     OIDCProviderMetadata oidcProviderMetadata = new OIDCProviderMetadata(issuer,
-        List.of(SubjectType.PUBLIC), jwksURI);
+        supportedSubjectTypes, jwksURI);
 
     oidcProviderMetadata.setAuthorizationEndpointURI(authEndpointURI);
     oidcProviderMetadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.RS256));
     oidcProviderMetadata.setResponseTypes(List.of(ResponseType.CODE));
     oidcProviderMetadata.setTokenEndpointURI(tokenEndpointURI);
+    oidcProviderMetadata.setUserInfoEndpointURI(userInfoEndpointURI);
 
     /* Not required */
     oidcProviderMetadata.setScopes(new Scope("openid"));
@@ -249,13 +254,16 @@ public class OIDCServiceImpl implements OIDCService {
       List<AttributeDTO> attributeDTOList,
       String nonce, String entityId) {
 
+    Client client = clientLookupService.getClientById(clientId)
+        .orElseThrow(() -> new InvalidClientException("Client ID not valid", clientId));
+
     // Create access token
     // TODO is it ok for the 'scope' to be null?
     AccessToken accessToken = new BearerAccessToken(VALID_TIME_ACCESS_TOKEN_MIN * 60L, null);
     String id = null;
 
     // Check if we need to add the "pairwise" claim to the ID token
-    if (pairwiseEnabled && clientsMap.get(clientId).isPairwise()) {
+    if (pairwiseEnabled && client.isPairwise()) {
       // Get fiscalNumber from attribute list
       id = getIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
@@ -298,7 +306,7 @@ public class OIDCServiceImpl implements OIDCService {
 
     //Create signed JWT ID token
     String signedJWTString;
-    if (!clientsMap.get(clientId).isRequiredSameIdp()) {
+    if (!client.isRequiredSameIdp()) {
       // if client does not need the "sameIdp" claim
       signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
           nonce);
@@ -386,7 +394,7 @@ public class OIDCServiceImpl implements OIDCService {
 
   @Override
   public void authorizeClient(String clientId, String clientSecret) {
-    if (clientsMap.get(clientId) == null) {
+    if (clientLookupService.getClientById(clientId).isEmpty()) {
       Log.error("client not found with clientId: " + clientId);
       throw new InvalidClientException("Client ID not valid", clientId);
     }

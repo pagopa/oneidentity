@@ -1,5 +1,57 @@
 # infra
 
+## 2.9.0
+
+### Minor Changes
+
+- 087cacf: feat: add latest_eidas tag
+
+## 2.8.0
+
+### Minor Changes
+
+- 3cde471: feat: add eidas support
+
+## 2.7.0
+
+### Minor Changes
+
+- 6a8192e: switch idps endpoint to s3 and api gw
+
+## 2.6.0
+
+### Minor Changes
+
+- a3132a2: Move /idps endpoint to serve it statically
+
+## 2.5.0
+
+### Minor Changes
+
+- e5e331b: feat: update step scaling policy
+
+### Patch Changes
+
+- c05e2ee: cache updater implementation with sns notifications, add infra redis and sns variables, add redis client common implementation, update depsha caused by redis client in common package
+
+## 2.4.0
+
+### Minor Changes
+
+- 362daea: implement /userinfo endpoint
+
+## 2.3.4
+
+### Patch Changes
+
+- 6cad980: elasticache valkey setup with event pipe dlq and cache updater lambda template
+
+## 2.3.3
+
+### Patch Changes
+
+- 144a0d8: add notifiche digitali in csp
+
 ## 2.3.2
 
 ### Patch Changes

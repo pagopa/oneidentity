@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -20,10 +21,12 @@ import it.pagopa.oneid.common.model.enums.GrantType;
 import it.pagopa.oneid.common.model.enums.IDPStatus;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
+import it.pagopa.oneid.service.UserInfoService;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import it.pagopa.oneid.web.controller.mock.OIDCControllerTestProfile;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtendedGet;
@@ -59,12 +62,16 @@ import org.w3c.dom.Element;
 class OIDCControllerTest {
 
   private final String CLIENT_ID = "test";
+  private static final String EIDAS_ENTITY_ID = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit";
 
   @InjectMock
   private SAMLServiceImpl samlServiceImpl;
 
   @InjectMock
   private OIDCServiceImpl oidcServiceImpl;
+
+  @InjectMock
+  private UserInfoService userInfoService;
 
   @Inject
   private SAMLUtilsExtendedCore samlUtilsExtendedCore;
@@ -152,6 +159,63 @@ class OIDCControllerTest {
         .then()
         .statusCode(200)
         .body(notNullValue());
+
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+  void authorizePost_EidasIdpUsesIndex99() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
+
+    IDP testIDP = IDP.builder()
+        .entityID(EIDAS_ENTITY_ID)
+        .certificates(Set.of("certificate"))
+        .friendlyName("eIDAS")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(testIDP));
+    when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
+        .thenReturn(true);
+
+    AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
+    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        .thenReturn(authnRequest);
+
+    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = mock(Element.class);
+    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(elementMock);
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(200)
+        .body(notNullValue());
+
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
+        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
+        Mockito.any());
   }
 
   @Test
@@ -714,6 +778,32 @@ class OIDCControllerTest {
         .statusCode(200)
         .body(notNullValue());
 
+  }
+
+  @Test
+  void userInfoGet_acceptsCaseInsensitiveBearer() {
+    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+    given()
+        .header("Authorization", "bearer access-token")
+        .when().get("/userinfo")
+        .then()
+        .statusCode(200)
+        .contentType("application/jwt")
+        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+  }
+
+  @Test
+  void userInfoPost_returnsUserInfoPayload() {
+    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+    given()
+        .header("Authorization", "Bearer access-token")
+        .when().post("/userinfo")
+        .then()
+        .statusCode(200)
+        .contentType("application/jwt")
+        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
   }
 
   @Test

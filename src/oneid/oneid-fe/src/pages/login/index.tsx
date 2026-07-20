@@ -17,7 +17,7 @@ import {
 import SpidModal from './components/SpidModal';
 import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
-import { CieButton } from './components/CieButton';
+import { CieButton, EidasButton } from './components/IdentityButton';
 import SpidSelect from './components/SpidSelect';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import i18n from '../../locale';
@@ -68,6 +68,28 @@ const Login = () => {
       {
         SPID_IDP_NAME: 'CIE',
         SPID_IDP_ID: ENV.CIE_ENTITY_ID,
+        FORWARD_PARAMETERS: params,
+      },
+      () => window.location.assign(redirectUrl)
+    );
+  };
+
+  const isEidasEnabled =
+    clientQuery.data?.eidasIndex !== null &&
+    clientQuery.data?.eidasIndex !== undefined;
+
+  const goEidas = () => {
+    if (!isEidasEnabled) {
+      return;
+    }
+
+    const params = forwardSearchParams(ENV.EIDAS_ENTITY_ID);
+    const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
+    trackEvent(
+      'LOGIN_IDP_SELECTED',
+      {
+        SPID_IDP_NAME: 'EIDAS',
+        SPID_IDP_ID: ENV.EIDAS_ENTITY_ID,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -223,6 +245,9 @@ const Login = () => {
           </Grid>
           <Grid item sx={{ width: '100%' }}>
             <CieButton onClick={goCIE} />
+          </Grid>
+          <Grid item sx={{ width: '100%' }}>
+            <EidasButton onClick={goEidas} visible={isEidasEnabled} />
           </Grid>
         </Grid>
         <Grid container item justifyContent="center" mt={4}>

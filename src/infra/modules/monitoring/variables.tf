@@ -84,6 +84,9 @@ variable "metric_stream_metric_names" {
   default = [
     "ClientSuccess",
     "ClientError",
+    "ClientCacheMiss",
+    "ClientCacheBackfillSuccess",
+    "ClientCacheBackfillFailure",
     "IDPSuccess",
     "IDPError",
   ]

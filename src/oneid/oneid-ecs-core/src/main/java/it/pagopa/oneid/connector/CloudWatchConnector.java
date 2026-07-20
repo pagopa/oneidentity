@@ -14,6 +14,12 @@ public interface CloudWatchConnector {
 
   void sendClientErrorMetricData(String clientID, ErrorCode errorCode);
 
+  void sendClientCacheMissMetricData(String clientID);
+
+  void sendClientCacheBackfillSuccessMetricData(String clientID);
+
+  void sendClientCacheBackfillFailureMetricData(String clientID);
+
   void sendOIDynamoDBErrorMetricData(int numAttempts);
 
   void sendOISQSErrorMetricData();
@@ -21,5 +27,11 @@ public interface CloudWatchConnector {
   void sendPDVErrorMetricData(int statusCode);
 
   void sendClientSuccessMetricData(String ClientID);
+
+  void sendUserInfoSuccessMetricData(String clientID);
+
+  void sendUserInfoSuccessWithoutPairwiseMetricData(String clientID);
+
+  void sendUserInfoErrorMetricData(String clientID);
 
 }
