@@ -7,14 +7,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@QuarkusTest
 class RecordUtilsImplTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final RecordUtils recordUtils = new RecordUtilsImpl();
+  @Inject
+  ObjectMapper objectMapper;
+
+  @Inject
+  RecordUtils recordUtils;
 
   @Test
   @DisplayName("given null root when reading records then return empty list")
@@ -93,14 +99,14 @@ class RecordUtilsImplTest {
   }
 
   private ObjectNode buildModifyRecord(boolean includeOldImage, boolean includeNewImage) {
-    ObjectNode record = objectMapper.createObjectNode();
-    ObjectNode dynamodb = record.putObject("dynamodb");
+    ObjectNode streamRecord = objectMapper.createObjectNode();
+    ObjectNode dynamodb = streamRecord.putObject("dynamodb");
     if (includeOldImage) {
       dynamodb.set("OldImage", objectMapper.createObjectNode().put("clientId", "client-test"));
     }
     if (includeNewImage) {
       dynamodb.set("NewImage", objectMapper.createObjectNode().put("clientId", "client-test"));
     }
-    return record;
+    return streamRecord;
   }
 }

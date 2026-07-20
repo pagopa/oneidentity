@@ -27,6 +27,8 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   private static final String SUCCESS_METRIC_NAME = "S3PublishSuccess";
   private static final String ERROR_METRIC_NAME = "S3PublishError";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
+  private static final String DYNAMODB_FIELD = "dynamodb";
+  private static final String ACTIVE_FIELD = "active";
 
   private final ClientService clientService;
   private final DynamoStreamService dynamoStreamService;
@@ -107,22 +109,22 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       return;
     }
 
-    for (JsonNode record : records) {
-      processRecord(record);
+    for (JsonNode streamRecord : records) {
+      processRecord(streamRecord);
     }
   }
 
-  private void processRecord(JsonNode record) {
-    if (record == null || record.isNull() || !record.isObject()) {
+  private void processRecord(JsonNode streamRecord) {
+    if (streamRecord == null || streamRecord.isNull() || !streamRecord.isObject()) {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
-    String eventName = record.path("eventName").asText();
+    String eventName = streamRecord.path("eventName").asText();
     if (eventName.isBlank()) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
     }
 
-    String clientId = dynamoStreamService.extractClientId(record, "REMOVE".equals(eventName))
+    String clientId = dynamoStreamService.extractClientId(streamRecord, "REMOVE".equals(eventName))
       .orElseThrow(() -> new IllegalStateException(
         "Unable to read clientId from stream image for eventName=" + eventName));
 
@@ -132,26 +134,25 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       boolean skipPublish = false;
       switch (eventName) {
         case "INSERT", "MODIFY" -> {
-          if (!isActive(record)) {
+          if (!isActive(streamRecord)) {
             deleteSingleClient(clientId);
             publishGlobalClients();
             publishMetric(SUCCESS_METRIC_NAME, clientId);
             break;
           }
 
-            ClientFE client = dynamoStreamService.extractClientFE(record, false)
+          ClientFE client = dynamoStreamService.extractClientFE(streamRecord, false)
               .orElseThrow(() -> new IllegalStateException(
-                "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
+                  "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
 
-          if ("MODIFY".equals(eventName)) {
-            if (!hasActiveChanged(record)
-                && dynamoStreamService.extractClientFE(record, true)
-                .filter(oldClient -> oldClient.equals(client))
-                .isPresent()) {
-              Log.infof("Skipping client republish for clientId=%s because only secret fields changed",
-                  client.getClientID());
-              skipPublish = true;
-            }
+          if ("MODIFY".equals(eventName)
+              && !hasActiveChanged(streamRecord)
+              && dynamoStreamService.extractClientFE(streamRecord, true)
+              .filter(oldClient -> oldClient.equals(client))
+              .isPresent()) {
+            Log.infof("Skipping client republish for clientId=%s because only secret fields changed",
+                client.getClientID());
+            skipPublish = true;
           }
 
           if (!skipPublish) {
@@ -192,22 +193,22 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     }
   }
 
-  private boolean isActive(JsonNode record) {
-    return record.path("dynamodb")
+  private boolean isActive(JsonNode streamRecord) {
+    return streamRecord.path(DYNAMODB_FIELD)
         .path("NewImage")
-        .path("active")
+        .path(ACTIVE_FIELD)
         .path("BOOL")
         .asBoolean(true);
   }
 
-  private boolean hasActiveChanged(JsonNode record) {
-    JsonNode oldActive = record.path("dynamodb")
+  private boolean hasActiveChanged(JsonNode streamRecord) {
+    JsonNode oldActive = streamRecord.path(DYNAMODB_FIELD)
         .path("OldImage")
-        .path("active")
+        .path(ACTIVE_FIELD)
         .path("BOOL");
-    JsonNode newActive = record.path("dynamodb")
+    JsonNode newActive = streamRecord.path(DYNAMODB_FIELD)
         .path("NewImage")
-        .path("active")
+        .path(ACTIVE_FIELD)
         .path("BOOL");
 
     return !oldActive.isMissingNode()

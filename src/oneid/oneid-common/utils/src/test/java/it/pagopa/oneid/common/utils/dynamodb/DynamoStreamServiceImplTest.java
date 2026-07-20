@@ -10,18 +10,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
+import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@QuarkusTest
 class DynamoStreamServiceImplTest {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final DynamoStreamService dynamoStreamService = new DynamoStreamServiceImpl(objectMapper);
+  @Inject
+  ObjectMapper objectMapper;
+
+  @Inject
+  DynamoStreamService dynamoStreamService;
 
   @Test
   @DisplayName("given new image when extracting client then build client from stream payload")
@@ -79,9 +85,10 @@ class DynamoStreamServiceImplTest {
   void given_invalid_auth_level_when_extracting_client_then_throw() {
     ObjectNode image = baseImage();
     image.set("authLevel", stringValue("invalid-auth-level"));
+    JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-        () -> dynamoStreamService.extractClient(buildRecord("INSERT", null, image), false));
+      () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test

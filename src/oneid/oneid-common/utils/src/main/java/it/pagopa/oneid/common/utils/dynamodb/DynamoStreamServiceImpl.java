@@ -286,19 +286,16 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return booleanValue;
     }
 
-    Object stringSetValue = readStringSetAttribute(attributeNode);
-    if (stringSetValue != null) {
-      return stringSetValue;
+    if (attributeNode.has("SS")) {
+      return readStringSetAttribute(attributeNode);
     }
 
-    Object listValue = readListAttribute(attributeNode);
-    if (listValue != null) {
-      return listValue;
+    if (attributeNode.has("L")) {
+      return readListAttribute(attributeNode);
     }
 
-    Object mapValue = readMapAttribute(attributeNode);
-    if (mapValue != null) {
-      return mapValue;
+    if (attributeNode.has("M")) {
+      return readMapAttribute(attributeNode);
     }
 
     return readFallbackAttributeValue(attributeNode);
@@ -336,7 +333,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private Object readStringSetAttribute(JsonNode attributeNode) {
     JsonNode values = attributeNode.get("SS");
     if (values == null || !values.isArray()) {
-      return null;
+      return Set.of();
     }
 
     Set<String> result = new HashSet<>();
@@ -347,7 +344,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private List<Object> readListAttribute(JsonNode attributeNode) {
     JsonNode values = attributeNode.get("L");
     if (values == null || !values.isArray()) {
-      return null;
+      return List.of();
     }
 
     List<Object> result = new ArrayList<>();
@@ -358,7 +355,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private Map<String, Object> readMapAttribute(JsonNode attributeNode) {
     JsonNode values = attributeNode.get("M");
     if (values == null || !values.isObject()) {
-      return null;
+      return Map.of();
     }
 
     Map<String, Object> result = new HashMap<>();
