@@ -10,7 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 /**
- * Lambda bootstrap entrypoint for cache update events from DynamoDB Streams.
+ * Lambda bootstrap entrypoint for cache update events and DLQ retries.
  */
 @ApplicationScoped
 @Named("cache-updater")

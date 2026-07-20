@@ -23,6 +23,7 @@ import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
+import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -48,7 +49,6 @@ import jakarta.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -82,7 +82,7 @@ public class OIDCController {
   SessionServiceImpl<AccessTokenSession> accessTokenSessionServiceImpl;
 
   @Inject
-  Map<String, Client> clientsMap;
+  ClientLookupService clientLookupService;
 
   @Inject
   CurrentAuthDTO currentAuthDTO;
@@ -158,15 +158,18 @@ public class OIDCController {
       AuthorizationRequestDTOExtended authorizationRequestDTOExtended) {
     Log.debug("start");
     Optional<IDP> idp;
+    Optional<Client> client = clientLookupService.getClientById(
+        authorizationRequestDTOExtended.getClientId());
 
     // 1. Check if clientId exists
-    if (!clientsMap.containsKey(authorizationRequestDTOExtended.getClientId())) {
+    if (client.isEmpty()) {
       Log.debug("selected Client not found");
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
+    Client selectedClient = client.get();
 
     // 1. Check if callbackUri exists among clientId parameters
-    if (!clientsMap.get(authorizationRequestDTOExtended.getClientId()).getCallbackURI()
+    if (!selectedClient.getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
       Log.debug("redirect URI not found");
       throw new CallbackURINotFoundException(authorizationRequestDTOExtended.getClientId());
@@ -199,12 +202,11 @@ public class OIDCController {
     }
 
     // 5. Get SSO Endpoint corresponding to client's samlBinding
-    Client client = clientsMap.get(authorizationRequestDTOExtended.getClientId());
-    SamlBinding samlBinding = Optional.ofNullable(client.getSamlBinding())
+    SamlBinding samlBinding = Optional.ofNullable(selectedClient.getSamlBinding())
         .orElse(SamlBinding.HTTP_POST);
 
-    ServiceIndexes serviceIndexes = getServiceIndexes(client, idp.get());
-    String authLevel = client.getAuthLevel().getValue();
+    ServiceIndexes serviceIndexes = getServiceIndexes(selectedClient, idp.get());
+    String authLevel = selectedClient.getAuthLevel().getValue();
 
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
     if (StringUtils.isBlank(idpSSOEndpoint)) {

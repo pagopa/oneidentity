@@ -135,6 +135,7 @@ resource "aws_pipes_pipe" "cache_updater" {
       "samlBinding":         <$.dynamodb.NewImage.samlBinding>,
       "acsIndex":            <$.dynamodb.NewImage.acsIndex>,
       "attributeIndex":      <$.dynamodb.NewImage.attributeIndex>,
+      "eidasIndex":          <$.dynamodb.NewImage.eidasIndex>,
       "active":              <$.dynamodb.NewImage.active>,
       "pairwise":            <$.dynamodb.NewImage.pairwise>,
       "spidMinors":          <$.dynamodb.NewImage.spidMinors>,
@@ -153,6 +154,7 @@ resource "aws_pipes_pipe" "cache_updater" {
       "samlBinding":         <$.dynamodb.OldImage.samlBinding>,
       "acsIndex":            <$.dynamodb.OldImage.acsIndex>,
       "attributeIndex":      <$.dynamodb.OldImage.attributeIndex>,
+      "eidasIndex":          <$.dynamodb.OldImage.eidasIndex>,
       "active":              <$.dynamodb.OldImage.active>,
       "pairwise":            <$.dynamodb.OldImage.pairwise>,
       "spidMinors":          <$.dynamodb.OldImage.spidMinors>,
@@ -165,7 +167,7 @@ resource "aws_pipes_pipe" "cache_updater" {
       "ageParentAuth":       <$.dynamodb.OldImage.ageParentAuth>
     }
   }
-}
+ }
 EOF
   }
 }

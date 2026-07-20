@@ -195,6 +195,8 @@ module "backend" {
   ecs_alarms                = local.cloudwatch_ecs_alarms_without_sns
   lambda_alarms             = local.cloudwatch_lambda_alarms_without_sns
   dlq_alarms                = local.cloudwatch_dlq_alarms_without_sns
+  cache_endpoint_address    = module.client_cache.cache_endpoint_address
+  cache_endpoint_port       = module.client_cache.cache_endpoint_port
 
   fargate_capacity_providers = {
     FARGATE = {
@@ -647,18 +649,19 @@ module "backend" {
   }
 
   cache_updater_lambda = {
-    name                              = format("%s-cache-updater", local.project)
-    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
+    name                               = format("%s-cache-updater", local.project)
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
     environment_variables = {
-      LOG_LEVEL              = var.app_log_level
-      CACHE_ENDPOINT_ADDRESS = module.client_cache.cache_endpoint_address
-      CACHE_ENDPOINT_PORT    = tostring(module.client_cache.cache_endpoint_port)
-      CACHE_TIMEOUT          = "PT5S"
-      CACHE_KEY_PREFIX       = "oneid:client:v1:"
-      SNS_TOPIC_ARN          = module.sns.sns_topic_arn
+      LOG_LEVEL                          = var.app_log_level
+      CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address
+      CACHE_ENDPOINT_PORT                = tostring(module.client_cache.cache_endpoint_port)
+      CACHE_TIMEOUT                      = "PT5S"
+      CACHE_KEY_PREFIX                   = "oneid:client:v1:"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-cache-updater", local.project), var.app_cloudwatch_custom_metric_namespace)
     }
   }
 

@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.quarkus.logging.Log;
+import it.pagopa.oneid.connector.CloudWatchConnector;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
@@ -10,8 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import software.amazon.awssdk.services.sns.SnsClient;
 
 @ApplicationScoped
 public class CacheUpdaterServiceImpl implements CacheUpdaterService {
@@ -19,21 +18,18 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   private final CacheConnector cacheConnector;
   private final DynamoStreamService dynamoStreamService;
   private final RecordUtils recordUtils;
-  private final SnsClient sns;
-  private final String snsTopicArn;
+  private final CloudWatchConnector cloudWatchConnector;
 
   @Inject
   CacheUpdaterServiceImpl(
       CacheConnector cacheConnector,
       DynamoStreamService dynamoStreamService,
       RecordUtils recordUtils,
-      SnsClient sns,
-      @ConfigProperty(name = "sns_topic_arn") String snsTopicArn) {
+      CloudWatchConnector cloudWatchConnector) {
     this.cacheConnector = cacheConnector;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
-    this.sns = sns;
-    this.snsTopicArn = snsTopicArn;
+    this.cloudWatchConnector = cloudWatchConnector;
   }
 
   @Override
@@ -60,41 +56,18 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
       throw new IllegalArgumentException("Invalid DynamoDB stream record");
     }
 
+    Log.infof("Processing DynamoDB stream record: %s", streamRecord.toString());
+
     String eventName = streamRecord.path("eventName").asText();
+
     if (eventName.isBlank()) {
       throw new IllegalArgumentException("DynamoDB stream record without eventName");
     }
 
     switch (eventName) {
-      case "INSERT" -> dynamoStreamService.extractClient(streamRecord, false)
-          .ifPresentOrElse(this::upsertClient,
-              () -> {
-                throw new IllegalStateException(
-                    "Unable to build client from NEW_IMAGE for eventName=" + eventName);
-              });
+      case "INSERT" -> processInsertOrModify(streamRecord, eventName);
       case "MODIFY" -> {
-        if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
-          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
-              .orElse("unknown");
-          Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
-              clientId);
-          return;
-        }
-
-        if (!dynamoStreamService.hasCacheRelevantChanges(streamRecord)) {
-          String clientId = dynamoStreamService.extractClientId(streamRecord, false)
-              .orElse("unknown");
-          Log.infof("Skipping cache update for clientId=%s because no cache-relevant fields "
-              + "changed", clientId);
-          return;
-        }
-
-        dynamoStreamService.extractClient(streamRecord, false)
-            .ifPresentOrElse(this::upsertClient,
-                () -> {
-                  throw new IllegalStateException(
-                      "Unable to build client from NEW_IMAGE for eventName=" + eventName);
-                });
+        processInsertOrModify(streamRecord, eventName);
       }
       case "REMOVE" -> dynamoStreamService.extractClientId(streamRecord, true)
           .ifPresentOrElse(this::deleteClient,
@@ -106,28 +79,75 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
   }
 
+  private void processInsertOrModify(JsonNode streamRecord, String eventName) {
+    String clientId = dynamoStreamService.extractClientId(streamRecord, false)
+        .orElseThrow(() -> new IllegalStateException(
+            "Unable to read clientId from NEW_IMAGE for eventName=" + eventName));
+
+    if (!isActive(streamRecord)) {
+      deleteClient(clientId);
+      return;
+    }
+
+    if ("MODIFY".equals(eventName)) {
+      if (recordUtils.isIncompleteModifyRecord(streamRecord)) {
+        Log.warnf("Skipping MODIFY for clientId=%s because stream images are incomplete",
+            clientId);
+        return;
+      }
+
+      if (!dynamoStreamService.hasCacheRelevantChanges(streamRecord)) {
+        Log.infof("Skipping cache update for clientId=%s because no cache-relevant fields "
+            + "changed", clientId);
+        return;
+      }
+    }
+
+    dynamoStreamService.extractClient(streamRecord, false)
+      .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, clientId),
+        () -> {
+          throw new IllegalStateException(
+              "Unable to build client from NEW_IMAGE for eventName=" + eventName);
+        });
+  }
+
+  private boolean isActive(JsonNode streamRecord) {
+    return streamRecord.path("dynamodb")
+        .path("NewImage")
+        .path("active")
+        .path("BOOL")
+        .asBoolean(true);
+  }
+
   private void upsertClient(Client client) {
     if (client == null || StringUtils.isBlank(client.getClientId())) {
       throw new IllegalArgumentException("client must include clientId");
     }
     cacheConnector.setClient(client);
     Log.infof("Cache upsert completed for clientId=%s", client.getClientId());
-    publishNotification("Cache updated", client.getClientId(), "UPSERT");
+  }
+
+  private void upsertClientAndTrackUpdate(Client client, String clientId) {
+    try {
+      upsertClient(client);
+      cloudWatchConnector.sendClientCacheUpdateMetricData(client.getClientId());
+    } catch (RuntimeException runtimeException) {
+      publishClientCacheUpdateFailureMetric(clientId);
+      throw runtimeException;
+    }
   }
 
   private void deleteClient(String clientId) {
     cacheConnector.deleteClient(clientId);
     Log.infof("Cache delete completed for clientId=%s", clientId);
-    publishNotification("Cache updated", clientId, "DELETE");
   }
 
-  private void publishNotification(String subject, String clientId, String action) {
-    String message = "Action: " + action + "\nClient ID: " + clientId;
+  private void publishClientCacheUpdateFailureMetric(String clientId) {
     try {
-      sns.publish(p -> p.topicArn(snsTopicArn).subject(subject).message(message));
-      Log.debugf("SNS notification sent for clientId=%s action=%s", clientId, action);
-    } catch (Exception e) {
-      Log.warnf(e, "Failed to send SNS notification for clientId=%s action=%s", clientId, action);
+      cloudWatchConnector.sendClientCacheUpdateFailureMetricData(clientId);
+    } catch (RuntimeException metricException) {
+      Log.warnf(metricException,
+          "Failed to publish ClientCacheUpdateFailure metric for clientId=%s", clientId);
     }
   }
 }

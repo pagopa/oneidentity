@@ -672,7 +672,7 @@ module "assertion_lambda" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  for_each = var.lambda_alarms
+  for_each = { for alarm_name, alarm in var.lambda_alarms : alarm_name => alarm if alarm.metric_name != "ClientCacheUpdate" }
   alarm_name = lower(format("%s-%s-lambda-%s", each.key, each.value.metric_name,
   each.value.threshold))
   comparison_operator = each.value.comparison_operator
@@ -689,6 +689,26 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   }
 
   alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
+}
+
+resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_failure_alarm" {
+  for_each = var.cache_updater_lambda != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
+
+  alarm_name          = format("%s_%s_%s_%s", "ClientCacheUpdateFailureAlarm", var.env_short, each.value.friendly_name, each.key)
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ClientCacheUpdateFailure"
+  namespace           = try(var.cache_updater_lambda.environment_variables["CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"], "")
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    ClientAggregated = each.key
+  }
+
+  alarm_actions = [var.sns_topic_arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_assertions" {
@@ -1555,10 +1575,9 @@ data "aws_iam_policy_document" "cache_updater_lambda" {
   }
 
   statement {
-    sid       = "PublishCacheUpdateNotification"
     effect    = "Allow"
-    actions   = ["sns:Publish"]
-    resources = [var.sns_topic_arn]
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"]
   }
 }
 
@@ -1612,6 +1631,16 @@ module "security_group_lambda_cache_updater" {
 
   egress_cidr_blocks      = []
   egress_ipv6_cidr_blocks = []
+}
+
+resource "aws_vpc_security_group_egress_rule" "cache_updater_https_rule" {
+  count = var.cache_updater_lambda != null && var.cache_updater_lambda.vpc_tls_security_group_endpoint_id != null ? 1 : 0
+
+  security_group_id            = module.security_group_lambda_cache_updater[0].security_group_id
+  from_port                    = 443
+  ip_protocol                  = "tcp"
+  to_port                      = 443
+  referenced_security_group_id = var.cache_updater_lambda.vpc_tls_security_group_endpoint_id
 }
 
 resource "aws_vpc_security_group_egress_rule" "cache_updater_valkey_rule" {

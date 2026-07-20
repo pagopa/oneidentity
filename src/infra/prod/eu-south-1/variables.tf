@@ -566,7 +566,8 @@ variable "lambda_alarms" {
     "oneid-es-1-p-client-registration" = {
     },
     "oneid-es-1-p-update-idp-metadata"      = {},
-    "oneid-es-1-p-is-gh-integration-lambda" = {}
+    "oneid-es-1-p-is-gh-integration-lambda" = {},
+    "oneid-es-1-p-cache-updater"            = {}
   }
 }
 
