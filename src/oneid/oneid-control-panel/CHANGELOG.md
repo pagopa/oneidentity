@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.7.2
+
+### Patch Changes
+
+- b6a7aca: SPID level selection to single value
+
 ## 1.7.1
 
 ### Patch Changes
