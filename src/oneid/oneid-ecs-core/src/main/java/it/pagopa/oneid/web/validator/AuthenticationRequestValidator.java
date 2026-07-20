@@ -55,6 +55,7 @@ public class AuthenticationRequestValidator implements
     Optional<Client> client = clientLookupService.getClientById(clientId);
     boolean hasValidCallback = callbackUri != null
         && client.isPresent()
+        && client.get().getCallbackURI() != null
         && client.get().getCallbackURI().contains(callbackUri);
 
     if (responseType == null) {
