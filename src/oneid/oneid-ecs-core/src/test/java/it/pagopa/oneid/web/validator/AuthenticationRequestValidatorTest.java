@@ -158,7 +158,7 @@ class AuthenticationRequestValidatorTest {
     when(request.getAssertionRef()).thenReturn(assertionRef);
     Client client = mock(Client.class);
     when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
-    clientsMap.put("client1", client);
+    when(clientLookupService.getClientById("client1")).thenReturn(Optional.of(client));
     return request;
   }
 
