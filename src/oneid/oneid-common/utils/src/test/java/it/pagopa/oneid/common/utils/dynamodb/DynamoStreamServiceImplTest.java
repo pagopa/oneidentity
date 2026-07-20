@@ -59,6 +59,17 @@ class DynamoStreamServiceImplTest {
   }
 
   @Test
+  @DisplayName("given missing or invalid image when extracting client then return empty")
+  void given_missing_or_invalid_image_when_extracting_client_then_return_empty() {
+    assertTrue(dynamoStreamService.extractClient(buildRecord("INSERT", null, null), false)
+        .isEmpty());
+
+    ObjectNode record = objectMapper.createObjectNode();
+    record.putObject("dynamodb").put("NewImage", "invalid-image");
+    assertTrue(dynamoStreamService.extractClient(record, false).isEmpty());
+  }
+
+  @Test
   @DisplayName("given relevant modify change when checking diff then return true")
   void given_relevant_modify_change_when_checking_diff_then_return_true() {
     ObjectNode newImage = baseImage();
@@ -77,6 +88,53 @@ class DynamoStreamServiceImplTest {
     newImage.set("logoUri", stringValue("https://logo.new"));
 
     assertFalse(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", oldImage, newImage)));
+  }
+
+  @Test
+  @DisplayName("given non modify event when checking diff then return true")
+  void given_non_modify_event_when_checking_diff_then_return_true() {
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(buildRecord("INSERT", null, null)));
+  }
+
+  @Test
+  @DisplayName("given incomplete modify image when checking diff then return true")
+  void given_incomplete_modify_image_when_checking_diff_then_return_true() {
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", baseImage(), null)));
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", null, baseImage())));
+  }
+
+  @Test
+  @DisplayName("given null dynamodb node when checking diff then return false")
+  void given_null_dynamodb_node_when_checking_diff_then_return_false() {
+    ObjectNode record = objectMapper.createObjectNode().put("eventName", "MODIFY");
+    record.putNull("dynamodb");
+
+    assertFalse(dynamoStreamService.hasCacheRelevantChanges(record));
+  }
+
+  @Test
+  @DisplayName("given changed friendly name when checking diff then return true")
+  void given_changed_friendly_name_when_checking_diff_then_return_true() {
+    ObjectNode oldImage = baseImage();
+    ObjectNode newImage = baseImage();
+    oldImage.set("friendlyName", stringValue("Old name"));
+    newImage.set("friendlyName", stringValue("New name"));
+
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", oldImage, newImage)));
+  }
+
+  @Test
+  @DisplayName("given changed string set when checking diff then return true")
+  void given_changed_string_set_when_checking_diff_then_return_true() {
+    ObjectNode oldImage = baseImage();
+    ObjectNode newImage = baseImage();
+    newImage.set("requestedParameters", stringSetValue("name"));
+
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
         buildRecord("MODIFY", oldImage, newImage)));
   }
 
@@ -160,6 +218,28 @@ class DynamoStreamServiceImplTest {
     var clientFE = dynamoStreamService.extractClientFE(
         buildRecord("INSERT", null, image), false).orElseThrow();
     assertTrue(clientFE.getLocalizedContentMap().isEmpty());
+  }
+
+  @Test
+  @DisplayName("given missing required client fields when extracting client then throw")
+  void given_missing_required_client_fields_when_extracting_client_then_throw() {
+    ObjectNode withoutCallback = baseImage();
+    withoutCallback.remove("callbackURI");
+    assertThrows(IllegalArgumentException.class,
+        () -> dynamoStreamService.extractClient(
+            buildRecord("INSERT", null, withoutCallback), false));
+
+    ObjectNode withoutRequestedParameters = baseImage();
+    withoutRequestedParameters.remove("requestedParameters");
+    assertThrows(IllegalArgumentException.class,
+        () -> dynamoStreamService.extractClient(
+            buildRecord("INSERT", null, withoutRequestedParameters), false));
+
+    ObjectNode withoutAuthLevel = baseImage();
+    withoutAuthLevel.remove("authLevel");
+    assertThrows(IllegalArgumentException.class,
+        () -> dynamoStreamService.extractClient(
+            buildRecord("INSERT", null, withoutAuthLevel), false));
   }
 
   private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {
