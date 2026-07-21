@@ -1812,30 +1812,79 @@
       }
     },
     "/clients/{client_id}": {
+      "options": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "operationId": "Options_client",
+        "description": "CORS preflight request",
+        "x-amazon-apigateway-integration": {
+          "type": "mock",
+          "requestParameters": {},
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 2000,
+          "contentHandling": "CONVERT_TO_TEXT",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Requested-With'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CORS preflight response",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        },
+        "summary": "CORS preflight for /clients/{client_id} endpoint"
+      },
       "get": {
         "tags": [
           "Authorization Server APIs"
         ],
         "operationId": "Get_ClientFromClientId",
         "x-amazon-apigateway-integration": {
-          "type": "HTTP_PROXY",
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
           "httpMethod": "GET",
-          "uri": "${uri}/clients/{client_id}",
-          "connectionType": "VPC_LINK",
-          "connectionId": "${connection_id}",
-          "timeoutInMillis" : 5000,
+          "uri": "${assets_bucket_uri}/clients-publisher/{client_id}.json",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
           "requestParameters": {
-            "integration.request.header.accept": "'*/*'",
             "integration.request.path.client_id": "method.request.path.client_id"
           },
+          "responseParameters": {},
           "responses": {
             "200": {
               "statusCode": "200",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             },
             "404": {
               "statusCode": "404",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             }
           },
           "cacheKeyParameters": [
@@ -1856,6 +1905,18 @@
         "responses": {
           "200": {
             "description": "Find client information from a client_id",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1873,32 +1934,94 @@
       }
     },
     "/clients": {
+      "options": {
+        "tags": [
+          "Authorization Server APIs"
+        ],
+        "operationId": "Options_clients",
+        "description": "CORS preflight request",
+        "x-amazon-apigateway-integration": {
+          "type": "mock",
+          "requestParameters": {},
+          "passthroughBehavior": "when_no_match",
+          "timeoutInMillis" : 2000,
+          "contentHandling": "CONVERT_TO_TEXT",
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Requested-With'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CORS preflight response",
+            "headers": {
+              "Access-Control-Allow-Headers": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": { "type": "string" }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        },
+        "summary": "CORS preflight for /clients endpoint"
+      },
       "get": {
         "tags": [
           "Authorization Server APIs"
         ],
         "operationId": "Get_AllClients",
         "x-amazon-apigateway-integration": {
-          "type": "HTTP_PROXY",
+          "type": "aws",
+          "credentials": "${s3_apigateway_proxy_role}",
           "httpMethod": "GET",
-          "uri": "${uri}/clients",
-          "connectionType": "VPC_LINK",
-          "connectionId": "${connection_id}",
-          "timeoutInMillis" : 5000,
+          "uri": "${assets_bucket_uri}/clients.json",
+          "passthroughBehavior": "WHEN_NO_TEMPLATES",
+          "timeoutInMillis" : 2000,
+          "responseParameters": {},
           "responses": {
             "200": {
               "statusCode": "200",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Content-Type": "integration.response.header.Content-Type",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             },
             "404": {
               "statusCode": "404",
-              "requestParameters": {}
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Find all clients information",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
