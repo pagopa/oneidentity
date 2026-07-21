@@ -49,58 +49,6 @@ class ClientPublisherServiceImplTest {
   S3Client s3Client;
 
   @Test
-  @DisplayName("self-bootstrap publishes individual and aggregated client files")
-  void runSelfBootstrap_publishesIndividualAndAggregatedFiles() throws Exception {
-    ClientFE firstClient = new ClientFE(clientWithFrontendFields("client-1"));
-    ClientFE secondClient = new ClientFE(clientWithFrontendFields("client-2"));
-    when(clientService.getAllClientsInformation())
-        .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(firstClient, secondClient))));
-
-    publisherService.runSelfBootstrap();
-
-    ArgumentCaptor<PutObjectRequest> requestCaptor =
-        ArgumentCaptor.forClass(PutObjectRequest.class);
-    verify(s3Client, times(3))
-        .putObject(requestCaptor.capture(), any(RequestBody.class));
-    List<String> keys = requestCaptor.getAllValues().stream()
-        .map(PutObjectRequest::key)
-        .toList();
-    assertEquals(List.of("clients-publisher/client-1.json", "clients-publisher/client-2.json",
-        "clients.json"), keys);
-    requestCaptor.getAllValues().forEach(request ->
-        assertEquals("application/json", request.contentType()));
-  }
-
-  @Test
-  @DisplayName("self-bootstrap publishes an empty aggregate when no clients exist")
-  void runSelfBootstrap_publishesEmptyAggregateWhenNoClientsExist() {
-    when(clientService.getAllClientsInformation()).thenReturn(java.util.Optional.empty());
-
-    publisherService.runSelfBootstrap();
-
-    ArgumentCaptor<PutObjectRequest> requestCaptor =
-        ArgumentCaptor.forClass(PutObjectRequest.class);
-    verify(s3Client).putObject(requestCaptor.capture(), any(RequestBody.class));
-    assertEquals("clients.json", requestCaptor.getValue().key());
-  }
-
-  @Test
-  @DisplayName("self-bootstrap fails when an S3 upload fails")
-  void runSelfBootstrap_throwsWhenS3UploadFails() {
-    ClientFE client = new ClientFE(clientWithFrontendFields("client-1"));
-    when(clientService.getAllClientsInformation())
-        .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
-    when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
-        .thenThrow(new RuntimeException("S3 unavailable"));
-
-    RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
-      RuntimeException.class, publisherService::runSelfBootstrap);
-
-    assertEquals("Client publisher self-bootstrap failed", exception.getMessage());
-    verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
-  }
-
-  @Test
   @DisplayName("skips republish when a modify only touches secret fields")
   void processInput_skipsRepublishWhenModifyOnlyTouchesSecretFields() throws Exception {
     ClientConnector clientConnector = mock(ClientConnector.class);

@@ -82,26 +82,6 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   }
 
   @Override
-  public void runSelfBootstrap() {
-    try {
-        List<ClientFE> clients = clientService.getAllClientsInformation()
-          .map(List::copyOf)
-          .orElse(List.of());
-      Log.infof("Self-bootstrap retrieved %d clients", clients.size());
-
-      for (ClientFE client : clients) {
-        publishSingleClient(client);
-      }
-
-      publishGlobalClients(clients);
-      Log.infof("Self-bootstrap completed: published %d clients", clients.size());
-    } catch (Exception e) {
-      Log.error("Self-bootstrap failed", e);
-      throw new RuntimeException("Client publisher self-bootstrap failed", e);
-    }
-  }
-
-  @Override
   public void processInput(JsonNode input) {
     List<JsonNode> records = recordUtils.readRecords(input);
     if (records.isEmpty()) {
