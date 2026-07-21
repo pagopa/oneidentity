@@ -161,7 +161,7 @@ class OIDCControllerTest {
         .body(notNullValue());
 
     verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
-        Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any());
+        Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any(), Mockito.any());
   }
 
   @Test
@@ -188,7 +188,7 @@ class OIDCControllerTest {
 
     AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
     when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-        Mockito.anyInt(), Mockito.anyString(), Mockito.any()))
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any()))
         .thenReturn(authnRequest);
 
     when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
@@ -215,7 +215,7 @@ class OIDCControllerTest {
     verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
-        Mockito.any());
+        Mockito.any(), Mockito.any());
   }
 
   @Test
