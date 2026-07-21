@@ -1,5 +1,11 @@
 # oneid-lambda-service-metadata
 
+## 1.2.2
+
+### Patch Changes
+
+- 2f9f8ee: add lambda client publisher implementation and infra, update common with dynamo event deserialization logic and depshas
+
 ## 1.2.1
 
 ### Patch Changes

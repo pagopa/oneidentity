@@ -1,17 +1,18 @@
-package it.pagopa.oneid.service;
+package it.pagopa.oneid.common.utils.dynamodb;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   private final ObjectMapper clientPayloadObjectMapper;
 
   @Inject
-  DynamoStreamServiceImpl(ObjectMapper objectMapper) {
+  public DynamoStreamServiceImpl(ObjectMapper objectMapper) {
     this.clientPayloadObjectMapper = objectMapper.copy()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
@@ -59,6 +60,28 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   @Override
   public Optional<Client> extractClient(JsonNode streamRecord, boolean preferOldImage) {
     return mapImageToClient(extractImage(streamRecord, preferOldImage));
+  }
+
+  @Override
+  public Optional<ClientFE> extractClientFE(JsonNode streamRecord, boolean preferOldImage) {
+    JsonNode streamImage = extractImage(streamRecord, preferOldImage);
+    if (streamImage == null || streamImage.isNull() || !streamImage.isObject()
+        || streamImage.size() == 0) {
+      return Optional.empty();
+    }
+
+    Map<String, Object> payload = new HashMap<>();
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
+        fromDynamoAttribute(entry.getValue())));
+    payload.put("clientID", payload.remove(FIELD_CLIENT_ID));
+    normalizeLocalizedContentMap(payload);
+
+    try {
+      return Optional.of(clientPayloadObjectMapper.convertValue(payload, ClientFE.class));
+    } catch (IllegalArgumentException conversionException) {
+      throw new IllegalArgumentException("Unable to convert DynamoDB stream image to ClientFE",
+          conversionException);
+    }
   }
 
   @Override
@@ -137,10 +160,10 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     Map<String, Object> payload = new HashMap<>();
-    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
-        fromDynamoAttribute(entry.getValue())));
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
 
     normalizeEnums(payload);
+    normalizeLocalizedContentMap(payload);
 
     try {
       Client client = clientPayloadObjectMapper.convertValue(payload, Client.class);
@@ -165,6 +188,13 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     Object samlBinding = payload.get(FIELD_SAML_BINDING);
     if (samlBinding instanceof String samlBindingValue && !samlBindingValue.isBlank()) {
       payload.put(FIELD_SAML_BINDING, SamlBinding.samlBindingTypeFromValue(samlBindingValue));
+    }
+  }
+
+  private void normalizeLocalizedContentMap(Map<String, Object> payload) {
+    Object localizedContentMap = payload.get("localizedContentMap");
+    if (localizedContentMap instanceof String value && value.isBlank()) {
+      payload.put("localizedContentMap", Map.of());
     }
   }
 
@@ -238,6 +268,10 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return null;
     }
 
+    if (hasExplicitNullAttribute(attributeNode)) {
+      return null;
+    }
+
     Object stringValue = readStringAttribute(attributeNode);
     if (stringValue != null) {
       return stringValue;
@@ -253,87 +287,82 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return booleanValue;
     }
 
-    Object stringSetValue = readStringSetAttribute(attributeNode);
-    if (stringSetValue != null) {
-      return stringSetValue;
+    if (attributeNode.has("SS")) {
+      return readStringSetAttribute(attributeNode);
     }
 
-    Object listValue = readListAttribute(attributeNode);
-    if (listValue != null) {
-      return listValue;
+    if (attributeNode.has("L")) {
+      return readListAttribute(attributeNode);
     }
 
-    Object mapValue = readMapAttribute(attributeNode);
-    if (mapValue != null) {
-      return mapValue;
-    }
-
-    if (hasExplicitNullAttribute(attributeNode)) {
-      return null;
+    if (attributeNode.has("M")) {
+      return readMapAttribute(attributeNode);
     }
 
     return readFallbackAttributeValue(attributeNode);
   }
 
-  private Object readStringAttribute(JsonNode attributeNode) {
-    JsonNode stringValue = attributeNode.get("S");
-    if (stringValue == null || stringValue.isNull()) {
-      return null;
+  private String readStringAttribute(JsonNode attributeNode) {
+    JsonNode value = attributeNode.get("S");
+    if (value != null && !value.isNull()) {
+      return value.asText();
     }
-
-    return stringValue.asText();
+    return null;
   }
 
   private Object readNumberAttribute(JsonNode attributeNode) {
-    JsonNode numberValue = attributeNode.get("N");
-    if (numberValue == null || numberValue.isNull()) {
-      return null;
+    JsonNode value = attributeNode.get("N");
+    if (value != null && !value.isNull()) {
+      String number = value.asText();
+      try {
+        return parseNumeric(number);
+      } catch (NumberFormatException e) {
+        return number;
+      }
     }
-
-    return parseNumeric(numberValue.asText());
+    return null;
   }
 
   private Object readBooleanAttribute(JsonNode attributeNode) {
-    JsonNode booleanValue = attributeNode.get("BOOL");
-    if (booleanValue == null || booleanValue.isNull()) {
-      return null;
+    JsonNode value = attributeNode.get("BOOL");
+    if (value != null && !value.isNull() && value.isBoolean()) {
+      return value.asBoolean();
     }
-
-    return booleanValue.asBoolean();
+    return null;
   }
 
   private Object readStringSetAttribute(JsonNode attributeNode) {
-    JsonNode stringSetValues = attributeNode.get("SS");
-    if (stringSetValues == null || !stringSetValues.isArray()) {
-      return null;
+    JsonNode values = attributeNode.get("SS");
+    if (values == null || !values.isArray()) {
+      return Set.of();
     }
 
-    Set<String> values = new HashSet<>();
-    stringSetValues.forEach(value -> values.add(value.asText()));
-    return values;
+    Set<String> result = new HashSet<>();
+    values.forEach(value -> result.add(value.asText()));
+    return result;
   }
 
-  private Object readListAttribute(JsonNode attributeNode) {
-    JsonNode listValues = attributeNode.get("L");
-    if (listValues == null || !listValues.isArray()) {
-      return null;
+  private List<Object> readListAttribute(JsonNode attributeNode) {
+    JsonNode values = attributeNode.get("L");
+    if (values == null || !values.isArray()) {
+      return List.of();
     }
 
-    List<Object> values = new ArrayList<>();
-    listValues.forEach(item -> values.add(fromDynamoAttribute(item)));
-    return values;
+    List<Object> result = new ArrayList<>();
+    values.forEach(value -> result.add(fromDynamoAttribute(value)));
+    return result;
   }
 
-  private Object readMapAttribute(JsonNode attributeNode) {
-    JsonNode mapValues = attributeNode.get("M");
-    if (mapValues == null || !mapValues.isObject()) {
-      return null;
+  private Map<String, Object> readMapAttribute(JsonNode attributeNode) {
+    JsonNode values = attributeNode.get("M");
+    if (values == null || !values.isObject()) {
+      return Map.of();
     }
 
-    Map<String, Object> map = new HashMap<>();
-    mapValues.fields().forEachRemaining(entry -> map.put(entry.getKey(),
-        fromDynamoAttribute(entry.getValue())));
-    return map;
+    Map<String, Object> result = new HashMap<>();
+    values.fields().forEachRemaining(
+        entry -> result.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
+    return result;
   }
 
   private boolean hasExplicitNullAttribute(JsonNode attributeNode) {

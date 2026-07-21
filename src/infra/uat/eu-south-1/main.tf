@@ -435,6 +435,35 @@ module "backend" {
   dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn               = module.database.dynamodb_table_stream_arn
   table_last_idp_used_arn                 = module.database.table_last_idp_used_arn
+
+  eventbridge_pipe_client_publisher = {
+    pipe_name                     = format("%s-client-publisher-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  client_publisher_lambda = {
+    name                               = format("%s-client-publisher", local.project)
+    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    table_client_registrations_arn     = module.database.table_client_registrations_arn
+    clients_bucket_arn                 = module.storage.assets_bucket_arn
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
+    cloudwatch_custom_metric_namespace = "${local.project}-client-publisher/ApplicationMetrics"
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_s3_prefix_id                   = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    environment_variables = {
+      LOG_LEVEL                          = var.app_log_level
+      CLIENT_REGISTRATIONS_TABLE_NAME    = module.database.table_client_registrations_name
+      CLIENTS_BUCKET_NAME                = module.storage.assets_bucket_name
+      CLIENTS_KEY_PREFIX                 = "clients-publisher/"
+      GLOBAL_CLIENTS_KEY                 = "clients.json"
+      CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = "${local.project}-client-publisher/ApplicationMetrics"
+    }
+  }
+
   eventbridge_pipe_sessions = {
     pipe_name                     = format("%s-sessions-pipe", local.project)
     kms_sessions_table_alias      = module.database.kms_sessions_table_alias_arn
