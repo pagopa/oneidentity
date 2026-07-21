@@ -1,5 +1,12 @@
 # infra
 
+## 2.11.1
+
+### Patch Changes
+
+- bbfc5fc: add depends_on publisher pipe cache
+- eb93b86: Move /clients /clients/{clientId} routes to static s3 routes, remove ecs clients routes code, remove client-publisher lambda bootstrap event code
+
 ## 2.11.0
 
 ### Minor Changes
