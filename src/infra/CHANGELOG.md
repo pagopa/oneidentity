@@ -1,5 +1,11 @@
 # infra
 
+## 2.11.0
+
+### Minor Changes
+
+- 2f9f8ee: add lambda client publisher implementation and infra, update common with dynamo event deserialization logic and depshas
+
 ## 2.10.0
 
 ### Minor Changes
