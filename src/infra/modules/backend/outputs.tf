@@ -95,6 +95,15 @@ output "cache_updater_lambda_arn" {
   value = try(module.cache_updater_lambda[0].lambda_function_arn, null)
 }
 
+## Client publisher lambda
+output "client_publisher_lambda_arn" {
+  value = try(module.client_publisher_lambda[0].lambda_function_arn, null)
+}
+
+output "client_publisher_security_group_id" {
+  value = try(module.security_group_lambda_client_publisher[0].security_group_id, null)
+}
+
 ## S3 buket for lambda code ##
 output "s3_lambda_code_bucket" {
   value = module.s3_lambda_code_bucket.s3_bucket_id

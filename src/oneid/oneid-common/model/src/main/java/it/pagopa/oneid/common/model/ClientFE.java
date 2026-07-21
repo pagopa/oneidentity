@@ -6,9 +6,11 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Data
+@NoArgsConstructor
 public class ClientFE {
 
   public String clientID;

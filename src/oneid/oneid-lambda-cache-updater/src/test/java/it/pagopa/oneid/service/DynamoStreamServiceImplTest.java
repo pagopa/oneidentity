@@ -13,6 +13,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
+import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.Set;

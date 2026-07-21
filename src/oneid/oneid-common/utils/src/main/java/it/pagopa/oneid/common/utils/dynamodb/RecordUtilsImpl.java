@@ -1,4 +1,4 @@
-package it.pagopa.oneid.service;
+package it.pagopa.oneid.common.utils.dynamodb;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,6 +7,7 @@ import java.util.stream.StreamSupport;
 
 @ApplicationScoped
 public class RecordUtilsImpl implements RecordUtils {
+
   private static final String RECORDS = "Records";
   private static final String RECORDS_LOWERCASE = "records";
 

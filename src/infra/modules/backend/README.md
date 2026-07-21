@@ -143,6 +143,7 @@
 | <a name="module_cache_updater_lambda"></a> [cache\_updater\_lambda](#module\_cache\_updater\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_cert_exp_checker_lambda"></a> [cert\_exp\_checker\_lambda](#module\_cert\_exp\_checker\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_client_manager_lambda"></a> [client\_manager\_lambda](#module\_client\_manager\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
+| <a name="module_client_publisher_lambda"></a> [client\_publisher\_lambda](#module\_client\_publisher\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_client_registration_lambda"></a> [client\_registration\_lambda](#module\_client\_registration\_lambda) | terraform-aws-modules/lambda/aws | 7.4.0 |
 | <a name="module_ecr"></a> [ecr](#module\_ecr) | terraform-aws-modules/ecr/aws | 1.6.0 |
 | <a name="module_ecs_cluster"></a> [ecs\_cluster](#module\_ecs\_cluster) | terraform-aws-modules/ecs/aws | 5.9.1 |
@@ -162,6 +163,7 @@
 | <a name="module_security_group_lambda_assertion"></a> [security\_group\_lambda\_assertion](#module\_security\_group\_lambda\_assertion) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_cache_updater"></a> [security\_group\_lambda\_cache\_updater](#module\_security\_group\_lambda\_cache\_updater) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_cert_exp_checker"></a> [security\_group\_lambda\_cert\_exp\_checker](#module\_security\_group\_lambda\_cert\_exp\_checker) | terraform-aws-modules/security-group/aws | 4.17.2 |
+| <a name="module_security_group_lambda_client_publisher"></a> [security\_group\_lambda\_client\_publisher](#module\_security\_group\_lambda\_client\_publisher) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_client_registration"></a> [security\_group\_lambda\_client\_registration](#module\_security\_group\_lambda\_client\_registration) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_idp_metadata"></a> [security\_group\_lambda\_idp\_metadata](#module\_security\_group\_lambda\_idp\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
 | <a name="module_security_group_lambda_metadata"></a> [security\_group\_lambda\_metadata](#module\_security\_group\_lambda\_metadata) | terraform-aws-modules/security-group/aws | 4.17.2 |
@@ -187,6 +189,7 @@
 | [aws_cloudwatch_metric_alarm.client_cache_backfill_success_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.client_error_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.client_no_traffic_alarm](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
+| [aws_cloudwatch_metric_alarm.client_publisher_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.dlq_assertions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.dlq_sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_cloudwatch_metric_alarm.ecs_alarms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
@@ -202,6 +205,7 @@
 | [aws_iam_policy.ecs_core_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.ecs_internal_idp_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.switch_region_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_role.client_publisher_pipe](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.github_lambda_deploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.githubecsdeploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.githubecsdeploy_internal_idp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
@@ -210,6 +214,7 @@
 | [aws_iam_role.pipe_sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.pipe_update_idp_metadata](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.switch_region_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.client_publisher_pipe](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pipe_cache_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pipe_cache_updater_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.pipe_source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
@@ -225,6 +230,7 @@
 | [aws_lambda_permission.allow_eventbridge](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_lambda_permission.cert_key_changes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_pipes_pipe.cache_updater](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
+| [aws_pipes_pipe.client_publisher](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.invalidate_cache](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.sessions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
 | [aws_pipes_pipe.update_idp_metadata](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/pipes_pipe) | resource |
@@ -232,12 +238,14 @@
 | [aws_security_group_rule.metadata_vpc_tls](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_sns_topic_subscription.is-gh-integration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sqs_queue.cache_updater_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
+| [aws_sqs_queue.client_publisher_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue.dlq_lambda_assertion](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue.pipe_dlq](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_ssm_parameter.key_pem](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
 | [aws_vpc_security_group_egress_rule.cache_updater_https_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.cache_updater_valkey_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.cert_checker_sec_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
+| [aws_vpc_security_group_egress_rule.client_publisher_monitoring_endpoint](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.client_registration_sec_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.https_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
 | [aws_vpc_security_group_egress_rule.metrics_archiver_https_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule) | resource |
@@ -253,6 +261,7 @@
 | [aws_iam_policy_document.cache_updater_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.cert_exp_checker_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_manager_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.client_publisher_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.client_registration_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.idp_metadata_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.invalidate_cache_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -284,6 +293,7 @@
 | <a name="input_client_manager_lambda"></a> [client\_manager\_lambda](#input\_client\_manager\_lambda) | n/a | <pre>object({<br/>    name                              = string<br/>    filename                          = string<br/>    cloudwatch_logs_retention_in_days = string<br/>    environment_variables             = optional(map(string), {})<br/>    table_client_registrations_arn    = optional(string, "")<br/>    cognito_user_pool_arn             = optional(string, "")<br/>    table_idp_internal_users_arn      = optional(string, "")<br/>    table_idp_internal_users_gsi_arn  = optional(string, "")<br/>    # TODO: move client_manager_lambda to VPC<br/>    # vpc_endpoint_apigw_prefix_id      = string<br/>    # vpc_endpoint_dynamodb_prefix_id   = string<br/>    # vpc_subnet_ids                    = list(string)<br/>    # vpc_id                            = string<br/>  })</pre> | n/a | yes |
 | <a name="input_client_manager_lambda_optional_iam_policy"></a> [client\_manager\_lambda\_optional\_iam\_policy](#input\_client\_manager\_lambda\_optional\_iam\_policy) | n/a | `bool` | `true` | no |
 | <a name="input_client_no_traffic_alarm"></a> [client\_no\_traffic\_alarm](#input\_client\_no\_traffic\_alarm) | n/a | <pre>object({<br/>    enabled = optional(bool, false)<br/>    clients = list(object({<br/>      client_id     = string<br/>      friendly_name = string<br/>    }))<br/>    namespace = string<br/>  })</pre> | `null` | no |
+| <a name="input_client_publisher_lambda"></a> [client\_publisher\_lambda](#input\_client\_publisher\_lambda) | n/a | <pre>object({<br/>    name                               = string<br/>    filename                           = string<br/>    table_client_registrations_arn     = string<br/>    clients_bucket_arn                 = string<br/>    cloudwatch_logs_retention_in_days  = number<br/>    cloudwatch_custom_metric_namespace = string<br/>    vpc_id                             = string<br/>    vpc_subnet_ids                     = list(string)<br/>    vpc_endpoint_dynamodb_prefix_id    = string<br/>    vpc_s3_prefix_id                   = string<br/>    vpc_tls_security_group_endpoint_id = string<br/>    environment_variables              = map(string)<br/>  })</pre> | `null` | no |
 | <a name="input_client_registration_lambda"></a> [client\_registration\_lambda](#input\_client\_registration\_lambda) | n/a | <pre>object({<br/>    name                               = string<br/>    filename                           = string<br/>    table_client_registrations_arn     = string<br/>    cloudwatch_logs_retention_in_days  = number<br/>    vpc_id                             = string<br/>    vpc_endpoint_dynamodb_prefix_id    = string<br/>    vpc_tls_security_group_endpoint_id = string<br/>    vpc_subnet_ids                     = list(string)<br/>    environment_variables              = map(string)<br/>  })</pre> | n/a | yes |
 | <a name="input_dlq_alarms"></a> [dlq\_alarms](#input\_dlq\_alarms) | n/a | <pre>object({<br/>    metric_name         = string<br/>    namespace           = string<br/>    threshold           = number<br/>    evaluation_periods  = number<br/>    period              = number<br/>    statistic           = string<br/>    comparison_operator = string<br/>    sns_topic_alarm_arn = optional(string, null)<br/>  })</pre> | n/a | yes |
 | <a name="input_dynamodb_clients_table_stream_arn"></a> [dynamodb\_clients\_table\_stream\_arn](#input\_dynamodb\_clients\_table\_stream\_arn) | n/a | `string` | `null` | no |
@@ -302,6 +312,7 @@
 | <a name="input_env_short"></a> [env\_short](#input\_env\_short) | env short | `string` | n/a | yes |
 | <a name="input_event_mode"></a> [event\_mode](#input\_event\_mode) | Enable event mode to use higher autoscaling limits for special events. When true, uses event\_autoscaling configuration if defined. | `bool` | `false` | no |
 | <a name="input_eventbridge_pipe_cache_updater"></a> [eventbridge\_pipe\_cache\_updater](#input\_eventbridge\_pipe\_cache\_updater) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
+| <a name="input_eventbridge_pipe_client_publisher"></a> [eventbridge\_pipe\_client\_publisher](#input\_eventbridge\_pipe\_client\_publisher) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_pipe_invalidate_cache"></a> [eventbridge\_pipe\_invalidate\_cache](#input\_eventbridge\_pipe\_invalidate\_cache) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_pipe_sessions"></a> [eventbridge\_pipe\_sessions](#input\_eventbridge\_pipe\_sessions) | n/a | <pre>object({<br/>    pipe_name                     = string<br/>    kms_sessions_table_alias      = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
 | <a name="input_eventbridge_pipe_update_idp_metadata"></a> [eventbridge\_pipe\_update\_idp\_metadata](#input\_eventbridge\_pipe\_update\_idp\_metadata) | EventBridge Pipe configuration for invalid IDP metadata statuses. | <pre>object({<br/>    pipe_name                     = string<br/>    maximum_retry_attempts        = number<br/>    maximum_record_age_in_seconds = number<br/>  })</pre> | `null` | no |
@@ -352,6 +363,8 @@
 | <a name="output_cache_updater_lambda_arn"></a> [cache\_updater\_lambda\_arn](#output\_cache\_updater\_lambda\_arn) | n/a |
 | <a name="output_cache_updater_security_group_id"></a> [cache\_updater\_security\_group\_id](#output\_cache\_updater\_security\_group\_id) | n/a |
 | <a name="output_client_manager_lambda_arn"></a> [client\_manager\_lambda\_arn](#output\_client\_manager\_lambda\_arn) | # Client manager lambda |
+| <a name="output_client_publisher_lambda_arn"></a> [client\_publisher\_lambda\_arn](#output\_client\_publisher\_lambda\_arn) | # Client publisher lambda |
+| <a name="output_client_publisher_security_group_id"></a> [client\_publisher\_security\_group\_id](#output\_client\_publisher\_security\_group\_id) | n/a |
 | <a name="output_client_registration_lambda_arn"></a> [client\_registration\_lambda\_arn](#output\_client\_registration\_lambda\_arn) | # Client registration lambda |
 | <a name="output_client_registration_log_group_name"></a> [client\_registration\_log\_group\_name](#output\_client\_registration\_log\_group\_name) | n/a |
 | <a name="output_ecr_endpoints"></a> [ecr\_endpoints](#output\_ecr\_endpoints) | n/a |
