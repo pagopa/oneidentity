@@ -420,6 +420,8 @@ resource "aws_iam_role_policy" "client_publisher_pipe" {
 resource "aws_pipes_pipe" "client_publisher" {
   count = var.client_publisher_lambda != null && var.eventbridge_pipe_client_publisher != null ? 1 : 0
 
+  depends_on = [aws_iam_role_policy.client_publisher_pipe]
+
   name     = var.eventbridge_pipe_client_publisher.pipe_name
   role_arn = aws_iam_role.client_publisher_pipe[0].arn
   source   = var.dynamodb_table_stream_registrations_arn
