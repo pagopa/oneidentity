@@ -1,5 +1,11 @@
 # oneid-lambda-cache-updater
 
+## 0.3.1
+
+### Patch Changes
+
+- 2f9f8ee: add lambda client publisher implementation and infra, update common with dynamo event deserialization logic and depshas
+
 ## 0.3.0
 
 ### Minor Changes

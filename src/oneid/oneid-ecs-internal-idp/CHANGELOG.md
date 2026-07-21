@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.3.2
+
+### Patch Changes
+
+- 2f9f8ee: add lambda client publisher implementation and infra, update common with dynamo event deserialization logic and depshas
+
 ## 1.3.1
 
 ### Patch Changes
