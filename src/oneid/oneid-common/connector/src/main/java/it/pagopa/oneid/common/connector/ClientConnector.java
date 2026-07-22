@@ -1,20 +1,25 @@
 package it.pagopa.oneid.common.connector;
 
+import java.util.ArrayList;
+import java.util.Optional;
+
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
-import java.util.ArrayList;
-import java.util.Optional;
 
 public interface ClientConnector {
 
   Optional<ArrayList<Client>> findAll();
+
+  Optional<ArrayList<Client>> findAllActive();
 
   Optional<SecretDTO> getClientSecret(String clientId);
 
   void saveClientIfNotExists(ClientExtended client);
 
   Optional<Client> getClientById(String clientId);
+
+  Optional<Client> getActiveClientById(String clientId);
 
   Optional<ClientExtended> getClientExtendedById(String clientId);
 

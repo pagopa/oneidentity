@@ -313,7 +313,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
   private Map<String, Client> getClientsMap() {
     Map<String, Client> map = new HashMap<>();
-    ArrayList<Client> clients = clientConnectorImpl.findAll().orElse(new ArrayList<>());
+    ArrayList<Client> clients = clientConnectorImpl.findAllActive().orElse(new ArrayList<>());
 
     clients.forEach(client -> map.put(client.getClientId(), client));
 

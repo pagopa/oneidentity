@@ -7,7 +7,6 @@ import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,10 +25,9 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public Optional<ArrayList<ClientFE>> getAllClientsInformation() {
-    Optional<ArrayList<Client>> clients = clientConnector.findAll();
+    Optional<ArrayList<Client>> clients = clientConnector.findAllActive();
     return clients.map(cl ->
         cl.stream()
-          .filter(Client::isActive)
             .map(ClientFE::new)
             .collect(Collectors.toCollection(ArrayList::new)
             )

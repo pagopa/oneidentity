@@ -101,7 +101,7 @@ class ClientPublisherServiceImplTest {
 
     assertDoesNotThrow(() -> service.processInput(streamRecord));
 
-    verify(clientConnector, never()).findAll();
+    verify(clientConnector, never()).findAllActive();
     verify(mockedS3Client, never()).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     verify(cloudWatchClient, never()).putMetricData(any(PutMetricDataRequest.class));
   }
@@ -132,7 +132,8 @@ class ClientPublisherServiceImplTest {
         .thenReturn(java.util.Optional.of("client-1"));
     when(dynamoStreamService.extractClientFE(streamRecord, false))
       .thenReturn(java.util.Optional.of(new ClientFE(client)));
-    when(clientConnector.findAll()).thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
+    when(clientConnector.findAllActive())
+      .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
 
     ClientPublisherServiceImpl service = newService(
         clientConnector, dynamoStreamService, recordUtils, mockedS3Client, cloudWatchClient,
@@ -179,7 +180,7 @@ class ClientPublisherServiceImplTest {
     when(recordUtils.readRecords(any())).thenReturn(List.of(streamRecord));
     when(dynamoStreamService.extractClientId(streamRecord, false))
         .thenReturn(java.util.Optional.of("client-1"));
-    when(clientConnector.findAll()).thenReturn(java.util.Optional.of(new ArrayList<>()));
+    when(clientConnector.findAllActive()).thenReturn(java.util.Optional.of(new ArrayList<>()));
 
     ClientPublisherServiceImpl service = newService(
         clientConnector, dynamoStreamService, recordUtils, mockedS3Client, cloudWatchClient,
@@ -230,7 +231,7 @@ class ClientPublisherServiceImplTest {
         .thenReturn(java.util.Optional.of(clientFE));
     when(dynamoStreamService.extractClientFE(streamRecord, true))
         .thenReturn(java.util.Optional.of(clientFE));
-    when(clientConnector.findAll())
+    when(clientConnector.findAllActive())
         .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(client))));
 
     ClientPublisherServiceImpl service = newService(
@@ -276,7 +277,7 @@ class ClientPublisherServiceImplTest {
       .thenReturn(java.util.Optional.of(new ClientFE(newClient)));
     when(dynamoStreamService.extractClientFE(streamRecord, true))
       .thenReturn(java.util.Optional.of(new ClientFE(oldClient)));
-    when(clientConnector.findAll())
+    when(clientConnector.findAllActive())
       .thenReturn(java.util.Optional.of(new ArrayList<>(List.of(newClient))));
 
     ClientPublisherServiceImpl service = newService(

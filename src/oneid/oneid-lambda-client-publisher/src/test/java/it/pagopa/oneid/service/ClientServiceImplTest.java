@@ -63,7 +63,7 @@ class ClientServiceImplTest {
     clients.add(client2);
 
     //when
-    Mockito.when(clientConnector.findAll()).thenReturn(Optional.of(clients));
+    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.of(clients));
 
     //then
     var result = clientServiceImpl.getAllClientsInformation();
@@ -75,7 +75,7 @@ class ClientServiceImplTest {
 
   @Test
   void getAllClientsInformation_returnsEmptyWhenConnectorHasNoClients() {
-    Mockito.when(clientConnector.findAll()).thenReturn(Optional.empty());
+    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.empty());
 
     var result = clientServiceImpl.getAllClientsInformation();
 
@@ -84,7 +84,7 @@ class ClientServiceImplTest {
   }
 
   @Test
-  void getAllClientsInformation_excludesInactiveClients() {
+  void getAllClientsInformation_usesActiveClientsFromConnector() {
     Client activeClient = Client.builder()
         .clientId("active")
         .friendlyName("active")
@@ -93,21 +93,15 @@ class ClientServiceImplTest {
         .authLevel(AuthLevel.L2)
         .isActive(true)
         .build();
-    Client inactiveClient = Client.builder()
-        .clientId("inactive")
-        .friendlyName("inactive")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("test"))
-        .authLevel(AuthLevel.L2)
-        .isActive(false)
-        .build();
-    Mockito.when(clientConnector.findAll())
-        .thenReturn(Optional.of(new ArrayList<>(java.util.List.of(activeClient, inactiveClient))));
+    Mockito.when(clientConnector.findAllActive())
+        .thenReturn(Optional.of(new ArrayList<>(java.util.List.of(activeClient))));
 
     var result = clientServiceImpl.getAllClientsInformation().orElseThrow();
 
     assertEquals(1, result.size());
     assertEquals("active", result.get(0).getClientID());
+    Mockito.verify(clientConnector).findAllActive();
+    Mockito.verify(clientConnector, Mockito.never()).findAll();
   }
 }
 	

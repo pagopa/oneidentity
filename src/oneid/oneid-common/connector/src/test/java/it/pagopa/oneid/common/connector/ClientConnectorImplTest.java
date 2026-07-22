@@ -14,6 +14,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -85,6 +86,65 @@ class ClientConnectorImplTest {
   void findAllEmpty() {
     // then
     assertTrue(clientConnectorImpl.findAll().isEmpty());
+  }
+
+  @Test
+  void findAllActive_excludesInactiveClients() {
+    ClientExtended activeClient = ClientExtended.builder()
+        .clientId("active-client")
+        .friendlyName("Active client")
+        .callbackURI(Set.of("https://example.com/active"))
+        .requestedParameters(Set.of("openid"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .secret("secret")
+        .salt("salt")
+        .build();
+    ClientExtended inactiveClient = ClientExtended.builder()
+        .clientId("inactive-client")
+        .friendlyName("Inactive client")
+        .callbackURI(Set.of("https://example.com/inactive"))
+        .requestedParameters(Set.of("openid"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(1)
+        .attributeIndex(1)
+        .isActive(false)
+        .clientIdIssuedAt(0L)
+        .secret("secret")
+        .salt("salt")
+        .build();
+    clientExtendedMapper.putItem(activeClient);
+    clientExtendedMapper.putItem(inactiveClient);
+
+    ArrayList<Client> clients = clientConnectorImpl.findAllActive().orElseThrow();
+
+    assertEquals(1, clients.size());
+    assertEquals("active-client", clients.get(0).getClientId());
+  }
+
+  @Test
+  void getActiveClientById_returnsEmptyForInactiveClient() {
+    ClientExtended inactiveClient = ClientExtended.builder()
+        .clientId("inactive-client")
+        .friendlyName("Inactive client")
+        .callbackURI(Set.of("https://example.com/inactive"))
+        .requestedParameters(Set.of("openid"))
+        .authLevel(AuthLevel.L2)
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(false)
+        .clientIdIssuedAt(0L)
+        .secret("secret")
+        .salt("salt")
+        .build();
+    clientExtendedMapper.putItem(inactiveClient);
+
+    Optional<Client> client = clientConnectorImpl.getActiveClientById("inactive-client");
+
+    assertTrue(client.isEmpty());
   }
 
   @Test

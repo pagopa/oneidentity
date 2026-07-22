@@ -19,6 +19,7 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 @ApplicationScoped
 @CustomLogging
@@ -38,9 +39,25 @@ public class ClientConnectorImpl implements ClientConnector {
 
   @Override
   public Optional<ArrayList<Client>> findAll() {
-    ArrayList<Client> clients = new ArrayList<>();
-    ScanEnhancedRequest request = ScanEnhancedRequest.builder()
+    return findClients(ScanEnhancedRequest.builder().build());
+  }
+
+  @Override
+  public Optional<ArrayList<Client>> findAllActive() {
+    Expression activeClientFilter = Expression.builder()
+        .expression("#active = :active")
+        .putExpressionName("#active", "active")
+        .putExpressionValue(":active", AttributeValue.builder().bool(true).build())
         .build();
+
+    ScanEnhancedRequest request = ScanEnhancedRequest.builder()
+        .filterExpression(activeClientFilter)
+        .build();
+    return findClients(request);
+  }
+
+  private Optional<ArrayList<Client>> findClients(ScanEnhancedRequest request) {
+    ArrayList<Client> clients = new ArrayList<>();
     PageIterable<Client> pagedResults = clientMapper.scan(request);
     pagedResults.items().stream()
         .forEach(
@@ -79,6 +96,11 @@ public class ClientConnectorImpl implements ClientConnector {
   public Optional<Client> getClientById(String clientId) {
     return Optional.ofNullable(
         clientMapper.getItem(Key.builder().partitionValue(clientId).build()));
+  }
+
+  @Override
+  public Optional<Client> getActiveClientById(String clientId) {
+    return getClientById(clientId).filter(Client::isActive);
   }
 
   @Override

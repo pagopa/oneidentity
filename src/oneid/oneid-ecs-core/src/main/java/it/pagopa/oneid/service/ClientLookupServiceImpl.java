@@ -55,17 +55,12 @@ public class ClientLookupServiceImpl implements ClientLookupService {
 
   private Optional<Client> fetchFromDynamo(String clientId) {
 
-    Optional<Client> sourceClient = clientConnector.getClientById(clientId);
+    Optional<Client> sourceClient = clientConnector.getActiveClientById(clientId);
     if (sourceClient.isEmpty()) {
       return Optional.empty();
     }
 
     Client client = sourceClient.get();
-    if (!client.isActive()) {
-      Log.infof("Skipping cache backfill for inactive clientId=%s", clientId);
-      return Optional.empty();
-    }
-
     cloudWatchConnectorImpl.sendClientCacheMissMetricData(clientId);
     Log.infof("Cache miss for clientId=%s, fetched from DynamoDB", clientId);
     backfillCache(client);

@@ -29,10 +29,6 @@
             <artifactId>utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>it.pagopa.oneid.common</groupId>
-            <artifactId>producer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jacoco</artifactId>
             <scope>test</scope>
@@ -138,7 +134,7 @@
                             <includePlugins>false</includePlugins>
                             <includeParent>false</includeParent>
                             <excludes>
-                                <it.pagopa.oneid.common>connector,model,producer,utils
+                                <it.pagopa.oneid.common>connector,model,utils
                                 </it.pagopa.oneid.common>
                             </excludes>
                         </configuration>
