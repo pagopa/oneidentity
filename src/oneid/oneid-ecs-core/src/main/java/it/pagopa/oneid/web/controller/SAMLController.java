@@ -109,7 +109,7 @@ public class SAMLController {
     // 2. Check if Signatures are valid (Response and Assertion) and if SAML
     // Response is formally correct
     Client client = clientLookupService.getClientById(
-      samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
+        samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
         Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel(),
@@ -167,7 +167,7 @@ public class SAMLController {
 
   @GET
   @Path("/assertion")
-  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
   public Response assertion(@BeanParam @Valid AccessTokenDTO accessToken) {
     Log.debug("start");
     String samlResponse = null;

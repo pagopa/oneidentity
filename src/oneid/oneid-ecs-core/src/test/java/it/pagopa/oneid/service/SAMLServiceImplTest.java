@@ -197,6 +197,7 @@ import org.w3c.dom.Element;
 import lombok.SneakyThrows;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
@@ -4038,6 +4039,37 @@ public class SAMLServiceImplTest {
         exception.getMessage().contains(IDP_ERROR_MULTIPLE_ATTRIBUTE_STATEMENTS.getErrorMessage()));
   }
 
+  // --- buildAuthnRequest with assertionRef ---
+
+  @Test
+  @DisplayName("given valid assertionRef, when buildAuthnRequest, then ID equals assertionRef")
+  void buildAuthnRequest_withAssertionRef_usesAssertionRefAsId() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+    String assertionRef = "sha256-3f2a9c7f4b1d8e6c5a2f9b7d4c1e8a6f3";
+
+    // when
+    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId, 0, 0, "foobar",
+        SamlBinding.HTTP_POST, assertionRef);
+
+    // then
+    assertEquals(assertionRef, authnRequest.getID());
+  }
+
+  @Test
+  @DisplayName("given null assertionRef, when buildAuthnRequest, then ID is random (not blank)")
+  void buildAuthnRequest_withNullAssertionRef_usesRandomId() throws OneIdentityException {
+    // given
+    String idpId = "dummy";
+
+    // when
+    AuthnRequest authnRequest = samlServiceImpl.buildAuthnRequest(idpId, 0, 0, "foobar",
+        SamlBinding.HTTP_POST, null);
+
+    // then
+    assertFalse(authnRequest.getID().isBlank());
+  }
+  
   @Test
   void validateSAMLResponse_eidasIndex99_acceptsMinimumAttributeSet()
       throws OneIdentityException {

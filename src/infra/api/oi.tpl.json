@@ -793,6 +793,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "x-pagopa-lollipop-assertion-ref",
+            "in": "header",
+            "required": false,
+            "description": "Lollipop assertion ref. Format: (sha256|sha384|sha512)-<thumbprint>, max 160 chars.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -806,6 +815,7 @@
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
             "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For",
+            "integration.request.header.x-pagopa-lollipop-assertion-ref": "method.request.header.x-pagopa-lollipop-assertion-ref",
             "integration.request.querystring.idp": "method.request.querystring.idp",
             "integration.request.querystring.client_id": "method.request.querystring.client_id",
             "integration.request.querystring.response_type": "method.request.querystring.response_type",
@@ -945,6 +955,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "x-pagopa-lollipop-assertion-ref",
+            "in": "header",
+            "required": false,
+            "description": "Lollipop assertion ref. Format: (sha256|sha384|sha512)-<thumbprint>, max 160 chars.",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "x-amazon-apigateway-integration": {
@@ -956,7 +975,8 @@
           "passthroughBehavior": "WHEN_NO_TEMPLATES",
           "requestParameters": {
             "integration.request.header.accept": "'*/*'",
-            "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For"
+            "integration.request.header.X-Forwarded-For": "method.request.header.X-Forwarded-For",
+            "integration.request.header.x-pagopa-lollipop-assertion-ref": "method.request.header.x-pagopa-lollipop-assertion-ref"
           },
           "responses": {
             "200": {

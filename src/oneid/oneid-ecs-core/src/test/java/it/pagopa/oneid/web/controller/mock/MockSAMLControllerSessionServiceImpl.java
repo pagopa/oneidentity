@@ -37,7 +37,7 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     String dummySAMLRequest = "dummySAMLRequest";
     String dummySAMLResponse = "dummySAMLResponse";
     AuthorizationRequestDTOExtended dummyAuthorizationRequestDTOExtended = new AuthorizationRequestDTOExtended(
-        "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test");
+        "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test");
 
     return (T) new SAMLSession(dummySAMLRequest, dummySAMLResponse,
         dummyAuthorizationRequestDTOExtended);
