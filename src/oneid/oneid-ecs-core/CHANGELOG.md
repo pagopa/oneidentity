@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.12.2
+
+### Patch Changes
+
+- 017e4f3: lollipop assertion ref header
+
 ## 1.12.1
 
 ### Patch Changes
