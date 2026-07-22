@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.12.1
+
+### Patch Changes
+
+- eb93b86: Move /clients /clients/{clientId} routes to static s3 routes, remove ecs clients routes code, remove client-publisher lambda bootstrap event code
+
 ## 1.12.0
 
 ### Minor Changes
