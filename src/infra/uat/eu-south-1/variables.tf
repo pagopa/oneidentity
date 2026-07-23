@@ -120,9 +120,9 @@ variable "ecs_oneid_core" {
     container_memory = 4096
     autoscaling = {
       enable        = true
-      desired_count = 1
-      min_capacity  = 1
-      max_capacity  = 3
+      desired_count = 3
+      min_capacity  = 3
+      max_capacity  = 12
     }
     event_autoscaling = {
       desired_count = 10
