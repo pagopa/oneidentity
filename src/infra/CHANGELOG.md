@@ -1,5 +1,11 @@
 # infra
 
+## 2.12.0
+
+### Minor Changes
+
+- 16a46dd: Increase ecs autoscaling for load tests
+
 ## 2.11.1
 
 ### Patch Changes
