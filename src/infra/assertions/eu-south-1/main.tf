@@ -37,7 +37,7 @@ module "backup" {
     rule_name         = "backup_weekly_rule"
     schedule          = "cron(0 2 ?  * 1 *)"
     start_window      = 60
-    completion_window = 140
+    completion_window = 480
     lifecycle = {
       delete_after = 14
     },
@@ -46,7 +46,7 @@ module "backup" {
       rule_name         = "backup_monthly_rule"
       schedule          = "cron(0 4 1 * ? *)"
       start_window      = 60
-      completion_window = 140
+      completion_window = 480
       lifecycle = {
         delete_after = 365
       },
