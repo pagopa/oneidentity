@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.13.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 1.12.2
 
 ### Patch Changes

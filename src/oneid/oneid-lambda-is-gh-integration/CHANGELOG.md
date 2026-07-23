@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.3.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 1.2.0
 
 ### Minor Changes

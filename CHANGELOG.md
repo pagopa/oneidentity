@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.16.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 4.15.0
 
 ### Minor Changes

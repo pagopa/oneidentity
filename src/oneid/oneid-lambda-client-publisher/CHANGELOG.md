@@ -1,5 +1,11 @@
 # oneid-lambda-client-publisher
 
+## 0.3.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 0.2.1
 
 ### Patch Changes

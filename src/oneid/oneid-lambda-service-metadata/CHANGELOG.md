@@ -1,5 +1,11 @@
 # oneid-lambda-service-metadata
 
+## 1.3.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 1.2.2
 
 ### Patch Changes
