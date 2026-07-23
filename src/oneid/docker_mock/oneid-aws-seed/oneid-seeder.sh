@@ -25,6 +25,7 @@ readonly RUNTIME_KEY_FILE="$RUNTIME_SEED_ROOT/key.pem"
 readonly RUNTIME_IDP_INTERNAL_CERT_FILE="$RUNTIME_SEED_ROOT/idp_internal_cert.pem"
 readonly RUNTIME_IDP_INTERNAL_KEY_FILE="$RUNTIME_SEED_ROOT/idp_internal_key.pem"
 readonly RUNTIME_DUMMY_CLIENT_ENV_FILE="$RUNTIME_SHARED_ROOT/dummy-client.env"
+readonly RUNTIME_PUBLIC_ASSETS_ROOT="$RUNTIME_SHARED_ROOT/public-assets"
 readonly IDP_INTERNAL_CERT_PLACEHOLDER="__IDP_INTERNAL_CERTIFICATE_BASE64__"
 
 cleanup() {
@@ -118,10 +119,17 @@ render_runtime_seed_artifacts() {
     --dummy-client-template "$DUMMY_CLIENT_ENV_TEMPLATE_FILE" \
     --output-dynamodb "$RUNTIME_DYNAMODB_SEED_FILE" \
     --output-dummy-client-env "$RUNTIME_DUMMY_CLIENT_ENV_FILE" \
+    --output-public-assets "$RUNTIME_PUBLIC_ASSETS_ROOT" \
     --certificate-base64 "$generated_certificate_base64"
 
   require_seed_file "$RUNTIME_DYNAMODB_SEED_FILE"
   require_seed_file "$RUNTIME_DUMMY_CLIENT_ENV_FILE"
+  require_seed_file "$RUNTIME_PUBLIC_ASSETS_ROOT/idps.json"
+  require_seed_file "$RUNTIME_PUBLIC_ASSETS_ROOT/clients.json"
+  if ! compgen -G "$RUNTIME_PUBLIC_ASSETS_ROOT/clients-publisher/*.json" >/dev/null; then
+    echo "❌ [oneid-seeder] missing client detail snapshots"
+    exit 1
+  fi
   echo "✅ [oneid-seeder] runtime seed artifacts rendered"
 }
 
