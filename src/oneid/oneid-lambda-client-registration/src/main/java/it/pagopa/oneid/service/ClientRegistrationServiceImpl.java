@@ -192,7 +192,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
   }
 
   private boolean isLastClientWithAcsIndexZero(String clientId) {
-    return clientConnector.findAll()
+    return clientConnector.findAllActive()
         .map(clients -> clients.stream()
             .filter(c -> c.getAcsIndex() == 0)
             .allMatch(c -> c.getClientId().equals(clientId)))

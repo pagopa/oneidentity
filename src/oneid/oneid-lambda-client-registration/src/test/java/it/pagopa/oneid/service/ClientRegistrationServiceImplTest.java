@@ -71,7 +71,7 @@ class ClientRegistrationServiceImplTest {
                 .acsIndex(0)
                 .build());
 
-        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+        when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(allClient));
     }
 
   @Test
@@ -343,7 +343,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-  void saveClient_ok() {
+    void saveClient_usesInactiveClientsWhenAllocatingAttributeIndex() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
@@ -367,9 +367,9 @@ class ClientRegistrationServiceImplTest {
         .callbackURI(Set.of("test"))
         .requestedParameters(Set.of("test"))
         .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
+        .acsIndex(8)
+        .attributeIndex(8)
+        .isActive(false)
         .clientIdIssuedAt(0L)
         .logoUri("test")
         .policyUri("test")
@@ -389,6 +389,8 @@ class ClientRegistrationServiceImplTest {
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO, "userId", null, null));
+    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
+        saved.getAcsIndex() == 9 && saved.getAttributeIndex() == 9));
   }
 
   @Test
@@ -915,7 +917,7 @@ class ClientRegistrationServiceImplTest {
         .build();
 
     when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+    when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(new ArrayList<>()));
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
         clientRegistrationDTO, existingClientExtended, null, null));
