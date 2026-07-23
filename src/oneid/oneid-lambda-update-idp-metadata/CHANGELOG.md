@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.4.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 1.3.1
 
 ### Patch Changes

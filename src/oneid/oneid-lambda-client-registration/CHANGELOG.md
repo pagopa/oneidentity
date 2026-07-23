@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.7.0
+
+### Minor Changes
+
+- fe4d802: add handling of active flag and remove clientsMap producer
+
 ## 2.6.1
 
 ### Patch Changes
