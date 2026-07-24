@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class SAMLErrorRedirectServiceTest {
 
@@ -48,8 +50,30 @@ class SAMLErrorRedirectServiceTest {
         callbackWithQuery, "state with spaces"));
 
     assertEquals(
-        "https://client.example/callback?source=oneid&error=temporarily_unavailable"
+        "https://client.example/callback?source=oneid&error=access_denied"
             + "&error_description=21&state=state+with+spaces",
+        result.orElseThrow().toString());
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(value = ErrorCode.class, names = {
+      "ERRORCODE_NR19",
+      "ERRORCODE_NR20",
+      "ERRORCODE_NR21",
+      "ERRORCODE_NR22",
+      "ERRORCODE_NR23",
+      "ERRORCODE_NR25",
+      "ERRORCODE_NR30"
+  })
+  @DisplayName("given supported SPID user error when resolving then redirect with access denied")
+  void given_supported_spid_user_error_when_resolving_then_redirect_with_access_denied(
+      ErrorCode errorCode) {
+    when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(enabledClient()));
+
+    Optional<URI> result = service.resolveRedirect(exception(errorCode, CALLBACK_URI, null));
+
+    assertEquals(
+        CALLBACK_URI + "?error=access_denied&error_description=" + errorCode.getErrorCode(),
         result.orElseThrow().toString());
   }
 
@@ -138,7 +162,9 @@ class SAMLErrorRedirectServiceTest {
   @Test
   @DisplayName("given non whitelisted status when resolving then keep existing error page flow")
   void given_non_whitelisted_status_when_resolving_then_keep_existing_error_page_flow() {
-    assertTrue(service.resolveRedirect(exception(ErrorCode.ERRORCODE_NR23,
+    when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(enabledClient()));
+
+    assertTrue(service.resolveRedirect(exception(ErrorCode.ERRORCODE_NR18,
         CALLBACK_URI, "state-value")).isEmpty());
   }
 

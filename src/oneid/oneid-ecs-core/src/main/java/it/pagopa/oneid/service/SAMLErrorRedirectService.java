@@ -13,9 +13,13 @@ import java.util.Optional;
 public class SAMLErrorRedirectService {
 
   private static final Map<String, String> OAUTH_ERROR_BY_OI_ERROR = Map.of(
-      ErrorCode.ERRORCODE_NR21.getErrorCode(), "temporarily_unavailable",
+      ErrorCode.ERRORCODE_NR19.getErrorCode(), "access_denied",
+      ErrorCode.ERRORCODE_NR20.getErrorCode(), "access_denied",
+      ErrorCode.ERRORCODE_NR21.getErrorCode(), "access_denied",
       ErrorCode.ERRORCODE_NR22.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR25.getErrorCode(), "access_denied");
+      ErrorCode.ERRORCODE_NR23.getErrorCode(), "access_denied",
+      ErrorCode.ERRORCODE_NR25.getErrorCode(), "access_denied",
+      ErrorCode.ERRORCODE_NR30.getErrorCode(), "access_denied");
 
   private final ClientLookupService clientLookupService;
 
