@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.5.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 1.4.0
 
 ### Minor Changes

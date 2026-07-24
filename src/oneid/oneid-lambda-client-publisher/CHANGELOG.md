@@ -1,5 +1,11 @@
 # oneid-lambda-client-publisher
 
+## 0.4.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 0.3.0
 
 ### Minor Changes
