@@ -65,19 +65,19 @@ public class ClientRegistrationDTO {
   @JsonProperty("requiredSameIdp")
   private Boolean requiredSameIdp;
 
-  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
+  @SafeUriCheck(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("logoUri")
   private String logoUri;
 
-  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
+  @SafeUriCheck(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("policyUri")
   private String policyUri;
 
-  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
+  @SafeUriCheck(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("tosUri")
   private String tosUri;
 
-  @SafeUriCheck(groups = {Registration.class, UpdateClient.class})
+  @SafeUriCheck(groups = { Registration.class, UpdateClient.class })
   @JsonProperty("a11yUri")
   private String a11yUri;
 
@@ -110,6 +110,9 @@ public class ClientRegistrationDTO {
   @JsonProperty("ageParentAuth")
   private Integer ageParentAuth;
 
+  @JsonProperty("clientErrorRedirectEnabled")
+  private Boolean clientErrorRedirectEnabled;
+
   public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
@@ -130,5 +133,6 @@ public class ClientRegistrationDTO {
     this.minAge = clientRegistrationDTO.minAge;
     this.maxAge = clientRegistrationDTO.maxAge;
     this.ageParentAuth = clientRegistrationDTO.ageParentAuth;
+    this.clientErrorRedirectEnabled = clientRegistrationDTO.clientErrorRedirectEnabled;
   }
 }

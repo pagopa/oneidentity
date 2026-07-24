@@ -28,6 +28,7 @@ describe('clientDataWithoutSensitiveData', () => {
       spidMinors: false,
       spidProfessionals: true,
       pairwise: false,
+      clientErrorRedirectEnabled: true,
       a11yUri: 'https://example.com/accessibility',
       backButtonEnabled: true,
       localizedContentMap: {
@@ -68,6 +69,7 @@ describe('clientDataWithoutSensitiveData', () => {
       spidMinors: false,
       spidProfessionals: true,
       pairwise: false,
+      clientErrorRedirectEnabled: true,
       a11yUri: 'https://example.com/accessibility',
       backButtonEnabled: true,
       localizedContentMap: {

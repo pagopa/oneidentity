@@ -203,6 +203,7 @@ export const clientSchema = z
     ageParentAuth: z.number().int().min(6).max(17).nullish(),
     spidProfessionals: z.boolean().optional(),
     pairwise: z.boolean().optional(),
+    clientErrorRedirectEnabled: z.boolean().optional(),
     // customize
     a11yUri: httpsUrlSchema.nullish(),
     backButtonEnabled: z.boolean().optional().default(false),

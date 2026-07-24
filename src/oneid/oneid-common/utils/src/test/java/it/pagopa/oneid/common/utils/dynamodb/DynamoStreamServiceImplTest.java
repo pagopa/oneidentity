@@ -41,6 +41,19 @@ class DynamoStreamServiceImplTest {
     assertEquals(SamlBinding.HTTP_POST, result.get().getSamlBinding());
     assertTrue(result.get().isActive());
     assertTrue(result.get().isPairwise());
+    assertTrue(result.get().isClientErrorRedirectEnabled());
+  }
+
+  @Test
+  @DisplayName("given legacy image when extracting client then direct redirect defaults to disabled")
+  void given_legacy_image_when_extracting_client_then_direct_redirect_defaults_to_disabled() {
+    ObjectNode legacyImage = baseImage();
+    legacyImage.remove("clientErrorRedirectEnabled");
+
+    Client client = dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, legacyImage), false).orElseThrow();
+
+    assertFalse(client.isClientErrorRedirectEnabled());
   }
 
   @Test
@@ -77,6 +90,26 @@ class DynamoStreamServiceImplTest {
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(
         buildRecord("MODIFY", baseImage(), newImage)));
+  }
+
+  @Test
+  @DisplayName("given direct redirect flag change when checking diff then return true")
+  void given_direct_redirect_flag_change_when_checking_diff_then_return_true() {
+    ObjectNode newImage = baseImage();
+    newImage.set("clientErrorRedirectEnabled", boolValue(false));
+
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", baseImage(), newImage)));
+  }
+
+  @Test
+  @DisplayName("given legacy image gains direct redirect flag when checking diff then return true")
+  void given_legacy_image_gains_direct_redirect_flag_when_checking_diff_then_return_true() {
+    ObjectNode legacyImage = baseImage();
+    legacyImage.remove("clientErrorRedirectEnabled");
+
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", legacyImage, baseImage())));
   }
 
   @Test
@@ -146,7 +179,7 @@ class DynamoStreamServiceImplTest {
     JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-      () -> dynamoStreamService.extractClient(streamRecord, false));
+        () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
@@ -245,8 +278,10 @@ class DynamoStreamServiceImplTest {
   private JsonNode buildRecord(String eventName, ObjectNode oldImage, ObjectNode newImage) {
     ObjectNode record = objectMapper.createObjectNode().put("eventName", eventName);
     ObjectNode dynamodb = record.putObject("dynamodb");
-    if (oldImage != null) dynamodb.set("OldImage", oldImage);
-    if (newImage != null) dynamodb.set("NewImage", newImage);
+    if (oldImage != null)
+      dynamodb.set("OldImage", oldImage);
+    if (newImage != null)
+      dynamodb.set("NewImage", newImage);
     return record;
   }
 
@@ -261,6 +296,7 @@ class DynamoStreamServiceImplTest {
     image.set("attributeIndex", numberValue(2));
     image.set("active", boolValue(true));
     image.set("requiredSameIdp", boolValue(true));
+    image.set("clientErrorRedirectEnabled", boolValue(true));
     image.set("pairwise", boolValue(true));
     image.set("spidMinors", boolValue(false));
     image.set("spidProfessionals", boolValue(false));

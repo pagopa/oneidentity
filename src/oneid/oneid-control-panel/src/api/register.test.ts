@@ -124,7 +124,8 @@ describe('createOrUpdateClient', () => {
     samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
     samlBinding: SamlBinding.HTTP_POST,
     eidasIndex: EidasAttributeSet.MINIMUM,
-    backButtonEnabled: false, // aggiungi il default manualmente
+    backButtonEnabled: false,
+    clientErrorRedirectEnabled: false,
   };
 
   it('creates a new client successfully', async () => {
@@ -147,19 +148,23 @@ describe('createOrUpdateClient', () => {
 
   it('updates an existing client successfully', async () => {
     const clientId = 'existing-client-id';
+    const enabledClientData = {
+      ...mockClientData,
+      clientErrorRedirectEnabled: true,
+    };
     axiosMock.put.mockResolvedValueOnce({
       data: {
-        ...mockClientData,
+        ...enabledClientData,
       },
     });
 
-    const result = await createOrUpdateClient(mockClientData, clientId);
+    const result = await createOrUpdateClient(enabledClientData, clientId);
     expect(result).toEqual({
-      ...mockClientData,
+      ...enabledClientData,
     });
     expect(axiosMock.put).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}/client_id/${clientId}`,
-      mockClientData,
+      enabledClientData,
       { headers: {} }
     );
   });

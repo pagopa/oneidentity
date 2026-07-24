@@ -42,10 +42,28 @@ public class ClientExtended extends Client {
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
       boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth) {
+    this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, samlBinding,
+        acsIndex, attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri,
+        tosURi, requiredSameIdp, a11yUri, backButtonEnabled, localizedContentMap, spidMinors,
+        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth, false);
+  }
+
+  public ClientExtended(@NotNull String clientId, String userId,
+      @NotNull String friendlyName,
+      @NotNull Set<String> callbackURI,
+      @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
+      @NotNull SamlBinding samlBinding, @NotNull int acsIndex,
+      @NotNull int attributeIndex, @NotNull boolean isActive,
+      String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
+      String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
+      Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
+      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      Integer ageParentAuth, boolean clientErrorRedirectEnabled) {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         samlBinding, acsIndex, attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri,
         tosURi, requiredSameIdp, a11yUri, backButtonEnabled, localizedContentMap, spidMinors,
-        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth, null);
+        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth, null,
+        clientErrorRedirectEnabled);
     this.secret = secret;
     this.salt = salt;
   }
@@ -61,10 +79,26 @@ public class ClientExtended extends Client {
       boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth) {
     this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
+        acsIndex, attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri,
+        tosURi, requiredSameIdp, a11yUri, backButtonEnabled, localizedContentMap, spidMinors,
+        spidProfessionals, pairwise, minAge, maxAge, ageParentAuth, false);
+  }
+
+  public ClientExtended(@NotNull String clientId, String userId,
+      @NotNull String friendlyName,
+      @NotNull Set<String> callbackURI,
+      @NotNull Set<String> requestedParameters, @NotNull AuthLevel authLevel,
+      @NotNull int acsIndex, @NotNull int attributeIndex, @NotNull boolean isActive,
+      String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
+      String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
+      Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
+      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      Integer ageParentAuth, boolean clientErrorRedirectEnabled) {
+    this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         SamlBinding.HTTP_POST, acsIndex, attributeIndex, isActive, secret, salt,
         clientIdIssuedAt, logoUri, policyUri, tosURi, requiredSameIdp, a11yUri,
         backButtonEnabled, localizedContentMap, spidMinors, spidProfessionals, pairwise, minAge,
-        maxAge, ageParentAuth);
+        maxAge, ageParentAuth, clientErrorRedirectEnabled);
   }
 
   public ClientExtended(Client client, String secret, String salt) {
@@ -76,7 +110,8 @@ public class ClientExtended extends Client {
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
         client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isSpidMinors(),
         client.isSpidProfessionals(), client.isPairwise(), client.getMinAge(),
-        client.getMaxAge(), client.getAgeParentAuth(), client.getEidasIndex());
+        client.getMaxAge(), client.getAgeParentAuth(), client.getEidasIndex(),
+        client.isClientErrorRedirectEnabled());
     this.secret = secret;
     this.salt = salt;
   }

@@ -1,6 +1,5 @@
 package it.pagopa.oneid.exception.mapper;
 
-
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.FOUND;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
@@ -34,6 +33,7 @@ import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
+import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
@@ -52,6 +52,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -66,9 +67,11 @@ public class ExceptionMapper {
   @Inject
   CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
+  @Inject
+  SAMLErrorRedirectService samlErrorRedirectService;
+
   @ConfigProperty(name = "base_path")
   String BASE_PATH;
-
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
@@ -76,12 +79,12 @@ public class ExceptionMapper {
     if (state != null) {
       uri = callbackUri +
           "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
-          StandardCharsets.UTF_8)
+              StandardCharsets.UTF_8)
           + "&state=" + state;
     } else {
       uri = callbackUri +
           "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
-          StandardCharsets.UTF_8);
+              StandardCharsets.UTF_8);
     }
     return uri;
   }
@@ -159,6 +162,11 @@ public class ExceptionMapper {
         samlResponseStatusException.getErrorCode() + "_"
             + samlResponseStatusException.getMessage());
 
+    Optional<URI> directRedirect = samlErrorRedirectService.resolveRedirect(samlResponseStatusException);
+    if (directRedirect.isPresent()) {
+      return ResponseBuilder.create(FOUND).location(directRedirect.get()).build();
+    }
+
     return genericHTMLError(samlResponseStatusException.getErrorCode(),
         samlResponseStatusException.getRedirectUri(), samlResponseStatusException.getState(),
         samlResponseStatusException.getClientId());
@@ -230,7 +238,6 @@ public class ExceptionMapper {
     return authenticationErrorResponse(unsupportedResponseTypeException);
   }
 
-
   @ServerExceptionMapper
   public RestResponse<Object> mapAuthorizationErrorException(
       AuthorizationErrorException authorizationErrorException) {
@@ -292,13 +299,12 @@ public class ExceptionMapper {
       InvalidClientException invalidClientException) {
     cloudWatchConnectorImpl.sendClientErrorMetricData(invalidClientException.getClientId(),
         InvalidClientException.errorCode);
-    return
-        ResponseBuilder
-            .create(UNAUTHORIZED)
-            .header("WWW-Authenticate", "Basic")
-            .entity(buildTokenRequestErrorDTO(
-                invalidClientException.getMessage(), invalidClientException.getErrorMessage()))
-            .type(MediaType.APPLICATION_JSON_TYPE).build();
+    return ResponseBuilder
+        .create(UNAUTHORIZED)
+        .header("WWW-Authenticate", "Basic")
+        .entity(buildTokenRequestErrorDTO(
+            invalidClientException.getMessage(), invalidClientException.getErrorMessage()))
+        .type(MediaType.APPLICATION_JSON_TYPE).build();
   }
 
   @ServerExceptionMapper
@@ -315,10 +321,10 @@ public class ExceptionMapper {
       InvalidAccessTokenException invalidAccessTokenException) {
     String message = "The access token is invalid or expired.";
     String header = "Bearer error=\""
-      + invalidAccessTokenException.getMessage()
-      + "\", error_description=\""
-      + message
-      + "\"";
+        + invalidAccessTokenException.getMessage()
+        + "\", error_description=\""
+        + message
+        + "\"";
     return ResponseBuilder
         .create(UNAUTHORIZED)
         .header("WWW-Authenticate", header)
@@ -354,7 +360,8 @@ public class ExceptionMapper {
           .create(FOUND)
           .location(new URI(
               BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(errorCode,
-                  StandardCharsets.UTF_8))).build();
+                  StandardCharsets.UTF_8)))
+          .build();
     } catch (URISyntaxException | NullPointerException exception) {
       return ResponseBuilder.create(INTERNAL_SERVER_ERROR).build();
     }
