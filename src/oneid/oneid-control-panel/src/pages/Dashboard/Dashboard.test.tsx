@@ -15,6 +15,7 @@ import { ClientIdProvider, useClientId } from '../../context/ClientIdContext';
 import { NotificationProvider } from '../../context/NotificationContext';
 import FieldWithInfo from '../../components/FieldWithInfo';
 import { useEffect } from 'react';
+import { SamlBinding } from '../../types/api';
 
 vi.mock('react-oidc-context', () => ({
   useAuth: () => ({
@@ -221,6 +222,12 @@ describe('Dashboard UI', () => {
     // Click the submit button
     fireEvent.click(submitButton);
 
+    await waitFor(() => {
+      expect(axiosMock.post.mock.calls[0]?.[1]).toEqual(
+        expect.objectContaining({ clientErrorRedirectEnabled: false })
+      );
+    });
+
     // success notify
     await waitFor(() => {
       expect(
@@ -422,6 +429,73 @@ describe('Dashboard UI', () => {
         /Same IDP is a function that will return a custom request indicating whether the user has logged in using the same IDP as the previous time./i
       )
     ).toBeInTheDocument();
+  });
+
+  it('loads and disables client error redirect without confirmation', async () => {
+    const mutate = vi.fn();
+    const hookModule = await import('../../hooks/useRegister');
+    const mockedHookReturn = {
+      clientQuery: {
+        data: {
+          clientId: 'client-123',
+          clientName: 'Test Client',
+          redirectUris: ['https://example.com/callback'],
+          defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+          samlRequestedAttributes: ['fiscalNumber'],
+          samlBinding: SamlBinding.HTTP_POST,
+          clientErrorRedirectEnabled: true,
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      createOrUpdateClientMutation: {
+        data: undefined,
+        mutate,
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+      planQuery: {
+        data: { api_keys: [] },
+        isLoading: false,
+        error: null,
+        isSuccess: true,
+      },
+      validatePlanKeyMutation: {
+        data: undefined,
+        mutate: vi.fn(),
+        error: null,
+        isPending: false,
+        isSuccess: false,
+      },
+    };
+    const spy = vi
+      .spyOn(hookModule, 'useRegister')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation(() => mockedHookReturn as any);
+
+    render(<Dashboard />, { wrapper: createWrapperWithClientId('client-123') });
+
+    const switchControl = await screen.findByLabelText(
+      /Redirect Client Errors/i
+    );
+    expect(switchControl).toBeChecked();
+    fireEvent.click(switchControl);
+    fireEvent.click(screen.getByTestId('submit-button'));
+
+    await waitFor(() => {
+      expect(mutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            clientErrorRedirectEnabled: false,
+          }),
+        })
+      );
+    });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    spy.mockRestore();
   });
 
   it('renders tooltip with ReactNode containing a link', async () => {
