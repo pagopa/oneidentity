@@ -43,6 +43,7 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 
 const defaultFormData: Partial<ClientWithoutSensitiveData> = {
   samlBinding: SamlBinding.HTTP_POST,
+  clientErrorRedirectEnabled: false,
 };
 
 const CLIENT_VALIDATION_DETAIL_PATTERN =
@@ -571,6 +572,15 @@ export const Dashboard = () => {
                 infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/1560477700/RFC+OI-004+Check+last+used+IDP+-+OTP"
               />
             }
+          />
+
+          <ToggleSection
+            name="clientErrorRedirectEnabled"
+            label="Redirect Client Errors"
+            checked={formData?.clientErrorRedirectEnabled ?? false}
+            onChange={handleChange('clientErrorRedirectEnabled')}
+            withDivider
+            tooltipText="Redirects eligible user-originated SAML errors to the registered client callback with OAuth error parameters instead of the One Identity error page."
           />
 
           <ToggleSection

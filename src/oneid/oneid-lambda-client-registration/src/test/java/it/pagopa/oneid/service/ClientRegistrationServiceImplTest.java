@@ -63,19 +63,19 @@ class ClientRegistrationServiceImplTest {
   @InjectMock
   SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
 
-    private void stubFindAllWithAnotherAcsZeroClient(Client existingClient) {
-        ArrayList<Client> allClient = new ArrayList<>();
-        allClient.add(existingClient);
-        allClient.add(Client.builder()
-                .clientId(existingClient.getClientId() + "-other")
-                .acsIndex(0)
-                .build());
+  private void stubFindAllWithAnotherAcsZeroClient(Client existingClient) {
+    ArrayList<Client> allClient = new ArrayList<>();
+    allClient.add(existingClient);
+    allClient.add(Client.builder()
+        .clientId(existingClient.getClientId() + "-other")
+        .acsIndex(0)
+        .build());
 
-        when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(allClient));
-    }
+    when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(allClient));
+  }
 
   @Test
-    void validatePairwiseClientRegistrationInfo() {
+  void validatePairwiseClientRegistrationInfo() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -97,7 +97,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -119,7 +119,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_ok() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_ok() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -150,7 +150,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -182,7 +182,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -216,7 +216,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -239,7 +239,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
+  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -262,7 +262,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void testValidatePairwiseClientRegistrationInfo_WithMultipleUris() {
+  void testValidatePairwiseClientRegistrationInfo_WithMultipleUris() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://valid.it", "https://valid.com"))
         .clientName("test")
@@ -278,7 +278,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_invalid_redirectUri_notValidatedAtServiceLayer() {
+  void validatePairwiseClientRegistrationInfo_invalid_redirectUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .clientName("test")
         .redirectUris(Set.of(".error"))
@@ -289,7 +289,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_invalid_logoUri_notValidatedAtServiceLayer() {
+  void validatePairwiseClientRegistrationInfo_invalid_logoUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -301,7 +301,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_invalid_policyUri_notValidatedAtServiceLayer() {
+  void validatePairwiseClientRegistrationInfo_invalid_policyUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -314,7 +314,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_invalid_tosUri_notValidatedAtServiceLayer() {
+  void validatePairwiseClientRegistrationInfo_invalid_tosUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -328,7 +328,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void validatePairwiseClientRegistrationInfo_invalid_a11yUri_notValidatedAtServiceLayer() {
+  void validatePairwiseClientRegistrationInfo_invalid_a11yUri_notValidatedAtServiceLayer() {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
@@ -343,7 +343,7 @@ class ClientRegistrationServiceImplTest {
   }
 
   @Test
-    void saveClient_usesInactiveClientsWhenAllocatingAttributeIndex() {
+  void saveClient_usesInactiveClientsWhenAllocatingAttributeIndex() {
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
@@ -389,8 +389,8 @@ class ClientRegistrationServiceImplTest {
 
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
         clientRegistrationDTO, "userId", null, null));
-    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
-        saved.getAcsIndex() == 9 && saved.getAttributeIndex() == 9));
+    verify(clientConnectorImpl)
+        .saveClientIfNotExists(Mockito.argThat(saved -> saved.getAcsIndex() == 9 && saved.getAttributeIndex() == 9));
   }
 
   @Test
@@ -417,29 +417,29 @@ class ClientRegistrationServiceImplTest {
     assertEquals(ClientSamlBinding.HTTP_POST, response.getSamlBinding());
   }
 
-    @Test
-    void saveClient_withEidasIndex_persistsAndReturnsEidasIndex() {
-        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-                .redirectUris(Set.of("https://test.com"))
-                .clientName("test")
-                .logoUri("https://test.com")
-                .policyUri("https://test.com")
-                .tosUri("https://test.com")
-                .defaultAcrValues(Set.of("test"))
-                .samlRequestedAttributes(Set.of("name"))
-                .pairwise(false)
-                .eidasIndex(99)
-                .build();
+  @Test
+  void saveClient_withEidasIndex_persistsAndReturnsEidasIndex() {
+    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+        .redirectUris(Set.of("https://test.com"))
+        .clientName("test")
+        .logoUri("https://test.com")
+        .policyUri("https://test.com")
+        .tosUri("https://test.com")
+        .defaultAcrValues(Set.of("test"))
+        .samlRequestedAttributes(Set.of("name"))
+        .pairwise(false)
+        .eidasIndex(99)
+        .build();
 
-        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
 
-        ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
-                .saveClient(clientRegistrationDTO, "userId", null, null));
+    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+        .saveClient(clientRegistrationDTO, "userId", null, null));
 
-        verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved ->
-                Integer.valueOf(99).equals(saved.getEidasIndex())));
-        assertEquals(99, response.getEidasIndex());
-    }
+    verify(clientConnectorImpl)
+        .saveClientIfNotExists(Mockito.argThat(saved -> Integer.valueOf(99).equals(saved.getEidasIndex())));
+    assertEquals(99, response.getEidasIndex());
+  }
 
   @Test
   void saveClient_persistsHttpRedirectBinding_whenProvidedInRequest() {
@@ -906,6 +906,7 @@ class ClientRegistrationServiceImplTest {
         .isActive(true)
         .clientIdIssuedAt(987654321L)
         .pairwise(false)
+        .clientErrorRedirectEnabled(true)
         .build();
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -924,7 +925,8 @@ class ClientRegistrationServiceImplTest {
 
     verify(clientConnectorImpl)
         .updateClientExtended(
-            Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())));
+            Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())
+                && updated.isClientErrorRedirectEnabled()));
   }
 
   @Test
@@ -947,6 +949,7 @@ class ClientRegistrationServiceImplTest {
         .isActive(true)
         .clientIdIssuedAt(987654321L)
         .pairwise(false)
+        .clientErrorRedirectEnabled(true)
         .build();
 
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
@@ -956,6 +959,7 @@ class ClientRegistrationServiceImplTest {
         .samlRequestedAttributes(Set.of("name"))
         .pairwise(false)
         .eidasIndex(100)
+        .clientErrorRedirectEnabled(false)
         .build();
 
     when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
@@ -963,8 +967,9 @@ class ClientRegistrationServiceImplTest {
     assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
         clientRegistrationDTO, existingClientExtended, null, null));
 
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        Integer.valueOf(100).equals(updated.getEidasIndex())));
+    verify(clientConnectorImpl)
+        .updateClientExtended(Mockito.argThat(updated -> Integer.valueOf(100).equals(updated.getEidasIndex())
+            && !updated.isClientErrorRedirectEnabled()));
   }
 
   @Test
@@ -1198,29 +1203,28 @@ class ClientRegistrationServiceImplTest {
         clientRegistrationDTO, existingClientExtended, null, null));
 
     // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated ->
-        updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("name"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == attributeIndex
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && !updated.isRequiredSameIdp() // default false
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == 18
-            && updated.getSecret().equals(secret) // unchanged
-            && updated.getSalt().equals(salt) // unchanged
+    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+        && updated.getUserId().equals(userId)
+        && updated.getFriendlyName().equals("test")
+        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+        && updated.getRequestedParameters().equals(Set.of("name"))
+        && updated.getAuthLevel() == AuthLevel.L2
+        && updated.getAcsIndex() == attributeIndex
+        && updated.getAttributeIndex() == attributeIndex
+        && updated.isActive()
+        && updated.getClientIdIssuedAt() == originalIssuedAt
+        && updated.getLogoUri().equals("newLogo")
+        && updated.getPolicyUri().equals("newPolicy")
+        && updated.getTosUri().equals("newTos")
+        && !updated.isRequiredSameIdp() // default false
+        && updated.getA11yUri().equals("newA11y")
+        && updated.isBackButtonEnabled()
+        && updated.getLocalizedContentMap().equals(new HashMap<>())
+        && updated.isSpidMinors()
+        && updated.getMinAge() == 14
+        && updated.getMaxAge() == 18
+        && updated.getSecret().equals(secret) // unchanged
+        && updated.getSalt().equals(salt) // unchanged
     ));
   }
 

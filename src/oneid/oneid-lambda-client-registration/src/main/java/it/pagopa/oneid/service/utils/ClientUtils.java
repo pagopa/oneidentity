@@ -96,6 +96,8 @@ public class ClientUtils {
         .minAge(minAge)
         .maxAge(maxAge)
         .ageParentAuth(ageParentAuth)
+        .clientErrorRedirectEnabled(
+            Boolean.TRUE.equals(clientRegistrationDTO.getClientErrorRedirectEnabled()))
         .build();
   }
 
@@ -133,6 +135,7 @@ public class ClientUtils {
         .minAge(client.getMinAge())
         .maxAge(client.getMaxAge())
         .ageParentAuth(client.getAgeParentAuth())
+        .clientErrorRedirectEnabled(client.isClientErrorRedirectEnabled())
         .build();
 
   }
@@ -164,6 +167,10 @@ public class ClientUtils {
         || !Objects.equals(input.getMaxAge(), existingClient.getMaxAge())
         || !Objects.equals(input.getAgeParentAuth(), existingClient.getAgeParentAuth())) {
       message += "SpidMinors; ";
+    }
+    if (input.getClientErrorRedirectEnabled() != null
+        && input.getClientErrorRedirectEnabled() != existingClient.isClientErrorRedirectEnabled()) {
+      message += "ClientErrorRedirectEnabled; ";
     }
     if (StringUtils.isNotBlank(message)) {
       return Optional.of(message);
