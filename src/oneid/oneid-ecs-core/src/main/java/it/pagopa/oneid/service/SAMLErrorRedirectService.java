@@ -12,14 +12,16 @@ import java.util.Optional;
 @ApplicationScoped
 public class SAMLErrorRedirectService {
 
+  private static final String ACCESS_DENIED = "access_denied";
+
   private static final Map<String, String> OAUTH_ERROR_BY_OI_ERROR = Map.of(
-      ErrorCode.ERRORCODE_NR19.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR20.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR21.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR22.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR23.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR25.getErrorCode(), "access_denied",
-      ErrorCode.ERRORCODE_NR30.getErrorCode(), "access_denied");
+      ErrorCode.ERRORCODE_NR19.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR20.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR21.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR22.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR23.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR25.getErrorCode(), ACCESS_DENIED,
+      ErrorCode.ERRORCODE_NR30.getErrorCode(), ACCESS_DENIED);
 
   private final ClientLookupService clientLookupService;
 
