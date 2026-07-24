@@ -579,6 +579,7 @@ export const Dashboard = () => {
             label="Redirect Client Errors"
             checked={formData?.clientErrorRedirectEnabled ?? false}
             onChange={handleChange('clientErrorRedirectEnabled')}
+            withDivider
             tooltipText="Redirects eligible user-originated SAML errors to the registered client callback with OAuth error parameters instead of the One Identity error page."
           />
 
