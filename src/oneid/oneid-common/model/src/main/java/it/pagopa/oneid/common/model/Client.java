@@ -85,9 +85,10 @@ public class Client {
   private Integer maxAge;
   private Integer ageParentAuth;
   private Integer eidasIndex;
+  private boolean clientErrorRedirectEnabled;
 
   public record LocalizedContent(@NotEmpty String title, @NotEmpty String description,
-                                 String docUri, String supportAddress, String cookieUri) {
+      String docUri, String supportAddress, String cookieUri) {
 
   }
 }

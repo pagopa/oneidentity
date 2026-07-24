@@ -35,19 +35,18 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       new DynamoField("attributeIndex", "N"),
       new DynamoField("active", "BOOL"),
       new DynamoField("requiredSameIdp", "BOOL"),
+      new DynamoField("clientErrorRedirectEnabled", "BOOL"),
       new DynamoField("pairwise", "BOOL"),
       new DynamoField("spidMinors", "BOOL"),
       new DynamoField("spidProfessionals", "BOOL"),
       new DynamoField("minAge", "N"),
       new DynamoField("maxAge", "N"),
       new DynamoField("ageParentAuth", "N"),
-      new DynamoField("eidasIndex", "N")
-  );
-  
+      new DynamoField("eidasIndex", "N"));
+
   private static final List<String> CACHE_RELEVANT_STRING_SET_FIELDS = List.of(
       "requestedParameters",
-      "callbackURI"
-  );
+      "callbackURI");
 
   private final ObjectMapper clientPayloadObjectMapper;
 
@@ -217,20 +216,20 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
   }
 
   private boolean hasDynamoScalarFieldChanged(JsonNode oldImage,
-                                              JsonNode newImage, String fieldName, String type) {
+      JsonNode newImage, String fieldName, String type) {
     String oldValue = extractScalarFieldValue(oldImage.get(fieldName), type);
     String newValue = extractScalarFieldValue(newImage.get(fieldName), type);
     return !Objects.equals(oldValue, newValue);
   }
 
   private boolean hasDynamoStringSetFieldChanged(JsonNode oldImage,
-                                                 JsonNode newImage, String fieldName) {
+      JsonNode newImage, String fieldName) {
     return !extractStringSetFieldValues(oldImage.get(fieldName))
         .equals(extractStringSetFieldValues(newImage.get(fieldName)));
   }
 
   private String extractScalarFieldValue(JsonNode fieldNode,
-                                         String type) {
+      String type) {
     if (fieldNode == null || fieldNode.isNull() || fieldNode.isMissingNode()) {
       return null;
     }

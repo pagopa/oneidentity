@@ -163,6 +163,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .pairwise(clientRegistrationDTO.getPairwise() != null
             ? clientRegistrationDTO.getPairwise()
             : false)
+        .clientErrorRedirectEnabled(client.isClientErrorRedirectEnabled())
         .eidasIndex(client.getEidasIndex())
         .clientId(client.getClientId())
         .clientSecret(HASHUtils.b64encoder.encodeToString(clientSecretSalt.secret))
@@ -241,6 +242,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     Client updatedClient = ClientUtils.convertClientRegistrationDTOToClient(clientRegistrationDTO,
         clientExtended.getUserId(), Optional.ofNullable(clientExtended.getSamlBinding())
             .orElse(SamlBinding.HTTP_POST));
+    if (clientRegistrationDTO.getClientErrorRedirectEnabled() == null) {
+      updatedClient.setClientErrorRedirectEnabled(
+          clientExtended.isClientErrorRedirectEnabled());
+    }
 
     String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
 
