@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.14.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 1.13.0
 
 ### Minor Changes

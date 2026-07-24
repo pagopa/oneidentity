@@ -1,5 +1,11 @@
 # infra
 
+## 2.13.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 2.12.0
 
 ### Minor Changes

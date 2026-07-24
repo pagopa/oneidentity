@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.17.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 4.16.0
 
 ### Minor Changes

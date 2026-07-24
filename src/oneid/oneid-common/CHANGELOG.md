@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.8.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 1.7.0
 
 ### Minor Changes

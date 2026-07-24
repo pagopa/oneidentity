@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.8.0
+
+### Minor Changes
+
+- e7231fb: feat: add ability to skip OI Saml Error page
+
 ## 2.7.0
 
 ### Minor Changes
