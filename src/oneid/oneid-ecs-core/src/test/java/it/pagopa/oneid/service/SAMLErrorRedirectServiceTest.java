@@ -96,6 +96,37 @@ class SAMLErrorRedirectServiceTest {
   }
 
   @Test
+  @DisplayName("given inactive client when resolving then keep existing error page flow")
+  void given_inactive_client_when_resolving_then_keep_existing_error_page_flow() {
+    Client client = enabledClient();
+    client.setActive(false);
+    when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+    assertTrue(service.resolveRedirect(exception(ErrorCode.ERRORCODE_NR22,
+        CALLBACK_URI, "state-value")).isEmpty());
+  }
+
+  @Test
+  @DisplayName("given client without callbacks when resolving then keep existing error page flow")
+  void given_client_without_callbacks_when_resolving_then_keep_existing_error_page_flow() {
+    Client client = enabledClient();
+    client.setCallbackURI(null);
+    when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+    assertTrue(service.resolveRedirect(exception(ErrorCode.ERRORCODE_NR22,
+        CALLBACK_URI, "state-value")).isEmpty());
+  }
+
+  @Test
+  @DisplayName("given missing client when resolving then keep existing error page flow")
+  void given_missing_client_when_resolving_then_keep_existing_error_page_flow() {
+    when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.empty());
+
+    assertTrue(service.resolveRedirect(exception(ErrorCode.ERRORCODE_NR22,
+        CALLBACK_URI, "state-value")).isEmpty());
+  }
+
+  @Test
   @DisplayName("given callback mismatch when resolving then keep existing error page flow")
   void given_callback_mismatch_when_resolving_then_keep_existing_error_page_flow() {
     when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(enabledClient()));
