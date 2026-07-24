@@ -7,6 +7,7 @@ Usage examples:
     --dummy-client-template ./dummy-client.env.template \
     --output-dynamodb /tmp/batchDynamo.runtime.json \
     --output-dummy-client-env /tmp/dummy-client.env \
+        --output-public-assets /tmp/public-assets \
     --certificate-base64 "<base64>"
 
     python render_runtime_seed.py --self-check
@@ -17,12 +18,28 @@ from __future__ import annotations
 import argparse
 import base64
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import secrets
+import shutil
 import sys
-from typing import Mapping
+from typing import Any, Mapping
 
 IDP_INTERNAL_CERT_PLACEHOLDER = "__IDP_INTERNAL_CERTIFICATE_BASE64__"
+DEFAULT_SAML_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+PUBLIC_CLIENT_FIELDS = (
+    "clientID",
+    "friendlyName",
+    "logoUri",
+    "policyUri",
+    "tosUri",
+    "a11yUri",
+    "backButtonEnabled",
+    "samlBinding",
+    "callbackURI",
+    "eidasIndex",
+    "localizedContentMap",
+)
 CLIENT_PLACEHOLDERS = {
     "client_1": {
         "secret": "__CLIENT_1_SECRET__",
@@ -158,6 +175,124 @@ def write_text_file(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def deserialize_dynamodb_attribute(attribute: Mapping[str, Any]) -> Any:
+    result: dict[str, Any] = {}
+    pending_attributes: list[tuple[Mapping[str, Any], dict[Any, Any] | list[Any], Any]] = [
+        (attribute, result, "value")
+    ]
+
+    while pending_attributes:
+        current_attribute, container, key = pending_attributes.pop()
+
+        if "S" in current_attribute:
+            container[key] = current_attribute["S"]
+            continue
+        if "N" in current_attribute:
+            number = current_attribute["N"]
+            container[key] = int(number) if number.lstrip("-").isdigit() else float(number)
+            continue
+        if "BOOL" in current_attribute:
+            container[key] = current_attribute["BOOL"]
+            continue
+        if "NULL" in current_attribute:
+            container[key] = None
+            continue
+        if "SS" in current_attribute:
+            container[key] = sorted(current_attribute["SS"])
+            continue
+        if "L" in current_attribute:
+            list_values: list[Any] = [None] * len(current_attribute["L"])
+            container[key] = list_values
+            pending_attributes.extend(
+                (value, list_values, index)
+                for index, value in enumerate(current_attribute["L"])
+            )
+            continue
+        if "M" in current_attribute:
+            map_values: dict[str, Any] = {}
+            container[key] = map_values
+            pending_attributes.extend(
+                (value, map_values, field_name)
+                for field_name, value in current_attribute["M"].items()
+            )
+            continue
+        raise ValueError(f"unsupported DynamoDB attribute: {current_attribute}")
+
+    return result["value"]
+
+
+def read_seed_items(seed_data: Mapping[str, Any], table_name: str) -> list[dict[str, Any]]:
+    requests = seed_data.get(table_name, [])
+    items: list[dict[str, Any]] = []
+    for request in requests:
+        item = request.get("PutRequest", {}).get("Item")
+        if item is None:
+            continue
+        items.append(
+            {
+                field_name: deserialize_dynamodb_attribute(attribute)
+                for field_name, attribute in item.items()
+            }
+        )
+    return items
+
+
+def build_public_client(client: Mapping[str, Any]) -> dict[str, Any]:
+    public_client = {
+        "clientID": client.get("clientId", ""),
+        "friendlyName": client.get("friendlyName", ""),
+        "logoUri": client.get("logoUri", ""),
+        "policyUri": client.get("policyUri", ""),
+        "tosUri": client.get("tosUri", ""),
+        "a11yUri": client.get("a11yUri", ""),
+        "backButtonEnabled": client.get("backButtonEnabled", False),
+        "samlBinding": client.get("samlBinding", DEFAULT_SAML_BINDING),
+        "callbackURI": client.get("callbackURI", []),
+        "eidasIndex": client.get("eidasIndex"),
+        "localizedContentMap": client.get("localizedContentMap", {}),
+    }
+    return {field: public_client[field] for field in PUBLIC_CLIENT_FIELDS}
+
+
+def build_public_idp(idp: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "entityID": idp.get("entityID", ""),
+        "pointer": idp.get("pointer", ""),
+        "active": idp.get("active", False),
+        "status": idp.get("status", ""),
+        "idpSSOEndpoints": idp.get("idpSSOEndpoints", {}),
+        "certificates": idp.get("certificates", []),
+        "friendlyName": idp.get("friendlyName", ""),
+    }
+
+
+def write_json_file(path: Path, payload: Any) -> None:
+    write_text_file(path, json.dumps(payload, ensure_ascii=True, separators=(",", ":")))
+
+
+def render_public_assets(dynamodb_seed_text: str, output_directory: Path) -> None:
+    seed_data = json.loads(dynamodb_seed_text)
+    shutil.rmtree(output_directory, ignore_errors=True)
+    clients = [
+        build_public_client(client)
+        for client in read_seed_items(seed_data, "ClientRegistrations")
+        if client.get("active", False)
+    ]
+    idps = [
+        build_public_idp(idp)
+        for idp in read_seed_items(seed_data, "IDPMetadata")
+        if idp.get("pointer") == "LATEST_SPID"
+    ]
+
+    write_json_file(output_directory / "clients.json", clients)
+    write_json_file(output_directory / "idps.json", idps)
+    for client in clients:
+        write_json_file(
+            output_directory / "clients-publisher" / f"{client['clientID']}.json",
+            client,
+        )
+
+
 def run_self_check() -> int:
     log_info("running self-check...")
 
@@ -207,6 +342,52 @@ def run_self_check() -> int:
     assert "salt-2" in rendered_dynamodb
     assert "secret-1" in rendered_env
 
+    public_assets_directory = Path("/tmp/render-runtime-seed-self-check")
+    render_public_assets(
+        json.dumps(
+            {
+                "ClientRegistrations": [
+                    {
+                        "PutRequest": {
+                            "Item": {
+                                "clientId": {"S": "active-client"},
+                                "active": {"BOOL": True},
+                                "callbackURI": {"SS": ["https://callback.example"]},
+                                "localizedContentMap": {"M": {}},
+                            }
+                        }
+                    },
+                    {
+                        "PutRequest": {
+                            "Item": {
+                                "clientId": {"S": "inactive-client"},
+                                "active": {"BOOL": False},
+                            }
+                        }
+                    },
+                ],
+                "IDPMetadata": [
+                    {
+                        "PutRequest": {
+                            "Item": {
+                                "entityID": {"S": "https://idp.example"},
+                                "pointer": {"S": "LATEST_SPID"},
+                                "active": {"BOOL": True},
+                            }
+                        }
+                    }
+                ],
+            }
+        ),
+        public_assets_directory,
+    )
+    published_clients = json.loads((public_assets_directory / "clients.json").read_text())
+    published_idps = json.loads((public_assets_directory / "idps.json").read_text())
+    assert [client["clientID"] for client in published_clients] == ["active-client"]
+    assert (public_assets_directory / "clients-publisher" / "active-client.json").is_file()
+    assert not (public_assets_directory / "clients-publisher" / "inactive-client.json").exists()
+    assert published_idps[0]["entityID"] == "https://idp.example"
+
     log_info("self-check passed")
     return 0
 
@@ -237,6 +418,11 @@ def parse_args() -> argparse.Namespace:
         help="Path for the rendered dummy client env file.",
     )
     parser.add_argument(
+        "--output-public-assets",
+        type=Path,
+        help="Directory for public IDP and client JSON assets.",
+    )
+    parser.add_argument(
         "--certificate-base64",
         help="Base64-encoded certificate value for DynamoDB seeding.",
     )
@@ -260,6 +446,7 @@ def main() -> int:
         "--dummy-client-template": args.dummy_client_template,
         "--output-dynamodb": args.output_dynamodb,
         "--output-dummy-client-env": args.output_dummy_client_env,
+        "--output-public-assets": args.output_public_assets,
         "--certificate-base64": args.certificate_base64,
     }
     missing_args = [flag for flag, value in required_args.items() if value is None]
@@ -283,6 +470,7 @@ def main() -> int:
 
     write_text_file(args.output_dynamodb, rendered_dynamodb_template)
     write_text_file(args.output_dummy_client_env, rendered_env_template)
+    render_public_assets(rendered_dynamodb_template, args.output_public_assets)
 
     log_info("runtime seed artifacts rendered")
     return 0
