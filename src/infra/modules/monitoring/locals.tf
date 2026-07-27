@@ -1,7 +1,7 @@
 locals {
   idp_widgets = [
     for entity_id in var.idp_entity_ids :
-    templatefile("../../dashboards/idp_error_widget.tpl.json", {
+    templatefile("${local.dashboards_path}/idp_error_widget.tpl.json", {
       aws_region   = var.aws_region
       idp          = entity_id
       env_short    = var.env_short
@@ -10,7 +10,7 @@ locals {
   ]
 
   client_widgets = [
-    for client in var.clients : templatefile("../../dashboards/client_error_widget.tpl.json", {
+    for client in var.clients : templatefile("${local.dashboards_path}/client_error_widget.tpl.json", {
       aws_region    = var.aws_region
       client_id     = client.client_id
       friendly_name = client.friendly_name
@@ -21,7 +21,7 @@ locals {
   ]
 
   client_aggregated_widgets = [
-    for client in var.clients : templatefile("../../dashboards/client_aggregated_widget.tpl.json", {
+    for client in var.clients : templatefile("${local.dashboards_path}/client_aggregated_widget.tpl.json", {
       client_id     = client.client_id
       friendly_name = client.friendly_name
       aws_region    = var.aws_region
@@ -33,7 +33,7 @@ locals {
 
   samlstatus_idp_widgets = [
     for entity_id in var.idp_entity_ids :
-    templatefile("../../dashboards/samlstatus_idp_related_error_widget.tpl.json", {
+    templatefile("${local.dashboards_path}/samlstatus_idp_related_error_widget.tpl.json", {
       idp          = entity_id
       aws_region   = var.aws_region
       env_short    = var.env_short
@@ -44,7 +44,7 @@ locals {
 
   samlstatus_client_widgets = [
     for client in var.clients :
-    templatefile("../../dashboards/samlstatus_client_related_error_widget.tpl.json", {
+    templatefile("${local.dashboards_path}/samlstatus_client_related_error_widget.tpl.json", {
       client_id     = client.client_id
       friendly_name = client.friendly_name
       aws_region    = var.aws_region
@@ -55,13 +55,13 @@ locals {
   ]
 
   assertion_counter_widgets = [
-    templatefile("../../dashboards/assertion_counter_widget.tpl.json", {
+    templatefile("${local.dashboards_path}/assertion_counter_widget.tpl.json", {
       aws_region = var.aws_region
     })
   ]
 
   xsw_assertions_widgets = [
-    templatefile("../../dashboards/xsw_assertions_widget.tpl.json", {
+    templatefile("${local.dashboards_path}/xsw_assertions_widget.tpl.json", {
       aws_region = var.aws_region
     })
   ]
