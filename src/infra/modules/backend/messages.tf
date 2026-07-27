@@ -463,7 +463,7 @@ resource "aws_pipes_pipe" "client_publisher" {
       "samlBinding":         <$.dynamodb.NewImage.samlBinding>,
       "callbackURI":         <$.dynamodb.NewImage.callbackURI>,
       "active":              <$.dynamodb.NewImage.active>,
-      "eidasIndex":          <$.dynamodb.NewImage.eidasIndex>,
+      "eidasIndex":          <$.dynamodb.NewImage.eidasIndex>
     },
     "OldImage": {
       "clientId":            <$.dynamodb.OldImage.clientId>,
