@@ -24,7 +24,7 @@ module "dev_ns_record" {
   zone_name = module.r53_zones.dns_zone_name
 
   records = [
-    
+
     {
       name = "uat"
       type = "NS"
