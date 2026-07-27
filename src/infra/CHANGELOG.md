@@ -1,5 +1,11 @@
 # infra
 
+## 2.13.1
+
+### Patch Changes
+
+- 6245cec: add eidasIndex to publisher pipe
+
 ## 2.13.0
 
 ### Minor Changes
