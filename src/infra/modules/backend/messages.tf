@@ -462,7 +462,8 @@ resource "aws_pipes_pipe" "client_publisher" {
       "localizedContentMap": <$.dynamodb.NewImage.localizedContentMap>,
       "samlBinding":         <$.dynamodb.NewImage.samlBinding>,
       "callbackURI":         <$.dynamodb.NewImage.callbackURI>,
-      "active":              <$.dynamodb.NewImage.active>
+      "active":              <$.dynamodb.NewImage.active>,
+      "eidasIndex":          <$.dynamodb.NewImage.eidasIndex>,
     },
     "OldImage": {
       "clientId":            <$.dynamodb.OldImage.clientId>,
@@ -475,7 +476,8 @@ resource "aws_pipes_pipe" "client_publisher" {
       "localizedContentMap": <$.dynamodb.OldImage.localizedContentMap>,
       "samlBinding":         <$.dynamodb.OldImage.samlBinding>,
       "callbackURI":         <$.dynamodb.OldImage.callbackURI>,
-      "active":              <$.dynamodb.OldImage.active>
+      "active":              <$.dynamodb.OldImage.active>,
+      "eidasIndex":          <$.dynamodb.OldImage.eidasIndex>
     }
   }
 }
