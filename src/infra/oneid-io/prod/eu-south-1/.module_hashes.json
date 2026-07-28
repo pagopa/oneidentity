@@ -63,5 +63,5 @@
   "storage.s3_internal_idp_assets_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
   "storage.s3_metrics_archiver_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
   "storage.s3_xsw_assertions_bucket": "4c4e65f620c35296f08571e81deecdbb5a68638c9ad1c431668122e667114a59",
-  "uat_ns_record": "b9cc6a0642b387ae48a8f5e32bde93c9349336950acf5c71ff30f96dd0f6c40b"
+  "uat_ns_record": "6800a3878cebdc1cae49571a6310ef579ca3a53ee9f2765e45732dd42f964a82"
 }
