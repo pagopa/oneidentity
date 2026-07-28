@@ -1,14 +1,14 @@
 data "aws_caller_identity" "current" {}
 
-
 module "iam" {
-  source            = "../../modules/iam"
+  source = "../../../modules/iam"
+
   prefix            = local.project
   github_repository = "pagopa/oneidentity"
 }
 
 module "r53_zones" {
-  source = "../../modules/dns"
+  source = "../../../modules/dns"
 
   r53_dns_zones = {
     (var.r53_dns_zone.name) = {
@@ -17,52 +17,8 @@ module "r53_zones" {
   }
 }
 
-module "dev_ns_record" {
-  source  = "terraform-aws-modules/route53/aws//modules/records"
-  version = "2.11.0"
-
-  zone_name = module.r53_zones.dns_zone_name
-
-  records = [
-    {
-      name = "dev"
-      type = "NS"
-      ttl  = var.dns_record_ttl
-      records = [
-        "ns-1299.awsdns-34.org",
-        "ns-174.awsdns-21.com",
-        "ns-1856.awsdns-40.co.uk",
-        "ns-936.awsdns-53.net",
-      ]
-    },
-    {
-      name = "uat"
-      type = "NS"
-      ttl  = var.dns_record_ttl
-      records = [
-        "ns-2033.awsdns-62.co.uk.",
-        "ns-1177.awsdns-19.org.",
-        "ns-233.awsdns-29.com.",
-        "ns-668.awsdns-19.net.",
-      ]
-    },
-    {
-      name = "io"
-      type = "NS"
-      ttl  = var.dns_record_ttl
-      records = [
-        "ns-1849.awsdns-39.co.uk.",
-        "ns-550.awsdns-04.net.",
-        "ns-1193.awsdns-21.org.",
-        "ns-151.awsdns-18.com.",
-      ]
-    },
-  ]
-}
-
-
 module "network" {
-  source   = "../../modules/network"
+  source   = "../../../modules/network"
   vpc_name = format("%s-vpc", local.project)
 
   azs = ["eu-south-1a", "eu-south-1b", "eu-south-1c"]
@@ -75,8 +31,91 @@ module "network" {
   single_nat_gateway        = var.single_nat_gateway
 
 }
+
+module "frontend" {
+  source = "../../../modules/frontend"
+
+  deploy_internal_idp_rest_api = true
+
+  ## DNS
+  domain_name              = module.r53_zones.dns_zone_name
+  domain_admin_name        = module.r53_zones.dns_zone_name
+  domain_internal_idp_name = module.r53_zones.dns_zone_name
+  domain_auth_name         = module.r53_zones.dns_zone_name
+  domain_assets_name       = module.r53_zones.dns_zone_name
+  r53_dns_zone_id          = module.r53_zones.dns_zone_id
+  role_prefix              = local.project
+
+  ## API Gateway ##
+  rest_api_name                      = format("%s-restapi", local.project)
+  rest_api_admin_name                = format("%s-restapi-admin", local.project)
+  rest_api_internal_idp_name         = format("%s-restapi-internal-idp", local.project)
+  openapi_template_file              = "${path.module}/../../../api/oi.tpl.json"
+  openapi_admin_template_file        = "${path.module}/../../../api/oi-admin.tpl.json"
+  openapi_internal_idp_template_file = "${path.module}/../../../api/oi-internal-idp.tpl.json"
+
+  dns_record_ttl = var.dns_record_ttl
+
+  api_gateway_target_arns = [module.backend.nlb_arn]
+  nlb_dns_name            = module.backend.nlb_dns_name
+
+  api_gateway_plan = {
+    name                 = format("%s-restapi-plan", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+    api_key_name         = "client-registration"
+  }
+
+  api_gateway_admin_plan = {
+    name                 = format("%s-restapi-admin_plan", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+  }
+
+  api_gateway_internal_idp_plan = {
+    name                 = format("%s-restapi-internal-idp_plan", local.project)
+    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
+    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
+  }
+  client_registration_lambda_arn = module.backend.client_registration_lambda_arn
+  client_manager_lambda_arn      = module.backend.client_manager_lambda_arn
+  retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
+  aws_region                     = var.aws_region
+  assets_bucket_arn              = module.storage.assets_bucket_arn
+  assets_bucket_name             = module.storage.assets_bucket_name
+  api_cache_cluster_enabled      = var.api_cache_cluster_enabled
+  api_method_settings            = var.api_method_settings
+
+  assets_control_panel_bucket_name = module.storage.assets_control_panel_bucket_name
+  assets_control_panel_bucket_arn  = module.storage.assets_control_panel_bucket_arn
+
+  assets_internal_idp_bucket_name = module.storage.assets_internal_idp_bucket_name
+  assets_internal_idp_bucket_arn  = module.storage.assets_internal_idp_bucket_arn
+
+  xray_tracing_enabled = var.xray_tracing_enabled
+  api_alarms           = local.cloudwatch_api_alarms_with_sns
+  web_acl = {
+    name = format("%s-webacl", local.project)
+  }
+
+  user_pool_arn             = module.cognito.user_pool_arn
+  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
+  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
+  provider_arn              = module.cognito.user_pool_arn
+
+  cognito_domain_cloudfront_distribution         = module.cognito.cloudfront_distribution
+  cognito_domain_cloudfront_distribution_zone_id = module.cognito.cloudfront_distribution_zone_id
+
+  cloudfront = {
+    name                      = format("%s-cloudfront", local.project)
+    bucket_arn                = module.storage.assets_bucket_arn
+    bucket_id                 = module.storage.assets_bucket_name
+    bucket_origin_domain_name = module.storage.assets_bucket_regional_domain_name
+  }
+}
+
 module "storage" {
-  source = "../../modules/storage"
+  source = "../../../modules/storage"
 
   role_prefix = local.project
 
@@ -86,40 +125,36 @@ module "storage" {
   }
 
   assertion_bucket = {
-    name_prefix               = "assertions"
-    glacier_transaction_days  = var.assertion_bucket.glacier_transaction_days
-    expiration_days           = var.assertion_bucket.expiration_days
-    enable_key_rotation       = var.assertion_bucket.enable_key_rotation
-    kms_multi_region          = var.assertion_bucket.kms_multi_region
-    object_lock_configuration = var.assertion_bucket.object_lock_configuration
-
-    replication_configuration = var.assertion_bucket.replication_configuration
+    name_prefix              = "assertions"
+    glacier_transaction_days = 90
+    expiration_days          = 100
+    enable_key_rotation      = true
   }
   xsw_assertions_bucket = {
     name_prefix              = "xsw-assertions"
-    glacier_transaction_days = var.xsw_assertions_bucket.glacier_transaction_days
-    expiration_days          = var.xsw_assertions_bucket.expiration_days
-    enable_key_rotation      = var.xsw_assertions_bucket.enable_key_rotation
-    kms_multi_region         = var.xsw_assertions_bucket.kms_multi_region
+    glacier_transaction_days = 90
+    expiration_days          = 100
+    enable_key_rotation      = true
   }
   assertions_crawler_schedule        = var.assertions_crawler_schedule
   idp_metadata_bucket_prefix         = "idp-metadata"
   assets_bucket_prefix               = "assets"
   assets_bucket_control_panel_prefix = "assets-control-panel"
+  assets_bucket_internal_idp_prefix  = "assets-internal-idp"
+  create_assets_internal_idp_bucket  = true
   github_repository                  = "pagopa/oneidentity"
   account_id                         = data.aws_caller_identity.current.account_id
-  assertion_accesslogs_expiration    = 180
+  assertion_accesslogs_expiration    = 2
 }
 
-## SNS for alarms ##
 module "sns" {
-  source            = "../../modules/sns"
+  source            = "../../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
   alarm_subscribers = var.alarm_subscribers
 }
 
 module "sqs" {
-  source         = "../../modules/sqs"
+  source         = "../../../modules/sqs"
   sqs_queue_name = format("%s-pdv-reconciler-sqs", local.project)
   sns_topic_arn  = module.sns.sns_topic_arn
   env_short      = var.env_short
@@ -127,38 +162,25 @@ module "sqs" {
 
 }
 
-## Database ##  
-module "database" {
-  source                      = "../../modules/database"
-  sessions_table              = var.sessions_table
-  client_registrations_table  = var.client_registrations_table
-  idp_metadata_table          = var.idp_metadata_table
-  idp_status_history_table    = var.idp_status_history_table
-  client_status_history_table = var.client_status_history_table
-  last_idp_used_table         = var.last_idp_used_table
-  // the following table should not be created in the production environment
-  internal_idp_users_table = null
-  internal_idp_sessions    = null
-  idp_entity_ids           = local.idp_entity_ids
-  clients                  = local.clients
-}
-
-## Backend ##
-
 module "backend" {
-  source = "../../modules/backend"
+  source = "../../../modules/backend"
 
   aws_region = var.aws_region
   env_short  = var.env_short
 
-  client_manager_lambda_optional_iam_policy = false
-  role_prefix                               = local.project
-  event_mode                                = var.event_mode
-  metrics_archiver_enabled                  = true
+  role_prefix = local.project
+  event_mode  = var.event_mode
+
+  metrics_archiver_enabled = true
 
   ecr_registers = [
     {
       name                            = local.ecr_oneid_core
+      number_of_images_to_keep        = var.number_of_images_to_keep
+      repository_image_tag_mutability = var.repository_image_tag_mutability
+    },
+    {
+      name                            = local.ecr_oneid_internal_idp
       number_of_images_to_keep        = var.number_of_images_to_keep
       repository_image_tag_mutability = var.repository_image_tag_mutability
     }
@@ -180,11 +202,11 @@ module "backend" {
   ecs_alarms             = local.cloudwatch_ecs_alarms_with_sns
   lambda_alarms          = local.cloudwatch_lambda_alarms_with_sns
   dlq_alarms             = local.cloudwatch_dlq_alarms_with_sns
+  cache_endpoint_address = module.client_cache.cache_endpoint_address
+  cache_endpoint_port    = module.client_cache.cache_endpoint_port
   vpc_id                 = module.network.vpc_id
   private_subnets        = module.network.private_subnet_ids
   vpc_cidr_block         = module.network.vpc_cidr_block
-  cache_endpoint_address = module.client_cache.cache_endpoint_address
-  cache_endpoint_port    = module.client_cache.cache_endpoint_port
 
   service_core = {
     service_name                = format("%s-core", local.project)
@@ -280,10 +302,72 @@ module "backend" {
     ]
   }
 
+  service_internal_idp = {
+    service_name = format("%s-internal-idp", local.project)
 
+    cpu    = var.ecs_oneid_internal_idp.cpu
+    memory = var.ecs_oneid_internal_idp.memory
+
+    container = {
+      name                = "oneid-internal-idp"
+      cpu                 = var.ecs_oneid_internal_idp.container_cpu
+      memory              = var.ecs_oneid_internal_idp.container_memory
+      image_name          = local.ecr_oneid_internal_idp
+      image_version       = var.ecs_oneid_internal_idp.image_version
+      containerPort       = 8082
+      hostPort            = 8082
+      logs_retention_days = var.ecs_oneid_internal_idp.logs_retention_days
+    }
+
+    environment_variables = [
+      {
+        name  = "ACS_ENDPOINT"
+        value = "https://${var.r53_dns_zone.name}${var.metadata_info.acs_url}"
+      },
+      {
+        name  = "SP_ENTITY_ID"
+        value = "https://${var.r53_dns_zone.name}/pub-op-full"
+      },
+      {
+        name  = "IDP_INTERNAL_USERS_TABLE_NAME"
+        value = module.database.internal_idp_users_table_name
+      },
+      {
+        name  = "IDP_SESSIONS_TABLE_NAME"
+        value = module.database.internal_idp_sessions_table_name
+      },
+      {
+        name  = "ISSUER"
+        value = "https://idp.${var.r53_dns_zone.name}"
+      },
+      {
+        name  = "IDP_LOGIN_ENDPOINT"
+        value = "https://idp.${var.r53_dns_zone.name}/login"
+      },
+      {
+        name  = "IDP_CONSENT_ENDPOINT"
+        value = "https://idp.${var.r53_dns_zone.name}/consent"
+      },
+      {
+        name  = "IDP_CERTIFICATE_NAME"
+        value = var.ssm_idp_internal_cert_key.cert_pem
+      },
+      {
+        name  = "IDP_KEY_NAME"
+        value = var.ssm_idp_internal_cert_key.key_pem
+      },
+
+    ]
+    autoscaling = var.ecs_oneid_internal_idp.autoscaling
+
+    subnet_ids = module.network.private_subnet_ids
+  }
 
   ## NLB ##
   nlb_name = format("%s-nlb", local.project)
+
+  ##Internal IDP enabled ##
+  internal_idp_enabled = true
 
   github_repository = "pagopa/oneidentity"
   account_id        = data.aws_caller_identity.current.account_id
@@ -294,11 +378,12 @@ module "backend" {
   }
 
   table_client_registrations_arn = module.database.table_client_registrations_arn
-  kms_sessions_table_alias_arn   = module.database.kms_sessions_table_alias_arn
+
+  kms_sessions_table_alias_arn = module.database.kms_sessions_table_alias_arn
 
   xsw_assertions_bucket_arn  = module.storage.xsw_assertions_bucket_arn
   xsw_assertions_kms_key_arn = module.storage.xsw_assertions_kms_key_arn
-  table_last_idp_used_arn    = module.database.table_last_idp_used_arn
+
 
   client_registration_lambda = {
     name                               = format("%s-client-registration", local.project)
@@ -313,7 +398,7 @@ module "backend" {
       "LOG_LEVEL"                          = var.app_log_level
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
       "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
-      "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.oneid.pagopa.it",
+      "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.${var.r53_dns_zone.name}",
       "PDV_PLAN_URL"                       = var.pdv_plan_url
     }
   }
@@ -349,6 +434,7 @@ module "backend" {
   dynamodb_clients_table_stream_arn       = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_registrations_arn = module.database.dynamodb_clients_table_stream_arn
   dynamodb_table_stream_arn               = module.database.dynamodb_table_stream_arn
+  table_last_idp_used_arn                 = module.database.table_last_idp_used_arn
 
   eventbridge_pipe_client_publisher = {
     pipe_name                     = format("%s-client-publisher-pipe", local.project)
@@ -386,19 +472,15 @@ module "backend" {
   }
 
   assertion_lambda = {
-    name     = format("%s-assertion", local.project)
-    filename = "${path.module}/../../hello-python/lambda.zip"
-    #s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
-    #kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
-    # ⚠️ warning: before switching this values you need to create the resources in the account which is intended
-    # to preserve the assertions
-    s3_assertion_bucket_arn = "arn:aws:s3:::assertions-2157"
-    kms_assertion_key_arn   = "arn:aws:kms:eu-south-1:980921732883:key/883955e3-5af2-4c45-8cf3-616e9ee96f6b"
-
+    name                    = format("%s-assertion", local.project)
+    filename                = "${path.module}/../../hello-python/lambda.zip"
+    s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
+    kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
     environment_variables = {
-      S3_BUCKET = "assertions-2157" # module.storage.assertions_bucket_name
+      S3_BUCKET = module.storage.assertions_bucket_name
     }
+
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
     vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
@@ -481,11 +563,13 @@ module "backend" {
     table_arn       = module.database.table_idp_metadata_arn
     stream_arn      = module.database.table_idp_metadata_stream_arn
   }
-
   dynamodb_table_idpStatus = {
     gsi_pointer_arn = module.database.table_idp_status_gsi_pointer_arn
     table_arn       = module.database.table_idp_status_history_arn
   }
+
+  dynamodb_table_internal_idp_session_arn = module.database.internal_idp_session_arn
+  dynamodb_table_internal_idp_users_arn   = module.database.internal_idp_users_arn
 
   dynamodb_table_clientStatus = {
     gsi_pointer_arn = module.database.table_client_status_gsi_pointer_arn
@@ -539,23 +623,25 @@ module "backend" {
   }
   rest_api_id = module.frontend.rest_api_id
 
-  ssm_idp_internal_cert_key = {}
 
   ssm_cert_key = {}
 
+  ssm_idp_internal_cert_key = {}
+
   eventbridge_pipe_invalidate_cache = {
-    pipe_name                     = format("%s-flush-apigw-cache-pipe", local.project)
-    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
-    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
-  }
-  eventbridge_pipe_cache_updater = {
-    pipe_name                     = format("%s-cache-updater-pipe", local.project)
+    pipe_name                     = format("%s-invalidate-cache-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
 
   eventbridge_pipe_update_idp_metadata = {
     pipe_name                     = format("%s-idp-metadata-invalid-status-pipe", local.project)
+    maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
+    maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
+  }
+
+  eventbridge_pipe_cache_updater = {
+    pipe_name                     = format("%s-cache-updater-pipe", local.project)
     maximum_retry_attempts        = var.dlq_assertion_setting.maximum_retry_attempts
     maximum_record_age_in_seconds = var.dlq_assertion_setting.maximum_record_age_in_seconds
   }
@@ -577,14 +663,15 @@ module "backend" {
       CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = format("%s/%s", format("%s-cache-updater", local.project), var.app_cloudwatch_custom_metric_namespace)
     }
   }
+
   invalidate_cache_lambda = {
-    name     = format("%s-invalidate-cache", local.project)
-    filename = "${path.module}/../../hello-python/lambda.zip"
+    name                             = format("%s-invalidate-cache", local.project)
+    filename                         = "${path.module}/../../hello-python/lambda.zip"
+    client_registration_stream_label = module.database.table_client_registrations_stream_label
     #vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     rest_api_execution_arn            = module.frontend.rest_api_execution_arn
     rest_api_arn                      = module.frontend.rest_api_arn
-
     environment_variables = {
       REST_API_ID = module.frontend.rest_api_id
       STAGE_NAME  = module.frontend.rest_api_stage_name
@@ -597,10 +684,14 @@ module "backend" {
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
+    table_idp_internal_users_arn      = module.database.internal_idp_users_arn
+    table_idp_internal_users_gsi_arn  = module.database.internal_idp_users_gsi_namespace_arn
     environment_variables = {
-      LOG_LEVEL                       = "INFO"
+      LOG_LEVEL                       = "DEBUG"
       USER_POOL_ID                    = module.cognito.user_pool_id
       CLIENT_REGISTRATIONS_TABLE_NAME = module.database.table_client_registrations_name
+      IDP_INTERNAL_USERS_TABLE_NAME   = module.database.internal_idp_users_table_name
+      IDP_INTERNAL_USERS_GSI_NAME     = module.database.internal_idp_users_gsi_namespace_name
     }
   }
 
@@ -639,13 +730,13 @@ module "backend" {
   }
 
   client_no_traffic_alarm = {
-    enabled   = true
+    enabled   = false
     clients   = local.clients
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
   xsw_error_alarm = {
-    enabled   = true
+    enabled   = false
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 
@@ -656,13 +747,14 @@ module "backend" {
   }
 
   idp_no_traffic_alarm = {
-    enabled   = true
+    enabled   = false
     entity_id = local.idp_entity_ids
     namespace = "${local.project}-core/ApplicationMetrics"
   }
 }
+
 module "client_cache" {
-  source = "../../modules/cache"
+  source = "../../../modules/cache"
 
   cache_name                 = format("%s-client-cache", local.project)
   vpc_id                     = module.network.vpc_id
@@ -671,87 +763,27 @@ module "client_cache" {
   alarm_sns_topic_arn        = module.sns.sns_topic_arn
 }
 
-module "frontend" {
-  source = "../../modules/frontend"
-
-  ## DNS
-  domain_name        = module.r53_zones.dns_zone_name
-  domain_admin_name  = module.r53_zones.dns_zone_name
-  domain_auth_name   = module.r53_zones.dns_zone_name
-  domain_assets_name = module.r53_zones.dns_zone_name
-  r53_dns_zone_id    = module.r53_zones.dns_zone_id
-
-  role_prefix = local.project
-
-  ## API Gateway ##
-  rest_api_name         = format("%s-restapi", local.project)
-  openapi_template_file = "../../api/oi.tpl.json"
-  rest_api_admin_name   = format("%s-restapi-admin", local.project)
-
-  openapi_admin_template_file = "../../api/oi-admin.tpl.json"
-
-  dns_record_ttl = var.dns_record_ttl
-
-  api_gateway_target_arns = [module.backend.nlb_arn]
-  nlb_dns_name            = module.backend.nlb_dns_name
-
-  api_gateway_plan = {
-    name                 = format("%s-restapi-plan", local.project)
-    throttle_burst_limit = var.rest_api_throttle_settings.burst_limit
-    throttle_rate_limit  = var.rest_api_throttle_settings.rate_limit
-    api_key_name         = "client-registration"
-  }
-
-  api_gateway_admin_plan = {
-    name                 = format("%s-restapi-admin_plan", local.project)
-    throttle_burst_limit = 10
-    throttle_rate_limit  = 20
-  }
-
-  client_registration_lambda_arn = module.backend.client_registration_lambda_arn
-  client_manager_lambda_arn      = module.backend.client_manager_lambda_arn
-  retrieve_status_lambda_arn     = module.backend.retrieve_status_lambda_arn
-  aws_region                     = var.aws_region
-  assets_bucket_arn              = module.storage.assets_bucket_arn
-  assets_bucket_name             = module.storage.assets_bucket_name
-  api_cache_cluster_enabled      = var.api_cache_cluster_enabled
-  api_method_settings            = var.api_method_settings
-
-  assets_control_panel_bucket_name = module.storage.assets_control_panel_bucket_name
-  assets_control_panel_bucket_arn  = module.storage.assets_control_panel_bucket_arn
-
-  xray_tracing_enabled = var.xray_tracing_enabled
-  api_alarms           = local.cloudwatch_api_alarms_with_sns
-
-  web_acl = {
-    name                       = format("%s-webacl", local.project)
-    cloudwatch_metrics_enabled = true
-    sampled_requests_enabled   = true
-    sns_topic_arn              = module.sns.sns_topic_arn
-  }
-
-  user_pool_arn             = module.cognito.user_pool_arn
-  api_authorizer_name       = format("%s-restapi-authorizer", local.project)
-  api_authorizer_admin_name = format("%s-restapi-admin-authorizer", local.project)
-  provider_arn              = module.cognito.user_pool_arn
-
-  cognito_domain_cloudfront_distribution         = module.cognito.cloudfront_distribution
-  cognito_domain_cloudfront_distribution_zone_id = module.cognito.cloudfront_distribution_zone_id
-
-  cloudfront = {
-    name                      = format("%s-cloudfront", local.project)
-    bucket_arn                = module.storage.assets_bucket_arn
-    bucket_id                 = module.storage.assets_bucket_name
-    bucket_origin_domain_name = module.storage.assets_bucket_regional_domain_name
-  }
+module "database" {
+  source                      = "../../../modules/database"
+  sessions_table              = var.sessions_table
+  client_registrations_table  = var.client_registrations_table
+  idp_metadata_table          = var.idp_metadata_table
+  idp_status_history_table    = var.idp_status_history_table
+  client_status_history_table = var.client_status_history_table
+  last_idp_used_table         = var.last_idp_used_table
+  internal_idp_users_table    = var.internal_idp_users_table
+  internal_idp_sessions       = var.internal_idp_sessions
+  idp_entity_ids              = local.idp_entity_ids
+  clients                     = local.clients
 }
 
-## Monitoring / Dashboard ##
+
+## Monitoring 
 
 module "monitoring" {
   env_short                       = var.env_short
   region_short                    = var.aws_region_short
-  source                          = "../../modules/monitoring"
+  source                          = "../../../modules/monitoring"
   main_dashboard_name             = format("%s-overall-dashboard", local.project)
   api_methods_dashboard_name      = format("%s-api-methods-dashboard", local.project)
   detailed_metrics_dashboard_name = format("%s-detailed-metrics-dashboard", local.project)
@@ -791,13 +823,13 @@ module "monitoring" {
 }
 
 module "cognito" {
-  source = "../../modules/cognito"
+  source = "../../../modules/cognito"
   cognito = {
-    logout_url           = "https://admin.oneid.pagopa.it/logout", #TBD
+    logout_url           = "https://admin.${var.r53_dns_zone.name}/logout",
     user_pool_client     = format("%s-user_pool_client", local.project),
     user_pool_name       = format("%s-user_pool", local.project),
     user_pool_domain     = format("%s-user-pool-domain", local.project),
-    callback_url         = "https://admin.oneid.pagopa.it" #TBD,
+    callback_url         = "https://admin.${var.r53_dns_zone.name}",
     auth_certificate_arn = module.frontend.acm_auth_certificate_arn,
     acm_domain_name      = module.frontend.acm_domain_name
   }

@@ -1,5 +1,7 @@
 locals {
-  query_files = fileset("../../cloudwatch-query", "*.sql") # Get all .sql files from the directory
+  dashboards_path       = "${path.module}/../../dashboards"
+  cloudwatch_query_path = "${path.module}/../../cloudwatch-query"
+  query_files           = fileset(local.cloudwatch_query_path, "*.sql") # Get all .sql files from the directory
 }
 
 data "aws_ssm_parameter" "alarm_subscribers" {
@@ -9,7 +11,7 @@ data "aws_ssm_parameter" "alarm_subscribers" {
 resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = var.main_dashboard_name
 
-  dashboard_body = templatefile("../../dashboards/main.tpl.json",
+  dashboard_body = templatefile("${local.dashboards_path}/main.tpl.json",
     {
       aws_region                 = var.aws_region
       api_name                   = var.api_name
@@ -25,7 +27,7 @@ resource "aws_cloudwatch_dashboard" "main" {
 resource "aws_cloudwatch_dashboard" "api_methods" {
   dashboard_name = var.api_methods_dashboard_name
 
-  dashboard_body = templatefile("../../dashboards/api_methods.tpl.json",
+  dashboard_body = templatefile("${local.dashboards_path}/api_methods.tpl.json",
     {
       aws_region = var.aws_region
       api_name   = var.api_name
@@ -47,7 +49,7 @@ resource "aws_cloudwatch_query_definition" "ecs_log_level_error" {
     var.lambda_client_registration.log_group_name,
     var.lambda_metadata.log_group_name,
   ]
-  query_string = file("../../cloudwatch-query/${each.value}")
+  query_string = file("${local.cloudwatch_query_path}/${each.value}")
   # Read the query from the file dynamically
 }
 
@@ -59,7 +61,7 @@ resource "aws_cloudwatch_query_definition" "client_registration_log_level_error"
   log_group_names = [
     var.lambda_client_registration.log_group_name,
   ]
-  query_string = file("../../cloudwatch-query/${each.value}")
+  query_string = file("${local.cloudwatch_query_path}/${each.value}")
   # Read the query from the file dynamically
 }
 
@@ -71,7 +73,7 @@ resource "aws_cloudwatch_query_definition" "metadata_log_level_error" {
   log_group_names = [
     var.lambda_metadata.log_group_name,
   ]
-  query_string = file("../../cloudwatch-query/${each.value}")
+  query_string = file("${local.cloudwatch_query_path}/${each.value}")
   # Read the query from the file dynamically
 }
 

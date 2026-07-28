@@ -1440,12 +1440,12 @@ module "metrics_archiver_lambda" {
 
   attach_policy_json    = true
   policy_json           = data.aws_iam_policy_document.metrics_archiver_lambda[each.key].json
-  attach_network_policy = each.value.vpc_id != null
+  attach_network_policy = each.value.vpc_enabled
 
   environment_variables = each.value.environment_variables
 
-  vpc_subnet_ids         = each.value.vpc_id != null ? each.value.vpc_subnet_ids : []
-  vpc_security_group_ids = each.value.vpc_id != null ? [module.security_group_metrics_archiver_lambda[each.key].security_group_id] : []
+  vpc_subnet_ids         = each.value.vpc_enabled ? each.value.vpc_subnet_ids : []
+  vpc_security_group_ids = each.value.vpc_enabled ? [module.security_group_metrics_archiver_lambda[each.key].security_group_id] : []
 
   memory_size = 1024
   timeout     = 900
@@ -1634,7 +1634,7 @@ module "security_group_lambda_cache_updater" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "cache_updater_https_rule" {
-  count = var.cache_updater_lambda != null && var.cache_updater_lambda.vpc_tls_security_group_endpoint_id != null ? 1 : 0
+  count = var.cache_updater_lambda != null && var.cache_updater_lambda.vpc_tls_security_group_endpoint_enabled ? 1 : 0
 
   security_group_id            = module.security_group_lambda_cache_updater[0].security_group_id
   from_port                    = 443

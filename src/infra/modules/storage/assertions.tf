@@ -440,16 +440,16 @@ resource "aws_iam_policy" "glue_assertions_policy" {
 }
 
 locals {
-  glue_assertions_policy = compact([
+  glue_assertions_policy_arns = var.create_athena_table ? [
     "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole",
-    var.create_athena_table ? aws_iam_policy.glue_assertions_policy[0].arn : null
-  ])
+    aws_iam_policy.glue_assertions_policy[0].arn,
+  ] : []
 }
 
 resource "aws_iam_role_policy_attachment" "glue_s3_assertions_policy" {
-  count      = var.create_athena_table ? length(local.glue_assertions_policy) : 0
+  count      = var.create_athena_table ? 2 : 0
   role       = aws_iam_role.glue_assertions[0].name
-  policy_arn = local.glue_assertions_policy[count.index]
+  policy_arn = local.glue_assertions_policy_arns[count.index]
   depends_on = [aws_iam_policy.glue_assertions_policy]
 }
 
