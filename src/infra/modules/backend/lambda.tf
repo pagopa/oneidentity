@@ -1014,13 +1014,13 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 resource "null_resource" "install_client_manager_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
-      mkdir -p ${path.module}/../../dist/python
+      mkdir -p "${path.module}/../../dist/python"
       pip install \
         --platform manylinux2014_x86_64 \
-        --target=${path.module}/../../dist/python \
+        --target="${path.module}/../../dist/python" \
         --implementation cp \
         --only-binary=:all: --upgrade \
-        -r ../../../oneid/oneid-lambda-client-manager/requirements.txt
+        -r "${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt"
     EOT
   }
 
@@ -1272,13 +1272,13 @@ resource "aws_vpc_security_group_egress_rule" "cert_checker_sec_group_egress_rul
 resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
-      mkdir -p ${path.module}/../../dist/python
+      mkdir -p "${path.module}/../../dist/python"
       pip install \
         --platform manylinux2014_x86_64 \
-        --target=${path.module}/../../dist/python \
+        --target="${path.module}/../../dist/python" \
         --implementation cp \
         --only-binary=:all: --upgrade \
-        -r ../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt
+        -r "${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt"
     EOT
   }
 
