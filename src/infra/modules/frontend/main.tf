@@ -413,7 +413,7 @@ resource "aws_wafv2_web_acl" "main" {
 }
 
 resource "aws_wafv2_web_acl_association" "main" {
-  resource_arn = "arn:aws:apigateway:${var.aws_region}::/restapis/${module.rest_api.rest_api_id}/stages/${var.rest_api_stage}"
+  resource_arn = "arn:aws:apigateway:${var.aws_region}::/restapis/${module.rest_api.rest_api_id}/stages/${module.rest_api.rest_api_stage_name}"
   web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
 
@@ -421,7 +421,7 @@ resource "aws_wafv2_web_acl_association" "main" {
 
 data "aws_api_gateway_export" "api_exp" {
   rest_api_id = module.rest_api.rest_api_id
-  stage_name  = var.rest_api_stage
+  stage_name  = module.rest_api.rest_api_stage_name
   export_type = "oas30"
 }
 
