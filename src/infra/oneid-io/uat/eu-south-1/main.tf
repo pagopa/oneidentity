@@ -668,7 +668,7 @@ module "backend" {
     name                             = format("%s-invalidate-cache", local.project)
     filename                         = "${path.module}/../../hello-python/lambda.zip"
     client_registration_stream_label = module.database.table_client_registrations_stream_label
-    #vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    #vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"] 
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     rest_api_execution_arn            = module.frontend.rest_api_execution_arn
     rest_api_arn                      = module.frontend.rest_api_arn

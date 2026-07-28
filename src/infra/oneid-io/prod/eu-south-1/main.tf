@@ -115,7 +115,7 @@ module "database" {
   idp_status_history_table    = var.idp_status_history_table
   client_status_history_table = var.client_status_history_table
   last_idp_used_table         = var.last_idp_used_table
-  // the following table should not be created in the production environment
+  // the following table should not be created in the production environment 
   internal_idp_users_table = null
   internal_idp_sessions    = null
   idp_entity_ids           = local.idp_entity_ids
