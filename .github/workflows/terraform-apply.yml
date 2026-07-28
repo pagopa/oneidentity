@@ -12,6 +12,9 @@ on:
         - dev
         - uat
         - prod
+        - io-uat
+        - io-prod/eu-south-1
+        - io-prod/eu-central-1
   push:
     branches:
       - 'main'
