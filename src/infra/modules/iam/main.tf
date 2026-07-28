@@ -9,6 +9,29 @@ data "aws_iam_policy" "read_access" {
 
 data "aws_caller_identity" "current" {}
 
+locals {
+  default_github_iac_subjects = [
+    "repo:${var.github_repository}:environment:dev",
+    "repo:${var.github_repository}:environment:uat",
+    "repo:${var.github_repository}:environment:prod/eu-central-1",
+    "repo:${var.github_repository}:environment:prod/eu-south-1",
+    "repo:${var.github_repository}:ref:refs/heads/main",
+  ]
+  io_github_iac_environments_by_environment = {
+    "io-uat" = ["io-uat"]
+    "io-prod" = [
+      "io-prod/eu-central-1",
+      "io-prod/eu-south-1",
+    ]
+  }
+  github_environment         = var.github_environment == null ? "" : var.github_environment
+  io_github_iac_environments = lookup(local.io_github_iac_environments_by_environment, local.github_environment, [])
+  github_iac_subjects = local.github_environment == "" ? local.default_github_iac_subjects : [
+    for environment in local.io_github_iac_environments :
+    "repo:${var.github_repository}:environment:${environment}"
+  ]
+}
+
 # github openid identity provider.
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
@@ -42,13 +65,7 @@ resource "aws_iam_role" "githubiac" {
             "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
           }
           StringLike = {
-            "token.actions.githubusercontent.com:sub" : [
-              "repo:${var.github_repository}:environment:dev",
-              "repo:${var.github_repository}:environment:uat",
-              "repo:${var.github_repository}:environment:prod/eu-central-1",
-              "repo:${var.github_repository}:environment:prod/eu-south-1",
-              "repo:${var.github_repository}:ref:refs/heads/main"
-            ]
+            "token.actions.githubusercontent.com:sub" : local.github_iac_subjects
           }
         }
       }
