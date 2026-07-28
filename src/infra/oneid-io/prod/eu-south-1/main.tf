@@ -17,7 +17,7 @@ module "r53_zones" {
   }
 }
 
-module "dev_ns_record" {
+module "uat_ns_record" {
   source  = "terraform-aws-modules/route53/aws//modules/records"
   version = "2.11.0"
 
@@ -30,7 +30,10 @@ module "dev_ns_record" {
       type = "NS"
       ttl  = var.dns_record_ttl
       records = [
-        #TODO: create uat dns zone
+        "ns-1407.awsdns-47.org",
+        "ns-1860.awsdns-40.co.uk",
+        "ns-474.awsdns-59.com",
+        "ns-532.awsdns-02.net",
       ]
     },
   ]

@@ -46,6 +46,17 @@ module "dev_ns_record" {
         "ns-668.awsdns-19.net.",
       ]
     },
+    {
+      name = "io"
+      type = "NS"
+      ttl  = var.dns_record_ttl
+      records = [
+        "ns-1849.awsdns-39.co.uk.",
+        "ns-550.awsdns-04.net.",
+        "ns-1193.awsdns-21.org.",
+        "ns-151.awsdns-18.com.",
+      ]
+    },
   ]
 }
 
