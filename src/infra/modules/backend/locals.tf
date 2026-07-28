@@ -26,5 +26,5 @@ locals {
   bucket_lambda_code              = format("lambda-code-%s", random_integer.bucket_lambda_code_suffix.result)
   metrics_archiver_lambda_config  = var.metrics_archiver_enabled ? var.metrics_archiver_lambda : null
   metrics_archiver_lambda_map     = local.metrics_archiver_lambda_config == null ? {} : { metrics_archiver = local.metrics_archiver_lambda_config }
-  metrics_archiver_lambda_vpc_map = local.metrics_archiver_lambda_config != null && local.metrics_archiver_lambda_config.vpc_enabled ? local.metrics_archiver_lambda_map : {}
+  metrics_archiver_lambda_vpc_map = try(local.metrics_archiver_lambda_config.vpc_enabled, false) ? local.metrics_archiver_lambda_map : {}
 }
