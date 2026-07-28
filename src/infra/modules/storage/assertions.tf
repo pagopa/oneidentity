@@ -259,7 +259,6 @@ module "s3_assertions_bucket" {
   version = "4.1.1"
 
   bucket = local.assertions_bucket_name
-  acl    = "private"
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"

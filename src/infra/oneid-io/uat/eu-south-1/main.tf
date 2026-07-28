@@ -388,7 +388,7 @@ module "backend" {
 
   client_registration_lambda = {
     name                               = format("%s-client-registration", local.project)
-    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                           = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn     = module.database.table_client_registrations_arn
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                             = module.network.vpc_id
@@ -406,7 +406,7 @@ module "backend" {
 
   metadata_lambda = {
     name                           = format("%s-metadata", local.project)
-    filename                       = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                       = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     assets_bucket_arn              = module.storage.assets_bucket_arn
     table_client_registrations_arn = module.database.table_client_registrations_arn
     environment_variables = {
@@ -445,7 +445,7 @@ module "backend" {
 
   client_publisher_lambda = {
     name                               = format("%s-client-publisher", local.project)
-    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                           = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     table_client_registrations_arn     = module.database.table_client_registrations_arn
     clients_bucket_arn                 = module.storage.assets_bucket_arn
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
@@ -474,7 +474,7 @@ module "backend" {
 
   assertion_lambda = {
     name                    = format("%s-assertion", local.project)
-    filename                = "${path.module}/../../hello-python/lambda.zip"
+    filename                = "${path.module}/../../../hello-python/lambda.zip"
     s3_assertion_bucket_arn = module.storage.assertions_bucket_arn
     kms_assertion_key_arn   = module.storage.kms_assertion_key_arn
 
@@ -542,7 +542,7 @@ module "backend" {
 
   idp_metadata_lambda = {
     name     = format("%s-update-idp-metadata", local.project)
-    filename = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
       ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
@@ -579,7 +579,7 @@ module "backend" {
 
   is_gh_integration_lambda = {
     name                              = format("%s-is-gh-integration-lambda", local.project)
-    filename                          = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                          = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     sns_topic_arn                     = var.is_gh_sns_arn
     environment_variables             = { LOG_LEVEL = var.app_log_level }
@@ -587,7 +587,7 @@ module "backend" {
 
   update_status_lambda = {
     name                              = format("%s-update-status", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    filename                          = "${path.module}/../../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -610,7 +610,7 @@ module "backend" {
 
   retrieve_status_lambda = {
     name                              = format("%s-retrieve-status", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    filename                          = "${path.module}/../../../hello-python/lambda.zip"
     assets_bucket_arn                 = module.storage.assets_bucket_arn
     vpc_id                            = module.network.vpc_id
     vpc_subnet_ids                    = module.network.intra_subnets_ids
@@ -649,7 +649,7 @@ module "backend" {
 
   cache_updater_lambda = {
     name                                    = format("%s-cache-updater", local.project)
-    filename                                = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    filename                                = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     cloudwatch_logs_retention_in_days       = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                                  = module.network.vpc_id
     vpc_subnet_ids                          = module.network.intra_subnets_ids
@@ -667,7 +667,7 @@ module "backend" {
 
   invalidate_cache_lambda = {
     name                             = format("%s-invalidate-cache", local.project)
-    filename                         = "${path.module}/../../hello-python/lambda.zip"
+    filename                         = "${path.module}/../../../hello-python/lambda.zip"
     client_registration_stream_label = module.database.table_client_registrations_stream_label
     #vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]  
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
@@ -681,7 +681,7 @@ module "backend" {
 
   client_manager_lambda = {
     name                              = format("%s-client-manager", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    filename                          = "${path.module}/../../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
     table_client_registrations_arn    = module.database.table_client_registrations_arn
     cognito_user_pool_arn             = module.cognito.user_pool_arn
@@ -698,7 +698,7 @@ module "backend" {
 
   pdv_reconciler_lambda = {
     name                               = format("%s-pdv-reconciler", local.project)
-    filename                           = "${path.module}/../../hello-python/lambda.zip"
+    filename                           = "${path.module}/../../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                             = module.network.vpc_id
     vpc_subnet_ids                     = module.network.intra_subnets_ids
@@ -712,7 +712,7 @@ module "backend" {
 
   cert_exp_checker_lambda = {
     name                               = format("%s-cert-exp-checker", local.project)
-    filename                           = "${path.module}/../../hello-python/lambda.zip"
+    filename                           = "${path.module}/../../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
     vpc_id                             = module.network.vpc_id
     vpc_subnet_ids                     = module.network.intra_subnets_ids
@@ -836,7 +836,7 @@ module "cognito" {
   }
   cognito_presignup_lambda = {
     name                              = format("%s-cognito-presignup", local.project)
-    filename                          = "${path.module}/../../hello-python/lambda.zip"
+    filename                          = "${path.module}/../../../hello-python/lambda.zip"
     cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
   }
 
