@@ -23,6 +23,7 @@ jobs:
     name: "terraform-plan-${{ matrix.environment }}-${{ matrix.region }}"
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         include:
           - environment: dev
