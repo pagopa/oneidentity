@@ -33,11 +33,20 @@ jobs:
             region: eu-south-1          
           - environment: prod
             region: eu-central-1
+          - environment: io-uat
+            region: eu-south-1
+            working_directory: src/infra/oneid-io/uat/eu-south-1
+          - environment: io-prod/eu-south-1
+            region: eu-south-1
+            working_directory: src/infra/oneid-io/prod/eu-south-1
+          # - environment: io-prod/eu-central-1
+          #   region: eu-central-1
+          #   working_directory: src/infra/oneid-io/prod/eu-central-1
 
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     
     env:
-      WORKING_DIR: src/infra/${{ matrix.environment }}/${{ matrix.region }}
+      WORKING_DIR: ${{ matrix.working_directory || format('src/infra/{0}/{1}', matrix.environment, matrix.region) }}
       AWS_REGION: ${{ matrix.region }}
      
     steps:
