@@ -493,6 +493,7 @@ module "backend" {
     s3_metrics_archiver_bucket_arn     = module.storage.metrics_archiver_bucket_arn
     table_client_registrations_arn     = module.database.table_client_registrations_arn
     table_idp_metadata_arn             = module.database.table_idp_metadata_arn
+    vpc_enabled                        = true
     vpc_id                             = module.network.vpc_id
     vpc_subnet_ids                     = module.network.intra_subnets_ids
     vpc_s3_prefix_id                   = module.network.vpc_endpoints["s3"]["prefix_list_id"]
@@ -646,12 +647,13 @@ module "backend" {
   }
 
   cache_updater_lambda = {
-    name                               = format("%s-cache-updater", local.project)
-    filename                           = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
-    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
-    vpc_id                             = module.network.vpc_id
-    vpc_subnet_ids                     = module.network.intra_subnets_ids
-    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    name                                    = format("%s-cache-updater", local.project)
+    filename                                = "${path.module}/../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
+    cloudwatch_logs_retention_in_days       = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                                  = module.network.vpc_id
+    vpc_subnet_ids                          = module.network.intra_subnets_ids
+    vpc_tls_security_group_endpoint_enabled = true
+    vpc_tls_security_group_endpoint_id      = module.network.security_group_vpc_tls_id
     environment_variables = {
       LOG_LEVEL                          = var.app_log_level
       CACHE_ENDPOINT_ADDRESS             = module.client_cache.cache_endpoint_address

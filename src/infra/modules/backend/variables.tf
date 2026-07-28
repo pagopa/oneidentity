@@ -500,6 +500,7 @@ variable "metrics_archiver_lambda" {
     table_idp_metadata_arn             = string
     cloudwatch_logs_retention_in_days  = number
     environment_variables              = map(string)
+    vpc_enabled                        = optional(bool, false)
     vpc_id                             = optional(string, null)
     vpc_subnet_ids                     = optional(list(string), [])
     vpc_s3_prefix_id                   = optional(string, null)
@@ -562,13 +563,14 @@ variable "eventbridge_pipe_client_publisher" {
 
 variable "cache_updater_lambda" {
   type = object({
-    name                               = string
-    filename                           = string
-    cloudwatch_logs_retention_in_days  = number
-    environment_variables              = map(string)
-    vpc_id                             = string
-    vpc_subnet_ids                     = list(string)
-    vpc_tls_security_group_endpoint_id = optional(string, null)
+    name                                    = string
+    filename                                = string
+    cloudwatch_logs_retention_in_days       = number
+    environment_variables                   = map(string)
+    vpc_id                                  = string
+    vpc_subnet_ids                          = list(string)
+    vpc_tls_security_group_endpoint_enabled = optional(bool, false)
+    vpc_tls_security_group_endpoint_id      = optional(string, null)
   })
   default = null
 }
