@@ -45,6 +45,8 @@ jobs:
           if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
             if [ "$INPUTS_ENVIRONMENT" == "prod" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
+            elif [ "$INPUTS_ENVIRONMENT" == "io-uat" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-uat/eu-south-1\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/uat/eu-south-1\"}]}"
             elif [ "$INPUTS_ENVIRONMENT" == "io-prod" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/prod/eu-south-1\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\", \"working_directory\":\"src/infra/oneid-io/prod/eu-central-1\"}]}"
             else
