@@ -1,5 +1,11 @@
 # infra
 
+## 3.4.0
+
+### Minor Changes
+
+- 0451f64: dynamodb replica io-prod
+
 ## 3.3.0
 
 ### Minor Changes
