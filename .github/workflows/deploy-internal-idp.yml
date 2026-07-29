@@ -18,6 +18,7 @@ on:
         options:
           - dev
           - uat
+          - io-uat
 jobs:
   setup:
     runs-on: ubuntu-22.04
@@ -34,7 +35,7 @@ jobs:
           if [ "${EVENT_NAME}" == "workflow_dispatch" ]; then
             matrixStringifiedObject="{\"include\":[{\"environment\":\"${INPUTS_ENVIRONMENT}\", \"region\":\"eu-south-1\"}]}"
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
@@ -54,11 +55,15 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
 
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.environment }}-${{ matrix.region }}
+      cancel-in-progress: false
+
     continue-on-error: false
     environment: ${{ matrix.environment }}
     env:
       AWS_REGION: ${{ matrix.region }}
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u"}')[matrix.environment] }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","io-uat":"u"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1"}')[matrix.region] }}
 
     steps:
