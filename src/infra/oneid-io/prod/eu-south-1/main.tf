@@ -92,7 +92,7 @@ module "storage" {
   assertion_accesslogs_expiration    = 180
 }
 
-## SNS for alarms ##
+## SNS for alarms ###
 module "sns" {
   source            = "../../../modules/sns"
   sns_topic_name    = format("%s-sns", local.project)
