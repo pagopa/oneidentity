@@ -1,5 +1,11 @@
 # infra
 
+## 3.1.0
+
+### Minor Changes
+
+- 90ada0f: Add dependencies for apply
+
 ## 3.0.0
 
 ### Major Changes
