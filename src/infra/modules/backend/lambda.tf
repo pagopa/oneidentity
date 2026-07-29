@@ -474,7 +474,7 @@ module "idp_metadata_lambda" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  depends_on = [module.idp_metadata_lambda.lambda_function_name]
+  depends_on = [module.idp_metadata_lambda]
   bucket     = var.idp_metadata_lambda.s3_idp_metadata_bucket_id
 
   lambda_function {
