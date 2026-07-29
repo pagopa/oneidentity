@@ -96,6 +96,8 @@ resource "aws_iam_role_policy" "pipe_source" {
 }
 
 resource "aws_pipes_pipe" "sessions" {
+  depends_on = [aws_iam_role_policy.pipe_source]
+
   name     = var.eventbridge_pipe_sessions.pipe_name
   role_arn = aws_iam_role.pipe_sessions.arn
   source   = var.dynamodb_table_stream_arn
@@ -222,6 +224,8 @@ resource "aws_iam_role_policy" "pipe_cache_source" {
 }
 
 resource "aws_pipes_pipe" "invalidate_cache" {
+  depends_on = [aws_iam_role_policy.pipe_cache_source]
+
   name     = var.eventbridge_pipe_invalidate_cache.pipe_name
   role_arn = aws_iam_role.pipe_invalidate_cache.arn
   source   = var.dynamodb_table_stream_registrations_arn
@@ -302,6 +306,8 @@ resource "aws_iam_role_policy" "pipe_update_idp_metadata" {
 
 resource "aws_pipes_pipe" "update_idp_metadata" {
   count = var.eventbridge_pipe_update_idp_metadata != null && var.idp_metadata_stream_trigger_enabled ? 1 : 0
+
+  depends_on = [aws_iam_role_policy.pipe_update_idp_metadata]
 
   name     = var.eventbridge_pipe_update_idp_metadata.pipe_name
   role_arn = aws_iam_role.pipe_update_idp_metadata[0].arn

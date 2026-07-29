@@ -124,6 +124,8 @@ EOF
 }
 
 resource "aws_api_gateway_account" "main" {
+  depends_on = [aws_iam_role_policy.cloudwatch]
+
   cloudwatch_role_arn = aws_iam_role.apigw.arn
 }
 
