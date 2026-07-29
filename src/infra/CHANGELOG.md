@@ -1,5 +1,15 @@
 # infra
 
+## 3.0.0
+
+### Major Changes
+
+- 791c6d2: Setup OneID for IO
+
+### Minor Changes
+
+- 235cfdc: Setup infra io-prod
+
 ## 2.13.1
 
 ### Patch Changes
