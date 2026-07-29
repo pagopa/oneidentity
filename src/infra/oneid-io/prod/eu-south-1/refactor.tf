@@ -37,10 +37,15 @@ import {
 #   to   = module.database.module.dynamodb_table_idpMetadata[0]
 # }
 
-# moved {
-#   from = module.database.module.dynamodb_table_client_registrations
-#   to   = module.database.module.dynamodb_table_client_registrations[0]
-# }
+moved {
+  from = module.database.module.dynamodb_table_client_registrations
+  to   = module.database.module.dynamodb_table_client_registrations[0]
+}
+
+moved {
+  from = module.backend.aws_pipes_pipe.sessions[0]
+  to   = module.backend.aws_pipes_pipe.sessions
+}
 
 # moved {
 #   from = module.frontend.module.records.aws_route53_record.this[" A"]
