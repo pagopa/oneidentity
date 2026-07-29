@@ -10,6 +10,16 @@ import {
   id = "assertions"
 }
 
+import {
+  to = module.database.module.dynamodb_table_client_registrations[0].aws_dynamodb_table.this[0]
+  id = "ClientRegistrations"
+}
+
+import {
+  to = module.backend.aws_pipes_pipe.sessions
+  id = "oneid-io-es-1-p-sessions-pipe"
+}
+
 # ## Move ##
 
 # moved {

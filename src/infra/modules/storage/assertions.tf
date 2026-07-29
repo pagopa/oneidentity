@@ -395,6 +395,11 @@ resource "aws_athena_database" "assertions" {
   count  = var.create_athena_table ? 1 : 0
   name   = "assertions"
   bucket = module.s3_athena_output_bucket[0].s3_bucket_id
+
+  lifecycle {
+    # The AWS provider does not read this value after import.
+    ignore_changes = [bucket]
+  }
 }
 
 data "aws_iam_policy_document" "glue_assume_role_policy" {
