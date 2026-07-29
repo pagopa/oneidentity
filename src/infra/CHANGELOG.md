@@ -1,5 +1,11 @@
 # infra
 
+## 3.3.0
+
+### Minor Changes
+
+- e4e5deb: Fix for imports and sns subscription
+
 ## 3.2.0
 
 ### Minor Changes
