@@ -1,5 +1,11 @@
 # infra
 
+## 3.2.0
+
+### Minor Changes
+
+- bd23c5c: Fix for terraform imports
+
 ## 3.1.0
 
 ### Minor Changes
