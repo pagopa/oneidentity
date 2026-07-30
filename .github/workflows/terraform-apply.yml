@@ -53,7 +53,7 @@ jobs:
               matrixStringifiedObject="{\"include\":[{\"environment\":\"$INPUTS_ENVIRONMENT\", \"region\":\"eu-south-1\"}]}"
             fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/uat/eu-south-1\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/prod/eu-south-1\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/uat/eu-south-1\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"working_directory\":\"src/infra/oneid-io/prod/eu-south-1\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\", \"working_directory\":\"src/infra/oneid-io/prod/eu-central-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
