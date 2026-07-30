@@ -9,22 +9,23 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Choose environment'
+        description: "Choose environment"
         type: choice
         required: true
         default: dev
         options:
-        - dev
-        - uat
-        - prod
-        - io-uat
-        - io-prod
+          - dev
+          - uat
+          - prod
+          - io-uat
+          - io-prod
 
 jobs:
   setup:
     runs-on: ubuntu-22.04
+    timeout-minutes: 5
     outputs:
-        matrix: ${{ steps.setmatrix.outputs.matrix }}
+      matrix: ${{ steps.setmatrix.outputs.matrix }}
 
     steps:
       - name: Set Dynamic Env Matrix
@@ -52,9 +53,10 @@ jobs:
           GITHUB_REF: ${{ github.ref }}
           EVENT_NAME: ${{ github.event_name }}
           INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
-  
+
   deploy:
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     if: ${{ needs.setup.outputs.matrix != '' }}
     needs: setup
     permissions:
@@ -83,15 +85,17 @@ jobs:
           yarn lint
           yarn test:coverage
           if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
-            yarn build --mode $INPUTS_ENVIRONMENT
+            build_mode="$INPUTS_ENVIRONMENT"
           else
-            yarn build --mode $MATRIX_ENVIRONMENT
+            build_mode="${MATRIX_BUILD_MODE:-$MATRIX_ENVIRONMENT}"
           fi
+          yarn build --mode "$build_mode"
         env:
           EVENT_NAME: ${{ github.event_name }}
           INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
           MATRIX_ENVIRONMENT: ${{ matrix.environment }}
-       
+          MATRIX_BUILD_MODE: ${{ matrix.build_mode }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v4.0.2
         with:
@@ -100,7 +104,7 @@ jobs:
 
       - name: Copy to S3
         run: |
-            aws s3 sync dist s3://${ASSETS_CONTROL_PANEL_BUCKET_NAME}
+          aws s3 sync dist s3://${ASSETS_CONTROL_PANEL_BUCKET_NAME}
         env:
           ASSETS_CONTROL_PANEL_BUCKET_NAME: ${{ vars.ASSETS_CONTROL_PANEL_BUCKET_NAME }}
         working-directory: src/oneid/oneid-control-panel
