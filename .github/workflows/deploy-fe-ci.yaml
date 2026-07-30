@@ -17,6 +17,8 @@ on:
         - dev
         - uat
         - prod
+        - io-uat
+        - io-prod
 
 jobs:
   setup:
@@ -34,11 +36,15 @@ jobs:
           if [ "$EVENT_NAME" == "workflow_dispatch" ]; then
             if [ "$INPUTS_ENVIRONMENT" == "prod" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
+            elif [ "$INPUTS_ENVIRONMENT" == "io-uat" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}]}"
+            elif [ "$INPUTS_ENVIRONMENT" == "io-prod" ]; then
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}]}"
             else
               matrixStringifiedObject="{\"include\":[{\"environment\":\"$INPUTS_ENVIRONMENT\", \"region\":\"eu-south-1\"}]}"
             fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
@@ -56,6 +62,10 @@ jobs:
       contents: read
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.environment }}-${{ matrix.region }}
+      cancel-in-progress: false
 
     continue-on-error: false
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
