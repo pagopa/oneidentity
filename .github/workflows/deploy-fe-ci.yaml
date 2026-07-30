@@ -39,12 +39,12 @@ jobs:
             elif [ "$INPUTS_ENVIRONMENT" == "io-uat" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}]}"
             elif [ "$INPUTS_ENVIRONMENT" == "io-prod" ]; then
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\", \"build_mode\":\"io-prod\"}]}"
             else
               matrixStringifiedObject="{\"include\":[{\"environment\":\"$INPUTS_ENVIRONMENT\", \"region\":\"eu-south-1\"}]}"
             fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\", \"build_mode\":\"io-prod\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT

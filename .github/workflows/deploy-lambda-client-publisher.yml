@@ -44,12 +44,12 @@ jobs:
             elif [ "$INPUTS_ENVIRONMENT" == "io-uat" ]; then
               matrixStringifiedObject="{\"include\":[{\"environment\":\"io-uat\", \"region\":\"eu-south-1\"}]}"
             elif [ "$INPUTS_ENVIRONMENT" == "io-prod" ]; then
-              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\"}]}"
+              matrixStringifiedObject="{\"include\":[{\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\"}]}"
             else
               matrixStringifiedObject="{\"include\":[{\"environment\":\"$INPUTS_ENVIRONMENT\", \"region\":\"eu-south-1\"}]}"
             fi
           else
-            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\"}]}"
+            matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"io-prod/eu-south-1\", \"region\":\"eu-south-1\"}, {\"environment\":\"io-prod/eu-central-1\", \"region\":\"eu-central-1\"}]}"
           fi
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
@@ -107,8 +107,8 @@ jobs:
     continue-on-error: false
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
-      APP_NAME: ${{ fromJSON('{"dev":"oneid","uat":"oneid","prod":"oneid","io-uat":"oneid-io","io-prod/eu-south-1":"oneid-io"}')[matrix.environment] }}
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u","io-prod/eu-south-1":"p"}')[matrix.environment] }}
+      APP_NAME: ${{ fromJSON('{"dev":"oneid","uat":"oneid","prod":"oneid","io-uat":"oneid-io","io-prod/eu-south-1":"oneid-io","io-prod/eu-central-1":"oneid-io"}')[matrix.environment] }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u","io-prod/eu-south-1":"p","io-prod/eu-central-1":"p"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
     permissions:
       id-token: write
