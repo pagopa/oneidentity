@@ -1,5 +1,11 @@
 # infra
 
+## 3.5.0
+
+### Minor Changes
+
+- 7ec53c5: Setup infra oneid-io eu-central
+
 ## 3.4.0
 
 ### Minor Changes
