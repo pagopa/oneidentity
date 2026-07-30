@@ -9,7 +9,7 @@ on:
       - main
     paths:
       - "**/src/oneid/**"
-      - '!**/src/oneid/oneid-lambda-assertion'
+      - "!**/src/oneid/oneid-lambda-assertion"
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
   pull_request:
@@ -19,7 +19,7 @@ on:
       - synchronize
     paths:
       - "**/src/oneid/**"
-      - '!**/src/oneid/oneid-lambda-assertion'
+      - "!**/src/oneid/oneid-lambda-assertion"
       - "**pom.xml"
       - ".github/workflows/code-review.yml"
 jobs:
@@ -39,9 +39,9 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1 https://github.com/actions/setup-java/releases/tag/v4.2.1
         with:
-          distribution: 'temurin'
-          java-version: '21'
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
 
       - name: Set up Maven settings.xml
         shell: bash
@@ -54,7 +54,7 @@ jobs:
           GH_TOKEN_READ_PACKAGES_USER: ${{ secrets.GH_TOKEN_READ_PACKAGES_USER }}
       - name: Prepare SonarCloud analysis configuration
         run: >
-          src/oneid/mvnw -Bclean verify
+          src/oneid/mvnw -B clean verify
           -f src/oneid/pom.xml
           -P oneid-all
           -s $RUNNER_TEMP/maven-settings.xml
@@ -72,7 +72,8 @@ jobs:
 
       - name: Analyze with SonarCloud
         run: >
-          src/oneid/mvnw -B sonar:sonar
+          src/oneid/mvnw -B
+          org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar
           -f src/oneid/pom.xml
           -P oneid-all
           -s $RUNNER_TEMP/maven-settings.xml
@@ -80,9 +81,9 @@ jobs:
           -Dsonar.projectName=$SONARCLOUD_PROJECT_NAME
           -Dsonar.projectKey=$SONARCLOUD_PROJECT_KEY
           -Dsonar.organization=pagopa
-          -Dsonar.host.url=https://sonarcloud.io 
+          -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=$SONAR_TOKEN
-          -Dsonar.exclusions='**/enums/**, **/model/**, **/dto/**, **/Config*.java, **/*Config.java, **/*Exception.java, **/*Constants.java, **/producers/**, **/src/test/**, **/annotations/**, **/SPARouting.java'
+          -Dsonar.exclusions='**/enums/**, **/model/**, **/dto/**, **/Config*.java, **/*Config.java, **/*Exception.java, **/*Constants.java, **/src/test/**, **/annotations/**, **/SPARouting.java'
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
