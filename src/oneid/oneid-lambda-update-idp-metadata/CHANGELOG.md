@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.6.0
+
+### Minor Changes
+
+- 5663a24: Pipeline deploy oneid-io
+
 ## 1.5.0
 
 ### Minor Changes

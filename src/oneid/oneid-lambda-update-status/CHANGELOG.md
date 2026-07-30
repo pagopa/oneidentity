@@ -1,5 +1,11 @@
 # oneid-lambda-update-status
 
+## 1.5.0
+
+### Minor Changes
+
+- 5663a24: Pipeline deploy oneid-io
+
 ## 1.4.0
 
 ### Minor Changes
