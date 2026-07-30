@@ -74,7 +74,8 @@ jobs:
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
       AWS_REGION: ${{ matrix.region }}
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u-io","io-prod/eu-south-1":"p-io","io-prod/eu-central-1":"p-io"}')[matrix.environment] }}
+      APP_NAME: ${{ fromJSON('{"dev":"oneid","uat":"oneid","prod":"oneid","io-uat":"oneid-io","io-prod/eu-south-1":"oneid-io"}')[matrix.environment] }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u","io-prod/eu-south-1":"p"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
 
     steps:
@@ -98,9 +99,9 @@ jobs:
         id: cache
         with:
           path: build-cache-core
-          key: buildx-${{ env.ENV_SHORT }}-${{ hashFiles('src/oneid/oneid-ecs-core/pom.xml', 'src/oneid/oneid-common/pom.xml', 'src/oneid/pom.xml') }}
+          key: buildx-${{ env.APP_NAME }}-${{ env.ENV_SHORT }}-${{ hashFiles('src/oneid/oneid-ecs-core/pom.xml', 'src/oneid/oneid-common/pom.xml', 'src/oneid/pom.xml') }}
           restore-keys: |
-            buildx-${{ env.ENV_SHORT }}-
+            buildx-${{ env.APP_NAME }}-${{ env.ENV_SHORT }}-
 
       - name: inject buildx-qgs into docker
         uses: reproducible-containers/buildkit-cache-dance@5b6db76d1da5c8b307d5d2e0706d266521b710de # v3.1.2 https://github.com/reproducible-containers/buildkit-cache-dance/releases/tag/v3.1.2
@@ -141,7 +142,7 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-          --task-definition oneid-$REGION_SHORT-$ENV_SHORT-core  \
+          --task-definition $APP_NAME-$REGION_SHORT-$ENV_SHORT-core  \
           --query taskDefinition > ./task-definition.json
           echo $(cat ./task-definition.json | jq 'del(
                   .taskDefinitionArn,
@@ -153,6 +154,7 @@ jobs:
                   .registeredBy
               )') > ./task-definition.json
         env:
+          APP_NAME: ${{ env.APP_NAME }}
           REGION_SHORT: ${{ env.REGION_SHORT }}
           ENV_SHORT: ${{ env.ENV_SHORT }}
 
@@ -168,8 +170,8 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@0e82244a9c6dac43d70151a94c67ebc4bab18fc5 # v2.2.0 https://github.com/aws-actions/amazon-ecs-deploy-task-definition/releases/tag/v2.2.0
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core
-          cluster: oneid-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-ecs
+          service: ${{ env.APP_NAME }}-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-core
+          cluster: ${{ env.APP_NAME }}-${{ env.REGION_SHORT }}-${{ env.ENV_SHORT }}-ecs
           wait-for-service-stability: true
 
   # release:
