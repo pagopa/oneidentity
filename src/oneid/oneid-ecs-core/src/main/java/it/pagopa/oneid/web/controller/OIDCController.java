@@ -21,6 +21,7 @@ import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.ClientLookupService;
@@ -102,7 +103,9 @@ public class OIDCController {
             .scope(authorizationRequestDTOExtendedGet.getScope())
             .state(authorizationRequestDTOExtendedGet.getState())
             .ipAddress(authorizationRequestDTOExtendedGet.getIpAddress())
-            .assertionRef(authorizationRequestDTOExtendedGet.getAssertionRef()).build();
+            .assertionRef(authorizationRequestDTOExtendedGet.getAssertionRef())
+            .acrValues(authorizationRequestDTOExtendedGet.getAcrValues())
+            .build();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
         return AuthorizationRequestDTOExtended.builder()
@@ -114,7 +117,9 @@ public class OIDCController {
             .scope(authorizationRequestDTOExtendedPost.getScope())
             .state(authorizationRequestDTOExtendedPost.getState())
             .ipAddress(authorizationRequestDTOExtendedPost.getIpAddress())
-            .assertionRef(authorizationRequestDTOExtendedPost.getAssertionRef()).build();
+            .assertionRef(authorizationRequestDTOExtendedPost.getAssertionRef())
+            .acrValues(authorizationRequestDTOExtendedPost.getAcrValues())
+            .build();
       }
       default -> {
         throw new OneIdentityException("Invalid object for /oidc/authorize route");
@@ -208,7 +213,19 @@ public class OIDCController {
         .orElse(SamlBinding.HTTP_POST);
 
     ServiceIndexes serviceIndexes = getServiceIndexes(selectedClient, idp.get());
-    String authLevel = selectedClient.getAuthLevel().getValue();
+
+    // Resolve auth level and comparison type
+    String rawAcrValues = authorizationRequestDTOExtended.getAcrValues();
+    String authLevel;
+    AuthnContextComparisonType comparisonType;
+
+    if (StringUtils.isNotBlank(rawAcrValues)) {
+      authLevel = rawAcrValues;
+      comparisonType = AuthnContextComparisonType.EXACT;
+    } else {
+      authLevel = selectedClient.getAuthLevel().getValue();
+      comparisonType = AuthnContextComparisonType.MINIMUM;
+    }
 
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
     if (StringUtils.isBlank(idpSSOEndpoint)) {
@@ -228,6 +245,7 @@ public class OIDCController {
           serviceIndexes.assertionConsumerServiceIndex(),
           serviceIndexes.attributeConsumingServiceIndex(),
           authLevel,
+          comparisonType,
           samlBinding,
           assertionRef);
     } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
@@ -261,6 +279,8 @@ public class OIDCController {
 
     SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime,
         ttl, encodedAuthnRequest, authorizationRequestDTOExtended);
+    samlSession.setRequestedAuthLevel(authLevel);
+    samlSession.setComparisonType(comparisonType);
 
     try {
       samlSessionServiceImpl.saveSession(samlSession);

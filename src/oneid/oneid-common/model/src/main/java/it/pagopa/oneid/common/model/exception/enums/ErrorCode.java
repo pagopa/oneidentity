@@ -154,6 +154,7 @@ public enum ErrorCode {
   IDP_ERROR_DESTINATION_NOT_FOUND(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(),
       "Destination not found"),
   IDP_ERROR_DESTINATION_MISMATCH(FeErrorCode.FE_IDP_ERROR.getFeErrorCode(), "Destination mismatch"),
+  ACR_VALUES_ERROR("ACR_VALUES_ERROR", "Invalid or forbidden acr_values parameter"),
   CLIENT_UTILS_ERROR("CLIENT_UTILS_ERROR", "Error during Client credentials initialization"),
   CLIENT_SPID_MINORS_ERROR("CLIENT_SPID_MINORS_ERROR", "minAge is required when spidMinors is true"),
   CLIENT_REGISTRATION_SERVICE_ERROR("CLIENT_REGISTRATION_SERVICE_ERROR",

@@ -1,5 +1,6 @@
 package it.pagopa.oneid.model.session;
 
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,10 @@ public class SAMLSession extends Session {
   // TODO: evaluate if this is better than throwing an exception on update
   // @Getter(onMethod_ = @DynamoDbUpdateBehavior(UpdateBehavior.WRITE_IF_NOT_EXISTS))
   private String SAMLResponse;
+
+  private String requestedAuthLevel;
+
+  private AuthnContextComparisonType comparisonType;
 
   @Getter(onMethod_ = @DynamoDbFlatten)
   private AuthorizationRequestDTOExtended authorizationRequestDTOExtended;

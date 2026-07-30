@@ -38,6 +38,7 @@ import org.junit.platform.commons.util.StringUtils;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
@@ -80,11 +81,11 @@ public class SAMLUtilsExtendedCoreTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"spidLevelTest"})
+  @ValueSource(strings = { "spidLevelTest" })
   @NullAndEmptySource
   void buildRequestedAuthnContext(String spidLevel) {
     RequestedAuthnContext requestedAuthnContext = samlUtilsExtendedCore.buildRequestedAuthnContext(
-        spidLevel);
+        spidLevel, AuthnContextComparisonType.MINIMUM);
 
     assertNotNull(requestedAuthnContext);
     assertEquals(AuthnContextComparisonTypeEnumeration.MINIMUM,
@@ -152,8 +153,7 @@ public class SAMLUtilsExtendedCoreTest {
   @Test
   @SneakyThrows
   void getSAMLResponseFromString_IllegalArgumentException() {
-    String response =
-        "Invalid SAML response";
+    String response = "Invalid SAML response";
 
     OneIdentityException exception = assertThrows(OneIdentityException.class,
         () -> samlUtilsExtendedCore.getSAMLResponseFromString(response));

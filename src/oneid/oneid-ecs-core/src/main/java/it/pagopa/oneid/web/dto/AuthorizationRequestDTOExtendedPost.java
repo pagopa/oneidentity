@@ -45,5 +45,6 @@ public class AuthorizationRequestDTOExtendedPost {
 
   @RestForm
   private String state;
-
+  @RestForm("acr_values")
+  private String acrValues;
 }
