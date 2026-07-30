@@ -84,7 +84,8 @@ jobs:
     continue-on-error: false
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u-io","io-prod/eu-south-1":"p-io","io-prod/eu-central-1":"p-io"}')[matrix.environment] }}
+      APP_NAME: ${{ fromJSON('{"dev":"oneid","uat":"oneid","prod":"oneid","io-uat":"oneid-io","io-prod/eu-south-1":"oneid-io"}')[matrix.environment] }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u","io-prod/eu-south-1":"p"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
     permissions:
       id-token: write
@@ -113,7 +114,7 @@ jobs:
       - name: Deploy Lambda function (${{ matrix.environment }})
         run: |
           aws lambda update-function-code \
-          --function-name oneid-$REGION_SHORT-$ENV_SHORT-cognito-presignup \
+          --function-name $APP_NAME-$REGION_SHORT-$ENV_SHORT-cognito-presignup \
           --s3-bucket $LAMBDA_CODE_BUCKET_NAME --s3-key $LAMBDA_COGNITO_PRESIGNUP_KEY
         env:
           REGION_SHORT: ${{ env.REGION_SHORT }}
