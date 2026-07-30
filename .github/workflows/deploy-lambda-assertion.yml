@@ -89,7 +89,7 @@ jobs:
     continue-on-error: false
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u","io-prod/eu-south-1":"p","io-prod/eu-central-1":"p"}')[matrix.environment] }}
+      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p","io-uat":"u-io","io-prod/eu-south-1":"p-io","io-prod/eu-central-1":"p-io"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
     permissions:
       id-token: write
