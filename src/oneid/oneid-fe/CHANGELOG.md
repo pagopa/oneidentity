@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.3.1
+
+### Patch Changes
+
+- 37e6497: feat: add io internal idp metadata
+
 ## 1.3.0
 
 ### Minor Changes
