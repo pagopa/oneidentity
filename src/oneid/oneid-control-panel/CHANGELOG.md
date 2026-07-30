@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.9.1
+
+### Patch Changes
+
+- 7e7bebf: add new .env io
+
 ## 1.9.0
 
 ### Minor Changes
