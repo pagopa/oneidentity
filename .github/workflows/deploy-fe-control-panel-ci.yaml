@@ -5,8 +5,7 @@ on:
     branches:
       - "main"
     paths:
-      - "src/oneid/oneid-control-panel/**"
-      - ".github/workflows/deploy-fe-control-panel-ci.yaml"
+      - "**/src/oneid/oneid-control-panel/**/CHANGELOG.md"
   workflow_dispatch:
     inputs:
       environment:
