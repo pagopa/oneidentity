@@ -299,7 +299,7 @@ module "metadata_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
 
-  function_name           = var.metadata_lambda.name
+  function_name           = var.metadata_lambda.name 
   description             = "Lambda function metadata."
   runtime                 = "java21"
   handler                 = "io.quarkus.amazon.lambda.runtime.QuarkusStreamHandler::handleRequest"
