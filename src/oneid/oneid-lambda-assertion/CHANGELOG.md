@@ -1,5 +1,11 @@
 # oneid-lambda-assertion
 
+## 1.2.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 1.1.0
 
 ### Minor Changes

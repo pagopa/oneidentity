@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.4.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 1.3.2
 
 ### Patch Changes

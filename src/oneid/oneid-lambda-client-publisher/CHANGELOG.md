@@ -1,5 +1,11 @@
 # oneid-lambda-client-publisher
 
+## 0.6.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 0.5.0
 
 ### Minor Changes

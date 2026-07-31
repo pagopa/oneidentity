@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.3.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 1.2.0
 
 ### Minor Changes
