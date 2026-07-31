@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.10.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 2.9.0
 
 ### Minor Changes

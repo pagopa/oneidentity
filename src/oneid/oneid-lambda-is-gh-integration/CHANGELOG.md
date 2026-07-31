@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.6.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 1.5.0
 
 ### Minor Changes

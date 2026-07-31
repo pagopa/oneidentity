@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.19.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 4.18.0
 
 ### Minor Changes
