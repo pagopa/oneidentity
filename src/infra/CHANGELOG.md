@@ -1,5 +1,11 @@
 # infra
 
+## 3.6.0
+
+### Minor Changes
+
+- 109a807: Fix egress rule metadata
+
 ## 3.5.0
 
 ### Minor Changes
