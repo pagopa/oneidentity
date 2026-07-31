@@ -13,6 +13,12 @@ variable "env_short" {
   description = "env short"
 }
 
+variable "enable_metadata_lambda_vpc_endpoint_egress" {
+  type        = bool
+  description = "Whether to create dedicated metadata Lambda egress rules for VPC endpoints."
+  default     = false
+}
+
 variable "role_prefix" {
   type        = string
   description = "IAM Role prefix."
