@@ -264,7 +264,7 @@ module "security_group_lambda_metadata" {
     var.metadata_lambda.vpc_endpoint_dynamodb_prefix_id
   ]
 
-  # egress_rules = ["https-443-tcp"]
+  egress_rules = var.enable_metadata_lambda_vpc_endpoint_egress ? ["https-443-tcp"] : []
 }
 
 resource "aws_security_group_rule" "metadata_vpc_tls" {
@@ -274,8 +274,18 @@ resource "aws_security_group_rule" "metadata_vpc_tls" {
   protocol                 = "tcp"
   security_group_id        = module.security_group_lambda_metadata.security_group_id
   source_security_group_id = var.metadata_lambda.vpc_endpoint_ssm_nsg_ids[1]
-  prefix_list_ids          = [var.metadata_lambda.vpc_s3_prefix_id]
+  prefix_list_ids          = var.enable_metadata_lambda_vpc_endpoint_egress ? null : [var.metadata_lambda.vpc_s3_prefix_id]
+}
 
+resource "aws_security_group_rule" "metadata_s3_tls" {
+  count = var.enable_metadata_lambda_vpc_endpoint_egress ? 1 : 0
+
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = module.security_group_lambda_metadata.security_group_id
+  prefix_list_ids   = [var.metadata_lambda.vpc_s3_prefix_id]
 }
 
 module "metadata_lambda" {

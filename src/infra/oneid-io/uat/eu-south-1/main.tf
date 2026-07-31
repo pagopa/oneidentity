@@ -169,6 +169,8 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
+  enable_metadata_lambda_vpc_endpoint_egress = true
+
   role_prefix = local.project
   event_mode  = var.event_mode
 
