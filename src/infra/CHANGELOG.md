@@ -1,5 +1,11 @@
 # infra
 
+## 3.7.0
+
+### Minor Changes
+
+- 5dfc266: Lambda metadata fix egress rules
+
 ## 3.6.0
 
 ### Minor Changes
