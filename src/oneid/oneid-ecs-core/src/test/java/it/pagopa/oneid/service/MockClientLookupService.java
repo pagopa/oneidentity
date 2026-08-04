@@ -23,10 +23,17 @@ public class MockClientLookupService implements ClientLookupService {
     addClient("testIsRequiredSameIdpTrue", SamlBinding.HTTP_POST, true, false);
     addClient("testPairwiseTrue", SamlBinding.HTTP_POST, false, true);
     addClient("testClientId", SamlBinding.HTTP_POST, true, false);
+    addClient("protectedClient99", SamlBinding.HTTP_POST, true, false, 99);
+    addClient("protectedClient100", SamlBinding.HTTP_POST, true, false, 100);
   }
 
   private static void addClient(String clientId, SamlBinding samlBinding, boolean requiredSameIdp,
       boolean pairwise) {
+    addClient(clientId, samlBinding, requiredSameIdp, pairwise, 0);
+  }
+
+  private static void addClient(String clientId, SamlBinding samlBinding, boolean requiredSameIdp,
+      boolean pairwise, int acsIndex) {
     CLIENTS.put(clientId, Client.builder()
         .clientId(clientId)
         .userId("test")
@@ -35,7 +42,7 @@ public class MockClientLookupService implements ClientLookupService {
         .requestedParameters(Set.of("test"))
         .authLevel(AuthLevel.L2)
         .samlBinding(samlBinding)
-        .acsIndex(0)
+        .acsIndex(acsIndex)
         .attributeIndex(0)
         .eidasIndex(99)
         .isActive(true)

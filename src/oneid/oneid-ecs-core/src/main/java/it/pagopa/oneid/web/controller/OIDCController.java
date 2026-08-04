@@ -50,6 +50,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -61,6 +62,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 public class OIDCController {
 
   private static final String APPLICATION_JWT = "application/jwt";
+private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
 
   private record ServiceIndexes(int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex) {
@@ -169,6 +171,13 @@ public class OIDCController {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
     Client selectedClient = client.get();
+    
+    // 2. Check if client is protected (acsIndex 99 or 100)
+    if (PROTECTED_ACS_INDEXES.contains(selectedClient.getAcsIndex())) {
+      Log.warnf("Authorization blocked for protected client %s",
+          selectedClient.getClientId());
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
 
     // 1. Check if callbackUri exists among clientId parameters
     if (!selectedClient.getCallbackURI()

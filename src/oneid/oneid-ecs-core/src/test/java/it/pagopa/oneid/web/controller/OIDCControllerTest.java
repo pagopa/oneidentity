@@ -341,6 +341,58 @@ class OIDCControllerTest {
 
   @Test
   @SneakyThrows
+  void authorizePost_ProtectedClientAcsIndex99_isBlockedBeforeSamlRequest() {
+    AuthorizationRequestDTOExtendedPost request = getAuthorizationRequestDTOExtendedPost();
+    request.setClientId("protectedClient99");
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", request.getIpAddress())
+        .formParams(Map.of(
+            "idp", request.getIdp(),
+            "client_id", request.getClientId(),
+            "response_type", request.getResponseType(),
+            "redirect_uri", request.getRedirectUri(),
+            "scope", request.getScope(),
+            "nonce", request.getNonce(),
+            "state", request.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode());
+
+    Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
+        Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
+        Mockito.any());
+  }
+
+  @Test
+    @SneakyThrows
+  void authorizePost_ProtectedClientAcsIndex100_isBlockedBeforeSamlRequest() {
+    AuthorizationRequestDTOExtendedPost request = getAuthorizationRequestDTOExtendedPost();
+    request.setClientId("protectedClient100");
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", request.getIpAddress())
+        .formParams(Map.of(
+            "idp", request.getIdp(),
+            "client_id", request.getClientId(),
+            "response_type", request.getResponseType(),
+            "redirect_uri", request.getRedirectUri(),
+            "scope", request.getScope(),
+            "nonce", request.getNonce(),
+            "state", request.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode());
+
+    Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
+        Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
+        Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
   void authorizePost_RedirectUriNotFound() {
     // given
 
