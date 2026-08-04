@@ -295,7 +295,7 @@ module "backend" {
     environment_variables = {
       "LOG_LEVEL"                          = var.app_log_level
       "SNS_TOPIC_ARN"                      = module.sns.sns_topic_arn
-      "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = var.env_short
+      "SNS_TOPIC_NOTIFICATION_ENVIRONMENT" = "${var.env_short}_io"
       "QUARKUS_HTTP_CORS_ORIGINS"          = "https://admin.${var.r53_dns_zone.name}",
       "PDV_PLAN_URL"                       = var.pdv_plan_url
     }
