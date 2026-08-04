@@ -37,10 +37,13 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     String dummySAMLRequest = "dummySAMLRequest";
     String dummySAMLResponse = "dummySAMLResponse";
     AuthorizationRequestDTOExtended dummyAuthorizationRequestDTOExtended = new AuthorizationRequestDTOExtended(
-        "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test");
+      "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test",
+      "test");
 
-    return (T) new SAMLSession(dummySAMLRequest, dummySAMLResponse,
-        dummyAuthorizationRequestDTOExtended);
+    SAMLSession session = new SAMLSession(dummySAMLRequest, RecordType.SAML, 0, 0,
+      dummySAMLRequest, dummyAuthorizationRequestDTOExtended);
+    session.setSAMLResponse(dummySAMLResponse);
+    return (T) session;
   }
 
   @Override

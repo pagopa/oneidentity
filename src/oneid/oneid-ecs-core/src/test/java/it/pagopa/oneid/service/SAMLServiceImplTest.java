@@ -3129,7 +3129,7 @@ public class SAMLServiceImplTest {
     // then
     assertDoesNotThrow(
         () -> samlServiceImpl.validateSAMLResponse(response, testIDP.getEntityID(),
-            Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L2,
+            Set.of("fiscalNumber", "spidCode"), mockInstant.minusSeconds(10), AuthLevel.L1,
             AuthnContextComparisonType.MINIMUM,
             defaultFallbackUri, defaultState, defaultClientId, null));
   }
