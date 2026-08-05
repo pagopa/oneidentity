@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericHTMLException;
@@ -224,6 +225,84 @@ class AuthenticationRequestValidatorTest {
   void assertionRef_null_skipsValidation() {
     assertTrue(validator.isValid(
         validGetRequestWithAssertionRef(null),
+        mock(ConstraintValidatorContext.class)));
+  }
+
+  private AuthorizationRequestDTOExtendedGet requestWithAcrValues(
+      String acrValues, AuthLevel clientLevel) {
+    AuthorizationRequestDTOExtendedGet request = mock(AuthorizationRequestDTOExtendedGet.class);
+    when(request.getResponseType()).thenReturn(ResponseType.CODE);
+    when(request.getRedirectUri()).thenReturn("http://callback");
+    when(request.getClientId()).thenReturn("client1");
+    when(request.getState()).thenReturn("state");
+    when(request.getIdp()).thenReturn("idp1");
+    when(request.getAcrValues()).thenReturn(acrValues);
+    Client client = mock(Client.class);
+    when(client.getCallbackURI()).thenReturn(Set.of("http://callback"));
+    when(client.getAuthLevel()).thenReturn(clientLevel);
+    when(clientLookupService.getClientById("client1")).thenReturn(Optional.of(client));
+    return request;
+  }
+
+  @Test
+  @DisplayName("given acrValues with spaces and valid callback, when isValid, then AuthorizationErrorException")
+  void acrValues_withSpaces_validCallback_throwsAuthorizationError() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        requestWithAcrValues("L2 L3", null), mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given acrValues with spaces and no valid client, when isValid, then GenericHTMLException")
+  void acrValues_withSpaces_invalidCallback_throwsGenericHtml() {
+    AuthorizationRequestDTOExtendedGet request = mock(AuthorizationRequestDTOExtendedGet.class);
+    when(request.getResponseType()).thenReturn(ResponseType.CODE);
+    when(request.getRedirectUri()).thenReturn("http://callback");
+    when(request.getClientId()).thenReturn("unknown-client");
+    when(request.getState()).thenReturn("state");
+    when(request.getIdp()).thenReturn("idp1");
+    when(request.getAcrValues()).thenReturn("L2 L3");
+    when(clientLookupService.getClientById("unknown-client")).thenReturn(Optional.empty());
+
+    assertThrows(GenericHTMLException.class, () -> validator.isValid(
+        request, mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given invalid acrValues and valid callback, when isValid, then AuthorizationErrorException")
+  void acrValues_invalidValue_throwsAuthorizationError() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        requestWithAcrValues("not-a-valid-level", null), mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given acrValues L1, when isValid, then AuthorizationErrorException")
+  void acrValues_l1Value_throwsAuthorizationError() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        requestWithAcrValues(AuthLevel.L1.getValue(), null),
+        mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given acrValues lower than client default, when isValid, then AuthorizationErrorException")
+  void acrValues_lowerThanClientDefault_throwsAuthorizationError() {
+    assertThrows(AuthorizationErrorException.class, () -> validator.isValid(
+        requestWithAcrValues(AuthLevel.L2.getValue(), AuthLevel.L3),
+        mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given valid acrValues equal to client default, when isValid, then passes")
+  void acrValues_equalToClientDefault_passes() {
+    assertTrue(validator.isValid(
+        requestWithAcrValues(AuthLevel.L2.getValue(), AuthLevel.L2),
+        mock(ConstraintValidatorContext.class)));
+  }
+
+  @Test
+  @DisplayName("given valid acrValues higher than client default, when isValid, then passes")
+  void acrValues_higherThanClientDefault_passes() {
+    assertTrue(validator.isValid(
+        requestWithAcrValues(AuthLevel.L3.getValue(), AuthLevel.L2),
         mock(ConstraintValidatorContext.class)));
   }
 }

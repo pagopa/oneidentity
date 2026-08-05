@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
@@ -405,7 +407,7 @@ class InternalIDPServiceImplTest {
         .parameter(Parameter.builder().value(TEST_CERT_PEM).build()).build();
     GetParameterResponse keyResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value(TEST_KEY_PEM).build()).build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
         .thenReturn(certResponse)
         .thenReturn(keyResponse);
   }
@@ -419,8 +421,8 @@ class InternalIDPServiceImplTest {
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
     mockSsmWithValidCredentials();
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
         .thenReturn(Optional.of(user));
 
@@ -442,8 +444,8 @@ class InternalIDPServiceImplTest {
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
     mockSsmWithValidCredentials();
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
         .thenReturn(Optional.of(user));
 
@@ -465,8 +467,8 @@ class InternalIDPServiceImplTest {
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
     mockSsmWithValidCredentials();
-    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
         .thenReturn(Optional.of(user));
 
