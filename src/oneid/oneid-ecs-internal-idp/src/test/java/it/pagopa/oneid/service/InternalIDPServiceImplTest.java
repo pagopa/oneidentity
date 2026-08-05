@@ -17,9 +17,20 @@ import it.pagopa.oneid.exception.MalformedAuthnRequestException;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.IDPInternalUser;
 import jakarta.inject.Inject;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -348,6 +359,49 @@ class InternalIDPServiceImplTest {
         .build();
   }
 
+  // SSM mock
+  private static final GetParameterResponse TEST_CERT_RESPONSE;
+  private static final GetParameterResponse TEST_KEY_RESPONSE;
+
+  static {
+    try {
+      KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+      kpg.initialize(2048);
+      KeyPair keyPair = kpg.generateKeyPair();
+
+      X500Name subject = new X500Name("CN=TestIDP");
+      Date notBefore = new Date();
+      Date notAfter = new Date(notBefore.getTime() + 365L * 24 * 60 * 60 * 1000);
+      ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA")
+          .build(keyPair.getPrivate());
+      X509Certificate cert = new JcaX509CertificateConverter().getCertificate(
+          new JcaX509v3CertificateBuilder(
+              subject, BigInteger.ONE, notBefore, notAfter, subject, keyPair.getPublic())
+              .build(signer));
+
+      Base64.Encoder enc = Base64.getMimeEncoder(64, new byte[] { '\n' });
+      String certPem = "-----BEGIN CERTIFICATE-----\n" // gitleaks:allow
+          + enc.encodeToString(cert.getEncoded())
+          + "\n-----END CERTIFICATE-----";
+      String keyPem = "-----BEGIN PRIVATE KEY-----\n" // gitleaks:allow
+          + enc.encodeToString(keyPair.getPrivate().getEncoded())
+          + "\n-----END PRIVATE KEY-----";
+
+      TEST_CERT_RESPONSE = GetParameterResponse.builder()
+          .parameter(Parameter.builder().value(certPem).build()).build();
+      TEST_KEY_RESPONSE = GetParameterResponse.builder()
+          .parameter(Parameter.builder().value(keyPem).build()).build();
+    } catch (Exception e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
+
+  private void mockSsmWithValidCredentials() {
+    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+        .thenReturn(TEST_CERT_RESPONSE)
+        .thenReturn(TEST_KEY_RESPONSE);
+  }
+
   @Test
   @DisplayName("given_null_requestedAuthLevel_when_createSuccessfulSamlResponse_then_uses_client_default_level")
   void createSuccessfulSamlResponse_nullRequestedLevel_usesClientDefault()
@@ -356,6 +410,7 @@ class InternalIDPServiceImplTest {
     Client client = buildTestClient(clientId, AuthLevel.L2);
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
+    mockSsmWithValidCredentials();
     Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
@@ -378,6 +433,7 @@ class InternalIDPServiceImplTest {
     Client client = buildTestClient(clientId, AuthLevel.L2);
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
+    mockSsmWithValidCredentials();
     Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
@@ -400,6 +456,7 @@ class InternalIDPServiceImplTest {
     Client client = buildTestClient(clientId, AuthLevel.L2);
     IDPInternalUser user = buildTestUser("testUser", clientId);
 
+    mockSsmWithValidCredentials();
     Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
