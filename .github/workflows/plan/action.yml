@@ -39,6 +39,10 @@ runs:
       run: terraform fmt -check --recursive
       working-directory: ./src/infra
 
+    - name: Package Lambda layers
+      shell: bash
+      run: ./.github/scripts/package-lambda-layers.sh
+
 
     - name: Terraform Init
       id: init

@@ -33,6 +33,10 @@ runs:
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
+    - name: Package Lambda layers
+      shell: bash
+      run: ./.github/scripts/package-lambda-layers.sh
+
     - name: Terraform Init
       id: init
       shell: bash
