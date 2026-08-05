@@ -8,7 +8,9 @@ public enum EnvironmentMapping {
 
   d("dev", Level.INFO),
   u("uat", Level.ERROR),
-  p("prod", Level.ERROR);
+  u_io("uat-io", Level.ERROR),
+  p("prod", Level.ERROR),
+  p_io("prod-io", Level.ERROR);
 
   private final String envLong;
   private final Level logLevel;
