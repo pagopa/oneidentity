@@ -359,7 +359,7 @@ class OIDCControllerTest {
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsString("PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
+        .header("Location", containsString("EIDAS_PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
 
     Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
@@ -386,12 +386,31 @@ class OIDCControllerTest {
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsString("PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
+        .header("Location", containsString("EIDAS_PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
 
     Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
         Mockito.any());
   }
+
+    @Test
+    void authorizeGet_ProtectedEidasClient_isBlockedBeforeIdpLookup() {
+        given()
+                .header("X-Forwarded-For", "192.168.1.1")
+                .queryParam("idp", "unknown-idp")
+                .queryParam("client_id", "protectedClient99")
+                .queryParam("response_type", "code")
+                .queryParam("redirect_uri", "foo.bar")
+                .queryParam("scope", "openid")
+                .queryParam("nonce", "nonce")
+                .queryParam("state", "state")
+                .when().get("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .header("Location", containsString("EIDAS_PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
+
+        Mockito.verify(samlServiceImpl, Mockito.never()).getIDPFromEntityID("unknown-idp");
+    }
 
   @Test
   @SneakyThrows

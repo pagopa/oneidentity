@@ -175,7 +175,7 @@ public class OIDCController {
     // 2. Check if client is protected (acsIndex 99 or 100)
     if (EIDAS_PROTECTED_CLIENT_ACS_INDEXES.contains(selectedClient.getAcsIndex())) {
       Log.debug("Authentication blocked for eIDAS clients with acsIndex 99 or 100");
-      throw new GenericHTMLException(ErrorCode.PROTECTED_CLIENT_AUTHORIZATION_ERROR);
+      throw new GenericHTMLException(ErrorCode.EIDAS_PROTECTED_CLIENT_AUTHORIZATION_ERROR);
     }
 
     // 3. Check if callbackUri exists among clientId parameters
