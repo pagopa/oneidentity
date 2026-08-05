@@ -168,6 +168,8 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
+  client_manual_reactivation_alarm_enabled = true
+
   enable_metadata_lambda_vpc_endpoint_egress = true
 
   role_prefix = local.project

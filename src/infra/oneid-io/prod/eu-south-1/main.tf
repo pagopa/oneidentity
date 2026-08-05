@@ -132,6 +132,8 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
+  client_manual_reactivation_alarm_enabled = true
+
   enable_metadata_lambda_vpc_endpoint_egress = true
 
   client_manager_lambda_optional_iam_policy = false

@@ -232,6 +232,12 @@ variable "lambda_client_registration_trigger_enabled" {
   default = true
 }
 
+variable "client_manual_reactivation_alarm_enabled" {
+  type        = bool
+  description = "Whether to alarm on client reactivation metrics published by the client publisher Lambda."
+  default     = false
+}
+
 variable "idp_metadata_stream_trigger_enabled" {
   type        = bool
   description = "Whether to create resources that consume the IDP metadata DynamoDB Stream."
