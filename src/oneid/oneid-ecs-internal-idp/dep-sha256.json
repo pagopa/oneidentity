@@ -827,34 +827,6 @@
       "sha256": "sdAqGmFcCPqAv56rq4jh914HtMkA2NZ7OQqHCtDWPgY="
     },
     {
-      "id": "io.quarkus:quarkus-jackson:jar:3.11.3",
-      "artifactId": "quarkus-jackson",
-      "groupId": "io.quarkus",
-      "version": "3.11.3",
-      "sha256": "_RMG_Hi0iH-T92t_GS9W6dMnAWMMFvsDnYqp9UzpLH0="
-    },
-    {
-      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.17.1",
-      "artifactId": "jackson-datatype-jsr310",
-      "groupId": "com.fasterxml.jackson.datatype",
-      "version": "2.17.1",
-      "sha256": "VnZdVayM_911fBpTTsll5wsBF29k39fnCw2zTYuryfo="
-    },
-    {
-      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.17.1",
-      "artifactId": "jackson-datatype-jdk8",
-      "groupId": "com.fasterxml.jackson.datatype",
-      "version": "2.17.1",
-      "sha256": "BoF7eF4z0iR3R6Ygglp1admIzyrtoq4h6z6t3-yzSw4="
-    },
-    {
-      "id": "com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.17.1",
-      "artifactId": "jackson-module-parameter-names",
-      "groupId": "com.fasterxml.jackson.module",
-      "version": "2.17.1",
-      "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
-    },
-    {
       "id": "io.quarkus:quarkus-rest-qute:jar:3.11.3",
       "artifactId": "quarkus-rest-qute",
       "groupId": "io.quarkus",
@@ -1378,6 +1350,34 @@
       "groupId": "com.nimbusds",
       "version": "10.0.2",
       "sha256": "lguXimzWy8MxlkitxzlZeJ9nQqK_Ho3QyEPbyRYkIYo="
+    },
+    {
+      "id": "io.quarkus:quarkus-jackson:jar:3.11.3",
+      "artifactId": "quarkus-jackson",
+      "groupId": "io.quarkus",
+      "version": "3.11.3",
+      "sha256": "_RMG_Hi0iH-T92t_GS9W6dMnAWMMFvsDnYqp9UzpLH0="
+    },
+    {
+      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.17.1",
+      "artifactId": "jackson-datatype-jsr310",
+      "groupId": "com.fasterxml.jackson.datatype",
+      "version": "2.17.1",
+      "sha256": "VnZdVayM_911fBpTTsll5wsBF29k39fnCw2zTYuryfo="
+    },
+    {
+      "id": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.17.1",
+      "artifactId": "jackson-datatype-jdk8",
+      "groupId": "com.fasterxml.jackson.datatype",
+      "version": "2.17.1",
+      "sha256": "BoF7eF4z0iR3R6Ygglp1admIzyrtoq4h6z6t3-yzSw4="
+    },
+    {
+      "id": "com.fasterxml.jackson.module:jackson-module-parameter-names:jar:2.17.1",
+      "artifactId": "jackson-module-parameter-names",
+      "groupId": "com.fasterxml.jackson.module",
+      "version": "2.17.1",
+      "sha256": "VaDFSoLDBSSYEzXHg14ybKCfSJzw9dXio0tcTGzBoKU="
     },
     {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-ssm:jar:2.13.1",
