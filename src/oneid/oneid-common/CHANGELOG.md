@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.10.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
 ## 1.9.0
 
 ### Minor Changes

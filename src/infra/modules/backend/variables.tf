@@ -13,6 +13,12 @@ variable "env_short" {
   description = "env short"
 }
 
+variable "enable_metadata_lambda_vpc_endpoint_egress" {
+  type        = bool
+  description = "Whether to create dedicated metadata Lambda egress rules for VPC endpoints."
+  default     = false
+}
+
 variable "role_prefix" {
   type        = string
   description = "IAM Role prefix."
@@ -279,17 +285,18 @@ variable "table_last_idp_used_arn" {
 
 variable "metadata_lambda" {
   type = object({
-    name                              = string
-    filename                          = string
-    table_client_registrations_arn    = string
-    environment_variables             = map(string)
-    assets_bucket_arn                 = string
-    vpc_id                            = string
-    vpc_subnet_ids                    = list(string)
-    vpc_endpoint_dynamodb_prefix_id   = string
-    vpc_s3_prefix_id                  = string
-    vpc_endpoint_ssm_nsg_ids          = list(string)
-    cloudwatch_logs_retention_in_days = number
+    name                               = string
+    filename                           = string
+    table_client_registrations_arn     = string
+    environment_variables              = map(string)
+    assets_bucket_arn                  = string
+    vpc_id                             = string
+    vpc_subnet_ids                     = list(string)
+    vpc_endpoint_dynamodb_prefix_id    = string
+    vpc_s3_prefix_id                   = string
+    vpc_endpoint_ssm_nsg_ids           = list(string)
+    vpc_tls_security_group_endpoint_id = optional(string, null)
+    cloudwatch_logs_retention_in_days  = number
   })
 
 }

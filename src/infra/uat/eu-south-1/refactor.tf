@@ -4,6 +4,16 @@ import {
   id = "key.pem"
 }
 
+import {
+  to = module.backend.module.security_group_lambda_metadata.aws_security_group_rule.egress_rules[0]
+  id = "sg-0eeaa33edc426d187_egress_tcp_443_443_pl-ccb451a5"
+}
+
+import {
+  to = module.backend.aws_security_group_rule.metadata_s3_tls[0]
+  id = "sg-0eeaa33edc426d187_egress_tcp_443_443_pl-daaa4fb3"
+}
+
 ## Moved ##
 
 moved {

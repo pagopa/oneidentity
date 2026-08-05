@@ -103,25 +103,25 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.77.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | 3.5.0 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.6.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_backend"></a> [backend](#module\_backend) | ../../modules/backend | n/a |
-| <a name="module_client_cache"></a> [client\_cache](#module\_client\_cache) | ../../modules/cache | n/a |
-| <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../modules/cognito | n/a |
-| <a name="module_database"></a> [database](#module\_database) | ../../modules/database | n/a |
-| <a name="module_dev_ns_record"></a> [dev\_ns\_record](#module\_dev\_ns\_record) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
-| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../modules/frontend | n/a |
-| <a name="module_iam"></a> [iam](#module\_iam) | ../../modules/iam | n/a |
-| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../modules/monitoring | n/a |
-| <a name="module_network"></a> [network](#module\_network) | ../../modules/network | n/a |
-| <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../../modules/dns | n/a |
-| <a name="module_sns"></a> [sns](#module\_sns) | ../../modules/sns | n/a |
-| <a name="module_sqs"></a> [sqs](#module\_sqs) | ../../modules/sqs | n/a |
-| <a name="module_storage"></a> [storage](#module\_storage) | ../../modules/storage | n/a |
+| <a name="module_backend"></a> [backend](#module\_backend) | ../../../modules/backend | n/a |
+| <a name="module_client_cache"></a> [client\_cache](#module\_client\_cache) | ../../../modules/cache | n/a |
+| <a name="module_cognito"></a> [cognito](#module\_cognito) | ../../../modules/cognito | n/a |
+| <a name="module_database"></a> [database](#module\_database) | ../../../modules/database | n/a |
+| <a name="module_frontend"></a> [frontend](#module\_frontend) | ../../../modules/frontend | n/a |
+| <a name="module_iam"></a> [iam](#module\_iam) | ../../../modules/iam | n/a |
+| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ../../../modules/monitoring | n/a |
+| <a name="module_network"></a> [network](#module\_network) | ../../../modules/network | n/a |
+| <a name="module_r53_zones"></a> [r53\_zones](#module\_r53\_zones) | ../../../modules/dns | n/a |
+| <a name="module_sns"></a> [sns](#module\_sns) | ../../../modules/sns | n/a |
+| <a name="module_sqs"></a> [sqs](#module\_sqs) | ../../../modules/sqs | n/a |
+| <a name="module_storage"></a> [storage](#module\_storage) | ../../../modules/storage | n/a |
+| <a name="module_uat_ns_record"></a> [uat\_ns\_record](#module\_uat\_ns\_record) | terraform-aws-modules/route53/aws//modules/records | 2.11.0 |
 
 ## Resources
 
@@ -142,7 +142,7 @@
 | <a name="input_api_method_settings"></a> [api\_method\_settings](#input\_api\_method\_settings) | List of Api Gateway method settings. | <pre>list(object({<br/>    method_path                             = string<br/>    metrics_enabled                         = optional(bool, false)<br/>    logging_level                           = optional(string, "OFF")<br/>    data_trace_enabled                      = optional(bool, false)<br/>    throttling_rate_limit                   = optional(number, -1)<br/>    throttling_burst_limit                  = optional(number, -1)<br/>    caching_enabled                         = optional(bool, false)<br/>    cache_ttl_in_seconds                    = optional(number, 0)<br/>    cache_data_encrypted                    = optional(bool, false)<br/>    require_authorization_for_cache_control = optional(bool, false)<br/>    cache_key_parameters                    = optional(list(string), [])<br/>  }))</pre> | <pre>[<br/>  {<br/>    "caching_enabled": false,<br/>    "logging_level": "ERROR",<br/>    "method_path": "*/*",<br/>    "metrics_enabled": true<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "saml/{id_type}/metadata/GET",<br/>    "metrics_enabled": true<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "static/{proxy+}/GET"<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "assets/{proxy+}/GET"<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "login/GET"<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "login/error/GET"<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "idps/GET",<br/>    "metrics_enabled": true<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": ".well-known/openid-configuration/GET"<br/>  },<br/>  {<br/>    "cache_ttl_in_seconds": 3600,<br/>    "caching_enabled": true,<br/>    "logging_level": "ERROR",<br/>    "method_path": "clients/{client_id}/GET",<br/>    "metrics_enabled": true<br/>  }<br/>]</pre> | no |
 | <a name="input_app_cloudwatch_custom_metric_namespace"></a> [app\_cloudwatch\_custom\_metric\_namespace](#input\_app\_cloudwatch\_custom\_metric\_namespace) | Custom metric namespace for cloudwatch | `string` | `"ApplicationMetrics"` | no |
 | <a name="input_app_log_level"></a> [app\_log\_level](#input\_app\_log\_level) | Log level of application | `string` | `"INFO"` | no |
-| <a name="input_app_name"></a> [app\_name](#input\_app\_name) | App name. | `string` | `"oneid"` | no |
+| <a name="input_app_name"></a> [app\_name](#input\_app\_name) | App name. | `string` | `"oneid-io"` | no |
 | <a name="input_assertion_bucket"></a> [assertion\_bucket](#input\_assertion\_bucket) | Assertion storage. | <pre>object({<br/>    mfa_delete                = bool<br/>    glacier_transaction_days  = number<br/>    expiration_days           = number<br/>    kms_multi_region          = bool<br/>    enable_key_rotation       = bool<br/>    object_lock_configuration = any<br/>    replication_configuration = optional(<br/>      object({<br/>        id                     = string<br/>        destination_bucket_arn = string<br/>        kms_key_replica_arn    = string<br/>    }), null)<br/>  })</pre> | <pre>{<br/>  "enable_key_rotation": true,<br/>  "expiration_days": 731,<br/>  "glacier_transaction_days": 90,<br/>  "kms_multi_region": true,<br/>  "mfa_delete": false,<br/>  "object_lock_configuration": {<br/>    "rule": {<br/>      "default_retention": {<br/>        "days": 730,<br/>        "mode": "GOVERNANCE"<br/>      }<br/>    }<br/>  },<br/>  "replication_configuration": {<br/>    "destination_bucket_arn": "arn:aws:s3:::assertions-3786",<br/>    "id": "eu-south-1-to-eu-central-1",<br/>    "kms_key_replica_arn": "arn:aws:kms:eu-central-1:851725347804:key/mrk-b92f2476079142188f1664e0b4a5150a"<br/>  }<br/>}</pre> | no |
 | <a name="input_assertions_crawler_schedule"></a> [assertions\_crawler\_schedule](#input\_assertions\_crawler\_schedule) | A cron expression used to specify the schedule | `string` | `"cron(00 08 ? * MON *)"` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region to create resources. Default Milan | `string` | `"eu-south-1"` | no |
@@ -171,7 +171,7 @@
 | <a name="input_pairwise_enabled"></a> [pairwise\_enabled](#input\_pairwise\_enabled) | Enable PDV pairwise feature | `bool` | `true` | no |
 | <a name="input_pdv_base_url"></a> [pdv\_base\_url](#input\_pdv\_base\_url) | PDV base URL | `string` | `"https://z0mfw5a170.execute-api.eu-south-1.amazonaws.com/private-v1"` | no |
 | <a name="input_pdv_plan_url"></a> [pdv\_plan\_url](#input\_pdv\_plan\_url) | PDV plan URL | `string` | `"https://urgromna57.execute-api.eu-south-1.amazonaws.com/private-v1"` | no |
-| <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br/>    name    = string<br/>    comment = string<br/>  })</pre> | <pre>{<br/>  "comment": "Oneidentity prod hosted zone.",<br/>  "name": "oneid.pagopa.it"<br/>}</pre> | no |
+| <a name="input_r53_dns_zone"></a> [r53\_dns\_zone](#input\_r53\_dns\_zone) | # R53 DNS zone ## | <pre>object({<br/>    name    = string<br/>    comment = string<br/>  })</pre> | <pre>{<br/>  "comment": "Oneidentity IO prod hosted zone.",<br/>  "name": "io.oneid.pagopa.it"<br/>}</pre> | no |
 | <a name="input_registry_enabled"></a> [registry\_enabled](#input\_registry\_enabled) | Enable PDV registry feature | `bool` | `false` | no |
 | <a name="input_repository_image_tag_mutability"></a> [repository\_image\_tag\_mutability](#input\_repository\_image\_tag\_mutability) | The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE. Defaults to IMMUTABLE | `string` | `"MUTABLE"` | no |
 | <a name="input_rest_api_throttle_settings"></a> [rest\_api\_throttle\_settings](#input\_rest\_api\_throttle\_settings) | Rest api throttle settings. | <pre>object({<br/>    burst_limit = number<br/>    rate_limit  = number<br/>  })</pre> | <pre>{<br/>  "burst_limit": 500,<br/>  "rate_limit": 300<br/>}</pre> | no |

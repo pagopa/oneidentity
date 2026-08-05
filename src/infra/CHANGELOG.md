@@ -1,5 +1,23 @@
 # infra
 
+## 3.7.0
+
+### Minor Changes
+
+- 5dfc266: Lambda metadata fix egress rules
+
+## 3.6.0
+
+### Minor Changes
+
+- 109a807: Fix egress rule metadata
+
+## 3.5.0
+
+### Minor Changes
+
+- 7ec53c5: Setup infra oneid-io eu-central
+
 ## 3.4.0
 
 ### Minor Changes

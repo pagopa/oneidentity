@@ -132,6 +132,8 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
+  enable_metadata_lambda_vpc_endpoint_egress = true
+
   client_manager_lambda_optional_iam_policy = false
   role_prefix                               = local.project
   event_mode                                = var.event_mode
@@ -318,12 +320,13 @@ module "backend" {
       "LOG_LEVEL"                       = var.app_log_level
       "SERVICE_METADATA_BUCKET_NAME"    = module.storage.assets_bucket_name
     }
-    vpc_id                            = module.network.vpc_id
-    vpc_subnet_ids                    = module.network.intra_subnets_ids
-    vpc_endpoint_dynamodb_prefix_id   = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
-    vpc_s3_prefix_id                  = module.network.vpc_endpoints["s3"]["prefix_list_id"]
-    vpc_endpoint_ssm_nsg_ids          = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
-    cloudwatch_logs_retention_in_days = var.lambda_cloudwatch_logs_retention_in_days
+    vpc_id                             = module.network.vpc_id
+    vpc_subnet_ids                     = module.network.intra_subnets_ids
+    vpc_endpoint_dynamodb_prefix_id    = module.network.vpc_endpoints["dynamodb"]["prefix_list_id"]
+    vpc_s3_prefix_id                   = module.network.vpc_endpoints["s3"]["prefix_list_id"]
+    vpc_endpoint_ssm_nsg_ids           = tolist(module.network.vpc_endpoints["ssm"].security_group_ids)
+    vpc_tls_security_group_endpoint_id = module.network.security_group_vpc_tls_id
+    cloudwatch_logs_retention_in_days  = var.lambda_cloudwatch_logs_retention_in_days
   }
 
 

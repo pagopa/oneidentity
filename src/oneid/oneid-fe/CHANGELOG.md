@@ -1,5 +1,23 @@
 # oi-frontend
 
+## 1.4.0
+
+### Minor Changes
+
+- 4e0d06c: Deploy pipelines in eu-central
+
+## 1.3.2
+
+### Patch Changes
+
+- b0cc72c: fix image name
+
+## 1.3.1
+
+### Patch Changes
+
+- 37e6497: feat: add io internal idp metadata
+
 ## 1.3.0
 
 ### Minor Changes

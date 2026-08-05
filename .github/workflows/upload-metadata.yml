@@ -19,14 +19,13 @@ jobs:
         run: |
           echo "github.ref $GITHUB_REF"
           echo "event name $EVENT_NAME"
-          
-          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"region\":\"eu-central-1\"}]}"
+
+          matrixStringifiedObject="{\"include\":[{\"environment\":\"dev\", \"metadata_environment\":\"dev\", \"region\":\"eu-south-1\"}, {\"environment\":\"uat\", \"metadata_environment\":\"uat\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"metadata_environment\":\"prod\", \"region\":\"eu-south-1\"}, {\"environment\":\"prod\", \"metadata_environment\":\"prod\", \"region\":\"eu-central-1\"}, {\"environment\":\"io-uat\", \"metadata_environment\":\"io-uat\", \"region\":\"eu-south-1\", \"build_mode\":\"io-uat\"}, {\"environment\":\"io-prod/eu-south-1\", \"metadata_environment\":\"prod\", \"region\":\"eu-south-1\", \"build_mode\":\"io-prod\"}, {\"environment\":\"io-prod/eu-central-1\", \"metadata_environment\":\"prod\", \"region\":\"eu-central-1\", \"build_mode\":\"io-prod\"}]}"
 
           echo "matrix=$matrixStringifiedObject" >> $GITHUB_OUTPUT
         env:
           GITHUB_REF: ${{ github.ref }}
           EVENT_NAME: ${{ github.event_name }}
-
 
   upload:
     name: Upload to S3
@@ -43,7 +42,6 @@ jobs:
     environment: ${{ matrix.environment == 'prod' && format('{0}/{1}', matrix.environment, matrix.region) || matrix.environment }}
     env:
       AWS_REGION: ${{ matrix.region }}
-      ENV_SHORT: ${{ fromJSON('{"dev":"d","uat":"u","prod":"p"}')[matrix.environment] }}
       REGION_SHORT: ${{ fromJSON('{"eu-south-1":"es-1","eu-central-1":"ec-1"}')[matrix.region] }}
 
     steps:
@@ -60,7 +58,7 @@ jobs:
           aws-region: ${{ matrix.region }}
 
       - name: Identify changed file
-        if: ${{ matrix.environment == 'prod' }}
+        if: ${{ matrix.metadata_environment == 'prod' }}
         id: changed-file
         run: |
           echo "changed_files=$(git diff --name-only $BEFORE $AFTER | xargs)" >> $GITHUB_OUTPUT
@@ -69,7 +67,7 @@ jobs:
           AFTER: ${{ github.event.after }}
 
       - name: Upload changed files to S3 (${{ matrix.environment }})
-        if: ${{ matrix.environment == 'prod' }}
+        if: ${{ matrix.metadata_environment == 'prod' }}
         run: |
           for file in $CHANGED_FILES; do
               if [[ -f $file && ! $file == */test/*  && $file == *.xml ]]; then
@@ -81,16 +79,16 @@ jobs:
           IDP_BUCKET_PATH: ${{ vars.IDP_BUCKET_PATH }}
 
       - name: Take all test-idp files
-        if: ${{ matrix.environment != 'prod' }}
+        if: ${{ matrix.metadata_environment != 'prod' }}
         id: test-files
-        working-directory: src/oneid/metadata/test/${{ matrix.environment }}
+        working-directory: src/oneid/metadata/test/${{ matrix.metadata_environment }}
         run: |
           echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) | xargs)" >> $GITHUB_OUTPUT
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
-        if: ${{ matrix.environment != 'prod' }}
-        working-directory: src/oneid/metadata/test/${{ matrix.environment }}
+        if: ${{ matrix.metadata_environment != 'prod' }}
+        working-directory: src/oneid/metadata/test/${{ matrix.metadata_environment }}
         run: |
           for file in $TEST_FILES; do
               if [[ $file == *.xml ]]; then
