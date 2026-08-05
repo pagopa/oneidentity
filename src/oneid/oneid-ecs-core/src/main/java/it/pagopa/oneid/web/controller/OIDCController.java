@@ -62,7 +62,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 public class OIDCController {
 
   private static final String APPLICATION_JWT = "application/jwt";
-private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
+  private static final Set<Integer> EIDAS_PROTECTED_CLIENT_ACS_INDEXES = Set.of(99, 100);
 
   private record ServiceIndexes(int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex) {
@@ -171,22 +171,21 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
     Client selectedClient = client.get();
-    
+
     // 2. Check if client is protected (acsIndex 99 or 100)
-    if (PROTECTED_ACS_INDEXES.contains(selectedClient.getAcsIndex())) {
-      Log.warnf("Authorization blocked for protected client %s",
-          selectedClient.getClientId());
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    if (EIDAS_PROTECTED_CLIENT_ACS_INDEXES.contains(selectedClient.getAcsIndex())) {
+      Log.debug("Authentication blocked for eIDAS clients with acsIndex 99 or 100");
+      throw new GenericHTMLException(ErrorCode.PROTECTED_CLIENT_AUTHORIZATION_ERROR);
     }
 
-    // 1. Check if callbackUri exists among clientId parameters
+    // 3. Check if callbackUri exists among clientId parameters
     if (!selectedClient.getCallbackURI()
         .contains(authorizationRequestDTOExtended.getRedirectUri())) {
       Log.debug("redirect URI not found");
       throw new CallbackURINotFoundException(authorizationRequestDTOExtended.getClientId());
     }
 
-    // 2. Check if idp exists
+    // 4. Check if idp exists
     idp = samlServiceImpl.getIDPFromEntityID(authorizationRequestDTOExtended.getIdp());
     if (idp.isEmpty()) {
       Log.debug("selected IDP not found");
@@ -195,7 +194,7 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 3. Check if scope is "openid"
+    // 5. Check if scope is "openid"
     if (StringUtils.isBlank(authorizationRequestDTOExtended.getScope())
         || !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
       Log.error("scope not supported");
@@ -204,7 +203,7 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 4. Check if response type is "code"
+    // 6. Check if response type is "code"
     if (!authorizationRequestDTOExtended.getResponseType().equals(ResponseType.CODE)) {
       Log.error("response type not supported");
       throw new UnsupportedResponseTypeException(authorizationRequestDTOExtended.getRedirectUri(),
@@ -212,7 +211,7 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 5. Get SSO Endpoint corresponding to client's samlBinding
+    // 7. Get SSO Endpoint corresponding to client's samlBinding
     SamlBinding samlBinding = Optional.ofNullable(selectedClient.getSamlBinding())
         .orElse(SamlBinding.HTTP_POST);
 
@@ -226,7 +225,7 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
           authorizationRequestDTOExtended.getClientId());
     }
 
-    // 6. Create SAML Authn Request using SAMLServiceImpl
+    // 8. Create SAML Authn Request using SAMLServiceImpl
     // (without signature if binding is HTTP-REDIRECT)
 
     String assertionRef = authorizationRequestDTOExtended.getAssertionRef();
@@ -260,7 +259,7 @@ private static final Set<Integer> PROTECTED_ACS_INDEXES = Set.of(99, 100);
           authorizationRequestDTOExtended.getState());
     }
 
-    // 7. Persist SAMLSession
+    // 9. Persist SAMLSession
 
     // Get the current time in epoch second format
     long creationTime = authnRequest.getIssueInstant().getEpochSecond();

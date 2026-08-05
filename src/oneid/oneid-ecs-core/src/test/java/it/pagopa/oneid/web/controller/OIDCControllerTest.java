@@ -358,7 +358,8 @@ class OIDCControllerTest {
             "state", request.getState()))
         .when().post("/authorize")
         .then()
-        .statusCode(Status.FOUND.getStatusCode());
+        .statusCode(Status.FOUND.getStatusCode())
+        .header("Location", containsString("PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
 
     Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
@@ -384,7 +385,8 @@ class OIDCControllerTest {
             "state", request.getState()))
         .when().post("/authorize")
         .then()
-        .statusCode(Status.FOUND.getStatusCode());
+        .statusCode(Status.FOUND.getStatusCode())
+        .header("Location", containsString("PROTECTED_CLIENT_AUTHORIZATION_ERROR"));
 
     Mockito.verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(
         Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(),
