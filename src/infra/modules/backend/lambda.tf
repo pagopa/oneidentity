@@ -1036,7 +1036,7 @@ resource "aws_lambda_layer_version" "pyjwt_layer" {
   source_code_hash    = filebase64sha256("${path.module}/../../dist/layers/pyjwt-layer.zip")
 }
 
-module "client_manager_lambda" {
+module "client_manager_lambda" { 
   source  = "terraform-aws-modules/lambda/aws"
   version = "7.4.0"
 
