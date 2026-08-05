@@ -396,6 +396,7 @@ class OIDCControllerTest {
     @Test
     void authorizeGet_ProtectedEidasClient_isBlockedBeforeIdpLookup() {
         given()
+                .redirects().follow(false)
                 .header("X-Forwarded-For", "192.168.1.1")
                 .queryParam("idp", "unknown-idp")
                 .queryParam("client_id", "protectedClient99")
