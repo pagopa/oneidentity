@@ -1,5 +1,11 @@
 # infra
 
+## 3.7.1
+
+### Patch Changes
+
+- 021e4d5: refactor: update client related notifications
+
 ## 3.7.0
 
 ### Minor Changes
