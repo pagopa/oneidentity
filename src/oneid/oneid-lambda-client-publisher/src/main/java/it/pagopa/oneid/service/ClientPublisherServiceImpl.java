@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -26,6 +25,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private static final String SUCCESS_METRIC_NAME = "S3PublishSuccess";
   private static final String ERROR_METRIC_NAME = "S3PublishError";
+  static final String CLIENT_MANUAL_REACTIVATION_METRIC_NAME = "ClientManualReactivation";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
   private static final String DYNAMODB_FIELD = "dynamodb";
   private static final String ACTIVE_FIELD = "active";
@@ -111,6 +111,11 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     Log.infof("Start processing clientId=%s eventName=%s", clientId, eventName);
 
     try {
+      if (isClientReactivation(streamRecord)) {
+        Log.warnf("Client reactivated for clientId=%s.", clientId);
+        publishMetric(CLIENT_MANUAL_REACTIVATION_METRIC_NAME);
+      }
+
       boolean skipPublish = false;
       switch (eventName) {
         case "INSERT", "MODIFY" -> {
@@ -196,6 +201,24 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
         && oldActive.asBoolean() != newActive.asBoolean();
   }
 
+  static boolean isClientReactivation(JsonNode streamRecord) {
+    if (!"MODIFY".equals(streamRecord.path("eventName").asText())) {
+      return false;
+    }
+
+    JsonNode oldActive = streamRecord.path(DYNAMODB_FIELD)
+        .path("OldImage")
+        .path(ACTIVE_FIELD)
+        .path("BOOL");
+    JsonNode newActive = streamRecord.path(DYNAMODB_FIELD)
+        .path("NewImage")
+        .path(ACTIVE_FIELD)
+        .path("BOOL");
+
+    return oldActive.isBoolean() && newActive.isBoolean()
+        && !oldActive.booleanValue() && newActive.booleanValue();
+  }
+
   private void deleteSingleClient(String clientId) {
     String key = singleClientKeyPrefix + clientId + ".json";
     try {
@@ -254,6 +277,24 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       Log.debugf("Published metric %s for clientId=%s", metricName, clientId);
     } catch (Exception e) { 
       Log.warnf(e, "Failed to submit metric %s for clientId=%s", metricName, clientId);
+    }
+  }
+
+  private void publishMetric(String metricName) {
+    try {
+      MetricDatum datum = MetricDatum.builder()
+          .metricName(metricName)
+          .value(1.0)
+          .unit("Count")
+          .build();
+      PutMetricDataRequest request = PutMetricDataRequest.builder()
+          .namespace(namespace)
+          .metricData(datum)
+          .build();
+      cloudWatchClient.putMetricData(request);
+      Log.debugf("Published metric %s", metricName);
+    } catch (Exception e) {
+      Log.warnf(e, "Failed to submit metric %s", metricName);
     }
   }
 }

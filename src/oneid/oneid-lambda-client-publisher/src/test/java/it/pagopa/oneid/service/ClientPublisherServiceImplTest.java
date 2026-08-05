@@ -2,6 +2,7 @@ package it.pagopa.oneid.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -243,6 +244,35 @@ class ClientPublisherServiceImplTest {
     verify(mockedS3Client, times(2))
         .putObject(any(PutObjectRequest.class), any(RequestBody.class));
     verify(mockedS3Client, never()).deleteObject(any(DeleteObjectRequest.class));
+
+    ArgumentCaptor<PutMetricDataRequest> metricCaptor = ArgumentCaptor.forClass(
+      PutMetricDataRequest.class);
+    verify(cloudWatchClient, times(2)).putMetricData(metricCaptor.capture());
+    PutMetricDataRequest reactivationMetricRequest = metricCaptor.getAllValues().stream()
+      .filter(request -> request.metricData().stream()
+        .anyMatch(metric -> ClientPublisherServiceImpl.CLIENT_MANUAL_REACTIVATION_METRIC_NAME
+          .equals(metric.metricName())))
+      .findFirst()
+      .orElseThrow();
+
+    assertEquals("oneid-client-publisher/ApplicationMetrics",
+      reactivationMetricRequest.namespace());
+    assertTrue(reactivationMetricRequest.metricData().getFirst().dimensions().isEmpty());
+  }
+
+  @Test
+  @DisplayName("detects only false-to-true modify events as client reactivations")
+  void isClientReactivation_detectsOnlyFalseToTrueModifyEvents() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    assertTrue(ClientPublisherServiceImpl.isClientReactivation(
+        clientActiveRecord(objectMapper, "MODIFY", false, true)));
+    assertEquals(false, ClientPublisherServiceImpl.isClientReactivation(
+        clientActiveRecord(objectMapper, "MODIFY", true, false)));
+    assertEquals(false, ClientPublisherServiceImpl.isClientReactivation(
+        clientActiveRecord(objectMapper, "MODIFY", true, true)));
+    assertEquals(false, ClientPublisherServiceImpl.isClientReactivation(
+        clientActiveRecord(objectMapper, "INSERT", false, true)));
   }
 
   @Test
@@ -308,6 +338,23 @@ class ClientPublisherServiceImplTest {
         "clients/",
         "clients.json",
         "oneid-client-publisher/ApplicationMetrics");
+  }
+
+  private JsonNode clientActiveRecord(ObjectMapper objectMapper, String eventName,
+      boolean oldActive, boolean newActive) throws Exception {
+    return objectMapper.readTree(String.format("""
+        {
+          "eventName": "%s",
+          "dynamodb": {
+            "OldImage": {
+              "active": {"BOOL": %s}
+            },
+            "NewImage": {
+              "active": {"BOOL": %s}
+            }
+          }
+        }
+        """, eventName, oldActive, newActive));
   }
 
   private Client clientWithFrontendFields(String clientId) {
