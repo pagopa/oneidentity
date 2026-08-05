@@ -20,7 +20,8 @@ public interface InternalIDPService {
       Integer ageParentAuth)
       throws OneIdentityException;
 
-  Response createSuccessfulSamlResponse(String authnRequestId, String clientId, String username)
+  Response createSuccessfulSamlResponse(String authnRequestId, String clientId, String username,
+      String requestedAuthLevel)
       throws SAMLUtilsException;
 
   Response createAgeVerificationFailureResponse(String authnRequestId)

@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import it.pagopa.oneid.common.connector.ClientConnectorImpl;
+import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.SAMLUtilsException;
 import it.pagopa.oneid.connector.InternalIDPUsersConnectorImpl;
@@ -38,6 +41,9 @@ class InternalIDPServiceImplTest {
 
   @InjectMock
   InternalIDPUsersConnectorImpl internalIDPUsersConnectorImpl;
+
+  @InjectMock
+  ClientConnectorImpl clientConnectorImpl;
 
   @InjectMock
   SsmClient ssmClient;
@@ -119,7 +125,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
@@ -138,7 +144,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
@@ -158,7 +164,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
@@ -178,7 +184,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
@@ -189,7 +195,7 @@ class InternalIDPServiceImplTest {
   @DisplayName("given_user_not_found_when_verifyAge_then_throws")
   void verifyAge_userNotFound() {
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.empty());
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
@@ -208,7 +214,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
@@ -227,7 +233,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     OneIdentityException ex = assertThrows(OneIdentityException.class,
@@ -247,7 +253,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
@@ -266,7 +272,7 @@ class InternalIDPServiceImplTest {
         .build();
 
     Mockito.when(internalIDPUsersConnectorImpl
-            .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
+        .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
     assertDoesNotThrow(
@@ -317,5 +323,94 @@ class InternalIDPServiceImplTest {
 
     assertThrows(RuntimeException.class,
         () -> internalIDPServiceImpl.createConsentDeniedSamlResponse("testAuthnRequestId"));
+  }
+
+  private IDPInternalUser buildTestUser(String username, String clientId) {
+    return IDPInternalUser.builder()
+        .username(username)
+        .namespace(clientId)
+        .password("pass")
+        .samlAttributes(Map.of("fiscalNumber", "RSSMRA80A01H501U"))
+        .build();
+  }
+
+  private Client buildTestClient(String clientId, AuthLevel authLevel) {
+    return Client.builder()
+        .clientId(clientId)
+        .authLevel(authLevel)
+        .requestedParameters(java.util.Set.of("fiscalNumber"))
+        .callbackURI(java.util.Set.of("https://localhost/cb"))
+        .friendlyName("Test Client")
+        .acsIndex(0)
+        .attributeIndex(0)
+        .isActive(true)
+        .clientIdIssuedAt(0L)
+        .build();
+  }
+
+  @Test
+  @DisplayName("given_null_requestedAuthLevel_when_createSuccessfulSamlResponse_then_uses_client_default_level")
+  void createSuccessfulSamlResponse_nullRequestedLevel_usesClientDefault()
+      throws SAMLUtilsException {
+    String clientId = "testClientId";
+    Client client = buildTestClient(clientId, AuthLevel.L2);
+    IDPInternalUser user = buildTestUser("testUser", clientId);
+
+    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    Mockito.when(internalIDPUsersConnectorImpl
+        .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
+        .thenReturn(Optional.of(user));
+
+    var response = internalIDPServiceImpl.createSuccessfulSamlResponse(
+        "authnReqId", clientId, "testUser", null);
+
+    String classRef = response.getAssertions().getFirst()
+        .getAuthnStatements().getFirst()
+        .getAuthnContext().getAuthnContextClassRef().getURI();
+    assertEquals(AuthLevel.L2.getValue(), classRef);
+  }
+
+  @Test
+  @DisplayName("given_valid_L3_requestedAuthLevel_when_createSuccessfulSamlResponse_then_uses_L3")
+  void createSuccessfulSamlResponse_validL3RequestedLevel_usesL3()
+      throws SAMLUtilsException {
+    String clientId = "testClientId";
+    Client client = buildTestClient(clientId, AuthLevel.L2);
+    IDPInternalUser user = buildTestUser("testUser", clientId);
+
+    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    Mockito.when(internalIDPUsersConnectorImpl
+        .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
+        .thenReturn(Optional.of(user));
+
+    var response = internalIDPServiceImpl.createSuccessfulSamlResponse(
+        "authnReqId", clientId, "testUser", AuthLevel.L3.getValue());
+
+    String classRef = response.getAssertions().getFirst()
+        .getAuthnStatements().getFirst()
+        .getAuthnContext().getAuthnContextClassRef().getURI();
+    assertEquals(AuthLevel.L3.getValue(), classRef);
+  }
+
+  @Test
+  @DisplayName("given_invalid_requestedAuthLevel_when_createSuccessfulSamlResponse_then_falls_back_to_client_default")
+  void createSuccessfulSamlResponse_invalidRequestedLevel_fallsBackToClientDefault()
+      throws SAMLUtilsException {
+    String clientId = "testClientId";
+    Client client = buildTestClient(clientId, AuthLevel.L2);
+    IDPInternalUser user = buildTestUser("testUser", clientId);
+
+    Mockito.when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.of(client));
+    Mockito.when(internalIDPUsersConnectorImpl
+        .getIDPInternalUserByUsernameAndNamespace("testUser", clientId))
+        .thenReturn(Optional.of(user));
+
+    var response = internalIDPServiceImpl.createSuccessfulSamlResponse(
+        "authnReqId", clientId, "testUser", "not-a-valid-level");
+
+    String classRef = response.getAssertions().getFirst()
+        .getAuthnStatements().getFirst()
+        .getAuthnContext().getAuthnContextClassRef().getURI();
+    assertEquals(AuthLevel.L2.getValue(), classRef);
   }
 }
