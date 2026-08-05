@@ -1028,6 +1028,12 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 
 # Lambda client manager
 
+resource "null_resource" "install_client_manager_dependencies" {
+  lifecycle {
+    ignore_changes = [triggers]
+  }
+}
+
 resource "aws_lambda_layer_version" "pyjwt_layer" {
   layer_name          = "pyjwt-layer"
   description         = "Lambda layer with PyJWT"
@@ -1259,6 +1265,12 @@ resource "aws_vpc_security_group_egress_rule" "cert_checker_sec_group_egress_rul
   ip_protocol                  = "tcp"
   to_port                      = 443
   referenced_security_group_id = var.cert_exp_checker_lambda.vpc_tls_security_group_endpoint_id
+}
+
+resource "null_resource" "install_dependencies" {
+  lifecycle {
+    ignore_changes = [triggers]
+  }
 }
 
 resource "aws_lambda_layer_version" "cryptography" {
