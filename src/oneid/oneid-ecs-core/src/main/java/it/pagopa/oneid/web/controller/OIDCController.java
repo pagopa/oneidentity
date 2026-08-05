@@ -63,6 +63,7 @@ public class OIDCController {
 
   private static final String APPLICATION_JWT = "application/jwt";
   private static final Set<Integer> EIDAS_PROTECTED_CLIENT_ACS_INDEXES = Set.of(99, 100);
+  private static final String DEFAULT_RELAY_STATE = "/";
 
   private record ServiceIndexes(int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex) {
@@ -244,7 +245,7 @@ public class OIDCController {
           authorizationRequestDTOExtended.getState());
     }
 
-    String encodedRelayStateString = "";
+    String relayState = DEFAULT_RELAY_STATE;
     String encodedAuthnRequest;
     try {
       if (samlBinding.equals(SamlBinding.HTTP_REDIRECT)) {
@@ -281,7 +282,7 @@ public class OIDCController {
     if (samlBinding.equals(SamlBinding.HTTP_REDIRECT)) {
       try {
         String queryString = samlServiceImpl.buildRedirectQueryString(encodedAuthnRequest,
-            encodedRelayStateString, SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
+            relayState, SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA512);
         String signature = samlServiceImpl.signRedirectQueryString(queryString);
         String redirectLocation = idpSSOEndpoint + "?" + queryString + "&Signature="
             + java.net.URLEncoder.encode(signature, java.nio.charset.StandardCharsets.UTF_8);
@@ -297,7 +298,7 @@ public class OIDCController {
 
     String redirectAutoSubmitPOSTForm = "<form method='post' action=" + idpSSOEndpoint + " id='SAMLRequestForm'>"
         + "<input type='hidden' name='SAMLRequest' value=" + encodedAuthnRequest + " />"
-        + "<input type='hidden' name='RelayState' value=" + encodedRelayStateString + " />"
+        + "<input type='hidden' name='RelayState' value='" + relayState + "' />"
         + "<input id='SAMLSubmitButton' type='submit' value='Submit' />" + "</form>"
         + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
         + "document.getElementById('SAMLRequestForm').submit();</script>";

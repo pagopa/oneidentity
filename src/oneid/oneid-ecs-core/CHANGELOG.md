@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.16.1
+
+### Patch Changes
+
+- 44c6670: fix: update relayStete handling
+
 ## 1.16.0
 
 ### Minor Changes
