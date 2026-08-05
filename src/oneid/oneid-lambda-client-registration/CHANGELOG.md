@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.10.1
+
+### Patch Changes
+
+- 021e4d5: refactor: update client related notifications
+
 ## 2.10.0
 
 ### Minor Changes

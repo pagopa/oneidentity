@@ -31,7 +31,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -51,7 +50,6 @@ public class ClientRegistrationController {
   @ConfigProperty(name = "sns_topic_notification_environment")
   String environment;
 
-
   @POST
   @Path("/register")
   @Produces(MediaType.APPLICATION_JSON)
@@ -63,34 +61,31 @@ public class ClientRegistrationController {
       @HeaderParam("Plan-Name") String planName) {
     Log.debug("start");
 
-    //1. Extract userId from bearer token
+    // 1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
     Log.debug("userId retrieved from bearer token successfully");
 
-    //2. Validate client infos
+    // 2. Validate client infos
     clientRegistrationService.validatePairwiseClientRegistrationInfo(clientRegistrationDTOInput, pdvApiKey,
         planName);
     Log.debug("client info validated successfully");
 
-    //3. Save client in db
+    // 3. Save client in db
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = clientRegistrationService.saveClient(
         clientRegistrationDTOInput, userId, pdvApiKey, planName);
     Log.info(
         "client saved successfully with clientId: " + clientRegistrationResponseDTO.getClientId());
 
-    //4. Prepare message for sns notification
-    String message =
-        "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
-            "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
-            "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
-            "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
+    // 4. Prepare message for sns notification
+    String message = "Name: " + clientRegistrationResponseDTO.getClientName() + "\n" +
+        "Client ID: " + clientRegistrationResponseDTO.getClientId() + "\n" +
+        "Attributes: " + clientRegistrationResponseDTO.getSamlRequestedAttributes() + "\n" +
+        "Redirect URIs: " + clientRegistrationResponseDTO.getRedirectUris();
 
-    String subject =
-        "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+    String subject = "New Client registered in " + EnvironmentMapping.valueOf(environment).getEnvLong();
 
     try {
-      sns.publish(p ->
-          p.topicArn(topicArn).subject(subject).message(message));
+      sns.publish(p -> p.topicArn(topicArn).subject(subject).message(message));
       Log.debug("SNS notification sent");
     } catch (Exception e) {
       Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
@@ -110,21 +105,21 @@ public class ClientRegistrationController {
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.debug("start");
 
-    //1. Extract userId from bearer token
+    // 1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
     Log.debug("userId retrieved from bearer token successfully");
 
     ClientUtils.checkUserId(userId, userIdPathParam);
 
-    //2. Verify if client exists and if so retrieves it from db
+    // 2. Verify if client exists and if so retrieves it from db
     Client client = clientRegistrationService.getClientByUserId(userId);
     Log.info("client exists for userId: " + userId);
 
-    //3. Convert client to ClientRegistrationDTO
+    // 3. Convert client to ClientRegistrationDTO
     ClientRegistrationDTO clientRegistrationDTO = ClientUtils.convertClientToClientRegistrationDTO(
         client);
 
-    //4. Set clientId in ClientRegistrationResponseDTO
+    // 4. Set clientId in ClientRegistrationResponseDTO
     ClientRegistrationResponseDTO clientRegistrationResponseDTO = new ClientRegistrationResponseDTO(
         clientRegistrationDTO,
         client.getClientId());
@@ -145,57 +140,37 @@ public class ClientRegistrationController {
       @HeaderParam("Plan-Name") String planName) {
     Log.debug("start");
 
-    //1. Extract userId from bearer token
+    // 1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
     Log.debug("userId retrieved from bearer token successfully");
 
-    //2. Validate client infos
+    // 2. Validate client infos
     clientRegistrationService.validatePairwiseClientRegistrationInfo(
         clientRegistrationDTOInput, pdvApiKey, planName);
     Log.debug("client info validated successfully");
 
-    //2. Retrieves client from db
+    // 2. Retrieves client from db
     ClientExtended clientExtended = clientRegistrationService.getClientExtendedByClientId(clientId);
 
-    //3. Check if userId in input matches the client userId on db
+    // 3. Check if userId in input matches the client userId on db
     ClientUtils.checkUserId(userId, clientExtended.getUserId());
     Log.debug("client exists for clientId: " + clientId);
 
-    //5. Update client infos
+    // 5. Update client infos
     clientRegistrationService.updateClientExtended(clientRegistrationDTOInput,
         clientExtended, pdvApiKey, planName);
     Log.info("client updated successfully for clientId: " + clientId);
 
-    //6a. Prepare message for sns notification
-    String message =
-        "Name: " + clientRegistrationDTOInput.getClientName() + "\n" +
-            "Client ID: " + clientId + "\n";
-    boolean sendNotification = false;
-
-    // Add information if redirectUris or metadata-related fields are updated
-    if (!clientRegistrationDTOInput.getRedirectUris().equals(clientExtended.getCallbackURI())) {
-      message += "- Redirect URIs updated \n";
-      sendNotification = true;
-    }
+    // 6. Send SNS notification only if metadata-related fields have been updated
     Optional<String> updatedFields = ClientUtils.getUpdateMessage(clientRegistrationDTOInput,
         clientExtended);
     if (updatedFields.isPresent()) {
-      message += "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
-      sendNotification = true;
-    }
-    if (!Objects.equals(clientRegistrationDTOInput.getPairwise(), clientExtended.isPairwise())) {
-      message += "- Pairwise changed to: " + clientRegistrationDTOInput.getPairwise() + " \n";
-      sendNotification = true;
-    }
-
-    //7. Send SNS notification only if redirectUris or metadata-related fields has been updated
-    if (sendNotification) {
-      String subject =
-          "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+      String message = "Name: " + clientRegistrationDTOInput.getClientName() + "\n" +
+          "Client ID: " + clientId + "\n" +
+          "- Metadata related fields updated: [" + updatedFields.get() + "]\n";
+      String subject = "Client updated in " + EnvironmentMapping.valueOf(environment).getEnvLong();
       try {
-        String finalMessage = message;
-        sns.publish(p ->
-            p.topicArn(topicArn).subject(subject).message(finalMessage));
+        sns.publish(p -> p.topicArn(topicArn).subject(subject).message(message));
         Log.debug("SNS notification sent");
       } catch (Exception e) {
         Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
@@ -232,14 +207,13 @@ public class ClientRegistrationController {
       @Valid PDVValidateApiKeyDTO validateApiKeyDTO) {
     Log.debug("start");
 
-    //1. Verify if api key are valid
+    // 1. Verify if api key are valid
     PDVValidationResponseDTO validateResponse = clientRegistrationService.validatePDVApiKey(
         validateApiKeyDTO);
     Log.debug("end");
 
     return Response.ok(validateResponse).build();
   }
-
 
   @POST
   @Path("/clients/{client_id}/secret/refresh")
@@ -250,26 +224,23 @@ public class ClientRegistrationController {
       @HeaderParam(HttpHeaders.AUTHORIZATION) String bearer) {
     Log.debug("start");
 
-    //1. Extract userId from bearer token
+    // 1. Extract userId from bearer token
     String userId = getUseridFromBearer(bearer);
     Log.debug("userId retrieved from bearer token successfully");
 
-    //2. Refresh client secret
+    // 2. Refresh client secret
     String secret = clientRegistrationService.refreshClientSecret(
         clientId, userId);
     Map<String, String> response = new HashMap<>();
     response.put("newClientSecret", secret);
     Log.info("client secret refreshed successfully for clientId: " + clientId);
 
-    //3. Prepare message for sns notification
-    String message =
-        "Client ID: " + clientId + "\n";
+    // 3. Prepare message for sns notification
+    String message = "Client ID: " + clientId + "\n";
 
-    String subject =
-        "Client Secret refreshed in " + EnvironmentMapping.valueOf(environment).getEnvLong();
+    String subject = "Client Secret refreshed in " + EnvironmentMapping.valueOf(environment).getEnvLong();
     try {
-      sns.publish(p ->
-          p.topicArn(topicArn).subject(subject).message(message));
+      sns.publish(p -> p.topicArn(topicArn).subject(subject).message(message));
       Log.debug("SNS notification sent");
     } catch (Exception e) {
       Log.log(EnvironmentMapping.valueOf(environment).getLogLevel(),
