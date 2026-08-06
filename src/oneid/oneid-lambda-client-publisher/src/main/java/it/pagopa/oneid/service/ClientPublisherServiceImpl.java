@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -20,12 +19,16 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 @ApplicationScoped
 public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private static final String SUCCESS_METRIC_NAME = "S3PublishSuccess";
   private static final String ERROR_METRIC_NAME = "S3PublishError";
+  private static final String CLIENT_REACTIVATION_RUNBOOK =
+      "https://pagopa.atlassian.net/wiki/x/IwCnwQ";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
   private static final String DYNAMODB_FIELD = "dynamodb";
   private static final String ACTIVE_FIELD = "active";
@@ -35,11 +38,14 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   private final RecordUtils recordUtils;
   private final S3Client s3Client;
   private final CloudWatchClient cloudWatchClient;
+  private final SnsClient snsClient;
   private final ObjectMapper objectMapper;
   private final String bucketName;
   private final String singleClientKeyPrefix;
   private final String globalClientsKey;
   private final String namespace;
+  private final String snsTopicArn;
+  private final String notificationEnvironment;
 
   @Inject
   ClientPublisherServiceImpl(
@@ -48,21 +54,27 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       RecordUtils recordUtils,
       S3Client s3Client,
       CloudWatchClient cloudWatchClient,
+      SnsClient snsClient,
       ObjectMapper objectMapper,
       @ConfigProperty(name = "clients_bucket_name") String bucketName,
       @ConfigProperty(name = "clients_key_prefix") String singleClientKeyPrefix,
       @ConfigProperty(name = "global_clients_key") String globalClientsKey,
-      @ConfigProperty(name = "cloudwatch_custom_metric_namespace") String namespace) {
+      @ConfigProperty(name = "cloudwatch_custom_metric_namespace") String namespace,
+      @ConfigProperty(name = "sns_topic_arn") String snsTopicArn,
+      @ConfigProperty(name = "sns_topic_notification_environment") String notificationEnvironment) {
     this.clientService = clientService;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
     this.s3Client = s3Client;
     this.cloudWatchClient = cloudWatchClient;
+    this.snsClient = snsClient;
     this.objectMapper = objectMapper;
     this.bucketName = bucketName;
     this.singleClientKeyPrefix = singleClientKeyPrefix;
     this.globalClientsKey = globalClientsKey;
     this.namespace = namespace;
+    this.snsTopicArn = snsTopicArn;
+    this.notificationEnvironment = notificationEnvironment;
   }
 
   ClientPublisherServiceImpl(
@@ -71,14 +83,17 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       RecordUtils recordUtils,
       S3Client s3Client,
       CloudWatchClient cloudWatchClient,
+      SnsClient snsClient,
       ObjectMapper objectMapper,
       String bucketName,
       String singleClientKeyPrefix,
       String globalClientsKey,
-      String namespace) {
+      String namespace,
+      String snsTopicArn,
+      String notificationEnvironment) {
     this(new ClientServiceImpl(clientConnector), dynamoStreamService, recordUtils, s3Client,
-        cloudWatchClient, objectMapper, bucketName, singleClientKeyPrefix, globalClientsKey,
-        namespace);
+        cloudWatchClient, snsClient, objectMapper, bucketName, singleClientKeyPrefix,
+        globalClientsKey, namespace, snsTopicArn, notificationEnvironment);
   }
 
   @Override
@@ -111,6 +126,8 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     Log.infof("Start processing clientId=%s eventName=%s", clientId, eventName);
 
     try {
+      boolean clientReactivated = isClientReactivation(streamRecord);
+
       boolean skipPublish = false;
       switch (eventName) {
         case "INSERT", "MODIFY" -> {
@@ -147,6 +164,11 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
           publishMetric(SUCCESS_METRIC_NAME, clientId);
         }
         default -> Log.infof("Unsupported DynamoDB stream eventName=%s", eventName);
+      }
+
+      if (clientReactivated) {
+        Log.warnf("Client reactivated for clientId=%s.", clientId);
+        publishClientReactivationNotification(clientId);
       }
       Log.infof("End processing clientId=%s eventName=%s", clientId, eventName);
     } catch (RuntimeException e) {
@@ -194,6 +216,24 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     return !oldActive.isMissingNode()
         && !newActive.isMissingNode()
         && oldActive.asBoolean() != newActive.asBoolean();
+  }
+
+  static boolean isClientReactivation(JsonNode streamRecord) {
+    if (!"MODIFY".equals(streamRecord.path("eventName").asText())) {
+      return false;
+    }
+
+    JsonNode oldActive = streamRecord.path(DYNAMODB_FIELD)
+        .path("OldImage")
+        .path(ACTIVE_FIELD)
+        .path("BOOL");
+    JsonNode newActive = streamRecord.path(DYNAMODB_FIELD)
+        .path("NewImage")
+        .path(ACTIVE_FIELD)
+        .path("BOOL");
+
+    return oldActive.isBoolean() && newActive.isBoolean()
+        && !oldActive.booleanValue() && newActive.booleanValue();
   }
 
   private void deleteSingleClient(String clientId) {
@@ -254,6 +294,25 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       Log.debugf("Published metric %s for clientId=%s", metricName, clientId);
     } catch (Exception e) { 
       Log.warnf(e, "Failed to submit metric %s for clientId=%s", metricName, clientId);
+    }
+  }
+
+  private void publishClientReactivationNotification(String clientId) {
+    String subject = "Client reactivated in " + notificationEnvironment
+      + " - Runbook: " + CLIENT_REACTIVATION_RUNBOOK;
+    String message = "Client Id: " + clientId;
+
+    try {
+      PublishRequest request = PublishRequest.builder()
+          .topicArn(snsTopicArn)
+          .subject(subject)
+          .message(message)
+          .build();
+      snsClient.publish(request);
+      Log.debugf("Sent client reactivation SNS notification for clientId=%s", clientId);
+    } catch (Exception e) {
+      Log.warnf(e, "Failed to send client reactivation SNS notification for clientId=%s",
+          clientId);
     }
   }
 }
