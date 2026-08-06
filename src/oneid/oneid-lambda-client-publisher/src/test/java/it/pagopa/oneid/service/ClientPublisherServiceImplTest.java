@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -154,6 +156,45 @@ class ClientPublisherServiceImplTest {
     assertEquals(true, payload.path("backButtonEnabled").asBoolean());
     assertEquals("Welcome", payload.path("localizedContentMap").path("en")
       .path("home").path("title").asText());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 99, 100 })
+  @DisplayName("deletes protected eIDAS client file and only republishes global clients")
+  void processInput_deletesProtectedEidasClient(int acsIndex) throws Exception {
+    ClientConnector clientConnector = mock(ClientConnector.class);
+    DynamoStreamService dynamoStreamService = mock(DynamoStreamService.class);
+    RecordUtils recordUtils = mock(RecordUtils.class);
+    S3Client mockedS3Client = mock(S3Client.class);
+    CloudWatchClient cloudWatchClient = mock(CloudWatchClient.class);
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode streamRecord = objectMapper.readTree("""
+        {
+          "eventName": "INSERT",
+          "dynamodb": {
+            "NewImage": {
+              "clientId": {"S": "protected-client"},
+              "acsIndex": {"N": "%d"},
+              "active": {"BOOL": true}
+            }
+          }
+        }
+        """.formatted(acsIndex));
+    when(recordUtils.readRecords(any())).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+        .thenReturn(java.util.Optional.of("protected-client"));
+    when(clientConnector.findAllActive()).thenReturn(java.util.Optional.of(new ArrayList<>()));
+
+    ClientPublisherServiceImpl service = newService(
+        clientConnector, dynamoStreamService, recordUtils, mockedS3Client, cloudWatchClient,
+        objectMapper);
+
+    service.processInput(streamRecord);
+
+    verify(mockedS3Client).deleteObject(any(DeleteObjectRequest.class));
+    verify(mockedS3Client, times(1))
+        .putObject(any(PutObjectRequest.class), any(RequestBody.class));
+    verify(dynamoStreamService, never()).extractClientFE(streamRecord, false);
   }
 
   @Test
