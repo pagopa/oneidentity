@@ -103,5 +103,25 @@ class ClientServiceImplTest {
     Mockito.verify(clientConnector).findAllActive();
     Mockito.verify(clientConnector, Mockito.never()).findAll();
   }
+
+  @Test
+  void getAllClientsInformation_excludesProtectedAcsIndexesOnly() {
+    Client protectedClient99 = Client.builder().clientId("protected-99").acsIndex(99).build();
+    Client protectedClient100 = Client.builder().clientId("protected-100").acsIndex(100).build();
+    Client regularEidasClient = Client.builder()
+        .clientId("regular-eidas")
+        .acsIndex(7)
+        .eidasIndex(99)
+        .build();
+    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.of(
+        new ArrayList<>(java.util.List.of(protectedClient99, protectedClient100,
+            regularEidasClient))));
+
+    var result = clientServiceImpl.getAllClientsInformation().orElseThrow();
+
+    assertEquals(1, result.size());
+    assertEquals("regular-eidas", result.getFirst().getClientID());
+    assertEquals(99, result.getFirst().getEidasIndex());
+  }
 }
 	
