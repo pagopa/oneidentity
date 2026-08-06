@@ -258,10 +258,10 @@ class ClientPublisherServiceImplTest {
     verify(snsClient).publish(notificationCaptor.capture());
     PublishRequest notification = notificationCaptor.getValue();
 
-    assertEquals("Client reactivated in uat", notification.subject());
-    assertTrue(notification.message().contains("Client ID: client-1"));
-    assertTrue(notification.message()
-        .contains("https://pagopa.atlassian.net/wiki/x/IwCnwQ"));
+    assertEquals(
+        "Client reactivated in uat - Runbook: https://pagopa.atlassian.net/wiki/x/IwCnwQ",
+        notification.subject());
+    assertEquals("Client Id: client-1", notification.message());
   }
 
   @Test

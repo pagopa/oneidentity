@@ -10,7 +10,6 @@ import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -28,7 +27,6 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private static final String SUCCESS_METRIC_NAME = "S3PublishSuccess";
   private static final String ERROR_METRIC_NAME = "S3PublishError";
-  private static final String CLIENT_REACTIVATION_SUBJECT = "Client reactivated";
   private static final String CLIENT_REACTIVATION_RUNBOOK =
       "https://pagopa.atlassian.net/wiki/x/IwCnwQ";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
@@ -62,9 +60,8 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       @ConfigProperty(name = "clients_key_prefix") String singleClientKeyPrefix,
       @ConfigProperty(name = "global_clients_key") String globalClientsKey,
       @ConfigProperty(name = "cloudwatch_custom_metric_namespace") String namespace,
-      @ConfigProperty(name = "sns_topic_arn") Optional<String> snsTopicArn,
-      @ConfigProperty(name = "sns_topic_notification_environment")
-      Optional<String> notificationEnvironment) {
+      @ConfigProperty(name = "sns_topic_arn") String snsTopicArn,
+      @ConfigProperty(name = "sns_topic_notification_environment") String notificationEnvironment) {
     this.clientService = clientService;
     this.dynamoStreamService = dynamoStreamService;
     this.recordUtils = recordUtils;
@@ -76,8 +73,8 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
     this.singleClientKeyPrefix = singleClientKeyPrefix;
     this.globalClientsKey = globalClientsKey;
     this.namespace = namespace;
-    this.snsTopicArn = snsTopicArn.orElse("");
-    this.notificationEnvironment = notificationEnvironment.orElse("");
+    this.snsTopicArn = snsTopicArn;
+    this.notificationEnvironment = notificationEnvironment;
   }
 
   ClientPublisherServiceImpl(
@@ -96,8 +93,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       String notificationEnvironment) {
     this(new ClientServiceImpl(clientConnector), dynamoStreamService, recordUtils, s3Client,
         cloudWatchClient, snsClient, objectMapper, bucketName, singleClientKeyPrefix,
-      globalClientsKey, namespace, Optional.ofNullable(snsTopicArn),
-      Optional.ofNullable(notificationEnvironment));
+        globalClientsKey, namespace, snsTopicArn, notificationEnvironment);
   }
 
   @Override
@@ -302,16 +298,9 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   }
 
   private void publishClientReactivationNotification(String clientId) {
-    if (snsTopicArn.isBlank()) {
-      Log.debug("Client reactivation SNS notification is disabled");
-      return;
-    }
-
-    String subject = notificationEnvironment.isBlank()
-        ? CLIENT_REACTIVATION_SUBJECT
-        : CLIENT_REACTIVATION_SUBJECT + " in " + notificationEnvironment;
-    String message = "Client ID: " + clientId + "\n"
-        + "Follow the runbook: " + CLIENT_REACTIVATION_RUNBOOK;
+    String subject = "Client reactivated in " + notificationEnvironment
+      + " - Runbook: " + CLIENT_REACTIVATION_RUNBOOK;
+    String message = "Client Id: " + clientId;
 
     try {
       PublishRequest request = PublishRequest.builder()
