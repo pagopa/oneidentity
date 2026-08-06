@@ -4,7 +4,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.model.EidasTechnicalClientPolicy;
+import it.pagopa.oneid.common.model.EidasReservedClientPolicy;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,7 +35,7 @@ public class ClientLookupServiceImpl implements ClientLookupService {
 
     Optional<Client> cachedClient = readFromCache(clientId);
     if (cachedClient.isPresent()) {
-      if (EidasTechnicalClientPolicy.isTechnical(cachedClient.get())) {
+      if (EidasReservedClientPolicy.isReserved(cachedClient.get())) {
         evictProtectedClient(clientId);
         return Optional.empty();
       }
@@ -67,7 +67,7 @@ public class ClientLookupServiceImpl implements ClientLookupService {
     }
 
     Client client = sourceClient.get();
-    if (EidasTechnicalClientPolicy.isTechnical(client)) {
+    if (EidasReservedClientPolicy.isReserved(client)) {
       evictProtectedClient(clientId);
       return Optional.empty();
     }

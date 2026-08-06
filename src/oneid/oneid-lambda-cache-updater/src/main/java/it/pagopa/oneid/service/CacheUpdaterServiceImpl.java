@@ -5,7 +5,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.connector.CloudWatchConnector;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
-import it.pagopa.oneid.common.model.EidasTechnicalClientPolicy;
+import it.pagopa.oneid.common.model.EidasReservedClientPolicy;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -113,7 +113,7 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
   }
 
   private void updateCache(Client client, String clientId) {
-    if (EidasTechnicalClientPolicy.isTechnical(client)) {
+    if (EidasReservedClientPolicy.isReserved(client)) {
       deleteClient(clientId);
       Log.infof("Protected eIDAS client excluded from cache for clientId=%s", clientId);
       return;

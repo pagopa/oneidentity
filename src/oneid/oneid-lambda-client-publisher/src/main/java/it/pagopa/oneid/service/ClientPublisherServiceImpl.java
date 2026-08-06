@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.ClientFE;
-import it.pagopa.oneid.common.model.EidasTechnicalClientPolicy;
+import it.pagopa.oneid.common.model.EidasReservedClientPolicy;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -122,7 +122,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
             break;
           }
 
-          if (hasTechnicalEidasAcsIndex(streamRecord)) {
+          if (hasReservedEidasAcsIndex(streamRecord)) {
             deleteSingleClient(clientId);
             publishGlobalClients();
             publishMetric(SUCCESS_METRIC_NAME, clientId);
@@ -190,13 +190,13 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
         .asBoolean(true);
   }
 
-  private boolean hasTechnicalEidasAcsIndex(JsonNode streamRecord) {
+  private boolean hasReservedEidasAcsIndex(JsonNode streamRecord) {
     int acsIndex = streamRecord.path(DYNAMODB_FIELD)
         .path("NewImage")
         .path(ACS_INDEX_FIELD)
         .path("N")
         .asInt(-1);
-    return EidasTechnicalClientPolicy.isTechnicalAcsIndex(acsIndex);
+    return EidasReservedClientPolicy.isReservedAcsIndex(acsIndex);
   }
 
   private boolean hasActiveChanged(JsonNode streamRecord) {
