@@ -708,23 +708,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_actions = each.value.sns_topic_alarm_arn != null ? [each.value.sns_topic_alarm_arn] : []
 }
 
-resource "aws_cloudwatch_metric_alarm" "client_manual_reactivation" {
-  count = var.client_manual_reactivation_alarm_enabled ? 1 : 0
-
-  alarm_name          = format("%s-client-manual-reactivation", var.client_publisher_lambda.name)
-  alarm_description   = "A client changed from inactive to active. Follow the runbook: https://pagopa.atlassian.net/wiki/x/IwCnwQ"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "ClientManualReactivation"
-  namespace           = var.client_publisher_lambda.cloudwatch_custom_metric_namespace
-  period              = 60
-  statistic           = "Sum"
-  threshold           = 1
-  treat_missing_data  = "notBreaching"
-
-  alarm_actions = [var.sns_topic_arn]
-}
-
 resource "aws_cloudwatch_metric_alarm" "cache_updater_client_update_failure_alarm" {
   for_each = var.cache_updater_lambda != null && var.client_alarm != null && var.client_alarm.enabled ? { for client in var.client_alarm.clients : client.client_id => client } : {}
 
@@ -1481,6 +1464,13 @@ data "aws_iam_policy_document" "client_publisher_lambda" {
       "cloudwatch:PutMetricData",
     ]
     resources = ["*"]
+  }
+
+  statement {
+    sid       = "PublishClientReactivationNotifications"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.sns_topic_arn]
   }
 }
 

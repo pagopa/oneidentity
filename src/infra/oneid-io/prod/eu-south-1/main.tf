@@ -132,8 +132,6 @@ module "backend" {
   aws_region = var.aws_region
   env_short  = var.env_short
 
-  client_manual_reactivation_alarm_enabled = true
-
   enable_metadata_lambda_vpc_endpoint_egress = true
 
   client_manager_lambda_optional_iam_policy = false
@@ -361,6 +359,8 @@ module "backend" {
       CLIENTS_KEY_PREFIX                 = "clients-publisher/"
       GLOBAL_CLIENTS_KEY                 = "clients.json"
       CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = "${local.project}-client-publisher/ApplicationMetrics"
+      SNS_TOPIC_ARN                      = module.sns.sns_topic_arn
+      SNS_TOPIC_NOTIFICATION_ENVIRONMENT = "prod-io"
     }
   }
 

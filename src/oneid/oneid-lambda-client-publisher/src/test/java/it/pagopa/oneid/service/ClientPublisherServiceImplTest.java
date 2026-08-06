@@ -36,6 +36,8 @@ import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 @QuarkusTest
 class ClientPublisherServiceImplTest {
@@ -57,6 +59,7 @@ class ClientPublisherServiceImplTest {
     RecordUtils recordUtils = mock(RecordUtils.class);
     S3Client mockedS3Client = mock(S3Client.class);
     CloudWatchClient cloudWatchClient = mock(CloudWatchClient.class);
+    SnsClient snsClient = mock(SnsClient.class);
     ObjectMapper objectMapper = new ObjectMapper();
 
     Client client = Client.builder()
@@ -94,11 +97,14 @@ class ClientPublisherServiceImplTest {
         recordUtils,
         mockedS3Client,
         cloudWatchClient,
+        snsClient,
         objectMapper,
         "clients-bucket",
         "clients/",
         "clients.json",
-        "oneid-core/ApplicationMetrics");
+        "oneid-core/ApplicationMetrics",
+        "",
+        "");
 
     assertDoesNotThrow(() -> service.processInput(streamRecord));
 
@@ -206,6 +212,7 @@ class ClientPublisherServiceImplTest {
     RecordUtils recordUtils = mock(RecordUtils.class);
     S3Client mockedS3Client = mock(S3Client.class);
     CloudWatchClient cloudWatchClient = mock(CloudWatchClient.class);
+    SnsClient snsClient = mock(SnsClient.class);
     ObjectMapper objectMapper = new ObjectMapper();
     Client client = clientWithFrontendFields("client-1");
     ClientFE clientFE = new ClientFE(client);
@@ -237,7 +244,7 @@ class ClientPublisherServiceImplTest {
 
     ClientPublisherServiceImpl service = newService(
         clientConnector, dynamoStreamService, recordUtils, mockedS3Client, cloudWatchClient,
-        objectMapper);
+        snsClient, objectMapper, "arn:aws:sns:eu-south-1:123456789012:alarms", "uat");
 
     service.processInput(streamRecord);
 
@@ -245,19 +252,16 @@ class ClientPublisherServiceImplTest {
         .putObject(any(PutObjectRequest.class), any(RequestBody.class));
     verify(mockedS3Client, never()).deleteObject(any(DeleteObjectRequest.class));
 
-    ArgumentCaptor<PutMetricDataRequest> metricCaptor = ArgumentCaptor.forClass(
-      PutMetricDataRequest.class);
-    verify(cloudWatchClient, times(2)).putMetricData(metricCaptor.capture());
-    PutMetricDataRequest reactivationMetricRequest = metricCaptor.getAllValues().stream()
-      .filter(request -> request.metricData().stream()
-        .anyMatch(metric -> ClientPublisherServiceImpl.CLIENT_MANUAL_REACTIVATION_METRIC_NAME
-          .equals(metric.metricName())))
-      .findFirst()
-      .orElseThrow();
+    verify(cloudWatchClient).putMetricData(any(PutMetricDataRequest.class));
+    ArgumentCaptor<PublishRequest> notificationCaptor = ArgumentCaptor.forClass(
+        PublishRequest.class);
+    verify(snsClient).publish(notificationCaptor.capture());
+    PublishRequest notification = notificationCaptor.getValue();
 
-    assertEquals("oneid-client-publisher/ApplicationMetrics",
-      reactivationMetricRequest.namespace());
-    assertTrue(reactivationMetricRequest.metricData().getFirst().dimensions().isEmpty());
+    assertEquals("Client reactivated in uat", notification.subject());
+    assertTrue(notification.message().contains("Client ID: client-1"));
+    assertTrue(notification.message()
+        .contains("https://pagopa.atlassian.net/wiki/x/IwCnwQ"));
   }
 
   @Test
@@ -327,17 +331,34 @@ class ClientPublisherServiceImplTest {
       S3Client mockedS3Client,
       CloudWatchClient cloudWatchClient,
       ObjectMapper objectMapper) {
+    return newService(clientConnector, dynamoStreamService, recordUtils, mockedS3Client,
+        cloudWatchClient, mock(SnsClient.class), objectMapper, "", "");
+  }
+
+  private ClientPublisherServiceImpl newService(
+      ClientConnector clientConnector,
+      DynamoStreamService dynamoStreamService,
+      RecordUtils recordUtils,
+      S3Client mockedS3Client,
+      CloudWatchClient cloudWatchClient,
+      SnsClient snsClient,
+      ObjectMapper objectMapper,
+      String snsTopicArn,
+      String notificationEnvironment) {
     return new ClientPublisherServiceImpl(
         clientConnector,
         dynamoStreamService,
         recordUtils,
         mockedS3Client,
         cloudWatchClient,
+        snsClient,
         objectMapper,
         "clients-bucket",
         "clients/",
         "clients.json",
-        "oneid-client-publisher/ApplicationMetrics");
+        "oneid-client-publisher/ApplicationMetrics",
+        snsTopicArn,
+        notificationEnvironment);
   }
 
   private JsonNode clientActiveRecord(ObjectMapper objectMapper, String eventName,
