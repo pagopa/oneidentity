@@ -467,6 +467,7 @@ resource "aws_pipes_pipe" "client_publisher" {
       "backButtonEnabled":   <$.dynamodb.NewImage.backButtonEnabled>,
       "localizedContentMap": <$.dynamodb.NewImage.localizedContentMap>,
       "samlBinding":         <$.dynamodb.NewImage.samlBinding>,
+      "acsIndex":            <$.dynamodb.NewImage.acsIndex>,
       "callbackURI":         <$.dynamodb.NewImage.callbackURI>,
       "active":              <$.dynamodb.NewImage.active>,
       "eidasIndex":          <$.dynamodb.NewImage.eidasIndex>
@@ -481,6 +482,7 @@ resource "aws_pipes_pipe" "client_publisher" {
       "backButtonEnabled":   <$.dynamodb.OldImage.backButtonEnabled>,
       "localizedContentMap": <$.dynamodb.OldImage.localizedContentMap>,
       "samlBinding":         <$.dynamodb.OldImage.samlBinding>,
+      "acsIndex":            <$.dynamodb.OldImage.acsIndex>,
       "callbackURI":         <$.dynamodb.OldImage.callbackURI>,
       "active":              <$.dynamodb.OldImage.active>,
       "eidasIndex":          <$.dynamodb.OldImage.eidasIndex>

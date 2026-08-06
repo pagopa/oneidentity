@@ -4,6 +4,7 @@ import io.quarkus.runtime.Startup;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientFE;
+import it.pagopa.oneid.common.model.EidasReservedClientPolicy;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,9 +29,11 @@ public class ClientServiceImpl implements ClientService {
     Optional<ArrayList<Client>> clients = clientConnector.findAllActive();
     return clients.map(cl ->
         cl.stream()
+        .filter(client -> !EidasReservedClientPolicy.isReserved(client))
             .map(ClientFE::new)
             .collect(Collectors.toCollection(ArrayList::new)
             )
     );
   }
+
 }

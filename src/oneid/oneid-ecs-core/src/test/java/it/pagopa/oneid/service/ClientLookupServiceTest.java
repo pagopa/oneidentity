@@ -17,6 +17,8 @@ import java.util.Optional;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 class ClientLookupServiceTest {
@@ -47,6 +49,22 @@ class ClientLookupServiceTest {
     verify(clientConnector, never()).getActiveClientById("client-test");
   }
 
+  @ParameterizedTest
+  @ValueSource(ints = { 99, 100 })
+  @DisplayName("given protected eIDAS cache hit when reading then evict and return empty")
+  void given_protected_eidas_cache_hit_when_reading_then_evict_and_return_empty(int acsIndex) {
+    Client cachedClient = Client.builder().clientId("client-test").acsIndex(acsIndex)
+        .isActive(true).build();
+    when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.of(cachedClient));
+
+    Optional<Client> result = clientLookupService.getClientById("client-test");
+
+    assertTrue(result.isEmpty());
+    verify(cacheConnector).deleteClient("client-test");
+    verify(clientConnector, never()).getActiveClientById("client-test");
+    verifyNoInteractions(cloudWatchConnector);
+  }
+
   @Test
   @DisplayName("given cache miss when reading client then fallback to dynamodb and backfill cache")
   void given_cache_miss_when_reading_client_then_fallback_to_dynamodb_and_backfill_cache() {
@@ -63,6 +81,23 @@ class ClientLookupServiceTest {
     verify(cacheConnector).setClient(sourceClient);
     verify(cloudWatchConnector).sendClientCacheMissMetricData("client-test");
     verify(cloudWatchConnector).sendClientCacheBackfillSuccessMetricData("client-test");
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 99, 100 })
+  @DisplayName("given protected eIDAS DynamoDB fallback when reading then do not backfill")
+  void given_protected_eidas_dynamodb_fallback_when_reading_then_do_not_backfill(int acsIndex) {
+    Client sourceClient = Client.builder().clientId("client-test").acsIndex(acsIndex)
+        .isActive(true).build();
+    when(cacheConnector.getByClientId("client-test")).thenReturn(Optional.empty());
+    when(clientConnector.getActiveClientById("client-test")).thenReturn(Optional.of(sourceClient));
+
+    Optional<Client> result = clientLookupService.getClientById("client-test");
+
+    assertTrue(result.isEmpty());
+    verify(cacheConnector).deleteClient("client-test");
+    verify(cacheConnector, never()).setClient(sourceClient);
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test

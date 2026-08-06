@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.ClientFE;
+import it.pagopa.oneid.common.model.EidasReservedClientPolicy;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -28,7 +28,9 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
   private static final String ERROR_METRIC_NAME = "S3PublishError";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
   private static final String DYNAMODB_FIELD = "dynamodb";
+  private static final String NEW_IMAGE_FIELD = "NewImage";
   private static final String ACTIVE_FIELD = "active";
+  private static final String ACS_INDEX_FIELD = "acsIndex";
 
   private final ClientService clientService;
   private final DynamoStreamService dynamoStreamService;
@@ -121,6 +123,14 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
             break;
           }
 
+          if (hasReservedEidasAcsIndex(streamRecord)) {
+            deleteSingleClient(clientId);
+            publishGlobalClients();
+            publishMetric(SUCCESS_METRIC_NAME, clientId);
+            Log.infof("Protected eIDAS client excluded from publisher for clientId=%s", clientId);
+            break;
+          }
+
           ClientFE client = dynamoStreamService.extractClientFE(streamRecord, false)
               .orElseThrow(() -> new IllegalStateException(
                   "Unable to build ClientFE from NEW_IMAGE for eventName=" + eventName));
@@ -175,10 +185,19 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private boolean isActive(JsonNode streamRecord) {
     return streamRecord.path(DYNAMODB_FIELD)
-        .path("NewImage")
+        .path(NEW_IMAGE_FIELD)
         .path(ACTIVE_FIELD)
         .path("BOOL")
         .asBoolean(true);
+  }
+
+  private boolean hasReservedEidasAcsIndex(JsonNode streamRecord) {
+    int acsIndex = streamRecord.path(DYNAMODB_FIELD)
+        .path(NEW_IMAGE_FIELD)
+        .path(ACS_INDEX_FIELD)
+        .path("N")
+        .asInt(-1);
+    return EidasReservedClientPolicy.isReservedAcsIndex(acsIndex);
   }
 
   private boolean hasActiveChanged(JsonNode streamRecord) {
@@ -187,7 +206,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
         .path(ACTIVE_FIELD)
         .path("BOOL");
     JsonNode newActive = streamRecord.path(DYNAMODB_FIELD)
-        .path("NewImage")
+      .path(NEW_IMAGE_FIELD)
         .path(ACTIVE_FIELD)
         .path("BOOL");
 
