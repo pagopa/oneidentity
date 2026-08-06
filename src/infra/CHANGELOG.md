@@ -1,5 +1,11 @@
 # infra
 
+## 3.8.0
+
+### Minor Changes
+
+- 6272860: Config lambda layers packaging
+
 ## 3.7.1
 
 ### Patch Changes
