@@ -1029,36 +1029,17 @@ data "aws_iam_policy_document" "invalidate_cache_lambda" {
 # Lambda client manager
 
 resource "null_resource" "install_client_manager_dependencies" {
-  provisioner "local-exec" {
-    command = <<EOT
-      mkdir -p "${path.module}/../../dist/python"
-      pip install \
-        --platform manylinux2014_x86_64 \
-        --target="${path.module}/../../dist/python" \
-        --implementation cp \
-        --only-binary=:all: --upgrade \
-        -r "${path.module}/../../../oneid/oneid-lambda-client-manager/requirements.txt"
-    EOT
+  lifecycle {
+    ignore_changes = [triggers]
   }
-
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-}
-
-data "archive_file" "pyjwt_layer" {
-  type        = "zip"
-  source_dir  = "${path.module}/../../dist/"
-  output_path = "${path.module}/../../dist/python.zip"
-  depends_on  = [null_resource.install_client_manager_dependencies]
 }
 
 resource "aws_lambda_layer_version" "pyjwt_layer" {
   layer_name          = "pyjwt-layer"
   description         = "Lambda layer with PyJWT"
   compatible_runtimes = ["python3.12"]
-  filename            = data.archive_file.pyjwt_layer.output_path
-  source_code_hash    = data.archive_file.pyjwt_layer.output_base64sha256
+  filename            = "${path.module}/../../dist/layers/pyjwt-layer.zip"
+  source_code_hash    = filebase64sha256("${path.module}/../../dist/layers/pyjwt-layer.zip")
 }
 
 module "client_manager_lambda" {
@@ -1287,36 +1268,17 @@ resource "aws_vpc_security_group_egress_rule" "cert_checker_sec_group_egress_rul
 }
 
 resource "null_resource" "install_dependencies" {
-  provisioner "local-exec" {
-    command = <<EOT
-      mkdir -p "${path.module}/../../dist/python"
-      pip install \
-        --platform manylinux2014_x86_64 \
-        --target="${path.module}/../../dist/python" \
-        --implementation cp \
-        --only-binary=:all: --upgrade \
-        -r "${path.module}/../../../oneid/oneid-lambda-cert-exp-checker/requirements.txt"
-    EOT
+  lifecycle {
+    ignore_changes = [triggers]
   }
-
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-}
-
-data "archive_file" "cryptography_layer" {
-  type        = "zip"
-  source_dir  = "${path.module}/../../dist/"
-  output_path = "${path.module}/../../dist/python.zip"
-  depends_on  = [null_resource.install_dependencies]
 }
 
 resource "aws_lambda_layer_version" "cryptography" {
   layer_name          = "cryptography-layer"
   description         = "Lambda layer with cryptography"
   compatible_runtimes = ["python3.10"]
-  filename            = data.archive_file.cryptography_layer.output_path
-  source_code_hash    = data.archive_file.cryptography_layer.output_base64sha256
+  filename            = "${path.module}/../../dist/layers/cryptography-layer.zip"
+  source_code_hash    = filebase64sha256("${path.module}/../../dist/layers/cryptography-layer.zip")
 }
 
 module "cert_exp_checker_lambda" {
