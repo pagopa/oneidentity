@@ -24,6 +24,7 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import it.pagopa.oneid.exception.SAMLValidationException;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -171,7 +172,7 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private static void validateAuthStatement(List<AuthnStatement> authnStatements,
-      AuthLevel authLevelRequest) {
+      AuthLevel authLevelRequest, AuthnContextComparisonType comparisonType) {
     if (authnStatements == null || authnStatements.isEmpty()) {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_AUTHN_STATEMENTS_MISSING_OR_EMPTY);
@@ -200,7 +201,10 @@ public class SAMLServiceImpl implements SAMLService {
           ErrorCode.IDP_ERROR_INVALID_AUTHN_CONTEXT_CLASS_REF.getErrorMessage()
               + element.getTextContent().strip());
     }
-    if (authLevelResponse.compareTo(authLevelRequest) < 0) {
+    boolean levelMismatch = comparisonType == AuthnContextComparisonType.EXACT
+        ? authLevelResponse.compareTo(authLevelRequest) != 0
+        : authLevelResponse.compareTo(authLevelRequest) < 0;
+    if (levelMismatch) {
       throw new SAMLValidationException(
           ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL);
     }
@@ -390,7 +394,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   private void validateAssertion(Assertion assertion, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, Integer eidasIndex) {
+      AuthLevel authLevelRequest, Integer eidasIndex, AuthnContextComparisonType comparisonType) {
 
     // Check if assertion id is valid
     if (StringUtils.isBlank(assertion.getID())) {
@@ -407,7 +411,7 @@ public class SAMLServiceImpl implements SAMLService {
     validateNotOnOrAfter(subjectConfirmationData.getNotOnOrAfter());
     validateAssertionIssuer(assertion.getIssuer(), entityID);
     validateConditions(assertion.getConditions());
-    validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest);
+    validateAuthStatement(assertion.getAuthnStatements(), authLevelRequest, comparisonType);
     validateAttributeStatements(assertion, requestedAttributes, entityID, eidasIndex);
 
   }
@@ -540,36 +544,23 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel)
-      throws OneIdentityException {
-    return this.buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, authLevel, SamlBinding.HTTP_POST);
-  }
-
-  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType,
+      int attributeConsumingServiceIndex, String authLevel,
+      AuthnContextComparisonType comparisonType, SamlBinding samlBindingType,
       String assertionRef)
       throws OneIdentityException {
     return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, assertionRef, authLevel, samlBindingType);
-  }
-
-  public AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel, SamlBinding samlBindingType)
-      throws OneIdentityException {
-    return buildAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, null, authLevel, samlBindingType);
+        attributeConsumingServiceIndex, assertionRef, authLevel, comparisonType, samlBindingType);
   }
 
   private AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
       int attributeConsumingServiceIndex, String customId, String authLevel,
-      SamlBinding samlBindingType)
+      AuthnContextComparisonType comparisonType, SamlBinding samlBindingType)
       throws OneIdentityException {
     validateParameters(idpSSOEndpoint, assertionConsumerServiceIndex,
         attributeConsumingServiceIndex);
 
     AuthnRequest authnRequest = createAuthnRequest(idpSSOEndpoint, assertionConsumerServiceIndex,
-        attributeConsumingServiceIndex, authLevel, customId);
+        attributeConsumingServiceIndex, authLevel, customId, comparisonType);
 
     // Check if samlBindingType is null or HTTP_POST, then sign the AuthnRequest
     if (samlBindingType == null || SamlBinding.HTTP_POST.equals(samlBindingType)) {
@@ -599,7 +590,8 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private AuthnRequest createAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String authLevel, String customId) {
+      int attributeConsumingServiceIndex, String authLevel, String customId,
+      AuthnContextComparisonType comparisonType) {
     AuthnRequest authnRequest = samlUtils.buildSAMLObject(AuthnRequest.class);
     authnRequest.setIssueInstant(Instant.now());
     authnRequest.setForceAuthn(true);
@@ -607,7 +599,8 @@ public class SAMLServiceImpl implements SAMLService {
         customId != null && !customId.isBlank() ? customId : samlUtils.generateSecureRandomId());
     authnRequest.setIssuer(samlUtils.buildIssuer());
     authnRequest.setNameIDPolicy(samlUtils.buildNameIdPolicy());
-    authnRequest.setRequestedAuthnContext(samlUtils.buildRequestedAuthnContext(authLevel));
+    authnRequest.setRequestedAuthnContext(
+        samlUtils.buildRequestedAuthnContext(authLevel, comparisonType));
     authnRequest.setDestination(idpSSOEndpoint);
     authnRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
     authnRequest.setAttributeConsumingServiceIndex(attributeConsumingServiceIndex);
@@ -626,7 +619,8 @@ public class SAMLServiceImpl implements SAMLService {
   @Override
   public void validateSAMLResponse(Response samlResponse, String entityID,
       Set<String> requestedAttributes, Instant samlRequestIssueInstant,
-      AuthLevel authLevelRequest, String redirectUri, String state, String clientId,
+      AuthLevel authLevelRequest, AuthnContextComparisonType comparisonType,
+      String redirectUri, String state, String clientId,
       Integer eidasIndex) {
 
     try {
@@ -640,7 +634,7 @@ public class SAMLServiceImpl implements SAMLService {
       validateDestination(samlResponse.getDestination());
       validateResponseIssuer(samlResponse.getIssuer(), entityID);
       validateAssertion(assertion, entityID, requestedAttributes, samlRequestIssueInstant,
-          authLevelRequest, eidasIndex);
+          authLevelRequest, eidasIndex, comparisonType);
 
       validateSignature(samlResponse, entityID);
     } catch (SAMLValidationException e) {

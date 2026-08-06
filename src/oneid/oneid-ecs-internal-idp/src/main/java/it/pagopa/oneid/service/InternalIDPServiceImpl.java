@@ -329,13 +329,19 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
 
   @Override
   public Response createSuccessfulSamlResponse(String authnRequestId,
-      String clientId, String username) throws SAMLUtilsException {
+      String clientId, String username, String requestedAuthLevel) throws SAMLUtilsException {
 
     Client client = clientConnectorImpl.getClientById(clientId)
         .orElseThrow(() -> new RuntimeException("Client not found"));
 
     Set<String> requestedParameters = client.getRequestedParameters();
     AuthLevel authLevel = client.getAuthLevel();
+    if (requestedAuthLevel != null) {
+      AuthLevel parsed = AuthLevel.authLevelFromValue(requestedAuthLevel);
+      if (parsed != null) {
+        authLevel = parsed;
+      }
+    }
 
     // Retrieve the user attributes from the internal IDP users connector
 

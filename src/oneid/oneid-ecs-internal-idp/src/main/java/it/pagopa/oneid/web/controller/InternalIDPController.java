@@ -207,7 +207,7 @@ public class InternalIDPController {
 
     org.opensaml.saml.saml2.core.Response response = internalIDPServiceImpl
         .createSuccessfulSamlResponse(idpSession.getAuthnRequestId(), idpSession.getClientId(),
-            idpSession.getUsername());
+            idpSession.getUsername(), idpSession.getRequestedAuthLevel());
 
     return buildSamlRedirectResponse(response, idpSession,
         Optional.of(IDPSessionStatus.AUTHENTICATED), relayStateToReturn);

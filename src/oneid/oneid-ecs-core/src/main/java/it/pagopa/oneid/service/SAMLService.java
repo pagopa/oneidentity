@@ -2,8 +2,10 @@ package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -15,11 +17,14 @@ import org.opensaml.saml.saml2.core.Response;
 public interface SAMLService {
 
   AuthnRequest buildAuthnRequest(String idpSSOEndpoint, int assertionConsumerServiceIndex,
-      int attributeConsumingServiceIndex, String spidLevel)
+      int attributeConsumingServiceIndex, String authLevel,
+      AuthnContextComparisonType comparisonType, SamlBinding samlBindingType,
+      String assertionRef)
       throws OneIdentityException;
 
   void validateSAMLResponse(Response SAMLResponse, String entityID, Set<String> requestedAttributes,
-      Instant samlRequestIssueInstant, AuthLevel authLevelRequest, String redirectUri, String state,
+      Instant samlRequestIssueInstant, AuthLevel authLevelRequest,
+      AuthnContextComparisonType comparisonType, String redirectUri, String state,
       String clientId, Integer eidasIndex)
       throws OneIdentityException;
 

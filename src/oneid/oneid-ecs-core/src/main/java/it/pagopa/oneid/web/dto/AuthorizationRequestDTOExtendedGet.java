@@ -46,4 +46,7 @@ public class AuthorizationRequestDTOExtendedGet {
   @RestQuery
   private String state;
 
+  @RestQuery("acr_values")
+  private String acrValues;
+
 }
