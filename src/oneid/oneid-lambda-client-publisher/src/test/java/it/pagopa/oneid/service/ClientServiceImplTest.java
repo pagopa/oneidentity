@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.ClientConnector;
@@ -63,7 +64,7 @@ class ClientServiceImplTest {
     clients.add(client2);
 
     //when
-    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.of(clients));
+    when(clientConnector.findAllActive()).thenReturn(Optional.of(clients));
 
     //then
     var result = clientServiceImpl.getAllClientsInformation();
@@ -75,7 +76,7 @@ class ClientServiceImplTest {
 
   @Test
   void getAllClientsInformation_returnsEmptyWhenConnectorHasNoClients() {
-    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.empty());
+    when(clientConnector.findAllActive()).thenReturn(Optional.empty());
 
     var result = clientServiceImpl.getAllClientsInformation();
 
@@ -93,7 +94,7 @@ class ClientServiceImplTest {
         .authLevel(AuthLevel.L2)
         .isActive(true)
         .build();
-    Mockito.when(clientConnector.findAllActive())
+    when(clientConnector.findAllActive())
         .thenReturn(Optional.of(new ArrayList<>(java.util.List.of(activeClient))));
 
     var result = clientServiceImpl.getAllClientsInformation().orElseThrow();
@@ -113,7 +114,7 @@ class ClientServiceImplTest {
         .acsIndex(7)
         .eidasIndex(99)
         .build();
-    Mockito.when(clientConnector.findAllActive()).thenReturn(Optional.of(
+    when(clientConnector.findAllActive()).thenReturn(Optional.of(
         new ArrayList<>(java.util.List.of(protectedClient99, protectedClient100,
             regularEidasClient))));
 

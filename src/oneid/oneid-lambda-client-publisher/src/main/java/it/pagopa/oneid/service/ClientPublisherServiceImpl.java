@@ -32,6 +32,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
       "https://pagopa.atlassian.net/wiki/x/IwCnwQ";
   private static final String CLIENT_ID_DIMENSION = "ClientId";
   private static final String DYNAMODB_FIELD = "dynamodb";
+  private static final String NEW_IMAGE_FIELD = "NewImage";
   private static final String ACTIVE_FIELD = "active";
   private static final String ACS_INDEX_FIELD = "acsIndex";
 
@@ -207,7 +208,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private boolean isActive(JsonNode streamRecord) {
     return streamRecord.path(DYNAMODB_FIELD)
-        .path("NewImage")
+        .path(NEW_IMAGE_FIELD)
         .path(ACTIVE_FIELD)
         .path("BOOL")
         .asBoolean(true);
@@ -215,7 +216,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
 
   private boolean hasReservedEidasAcsIndex(JsonNode streamRecord) {
     int acsIndex = streamRecord.path(DYNAMODB_FIELD)
-        .path("NewImage")
+        .path(NEW_IMAGE_FIELD)
         .path(ACS_INDEX_FIELD)
         .path("N")
         .asInt(-1);
@@ -228,7 +229,7 @@ public class ClientPublisherServiceImpl implements ClientPublisherService {
         .path(ACTIVE_FIELD)
         .path("BOOL");
     JsonNode newActive = streamRecord.path(DYNAMODB_FIELD)
-        .path("NewImage")
+      .path(NEW_IMAGE_FIELD)
         .path(ACTIVE_FIELD)
         .path("BOOL");
 
