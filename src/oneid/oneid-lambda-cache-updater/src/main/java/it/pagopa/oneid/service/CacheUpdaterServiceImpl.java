@@ -5,6 +5,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.connector.CloudWatchConnector;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.EidasTechnicalClientPolicy;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import it.pagopa.oneid.common.utils.dynamodb.RecordUtils;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -104,11 +105,21 @@ public class CacheUpdaterServiceImpl implements CacheUpdaterService {
     }
 
     dynamoStreamService.extractClient(streamRecord, false)
-      .ifPresentOrElse(client -> upsertClientAndTrackUpdate(client, clientId),
+      .ifPresentOrElse(client -> updateCache(client, clientId),
         () -> {
           throw new IllegalStateException(
               "Unable to build client from NEW_IMAGE for eventName=" + eventName);
         });
+  }
+
+  private void updateCache(Client client, String clientId) {
+    if (EidasTechnicalClientPolicy.isTechnical(client)) {
+      deleteClient(clientId);
+      Log.infof("Protected eIDAS client excluded from cache for clientId=%s", clientId);
+      return;
+    }
+
+    upsertClientAndTrackUpdate(client, clientId);
   }
 
   private boolean isActive(JsonNode streamRecord) {

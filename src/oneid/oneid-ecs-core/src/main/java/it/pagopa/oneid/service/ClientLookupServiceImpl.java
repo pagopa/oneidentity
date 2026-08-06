@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.CacheConnector;
 import it.pagopa.oneid.common.connector.ClientConnector;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.EidasTechnicalClientPolicy;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,6 +35,11 @@ public class ClientLookupServiceImpl implements ClientLookupService {
 
     Optional<Client> cachedClient = readFromCache(clientId);
     if (cachedClient.isPresent()) {
+      if (EidasTechnicalClientPolicy.isTechnical(cachedClient.get())) {
+        evictProtectedClient(clientId);
+        return Optional.empty();
+      }
+
       Log.infof("Cache hit for clientId=%s", clientId);
       return cachedClient;
     }
@@ -61,6 +67,11 @@ public class ClientLookupServiceImpl implements ClientLookupService {
     }
 
     Client client = sourceClient.get();
+    if (EidasTechnicalClientPolicy.isTechnical(client)) {
+      evictProtectedClient(clientId);
+      return Optional.empty();
+    }
+
     cloudWatchConnectorImpl.sendClientCacheMissMetricData(clientId);
     Log.infof("Cache miss for clientId=%s, fetched from DynamoDB", clientId);
     backfillCache(client);
@@ -76,6 +87,16 @@ public class ClientLookupServiceImpl implements ClientLookupService {
       Log.warnf(cacheWriteException,
           "Unable to write client to Redis cache for clientId=%s.", client.getClientId());
       cloudWatchConnectorImpl.sendClientCacheBackfillFailureMetricData(client.getClientId());
+    }
+  }
+
+  private void evictProtectedClient(String clientId) {
+    try {
+      cacheConnector.deleteClient(clientId);
+      Log.infof("Protected eIDAS client excluded from cache for clientId=%s", clientId);
+    } catch (RuntimeException cacheDeleteException) {
+      Log.warnf(cacheDeleteException,
+          "Unable to remove protected eIDAS client from Redis cache for clientId=%s.", clientId);
     }
   }
 }
