@@ -192,8 +192,7 @@ public class OIDCController {
     }
 
     // 3. Check if scope is "openid"
-    if (StringUtils.isBlank(authorizationRequestDTOExtended.getScope())
-        || !authorizationRequestDTOExtended.getScope().equalsIgnoreCase("openid")) {
+    if (!isValidOpenIdScope(authorizationRequestDTOExtended.getScope())) {
       Log.error("scope not supported");
       throw new InvalidScopeException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState(),
@@ -216,15 +215,12 @@ public class OIDCController {
 
     // Resolve auth level and comparison type
     String rawAcrValues = authorizationRequestDTOExtended.getAcrValues();
-    String authLevel;
-    AuthnContextComparisonType comparisonType;
+    String authLevel = selectedClient.getAuthLevel().getValue();
+    AuthnContextComparisonType comparisonType = AuthnContextComparisonType.MINIMUM;
 
     if (StringUtils.isNotBlank(rawAcrValues)) {
       authLevel = rawAcrValues;
       comparisonType = AuthnContextComparisonType.EXACT;
-    } else {
-      authLevel = selectedClient.getAuthLevel().getValue();
-      comparisonType = AuthnContextComparisonType.MINIMUM;
     }
 
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());
@@ -315,6 +311,10 @@ public class OIDCController {
         + "document.getElementById('SAMLRequestForm').submit();</script>";
 
     return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
+  }
+
+  private boolean isValidOpenIdScope(String scope) {
+    return StringUtils.isNotBlank(scope) && scope.equalsIgnoreCase("openid");
   }
 
   private ServiceIndexes getServiceIndexes(Client client, IDP idp) {

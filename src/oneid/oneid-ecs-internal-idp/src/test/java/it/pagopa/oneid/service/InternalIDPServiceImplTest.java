@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
@@ -126,7 +125,7 @@ class InternalIDPServiceImplTest {
         .age(20)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -145,7 +144,7 @@ class InternalIDPServiceImplTest {
         .age(10)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -165,7 +164,7 @@ class InternalIDPServiceImplTest {
         .age(25)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -185,7 +184,7 @@ class InternalIDPServiceImplTest {
         .age(80)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -196,7 +195,7 @@ class InternalIDPServiceImplTest {
   @Test
   @DisplayName("given_user_not_found_when_verifyAge_then_throws")
   void verifyAge_userNotFound() {
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.empty());
 
@@ -215,7 +214,7 @@ class InternalIDPServiceImplTest {
         .samlAttributes(Map.of("name", "Mario"))
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -234,7 +233,7 @@ class InternalIDPServiceImplTest {
         .age(15)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -254,7 +253,7 @@ class InternalIDPServiceImplTest {
         .age(16)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -273,7 +272,7 @@ class InternalIDPServiceImplTest {
         .age(15)
         .build();
 
-    Mockito.when(internalIDPUsersConnectorImpl
+    when(internalIDPUsersConnectorImpl
         .getIDPInternalUserByUsernameAndNamespace("testUser", "clientId"))
         .thenReturn(Optional.of(user));
 
@@ -284,7 +283,7 @@ class InternalIDPServiceImplTest {
   @Test
   @DisplayName("given_ssm_failure_when_createConsentDeniedSamlResponse_then_throws_runtime_exception")
   void createConsentDeniedSamlResponse_ssmFailure_throwsRuntimeException() {
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
         .thenThrow(SsmException.builder().message("SSM error").build());
 
     assertThrows(RuntimeException.class,
@@ -298,7 +297,7 @@ class InternalIDPServiceImplTest {
     GetParameterResponse invalidCertResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value("not-a-real-cert").build())
         .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
         .thenReturn(invalidCertResponse);
 
     assertThrows(RuntimeException.class,
@@ -319,7 +318,7 @@ class InternalIDPServiceImplTest {
     GetParameterResponse invalidKeyResponse = GetParameterResponse.builder()
         .parameter(Parameter.builder().value("not-a-real-key").build())
         .build();
-    Mockito.when(ssmClient.getParameter(Mockito.any(GetParameterRequest.class)))
+    when(ssmClient.getParameter(any(GetParameterRequest.class)))
         .thenReturn(certResponse)
         .thenReturn(invalidKeyResponse);
 
@@ -370,7 +369,7 @@ class InternalIDPServiceImplTest {
       + "jVmp1nU/Blm4ojXDR/oa0o+JRGuXFvJyKmODQQQoul5wME/p5TKw5JSX68t870o+\n"
       + "8gG8sjBqWagKI9VsO5yBlEKGHjIlSmNjNEh5GfHwehMMAb0kO467MxuBP0iuNIhQ\n"
       + "Bb+3Jm9l+t+3\n"
-      + "-----END CERTIFICATE-----";
+      + "-----END CERTIFICATE-----"; // NOSONAR
 
   private static final String TEST_KEY_PEM = "-----BEGIN PRIVATE KEY-----\n" // gitleaks:allow
       + "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCvyidJ8iaM93ym\n"
@@ -399,7 +398,7 @@ class InternalIDPServiceImplTest {
       + "DSH06tS+TDB8J6DTHFYXlrkkvhgDocNZ2dZkf02dtx9H4N6COMnoSum1J9k1a0is\n"
       + "xecqZea5/fIwgvnGKEbnhqTul0yUcfBr5bWHb+RO9yy7jUcKVYDrCQ85hGqLZmxJ\n"
       + "Xex4+CqzwGQzzbM1muriTGFY\n"
-      + "-----END PRIVATE KEY-----";
+      + "-----END PRIVATE KEY-----"; // NOSONAR
   // endregion
 
   private void mockSsmWithValidCredentials() {

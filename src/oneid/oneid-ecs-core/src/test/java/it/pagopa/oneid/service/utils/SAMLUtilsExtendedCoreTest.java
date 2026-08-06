@@ -99,6 +99,18 @@ public class SAMLUtilsExtendedCoreTest {
   }
 
   @Test
+  void buildRequestedAuthnContext_exact_setsExactComparison() {
+    RequestedAuthnContext requestedAuthnContext = samlUtilsExtendedCore.buildRequestedAuthnContext(
+        "https://www.spid.gov.it/SpidL2", AuthnContextComparisonType.EXACT);
+
+    assertNotNull(requestedAuthnContext);
+    assertEquals(AuthnContextComparisonTypeEnumeration.EXACT,
+        requestedAuthnContext.getComparison());
+    assertEquals("https://www.spid.gov.it/SpidL2",
+        requestedAuthnContext.getAuthnContextClassRefs().getFirst().getURI());
+  }
+
+  @Test
   @SneakyThrows
   void getAttributeDTOListFromAssertion_withAttributeValues() {
     Response samlResponse = samlUtilsExtendedCore.getSAMLResponseFromString(

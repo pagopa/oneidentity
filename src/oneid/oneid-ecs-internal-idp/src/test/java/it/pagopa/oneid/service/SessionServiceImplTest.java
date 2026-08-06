@@ -3,6 +3,11 @@ package it.pagopa.oneid.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
@@ -17,7 +22,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
@@ -46,9 +50,9 @@ public class SessionServiceImplTest {
         .build();
 
     // When
-    Mockito.when(
-        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(Mockito.any(),
-            Mockito.any(), Mockito.any()))
+    when(
+        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(any(),
+            any(), any()))
         .thenReturn(
             Optional.of(idpSession));
 
@@ -65,9 +69,9 @@ public class SessionServiceImplTest {
     String username = "testUsername";
 
     // When
-    Mockito.when(
-        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(Mockito.any(),
-            Mockito.any(), Mockito.any()))
+    when(
+        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(any(),
+            any(), any()))
         .thenReturn(Optional.empty());
 
     // Then
@@ -91,9 +95,9 @@ public class SessionServiceImplTest {
         .build();
 
     // When
-    Mockito.when(
-        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(Mockito.any(),
-            Mockito.any(), Mockito.any()))
+    when(
+        sessionConnectorImpl.getIDPSessionByAuthnRequestIdClientIdAndUsername(any(),
+            any(), any()))
         .thenReturn(
             Optional.of(idpSession));
 
@@ -117,7 +121,7 @@ public class SessionServiceImplTest {
     sessionServiceImpl.setSessionAsAuthenticatedOrDenied(idpSession);
 
     // Then
-    Mockito.verify(sessionConnectorImpl, Mockito.times(1))
+    verify(sessionConnectorImpl, times(1))
         .updateIDPSession(idpSession, Optional.of(IDPSessionStatus.CREDENTIALS_VALIDATED));
   }
 
@@ -135,7 +139,7 @@ public class SessionServiceImplTest {
     sessionServiceImpl.updateIdPSession(idpSession);
 
     // Then
-    Mockito.verify(sessionConnectorImpl, Mockito.times(1))
+    verify(sessionConnectorImpl, times(1))
         .updateIDPSession(idpSession, Optional.of(IDPSessionStatus.PENDING));
 
   }
@@ -144,24 +148,24 @@ public class SessionServiceImplTest {
   @DisplayName("given_authn_request_with_requested_authn_context_when_saveIDPSession_then_stores_auth_level")
   void saveIDPSession_withRequestedAuthnContext_storesRequestedAuthLevel() {
     // Given
-    AuthnRequest authnRequest = Mockito.mock(AuthnRequest.class);
-    RequestedAuthnContext rac = Mockito.mock(RequestedAuthnContext.class);
-    AuthnContextClassRef classRef = Mockito.mock(AuthnContextClassRef.class);
-    Client client = Mockito.mock(Client.class);
+    AuthnRequest authnRequest = mock(AuthnRequest.class);
+    RequestedAuthnContext rac = mock(RequestedAuthnContext.class);
+    AuthnContextClassRef classRef = mock(AuthnContextClassRef.class);
+    Client client = mock(Client.class);
 
-    Mockito.when(authnRequest.getID()).thenReturn("testId");
-    Mockito.when(authnRequest.getRequestedAuthnContext()).thenReturn(rac);
-    Mockito.when(rac.getAuthnContextClassRefs()).thenReturn(List.of(classRef));
-    Mockito.when(classRef.getURI()).thenReturn("https://www.spid.gov.it/SpidL2");
-    Mockito.when(client.getClientId()).thenReturn("testClientId");
-    Mockito.when(client.isSpidMinors()).thenReturn(false);
+    when(authnRequest.getID()).thenReturn("testId");
+    when(authnRequest.getRequestedAuthnContext()).thenReturn(rac);
+    when(rac.getAuthnContextClassRefs()).thenReturn(List.of(classRef));
+    when(classRef.getURI()).thenReturn("https://www.spid.gov.it/SpidL2");
+    when(client.getClientId()).thenReturn("testClientId");
+    when(client.isSpidMinors()).thenReturn(false);
 
     // When
     sessionServiceImpl.saveIDPSession(authnRequest, client, "relayState");
 
     // Then
     ArgumentCaptor<IDPSession> captor = ArgumentCaptor.forClass(IDPSession.class);
-    Mockito.verify(sessionConnectorImpl).saveIDPSessionIfNotExists(captor.capture());
+    verify(sessionConnectorImpl).saveIDPSessionIfNotExists(captor.capture());
     assertEquals("https://www.spid.gov.it/SpidL2", captor.getValue().getRequestedAuthLevel());
   }
 
@@ -169,20 +173,20 @@ public class SessionServiceImplTest {
   @DisplayName("given_authn_request_without_requested_authn_context_when_saveIDPSession_then_null_auth_level")
   void saveIDPSession_withoutRequestedAuthnContext_storesNullAuthLevel() {
     // Given
-    AuthnRequest authnRequest = Mockito.mock(AuthnRequest.class);
-    Client client = Mockito.mock(Client.class);
+    AuthnRequest authnRequest = mock(AuthnRequest.class);
+    Client client = mock(Client.class);
 
-    Mockito.when(authnRequest.getID()).thenReturn("testId");
-    Mockito.when(authnRequest.getRequestedAuthnContext()).thenReturn(null);
-    Mockito.when(client.getClientId()).thenReturn("testClientId");
-    Mockito.when(client.isSpidMinors()).thenReturn(false);
+    when(authnRequest.getID()).thenReturn("testId");
+    when(authnRequest.getRequestedAuthnContext()).thenReturn(null);
+    when(client.getClientId()).thenReturn("testClientId");
+    when(client.isSpidMinors()).thenReturn(false);
 
     // When
     sessionServiceImpl.saveIDPSession(authnRequest, client, "relayState");
 
     // Then
     ArgumentCaptor<IDPSession> captor = ArgumentCaptor.forClass(IDPSession.class);
-    Mockito.verify(sessionConnectorImpl).saveIDPSessionIfNotExists(captor.capture());
+    verify(sessionConnectorImpl).saveIDPSessionIfNotExists(captor.capture());
     assertNull(captor.getValue().getRequestedAuthLevel());
   }
 }

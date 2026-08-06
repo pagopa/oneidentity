@@ -936,6 +936,58 @@ class OIDCControllerTest {
   }
   // endregion
 
+  @Test
+  @SneakyThrows
+  void authorizePost_withAcrValues_usesExactComparison() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setAcrValues("https://www.spid.gov.it/SpidL2");
+
+    IDP testIDP = IDP.builder()
+        .entityID("https://localhost:8443")
+        .certificates(Set.of(
+            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaTnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+uavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+        .friendlyName("Test IDP")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any())).thenReturn(Optional.of(testIDP));
+
+    AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
+    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(authnRequest);
+
+    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    Element elementMock = mock(Element.class);
+    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any())).thenReturn(elementMock);
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState(),
+            "acr_values", authorizationRequestDTOExtendedPost.getAcrValues()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(200)
+        .body(notNullValue());
+
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(0), Mockito.eq(0),
+        Mockito.eq("https://www.spid.gov.it/SpidL2"),
+        Mockito.any(), Mockito.any(), Mockito.any());
+  }
+
   // region private methods
 
   private AuthorizationRequestDTOExtendedPost getAuthorizationRequestDTOExtendedPost() {

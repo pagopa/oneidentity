@@ -1,16 +1,17 @@
 package it.pagopa.oneid.web.controller.mock;
 
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.Base64SAMLResponses;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.Session;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Alternative;
-
 
 @Alternative
 @Dependent
@@ -37,12 +38,16 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     String dummySAMLRequest = "dummySAMLRequest";
     String dummySAMLResponse = "dummySAMLResponse";
     AuthorizationRequestDTOExtended dummyAuthorizationRequestDTOExtended = new AuthorizationRequestDTOExtended(
-      "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test",
-      "test");
+        "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test",
+        "test");
 
     SAMLSession session = new SAMLSession(dummySAMLRequest, RecordType.SAML, 0, 0,
-      dummySAMLRequest, dummyAuthorizationRequestDTOExtended);
+        dummySAMLRequest, dummyAuthorizationRequestDTOExtended);
     session.setSAMLResponse(dummySAMLResponse);
+    if ("withRequestedAuthLevel".equals(id)) {
+      session.setRequestedAuthLevel(AuthLevel.L2.getValue());
+      session.setComparisonType(AuthnContextComparisonType.EXACT);
+    }
     return (T) session;
   }
 
@@ -65,6 +70,5 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     }
     return Base64SAMLResponses.CORRECT_SAML_RESPONSE_01;
   }
-
 
 }
