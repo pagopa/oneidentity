@@ -26,6 +26,8 @@ public enum ErrorCode {
   AUTHORIZATION_ERROR_STATE("AUTHORIZATION_ERROR_STATE", "State is empty"),
   AUTHORIZATION_ERROR_RESPONSE_TYPE("AUTHORIZATION_ERROR_RESPONSE_TYPE",
       "Response type not selected"),
+  EIDAS_INDEX_NOT_AVAILABLE("EIDAS_INDEX_NOT_AVAILABLE",
+      "eIDAS service index is not available for the client"),
   INVALID_SCOPE_ERROR("INVALID_SCOPE_ERROR", "Scope not supported"),
   INVALID_RESPONSE_TYPE_ERROR("INVALID_RESPONSE_TYPE", "Response type not valid"),
   UNSUPPORTED_RESPONSE_TYPE_ERROR("UNSUPPORTED_RESPONSE_TYPE_ERROR", "Response type not supported"),

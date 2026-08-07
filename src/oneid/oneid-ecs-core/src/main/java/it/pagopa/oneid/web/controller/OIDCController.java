@@ -300,6 +300,9 @@ public class OIDCController {
 
   private ServiceIndexes getServiceIndexes(Client client, IDP idp) {
     if (samlServiceImpl.isEidasEntityId(idp.getEntityID())) {
+      if (client.getEidasIndex() == null) {
+        throw new GenericHTMLException(ErrorCode.EIDAS_INDEX_NOT_AVAILABLE);
+      }
       return new ServiceIndexes(client.getEidasIndex(), client.getEidasIndex());
     }
     return new ServiceIndexes(client.getAcsIndex(), client.getAttributeIndex());
