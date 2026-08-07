@@ -19,6 +19,7 @@ public class MockClientLookupService implements ClientLookupService {
   static {
     addClient("test", SamlBinding.HTTP_POST, true, false);
     addClient("testRedirect", SamlBinding.HTTP_REDIRECT, true, false);
+    addClient("testEidasIndexMissing", SamlBinding.HTTP_POST, true, false, null);
     addClient("testIsRequiredSameIdpFalse", SamlBinding.HTTP_POST, false, false);
     addClient("testIsRequiredSameIdpTrue", SamlBinding.HTTP_POST, true, false);
     addClient("testPairwiseTrue", SamlBinding.HTTP_POST, false, true);
@@ -27,6 +28,11 @@ public class MockClientLookupService implements ClientLookupService {
 
   private static void addClient(String clientId, SamlBinding samlBinding, boolean requiredSameIdp,
       boolean pairwise) {
+    addClient(clientId, samlBinding, requiredSameIdp, pairwise, 99);
+  }
+
+  private static void addClient(String clientId, SamlBinding samlBinding, boolean requiredSameIdp,
+      boolean pairwise, Integer eidasIndex) {
     CLIENTS.put(clientId, Client.builder()
         .clientId(clientId)
         .userId("test")
@@ -37,7 +43,7 @@ public class MockClientLookupService implements ClientLookupService {
         .samlBinding(samlBinding)
         .acsIndex(0)
         .attributeIndex(0)
-        .eidasIndex(99)
+        .eidasIndex(eidasIndex)
         .isActive(true)
         .clientIdIssuedAt(0)
         .logoUri("test")
