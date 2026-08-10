@@ -4,6 +4,8 @@ resource "random_integer" "assertion_bucket_suffix" {
 }
 
 resource "random_integer" "xsw_assertions_bucket_suffix" {
+  count = var.xsw_assertions_bucket == null ? 0 : 1
+
   min = 1000
   max = 9999
 }
@@ -41,6 +43,8 @@ module "kms_assertions_bucket" {
 }
 
 module "kms_xsw_assertions_bucket" {
+  count = var.xsw_assertions_bucket == null ? 0 : 1
+
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
@@ -311,6 +315,8 @@ module "s3_assertions_bucket" {
 }
 
 module "s3_xsw_assertions_bucket" {
+  count = var.xsw_assertions_bucket == null ? 0 : 1
+
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
@@ -323,7 +329,7 @@ module "s3_xsw_assertions_bucket" {
     rule = {
       bucket_key_enabled = true
       apply_server_side_encryption_by_default = {
-        kms_master_key_id = module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].arn
+        kms_master_key_id = module.kms_xsw_assertions_bucket[0].aliases["xsw-assertions/S3"].arn
         sse_algorithm     = "aws:kms"
       }
     }

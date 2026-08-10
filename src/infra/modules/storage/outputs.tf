@@ -7,11 +7,11 @@ output "assertions_bucket_name" {
 }
 
 output "xsw_assertions_bucket_arn" {
-  value = module.s3_xsw_assertions_bucket.s3_bucket_arn
+  value = try(module.s3_xsw_assertions_bucket[0].s3_bucket_arn, null)
 }
 
 output "xsw_assertions_bucket_name" {
-  value = module.s3_xsw_assertions_bucket.s3_bucket_id
+  value = try(module.s3_xsw_assertions_bucket[0].s3_bucket_id, null)
 }
 
 output "metrics_archiver_bucket_arn" {
@@ -35,7 +35,7 @@ output "kms_assertion_key_arn" {
 }
 
 output "xsw_assertions_kms_key_arn" {
-  value = module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn
+  value = try(module.kms_xsw_assertions_bucket[0].aliases["xsw-assertions/S3"].target_key_arn, null)
 }
 
 output "assets_bucket_arn" {
