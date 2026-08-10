@@ -1,5 +1,16 @@
 # infra
 
+## 3.9.0
+
+### Minor Changes
+
+- fc36acb: feat: implement alert mechanism for client reactivation
+
+### Patch Changes
+
+- 2326a64: Dynamic auth context level
+- 1f68381: Exclude client 99-100 from cache and clients route, add acsindex to publisher pipe
+
 ## 3.8.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # oneid-lambda-client-publisher
 
+## 0.7.0
+
+### Minor Changes
+
+- fc36acb: feat: implement alert mechanism for client reactivation
+
+### Patch Changes
+
+- 1f68381: Exclude client 99-100 from cache and clients route, add acsindex to publisher pipe
+
 ## 0.6.0
 
 ### Minor Changes
