@@ -1,5 +1,11 @@
 # infra
 
+## 3.10.0
+
+### Minor Changes
+
+- a85e644: Backup window assertions
+
 ## 3.9.0
 
 ### Minor Changes
