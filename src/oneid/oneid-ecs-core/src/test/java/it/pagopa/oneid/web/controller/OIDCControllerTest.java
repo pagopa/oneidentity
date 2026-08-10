@@ -170,19 +170,8 @@ class OIDCControllerTest {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
 
-    IDP testIDP = IDP.builder()
-        .entityID(EIDAS_ENTITY_ID)
-        .certificates(Set.of("certificate"))
-        .friendlyName("eIDAS")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
     when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
+        .thenReturn(Optional.of(buildEidasIdp()));
     when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
         .thenReturn(true);
 
@@ -216,6 +205,38 @@ class OIDCControllerTest {
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
         Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
         Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+    void authorizePost_EidasIdpRejectsMissingIndex() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequestDTOExtendedPost.setClientId("testEidasIndexMissing");
+    authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
+
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(buildEidasIdp()));
+    when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
+        .thenReturn(true);
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode())
+        .header("Location", containsString("error_code=EIDAS_INDEX_NOT_AVAILABLE"));
+
+    verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(Mockito.anyString(),
+        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any());
   }
 
   @Test
@@ -950,6 +971,19 @@ class OIDCControllerTest {
     authorizationRequestDTOExtendedPost.setState("test");
     return authorizationRequestDTOExtendedPost;
   }
+
+    private IDP buildEidasIdp() {
+        return IDP.builder()
+                .entityID(EIDAS_ENTITY_ID)
+                .certificates(Set.of("certificate"))
+                .friendlyName("eIDAS")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+    }
 
   @SneakyThrows
   private AuthnRequest buildAuthnRequest(String idpID) {
