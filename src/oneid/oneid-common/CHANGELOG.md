@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.10.1
+
+### Patch Changes
+
+- 1f68381: Exclude client 99-100 from cache and clients route, add acsindex to publisher pipe
+
 ## 1.10.0
 
 ### Minor Changes

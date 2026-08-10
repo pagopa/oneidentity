@@ -1,5 +1,11 @@
 # oneid-lambda-cache-updater
 
+## 0.5.1
+
+### Patch Changes
+
+- 1f68381: Exclude client 99-100 from cache and clients route, add acsindex to publisher pipe
+
 ## 0.5.0
 
 ### Minor Changes

@@ -1,5 +1,14 @@
 # oneid-ecs-core
 
+## 1.16.2
+
+### Patch Changes
+
+- 2326a64: Dynamic auth context level
+- 7d231f5: Return a controlled error when an eIDAS login has no configured eIDAS service index.
+- 1f68381: Exclude client 99-100 from cache and clients route, add acsindex to publisher pipe
+- ca33db7: fix test
+
 ## 1.16.1
 
 ### Patch Changes

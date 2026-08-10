@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.6.1
+
+### Patch Changes
+
+- 2326a64: Dynamic auth context level
+
 ## 1.6.0
 
 ### Minor Changes
