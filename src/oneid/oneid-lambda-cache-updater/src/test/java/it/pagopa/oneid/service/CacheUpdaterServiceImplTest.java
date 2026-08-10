@@ -3,6 +3,7 @@ package it.pagopa.oneid.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @QuarkusTest
 class CacheUpdaterServiceImplTest {
@@ -59,6 +62,27 @@ class CacheUpdaterServiceImplTest {
 
     verify(cacheConnector).setClient(client);
     verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 99, 100 })
+  @DisplayName("given protected eIDAS insert when processing then delete client from cache")
+  void given_protected_eidas_insert_when_processing_then_delete_client_from_cache(int acsIndex) {
+    JsonNode input = buildArray("INSERT", null,
+        "{\"clientId\":{\"S\":\"client-test\"},\"active\":{\"BOOL\":true}}");
+    JsonNode streamRecord = input.get(0);
+    Client client = Client.builder().clientId("client-test").acsIndex(acsIndex).isActive(true)
+        .build();
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+        .thenReturn(Optional.of("client-test"));
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
+
+    assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
+
+    verify(cacheConnector).deleteClient("client-test");
+    verify(cacheConnector, never()).setClient(client);
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test
@@ -132,6 +156,29 @@ class CacheUpdaterServiceImplTest {
 
     verify(cacheConnector).setClient(client);
     verify(cloudWatchConnector).sendClientCacheUpdateMetricData("client-test");
+  }
+
+  @Test
+  @DisplayName("given protected eIDAS modify when processing then delete client from cache")
+  void given_protected_eidas_modify_when_processing_then_delete_client_from_cache() {
+    JsonNode input = buildArray("MODIFY",
+        "{\"clientId\":{\"S\":\"client-test\"},\"acsIndex\":{\"N\":\"1\"}}",
+        "{\"clientId\":{\"S\":\"client-test\"},\"acsIndex\":{\"N\":\"99\"}}"
+    );
+    JsonNode streamRecord = input.get(0);
+    Client client = Client.builder().clientId("client-test").acsIndex(99).isActive(true).build();
+    when(recordUtils.readRecords(input)).thenReturn(List.of(streamRecord));
+    when(recordUtils.isIncompleteModifyRecord(streamRecord)).thenReturn(false);
+    when(dynamoStreamService.extractClientId(streamRecord, false))
+        .thenReturn(Optional.of("client-test"));
+    when(dynamoStreamService.hasCacheRelevantChanges(streamRecord)).thenReturn(true);
+    when(dynamoStreamService.extractClient(streamRecord, false)).thenReturn(Optional.of(client));
+
+    assertDoesNotThrow(() -> cacheUpdaterService.processInput(input));
+
+    verify(cacheConnector).deleteClient("client-test");
+    verify(cacheConnector, never()).setClient(client);
+    verifyNoInteractions(cloudWatchConnector);
   }
 
   @Test
