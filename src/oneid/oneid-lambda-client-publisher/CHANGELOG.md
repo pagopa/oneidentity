@@ -1,5 +1,11 @@
 # oneid-lambda-client-publisher
 
+## 0.7.1
+
+### Patch Changes
+
+- 41571a5: fix depsha
+
 ## 0.7.0
 
 ### Minor Changes
