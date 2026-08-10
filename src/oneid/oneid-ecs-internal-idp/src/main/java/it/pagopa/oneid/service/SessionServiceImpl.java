@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.Instant;
 import java.util.Optional;
+import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 @ApplicationScoped
@@ -34,6 +35,15 @@ public class SessionServiceImpl implements SessionService {
           + authnRequest.getAttributeConsumingServiceIndex());
     }
 
+    // Extract the requested auth level URI from the SAMLRequest to get it back in
+    // the SAML response
+    String requestedAuthLevel = Optional.ofNullable(authnRequest.getRequestedAuthnContext())
+        .map(rac -> rac.getAuthnContextClassRefs())
+        .filter(refs -> !refs.isEmpty())
+        .map(refs -> refs.getFirst())
+        .map(AuthnContextClassRef::getURI)
+        .orElse(null);
+
     IDPSession idpSession = IDPSession.builder()
         .authnRequestId(authnRequest.getID())
         .clientId(client.getClientId())
@@ -42,6 +52,7 @@ public class SessionServiceImpl implements SessionService {
         .timestampStart(Instant.now().toEpochMilli())
         .timestampEnd(0)
         .relayStateToReturn(relayStateToReturn)
+        .requestedAuthLevel(requestedAuthLevel)
         .build();
 
     if (client.isSpidMinors()) {

@@ -9,6 +9,7 @@ import io.smallrye.common.annotation.RunOnVirtualThread;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.GenericHTMLException;
@@ -16,6 +17,7 @@ import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -110,9 +112,25 @@ public class SAMLController {
     // Response is formally correct
     Client client = clientLookupService.getClientById(
         samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
+
+    // 3. Check if the requested auth level and comparison type are satisfied
+    // Get effective auth level and comparison type from session
+    // fall back to client default level and comparison type if not present in session
+    // this is to support old deploy sessions that do not yet carry these fields (backward-compatible rollout)
+    AuthLevel effectiveAuthLevel;
+    AuthnContextComparisonType effectiveComparisonType;
+    if (samlSession.getRequestedAuthLevel() != null && samlSession.getComparisonType() != null) {
+      effectiveAuthLevel = AuthLevel.authLevelFromValue(samlSession.getRequestedAuthLevel());
+      effectiveComparisonType = samlSession.getComparisonType();
+    } else {
+      effectiveAuthLevel = client.getAuthLevel();
+      effectiveComparisonType = AuthnContextComparisonType.MINIMUM;
+    }
+
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
-        Instant.ofEpochSecond(samlSession.getCreationTime()), client.getAuthLevel(),
+        Instant.ofEpochSecond(samlSession.getCreationTime()), effectiveAuthLevel,
+        effectiveComparisonType,
         samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
         samlSession.getAuthorizationRequestDTOExtended().getState(),
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),

@@ -46,4 +46,6 @@ public class IDPSession {
   private Integer ageParentAuth;
 
   private String relayStateToReturn;
+
+  private String requestedAuthLevel;
 }

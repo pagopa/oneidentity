@@ -3,6 +3,7 @@ package it.pagopa.oneid.web.validator;
 import static it.pagopa.oneid.web.controller.utils.MDCHandler.updateMDCClientAndStateProperties;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.GenericHTMLException;
@@ -39,6 +40,7 @@ public class AuthenticationRequestValidator implements
     String state;
     String idp;
     String assertionRef;
+    String acrValues;
 
     switch (o) {
       case AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet -> {
@@ -48,6 +50,7 @@ public class AuthenticationRequestValidator implements
         state = authorizationRequestDTOExtendedGet.getState();
         idp = authorizationRequestDTOExtendedGet.getIdp();
         assertionRef = authorizationRequestDTOExtendedGet.getAssertionRef();
+        acrValues = authorizationRequestDTOExtendedGet.getAcrValues();
       }
       case AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost -> {
         responseType = authorizationRequestDTOExtendedPost.getResponseType();
@@ -56,6 +59,7 @@ public class AuthenticationRequestValidator implements
         state = authorizationRequestDTOExtendedPost.getState();
         idp = authorizationRequestDTOExtendedPost.getIdp();
         assertionRef = authorizationRequestDTOExtendedPost.getAssertionRef();
+        acrValues = authorizationRequestDTOExtendedPost.getAcrValues();
       }
       default -> throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -101,6 +105,32 @@ public class AuthenticationRequestValidator implements
             state);
       } else {
         throw new GenericHTMLException(ErrorCode.OI_ERROR_INVALID_ASSERTION_REF);
+      }
+    }
+    if (acrValues != null && !acrValues.isBlank()) {
+      // Check if acrValues contains spaces (multiple values are not accepted)
+      if (acrValues.contains(" ")) {
+        if (hasValidCallback) {
+          throw new AuthorizationErrorException(ErrorCode.ACR_VALUES_ERROR.getErrorMessage(),
+              callbackUri, OAuth2Error.INVALID_REQUEST_CODE,
+              ErrorCode.ACR_VALUES_ERROR.getErrorMessage(), state);
+        } else {
+          throw new GenericHTMLException(ErrorCode.ACR_VALUES_ERROR);
+        }
+      }
+      // Check if acrValues is a valid AuthLevel value (not null, not L1, and not lower than
+      // the client default)
+      AuthLevel requestedLevel = AuthLevel.authLevelFromValue(acrValues);
+      if (requestedLevel == null || requestedLevel == AuthLevel.L1
+          || (client.isPresent() && client.get().getAuthLevel() != null
+          && requestedLevel.compareTo(client.get().getAuthLevel()) < 0)) {
+        if (hasValidCallback) {
+          throw new AuthorizationErrorException(ErrorCode.ACR_VALUES_ERROR.getErrorMessage(),
+              callbackUri, OAuth2Error.INVALID_REQUEST_CODE,
+              ErrorCode.ACR_VALUES_ERROR.getErrorMessage(), state);
+        } else {
+          throw new GenericHTMLException(ErrorCode.ACR_VALUES_ERROR);
+        }
       }
     }
 
