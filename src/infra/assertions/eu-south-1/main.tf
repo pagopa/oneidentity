@@ -17,13 +17,15 @@ module "storage" {
 
     lambda_role_arn = var.assertion_bucket.lambda_role_arn
   }
-  create_athena_table             = true
-  assertions_crawler_schedule     = var.assertions_crawler_schedule
-  create_assets_bucket            = false
-  create_idp_metadata_bucket      = false
-  github_repository               = "pagopa/oneidentity"
-  account_id                      = data.aws_caller_identity.current.account_id
-  assertion_accesslogs_expiration = 180
+  xsw_assertions_bucket              = null
+  create_athena_table                = true
+  assertions_crawler_schedule        = var.assertions_crawler_schedule
+  create_assets_bucket               = false
+  create_assets_control_panel_bucket = false
+  create_idp_metadata_bucket         = false
+  github_repository                  = "pagopa/oneidentity"
+  account_id                         = data.aws_caller_identity.current.account_id
+  assertion_accesslogs_expiration    = 180
 }
 
 
@@ -37,7 +39,7 @@ module "backup" {
     rule_name         = "backup_weekly_rule"
     schedule          = "cron(0 2 ?  * 1 *)"
     start_window      = 60
-    completion_window = 140
+    completion_window = 480
     lifecycle = {
       delete_after = 14
     },
@@ -46,7 +48,7 @@ module "backup" {
       rule_name         = "backup_monthly_rule"
       schedule          = "cron(0 4 1 * ? *)"
       start_window      = 60
-      completion_window = 140
+      completion_window = 480
       lifecycle = {
         delete_after = 365
       },

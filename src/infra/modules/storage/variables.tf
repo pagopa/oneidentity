@@ -41,6 +41,9 @@ variable "xsw_assertions_bucket" {
     object_lock_legal_hold_status = optional(bool, false)
     enable_key_rotation           = optional(bool, false)
   })
+
+  description = "Optional XSW assertions bucket configuration."
+  default     = null
 }
 
 variable "metrics_archiver_enabled" {
