@@ -362,7 +362,7 @@
       "artifactId": "utils",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "QHjUGeHw7u0wQTTjk1xIFd11685jDVOkN02VV5usY3Q="
+      "sha256": "XedwbwkI4ozBIJNWEevRQ7DLiagko8Fm6ptfsXfT7kM="
     },
     {
       "id": "org.opensaml:opensaml-core:jar:4.3.0",
@@ -859,7 +859,7 @@
       "artifactId": "connector",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "1pqeiCpkR8FzOuVBEcq1K6lO1l5QoM_pjIbcYkbC9NI="
+      "sha256": "qBRNYMJWdV3XOaLIV74wzD_gzg51qUBmGfgkIWxLCis="
     },
     {
       "id": "io.quarkiverse.amazonservices:quarkus-amazon-dynamodb-enhanced:jar:2.13.1",
@@ -1391,7 +1391,7 @@
       "artifactId": "model",
       "groupId": "it.pagopa.oneid.common",
       "version": "1.0.0-SNAPSHOT",
-      "sha256": "AAD60jm-EIdHhgUV6bGAAfvvhI-U5ddg3lgWXc_2KKg="
+      "sha256": "ofUUlSns85_rmkaprBsroC4JRpp0SQ2wl29SVWjtXfQ="
     },
     {
       "id": "io.quarkus:quarkus-hibernate-validator:jar:3.11.3",
