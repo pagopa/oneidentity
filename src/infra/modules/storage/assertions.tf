@@ -4,8 +4,6 @@ resource "random_integer" "assertion_bucket_suffix" {
 }
 
 resource "random_integer" "xsw_assertions_bucket_suffix" {
-  count = var.xsw_assertions_bucket == null ? 0 : 1
-
   min = 1000
   max = 9999
 }
@@ -43,15 +41,14 @@ module "kms_assertions_bucket" {
 }
 
 module "kms_xsw_assertions_bucket" {
-  count = var.xsw_assertions_bucket == null ? 0 : 1
-
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
+  create                  = var.xsw_assertions_bucket != null
   description             = "KMS key for S3 encryption used on XSW assertions bucket"
   key_usage               = "ENCRYPT_DECRYPT"
-  enable_key_rotation     = var.xsw_assertions_bucket.enable_key_rotation
-  multi_region            = var.xsw_assertions_bucket.kms_multi_region
+  enable_key_rotation     = try(var.xsw_assertions_bucket.enable_key_rotation, false)
+  multi_region            = try(var.xsw_assertions_bucket.kms_multi_region, false)
   enable_default_policy   = true
   rotation_period_in_days = var.kms_rotation_period_in_days
 
@@ -314,12 +311,11 @@ module "s3_assertions_bucket" {
 }
 
 module "s3_xsw_assertions_bucket" {
-  count = var.xsw_assertions_bucket == null ? 0 : 1
-
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.1"
 
-  bucket = local.xsw_assertions_bucket_name
+  create_bucket = var.xsw_assertions_bucket != null
+  bucket        = local.xsw_assertions_bucket_name
 
   control_object_ownership = true
   object_ownership         = "BucketOwnerEnforced"
@@ -328,7 +324,7 @@ module "s3_xsw_assertions_bucket" {
     rule = {
       bucket_key_enabled = true
       apply_server_side_encryption_by_default = {
-        kms_master_key_id = module.kms_xsw_assertions_bucket[0].aliases["xsw-assertions/S3"].arn
+        kms_master_key_id = try(module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].arn, null)
         sse_algorithm     = "aws:kms"
       }
     }
@@ -336,7 +332,7 @@ module "s3_xsw_assertions_bucket" {
 
   versioning = {
     enabled    = true
-    mfa_delete = var.xsw_assertions_bucket.mfa_delete
+    mfa_delete = try(var.xsw_assertions_bucket.mfa_delete, false)
   }
 
 
@@ -348,7 +344,7 @@ module "s3_xsw_assertions_bucket" {
       tags    = {}
 
       expiration = {
-        days = var.xsw_assertions_bucket.expiration_days
+        days = try(var.xsw_assertions_bucket.expiration_days, null)
       }
     }
   ]

@@ -3,7 +3,7 @@ locals {
     random_integer.assertion_bucket_suffix.result
   )
   xsw_assertions_bucket_name = try(format("%s-%s", var.xsw_assertions_bucket.name_prefix,
-    random_integer.xsw_assertions_bucket_suffix[0].result
+    random_integer.xsw_assertions_bucket_suffix.result
   ), null)
   metrics_archiver_bucket = format("%s-%s", var.metrics_archiver_bucket.name_prefix,
     random_integer.metrics_archiver_bucket_suffix.result
