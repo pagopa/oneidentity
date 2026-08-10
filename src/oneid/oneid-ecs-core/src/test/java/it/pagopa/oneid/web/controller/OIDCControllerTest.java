@@ -236,7 +236,8 @@ class OIDCControllerTest {
         .header("Location", containsString("error_code=EIDAS_INDEX_NOT_AVAILABLE"));
 
     verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(Mockito.anyString(),
-        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(),
+        Mockito.anyString());
   }
 
   @Test
