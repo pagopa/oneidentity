@@ -35,7 +35,7 @@ output "kms_assertion_key_arn" {
 }
 
 output "xsw_assertions_kms_key_arn" {
-  value = module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn
+  value = try(module.kms_xsw_assertions_bucket.aliases["xsw-assertions/S3"].target_key_arn, null)
 }
 
 output "assets_bucket_arn" {
