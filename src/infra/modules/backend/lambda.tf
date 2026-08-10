@@ -1465,6 +1465,13 @@ data "aws_iam_policy_document" "client_publisher_lambda" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid       = "PublishClientReactivationNotifications"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [var.sns_topic_arn]
+  }
 }
 
 module "security_group_lambda_client_publisher" {

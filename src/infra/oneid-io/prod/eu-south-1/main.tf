@@ -359,6 +359,8 @@ module "backend" {
       CLIENTS_KEY_PREFIX                 = "clients-publisher/"
       GLOBAL_CLIENTS_KEY                 = "clients.json"
       CLOUDWATCH_CUSTOM_METRIC_NAMESPACE = "${local.project}-client-publisher/ApplicationMetrics"
+      SNS_TOPIC_ARN                      = module.sns.sns_topic_arn
+      SNS_TOPIC_NOTIFICATION_ENVIRONMENT = "prod-io"
     }
   }
 
