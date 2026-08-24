@@ -70,7 +70,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -123,7 +123,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -176,7 +176,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -224,7 +224,7 @@ class ClientRegistrationControllerTest {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         // .redirectUris(Set.of("https://test.com"))
         // .clientName("test")
-        // .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        // .minAuthLevel(AuthLevel.L2.getValue())
         // .samlRequestedAttributes(Set.of(Identifier.name))
         .build();
 
@@ -248,7 +248,7 @@ class ClientRegistrationControllerTest {
     ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
         .clientName("Test Client")
         .redirectUris(Set.of("https://valid.uri/callback"))
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue())) // This must be valid
+        .minAuthLevel(AuthLevel.L2.getValue()) // This must be valid
         // The payload contains a string that cannot be mapped to the Identifier enum
         .samlRequestedAttributes(Set.of("this_is_not_a_valid_attribute"))
         .build();
@@ -271,7 +271,7 @@ class ClientRegistrationControllerTest {
         .redirectUris(Set.of("https://valid.uri/callback"))
         .samlRequestedAttributes(Set.of("name"))
         // The payload contains a string that cannot be mapped to the Authlevel enum
-        .defaultAcrValues(Set.of("this_is_not_a_valid_attribute"))
+        .minAuthLevel("this_is_not_a_valid_attribute")
         .build();
 
     given()
@@ -290,7 +290,7 @@ class ClientRegistrationControllerTest {
         {
             "redirectUris": ["https://valid.uri/callback"],
             "clientName": "Test Client",
-            "defaultAcrValues": ["https://www.spid.gov.it/SpidL2"],
+            "minAuthLevel": "https://www.spid.gov.it/SpidL2",
             "samlRequestedAttributes": ["name"],
             "samlBinding": "HTTP-INVALID"
         }
@@ -315,7 +315,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .eidasIndex(101)
         .build();
@@ -340,7 +340,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -379,7 +379,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -413,7 +413,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -451,7 +451,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -489,7 +489,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -524,7 +524,7 @@ class ClientRegistrationControllerTest {
         .logoUri("https://test.com")
         .policyUri("https://test.com")
         .tosUri("https://test.com")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .a11yUri("https://test.com")
         .backButtonEnabled(false)
@@ -665,7 +665,7 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
+        .minAuthLevel("https://www.spid.gov.it/SpidL2")
         .clientName("updatedName")
         .redirectUris(Set.of("https://updated.com"))
         .samlRequestedAttributes(Set.of("spidCode"))
@@ -729,7 +729,7 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
+        .minAuthLevel("https://www.spid.gov.it/SpidL2")
         .clientName("updatedName")
         .redirectUris(Set.of("https://updated.com"))
         .samlRequestedAttributes(Set.of("spidCode"))
@@ -772,7 +772,7 @@ class ClientRegistrationControllerTest {
         .build();
 
     ClientRegistrationDTO updatedDto = ClientRegistrationDTO.builder()
-        .defaultAcrValues(Set.of("https://www.spid.gov.it/SpidL2"))
+        .minAuthLevel("https://www.spid.gov.it/SpidL2")
         .clientName("updatedName")
         .redirectUris(Set.of("https://updated.com"))
         .samlRequestedAttributes(Set.of("spidCode"))

@@ -23,7 +23,7 @@ describe('clientDataWithoutSensitiveData', () => {
       samlBinding: SamlBinding.HTTP_POST,
       eidasIndex: EidasAttributeSet.COMPLETE,
       logoUri: 'https://example.com/logo.png',
-      defaultAcrValues: [SpidLevel.L2],
+      minAuthLevel: SpidLevel.L2,
       requiredSameIdp: true,
       spidMinors: false,
       spidProfessionals: true,
@@ -64,7 +64,7 @@ describe('clientDataWithoutSensitiveData', () => {
       samlBinding: SamlBinding.HTTP_POST,
       eidasIndex: EidasAttributeSet.COMPLETE,
       logoUri: 'https://example.com/logo.png',
-      defaultAcrValues: [SpidLevel.L2],
+      minAuthLevel: SpidLevel.L2,
       requiredSameIdp: true,
       spidMinors: false,
       spidProfessionals: true,
@@ -96,7 +96,7 @@ describe('clientDataWithoutSensitiveData', () => {
       samlRequestedAttributes: [SamlAttribute.EMAIL],
       samlBinding: SamlBinding.HTTP_POST,
       eidasIndex: EidasAttributeSet.MINIMUM,
-      defaultAcrValues: [SpidLevel.L2],
+      minAuthLevel: SpidLevel.L2,
     };
 
     const result = clientDataWithoutSensitiveData(clientData as Client);

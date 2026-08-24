@@ -257,7 +257,7 @@ export const Dashboard = () => {
     return (
       !!formData?.clientName &&
       !!formData?.redirectUris?.length &&
-      !!formData?.defaultAcrValues?.length &&
+      !!formData?.minAuthLevel &&
       !!formData?.samlRequestedAttributes?.length &&
       !!formData?.samlBinding
     );
@@ -302,10 +302,7 @@ export const Dashboard = () => {
         formData?.samlRequestedAttributes,
         fetchedClientData?.samlRequestedAttributes
       ) ||
-      !isEqual(
-        formData?.defaultAcrValues,
-        fetchedClientData?.defaultAcrValues
-      ) ||
+      !isEqual(formData?.minAuthLevel, fetchedClientData?.minAuthLevel) ||
       !isEqual(formData?.spidMinors, fetchedClientData?.spidMinors) ||
       !isEqual(formData?.minAge, fetchedClientData?.minAge) ||
       !isEqual(formData?.maxAge, fetchedClientData?.maxAge) ||
@@ -486,18 +483,18 @@ export const Dashboard = () => {
             fullWidth
             margin="normal"
             required
-            error={!!(errorUi as ClientErrors)?.defaultAcrValues?._errors}
+            error={!!(errorUi as ClientErrors)?.minAuthLevel?._errors}
           >
             <InputLabel id="spid-level-label">SPID Level</InputLabel>
             <Select
               labelId="spid-level-label"
               id="spid-level-select"
-              value={formData?.defaultAcrValues?.[0] ?? ''}
+              value={formData?.minAuthLevel ?? ''}
               label="SPID Level"
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  defaultAcrValues: [e.target.value as SpidLevel],
+                  minAuthLevel: e.target.value as SpidLevel,
                 }))
               }
               data-testid="spid-level-select"
@@ -509,7 +506,7 @@ export const Dashboard = () => {
               ))}
             </Select>
             <FormHelperText>
-              {(errorUi as ClientErrors)?.defaultAcrValues?._errors}
+              {(errorUi as ClientErrors)?.minAuthLevel?._errors}
             </FormHelperText>
           </FormControl>
 

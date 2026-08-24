@@ -164,8 +164,7 @@ describe('Dashboard UI', () => {
 
     const spidSelect = screen.getByLabelText(/SPID Level/i);
     fireEvent.mouseDown(spidSelect);
-    const level2Option = screen.getByText('Level L2');
-    fireEvent.click(level2Option);
+    fireEvent.click(screen.getByRole('option', { name: /Level L2/i }));
 
     const samlSelect = screen.getByLabelText(/SAML Attributes/i);
     fireEvent.mouseDown(samlSelect);
@@ -199,8 +198,7 @@ describe('Dashboard UI', () => {
 
     const spidSelect = screen.getByLabelText(/SPID Level/i);
     fireEvent.mouseDown(spidSelect);
-    const level2Option = screen.getByText('Level L2');
-    fireEvent.click(level2Option);
+    fireEvent.click(screen.getByRole('option', { name: /Level L2/i }));
 
     const samlSelect = screen.getByLabelText(/SAML Attributes/i);
     fireEvent.mouseDown(samlSelect);
@@ -249,8 +247,7 @@ describe('Dashboard UI', () => {
 
     const spidSelect = screen.getByLabelText(/SPID Level/i);
     fireEvent.mouseDown(spidSelect);
-    const level2Option = screen.getByText('Level L2');
-    fireEvent.click(level2Option);
+    fireEvent.click(screen.getByRole('option', { name: /Level L2/i }));
 
     const samlSelect = screen.getByLabelText(/SAML Attributes/i);
     fireEvent.mouseDown(samlSelect);
@@ -287,7 +284,7 @@ describe('Dashboard UI', () => {
           clientId: 'client-123',
           clientName: 'Test Client',
           redirectUris: ['https://example.com/callback'],
-          defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+          minAuthLevel: 'https://www.spid.gov.it/SpidL2',
           samlRequestedAttributes: ['fiscalNumber'],
           spidMinors: false,
           pairwise: false,
@@ -440,7 +437,7 @@ describe('Dashboard UI', () => {
           clientId: 'client-123',
           clientName: 'Test Client',
           redirectUris: ['https://example.com/callback'],
-          defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+          minAuthLevel: 'https://www.spid.gov.it/SpidL2',
           samlRequestedAttributes: ['fiscalNumber'],
           samlBinding: SamlBinding.HTTP_POST,
           clientErrorRedirectEnabled: true,
@@ -624,11 +621,11 @@ describe('Dashboard SPID Minors', () => {
 
     const spidSelect = screen.getByLabelText(/SPID Level/i);
     fireEvent.mouseDown(spidSelect);
-    fireEvent.click(screen.getByText('Level L2'));
+    fireEvent.click(screen.getByRole('option', { name: /Level L2/i }));
 
     const samlSelect = screen.getByLabelText(/SAML Attributes/i);
     fireEvent.mouseDown(samlSelect);
-    fireEvent.click(screen.getByText('fiscalNumber'));
+    fireEvent.click(screen.getByRole('option', { name: /fiscalNumber/i }));
 
     const eidasToggle = screen.getByLabelText(/eIDAS support/i);
     fireEvent.click(eidasToggle);
@@ -788,7 +785,7 @@ describe('Dashboard SPID Minors', () => {
       clientId: 'client-123',
       clientName: 'Test Client',
       redirectUris: ['https://example.com/callback'],
-      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      minAuthLevel: 'https://www.spid.gov.it/SpidL2',
       samlRequestedAttributes: ['fiscalNumber'],
       spidMinors: false,
       pairwise: false,
@@ -863,7 +860,7 @@ describe('Dashboard SPID Minors', () => {
       clientId: 'client-123',
       clientName: 'Test Client',
       redirectUris: ['https://example.com/callback'],
-      defaultAcrValues: ['https://www.spid.gov.it/SpidL2'],
+      minAuthLevel: 'https://www.spid.gov.it/SpidL2',
       samlRequestedAttributes: ['fiscalNumber'],
       spidMinors: true,
       minAge: 8,

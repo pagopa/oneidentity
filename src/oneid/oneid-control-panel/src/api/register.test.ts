@@ -120,7 +120,7 @@ describe('createOrUpdateClient', () => {
     logoUri: 'https://example.com/logo.png',
     policyUri: 'https://example.com/policy',
     tosUri: 'https://example.com/tos',
-    defaultAcrValues: [SpidLevel.L2],
+    minAuthLevel: SpidLevel.L2,
     samlRequestedAttributes: [SamlAttribute.FISCAL_NUMBER],
     samlBinding: SamlBinding.HTTP_POST,
     eidasIndex: EidasAttributeSet.MINIMUM,

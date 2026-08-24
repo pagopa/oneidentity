@@ -66,7 +66,7 @@ class ClientUtilsTest {
     return ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://client.example/callback"))
         .clientName("client-name")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .clientErrorRedirectEnabled(clientErrorRedirectEnabled)
         .build();

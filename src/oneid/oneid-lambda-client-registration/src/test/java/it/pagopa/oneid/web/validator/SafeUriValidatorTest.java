@@ -59,7 +59,7 @@ class SafeUriValidatorTest {
     return ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("client_name_01")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .logoUri("https://logo.example.com")
         .policyUri("https://policy.example.com")
