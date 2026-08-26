@@ -114,3 +114,7 @@ dist/*
 **/*.zip
 
 **/.yarn/install-state.gz
+
+src/oneid/settings.xml
+
+**/problems-report.html
