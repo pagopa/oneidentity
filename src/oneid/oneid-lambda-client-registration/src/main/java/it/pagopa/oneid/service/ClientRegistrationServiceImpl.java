@@ -15,11 +15,9 @@ import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
-import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
-import it.pagopa.oneid.exception.ClientRegistrationServiceException;
 import it.pagopa.oneid.exception.InvalidPDVPlanException;
 import it.pagopa.oneid.exception.RefreshSecretException;
 import it.pagopa.oneid.exception.SSMUpsertPDVException;
@@ -33,7 +31,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.Optional;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -129,16 +126,10 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     clientConnector.saveClientIfNotExists(clientExtended);
     Log.debugf("Saved client with clientId: %s", clientExtended.getClientId());
 
-    // 8. Overwrite clientRegistrationRequestDTO.defaultAcrValues with only its
-    // first value
-    clientRegistrationDTO.setDefaultAcrValues(Set.of(
-        clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
-            .orElseThrow(
-                () -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))));
     clientRegistrationDTO.setSamlBinding(
         ClientSamlBinding.fromSamlBinding(client.getSamlBinding()));
 
-    // 9. create and return ClientRegistrationResponseDTO
+    // 8. create and return ClientRegistrationResponseDTO
     return ClientRegistrationResponseDTO.builder()
         .userId(userId)
         .redirectUris(clientRegistrationDTO.getRedirectUris())
@@ -146,7 +137,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .logoUri(clientRegistrationDTO.getLogoUri())
         .policyUri(clientRegistrationDTO.getPolicyUri())
         .tosUri(clientRegistrationDTO.getTosUri())
-        .defaultAcrValues(clientRegistrationDTO.getDefaultAcrValues())
+        .minAuthLevel(clientRegistrationDTO.getMinAuthLevel())
         .samlBinding(ClientSamlBinding.fromSamlBinding(client.getSamlBinding()))
         .samlRequestedAttributes(clientRegistrationDTO.getSamlRequestedAttributes())
         .a11yUri(clientRegistrationDTO.getA11yUri())

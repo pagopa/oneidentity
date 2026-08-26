@@ -4,11 +4,9 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.web.validator.annotations.AuthLevelCheck;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.Set;
 
 public class AuthLevelValidator implements
-    ConstraintValidator<AuthLevelCheck, Set<String>> {
-
+    ConstraintValidator<AuthLevelCheck, String> {
 
   @Override
   public void initialize(AuthLevelCheck constraintAnnotation) {
@@ -16,15 +14,11 @@ public class AuthLevelValidator implements
   }
 
   @Override
-  public boolean isValid(Set<String> acr, ConstraintValidatorContext constraintValidatorContext) {
-
-    if (acr == null) {
+  public boolean isValid(String authLevel, ConstraintValidatorContext constraintValidatorContext) {
+    if (authLevel == null) {
       return true;
     }
-    if (acr.isEmpty()) {
-      return false;
-    }
-    return acr.stream().noneMatch(authLevel -> AuthLevel.authLevelFromValue(authLevel) == null);
-
+    
+    return AuthLevel.authLevelFromValue(authLevel) != null;
   }
 }

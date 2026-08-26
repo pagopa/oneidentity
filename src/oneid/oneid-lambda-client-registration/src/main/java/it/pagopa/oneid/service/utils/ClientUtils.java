@@ -68,9 +68,7 @@ public class ClientUtils {
         .friendlyName(clientRegistrationDTO.getClientName())
         .callbackURI(callbackUris)
         .requestedParameters(requestedParameters)
-        .authLevel(AuthLevel.authLevelFromValue(
-            clientRegistrationDTO.getDefaultAcrValues().stream().findFirst()
-                .orElseThrow(() -> new ClientRegistrationServiceException(ErrorCode.CLIENT_UTILS_ERROR))))
+        .authLevel(AuthLevel.authLevelFromValue(clientRegistrationDTO.getMinAuthLevel()))
         .samlBinding(resolveSamlBinding(clientRegistrationDTO, missingBindingFallback))
         .acsIndex(ACS_INDEX_DEFAULT_VALUE)
         .isActive(true)
@@ -118,7 +116,7 @@ public class ClientUtils {
     return ClientRegistrationDTO.builder()
         .redirectUris(client.getCallbackURI())
         .clientName(client.getFriendlyName())
-        .defaultAcrValues(Set.of(client.getAuthLevel().getValue()))
+        .minAuthLevel(client.getAuthLevel().getValue())
         .samlBinding(ClientSamlBinding.fromSamlBinding(client.getSamlBinding()))
         .samlRequestedAttributes(client.getRequestedParameters())
         .requiredSameIdp(client.isRequiredSameIdp())
@@ -149,10 +147,9 @@ public class ClientUtils {
     if (!input.getSamlRequestedAttributes().equals(existingClient.getRequestedParameters())) {
       message += "SamlRequestedAttributes; ";
     }
-    AuthLevel authLevel = AuthLevel.authLevelFromValue(
-        input.getDefaultAcrValues().stream().findFirst().get());
+    AuthLevel authLevel = AuthLevel.authLevelFromValue(input.getMinAuthLevel());
     if (!authLevel.equals(existingClient.getAuthLevel())) {
-      message += "DefaultAcrValues; ";
+      message += "MinAuthLevel; ";
     }
     SamlBinding inputSamlBinding = resolveSamlBinding(input,
         Optional.ofNullable(existingClient.getSamlBinding()).orElse(SamlBinding.HTTP_POST));

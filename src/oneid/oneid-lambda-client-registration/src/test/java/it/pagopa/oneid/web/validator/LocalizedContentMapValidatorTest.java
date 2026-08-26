@@ -61,7 +61,7 @@ class LocalizedContentMapValidatorTest {
     return ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName("test")
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .localizedContentMap(localizedContentMap)
         .build();
