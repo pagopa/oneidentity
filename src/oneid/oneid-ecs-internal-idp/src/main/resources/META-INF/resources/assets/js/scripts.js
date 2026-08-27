@@ -1,48 +1,50 @@
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
   // cancel back button
-  const backBtn = document.getElementById('back-button');
+  const backBtn = document.getElementById("back-button");
   if (backBtn) {
-    backBtn.addEventListener('click', (e) => {
+    backBtn.addEventListener("click", (e) => {
       e.preventDefault();
       if (window.history.length > 1) {
         history.back();
       } else {
-        window.location.href = '/';
+        window.location.href = "/";
       }
     });
   }
 
   // Toggle password visibility
-  const passwordInput = document.getElementById('password');
-  const toggleIcon = document.getElementById('toggle-password-icon');
+  const passwordInput = document.getElementById("password");
+  const toggleIcon = document.getElementById("toggle-password-icon");
   if (passwordInput && toggleIcon) {
-    toggleIcon.addEventListener('click', () => {
-      const isPassword = passwordInput.type === 'password';
-      passwordInput.type = isPassword ? 'text' : 'password';
-      toggleIcon.textContent = isPassword ? 'visibility' : 'visibility_off';
+    toggleIcon.addEventListener("click", () => {
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      toggleIcon.textContent = isPassword ? "visibility" : "visibility_off";
     });
   }
 
   // custom input validation (login)
-  document.querySelectorAll('.mdc-text-field__input.custom-validation').forEach((input) => {
-    const container = input.closest('.input-container');
-    const labelContainer = container.querySelector('.mdc-text-field');
+  document
+    .querySelectorAll(".mdc-text-field__input.custom-validation")
+    .forEach((input) => {
+      const container = input.closest(".input-container");
+      const labelContainer = container.querySelector(".mdc-text-field");
 
-    input.addEventListener('invalid', (e) => {
-      e.preventDefault();
-      labelContainer.classList.add('mdc-text-field--invalid');
-    });
+      input.addEventListener("invalid", (e) => {
+        e.preventDefault();
+        labelContainer.classList.add("mdc-text-field--invalid");
+      });
 
-    input.addEventListener('input', () => {
-      if (input.validity.valid) {
-        labelContainer.classList.remove('mdc-text-field--invalid');
-      }
+      input.addEventListener("input", () => {
+        if (input.validity.valid) {
+          labelContainer.classList.remove("mdc-text-field--invalid");
+        }
+      });
     });
-  });
 
   // form submit loading
   const buttons = document.querySelectorAll(".btn-loading-action");
-  buttons.forEach(button => {
+  buttons.forEach((button) => {
     button.addEventListener("click", function () {
       const form = button.closest("form");
       if (form && form.checkValidity()) {
@@ -53,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const btnContainer = button.closest(".btn-loading-action-container");
         if (btnContainer) {
           const allButtons = btnContainer.querySelectorAll("button");
-          allButtons.forEach(btn => {
+          allButtons.forEach((btn) => {
             btn.classList.add("btn-disabled");
           });
         }
@@ -61,18 +63,40 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  floatFilledTextFieldLabels();
 });
 
-function resetAllLoadingAction() {
-  document.querySelectorAll(".btn-loading-action-container button").forEach(button => {
-    const loader = button.querySelector(".loader");
-    if (loader) loader.style.display = "none";
-    button.classList.remove("btn-disabled");
+function floatFilledTextFieldLabels() {
+  document.querySelectorAll(".mdc-text-field").forEach((field) => {
+    const input = field.querySelector(".mdc-text-field__input");
+    if (!input || !input.value) {
+      return;
+    }
+
+    field.classList.add("mdc-text-field--label-floating");
+    const label = field.querySelector(".mdc-floating-label");
+    if (label) {
+      label.classList.add("mdc-floating-label--float-above");
+    }
+    const outline = field.querySelector(".mdc-notched-outline");
+    if (outline) {
+      outline.classList.add("mdc-notched-outline--notched");
+    }
   });
+}
+
+function resetAllLoadingAction() {
+  document
+    .querySelectorAll(".btn-loading-action-container button")
+    .forEach((button) => {
+      const loader = button.querySelector(".loader");
+      if (loader) loader.style.display = "none";
+      button.classList.remove("btn-disabled");
+    });
 }
 
 // Event used when go back through history
 window.addEventListener("pageshow", function () {
   resetAllLoadingAction();
+  floatFilledTextFieldLabels();
 });
-
