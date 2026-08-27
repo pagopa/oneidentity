@@ -43,7 +43,7 @@ class SafeTitleValidatorTest {
     return ClientRegistrationDTO.builder()
         .redirectUris(Set.of("https://test.com"))
         .clientName(clientName)
-        .defaultAcrValues(Set.of(AuthLevel.L2.getValue()))
+        .minAuthLevel(AuthLevel.L2.getValue())
         .samlRequestedAttributes(Set.of("name"))
         .build();
   }

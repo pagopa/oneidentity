@@ -111,7 +111,6 @@ export const SamlAttributeSchema = z.enum([
 ]);
 
 export const SamlAttributeArraySchema = z.array(SamlAttributeSchema);
-export const SpidLevelArraySchema = z.array(SpidLevelSchema);
 export const SamlBindingSchema = z.enum([
   SamlBinding.HTTP_POST,
   SamlBinding.HTTP_REDIRECT,
@@ -194,7 +193,7 @@ export const clientSchema = z
     samlBinding: SamlBindingSchema.default(SamlBinding.HTTP_POST),
     eidasIndex: EidasAttributeSetSchema.nullish(),
     logoUri: httpsUrlSchema.nullish(),
-    defaultAcrValues: SpidLevelArraySchema.min(1),
+    minAuthLevel: SpidLevelSchema,
     requiredSameIdp: z.boolean().optional(),
     // feature flags
     spidMinors: z.boolean().optional(),

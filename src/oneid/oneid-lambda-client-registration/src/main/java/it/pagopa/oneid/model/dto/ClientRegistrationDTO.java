@@ -46,11 +46,10 @@ public class ClientRegistrationDTO {
   @JsonProperty("clientName")
   private String clientName; // Client.friendlyName
 
-  @NotEmpty(groups = { Registration.class, UpdateClient.class })
-  @JsonProperty("defaultAcrValues")
-  @Parameter(explode = Explode.TRUE, style = ParameterStyle.FORM)
+  @NotBlank(groups = { Registration.class, UpdateClient.class })
+  @JsonProperty("minAuthLevel")
   @AuthLevelCheck(groups = { Registration.class, UpdateClient.class })
-  private Set<String> defaultAcrValues;
+  private String minAuthLevel;
 
   @JsonProperty("samlBinding")
   @Schema(enumeration = { "HTTP-POST", "HTTP-Redirect" })
@@ -116,7 +115,7 @@ public class ClientRegistrationDTO {
   public ClientRegistrationDTO(ClientRegistrationDTO clientRegistrationDTO) {
     this.redirectUris = clientRegistrationDTO.redirectUris;
     this.clientName = clientRegistrationDTO.clientName;
-    this.defaultAcrValues = clientRegistrationDTO.defaultAcrValues;
+    this.minAuthLevel = clientRegistrationDTO.minAuthLevel;
     this.samlBinding = clientRegistrationDTO.samlBinding;
     this.samlRequestedAttributes = clientRegistrationDTO.samlRequestedAttributes;
     this.requiredSameIdp = clientRegistrationDTO.requiredSameIdp;
