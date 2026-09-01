@@ -1,5 +1,12 @@
 # oi-frontend
 
+## 1.4.1
+
+### Patch Changes
+
+- 7ea5196: update react router lib
+- dde79d5: feat: add idps friendly name file
+
 ## 1.4.0
 
 ### Minor Changes

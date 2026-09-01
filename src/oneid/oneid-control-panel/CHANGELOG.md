@@ -1,5 +1,13 @@
 # oi-control-panel
 
+## 1.9.2
+
+### Patch Changes
+
+- 7ea5196: update react router lib
+- e1e8196: bump axios
+- 6a324eb: single minAuthLevel field
+
 ## 1.9.1
 
 ### Patch Changes

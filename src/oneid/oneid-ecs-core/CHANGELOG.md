@@ -1,5 +1,12 @@
 # oneid-ecs-core
 
+## 1.16.3
+
+### Patch Changes
+
+- ff31391: add idpEntityId token claim
+- a3e3058: update log4j lib
+
 ## 1.16.2
 
 ### Patch Changes

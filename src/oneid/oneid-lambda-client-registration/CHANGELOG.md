@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.10.2
+
+### Patch Changes
+
+- 6a324eb: single minAuthLevel field
+
 ## 2.10.1
 
 ### Patch Changes

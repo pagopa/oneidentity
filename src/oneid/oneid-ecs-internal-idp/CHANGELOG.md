@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.6.2
+
+### Patch Changes
+
+- 0801648: fix username input
+
 ## 1.6.1
 
 ### Patch Changes
