@@ -48,7 +48,26 @@ public class OIDCUtils {
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
     attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
-        attributeDTO.getAttributeValue()));
+      attributeDTO.getAttributeValue()));
+
+    return jwtClaimsSet.build();
+  }
+
+  private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList, String nonce, String basePath, String entityId,
+      boolean sameIdp) {
+    JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
+        .subject(requestId)
+        .issuer(basePath)
+        .audience(clientId)
+        .issueTime(new Date())
+        .claim("nonce", nonce)
+        .claim("sameIdp", sameIdp)
+        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
+
+    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
+      attributeDTO.getAttributeValue()));
+    jwtClaimsSet.claim("idpEntityId", entityId);
 
     return jwtClaimsSet.build();
   }
@@ -64,7 +83,24 @@ public class OIDCUtils {
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
     attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
-        attributeDTO.getAttributeValue()));
+      attributeDTO.getAttributeValue()));
+
+    return jwtClaimsSet.build();
+  }
+
+  private static JWTClaimsSet buildJWTClaimsSet(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList, String nonce, String basePath, String entityId) {
+    JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder()
+        .subject(requestId)
+        .issuer(basePath)
+        .audience(clientId)
+        .issueTime(new Date())
+        .claim("nonce", nonce)
+        .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
+
+    attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
+      attributeDTO.getAttributeValue()));
+    jwtClaimsSet.claim("idpEntityId", entityId);
 
     return jwtClaimsSet.build();
   }
@@ -78,9 +114,23 @@ public class OIDCUtils {
 
   public String createSignedJWT(String requestId, String clientId,
       List<AttributeDTO> attributeDTOList,
+      String nonce, String entityId, boolean sameIdp) {
+    return createSignedJWT(buildJWTClaimsSet(requestId, clientId, attributeDTOList,
+        nonce, BASE_PATH, entityId, sameIdp));
+  }
+
+  public String createSignedJWT(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
       String nonce) {
     return createSignedJWT(buildJWTClaimsSet(requestId, clientId, attributeDTOList,
         nonce, BASE_PATH));
+  }
+
+  public String createSignedJWT(String requestId, String clientId,
+      List<AttributeDTO> attributeDTOList,
+      String nonce, String entityId) {
+    return createSignedJWT(buildJWTClaimsSet(requestId, clientId, attributeDTOList,
+        nonce, BASE_PATH, entityId));
   }
 
   public String createSignedJWT(JWTClaimsSet claimsSet) {
