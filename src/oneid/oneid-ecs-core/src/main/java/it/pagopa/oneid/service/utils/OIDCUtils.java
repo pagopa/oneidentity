@@ -20,6 +20,7 @@ import software.amazon.awssdk.services.kms.model.SignResponse;
 public class OIDCUtils {
 
   private static final Base64.Encoder base64UrlEncoder = Base64.getUrlEncoder().withoutPadding();
+  private static final String NONCE_CLAIM = "nonce";
 
   @Inject
   @ConfigProperty(name = "sign_jwt_key_alias")
@@ -43,7 +44,7 @@ public class OIDCUtils {
         .issuer(basePath)
         .audience(clientId)
         .issueTime(new Date())
-        .claim("nonce", nonce)
+        .claim(NONCE_CLAIM, nonce)
         .claim("sameIdp", sameIdp)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
@@ -61,7 +62,7 @@ public class OIDCUtils {
         .issuer(basePath)
         .audience(clientId)
         .issueTime(new Date())
-        .claim("nonce", nonce)
+        .claim(NONCE_CLAIM, nonce)
         .claim("sameIdp", sameIdp)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
@@ -79,7 +80,7 @@ public class OIDCUtils {
         .issuer(basePath)
         .audience(clientId)
         .issueTime(new Date())
-        .claim("nonce", nonce)
+        .claim(NONCE_CLAIM, nonce)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
     attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),
@@ -95,7 +96,7 @@ public class OIDCUtils {
         .issuer(basePath)
         .audience(clientId)
         .issueTime(new Date())
-        .claim("nonce", nonce)
+        .claim(NONCE_CLAIM, nonce)
         .expirationTime(new Date(new Date().getTime() + (long) VALID_TIME_JWT_MIN * 60 * 1000));
 
     attributeDTOList.forEach(attributeDTO -> jwtClaimsSet.claim(attributeDTO.getAttributeName(),

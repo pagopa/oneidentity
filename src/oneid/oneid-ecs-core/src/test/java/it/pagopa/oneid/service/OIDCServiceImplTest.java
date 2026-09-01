@@ -8,7 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -114,14 +115,14 @@ public class OIDCServiceImplTest {
 
     byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
 
-    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+    kmsConnectorImpl = mock(KMSConnectorImpl.class);
 
     GetPublicKeyResponse getPublicKeyResponse = GetPublicKeyResponse.builder()
         .publicKey(SdkBytes.fromByteArray(encoded))
         .keyId(keyId)
         .build();
 
-    Mockito.when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
+    when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
     QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
 
     // then
@@ -138,14 +139,14 @@ public class OIDCServiceImplTest {
 
     byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
 
-    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+    kmsConnectorImpl = mock(KMSConnectorImpl.class);
 
     GetPublicKeyResponse getPublicKeyResponse = GetPublicKeyResponse.builder()
         .publicKey(SdkBytes.fromByteArray(encoded))
         .keyId(keyId)
         .build();
 
-    Mockito.when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
+    when(kmsConnectorImpl.getPublicKey(Mockito.any())).thenReturn(getPublicKeyResponse);
     QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
 
     // then
@@ -207,10 +208,10 @@ public class OIDCServiceImplTest {
     String nonce = "dummyNonce";
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String validJWT = "\n"
         + "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MjQ4NTMxODcsImV4cCI6MTc1NjM4OTE4NywiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsImZpc2NhbE51bWJlciI6InRlc3QifQ.LMeTd56BOmN-uEvSnXhIzmUjUQ7OQNATOUp2OYhsEOc";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.anyString()))
         .thenReturn(validJWT);
@@ -220,8 +221,7 @@ public class OIDCServiceImplTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce, entityID);
 
-    Mockito.verify(oidcUtils).createSignedJWT(eq(requestID), eq(clientID), eq(attributeDTOList),
-        eq(nonce), eq(entityID));
+    verify(oidcUtils).createSignedJWT(requestID, clientID, attributeDTOList, nonce, entityID);
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
@@ -245,10 +245,10 @@ public class OIDCServiceImplTest {
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
     attributeDTOList.add(new AttributeDTO("fiscalNumber", "test"));
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String validJWT = "\n"
         + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.any(), Mockito.anyBoolean()))
         .thenReturn(validJWT);
@@ -258,8 +258,8 @@ public class OIDCServiceImplTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce, entityID);
 
-    Mockito.verify(oidcUtils).createSignedJWT(eq(requestID), eq(clientID), eq(attributeDTOList),
-        eq(nonce), eq(entityID), anyBoolean());
+    verify(oidcUtils).createSignedJWT(anyString(), anyString(), any(), anyString(), anyString(),
+        anyBoolean());
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
@@ -290,10 +290,10 @@ public class OIDCServiceImplTest {
     when(pdvApiClientMock.upsertUser(any(), any())).thenReturn(
         PDVUserUpsertResponseDTO.builder().userId("dummy").build());
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String validJWT = "\n"
         + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.anyString()))
         .thenReturn(validJWT);
@@ -303,8 +303,7 @@ public class OIDCServiceImplTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce, entityID);
 
-    Mockito.verify(oidcUtils).createSignedJWT(eq(requestID), eq(clientID), eq(attributeDTOList),
-        eq(nonce), eq(entityID));
+    verify(oidcUtils).createSignedJWT(requestID, clientID, attributeDTOList, nonce, entityID);
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
@@ -327,10 +326,10 @@ public class OIDCServiceImplTest {
     String nonce = "dummyNonce";
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String validJWT = "\n"
         + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.anyString()))
         .thenReturn(validJWT);
@@ -340,8 +339,7 @@ public class OIDCServiceImplTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce, entityID);
 
-    Mockito.verify(oidcUtils).createSignedJWT(eq(requestID), eq(clientID), eq(attributeDTOList),
-        eq(nonce), eq(entityID));
+    verify(oidcUtils).createSignedJWT(requestID, clientID, attributeDTOList, nonce, entityID);
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
@@ -365,9 +363,9 @@ public class OIDCServiceImplTest {
 
     ArrayList<AttributeDTO> attributeDTOList = new ArrayList<>();
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String invalidJWT = "dummy";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.anyString()))
         .thenReturn(invalidJWT);
@@ -386,10 +384,10 @@ public class OIDCServiceImplTest {
     String clientSecret = "iB7QoTLouHD6szYS3sB7Ehjs7KClXnCki4kL4DBC3zc";
     String salt = "wnPIm5bGfbSX5W5LcyScBQ";
     String hashedSecret = "eQCAH3sO2CiN+6MYx/BdfMOH8vhMUN5ySTp0n6vG3Qk";
-    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    clientConnectorImpl = mock(ClientConnectorImpl.class);
     SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
 
-    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+    when(clientConnectorImpl.getClientSecret(Mockito.any()))
         .thenReturn(Optional.of(secretDTO));
 
     QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
@@ -407,10 +405,10 @@ public class OIDCServiceImplTest {
     String invalidSecret = "aW52YWxpZFNlY3JldA=="; // base 64 encoded of 'invalid_secret'
     String salt = "c2FsdGZvb2Jhcg=="; //base64 encoded of 'saltfoobar'
     String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg"; // argon2 of salt = 'saltfoobar' and secret = 'dummy'
-    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    clientConnectorImpl = mock(ClientConnectorImpl.class);
     SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
 
-    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+    when(clientConnectorImpl.getClientSecret(Mockito.any()))
         .thenReturn(Optional.of(secretDTO));
 
     QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
@@ -428,10 +426,10 @@ public class OIDCServiceImplTest {
     String secret = "aW52YWxpZFNlY3JldA==";
     String salt = "-c2FsdGZvb2Jhcg=="; //salt with an invalid base64 character '-'
     String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg";
-    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    clientConnectorImpl = mock(ClientConnectorImpl.class);
     SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
 
-    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+    when(clientConnectorImpl.getClientSecret(Mockito.any()))
         .thenReturn(Optional.of(secretDTO));
 
     QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
@@ -449,10 +447,10 @@ public class OIDCServiceImplTest {
     String invalidSecret = "-aW52YWxpZFNlY3JldA=="; // secret with invalid base64 character '-'
     String salt = "c2FsdGZvb2Jhcg==";
     String hashedSecret = "qE1dd7kBTrtsKyU5CErJkj6g8Nhd25zlz97STo27iDg";
-    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    clientConnectorImpl = mock(ClientConnectorImpl.class);
     SecretDTO secretDTO = new SecretDTO(hashedSecret, salt);
 
-    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+    when(clientConnectorImpl.getClientSecret(Mockito.any()))
         .thenReturn(Optional.of(secretDTO));
 
     QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
@@ -481,9 +479,9 @@ public class OIDCServiceImplTest {
     String clientID = "test";
     String clientSecret = "DummyClientSecret";
 
-    clientConnectorImpl = Mockito.mock(ClientConnectorImpl.class);
+    clientConnectorImpl = mock(ClientConnectorImpl.class);
 
-    Mockito.when(clientConnectorImpl.getClientSecret(Mockito.any()))
+    when(clientConnectorImpl.getClientSecret(Mockito.any()))
         .thenReturn(Optional.empty());
 
     QuarkusMock.installMockForType(clientConnectorImpl, ClientConnectorImpl.class);
@@ -527,10 +525,10 @@ class OIDCServiceImplRegistryEnabledTrueTest {
     when(pdvApiClientMock.upsertUser(any(), any())).thenReturn(
         PDVUserUpsertResponseDTO.builder().userId("dummy").build());
 
-    oidcUtils = Mockito.mock(OIDCUtils.class);
+    oidcUtils = mock(OIDCUtils.class);
     String validJWT = "\n"
         + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJfMjhlOTJmNmJhZmVhN2E5MzRiNWY5ZmVmMTUxZjdhNWQiLCJhdWQiOiJieE1pUFZrdHVaNWxCTmJaWUozT0Rvc1hMNTdsdHJMcDdCZ3lPa3ctMHY0IiwiaXNzIjoiaHR0cHM6Ly9kZXYub25laWQucGFnb3BhLml0Iiwic3BpZENvZGUiOiJTUElELTAwOCIsImV4cCI6MTc0MTI3NjI4MSwiaWF0IjoxNzQxMjc2MjIxLCJub25jZSI6IjI4YjhmMzBmMGYxNTQ1MWFiMDVhY2Y2N2QwOThmNWE4IiwiZmlzY2FsTnVtYmVyIjoidGVzdCIsInNhbWVJZHAiOnRydWV9.ilRQd1TP6nWf9S8AtRpTKvx2MhRjf8J8Wtj17u6Mv8_c4kKJWVyhUjSHwArexJsrq4t109fAbw_ECtXiSN5zXg9RXtrAQBjf5ijGfr2a8B6nrOTt9TXJEjRH4eBS_Z4R6sx0nIJTFhDd570O1LsCL5VVlc_fvBcxF0uIlFYEUfP1I7-_WseEhW-p8bDzrWG0J6wUtDBXyHY21BVYXPzNpDjMjuo2EYtKn2QfnDa2Ywt5ryjo-F-IKU9J6x-aPlE7PmxbGat1Jb2HE6hRMa1EVKIYZUBlN1BfX2CfusuTHf6xunWX7XehwegwpemZCNe1297WRZTrlhR42CzAFPk2NzEdqyey2Vt5sPdHaBqR9okJtSn7oLAlYuOTbkf16lRdTXITbia7oAJoP1lowC4hJTcxnXftxXwQZCCmK703KLFon0GIs7f5SZ0fdg24CGHqOnToxuThpy9JbRPxJofbm6V6z3cQOfopy9NstydzDwyXBKuzQ1gmkLHZW82hRctA";
-    Mockito.when(
+    when(
             oidcUtils.createSignedJWT(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                 Mockito.anyString()))
         .thenReturn(validJWT);
@@ -540,8 +538,7 @@ class OIDCServiceImplRegistryEnabledTrueTest {
     TokenDataDTO tokenDataDTO = oidcServiceImpl.getOIDCTokens(requestID, clientID, attributeDTOList,
         nonce, entityID);
 
-    Mockito.verify(oidcUtils).createSignedJWT(eq(requestID), eq(clientID), eq(attributeDTOList),
-        eq(nonce), eq(entityID));
+    verify(oidcUtils).createSignedJWT(requestID, clientID, attributeDTOList, nonce, entityID);
 
     Base64.Decoder decoder = Base64.getUrlDecoder();
     String[] chunks = tokenDataDTO.getIdToken().split("\\.");
