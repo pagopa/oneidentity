@@ -1,5 +1,11 @@
 # oneid-lambda-cert-exp-checker
 
+## 1.2.1
+
+### Patch Changes
+
+- 2d16001: update cryptography lib
+
 ## 1.2.0
 
 ### Minor Changes
