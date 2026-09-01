@@ -309,7 +309,7 @@ public class OIDCServiceImpl implements OIDCService {
     if (!client.isRequiredSameIdp()) {
       // if client does not need the "sameIdp" claim
       signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-          nonce);
+          nonce, entityId);
     } else {
       // if client needs the "sameIdp" claim
       signedJWTString = getSignedJWTStringWithSameIdpClaim(requestId, clientId, attributeDTOList,
@@ -367,11 +367,11 @@ public class OIDCServiceImpl implements OIDCService {
         updateLastIDPUsedRecord(clientId, entityId, id);
       }
       signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-          nonce, sameIdp);
+          nonce, entityId, sameIdp);
     } else {
       // if hashed fiscalNumber is not present we can't check last login information
       signedJWTString = oidcUtils.createSignedJWT(requestId, clientId, attributeDTOList,
-          nonce);
+          nonce, entityId);
     }
     return signedJWTString;
   }

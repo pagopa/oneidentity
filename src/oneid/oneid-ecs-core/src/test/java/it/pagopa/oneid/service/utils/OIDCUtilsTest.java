@@ -1,7 +1,9 @@
 package it.pagopa.oneid.service.utils;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.connector.KMSConnectorImpl;
@@ -70,6 +72,35 @@ public class OIDCUtilsTest {
     Executable executable = () -> oidcUtils.createSignedJWT(claimsSet);
 
     assertDoesNotThrow(executable);
+  }
+
+  @Test
+    void createSignedJWT_withIdpClaim() throws Exception {
+    String entityId = "https://identity-provider.example/idp";
+    List<AttributeDTO> attributeDTOList = new ArrayList<>();
+    attributeDTOList.add(new AttributeDTO("fiscalNumber", "ABCDEF12G34H567I"));
+
+    kmsConnectorImpl = Mockito.mock(KMSConnectorImpl.class);
+    SignResponse mockedSignResponse = Mockito.mock(SignResponse.class);
+    Mockito.when(mockedSignResponse.signature())
+        .thenReturn(SdkBytes.fromByteArray("test".getBytes()));
+    Mockito.when(kmsConnectorImpl.sign(Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(mockedSignResponse);
+    QuarkusMock.installMockForType(kmsConnectorImpl, KMSConnectorImpl.class);
+
+    String serializedJwt = oidcUtils.createSignedJWT("requestId", "clientId", attributeDTOList,
+        "nonce", entityId);
+
+    JWTClaimsSet claimsSet = SignedJWT.parse(serializedJwt).getJWTClaimsSet();
+    assertEquals(entityId, claimsSet.getStringClaim("idpEntityId"));
+    assertEquals("ABCDEF12G34H567I", claimsSet.getStringClaim("fiscalNumber"));
+
+    serializedJwt = oidcUtils.createSignedJWT("requestId", "clientId", attributeDTOList,
+        "nonce", entityId, true);
+
+    claimsSet = SignedJWT.parse(serializedJwt).getJWTClaimsSet();
+    assertEquals(entityId, claimsSet.getStringClaim("idpEntityId"));
+    assertEquals(true, claimsSet.getBooleanClaim("sameIdp"));
   }
 
 }
