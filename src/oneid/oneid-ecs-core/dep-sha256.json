@@ -2458,11 +2458,11 @@
       "sha256": "M5EQKMJCDmYiDospMLMp5Yx1nGOcFB_Mx_5Uks6txww="
     },
     {
-      "id": "org.apache.logging.log4j:log4j-api:jar:2.25.3",
+      "id": "org.apache.logging.log4j:log4j-api:jar:2.25.5",
       "artifactId": "log4j-api",
       "groupId": "org.apache.logging.log4j",
-      "version": "2.25.3",
-      "sha256": "6IZoKSD6D7nW62OV3LTeCIRD-GRsicXlhG4WjjJ_QG8="
+      "version": "2.25.5",
+      "sha256": "ZHd_c-oLMQTATrgr773MwwpCWhnoOtBssvk6owNRGGM="
     },
     {
       "id": "org.eclipse.jetty:jetty-client:jar:12.0.2",
