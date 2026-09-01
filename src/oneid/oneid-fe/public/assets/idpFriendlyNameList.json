@@ -1,0 +1,14 @@
+{
+  "https://loginspid.aruba.it": "Aruba ID",
+  "https://id.eht.eu": "Etna ID",
+  "https://loginspid.infocamere.it": "ID InfoCamere",
+  "https://identity.infocert.it": "InfoCert ID",
+  "https://idp.intesigroup.com": "Intesi Group SPID",
+  "https://id.lepida.it/idp/shibboleth": "Lepida ID",
+  "https://idp.namirialtsp.com/idp": "Namirial ID",
+  "https://posteid.poste.it": "Poste ID",
+  "https://identity.sieltecloud.it": "Sielte ID",
+  "https://spid.teamsystem.com/idp": "TeamSystem ID",
+  "https://spid.register.it": "SpidItalia",
+  "https://login.id.tim.it/affwebservices/public/saml2sso": "TIM id"
+}
