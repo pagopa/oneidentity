@@ -438,7 +438,10 @@ module "ecs_core_service" {
       readonly_root_filesystem = false
     }
   }
-
+  deployment_circuit_breaker = {
+    enable   = true
+    rollback = true
+  }
   enable_autoscaling       = var.service_core.autoscaling.enable
   autoscaling_min_capacity = local.core_min_capacity
   autoscaling_max_capacity = local.core_max_capacity
