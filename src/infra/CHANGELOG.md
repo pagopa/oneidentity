@@ -1,5 +1,11 @@
 # infra
 
+## 3.11.0
+
+### Minor Changes
+
+- 40a6c69: Enable Circuit breaker for ecs
+
 ## 3.10.0
 
 ### Minor Changes
