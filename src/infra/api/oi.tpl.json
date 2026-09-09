@@ -448,6 +448,7 @@
           "SAML APIs"
         ],
         "description": "This route will handle all SAML response as a callback from IDP",
+        "operationId": "Post_saml_acs",
         "x-amazon-apigateway-integration": {
           "type": "HTTP",
           "httpMethod": "POST",
@@ -551,6 +552,7 @@
           "SAML APIs"
         ],
         "description": "This route will serves SAML assertion, useful for clients who need it for their local scope",
+        "operationId": "Get_saml_assertion",
         "parameters": [
           {
             "name": "access_token",
@@ -641,6 +643,7 @@
           "SAML APIs"
         ],
         "description": "This route will serves SAML metadata",
+        "operationId": "Get_saml_metadata",
         "parameters": [
           {
             "name": "id_type",
