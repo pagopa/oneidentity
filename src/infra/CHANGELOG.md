@@ -1,5 +1,11 @@
 # infra
 
+## 3.12.0
+
+### Minor Changes
+
+- 37dbb03: add operationId to saml routes
+
 ## 3.11.0
 
 ### Minor Changes
