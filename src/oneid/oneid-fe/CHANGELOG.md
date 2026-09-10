@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.4.2
+
+### Patch Changes
+
+- f2b4805: feat: update idpFriendlyName file
+
 ## 1.4.1
 
 ### Patch Changes
