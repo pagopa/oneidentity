@@ -1,0 +1,15 @@
+{
+  "https://id.eht.eu": "Etna ID",
+  "https://id.lepida.it/idp/shibboleth": "Lepida ID",
+  "https://idp.intesigroup.com": "Intesi Group SPID",
+  "https://idp.namirialtsp.com/idp": "Namirial ID",
+  "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO": "CIE ID",
+  "https://identity.infocert.it": "InfoCert ID",
+  "https://identity.sieltecloud.it": "Sielte ID",
+  "https://login.id.tim.it/affwebservices/public/saml2sso": "TIM id",
+  "https://loginspid.aruba.it": "Aruba ID",
+  "https://loginspid.infocamere.it": "ID InfoCamere",
+  "https://posteid.poste.it": "Poste ID",
+  "https://spid.register.it": "SpidItalia",
+  "https://spid.teamsystem.com/idp": "TeamSystem ID"
+}

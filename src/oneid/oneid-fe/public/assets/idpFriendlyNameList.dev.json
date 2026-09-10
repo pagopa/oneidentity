@@ -1,0 +1,7 @@
+{
+  "https://5ucp2co2zvqle6tcyrx4i5se7q0xdkni.lambda-url.eu-south-1.on.aws": "IDP MOCK NODE",
+  "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO": "CIE ID collaudo",
+  "https://demo.spid.gov.it/validator": "VALIDATOR",
+  "https://idp.dev.oneid.pagopa.it": "Internal IDP Dev",
+  "https://sp-proxy.pre.eid.gov.it/spproxy/idpit": "Agenzia per l'Italia Digitale - AgID"
+}

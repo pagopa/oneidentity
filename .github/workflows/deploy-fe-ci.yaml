@@ -87,6 +87,26 @@ jobs:
           else
             build_mode="${MATRIX_BUILD_MODE:-$MATRIX_ENVIRONMENT}"
           fi
+
+          case "$build_mode" in
+            dev)
+              friendly_name_environment="dev"
+              ;;
+            uat|io-uat)
+              friendly_name_environment="uat"
+              ;;
+            prod|io-prod)
+              friendly_name_environment="prod"
+              ;;
+            *)
+              echo "Unsupported build mode: $build_mode"
+              exit 1
+              ;;
+          esac
+
+          mv "public/assets/idpFriendlyNameList.${friendly_name_environment}.json" \
+            public/assets/idpFriendlyNameList.json
+          rm public/assets/idpFriendlyNameList.*.json
           yarn build --mode "$build_mode"
         env:
           EVENT_NAME: ${{ github.event_name }}

@@ -1,0 +1,7 @@
+{
+  "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO": "CIE ID collaudo",
+  "https://idp.uat.oneid.pagopa.it": "Internal IDP Uat",
+  "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO": "CIE ID test",
+  "https://sp-proxy.pre.eid.gov.it/spproxy/idpit": "Agenzia per l'Italia Digitale - AgID",
+  "https://validator.spid.gov.it": "VALIDATOR SPID"
+}
