@@ -10,6 +10,7 @@
   "https://loginspid.aruba.it": "Aruba ID",
   "https://loginspid.infocamere.it": "ID InfoCamere",
   "https://posteid.poste.it": "Poste ID",
+  "https://sp-proxy.eid.gov.it/spproxy/idpit": "EIDAS",
   "https://spid.register.it": "SpidItalia",
   "https://spid.teamsystem.com/idp": "TeamSystem ID"
 }
