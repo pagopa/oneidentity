@@ -83,7 +83,7 @@ jobs:
         id: test-files
         working-directory: src/oneid/metadata/test/${{ matrix.metadata_environment }}
         run: |
-          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" \) | xargs)" >> $GITHUB_OUTPUT
+          echo "test_files=$(find . -type f \( -name "spid.xml" -o -name "cie.xml" -o -name "eidas.xml" \) | xargs)" >> $GITHUB_OUTPUT
 
       # Upload Test files to S3
       - name: Upload test files to S3 (${{ matrix.environment }})
