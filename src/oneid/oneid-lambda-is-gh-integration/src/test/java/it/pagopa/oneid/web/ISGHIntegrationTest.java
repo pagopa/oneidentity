@@ -75,6 +75,35 @@ class ISGHIntegrationTest {
     Assertions.assertEquals(snsMessage, response);
   }
 
+  @Test
+  void handleRequest_eidas_OK() {
+
+    String snsMessage = """
+        {
+          "Records": [
+            {
+              "s3": {
+                "object": {
+                  "key": "history/eidas.xml-1730200136"
+                }
+              }
+            }
+          ]
+        }
+        """;
+
+    when(sns.getMessage()).thenReturn(snsMessage);
+    when(record.getSNS()).thenReturn(sns);
+
+    List<SNSRecord> records = new ArrayList<>(List.of(record));
+    when(event.getRecords()).thenReturn(records);
+
+    String response = isGhIntegration.handleRequest(event, context);
+
+    Assertions.assertNotNull(response);
+    Assertions.assertEquals(snsMessage, response);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"{invalid json}", ""})
   void handleRequest_emptyOrInvalidMessageException(String snsMessage) {

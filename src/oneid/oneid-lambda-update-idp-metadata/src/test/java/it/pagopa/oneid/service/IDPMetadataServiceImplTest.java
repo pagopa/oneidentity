@@ -1,28 +1,18 @@
 package it.pagopa.oneid.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.connector.IDPConnectorImpl;
@@ -32,6 +22,14 @@ import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.connector.PublicIdpsBucketConnector;
 import it.pagopa.oneid.connector.S3BucketIDPMetadataConnectorImpl;
 import jakarta.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 public class IDPMetadataServiceImplTest {
@@ -185,6 +183,47 @@ public class IDPMetadataServiceImplTest {
     // then
     assertFalse(idps.isEmpty());
 
+  }
+
+  @Test
+  void parseIDPMetadata_EIDAS() {
+
+    // given
+    String fileName = "eidas-12345.xml";
+
+    IdpS3FileDTO idpS3FileDTO = new IdpS3FileDTO(fileName);
+
+    ClassLoader classLoader = getClass().getClassLoader();
+
+    StringBuilder stringBuilder = new StringBuilder();
+
+    try (InputStream inputStream = classLoader.getResourceAsStream(fileName);
+        InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader reader = new BufferedReader(streamReader)) {
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line);
+      }
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    String content = stringBuilder.toString();
+
+    ArrayList<IDP> idps = idpMetadataServiceImpl.parseIDPMetadata(content, idpS3FileDTO);
+
+    // then
+    assertFalse(idps.isEmpty());
+    assertEquals(1, idps.size());
+    IDP eidasIdp = idps.get(0);
+    assertEquals("https://sp-proxy.pre.eid.gov.it/spproxy/idpit", eidasIdp.getEntityID());
+    assertEquals(LatestTAG.LATEST_EIDAS.toString(), eidasIdp.getPointer());
+    assertEquals("Agenzia per l'Italia Digitale - AgID", eidasIdp.getFriendlyName());
+    assertFalse(eidasIdp.getCertificates().isEmpty());
+    assertNotNull(
+        eidasIdp.getIdpSSOEndpoints().get("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"));
   }
 
   @Test
