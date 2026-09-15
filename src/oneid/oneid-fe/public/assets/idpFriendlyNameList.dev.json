@@ -3,5 +3,5 @@
   "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO": "CIE ID collaudo",
   "https://demo.spid.gov.it/validator": "VALIDATOR",
   "https://idp.dev.oneid.pagopa.it": "Internal IDP Dev",
-  "https://sp-proxy.pre.eid.gov.it/spproxy/idpit": "EIDAS"
+  "https://sp-proxy.pre.eid.gov.it/spproxy/idpit": "eIDAS"
 }
