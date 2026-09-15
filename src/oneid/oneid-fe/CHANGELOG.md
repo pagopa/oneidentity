@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.5.0
+
+### Minor Changes
+
+- 9a86671: update friendly name for eidas
+
 ## 1.4.2
 
 ### Patch Changes
