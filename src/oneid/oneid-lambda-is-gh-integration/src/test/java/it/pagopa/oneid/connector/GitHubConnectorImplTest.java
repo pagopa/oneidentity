@@ -76,6 +76,34 @@ public class GitHubConnectorImplTest {
 
   @Test
   @SneakyThrows
+  void createBranchAndCommit_eidas_withExistingFile() {
+
+    List<GHContent> contentList = new ArrayList<>();
+    GHContent content = mock(GHContent.class);
+    when(content.getName()).thenReturn("eidas");
+    contentList.add(content);
+    when(repository.getDirectoryContent(any(), any())).thenReturn(contentList);
+
+    Executable executable = () -> gitHubConnectorImpl.createBranchAndCommit(
+        "idp-metadata-update-eidas-1730200136", "eidas", "content",
+        "src/oneid/metadata/eidas-1730200136.xml");
+    Assertions.assertDoesNotThrow(executable);
+  }
+
+  @Test
+  @SneakyThrows
+  void createBranchAndCommit_eidas_withNonExistingFile() {
+
+    when(repository.getDirectoryContent(any(), any())).thenThrow(IOException.class);
+
+    Executable executable = () -> gitHubConnectorImpl.createBranchAndCommit(
+        "idp-metadata-update-eidas-1730200136", "eidas", "content",
+        "src/oneid/metadata/eidas-1730200136.xml");
+    Assertions.assertDoesNotThrow(executable);
+  }
+
+  @Test
+  @SneakyThrows
   void createBranchAndCommit_errorDeletingExistingFile() {
 
     GHContent content = mock(GHContent.class);
