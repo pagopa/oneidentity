@@ -1,5 +1,7 @@
 package it.pagopa.oneid.service;
 
+import static it.pagopa.oneid.common.model.enums.Identifier.fiscalNumber;
+
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.connector.ClientConnectorImpl;
 import it.pagopa.oneid.common.model.Client;
@@ -90,6 +92,8 @@ import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 @ApplicationScoped
 @CustomLogging
 public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPService {
+
+  private static final String FISCAL_NUMBER_PREFIX = "TINIT-";
 
   @Inject
   BasicX509Credential basicX509Credential;
@@ -574,8 +578,9 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
       attribute.setNameFormat(SAMLUtilsConstants.NAME_FORMAT);
       AttributeValue attributeValue = buildSAMLObject(AttributeValue.class);
 
-      attributeValue.setTextContent(
+      String attributeTextContent = normalizeAttributeValue(requestedParameter,
           user.getSamlAttributes().get(requestedParameter));
+      attributeValue.setTextContent(attributeTextContent);
 
       attribute.getAttributeValues().add(attributeValue);
       attributeStatement.getAttributes().add(attribute);
@@ -600,6 +605,15 @@ public class InternalIDPServiceImpl extends SAMLUtils implements InternalIDPServ
     marshallAndSignResponse(samlResponse, signatureSamlResponse);
 
     return samlResponse;
+  }
+
+  private String normalizeAttributeValue(String attributeName, String attributeValue) {
+    if (!fiscalNumber.name().equals(attributeName) || attributeValue == null
+        || attributeValue.startsWith(FISCAL_NUMBER_PREFIX)) {
+      return attributeValue;
+    }
+
+    return FISCAL_NUMBER_PREFIX + attributeValue;
   }
 
   @Override
