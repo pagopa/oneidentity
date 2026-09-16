@@ -84,6 +84,10 @@ module "storage" {
   metrics_archiver_bucket = {
     name_prefix = "metrics-archiver"
   }
+  metrics_athena_enabled = true
+  metrics_athena_results_bucket = {
+    name_prefix = "metrics-athena-results"
+  }
 
   assertion_bucket = {
     name_prefix               = "assertions"
@@ -768,6 +772,17 @@ module "monitoring" {
   metric_stream_bucket_arn        = module.storage.metrics_archiver_bucket_arn
   metric_stream_namespace         = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
   metric_stream_s3_prefix         = "cloudwatch-metrics-backfill"
+  metrics_athena = {
+    raw_bucket_arn      = module.storage.metrics_archiver_bucket_arn
+    raw_bucket_name     = module.storage.metrics_archiver_bucket_name
+    raw_prefix          = "cloudwatch-metrics-backfill"
+    results_bucket_name = module.storage.metrics_athena_results_bucket_name
+    database_name       = replace(format("%s-metrics", local.project), "-", "_")
+    workgroup_name      = format("%s-metrics-athena", local.project)
+    crawler_name        = format("%s-metrics-crawler", local.project)
+    crawler_schedule    = "cron(0 * * * ? *)"
+    catalog_table_name  = "metrics_cloudwatch_metrics_backfill"
+  }
 
   nlb = {
     target_group_arn_suffix = module.backend.nlb_target_group_suffix_arn

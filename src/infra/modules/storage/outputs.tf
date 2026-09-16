@@ -22,6 +22,16 @@ output "metrics_archiver_bucket_name" {
   value = try(module.s3_metrics_archiver_bucket[0].s3_bucket_id, null)
 }
 
+output "metrics_athena_results_bucket_arn" {
+  description = "ARN of the S3 bucket used for Athena metrics query results."
+  value       = try(module.s3_metrics_athena_results_bucket[0].s3_bucket_arn, null)
+}
+
+output "metrics_athena_results_bucket_name" {
+  description = "Name of the S3 bucket used for Athena metrics query results."
+  value       = try(module.s3_metrics_athena_results_bucket[0].s3_bucket_id, null)
+}
+
 output "idp_metadata_bucket_arn" {
   value = try(module.s3_idp_metadata_bucket[0].s3_bucket_arn, null)
 }

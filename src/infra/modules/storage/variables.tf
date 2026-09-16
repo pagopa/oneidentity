@@ -61,6 +61,22 @@ variable "metrics_archiver_bucket" {
   }
 }
 
+variable "metrics_athena_enabled" {
+  type        = bool
+  description = "Enable the Athena query results bucket for archived metrics."
+  default     = false
+}
+
+variable "metrics_athena_results_bucket" {
+  type = object({
+    name_prefix = string
+  })
+  description = "Athena query results bucket configuration for archived metrics."
+  default = {
+    name_prefix = "metrics-athena-results"
+  }
+}
+
 variable "create_assets_bucket" {
   type        = bool
   description = "Create assets bucket."
