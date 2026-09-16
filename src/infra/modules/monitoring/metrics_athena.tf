@@ -126,19 +126,6 @@ resource "aws_athena_workgroup" "metrics" {
   }
 }
 
-resource "aws_athena_named_query" "client_success_daily" {
-  for_each = local.metrics_athena_config
-
-  database    = aws_glue_catalog_database.metrics[each.key].name
-  name        = "client-success-daily"
-  workgroup   = aws_athena_workgroup.metrics[each.key].name
-  description = "Daily ClientSuccess totals from March 2025 through August 2026."
-  query = templatefile("${path.module}/../../athena-query/client_success_daily.sql.tpl", {
-    database_name      = aws_glue_catalog_database.metrics[each.key].name
-    catalog_table_name = each.value.catalog_table_name
-  })
-}
-
 resource "aws_athena_named_query" "client_success_total" {
   for_each = local.metrics_athena_config
 
@@ -147,19 +134,6 @@ resource "aws_athena_named_query" "client_success_total" {
   workgroup   = aws_athena_workgroup.metrics[each.key].name
   description = "Total ClientSuccess count from March 2025 through August 2026."
   query = templatefile("${path.module}/../../athena-query/client_success_total.sql.tpl", {
-    database_name      = aws_glue_catalog_database.metrics[each.key].name
-    catalog_table_name = each.value.catalog_table_name
-  })
-}
-
-resource "aws_athena_named_query" "idp_success_daily" {
-  for_each = local.metrics_athena_config
-
-  database    = aws_glue_catalog_database.metrics[each.key].name
-  name        = "idp-success-daily"
-  workgroup   = aws_athena_workgroup.metrics[each.key].name
-  description = "Daily IDPSuccess totals by IdP from March 2025 through August 2026."
-  query = templatefile("${path.module}/../../athena-query/idp_success_daily.sql.tpl", {
     database_name      = aws_glue_catalog_database.metrics[each.key].name
     catalog_table_name = each.value.catalog_table_name
   })
