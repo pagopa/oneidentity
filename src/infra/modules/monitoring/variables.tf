@@ -98,6 +98,22 @@ variable "metric_stream_s3_prefix" {
   default     = "cloudwatch-metrics-backfill"
 }
 
+variable "metrics_athena" {
+  type = object({
+    raw_bucket_arn      = string
+    raw_bucket_name     = string
+    raw_prefix          = string
+    results_bucket_name = string
+    database_name       = string
+    workgroup_name      = string
+    crawler_name        = string
+    crawler_schedule    = string
+    catalog_table_name  = string
+  })
+  description = "Optional Glue and Athena configuration for archived custom metrics."
+  default     = null
+}
+
 variable "ecs" {
   type = object({
     service_name   = string,
