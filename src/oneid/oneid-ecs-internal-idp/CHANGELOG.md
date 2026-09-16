@@ -1,5 +1,11 @@
 # oneid-ecs-internal-idp
 
+## 1.7.0
+
+### Minor Changes
+
+- 6e3cd0d: feat: add TINIT- prefix to cf
+
 ## 1.6.2
 
 ### Patch Changes
