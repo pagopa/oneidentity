@@ -1,5 +1,11 @@
 # infra
 
+## 3.13.0
+
+### Minor Changes
+
+- 57e8034: Setup Athena for metrics
+
 ## 3.12.0
 
 ### Minor Changes
