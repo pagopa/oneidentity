@@ -31,6 +31,9 @@ export default {
             workwithud: 'Work with us',
           },
         },
+        products: {
+          title: 'Products and Services',
+        },
         resources: {
           title: 'Resources',
           links: {
