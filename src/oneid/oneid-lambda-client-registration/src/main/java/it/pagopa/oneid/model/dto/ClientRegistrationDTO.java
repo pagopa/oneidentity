@@ -3,6 +3,7 @@ package it.pagopa.oneid.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import it.pagopa.oneid.common.model.Client.LocalizedContent;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.model.groups.ValidationGroups.Registration;
 import it.pagopa.oneid.model.groups.ValidationGroups.UpdateClient;
 import it.pagopa.oneid.model.enums.ClientSamlBinding;
@@ -94,7 +95,8 @@ public class ClientRegistrationDTO {
   private Boolean spidProfessionals;
 
   @JsonProperty("pairwise")
-  private Boolean pairwise;
+  @Schema(enumeration = { "TOKEN", "PDV" })
+  private PairwiseMode pairwise;
 
   @JsonProperty("eidasIndex")
   @EidasIndexCheck(groups = { Registration.class, UpdateClient.class })

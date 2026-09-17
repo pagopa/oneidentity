@@ -22,6 +22,7 @@ import {
   ValidatePlanSchema,
   ValidateError,
   PlanErrors,
+  PairwiseMode,
 } from '../../types/api';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
@@ -362,6 +363,13 @@ export const Dashboard = () => {
       }));
     };
 
+  const handlePairwiseToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      pairwise: e.target.checked ? PairwiseMode.TOKEN : null,
+    }));
+  };
+
   if (isLoadingClient || isLoadingPlanList) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -373,7 +381,7 @@ export const Dashboard = () => {
   const checkEnableSaveUpdateClientPairwiseBased = (): boolean =>
     !formData?.pairwise ||
     validationIsValid === true ||
-    fetchedClientData?.pairwise === true;
+    fetchedClientData?.pairwise != null;
 
   const checkEnableSpidMinors = (): boolean =>
     !!formData?.spidMinors && !formData?.minAge;
@@ -583,8 +591,8 @@ export const Dashboard = () => {
           <ToggleSection
             name="pairWise"
             label="Pairwise Enabled"
-            checked={formData?.pairwise || false}
-            onChange={handleChange('pairwise')}
+            checked={formData?.pairwise != null}
+            onChange={handlePairwiseToggle}
             withDivider
             tooltipText={
               <TooltipContentWithLink
@@ -603,6 +611,26 @@ export const Dashboard = () => {
                 width: '100%',
               }}
             >
+              <FormControl fullWidth>
+                <InputLabel id="pairwise-mode-label">Pairwise mode</InputLabel>
+                <Select
+                  labelId="pairwise-mode-label"
+                  name="pairwiseMode"
+                  value={formData.pairwise}
+                  label="Pairwise mode"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      pairwise: e.target.value as PairwiseMode,
+                    }))
+                  }
+                >
+                  <MenuItem value={PairwiseMode.TOKEN}>Token only</MenuItem>
+                  <MenuItem value={PairwiseMode.PDV}>
+                    PDV user registry
+                  </MenuItem>
+                </Select>
+              </FormControl>
               {planListError && (
                 <Box>
                   <Alert severity="error">

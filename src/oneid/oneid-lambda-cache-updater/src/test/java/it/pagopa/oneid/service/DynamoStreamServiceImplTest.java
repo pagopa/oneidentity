@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.utils.dynamodb.DynamoStreamService;
 import jakarta.inject.Inject;
@@ -44,7 +45,7 @@ class DynamoStreamServiceImplTest {
     assertEquals(1, result.get().getAcsIndex());
     assertEquals(2, result.get().getAttributeIndex());
     assertTrue(result.get().isActive());
-    assertTrue(result.get().isPairwise());
+    assertEquals(PairwiseMode.TOKEN, result.get().getPairwise());
   }
 
   @Test
@@ -81,7 +82,7 @@ class DynamoStreamServiceImplTest {
   void given_modify_stream_with_relevant_changes_when_checking_diff_then_return_true() {
     ObjectNode oldImage = baseImage();
     ObjectNode newImage = baseImage();
-    newImage.set("pairwise", boolValue(false));
+    newImage.set("pairwise", stringValue("PDV"));
 
     JsonNode streamRecord = buildRecord("MODIFY", oldImage, newImage);
 
@@ -178,7 +179,7 @@ class DynamoStreamServiceImplTest {
     JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-      () -> dynamoStreamService.extractClient(streamRecord, false));
+        () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
@@ -204,7 +205,7 @@ class DynamoStreamServiceImplTest {
     JsonNode streamRecord = buildRecord("INSERT", null, image);
 
     assertThrows(IllegalArgumentException.class,
-      () -> dynamoStreamService.extractClient(streamRecord, false));
+        () -> dynamoStreamService.extractClient(streamRecord, false));
   }
 
   @Test
@@ -252,7 +253,7 @@ class DynamoStreamServiceImplTest {
     image.set("attributeIndex", numberValue(2));
     image.set("active", boolValue(true));
     image.set("requiredSameIdp", boolValue(true));
-    image.set("pairwise", boolValue(true));
+    image.set("pairwise", stringValue("TOKEN"));
     image.set("spidMinors", boolValue(false));
     image.set("spidProfessionals", boolValue(false));
     image.set("minAge", numberValue(0));

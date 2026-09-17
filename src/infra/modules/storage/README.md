@@ -89,6 +89,7 @@
 | <a name="module_s3_idp_metadata_bucket"></a> [s3\_idp\_metadata\_bucket](#module\_s3\_idp\_metadata\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_internal_idp_assets_bucket"></a> [s3\_internal\_idp\_assets\_bucket](#module\_s3\_internal\_idp\_assets\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_metrics_archiver_bucket"></a> [s3\_metrics\_archiver\_bucket](#module\_s3\_metrics\_archiver\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
+| <a name="module_s3_metrics_athena_results_bucket"></a> [s3\_metrics\_athena\_results\_bucket](#module\_s3\_metrics\_athena\_results\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 | <a name="module_s3_xsw_assertions_bucket"></a> [s3\_xsw\_assertions\_bucket](#module\_s3\_xsw\_assertions\_bucket) | terraform-aws-modules/s3-bucket/aws | 4.1.1 |
 
 ## Resources
@@ -148,6 +149,8 @@
 | <a name="input_metadata_bucket_prefix"></a> [metadata\_bucket\_prefix](#input\_metadata\_bucket\_prefix) | Metadata bucket prefix. | `string` | `""` | no |
 | <a name="input_metrics_archiver_bucket"></a> [metrics\_archiver\_bucket](#input\_metrics\_archiver\_bucket) | Metrics archiver bucket configuration. | <pre>object({<br/>    name_prefix = string<br/>    mfa_delete  = optional(bool, false)<br/>  })</pre> | <pre>{<br/>  "mfa_delete": false,<br/>  "name_prefix": "metrics-archiver"<br/>}</pre> | no |
 | <a name="input_metrics_archiver_enabled"></a> [metrics\_archiver\_enabled](#input\_metrics\_archiver\_enabled) | Enable metrics archiver bucket creation. | `bool` | `false` | no |
+| <a name="input_metrics_athena_enabled"></a> [metrics\_athena\_enabled](#input\_metrics\_athena\_enabled) | Enable the Athena query results bucket for archived metrics. | `bool` | `false` | no |
+| <a name="input_metrics_athena_results_bucket"></a> [metrics\_athena\_results\_bucket](#input\_metrics\_athena\_results\_bucket) | Athena query results bucket configuration for archived metrics. | <pre>object({<br/>    name_prefix = string<br/>  })</pre> | <pre>{<br/>  "name_prefix": "metrics-athena-results"<br/>}</pre> | no |
 | <a name="input_role_prefix"></a> [role\_prefix](#input\_role\_prefix) | Prefix to assign to the roles. | `string` | n/a | yes |
 | <a name="input_xsw_assertions_bucket"></a> [xsw\_assertions\_bucket](#input\_xsw\_assertions\_bucket) | n/a | <pre>object({<br/>    name_prefix                     = string<br/>    expiration_days                 = number<br/>    mfa_delete                      = optional(bool, false)<br/>    kms_key_deletion_window_in_days = optional(number, 10)<br/>    kms_multi_region                = optional(bool, false)<br/><br/>    object_lock_legal_hold_status = optional(bool, false)<br/>    enable_key_rotation           = optional(bool, false)<br/>  })</pre> | n/a | yes |
 
@@ -169,6 +172,8 @@
 | <a name="output_kms_assertion_key_arn"></a> [kms\_assertion\_key\_arn](#output\_kms\_assertion\_key\_arn) | n/a |
 | <a name="output_metrics_archiver_bucket_arn"></a> [metrics\_archiver\_bucket\_arn](#output\_metrics\_archiver\_bucket\_arn) | n/a |
 | <a name="output_metrics_archiver_bucket_name"></a> [metrics\_archiver\_bucket\_name](#output\_metrics\_archiver\_bucket\_name) | n/a |
+| <a name="output_metrics_athena_results_bucket_arn"></a> [metrics\_athena\_results\_bucket\_arn](#output\_metrics\_athena\_results\_bucket\_arn) | ARN of the S3 bucket used for Athena metrics query results. |
+| <a name="output_metrics_athena_results_bucket_name"></a> [metrics\_athena\_results\_bucket\_name](#output\_metrics\_athena\_results\_bucket\_name) | Name of the S3 bucket used for Athena metrics query results. |
 | <a name="output_s3_idp_metadata_bucket_name"></a> [s3\_idp\_metadata\_bucket\_name](#output\_s3\_idp\_metadata\_bucket\_name) | n/a |
 | <a name="output_xsw_assertions_bucket_arn"></a> [xsw\_assertions\_bucket\_arn](#output\_xsw\_assertions\_bucket\_arn) | n/a |
 | <a name="output_xsw_assertions_bucket_name"></a> [xsw\_assertions\_bucket\_name](#output\_xsw\_assertions\_bucket\_name) | n/a |

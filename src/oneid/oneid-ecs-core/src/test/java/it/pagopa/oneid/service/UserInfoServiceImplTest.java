@@ -29,6 +29,7 @@ import it.pagopa.oneid.common.connector.PDVApiClient;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.common.model.dto.SavePDVUserDTO;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.InvalidAccessTokenException;
@@ -205,7 +206,6 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
     setField(userInfoService, "pairwiseEnabled", true);
-    setField(userInfoService, "registryEnabled", false);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
         .thenReturn(accessTokenSession);
@@ -216,7 +216,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
@@ -255,7 +255,6 @@ class UserInfoServiceImplTest {
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
     setField(userInfoService, "pairwiseEnabled", true);
-    setField(userInfoService, "registryEnabled", false);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
         .thenReturn(accessTokenSession);
@@ -266,7 +265,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
     doThrow(new SessionException()).when(accessTokenSessionService)
@@ -281,7 +280,7 @@ class UserInfoServiceImplTest {
   }
 
   @Test
-  void getSignedUserInfo_usesRegistryEnabledPayloadWhenFetchingPairwiseFromPdv() throws Exception {
+  void getSignedUserInfo_usesPdvPayloadWhenFetchingPairwiseFromPdv() throws Exception {
     UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
     SessionServiceImpl<AccessTokenSession> accessTokenSessionService = mock(SessionServiceImpl.class);
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
@@ -317,7 +316,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.PDV);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key"))).thenReturn(response);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
@@ -362,7 +361,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(false);
+    when(client.getPairwise()).thenReturn(null);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
     String signedUserInfoJwt = userInfoService.getSignedUserInfo("access-token");
@@ -404,7 +403,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
     String signedUserInfoJwt = userInfoService.getSignedUserInfo("access-token");
@@ -447,7 +446,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.empty());
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
@@ -475,13 +474,12 @@ class UserInfoServiceImplTest {
 
     setField(userInfoService, "accessTokenSessionService", accessTokenSessionService);
     setField(userInfoService, "samlSessionService", samlSessionService);
-  setField(userInfoService, "oidcUtils", oidcUtils);
+    setField(userInfoService, "oidcUtils", oidcUtils);
     setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
     setField(userInfoService, "clientLookupService", clientLookupService);
     setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
     setField(userInfoService, "pdvApiClient", pdvApiClient);
     setField(userInfoService, "pairwiseEnabled", true);
-    setField(userInfoService, "registryEnabled", false);
 
     when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
         .thenReturn(accessTokenSession);
@@ -492,7 +490,7 @@ class UserInfoServiceImplTest {
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
     when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
-    when(client.isPairwise()).thenReturn(true);
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
     when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
     when(pdvApiClient.upsertUser(any(), anyString())).thenThrow(new ProcessingException("pdv down"));
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");

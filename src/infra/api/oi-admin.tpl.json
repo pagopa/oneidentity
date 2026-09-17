@@ -37,7 +37,7 @@
           {
             "name": "Plan-Api-Key",
             "in": "header",
-            "description": "PDV API key used for plan validation when pairwise = true",
+            "description": "PDV API key used for plan validation when pairwise mode is enabled",
             "required": false,
             "schema": {
               "type": "string"
@@ -46,7 +46,7 @@
           {
             "name": "Plan-Name",
             "in": "header",
-            "description": "PDV plan name associated with the PDV API key when pairwise = true",
+            "description": "PDV plan name associated with the PDV API key when pairwise mode is enabled",
             "required": false,
             "schema": {
               "type": "string"
@@ -170,7 +170,7 @@
           {
             "name": "Plan-Api-Key",
             "in": "header",
-            "description": "PDV API key used for plan validation when pairwise = true",
+            "description": "PDV API key used for plan validation when pairwise mode is enabled",
             "required": false,
             "schema": {
               "type": "string"
@@ -179,7 +179,7 @@
           {
             "name": "Plan-Name",
             "in": "header",
-            "description": "PDV plan name associated with the PDV API key when pairwise = true",
+            "description": "PDV plan name associated with the PDV API key when pairwise mode is enabled",
             "required": false,
             "schema": {
               "type": "string"
@@ -1878,9 +1878,14 @@
             "example": "https://example.org/tos"
           },
           "pairwise": {
-            "type": "boolean",
-            "description": "If true, the client will use pairwise subject identifier",
-            "example": "https://example.org/tos"
+            "type": "string",
+            "description": "Pairwise subject mode. TOKEN sends only the fiscal code to PDV; PDV sends all available mapped SPID attributes",
+            "enum": [
+              "TOKEN",
+              "PDV"
+            ],
+            "nullable": true,
+            "example": "TOKEN"
           }
         }
       },
@@ -2049,9 +2054,14 @@
             "example": "https://example.org/tos"
           },
           "pairwise": {
-            "type": "boolean",
-            "description": "If true, the client will use pairwise subject identifier",
-            "example": "https://example.org/tos"
+            "type": "string",
+            "description": "Pairwise subject mode. TOKEN sends only the fiscal code to PDV; PDV sends all available mapped SPID attributes",
+            "enum": [
+              "TOKEN",
+              "PDV"
+            ],
+            "nullable": true,
+            "example": "TOKEN"
           }
         }
       },

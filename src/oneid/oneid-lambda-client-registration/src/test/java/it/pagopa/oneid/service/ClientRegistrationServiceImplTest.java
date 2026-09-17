@@ -19,6 +19,7 @@ import it.pagopa.oneid.common.connector.PDVApiPlanClient;
 import it.pagopa.oneid.common.connector.exception.NoMasterKeyException;
 import it.pagopa.oneid.common.connector.exception.PDVException;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVPlanDTO;
@@ -50,1273 +51,1275 @@ import org.mockito.Mockito;
 @QuarkusTest
 class ClientRegistrationServiceImplTest {
 
-  @Inject
-  ClientRegistrationServiceImpl clientRegistrationServiceImpl;
-
-  @InjectMock
-  ClientConnectorImpl clientConnectorImpl;
-
-  @InjectMock
-  @RestClient
-  @Inject
-  PDVApiPlanClient pdvApiClientMock;
-  @InjectMock
-  SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
-
-  private void stubFindAllWithAnotherAcsZeroClient(Client existingClient) {
-    ArrayList<Client> allClient = new ArrayList<>();
-    allClient.add(existingClient);
-    allClient.add(Client.builder()
-        .clientId(existingClient.getClientId() + "-other")
-        .acsIndex(0)
-        .build());
-
-    when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(allClient));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_ok() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-    String masterKey = "key";
-
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.of(masterKey));
-    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
-        .valid(true)
-        .build();
-    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
-        .thenReturn(validResp);
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, "dummy-key", "dummy-plan"));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-    String masterKey = "key";
-
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.of(masterKey));
-    PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
-        .valid(false)
-        .build();
-    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
-        .thenReturn(validResp);
-
-    assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-            clientRegistrationDTO, "dummy-key", "dummy-plan"));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-    String masterKey = "key";
-
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.of(masterKey));
-    when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
-        .thenThrow(new PDVException(
-            "PDV response not ok",
-            NOT_FOUND.getStatusCode(),
-            Optional.of("not found"),
-            new WebApplicationException(
-                Response.status(NOT_FOUND).entity("not found").build())));
-
-    assertThrows(PDVException.class,
-        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-            clientRegistrationDTO, "dummy-key", "dummy-plan"));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-            clientRegistrationDTO, "dummy-key", ""));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    assertThrows(InvalidPDVPlanException.class,
-        () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-            clientRegistrationDTO, "", "dummy-plan"));
-  }
-
-  @Test
-  void testValidatePairwiseClientRegistrationInfo_WithMultipleUris() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://valid.it", "https://valid.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("https://www.spid.gov.it/SpidL1")
-        .samlRequestedAttributes(Set.of("name"))
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_invalid_redirectUri_notValidatedAtServiceLayer() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .clientName("test")
-        .redirectUris(Set.of(".error"))
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_invalid_logoUri_notValidatedAtServiceLayer() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("error")
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_invalid_policyUri_notValidatedAtServiceLayer() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("error")
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_invalid_tosUri_notValidatedAtServiceLayer() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("error")
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void validatePairwiseClientRegistrationInfo_invalid_a11yUri_notValidatedAtServiceLayer() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .a11yUri("error")
-        .build();
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
-        clientRegistrationDTO, null, null));
-  }
-
-  @Test
-  void saveClient_usesInactiveClientsWhenAllocatingAttributeIndex() {
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    Client returnClient = Client.builder()
-        .clientId("test")
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("test"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(8)
-        .attributeIndex(8)
-        .isActive(false)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    ArrayList<Client> allClient = new ArrayList<>();
-    allClient.add(returnClient);
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", null, null));
-    verify(clientConnectorImpl)
-        .saveClientIfNotExists(Mockito.argThat(saved -> saved.getAcsIndex() == 9 && saved.getAttributeIndex() == 9));
-  }
-
-  @Test
-  void saveClient_defaultsSamlBindingToHttpPost_whenMissingInRequest() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .pairwise(false)
-        .build();
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
-
-    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
-        .saveClient(clientRegistrationDTO, "userId", null, null));
-
-    verify(clientConnectorImpl)
-        .saveClientIfNotExists(
-            Mockito.argThat(saved -> SamlBinding.HTTP_POST.equals(saved.getSamlBinding())));
-    assertEquals(ClientSamlBinding.HTTP_POST, response.getSamlBinding());
-  }
-
-  @Test
-  void saveClient_withEidasIndex_persistsAndReturnsEidasIndex() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .pairwise(false)
-        .eidasIndex(99)
-        .build();
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
-
-    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
-        .saveClient(clientRegistrationDTO, "userId", null, null));
-
-    verify(clientConnectorImpl)
-        .saveClientIfNotExists(Mockito.argThat(saved -> Integer.valueOf(99).equals(saved.getEidasIndex())));
-    assertEquals(99, response.getEidasIndex());
-  }
-
-  @Test
-  void saveClient_persistsHttpRedirectBinding_whenProvidedInRequest() {
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .samlBinding(ClientSamlBinding.HTTP_REDIRECT)
-        .pairwise(false)
-        .build();
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
-
-    ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
-        .saveClient(clientRegistrationDTO, "userId", null, null));
-
-    verify(clientConnectorImpl)
-        .saveClientIfNotExists(
-            Mockito.argThat(saved -> SamlBinding.HTTP_REDIRECT.equals(saved.getSamlBinding())));
-    assertEquals(ClientSamlBinding.HTTP_REDIRECT, response.getSamlBinding());
-  }
-
-  @Test
-  void saveClient_withSpidMinorsNoMaxAge_ok() {
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(false)
-        .ageParentAuth(0)
-        .pairwise(false)
-        .minAge(14)
-        .build();
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", null, null));
-
-    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
-        && saved.getMinAge() == 14
-        && saved.getAgeParentAuth() == 0
-        && saved.getMaxAge() == null));
-  }
-
-  @Test
-  void saveClient_withSpidMinorsAndMaxAge_ok() {
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(false)
-        .ageParentAuth(16)
-        .pairwise(false)
-        .minAge(14)
-        .maxAge(18)
-        .build();
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", null, null));
-
-    verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
-        && saved.getMinAge() == 14
-        && saved.getAgeParentAuth() == 16
-        && saved.getMaxAge() == 18));
-  }
-
-  @Test
-  void saveClient_WithPairWiseEnabled_ok() {
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    Client returnClient = Client.builder()
-        .clientId("test")
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("test"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    ArrayList<Client> allClient = new ArrayList<>();
-    allClient.add(returnClient);
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
-
-    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(true);
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
-        clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
-  }
-
-  @Test
-  void saveClient_WithPairWiseEnabled_SSMError_ko() {
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    Client returnClient = Client.builder()
-        .clientId("test")
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("test"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(true)
-        .build();
-
-    ArrayList<Client> allClient = new ArrayList<>();
-    allClient.add(returnClient);
-
-    when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
-
-    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(false);
-
-    assertThrows(SSMUpsertPDVException.class,
-        () -> clientRegistrationServiceImpl.saveClient(
-            clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
-  }
-
-  @Test
-  void saveClient_existingUserId_ko() {
-
-    // given
-    String existingUserId = "existingUserId";
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("https://test.com")
-        .policyUri("https://test.com")
-        .tosUri("https://test.com")
-        .minAuthLevel("test")
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    Client returnClient = Client.builder()
-        .userId(existingUserId)
-        .clientId("test")
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("test"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    // when
-    when(clientConnectorImpl.getClientByUserId(existingUserId))
-        .thenReturn(Optional.of(returnClient));
-
-    // then
-    assertThrows(ExistingUserIdException.class,
-        () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId,
-            null, null));
-  }
-
-  @Test
-  void getClientExtendedByClientId() {
-
-    // given
-    String clientId = "test";
-    String userId = "userId-test";
-    ClientExtended returnClient = ClientExtended.builder()
-        .secret("secret")
-        .salt("salt")
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    // when
-    when(clientConnectorImpl.getClientExtendedById(anyString()))
-        .thenReturn(Optional.of(returnClient));
-
-    assertNotNull(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId));
-  }
-
-  @Test
-  void getClientByClientId_ko() {
-    // when
-    when(clientConnectorImpl.getClientById(anyString()))
-        .thenReturn(Optional.empty());
-
-    // then
-    assertThrows(ClientNotFoundException.class,
-        () -> clientRegistrationServiceImpl.getClientExtendedByClientId("nonExistentUserId"));
-  }
-
-  @Test
-  void getClientByUserId() {
-
-    // given
-    String clientId = "test";
-    String userId = "userId-test";
-    Client returnClient = Client.builder()
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("test")
-        .callbackURI(Set.of("test"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(0)
-        .isActive(true)
-        .clientIdIssuedAt(0L)
-        .logoUri("test")
-        .policyUri("test")
-        .tosUri("test")
-        .a11yUri("https://test.com")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-
-    // when
-    when(clientConnectorImpl.getClientByUserId(anyString()))
-        .thenReturn(Optional.of(returnClient));
-
-    assertNotNull(clientRegistrationServiceImpl.getClientByUserId(userId));
-  }
-
-  @Test
-  void getClientByUserId_ko() {
-    // when
-    when(clientConnectorImpl.getClientByUserId(anyString()))
-        .thenReturn(Optional.empty());
-
-    // then
-    assertThrows(ClientNotFoundException.class,
-        () -> clientRegistrationServiceImpl.getClientByUserId("nonExistentUserId"));
-  }
-
-  @Test
-  void refreshClientSecret_success() {
-    String clientId = "client-abc";
-    String userId = "user-123";
-    Client mockClient = Mockito.mock(Client.class);
-
-    when(mockClient.getUserId()).thenReturn(userId);
-    when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(mockClient));
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
-  }
-
-  @Test
-  void updateClient() {
-    // given
-    String clientId = "client-123";
-    String userId = "userIdTest";
-    int attributeIndex = 42;
-    long originalIssuedAt = 987654321L;
-    String secret = "originalSecret";
-    String salt = "originalSalt";
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .secret(secret) // keep original secret and salt
-        .salt(salt)
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("Old Name")
-        .callbackURI(Set.of("https://old.com"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(attributeIndex)
-        .isActive(true)
-        .clientIdIssuedAt(originalIssuedAt)
-        .logoUri("oldLogo")
-        .policyUri("oldPolicy")
-        .tosUri("oldTos")
-        .requiredSameIdp(false)
-        .a11yUri("oldA11y")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-    when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(existingClientExtended));
-    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("newLogo")
-        .policyUri("newPolicy")
-        .tosUri("newTos")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("newA11y")
-        .backButtonEnabled(true)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(true)
-        .minAge(14)
-        .pairwise(false)
-        .build();
-
-    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-
-    // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, null, null));
-
-    // then
-    verify(clientConnectorImpl).updateClientExtended(
-        Mockito.argThat(updated -> updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("name"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == attributeIndex
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && !updated.isRequiredSameIdp() // default false
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && updated.isSpidProfessionals()
-            && !updated.isPairwise()
-            && updated.getMinAge() == 14
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals(secret) // unchanged
-            && updated.getSalt().equals(salt) // unchanged
-        ));
-  }
-
-  @Test
-  void updateClient_preservesExistingSamlBinding_whenMissingInRequest() {
-    String clientId = "client-123";
-    String userId = "userIdTest";
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .secret("secret")
-        .salt("salt")
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("Old Name")
-        .callbackURI(Set.of("https://old.com"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .samlBinding(SamlBinding.HTTP_REDIRECT)
-        .acsIndex(0)
-        .attributeIndex(42)
-        .isActive(true)
-        .clientIdIssuedAt(987654321L)
-        .pairwise(false)
-        .clientErrorRedirectEnabled(true)
-        .build();
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://updated.example.com"))
-        .clientName("Updated Name")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("name"))
-        .pairwise(false)
-        .build();
-
-    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-    when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(new ArrayList<>()));
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, null, null));
-
-    verify(clientConnectorImpl)
-        .updateClientExtended(
-            Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())
-                && updated.isClientErrorRedirectEnabled()));
-  }
-
-  @Test
-  void updateClient_withEidasIndex_updatesEidasIndex() {
-    String clientId = "client-123";
-    String userId = "userIdTest";
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .secret("secret")
-        .salt("salt")
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("Old Name")
-        .callbackURI(Set.of("https://old.com"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .samlBinding(SamlBinding.HTTP_POST)
-        .acsIndex(42)
-        .attributeIndex(42)
-        .isActive(true)
-        .clientIdIssuedAt(987654321L)
-        .pairwise(false)
-        .clientErrorRedirectEnabled(true)
-        .build();
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://updated.example.com"))
-        .clientName("Updated Name")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("name"))
-        .pairwise(false)
-        .eidasIndex(100)
-        .clientErrorRedirectEnabled(false)
-        .build();
-
-    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, null, null));
-
-    verify(clientConnectorImpl)
-        .updateClientExtended(Mockito.argThat(updated -> Integer.valueOf(100).equals(updated.getEidasIndex())
-            && !updated.isClientErrorRedirectEnabled()));
-  }
-
-  @Test
-  void updateClient_pairWiseEnabled_ok() {
-    // given
-    String clientId = "client-123";
-    String userId = "userIdTest";
-    int attributeIndex = 42;
-    long originalIssuedAt = 987654321L;
-    String secret = "originalSecret";
-    String salt = "originalSalt";
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .secret(secret) // keep original secret and salt
-        .salt(salt)
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("Old Name")
-        .callbackURI(Set.of("https://old.com"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(attributeIndex)
-        .attributeIndex(attributeIndex)
-        .isActive(true)
-        .clientIdIssuedAt(originalIssuedAt)
-        .logoUri("oldLogo")
-        .policyUri("oldPolicy")
-        .tosUri("oldTos")
-        .requiredSameIdp(false)
-        .a11yUri("oldA11y")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-    when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(existingClientExtended));
-    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("newLogo")
-        .policyUri("newPolicy")
-        .tosUri("newTos")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("newA11y")
-        .backButtonEnabled(true)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(true)
-        .pairwise(true)
-        .ageParentAuth(0)
-        .minAge(14)
-        .build();
-
-    when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(true);
-
-    // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, "dummy-key", "dummy-plan"));
-
-    // then
-    verify(clientConnectorImpl).updateClientExtended(
-        Mockito.argThat(updated -> updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("name"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == attributeIndex
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && !updated.isRequiredSameIdp() // default false
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && updated.isSpidProfessionals()
-            && updated.isPairwise()
-            && updated.getMinAge() == 14
-            && updated.getAgeParentAuth() == 0
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals(secret) // unchanged
-            && updated.getSalt().equals(salt) // unchanged
-        ));
-  }
-
-  @Test
-  void updateClient_nullValues() {
-    // given
-    String clientId = "client-123";
-    String userId = "userIdTest";
-    int attributeIndex = 42;
-    long originalIssuedAt = 987654321L;
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("newLogo")
-        .policyUri("newPolicy")
-        .tosUri("newTos")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("spidCode"))
-        .a11yUri("newA11y")
-        .backButtonEnabled(true)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(false)
-        .ageParentAuth(0)
-        .minAge(14)
-        // .pairwise() default false
-        // .requiredSameIdp() default false
-        .build();
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .userId(userId)
-        .secret("originalSecret")
-        .salt("originalSalt")
-        .clientId(clientId)
-        .attributeIndex(attributeIndex)
-        .clientIdIssuedAt(originalIssuedAt)
-        .build();
-
-    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
-
-    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-
-    // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, null, null));
-
-    // then
-    verify(clientConnectorImpl).updateClientExtended(
-        Mockito.argThat(updated -> updated.getClientId().equals(clientId)
-            && updated.getUserId().equals(userId)
-            && updated.getFriendlyName().equals("test")
-            && updated.getCallbackURI().equals(Set.of("https://test.com"))
-            && updated.getRequestedParameters().equals(Set.of("spidCode"))
-            && updated.getAuthLevel() == AuthLevel.L2
-            && updated.getAcsIndex() == attributeIndex
-            && updated.getAttributeIndex() == attributeIndex
-            && updated.isActive()
-            && updated.getClientIdIssuedAt() == originalIssuedAt
-            && updated.getLogoUri().equals("newLogo")
-            && updated.getPolicyUri().equals("newPolicy")
-            && updated.getTosUri().equals("newTos")
-            && updated.getA11yUri().equals("newA11y")
-            && updated.isBackButtonEnabled()
-            && updated.getLocalizedContentMap().equals(new HashMap<>())
-            && updated.isSpidMinors()
-            && !updated.isSpidProfessionals()
-            && !updated.isRequiredSameIdp() // default false
-            && !updated.isPairwise() // default false
-            && updated.getMinAge() == 14
-            && updated.getAgeParentAuth() == 0
-            && updated.getMaxAge() == null // maxAge not specified
-            && updated.getSecret().equals("originalSecret") // unchanged
-            && updated.getSalt().equals("originalSalt") // unchanged
-        ));
-  }
-
-  @Test
-  void updateClient_withSpidMinorsAndMaxAge_ok() {
-    // given
-    String clientId = "client-123";
-    String userId = "userIdTest";
-    int attributeIndex = 42;
-    long originalIssuedAt = 987654321L;
-    String secret = "originalSecret";
-    String salt = "originalSalt";
-
-    ClientExtended existingClientExtended = ClientExtended.builder()
-        .secret(secret)
-        .salt(salt)
-        .clientId(clientId)
-        .userId(userId)
-        .friendlyName("Old Name")
-        .callbackURI(Set.of("https://old.com"))
-        .requestedParameters(Set.of("name"))
-        .authLevel(AuthLevel.L2)
-        .acsIndex(0)
-        .attributeIndex(attributeIndex)
-        .isActive(true)
-        .clientIdIssuedAt(originalIssuedAt)
-        .logoUri("oldLogo")
-        .policyUri("oldPolicy")
-        .tosUri("oldTos")
-        .requiredSameIdp(false)
-        .a11yUri("oldA11y")
-        .backButtonEnabled(false)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(false)
-        .spidProfessionals(false)
-        .pairwise(false)
-        .build();
-    when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(existingClientExtended));
-    stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
-
-    ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
-        .redirectUris(Set.of("https://test.com"))
-        .clientName("test")
-        .logoUri("newLogo")
-        .policyUri("newPolicy")
-        .tosUri("newTos")
-        .minAuthLevel(AuthLevel.L2.getValue())
-        .samlRequestedAttributes(Set.of("name"))
-        .a11yUri("newA11y")
-        .backButtonEnabled(true)
-        .localizedContentMap(new HashMap<>())
-        .spidMinors(true)
-        .spidProfessionals(false)
-        .minAge(14)
-        .maxAge(18)
-        .ageParentAuth(16)
-        .pairwise(false)
-        .build();
-
-    when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
-
-    // when
-    assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
-        clientRegistrationDTO, existingClientExtended, null, null));
-
-    // then
-    verify(clientConnectorImpl).updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
-        && updated.getUserId().equals(userId)
-        && updated.getFriendlyName().equals("test")
-        && updated.getCallbackURI().equals(Set.of("https://test.com"))
-        && updated.getRequestedParameters().equals(Set.of("name"))
-        && updated.getAuthLevel() == AuthLevel.L2
-        && updated.getAcsIndex() == attributeIndex
-        && updated.getAttributeIndex() == attributeIndex
-        && updated.isActive()
-        && updated.getClientIdIssuedAt() == originalIssuedAt
-        && updated.getLogoUri().equals("newLogo")
-        && updated.getPolicyUri().equals("newPolicy")
-        && updated.getTosUri().equals("newTos")
-        && !updated.isRequiredSameIdp() // default false
-        && updated.getA11yUri().equals("newA11y")
-        && updated.isBackButtonEnabled()
-        && updated.getLocalizedContentMap().equals(new HashMap<>())
-        && updated.isSpidMinors()
-        && updated.getMinAge() == 14
-        && updated.getMaxAge() == 18
-        && updated.getSecret().equals(secret) // unchanged
-        && updated.getSalt().equals(salt) // unchanged
-    ));
-  }
-
-  @Test
-  void refreshClientSecret_noClientFound() {
-    String clientId = "client-abc";
-    String userId = "user-123";
-
-    when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.empty());
-    RefreshSecretException exception = assertThrows(RefreshSecretException.class,
-        () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
-    assertNotNull(exception.getMessage());
-    assertEquals("No client found for the clientId associated to this user",
-        exception.getMessage());
-  }
-
-  @Test
-  void refreshClientSecret_userIdMismatch() {
-    String clientId = "client-abc";
-    String userId = "user-123";
-
-    Client mockClient = Mockito.mock(Client.class);
-    when(clientConnectorImpl.getClientById(clientId))
-        .thenReturn(Optional.of(mockClient));
-
-    RefreshSecretException exception = assertThrows(RefreshSecretException.class,
-        () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
-    assertNotNull(exception.getMessage());
-    assertEquals("User ID mismatch",
-        exception.getMessage());
-  }
-
-  @Test
-  void getPDVPlanList_ok() {
-    String apiKey = "dummyApiKey";
-    PDVPlanDTO plan = PDVPlanDTO.builder().id("id").name("name").build();
-    PDVApiKeysDTO expected = PDVApiKeysDTO.builder().apiKeys(List.of(plan)).build();
-
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.of(apiKey));
-    when(pdvApiClientMock.getPDVPlans(anyString()))
-        .thenReturn(expected);
-
-    // when
-    PDVApiKeysDTO result = clientRegistrationServiceImpl.getPDVPlanList();
-
-    // then
-    assertNotNull(result);
-    assertEquals(expected, result);
-
-    ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
-    verify(pdvApiClientMock).getPDVPlans(keyCaptor.capture());
-    assertEquals(apiKey, keyCaptor.getValue(), "Client must use key read from SSM");
-
-    verify(ssmConnectorUtilsImplMock).getParameter(anyString());
-    verifyNoMoreInteractions(pdvApiClientMock, ssmConnectorUtilsImplMock);
-  }
-
-  @Test
-  void getPDVPlanList_noApiKey_throwsNoMasterKeyException() {
-    // given
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.empty());
-
-    // when
-    NoMasterKeyException ex = assertThrows(
-        NoMasterKeyException.class,
-        () -> clientRegistrationServiceImpl.getPDVPlanList());
-
-    // then
-    assertTrue(ex.getMessage().toLowerCase().contains("api key"), "check message");
-
-    // no interaction with pdv
-    verify(pdvApiClientMock, never()).getPDVPlans(anyString());
-  }
-
-  @Test
-  void getPDVPlanList_pdvThrowsWebAppException_wrapsInPDVException() {
-    // given
-    String apiKey = "dummyApiKey";
-    when(ssmConnectorUtilsImplMock.getParameter(anyString()))
-        .thenReturn(Optional.of(apiKey));
-    when(pdvApiClientMock.getPDVPlans(apiKey))
-        .thenThrow(new WebApplicationException(Response.status(502).build()));
-
-    // when
-    PDVException ex = assertThrows(
-        PDVException.class,
-        () -> clientRegistrationServiceImpl.getPDVPlanList());
-
-    // then
-    assertTrue(ex.getMessage().contains("PDV response not ok"));
-    assertInstanceOf(WebApplicationException.class, ex.getCause());
-  }
+    @Inject
+    ClientRegistrationServiceImpl clientRegistrationServiceImpl;
+
+    @InjectMock
+    ClientConnectorImpl clientConnectorImpl;
+
+    @InjectMock
+    @RestClient
+    @Inject
+    PDVApiPlanClient pdvApiClientMock;
+    @InjectMock
+    SSMConnectorUtilsImpl ssmConnectorUtilsImplMock;
+
+    private void stubFindAllWithAnotherAcsZeroClient(Client existingClient) {
+        ArrayList<Client> allClient = new ArrayList<>();
+        allClient.add(existingClient);
+        allClient.add(Client.builder()
+                .clientId(existingClient.getClientId() + "-other")
+                .acsIndex(0)
+                .build());
+
+        when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(allClient));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_WithoutPDVParameter_ok() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_ok() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+        String masterKey = "key";
+
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.of(masterKey));
+        PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
+                .valid(true)
+                .build();
+        when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+                .thenReturn(validResp);
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, "dummy-key", "dummy-plan"));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVNoValidResponse_ko() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+        String masterKey = "key";
+
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.of(masterKey));
+        PDVValidationResponseDTO validResp = PDVValidationResponseDTO.builder()
+                .valid(false)
+                .build();
+        when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+                .thenReturn(validResp);
+
+        assertThrows(InvalidPDVPlanException.class,
+                () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                        clientRegistrationDTO, "dummy-key", "dummy-plan"));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_PDVThrowsError_ko() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+        String masterKey = "key";
+
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.of(masterKey));
+        when(pdvApiClientMock.validatePDVApiKey(Mockito.any(), Mockito.any()))
+                .thenThrow(new PDVException(
+                        "PDV response not ok",
+                        NOT_FOUND.getStatusCode(),
+                        Optional.of("not found"),
+                        new WebApplicationException(
+                                Response.status(NOT_FOUND).entity("not found").build())));
+
+        assertThrows(PDVException.class,
+                () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                        clientRegistrationDTO, "dummy-key", "dummy-plan"));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoPlan_ko() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        assertThrows(InvalidPDVPlanException.class,
+                () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                        clientRegistrationDTO, "dummy-key", ""));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_WithPairWiseEnabled_NoKey_ko() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        assertThrows(InvalidPDVPlanException.class,
+                () -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                        clientRegistrationDTO, "", "dummy-plan"));
+    }
+
+    @Test
+    void testValidatePairwiseClientRegistrationInfo_WithMultipleUris() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://valid.it", "https://valid.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("https://www.spid.gov.it/SpidL1")
+                .samlRequestedAttributes(Set.of("name"))
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_invalid_redirectUri_notValidatedAtServiceLayer() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .clientName("test")
+                .redirectUris(Set.of(".error"))
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_invalid_logoUri_notValidatedAtServiceLayer() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("error")
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_invalid_policyUri_notValidatedAtServiceLayer() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("error")
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_invalid_tosUri_notValidatedAtServiceLayer() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("error")
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void validatePairwiseClientRegistrationInfo_invalid_a11yUri_notValidatedAtServiceLayer() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .a11yUri("error")
+                .build();
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.validatePairwiseClientRegistrationInfo(
+                clientRegistrationDTO, null, null));
+    }
+
+    @Test
+    void saveClient_usesInactiveClientsWhenAllocatingAttributeIndex() {
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        Client returnClient = Client.builder()
+                .clientId("test")
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("test"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(8)
+                .attributeIndex(8)
+                .isActive(false)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        ArrayList<Client> allClient = new ArrayList<>();
+        allClient.add(returnClient);
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+                clientRegistrationDTO, "userId", null, null));
+        verify(clientConnectorImpl)
+                .saveClientIfNotExists(
+                        Mockito.argThat(saved -> saved.getAcsIndex() == 9 && saved.getAttributeIndex() == 9));
+    }
+
+    @Test
+    void saveClient_defaultsSamlBindingToHttpPost_whenMissingInRequest() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .pairwise(null)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+                .saveClient(clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl)
+                .saveClientIfNotExists(
+                        Mockito.argThat(saved -> SamlBinding.HTTP_POST.equals(saved.getSamlBinding())));
+        assertEquals(ClientSamlBinding.HTTP_POST, response.getSamlBinding());
+    }
+
+    @Test
+    void saveClient_withEidasIndex_persistsAndReturnsEidasIndex() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .pairwise(null)
+                .eidasIndex(99)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+                .saveClient(clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl)
+                .saveClientIfNotExists(Mockito.argThat(saved -> Integer.valueOf(99).equals(saved.getEidasIndex())));
+        assertEquals(99, response.getEidasIndex());
+    }
+
+    @Test
+    void saveClient_persistsHttpRedirectBinding_whenProvidedInRequest() {
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .samlBinding(ClientSamlBinding.HTTP_REDIRECT)
+                .pairwise(null)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        ClientRegistrationResponseDTO response = assertDoesNotThrow(() -> clientRegistrationServiceImpl
+                .saveClient(clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl)
+                .saveClientIfNotExists(
+                        Mockito.argThat(saved -> SamlBinding.HTTP_REDIRECT.equals(saved.getSamlBinding())));
+        assertEquals(ClientSamlBinding.HTTP_REDIRECT, response.getSamlBinding());
+    }
+
+    @Test
+    void saveClient_withSpidMinorsNoMaxAge_ok() {
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(false)
+                .ageParentAuth(0)
+                .pairwise(null)
+                .minAge(14)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+                clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
+                && saved.getMinAge() == 14
+                && saved.getAgeParentAuth() == 0
+                && saved.getMaxAge() == null));
+    }
+
+    @Test
+    void saveClient_withSpidMinorsAndMaxAge_ok() {
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(false)
+                .ageParentAuth(16)
+                .pairwise(null)
+                .minAge(14)
+                .maxAge(18)
+                .build();
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(new ArrayList<>()));
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+                clientRegistrationDTO, "userId", null, null));
+
+        verify(clientConnectorImpl).saveClientIfNotExists(Mockito.argThat(saved -> saved.isSpidMinors()
+                && saved.getMinAge() == 14
+                && saved.getAgeParentAuth() == 16
+                && saved.getMaxAge() == 18));
+    }
+
+    @Test
+    void saveClient_WithPairWiseEnabled_ok() {
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        Client returnClient = Client.builder()
+                .clientId("test")
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("test"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(0)
+                .isActive(true)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        ArrayList<Client> allClient = new ArrayList<>();
+        allClient.add(returnClient);
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+
+        when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+                Mockito.anyString())).thenReturn(true);
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.saveClient(
+                clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
+    }
+
+    @Test
+    void saveClient_WithPairWiseEnabled_SSMError_ko() {
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        Client returnClient = Client.builder()
+                .clientId("test")
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("test"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(0)
+                .isActive(true)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(PairwiseMode.TOKEN)
+                .build();
+
+        ArrayList<Client> allClient = new ArrayList<>();
+        allClient.add(returnClient);
+
+        when(clientConnectorImpl.findAll()).thenReturn(Optional.of(allClient));
+
+        when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+                Mockito.anyString())).thenReturn(false);
+
+        assertThrows(SSMUpsertPDVException.class,
+                () -> clientRegistrationServiceImpl.saveClient(
+                        clientRegistrationDTO, "userId", "dummy-key", "dummy-plan"));
+    }
+
+    @Test
+    void saveClient_existingUserId_ko() {
+
+        // given
+        String existingUserId = "existingUserId";
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("https://test.com")
+                .policyUri("https://test.com")
+                .tosUri("https://test.com")
+                .minAuthLevel("test")
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        Client returnClient = Client.builder()
+                .userId(existingUserId)
+                .clientId("test")
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("test"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(0)
+                .isActive(true)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        // when
+        when(clientConnectorImpl.getClientByUserId(existingUserId))
+                .thenReturn(Optional.of(returnClient));
+
+        // then
+        assertThrows(ExistingUserIdException.class,
+                () -> clientRegistrationServiceImpl.saveClient(clientRegistrationDTO, existingUserId,
+                        null, null));
+    }
+
+    @Test
+    void getClientExtendedByClientId() {
+
+        // given
+        String clientId = "test";
+        String userId = "userId-test";
+        ClientExtended returnClient = ClientExtended.builder()
+                .secret("secret")
+                .salt("salt")
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(0)
+                .isActive(true)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        // when
+        when(clientConnectorImpl.getClientExtendedById(anyString()))
+                .thenReturn(Optional.of(returnClient));
+
+        assertNotNull(clientRegistrationServiceImpl.getClientExtendedByClientId(clientId));
+    }
+
+    @Test
+    void getClientByClientId_ko() {
+        // when
+        when(clientConnectorImpl.getClientById(anyString()))
+                .thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ClientNotFoundException.class,
+                () -> clientRegistrationServiceImpl.getClientExtendedByClientId("nonExistentUserId"));
+    }
+
+    @Test
+    void getClientByUserId() {
+
+        // given
+        String clientId = "test";
+        String userId = "userId-test";
+        Client returnClient = Client.builder()
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("test")
+                .callbackURI(Set.of("test"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(0)
+                .isActive(true)
+                .clientIdIssuedAt(0L)
+                .logoUri("test")
+                .policyUri("test")
+                .tosUri("test")
+                .a11yUri("https://test.com")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+
+        // when
+        when(clientConnectorImpl.getClientByUserId(anyString()))
+                .thenReturn(Optional.of(returnClient));
+
+        assertNotNull(clientRegistrationServiceImpl.getClientByUserId(userId));
+    }
+
+    @Test
+    void getClientByUserId_ko() {
+        // when
+        when(clientConnectorImpl.getClientByUserId(anyString()))
+                .thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ClientNotFoundException.class,
+                () -> clientRegistrationServiceImpl.getClientByUserId("nonExistentUserId"));
+    }
+
+    @Test
+    void refreshClientSecret_success() {
+        String clientId = "client-abc";
+        String userId = "user-123";
+        Client mockClient = Mockito.mock(Client.class);
+
+        when(mockClient.getUserId()).thenReturn(userId);
+        when(clientConnectorImpl.getClientById(clientId))
+                .thenReturn(Optional.of(mockClient));
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+    }
+
+    @Test
+    void updateClient() {
+        // given
+        String clientId = "client-123";
+        String userId = "userIdTest";
+        int attributeIndex = 42;
+        long originalIssuedAt = 987654321L;
+        String secret = "originalSecret";
+        String salt = "originalSalt";
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .secret(secret) // keep original secret and salt
+                .salt(salt)
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("Old Name")
+                .callbackURI(Set.of("https://old.com"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(attributeIndex)
+                .isActive(true)
+                .clientIdIssuedAt(originalIssuedAt)
+                .logoUri("oldLogo")
+                .policyUri("oldPolicy")
+                .tosUri("oldTos")
+                .requiredSameIdp(false)
+                .a11yUri("oldA11y")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+        when(clientConnectorImpl.getClientById(clientId))
+                .thenReturn(Optional.of(existingClientExtended));
+        stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("newLogo")
+                .policyUri("newPolicy")
+                .tosUri("newTos")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("newA11y")
+                .backButtonEnabled(true)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(true)
+                .minAge(14)
+                .pairwise(null)
+                .build();
+
+        when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+        // when
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, null, null));
+
+        // then
+        verify(clientConnectorImpl).updateClientExtended(
+                Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+                        && updated.getUserId().equals(userId)
+                        && updated.getFriendlyName().equals("test")
+                        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+                        && updated.getRequestedParameters().equals(Set.of("name"))
+                        && updated.getAuthLevel() == AuthLevel.L2
+                        && updated.getAcsIndex() == attributeIndex
+                        && updated.getAttributeIndex() == attributeIndex
+                        && updated.isActive()
+                        && updated.getClientIdIssuedAt() == originalIssuedAt
+                        && updated.getLogoUri().equals("newLogo")
+                        && updated.getPolicyUri().equals("newPolicy")
+                        && updated.getTosUri().equals("newTos")
+                        && !updated.isRequiredSameIdp() // default false
+                        && updated.getA11yUri().equals("newA11y")
+                        && updated.isBackButtonEnabled()
+                        && updated.getLocalizedContentMap().equals(new HashMap<>())
+                        && updated.isSpidMinors()
+                        && updated.isSpidProfessionals()
+                        && updated.getPairwise() == null
+                        && updated.getMinAge() == 14
+                        && updated.getMaxAge() == null // maxAge not specified
+                        && updated.getSecret().equals(secret) // unchanged
+                        && updated.getSalt().equals(salt) // unchanged
+                ));
+    }
+
+    @Test
+    void updateClient_preservesExistingSamlBinding_whenMissingInRequest() {
+        String clientId = "client-123";
+        String userId = "userIdTest";
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .secret("secret")
+                .salt("salt")
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("Old Name")
+                .callbackURI(Set.of("https://old.com"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .samlBinding(SamlBinding.HTTP_REDIRECT)
+                .acsIndex(0)
+                .attributeIndex(42)
+                .isActive(true)
+                .clientIdIssuedAt(987654321L)
+                .pairwise(null)
+                .clientErrorRedirectEnabled(true)
+                .build();
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://updated.example.com"))
+                .clientName("Updated Name")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("name"))
+                .pairwise(null)
+                .build();
+
+        when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+        when(clientConnectorImpl.findAllActive()).thenReturn(Optional.of(new ArrayList<>()));
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, null, null));
+
+        verify(clientConnectorImpl)
+                .updateClientExtended(
+                        Mockito.argThat(updated -> SamlBinding.HTTP_REDIRECT.equals(updated.getSamlBinding())
+                                && updated.isClientErrorRedirectEnabled()));
+    }
+
+    @Test
+    void updateClient_withEidasIndex_updatesEidasIndex() {
+        String clientId = "client-123";
+        String userId = "userIdTest";
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .secret("secret")
+                .salt("salt")
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("Old Name")
+                .callbackURI(Set.of("https://old.com"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .samlBinding(SamlBinding.HTTP_POST)
+                .acsIndex(42)
+                .attributeIndex(42)
+                .isActive(true)
+                .clientIdIssuedAt(987654321L)
+                .pairwise(null)
+                .clientErrorRedirectEnabled(true)
+                .build();
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://updated.example.com"))
+                .clientName("Updated Name")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("name"))
+                .pairwise(null)
+                .eidasIndex(100)
+                .clientErrorRedirectEnabled(false)
+                .build();
+
+        when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, null, null));
+
+        verify(clientConnectorImpl)
+                .updateClientExtended(Mockito.argThat(updated -> Integer.valueOf(100).equals(updated.getEidasIndex())
+                        && !updated.isClientErrorRedirectEnabled()));
+    }
+
+    @Test
+    void updateClient_pairWiseEnabled_ok() {
+        // given
+        String clientId = "client-123";
+        String userId = "userIdTest";
+        int attributeIndex = 42;
+        long originalIssuedAt = 987654321L;
+        String secret = "originalSecret";
+        String salt = "originalSalt";
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .secret(secret) // keep original secret and salt
+                .salt(salt)
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("Old Name")
+                .callbackURI(Set.of("https://old.com"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(attributeIndex)
+                .attributeIndex(attributeIndex)
+                .isActive(true)
+                .clientIdIssuedAt(originalIssuedAt)
+                .logoUri("oldLogo")
+                .policyUri("oldPolicy")
+                .tosUri("oldTos")
+                .requiredSameIdp(false)
+                .a11yUri("oldA11y")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+        when(clientConnectorImpl.getClientById(clientId))
+                .thenReturn(Optional.of(existingClientExtended));
+        stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("newLogo")
+                .policyUri("newPolicy")
+                .tosUri("newTos")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("newA11y")
+                .backButtonEnabled(true)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(true)
+                .pairwise(PairwiseMode.TOKEN)
+                .ageParentAuth(0)
+                .minAge(14)
+                .build();
+
+        when(ssmConnectorUtilsImplMock.upsertSecureStringIfPresentOnlyIfChanged(Mockito.anyString(),
+                Mockito.anyString())).thenReturn(true);
+
+        // when
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, "dummy-key", "dummy-plan"));
+
+        // then
+        verify(clientConnectorImpl).updateClientExtended(
+                Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+                        && updated.getUserId().equals(userId)
+                        && updated.getFriendlyName().equals("test")
+                        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+                        && updated.getRequestedParameters().equals(Set.of("name"))
+                        && updated.getAuthLevel() == AuthLevel.L2
+                        && updated.getAcsIndex() == attributeIndex
+                        && updated.getAttributeIndex() == attributeIndex
+                        && updated.isActive()
+                        && updated.getClientIdIssuedAt() == originalIssuedAt
+                        && updated.getLogoUri().equals("newLogo")
+                        && updated.getPolicyUri().equals("newPolicy")
+                        && updated.getTosUri().equals("newTos")
+                        && !updated.isRequiredSameIdp() // default false
+                        && updated.getA11yUri().equals("newA11y")
+                        && updated.isBackButtonEnabled()
+                        && updated.getLocalizedContentMap().equals(new HashMap<>())
+                        && updated.isSpidMinors()
+                        && updated.isSpidProfessionals()
+                        && updated.getPairwise() == PairwiseMode.TOKEN
+                        && updated.getMinAge() == 14
+                        && updated.getAgeParentAuth() == 0
+                        && updated.getMaxAge() == null // maxAge not specified
+                        && updated.getSecret().equals(secret) // unchanged
+                        && updated.getSalt().equals(salt) // unchanged
+                ));
+    }
+
+    @Test
+    void updateClient_nullValues() {
+        // given
+        String clientId = "client-123";
+        String userId = "userIdTest";
+        int attributeIndex = 42;
+        long originalIssuedAt = 987654321L;
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("newLogo")
+                .policyUri("newPolicy")
+                .tosUri("newTos")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("spidCode"))
+                .a11yUri("newA11y")
+                .backButtonEnabled(true)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(false)
+                .ageParentAuth(0)
+                .minAge(14)
+                // .pairwise() default false
+                // .requiredSameIdp() default false
+                .build();
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .userId(userId)
+                .secret("originalSecret")
+                .salt("originalSalt")
+                .clientId(clientId)
+                .attributeIndex(attributeIndex)
+                .clientIdIssuedAt(originalIssuedAt)
+                .build();
+
+        stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
+
+        when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+        // when
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, null, null));
+
+        // then
+        verify(clientConnectorImpl).updateClientExtended(
+                Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+                        && updated.getUserId().equals(userId)
+                        && updated.getFriendlyName().equals("test")
+                        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+                        && updated.getRequestedParameters().equals(Set.of("spidCode"))
+                        && updated.getAuthLevel() == AuthLevel.L2
+                        && updated.getAcsIndex() == attributeIndex
+                        && updated.getAttributeIndex() == attributeIndex
+                        && updated.isActive()
+                        && updated.getClientIdIssuedAt() == originalIssuedAt
+                        && updated.getLogoUri().equals("newLogo")
+                        && updated.getPolicyUri().equals("newPolicy")
+                        && updated.getTosUri().equals("newTos")
+                        && updated.getA11yUri().equals("newA11y")
+                        && updated.isBackButtonEnabled()
+                        && updated.getLocalizedContentMap().equals(new HashMap<>())
+                        && updated.isSpidMinors()
+                        && !updated.isSpidProfessionals()
+                        && !updated.isRequiredSameIdp() // default false
+                        && updated.getPairwise() == null // disabled by default
+                        && updated.getMinAge() == 14
+                        && updated.getAgeParentAuth() == 0
+                        && updated.getMaxAge() == null // maxAge not specified
+                        && updated.getSecret().equals("originalSecret") // unchanged
+                        && updated.getSalt().equals("originalSalt") // unchanged
+                ));
+    }
+
+    @Test
+    void updateClient_withSpidMinorsAndMaxAge_ok() {
+        // given
+        String clientId = "client-123";
+        String userId = "userIdTest";
+        int attributeIndex = 42;
+        long originalIssuedAt = 987654321L;
+        String secret = "originalSecret";
+        String salt = "originalSalt";
+
+        ClientExtended existingClientExtended = ClientExtended.builder()
+                .secret(secret)
+                .salt(salt)
+                .clientId(clientId)
+                .userId(userId)
+                .friendlyName("Old Name")
+                .callbackURI(Set.of("https://old.com"))
+                .requestedParameters(Set.of("name"))
+                .authLevel(AuthLevel.L2)
+                .acsIndex(0)
+                .attributeIndex(attributeIndex)
+                .isActive(true)
+                .clientIdIssuedAt(originalIssuedAt)
+                .logoUri("oldLogo")
+                .policyUri("oldPolicy")
+                .tosUri("oldTos")
+                .requiredSameIdp(false)
+                .a11yUri("oldA11y")
+                .backButtonEnabled(false)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(false)
+                .spidProfessionals(false)
+                .pairwise(null)
+                .build();
+        when(clientConnectorImpl.getClientById(clientId))
+                .thenReturn(Optional.of(existingClientExtended));
+        stubFindAllWithAnotherAcsZeroClient(existingClientExtended);
+
+        ClientRegistrationDTO clientRegistrationDTO = ClientRegistrationDTO.builder()
+                .redirectUris(Set.of("https://test.com"))
+                .clientName("test")
+                .logoUri("newLogo")
+                .policyUri("newPolicy")
+                .tosUri("newTos")
+                .minAuthLevel(AuthLevel.L2.getValue())
+                .samlRequestedAttributes(Set.of("name"))
+                .a11yUri("newA11y")
+                .backButtonEnabled(true)
+                .localizedContentMap(new HashMap<>())
+                .spidMinors(true)
+                .spidProfessionals(false)
+                .minAge(14)
+                .maxAge(18)
+                .ageParentAuth(16)
+                .pairwise(null)
+                .build();
+
+        when(ssmConnectorUtilsImplMock.deleteParameter(Mockito.anyString())).thenReturn(true);
+
+        // when
+        assertDoesNotThrow(() -> clientRegistrationServiceImpl.updateClientExtended(
+                clientRegistrationDTO, existingClientExtended, null, null));
+
+        // then
+        verify(clientConnectorImpl)
+                .updateClientExtended(Mockito.argThat(updated -> updated.getClientId().equals(clientId)
+                        && updated.getUserId().equals(userId)
+                        && updated.getFriendlyName().equals("test")
+                        && updated.getCallbackURI().equals(Set.of("https://test.com"))
+                        && updated.getRequestedParameters().equals(Set.of("name"))
+                        && updated.getAuthLevel() == AuthLevel.L2
+                        && updated.getAcsIndex() == attributeIndex
+                        && updated.getAttributeIndex() == attributeIndex
+                        && updated.isActive()
+                        && updated.getClientIdIssuedAt() == originalIssuedAt
+                        && updated.getLogoUri().equals("newLogo")
+                        && updated.getPolicyUri().equals("newPolicy")
+                        && updated.getTosUri().equals("newTos")
+                        && !updated.isRequiredSameIdp() // default false
+                        && updated.getA11yUri().equals("newA11y")
+                        && updated.isBackButtonEnabled()
+                        && updated.getLocalizedContentMap().equals(new HashMap<>())
+                        && updated.isSpidMinors()
+                        && updated.getMinAge() == 14
+                        && updated.getMaxAge() == 18
+                        && updated.getSecret().equals(secret) // unchanged
+                        && updated.getSalt().equals(salt) // unchanged
+                ));
+    }
+
+    @Test
+    void refreshClientSecret_noClientFound() {
+        String clientId = "client-abc";
+        String userId = "user-123";
+
+        when(clientConnectorImpl.getClientById(clientId)).thenReturn(Optional.empty());
+        RefreshSecretException exception = assertThrows(RefreshSecretException.class,
+                () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+        assertNotNull(exception.getMessage());
+        assertEquals("No client found for the clientId associated to this user",
+                exception.getMessage());
+    }
+
+    @Test
+    void refreshClientSecret_userIdMismatch() {
+        String clientId = "client-abc";
+        String userId = "user-123";
+
+        Client mockClient = Mockito.mock(Client.class);
+        when(clientConnectorImpl.getClientById(clientId))
+                .thenReturn(Optional.of(mockClient));
+
+        RefreshSecretException exception = assertThrows(RefreshSecretException.class,
+                () -> clientRegistrationServiceImpl.refreshClientSecret(clientId, userId));
+        assertNotNull(exception.getMessage());
+        assertEquals("User ID mismatch",
+                exception.getMessage());
+    }
+
+    @Test
+    void getPDVPlanList_ok() {
+        String apiKey = "dummyApiKey";
+        PDVPlanDTO plan = PDVPlanDTO.builder().id("id").name("name").build();
+        PDVApiKeysDTO expected = PDVApiKeysDTO.builder().apiKeys(List.of(plan)).build();
+
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.of(apiKey));
+        when(pdvApiClientMock.getPDVPlans(anyString()))
+                .thenReturn(expected);
+
+        // when
+        PDVApiKeysDTO result = clientRegistrationServiceImpl.getPDVPlanList();
+
+        // then
+        assertNotNull(result);
+        assertEquals(expected, result);
+
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+        verify(pdvApiClientMock).getPDVPlans(keyCaptor.capture());
+        assertEquals(apiKey, keyCaptor.getValue(), "Client must use key read from SSM");
+
+        verify(ssmConnectorUtilsImplMock).getParameter(anyString());
+        verifyNoMoreInteractions(pdvApiClientMock, ssmConnectorUtilsImplMock);
+    }
+
+    @Test
+    void getPDVPlanList_noApiKey_throwsNoMasterKeyException() {
+        // given
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.empty());
+
+        // when
+        NoMasterKeyException ex = assertThrows(
+                NoMasterKeyException.class,
+                () -> clientRegistrationServiceImpl.getPDVPlanList());
+
+        // then
+        assertTrue(ex.getMessage().toLowerCase().contains("api key"), "check message");
+
+        // no interaction with pdv
+        verify(pdvApiClientMock, never()).getPDVPlans(anyString());
+    }
+
+    @Test
+    void getPDVPlanList_pdvThrowsWebAppException_wrapsInPDVException() {
+        // given
+        String apiKey = "dummyApiKey";
+        when(ssmConnectorUtilsImplMock.getParameter(anyString()))
+                .thenReturn(Optional.of(apiKey));
+        when(pdvApiClientMock.getPDVPlans(apiKey))
+                .thenThrow(new WebApplicationException(Response.status(502).build()));
+
+        // when
+        PDVException ex = assertThrows(
+                PDVException.class,
+                () -> clientRegistrationServiceImpl.getPDVPlanList());
+
+        // then
+        assertTrue(ex.getMessage().contains("PDV response not ok"));
+        assertInstanceOf(WebApplicationException.class, ex.getCause());
+    }
 }

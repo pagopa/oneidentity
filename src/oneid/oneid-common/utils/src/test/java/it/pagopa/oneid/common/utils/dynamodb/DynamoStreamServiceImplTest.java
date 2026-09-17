@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.inject.Inject;
 import java.util.Optional;
@@ -40,7 +41,7 @@ class DynamoStreamServiceImplTest {
     assertEquals(AuthLevel.L2, result.get().getAuthLevel());
     assertEquals(SamlBinding.HTTP_POST, result.get().getSamlBinding());
     assertTrue(result.get().isActive());
-    assertTrue(result.get().isPairwise());
+    assertEquals(PairwiseMode.TOKEN, result.get().getPairwise());
     assertTrue(result.get().isClientErrorRedirectEnabled());
   }
 
@@ -86,7 +87,7 @@ class DynamoStreamServiceImplTest {
   @DisplayName("given relevant modify change when checking diff then return true")
   void given_relevant_modify_change_when_checking_diff_then_return_true() {
     ObjectNode newImage = baseImage();
-    newImage.set("pairwise", boolValue(false));
+    newImage.set("pairwise", stringValue("PDV"));
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(
         buildRecord("MODIFY", baseImage(), newImage)));
@@ -297,7 +298,7 @@ class DynamoStreamServiceImplTest {
     image.set("active", boolValue(true));
     image.set("requiredSameIdp", boolValue(true));
     image.set("clientErrorRedirectEnabled", boolValue(true));
-    image.set("pairwise", boolValue(true));
+    image.set("pairwise", stringValue("TOKEN"));
     image.set("spidMinors", boolValue(false));
     image.set("spidProfessionals", boolValue(false));
     image.set("minAge", numberValue(0));

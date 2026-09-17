@@ -2,6 +2,7 @@ package it.pagopa.oneid.common.model;
 
 import it.pagopa.oneid.common.model.dto.SecretDTO;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.validation.constraints.NotNull;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      boolean spidProfessionals, PairwiseMode pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth) {
     this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel, samlBinding,
         acsIndex, attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri,
@@ -57,7 +58,7 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      boolean spidProfessionals, PairwiseMode pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth, boolean clientErrorRedirectEnabled) {
     super(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         samlBinding, acsIndex, attributeIndex, isActive, clientIdIssuedAt, logoUri, policyUri,
@@ -76,7 +77,7 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      boolean spidProfessionals, PairwiseMode pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth) {
     this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         acsIndex, attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri,
@@ -92,7 +93,7 @@ public class ClientExtended extends Client {
       String secret, String salt, long clientIdIssuedAt, String logoUri, String policyUri,
       String tosURi, boolean requiredSameIdp, String a11yUri, boolean backButtonEnabled,
       Map<String, Map<String, LocalizedContent>> localizedContentMap, boolean spidMinors,
-      boolean spidProfessionals, boolean pairwise, Integer minAge, Integer maxAge,
+      boolean spidProfessionals, PairwiseMode pairwise, Integer minAge, Integer maxAge,
       Integer ageParentAuth, boolean clientErrorRedirectEnabled) {
     this(clientId, userId, friendlyName, callbackURI, requestedParameters, authLevel,
         SamlBinding.HTTP_POST, acsIndex, attributeIndex, isActive, secret, salt,
@@ -109,7 +110,7 @@ public class ClientExtended extends Client {
         client.getClientIdIssuedAt(), client.getLogoUri(), client.getPolicyUri(),
         client.getTosUri(), client.isRequiredSameIdp(), client.getA11yUri(),
         client.isBackButtonEnabled(), client.getLocalizedContentMap(), client.isSpidMinors(),
-        client.isSpidProfessionals(), client.isPairwise(), client.getMinAge(),
+        client.isSpidProfessionals(), client.getPairwise(), client.getMinAge(),
         client.getMaxAge(), client.getAgeParentAuth(), client.getEidasIndex(),
         client.isClientErrorRedirectEnabled());
     this.secret = secret;
