@@ -10,12 +10,24 @@ public class PairwiseModeConverter implements AttributeConverter<PairwiseMode> {
 
   @Override
   public AttributeValue transformFrom(PairwiseMode input) {
+    if (input == null) {
+      return AttributeValue.builder().nul(true).build();
+    }
     return AttributeValue.builder().s(input.name()).build();
   }
 
   @Override
   public PairwiseMode transformTo(AttributeValue input) {
-    return PairwiseMode.valueOf(input.s());
+    if (input == null || Boolean.TRUE.equals(input.nul())) {
+      return null;
+    }
+    if (input.bool() != null) {
+      return PairwiseMode.fromLegacy(input.bool());
+    }
+    if (input.s() != null) {
+      return PairwiseMode.fromLegacy(input.s());
+    }
+    throw new IllegalArgumentException("Unsupported pairwise DynamoDB attribute: " + input);
   }
 
   @Override

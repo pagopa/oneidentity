@@ -191,8 +191,8 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     Object pairwise = payload.get("pairwise");
-    if (pairwise instanceof String pairwiseValue && !pairwiseValue.isBlank()) {
-      payload.put("pairwise", PairwiseMode.valueOf(pairwiseValue));
+    if (pairwise != null) {
+      payload.put("pairwise", PairwiseMode.fromLegacy(pairwise));
     }
   }
 

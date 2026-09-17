@@ -15,11 +15,13 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
+import it.pagopa.oneid.common.model.enums.converter.PairwiseModeConverter;
 import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 @QuarkusTest
 class DynamoStreamServiceImplTest {
@@ -29,6 +31,8 @@ class DynamoStreamServiceImplTest {
 
   @Inject
   DynamoStreamService dynamoStreamService;
+
+  private final PairwiseModeConverter pairwiseModeConverter = new PairwiseModeConverter();
 
   @Test
   @DisplayName("given new image when extracting client then build client from stream payload")
@@ -43,6 +47,60 @@ class DynamoStreamServiceImplTest {
     assertTrue(result.get().isActive());
     assertEquals(PairwiseMode.TOKEN, result.get().getPairwise());
     assertTrue(result.get().isClientErrorRedirectEnabled());
+  }
+
+  @Test
+  @DisplayName("given legacy pairwise true when extracting client then map it to TOKEN")
+  void given_legacy_pairwise_true_when_extracting_client_then_map_it_to_token() {
+    ObjectNode image = baseImage();
+    image.set("pairwise", boolValue(true));
+
+    Client client = dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).orElseThrow();
+
+    assertEquals(PairwiseMode.TOKEN, client.getPairwise());
+  }
+
+  @Test
+  @DisplayName("given legacy pairwise false when extracting client then disable pairwise")
+  void given_legacy_pairwise_false_when_extracting_client_then_disable_pairwise() {
+    ObjectNode image = baseImage();
+    image.set("pairwise", boolValue(false));
+
+    Client client = dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).orElseThrow();
+
+    assertNull(client.getPairwise());
+  }
+
+  @Test
+  @DisplayName("given legacy pairwise values when converting then map to the new modes")
+  void given_legacy_pairwise_values_when_converting_then_map_to_the_new_modes() {
+    assertNull(PairwiseMode.fromLegacy(null));
+    assertNull(PairwiseMode.fromLegacy(false));
+    assertNull(PairwiseMode.fromLegacy("false"));
+    assertNull(PairwiseMode.fromLegacy("  "));
+    assertEquals(PairwiseMode.TOKEN, PairwiseMode.fromLegacy(true));
+    assertEquals(PairwiseMode.TOKEN, PairwiseMode.fromLegacy("TOKEN"));
+    assertEquals(PairwiseMode.PDV, PairwiseMode.fromLegacy("PDV"));
+  }
+
+  @Test
+  @DisplayName("given legacy pairwise DynamoDB attributes when converting then preserve compatibility")
+  void given_legacy_pairwise_dynamodb_attributes_when_converting_then_preserve_compatibility() {
+    assertEquals(PairwiseMode.TOKEN,
+        pairwiseModeConverter.transformTo(AttributeValue.builder().bool(true).build()));
+    assertNull(pairwiseModeConverter.transformTo(AttributeValue.builder().bool(false).build()));
+    assertNull(pairwiseModeConverter.transformTo(AttributeValue.builder().nul(true).build()));
+    assertEquals(PairwiseMode.PDV,
+        pairwiseModeConverter.transformTo(AttributeValue.builder().s("PDV").build()));
+  }
+
+  @Test
+  @DisplayName("given pairwise mode when converting to DynamoDB then write the new representation")
+  void given_pairwise_mode_when_converting_to_dynamodb_then_write_the_new_representation() {
+    assertEquals("TOKEN", pairwiseModeConverter.transformFrom(PairwiseMode.TOKEN).s());
+    assertEquals(Boolean.TRUE, pairwiseModeConverter.transformFrom(null).nul());
   }
 
   @Test
