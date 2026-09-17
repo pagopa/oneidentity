@@ -270,8 +270,10 @@ public class OIDCServiceImpl implements OIDCService {
         // if fiscalNumber is present, retrieve the token from PDV
         SavePDVUserDTO savePDVUserDTO;
         if (registryEnabled) {
+          Log.info("Registry is enabled, preparing to save PDV user with all attributes");
           savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
         } else {
+          Log.info("Registry is disabled, send only fiscalCode to PDV");
           savePDVUserDTO = new SavePDVUserDTO(id);
         }
 
