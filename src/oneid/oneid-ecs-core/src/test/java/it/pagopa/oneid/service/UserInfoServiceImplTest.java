@@ -504,7 +504,7 @@ class UserInfoServiceImplTest {
   }
 
   @Test
-  void getSignedUserInfo_pairwiseDisabledDoesNotLookupClient() throws Exception {
+  void getSignedUserInfo_pairwiseDisabledDoesNotFetchPairwiseFromPdv() throws Exception {
     UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
     SessionServiceImpl<AccessTokenSession> accessTokenSessionService = mock(SessionServiceImpl.class);
     SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
@@ -530,11 +530,12 @@ class UserInfoServiceImplTest {
     when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
     when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
     when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.empty());
     when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
 
     assertEquals("signed-userinfo-jwt", userInfoService.getSignedUserInfo("access-token"));
 
-    verify(clientLookupService, never()).getClientById(anyString());
+    verify(clientLookupService).getClientById("client-id");
     verify(cloudWatchConnector).sendUserInfoSuccessWithoutPairwiseMetricData("client-id");
   }
 
