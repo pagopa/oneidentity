@@ -270,15 +270,11 @@ public class OIDCServiceImpl implements OIDCService {
       if (id != null) {
         // if fiscalNumber is present, retrieve the token from PDV
         SavePDVUserDTO savePDVUserDTO;
-        Log.debug("registryEnabled: " + registryEnabled + ", client pairwise mode: " + client.getPairwise());
         if (registryEnabled && client.getPairwise() == PairwiseMode.PDV) {
-          Log.info("Registry enabled and client pairwise mode is PDV, preparing SavePDVUserDTO from attribute list");
           savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
           Log.debug(savePDVUserDTO.toString());
         } else {
-          Log.info("Registry not enabled or client pairwise mode is not PDV, preparing SavePDVUserDTO with fiscalNumber");
           savePDVUserDTO = new SavePDVUserDTO(id);
-          Log.debug(savePDVUserDTO.toString());
         }
 
         try {

@@ -33,6 +33,7 @@ import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.InvalidAccessTokenException;
+import it.pagopa.oneid.exception.OIDCSignJWTException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
@@ -500,6 +501,120 @@ class UserInfoServiceImplTest {
     assertEquals("signed-userinfo-jwt", signedUserInfoJwt);
     verify(cloudWatchConnector).sendUserInfoSuccessWithoutPairwiseMetricData("client-id");
     verify(accessTokenSessionService, never()).setAccessTokenPairwise(anyString(), anyString());
+  }
+
+  @Test
+  void getSignedUserInfo_pairwiseDisabledDoesNotLookupClient() throws Exception {
+    UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
+    SessionServiceImpl<AccessTokenSession> accessTokenSessionService = mock(SessionServiceImpl.class);
+    SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
+    OIDCUtils oidcUtils = mock(OIDCUtils.class);
+    CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
+    AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
+    SAMLSession samlSession = mock(SAMLSession.class);
+    AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
+
+    setField(userInfoService, "accessTokenSessionService", accessTokenSessionService);
+    setField(userInfoService, "samlSessionService", samlSessionService);
+    setField(userInfoService, "oidcUtils", oidcUtils);
+    setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
+    setField(userInfoService, "pairwiseEnabled", false);
+
+    when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
+        .thenReturn(accessTokenSession);
+    when(accessTokenSession.getIdToken()).thenReturn(createSerializedSignedJwt(null));
+    when(accessTokenSession.getPairwise()).thenReturn(null);
+    when(accessTokenSession.getSamlRequestID()).thenReturn("saml-request-id");
+    when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
+    when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
+    when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
+
+    assertEquals("signed-userinfo-jwt", userInfoService.getSignedUserInfo("access-token"));
+
+    verify(clientLookupService, never()).getClientById(anyString());
+    verify(cloudWatchConnector).sendUserInfoSuccessWithoutPairwiseMetricData("client-id");
+  }
+
+  @Test
+  void getSignedUserInfo_pdvResponseWithoutUserIdDoesNotPersistPairwise() throws Exception {
+    UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
+    SessionServiceImpl<AccessTokenSession> accessTokenSessionService = mock(SessionServiceImpl.class);
+    SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
+    OIDCUtils oidcUtils = mock(OIDCUtils.class);
+    CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
+    SSMConnectorUtilsImpl ssmConnectorUtils = mock(SSMConnectorUtilsImpl.class);
+    PDVApiClient pdvApiClient = mock(PDVApiClient.class);
+    AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
+    SAMLSession samlSession = mock(SAMLSession.class);
+    AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
+    Client client = mock(Client.class);
+
+    setField(userInfoService, "accessTokenSessionService", accessTokenSessionService);
+    setField(userInfoService, "samlSessionService", samlSessionService);
+    setField(userInfoService, "oidcUtils", oidcUtils);
+    setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
+    setField(userInfoService, "ssmConnectorUtilsImpl", ssmConnectorUtils);
+    setField(userInfoService, "pdvApiClient", pdvApiClient);
+    setField(userInfoService, "pairwiseEnabled", true);
+
+    when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
+        .thenReturn(accessTokenSession);
+    when(accessTokenSession.getIdToken()).thenReturn(createSerializedSignedJwt(null));
+    when(accessTokenSession.getPairwise()).thenReturn(null);
+    when(accessTokenSession.getSamlRequestID()).thenReturn("saml-request-id");
+    when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
+    when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
+    when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(clientLookupService.getClientById("client-id")).thenReturn(Optional.of(client));
+    when(client.getPairwise()).thenReturn(PairwiseMode.TOKEN);
+    when(ssmConnectorUtils.getParameter("/pdv/client-id")).thenReturn(Optional.of("pdv-api-key"));
+    when(pdvApiClient.upsertUser(any(SavePDVUserDTO.class), eq("pdv-api-key")))
+        .thenReturn(PDVUserUpsertResponseDTO.builder().build());
+    when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class))).thenReturn("signed-userinfo-jwt");
+
+    assertEquals("signed-userinfo-jwt", userInfoService.getSignedUserInfo("access-token"));
+
+    verify(accessTokenSessionService, never()).setAccessTokenPairwise(anyString(), anyString());
+    verify(cloudWatchConnector).sendUserInfoSuccessWithoutPairwiseMetricData("client-id");
+  }
+
+  @Test
+  void getSignedUserInfo_whenSigningFailsThrowsOidcSignJwtException() throws Exception {
+    UserInfoServiceImpl userInfoService = new UserInfoServiceImpl();
+    SessionServiceImpl<AccessTokenSession> accessTokenSessionService = mock(SessionServiceImpl.class);
+    SessionServiceImpl<SAMLSession> samlSessionService = mock(SessionServiceImpl.class);
+    OIDCUtils oidcUtils = mock(OIDCUtils.class);
+    CloudWatchConnectorImpl cloudWatchConnector = mock(CloudWatchConnectorImpl.class);
+    ClientLookupService clientLookupService = mock(ClientLookupService.class);
+    AccessTokenSession accessTokenSession = mock(AccessTokenSession.class);
+    SAMLSession samlSession = mock(SAMLSession.class);
+    AuthorizationRequestDTOExtended authorizationRequest = mock(AuthorizationRequestDTOExtended.class);
+
+    setField(userInfoService, "accessTokenSessionService", accessTokenSessionService);
+    setField(userInfoService, "samlSessionService", samlSessionService);
+    setField(userInfoService, "oidcUtils", oidcUtils);
+    setField(userInfoService, "cloudWatchConnectorImpl", cloudWatchConnector);
+    setField(userInfoService, "clientLookupService", clientLookupService);
+
+    when(accessTokenSessionService.getSession("access-token", RecordType.ACCESS_TOKEN))
+        .thenReturn(accessTokenSession);
+    when(accessTokenSession.getIdToken()).thenReturn(createSerializedSignedJwt("pairwise-value"));
+    when(accessTokenSession.getSamlRequestID()).thenReturn("saml-request-id");
+    when(samlSessionService.getSession("saml-request-id", RecordType.SAML)).thenReturn(samlSession);
+    when(samlSession.getAuthorizationRequestDTOExtended()).thenReturn(authorizationRequest);
+    when(authorizationRequest.getClientId()).thenReturn("client-id");
+    when(oidcUtils.createSignedJWT(any(JWTClaimsSet.class)))
+        .thenThrow(new IllegalStateException("signing failed"));
+
+    assertThrows(OIDCSignJWTException.class,
+        () -> userInfoService.getSignedUserInfo("access-token"));
+
+    verify(cloudWatchConnector).sendUserInfoSuccessMetricData("client-id");
   }
 
   private void setField(Object target, String fieldName, Object value) throws Exception {
