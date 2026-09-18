@@ -287,7 +287,7 @@ describe('Dashboard UI', () => {
           minAuthLevel: 'https://www.spid.gov.it/SpidL2',
           samlRequestedAttributes: ['fiscalNumber'],
           spidMinors: false,
-          pairwise: false,
+          pairwise: null,
           requiredSameIdp: false,
         },
         isLoading: false,
@@ -575,6 +575,12 @@ describe('Dashboard UI', () => {
     const switchElement = await screen.findByLabelText(/Pairwise Enabled/i);
     fireEvent.click(switchElement);
 
+    const pairwiseModeSelect = await screen.findByLabelText(/Pairwise mode/i);
+    expect(pairwiseModeSelect).toHaveTextContent(/Token only/i);
+    fireEvent.mouseDown(pairwiseModeSelect);
+    fireEvent.click(screen.getByRole('option', { name: /PDV user registry/i }));
+    expect(pairwiseModeSelect).toHaveTextContent(/PDV user registry/i);
+
     const planSelect = await screen.findByLabelText(/Plan Name/i);
     fireEvent.mouseDown(planSelect);
 
@@ -788,7 +794,7 @@ describe('Dashboard SPID Minors', () => {
       minAuthLevel: 'https://www.spid.gov.it/SpidL2',
       samlRequestedAttributes: ['fiscalNumber'],
       spidMinors: false,
-      pairwise: false,
+      pairwise: null,
       requiredSameIdp: false,
     };
 
@@ -864,7 +870,7 @@ describe('Dashboard SPID Minors', () => {
       samlRequestedAttributes: ['fiscalNumber'],
       spidMinors: true,
       minAge: 8,
-      pairwise: false,
+      pairwise: null,
       requiredSameIdp: false,
     };
 

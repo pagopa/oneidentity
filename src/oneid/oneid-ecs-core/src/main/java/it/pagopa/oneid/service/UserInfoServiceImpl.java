@@ -8,6 +8,7 @@ import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.dto.PDVUserUpsertResponseDTO;
 import it.pagopa.oneid.common.model.dto.SavePDVUserDTO;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.InvalidAccessTokenException;
@@ -74,8 +75,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     try {
       samlSession = samlSessionService.getSession(
           accessTokenSession.getSamlRequestID(),
-          RecordType.SAML
-      );
+          RecordType.SAML);
     } catch (SessionException e) {
       Log.warn("saml session linked to access token not found");
       throw new InvalidAccessTokenException();
@@ -104,8 +104,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     // create a new claims set with the pairwise claim if available
     JWTClaimsSet signedClaimsSet = StringUtils.isNotBlank(pairwise)
         ? new JWTClaimsSet.Builder(claimsSet)
-        .claim(PAIRWISE_CLAIM, pairwise)
-        .build()
+            .claim(PAIRWISE_CLAIM, pairwise)
+            .build()
         : claimsSet;
 
     try {
@@ -125,9 +125,10 @@ public class UserInfoServiceImpl implements UserInfoService {
   }
 
   private Optional<String> fetchPairwiseTokenFromPDV(String clientId,
-      JWTClaimsSet claimsSet) {
+      PairwiseMode pairwiseMode, JWTClaimsSet claimsSet) {
     String fiscalNumber = claimsSet.getClaim(FISCAL_NUMBER_CLAIM) instanceof String fiscalCode
-        ? fiscalCode : null;
+        ? fiscalCode
+        : null;
     if (StringUtils.isBlank(fiscalNumber)) {
       Log.warn("fiscalNumber not present in attribute list, can't generate pairwise sub");
       return Optional.empty();
@@ -151,16 +152,16 @@ public class UserInfoServiceImpl implements UserInfoService {
       return Optional.empty();
     }
 
-    // send the attributes list only if registry is enabled, otherwise send only fiscal number
-    SavePDVUserDTO payload = registryEnabled
+    // send the attributes list only if registry is enabled, otherwise send only
+    // fiscal number
+    SavePDVUserDTO payload = registryEnabled && pairwiseMode == PairwiseMode.PDV
         ? SavePDVUserDTO.fromAttributeDtoList(attributes)
         : new SavePDVUserDTO(fiscalNumber);
 
     try {
       PDVUserUpsertResponseDTO response = pdvApiClient.upsertUser(
           payload,
-          apiKey.get()
-      );
+          apiKey.get());
 
       if (response == null || StringUtils.isBlank(response.getUserId())) {
         Log.warn("pdv /users response does not contain id");
@@ -170,8 +171,9 @@ public class UserInfoServiceImpl implements UserInfoService {
       return Optional.of(response.getUserId());
     } catch (WebApplicationException | ProcessingException e) {
       Log.warn("pdv /users call failed, proceeding without pairwise claim");
-      cloudWatchConnectorImpl.sendPDVErrorMetricData(e instanceof WebApplicationException ? ((WebApplicationException) e).getResponse()
-                  .getStatus() : 504);
+      cloudWatchConnectorImpl
+          .sendPDVErrorMetricData(e instanceof WebApplicationException ? ((WebApplicationException) e).getResponse()
+              .getStatus() : 504);
       return Optional.empty();
     }
   }
@@ -179,7 +181,8 @@ public class UserInfoServiceImpl implements UserInfoService {
   private String resolvePairwise(String accessToken, String clientId,
       AccessTokenSession accessTokenSession, JWTClaimsSet claimsSet) {
     String pairwise = claimsSet.getClaim(PAIRWISE_CLAIM) instanceof String pairwiseClaim
-        ? pairwiseClaim : null;
+        ? pairwiseClaim
+        : null;
 
     if (StringUtils.isBlank(pairwise) && StringUtils.isNotBlank(accessTokenSession.getPairwise())) {
       pairwise = accessTokenSession.getPairwise();
@@ -187,8 +190,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     if (StringUtils.isBlank(pairwise)) {
       Optional<Client> client = clientLookupService.getClientById(clientId);
-      if (pairwiseEnabled && client.isPresent() && client.get().isPairwise()) {
-        pairwise = fetchPairwiseTokenFromPDV(clientId, claimsSet).orElse(null);
+      if (pairwiseEnabled && client.isPresent() && client.get().getPairwise() != null) {
+        pairwise = fetchPairwiseTokenFromPDV(clientId, client.get().getPairwise(), claimsSet)
+            .orElse(null);
         if (StringUtils.isNotBlank(pairwise)) {
           persistPairwiseOnAccessTokenSession(accessToken, pairwise);
         }

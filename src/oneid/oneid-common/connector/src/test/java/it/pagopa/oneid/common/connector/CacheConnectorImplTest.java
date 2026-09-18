@@ -1,6 +1,7 @@
 package it.pagopa.oneid.common.connector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,6 +19,7 @@ import io.quarkus.redis.datasource.value.SetArgs;
 import io.quarkus.redis.datasource.value.ValueCommands;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,6 +67,22 @@ class CacheConnectorImplTest {
     assertTrue(result.isPresent());
     assertEquals("client-test", result.get().getClientId());
   }
+
+    @Test
+    @DisplayName("given legacy and enum pairwise JSON when deserializing client then map correctly")
+    void given_legacy_and_enum_pairwise_json_when_deserializing_client_then_map_correctly()
+      throws Exception {
+    ObjectMapper mapper = new ObjectMapper();
+
+    assertEquals(PairwiseMode.TOKEN,
+      mapper.readValue("{\"pairwise\":\"TOKEN\"}", Client.class).getPairwise());
+    assertEquals(PairwiseMode.TOKEN,
+      mapper.readValue("{\"pairwise\":true}", Client.class).getPairwise());
+    assertEquals(PairwiseMode.PDV,
+      mapper.readValue("{\"pairwise\":\"PDV\"}", Client.class).getPairwise());
+    assertNull(mapper.readValue("{\"pairwise\":false}", Client.class).getPairwise());
+    assertNull(mapper.readValue("{\"pairwise\":null}", Client.class).getPairwise());
+    }
 
   @Test
   @DisplayName("given blank client id when get by client id then return empty")

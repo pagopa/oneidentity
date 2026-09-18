@@ -84,9 +84,7 @@ public class ClientUtils {
         .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
             ? clientRegistrationDTO.getSpidProfessionals()
             : false)
-        .pairwise(clientRegistrationDTO.getPairwise() != null
-            ? clientRegistrationDTO.getPairwise()
-            : false)
+        .pairwise(clientRegistrationDTO.getPairwise())
         .requiredSameIdp(clientRegistrationDTO.getRequiredSameIdp() != null
             ? clientRegistrationDTO.getRequiredSameIdp()
             : false)
@@ -122,7 +120,7 @@ public class ClientUtils {
         .requiredSameIdp(client.isRequiredSameIdp())
         .spidMinors(client.isSpidMinors())
         .spidProfessionals(client.isSpidProfessionals())
-        .pairwise(client.isPairwise())
+        .pairwise(client.getPairwise())
         .eidasIndex(client.getEidasIndex())
         .tosUri(client.getTosUri())
         .logoUri(client.getLogoUri())

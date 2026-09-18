@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.dto.PDVApiKeysDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidateApiKeyDTO;
 import it.pagopa.oneid.common.model.dto.PDVValidationResponseDTO;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ExistingUserIdException;
@@ -55,8 +56,8 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
       ClientRegistrationDTO clientRegistrationDTO, @Nullable String pdvApiKey,
       @Nullable String planName) {
     // Validate pairWise
-    Boolean pairWise = clientRegistrationDTO.getPairwise();
-    if (Boolean.TRUE.equals(pairWise)) {
+    PairwiseMode pairwiseMode = clientRegistrationDTO.getPairwise();
+    if (pairwiseMode != null) {
       if (isBlank(pdvApiKey) ^ isBlank(planName)) {
         throw new InvalidPDVPlanException(
             "Both PDV api key and plan name must be provided together");
@@ -114,7 +115,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     }
 
     // 6. update SSM Pdv parameter
-    if (client.isPairwise()) {
+    if (client.getPairwise() != null) {
       String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
       if (!ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey)) {
         Log.errorf("SSM upsert failed %s", ssmPath);
@@ -151,9 +152,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
         .spidProfessionals(clientRegistrationDTO.getSpidProfessionals() != null
             ? clientRegistrationDTO.getSpidProfessionals()
             : false)
-        .pairwise(clientRegistrationDTO.getPairwise() != null
-            ? clientRegistrationDTO.getPairwise()
-            : false)
+        .pairwise(clientRegistrationDTO.getPairwise())
         .clientErrorRedirectEnabled(client.isClientErrorRedirectEnabled())
         .eidasIndex(client.getEidasIndex())
         .clientId(client.getClientId())
@@ -241,7 +240,7 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
     String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
 
     // if apiKey not null and pairwise true
-    if (updatedClient.isPairwise()) {
+    if (updatedClient.getPairwise() != null) {
       if (!ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey)) {
         Log.errorf("SSM upsert failed %s", ssmPath);
         throw new SSMUpsertPDVException("SSM upsert failed %s: ", ssmPath);
