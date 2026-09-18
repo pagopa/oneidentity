@@ -1,9 +1,13 @@
 package it.pagopa.oneid.common.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum PairwiseMode {
   TOKEN,
   PDV;
 
+  @JsonCreator
   public static PairwiseMode fromLegacy(Object raw) {
     if (raw == null) {
       return null;
@@ -29,5 +33,10 @@ public enum PairwiseMode {
       }
     }
     throw new IllegalArgumentException("Unsupported pairwise value: " + raw);
+  }
+
+  @JsonValue
+  public String toJson() {
+    return name();
   }
 }
