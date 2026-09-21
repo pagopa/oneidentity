@@ -108,6 +108,20 @@ const EIDAS_ATTRIBUTE_SET_OPTIONS = [
   },
 ] as const;
 
+const PAIRWISE_MODE_OPTIONS = [
+  {
+    value: PairwiseMode.TOKEN,
+    label: 'Token only',
+    description: 'Use only the fiscal code to generate the pairwise identifier',
+  },
+  {
+    value: PairwiseMode.PDV,
+    label: 'PDV user registry',
+    description:
+      'Use the complete attribute set to create or update the PDV user',
+  },
+] as const;
+
 export const Dashboard = () => {
   type ChangeType = 'pairwise' | 'metadata' | 'pairwise+metadata' | 'none';
 
@@ -625,10 +639,16 @@ export const Dashboard = () => {
                     }))
                   }
                 >
-                  <MenuItem value={PairwiseMode.TOKEN}>Token only</MenuItem>
-                  <MenuItem value={PairwiseMode.PDV}>
-                    PDV user registry
-                  </MenuItem>
+                  {PAIRWISE_MODE_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body1">{option.label}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.description}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
               {planListError && (
