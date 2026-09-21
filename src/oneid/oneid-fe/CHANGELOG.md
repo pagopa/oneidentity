@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.5.1
+
+### Patch Changes
+
+- 623a1bb: fix: align friendlyName idp list in io-uat env
+
 ## 1.5.0
 
 ### Minor Changes
