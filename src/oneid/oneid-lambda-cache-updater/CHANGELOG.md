@@ -1,5 +1,11 @@
 # oneid-lambda-cache-updater
 
+## 0.6.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 0.5.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.17.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 1.16.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.10.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 1.9.2
 
 ### Patch Changes
