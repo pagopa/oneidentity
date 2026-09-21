@@ -174,6 +174,11 @@ export const themeKeySchema = z
 
 const ThemeLocalizedSchema = z.record(LanguagesSchema, ThemeSchema);
 
+export enum PairwiseMode {
+  TOKEN = 'TOKEN',
+  PDV = 'PDV',
+}
+
 // TODO: check and eventually remove optional from required fields
 export const clientSchema = z
   .object({
@@ -201,7 +206,7 @@ export const clientSchema = z
     maxAge: z.number().int().min(5).max(999).nullish(),
     ageParentAuth: z.number().int().min(6).max(17).nullish(),
     spidProfessionals: z.boolean().optional(),
-    pairwise: z.boolean().optional(),
+    pairwise: z.nativeEnum(PairwiseMode).nullish(),
     clientErrorRedirectEnabled: z.boolean().optional(),
     // customize
     a11yUri: httpsUrlSchema.nullish(),

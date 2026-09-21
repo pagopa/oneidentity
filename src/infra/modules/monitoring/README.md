@@ -60,6 +60,9 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_athena_named_query.client_success_total](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/athena_named_query) | resource |
+| [aws_athena_named_query.idp_success_total](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/athena_named_query) | resource |
+| [aws_athena_workgroup.metrics](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/athena_workgroup) | resource |
 | [aws_ce_anomaly_monitor.service_monitor](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ce_anomaly_monitor) | resource |
 | [aws_ce_anomaly_subscription.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ce_anomaly_subscription) | resource |
 | [aws_cloudwatch_dashboard.api_methods](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_dashboard) | resource |
@@ -69,14 +72,21 @@ No modules.
 | [aws_cloudwatch_query_definition.client_registration_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 | [aws_cloudwatch_query_definition.ecs_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
 | [aws_cloudwatch_query_definition.metadata_log_level_error](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_query_definition) | resource |
+| [aws_glue_catalog_database.metrics](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_catalog_database) | resource |
+| [aws_glue_crawler.metrics](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/glue_crawler) | resource |
 | [aws_iam_role.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.metrics_glue](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.metrics_glue_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.metrics_glue_service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_kinesis_firehose_delivery_stream.metrics_archiver](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kinesis_firehose_delivery_stream) | resource |
 | [aws_iam_policy_document.firehose_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.firehose_to_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.metric_stream_to_firehose](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.metrics_glue_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.metrics_glue_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.streams_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_ssm_parameter.alarm_subscribers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
@@ -105,6 +115,7 @@ No modules.
 | <a name="input_metric_stream_namespace"></a> [metric\_stream\_namespace](#input\_metric\_stream\_namespace) | CloudWatch namespace for the custom metrics stream. | `string` | `null` | no |
 | <a name="input_metric_stream_resource_prefix"></a> [metric\_stream\_resource\_prefix](#input\_metric\_stream\_resource\_prefix) | Prefix used for metric stream resource names. | `string` | `null` | no |
 | <a name="input_metric_stream_s3_prefix"></a> [metric\_stream\_s3\_prefix](#input\_metric\_stream\_s3\_prefix) | S3 prefix shared by the metrics archiver lambda and the continuous stream. | `string` | `"cloudwatch-metrics-backfill"` | no |
+| <a name="input_metrics_athena"></a> [metrics\_athena](#input\_metrics\_athena) | Optional Glue and Athena configuration for archived custom metrics. | <pre>object({<br/>    raw_bucket_arn      = string<br/>    raw_bucket_name     = string<br/>    raw_prefix          = string<br/>    results_bucket_name = string<br/>    database_name       = string<br/>    workgroup_name      = string<br/>    crawler_name        = string<br/>    crawler_schedule    = string<br/>    catalog_table_name  = string<br/>  })</pre> | `null` | no |
 | <a name="input_nlb"></a> [nlb](#input\_nlb) | Network load balancer configurations. | <pre>object({<br/>    arn_suffix              = string<br/>    target_group_arn_suffix = string<br/>  })</pre> | n/a | yes |
 | <a name="input_query_files"></a> [query\_files](#input\_query\_files) | n/a | `list(string)` | `[]` | no |
 | <a name="input_region_short"></a> [region\_short](#input\_region\_short) | AWS Region short format. | `string` | n/a | yes |

@@ -171,7 +171,7 @@ class ClientConnectorImplTest {
     ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName, callbackURI,
         requestedParameters, authLevel, SamlBinding.HTTP_POST, acsIndex, attributeIndex,
         isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri, tosURi, isRequiredSameIdp,
-        "", false, null, false, false, false, null, null, null);
+        "", false, null, false, false, null, null, null, null);
 
     Executable executable = () -> clientConnectorImpl.saveClientIfNotExists(clientExtended);
 
@@ -204,7 +204,7 @@ class ClientConnectorImplTest {
         .backButtonEnabled(false)
         .spidMinors(false)
         .spidProfessionals(false)
-        .pairwise(false)
+        .pairwise(null)
         .build();
 
     clientExtendedMapper.putItem(client);
@@ -331,7 +331,7 @@ class ClientConnectorImplTest {
       ClientExtended clientExtended = new ClientExtended(clientId, userId, friendlyName,
           callbackURI, requestedParameters, authLevel, SamlBinding.HTTP_POST, acsIndex,
           attributeIndex, isActive, secret, salt, clientIdIssuedAt, logoUri, policyUri, tosURi,
-          isRequiredSameIdp, "", false, null, false, false, false, null, null, null);
+          isRequiredSameIdp, "", false, null, false, false, null, null, null, null);
 
       clientConnectorImpl.saveClientIfNotExists(clientExtended);
     }

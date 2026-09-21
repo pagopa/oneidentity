@@ -9,6 +9,7 @@ import { ENV } from '../utils/env';
 import {
   Client,
   EidasAttributeSet,
+  PairwiseMode,
   SamlAttribute,
   SamlBinding,
   SpidLevel,
@@ -174,7 +175,7 @@ describe('createOrUpdateClient', () => {
     axiosMock.put.mockResolvedValueOnce({
       data: {
         ...mockClientData,
-        pairwise: true,
+        pairwise: PairwiseMode.TOKEN,
       },
     });
 
@@ -190,7 +191,7 @@ describe('createOrUpdateClient', () => {
     );
     expect(result).toEqual({
       ...mockClientData,
-      pairwise: true,
+      pairwise: PairwiseMode.TOKEN,
     });
     expect(axiosMock.put).toHaveBeenCalledWith(
       `${ENV.URL_API.REGISTER}/client_id/${clientId}`,

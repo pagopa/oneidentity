@@ -29,6 +29,7 @@ import it.pagopa.oneid.common.model.LastIDPUsed;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
 import it.pagopa.oneid.common.model.dto.SavePDVUserDTO;
 import it.pagopa.oneid.common.model.dto.SecretDTO;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.utils.HASHUtils;
 import it.pagopa.oneid.common.utils.SSMConnectorUtilsImpl;
 import it.pagopa.oneid.common.utils.logging.CustomLogging;
@@ -263,14 +264,15 @@ public class OIDCServiceImpl implements OIDCService {
     String id = null;
 
     // Check if we need to add the "pairwise" claim to the ID token
-    if (pairwiseEnabled && client.isPairwise()) {
+    if (pairwiseEnabled && client.getPairwise() != null) {
       // Get fiscalNumber from attribute list
       id = getIdFromAttributeDTOList(attributeDTOList);
       if (id != null) {
         // if fiscalNumber is present, retrieve the token from PDV
         SavePDVUserDTO savePDVUserDTO;
-        if (registryEnabled) {
+        if (registryEnabled && client.getPairwise() == PairwiseMode.PDV) {
           savePDVUserDTO = SavePDVUserDTO.fromAttributeDtoList(attributeDTOList);
+          Log.debug(savePDVUserDTO.toString());
         } else {
           savePDVUserDTO = new SavePDVUserDTO(id);
         }
@@ -286,8 +288,7 @@ public class OIDCServiceImpl implements OIDCService {
                     .build());
               },
               () -> Log.warn("API Key not found for clientId: " + clientId
-                  + ", can't retrieve pairwise sub from PDV")
-          );
+                  + ", can't retrieve pairwise sub from PDV"));
         } catch (WebApplicationException | ProcessingException e) {
           // if PDV returns an error, we log it but we don't block the authentication flow
           Log.error("error during PDV upsertUser call: " + e.getMessage());
@@ -304,7 +305,7 @@ public class OIDCServiceImpl implements OIDCService {
       }
     }
 
-    //Create signed JWT ID token
+    // Create signed JWT ID token
     String signedJWTString;
     if (!client.isRequiredSameIdp()) {
       // if client does not need the "sameIdp" claim
@@ -347,7 +348,8 @@ public class OIDCServiceImpl implements OIDCService {
       boolean sameIdp = false;
       Optional<LastIDPUsed> lastIDPUsed = lastIDPUsedConnectorImpl.findLastIDPUsed(id, clientId);
       if (lastIDPUsed.isPresent()) {
-        // if there are last login information available for the id and clientId, check the ttl parameter and check if tha lastIdp matches the current one
+        // if there are last login information available for the id and clientId, check
+        // the ttl parameter and check if tha lastIdp matches the current one
         if (!(lastIDPUsed.get().getTtl() < Instant.now().getEpochSecond())) {
           // if the ttl is not expired, check if the last IDP used matches the current one
           sameIdp = StringUtils.equals(lastIDPUsed.get().getEntityId(), entityId);
@@ -361,7 +363,8 @@ public class OIDCServiceImpl implements OIDCService {
           updateLastIDPUsedRecord(clientId, entityId, id);
         }
       } else {
-        // if there are no last login information available for the id and clientId, we consider it as a new user for the client
+        // if there are no last login information available for the id and clientId, we
+        // consider it as a new user for the client
         // we force the sameIdp to true and update the lastIDP record
         sameIdp = true;
         updateLastIDPUsedRecord(clientId, entityId, id);

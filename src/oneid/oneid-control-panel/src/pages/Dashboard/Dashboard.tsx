@@ -22,6 +22,7 @@ import {
   ValidatePlanSchema,
   ValidateError,
   PlanErrors,
+  PairwiseMode,
 } from '../../types/api';
 import { useRegister } from '../../hooks/useRegister';
 import { FormArrayTextField } from '../../components/FormArrayTextField';
@@ -104,6 +105,20 @@ const EIDAS_ATTRIBUTE_SET_OPTIONS = [
     label: 'Complete set of attributes',
     description:
       'spidCode, name, familyName, dateOfBirth, placeOfBirth, address, gender',
+  },
+] as const;
+
+const PAIRWISE_MODE_OPTIONS = [
+  {
+    value: PairwiseMode.TOKEN,
+    label: 'Token only',
+    description: 'Use only the fiscal code to generate the pairwise identifier',
+  },
+  {
+    value: PairwiseMode.PDV,
+    label: 'PDV user registry',
+    description:
+      'Use the complete attribute set to create or update the PDV user',
   },
 ] as const;
 
@@ -362,6 +377,13 @@ export const Dashboard = () => {
       }));
     };
 
+  const handlePairwiseToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      pairwise: e.target.checked ? PairwiseMode.TOKEN : null,
+    }));
+  };
+
   if (isLoadingClient || isLoadingPlanList) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -373,7 +395,7 @@ export const Dashboard = () => {
   const checkEnableSaveUpdateClientPairwiseBased = (): boolean =>
     !formData?.pairwise ||
     validationIsValid === true ||
-    fetchedClientData?.pairwise === true;
+    fetchedClientData?.pairwise != null;
 
   const checkEnableSpidMinors = (): boolean =>
     !!formData?.spidMinors && !formData?.minAge;
@@ -583,8 +605,8 @@ export const Dashboard = () => {
           <ToggleSection
             name="pairWise"
             label="Pairwise Enabled"
-            checked={formData?.pairwise || false}
-            onChange={handleChange('pairwise')}
+            checked={formData?.pairwise != null}
+            onChange={handlePairwiseToggle}
             withDivider
             tooltipText={
               <TooltipContentWithLink
@@ -603,6 +625,32 @@ export const Dashboard = () => {
                 width: '100%',
               }}
             >
+              <FormControl fullWidth>
+                <InputLabel id="pairwise-mode-label">Pairwise mode</InputLabel>
+                <Select
+                  labelId="pairwise-mode-label"
+                  name="pairwiseMode"
+                  value={formData.pairwise}
+                  label="Pairwise mode"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      pairwise: e.target.value as PairwiseMode,
+                    }))
+                  }
+                >
+                  {PAIRWISE_MODE_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="body1">{option.label}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {option.description}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               {planListError && (
                 <Box>
                   <Alert severity="error">

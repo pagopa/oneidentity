@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
+import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -36,7 +37,7 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       new DynamoField("active", "BOOL"),
       new DynamoField("requiredSameIdp", "BOOL"),
       new DynamoField("clientErrorRedirectEnabled", "BOOL"),
-      new DynamoField("pairwise", "BOOL"),
+      new DynamoField("pairwise", "S"),
       new DynamoField("spidMinors", "BOOL"),
       new DynamoField("spidProfessionals", "BOOL"),
       new DynamoField("minAge", "N"),
@@ -187,6 +188,11 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     Object samlBinding = payload.get(FIELD_SAML_BINDING);
     if (samlBinding instanceof String samlBindingValue && !samlBindingValue.isBlank()) {
       payload.put(FIELD_SAML_BINDING, SamlBinding.samlBindingTypeFromValue(samlBindingValue));
+    }
+
+    Object pairwise = payload.get("pairwise");
+    if (pairwise != null) {
+      payload.put("pairwise", PairwiseMode.fromLegacy(pairwise));
     }
   }
 
