@@ -1,5 +1,11 @@
 # infra
 
+## 3.14.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 3.13.0
 
 ### Minor Changes

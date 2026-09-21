@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.11.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 1.10.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.11.0
+
+### Minor Changes
+
+- fc6d670: refactor: update pairwise type
+
 ## 2.10.2
 
 ### Patch Changes
