@@ -92,8 +92,11 @@ jobs:
             dev)
               friendly_name_environment="dev"
               ;;
-            uat|io-uat)
+            uat)
               friendly_name_environment="uat"
+              ;;
+            io-uat)
+              friendly_name_environment="io-uat"
               ;;
             prod|io-prod)
               friendly_name_environment="prod"
@@ -104,9 +107,9 @@ jobs:
               ;;
           esac
 
-          mv "public/assets/idpFriendlyNameList.${friendly_name_environment}.json" \
+          mv "public/assets/idpFriendlyName/idpFriendlyNameList.${friendly_name_environment}.json" \
             public/assets/idpFriendlyNameList.json
-          rm public/assets/idpFriendlyNameList.*.json
+          rm -r public/assets/idpFriendlyName
           yarn build --mode "$build_mode"
         env:
           EVENT_NAME: ${{ github.event_name }}
