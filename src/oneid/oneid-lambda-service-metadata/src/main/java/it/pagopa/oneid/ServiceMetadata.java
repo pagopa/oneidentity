@@ -19,9 +19,11 @@ import jakarta.ws.rs.core.MediaType;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
@@ -258,18 +260,7 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
 
     Map<String, Client> clientsMap = getClientsMap();
 
-    boolean firstAcs = true;
-    java.util.Set<Integer> addedAcsIndices = new java.util.HashSet<>();
-    for (Client client : clientsMap.values()) {
-      int acsIndex = client.getAcsIndex();
-      if (addedAcsIndices.add(acsIndex)) {
-        spssoDescriptor.getAssertionConsumerServices()
-            .add(samlUtils.buildAssertionConsumerService(acsIndex, firstAcs));
-        firstAcs = false;
-      }
-      spssoDescriptor.getAttributeConsumingServices()
-          .add(samlUtils.buildAttributeConsumingService(client));
-    }
+    addClientMetadata(spssoDescriptor, clientsMap.values());
 
     entityDescriptor.setOrganization(samlUtils.buildOrganization());
     entityDescriptor.getContactPersons()
@@ -309,6 +300,20 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
     }
 
     return getStringValue(plaintextElement);
+  }
+
+  void addClientMetadata(SPSSODescriptor spssoDescriptor, Iterable<Client> clients) {
+    Set<Integer> addedAcsIndices = new HashSet<>();
+
+    for (Client client : clients) {
+      int acsIndex = client.getAcsIndex();
+      if (addedAcsIndices.add(acsIndex)) {
+        spssoDescriptor.getAssertionConsumerServices().add(
+            samlUtils.buildAssertionConsumerService(acsIndex, acsIndex == 0));
+      }
+      spssoDescriptor.getAttributeConsumingServices()
+          .add(samlUtils.buildAttributeConsumingService(client));
+    }
   }
 
   private Map<String, Client> getClientsMap() {
