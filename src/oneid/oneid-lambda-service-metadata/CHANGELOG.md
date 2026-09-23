@@ -1,5 +1,11 @@
 # oneid-lambda-service-metadata
 
+## 1.6.0
+
+### Minor Changes
+
+- a14fe46: add acsIndex==0 as first of the clients for metadata
+
 ## 1.5.0
 
 ### Minor Changes
