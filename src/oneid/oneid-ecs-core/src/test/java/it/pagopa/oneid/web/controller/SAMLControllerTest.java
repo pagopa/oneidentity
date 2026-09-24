@@ -15,11 +15,13 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit5.virtual.ShouldNotPin;
 import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -43,482 +45,565 @@ import org.opensaml.saml.saml2.core.Response;
 @ShouldNotPin
 public class SAMLControllerTest {
 
-  @InjectMock
-  SAMLServiceImpl samlServiceImpl;
-
-  @InjectMock
-  OIDCServiceImpl oidcServiceImpl;
-
-  // This will be mocked using @Alternative construct because of @Dependant scope
-  @Inject
-  SessionServiceImpl<SAMLSession> samlSessionService;
-
-  // This will be mocked using @Alternative construct because of @Dependant scope
-  @Inject
-  SessionServiceImpl<OIDCSession> oidcSessionSessionService;
-
-  // This will be mocked using @Alternative construct because of @Dependant scope
-  @Inject
-  SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
-
-  @ConfigProperty(name = "base_path")
-  String BASE_PATH;
-
-  @Test
-  @SneakyThrows
-  void samlACS_ok() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
-
-    // setup oidcServiceImpl mock
-    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
-    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
-        .thenReturn(authorizationRequest);
-    // mocking of AuthorizationResponse object
-    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
-    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
-        AuthorizationSuccessResponse.class);
-    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
-
-    Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
-    Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
-    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
-    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-    Mockito.when(authorizationResponse.toSuccessResponse())
-        .thenReturn(authorizationSuccessResponse);
-
-    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
-        .thenReturn(authorizationResponse);
-
-    // setup of samlSessionService mock and oidcSessionService mock is implemented
-    // in MockSAMLControllerSessionServiceImpl class
-    // due to its @Dependent scope which does not permit to use the @InjectMock
-    // annotation
-
-    // location header to verify
-    String headerLocation = "test?code=" + authorizationCode + "&state="
-        + authorizationResponse.getState();
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_withRequestedAuthLevel_usesSessionAuthLevel() {
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "withRequestedAuthLevel");
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
-
-    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
-    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
-        .thenReturn(authorizationRequest);
-    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
-    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
-        AuthorizationSuccessResponse.class);
-    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
-
-    Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
-    Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
-    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
-    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-    Mockito.when(authorizationResponse.toSuccessResponse())
-        .thenReturn(authorizationSuccessResponse);
-    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
-        .thenReturn(authorizationResponse);
-
-    String headerLocation = "test?code=" + authorizationCode + "&state="
-        + authorizationResponse.getState();
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInGetSAMLResponseFromString() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
-        .thenThrow(new OneIdentityException());
-
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInGetSessionSAML() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("exceptionSAML");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.SESSION_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInSetSAMLResponse() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("exceptionSAMLResponse");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.SESSION_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInCheckSAMLStatus() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doThrow(new OneIdentityException()).when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @SneakyThrows
-  @Test
-  void samlACS_exceptionInValidateSAMLResponse() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    SAMLValidationException samlValidationException = Mockito.mock(SAMLValidationException.class);
-    Mockito.when(samlValidationException.getRedirectUri()).thenReturn("test.com");
-    Mockito.when(samlValidationException.getState()).thenReturn("dummyState");
-    Mockito.when(samlValidationException.getClientId()).thenReturn("dummyClientId");
-    Mockito.when(samlValidationException.getMessage())
-        .thenReturn(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage());
-    Mockito.when(samlValidationException.getErrorCode())
-        .thenReturn(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION);
-
-    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    samlValidationException.setRedirectUri("test.com");
-    doThrow(samlValidationException).when(
-        samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" +
-        URLEncoder.encode(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorCode(),
-            StandardCharsets.UTF_8)
-        +
-        "&redirect_uri=" + URLEncoder.encode("test.com", StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInSaveSessionOIDC() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("exceptionOIDC");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
-
-    // setup oidcServiceImpl mock
-    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
-    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
-        .thenReturn(authorizationRequest);
-    // mocking of AuthorizationResponse object
-    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
-    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
-        AuthorizationSuccessResponse.class);
-    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
-
-    Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
-    Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
-    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
-    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-    Mockito.when(authorizationResponse.toSuccessResponse())
-        .thenReturn(authorizationSuccessResponse);
-
-    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
-        .thenReturn(authorizationResponse);
-
-    // setup of samlSessionService mock and oidcSessionService mock is implemented
-    // in MockSAMLControllerSessionServiceImpl class
-    // due to its @Dependent scope which does not permit to use the @InjectMock
-    // annotation
-
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.SESSION_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_exceptionInCreatingCallbackURI() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    // setup samlServiceImplMock
-
-    Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
-
-    // setup oidcServiceImpl mock
-    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
-    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
-        .thenReturn(authorizationRequest);
-    // mocking of AuthorizationResponse object
-    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
-    // Mock DummyState in invalid manner in order to obtain a URISyntaxException
-    // when constructing the Callback URI
-    Mockito.when(authorizationResponse.getState()).thenReturn(new State("DummyState<<<>>???!!!@"));
-
-    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
-        AuthorizationSuccessResponse.class);
-    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
-
-    Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
-    Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
-    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
-    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-    Mockito.when(authorizationResponse.toSuccessResponse())
-        .thenReturn(authorizationSuccessResponse);
-
-    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
-        .thenReturn(authorizationResponse);
-
-    // setup of samlSessionService mock and oidcSessionService mock is implemented
-    // in MockSAMLControllerSessionServiceImpl class
-    // due to its @Dependent scope which does not permit to use the @InjectMock
-    // annotation
-
-    // location header to verify
-    String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
-        ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
-        StandardCharsets.UTF_8);
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(headerLocation));
-  }
-
-  @Test
-  @SneakyThrows
-  void samlACS_SAMLResponseWithMultipleSignatures() {
-    // given
-    Map<String, String> samlResponseDTO = new HashMap<>();
-    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "dummyRelayState");
-
-    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
-        .thenThrow(new OneIdentityException(
-            ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT));
-
-    // HTTP 302
-    String location = given()
-        .formParams(samlResponseDTO)
-        .when()
-        .post("/acs")
-        .then()
-        .statusCode(302)
-        .extract()
-        .header("location");
-
-    Assertions.assertTrue(location.contains(
-        ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorCode()));
-
-  }
-
-  @Test
-  void assertion_ok() {
-    given()
-        .queryParam("access_token", "dummy")
-        .when()
-        .get("/assertion")
-        .then()
-        .statusCode(200);
-  }
-
-  @Test
-  void assertion_SessionException() {
-    given()
-        .queryParam("access_token", "exceptionAccessToken")
-        .when()
-        .get("/assertion")
-        .then()
-        .statusCode(404);
-  }
+    @InjectMock
+    SAMLServiceImpl samlServiceImpl;
+
+    @InjectMock
+    OIDCServiceImpl oidcServiceImpl;
+
+    // This will be mocked using @Alternative construct because of @Dependant scope
+    @Inject
+    SessionServiceImpl<SAMLSession> samlSessionService;
+
+    // This will be mocked using @Alternative construct because of @Dependant scope
+    @Inject
+    SessionServiceImpl<OIDCSession> oidcSessionSessionService;
+
+    // This will be mocked using @Alternative construct because of @Dependant scope
+    @Inject
+    SessionServiceImpl<AccessTokenSession> accessTokenSessionSessionService;
+
+    @ConfigProperty(name = "base_path")
+    String BASE_PATH;
+
+    @Test
+    @SneakyThrows
+    void samlACS_ok() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        doNothing().when(samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+
+        // setup oidcServiceImpl mock
+        AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+        Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+                .thenReturn(authorizationRequest);
+        // mocking of AuthorizationResponse object
+        AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+        AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+                AuthorizationSuccessResponse.class);
+        AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+
+        Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
+        Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
+        Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+        Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+        Mockito.when(authorizationResponse.toSuccessResponse())
+                .thenReturn(authorizationSuccessResponse);
+
+        Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+                .thenReturn(authorizationResponse);
+
+        // setup of samlSessionService mock and oidcSessionService mock is implemented
+        // in MockSAMLControllerSessionServiceImpl class
+        // due to its @Dependent scope which does not permit to use the @InjectMock
+        // annotation
+
+        // location header to verify
+        String headerLocation = "test?code=" + authorizationCode + "&state="
+                + authorizationResponse.getState();
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_withoutComparisonType_usesSessionAuthLevelAndMinimumComparison() {
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "withoutComparisonType");
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("withoutComparisonType");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        doNothing().when(samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+
+        AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+        Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+                .thenReturn(authorizationRequest);
+        AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+        AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+                AuthorizationSuccessResponse.class);
+        AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+
+        Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
+        Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
+        Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+        Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+        Mockito.when(authorizationResponse.toSuccessResponse())
+                .thenReturn(authorizationSuccessResponse);
+        Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+                .thenReturn(authorizationResponse);
+
+        given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302);
+
+        Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
+                Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any());
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_withoutRequestedAuthLevel_returnsSessionError() {
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "withoutRequestedAuthLevel");
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("withoutRequestedAuthLevel");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.SESSION_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+        Mockito.verify(samlServiceImpl, Mockito.never()).validateSAMLResponse(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_withRequestedAuthLevel_usesSessionAuthLevel() {
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "withRequestedAuthLevel");
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("withRequestedAuthLevel");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        doNothing().when(samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+
+        AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+        Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+                .thenReturn(authorizationRequest);
+        AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+        AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+                AuthorizationSuccessResponse.class);
+        AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+
+        Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
+        Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
+        Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+        Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+        Mockito.when(authorizationResponse.toSuccessResponse())
+                .thenReturn(authorizationSuccessResponse);
+        Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+                .thenReturn(authorizationResponse);
+
+        String headerLocation = "test?code=" + authorizationCode + "&state="
+                + authorizationResponse.getState();
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+
+        Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
+                Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
+                Mockito.eq(AuthnContextComparisonType.EXACT), Mockito.any(), Mockito.any(), Mockito.any(),
+                Mockito.any());
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInGetSAMLResponseFromString() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
+                .thenThrow(new OneIdentityException());
+
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInGetSessionSAML() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("exceptionSAML");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.SESSION_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInSetSAMLResponse() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("exceptionSAMLResponse");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.SESSION_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInCheckSAMLStatus() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doThrow(new OneIdentityException()).when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @SneakyThrows
+    @Test
+    void samlACS_exceptionInValidateSAMLResponse() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        SAMLValidationException samlValidationException = Mockito.mock(SAMLValidationException.class);
+        Mockito.when(samlValidationException.getRedirectUri()).thenReturn("test.com");
+        Mockito.when(samlValidationException.getState()).thenReturn("dummyState");
+        Mockito.when(samlValidationException.getClientId()).thenReturn("dummyClientId");
+        Mockito.when(samlValidationException.getMessage())
+                .thenReturn(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorMessage());
+        Mockito.when(samlValidationException.getErrorCode())
+                .thenReturn(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION);
+
+        Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        samlValidationException.setRedirectUri("test.com");
+        doThrow(samlValidationException).when(
+                samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" +
+                URLEncoder.encode(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorCode(),
+                        StandardCharsets.UTF_8)
+                +
+                "&redirect_uri=" + URLEncoder.encode("test.com", StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInSaveSessionOIDC() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("exceptionOIDC");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        doNothing().when(samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+
+        // setup oidcServiceImpl mock
+        AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+        Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+                .thenReturn(authorizationRequest);
+        // mocking of AuthorizationResponse object
+        AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+        AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+                AuthorizationSuccessResponse.class);
+        AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+
+        Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
+        Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
+        Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+        Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+        Mockito.when(authorizationResponse.toSuccessResponse())
+                .thenReturn(authorizationSuccessResponse);
+
+        Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+                .thenReturn(authorizationResponse);
+
+        // setup of samlSessionService mock and oidcSessionService mock is implemented
+        // in MockSAMLControllerSessionServiceImpl class
+        // due to its @Dependent scope which does not permit to use the @InjectMock
+        // annotation
+
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.SESSION_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_exceptionInCreatingCallbackURI() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        // setup samlServiceImplMock
+
+        Response response = Mockito.mock(Response.class);
+        Mockito.when(response.getInResponseTo()).thenReturn("dummyInResponseTo");
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+        doNothing().when(samlServiceImpl)
+                .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        doNothing().when(samlServiceImpl)
+                .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                        Mockito.any());
+
+        // setup oidcServiceImpl mock
+        AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+        Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+                .thenReturn(authorizationRequest);
+        // mocking of AuthorizationResponse object
+        AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+        // Mock DummyState in invalid manner in order to obtain a URISyntaxException
+        // when constructing the Callback URI
+        Mockito.when(authorizationResponse.getState()).thenReturn(new State("DummyState<<<>>???!!!@"));
+
+        AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+                AuthorizationSuccessResponse.class);
+        AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+
+        Mockito.when(authorizationCode.getValue()).thenReturn("DummyCode");
+        Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
+        Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+        Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+        Mockito.when(authorizationResponse.toSuccessResponse())
+                .thenReturn(authorizationSuccessResponse);
+
+        Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+                .thenReturn(authorizationResponse);
+
+        // setup of samlSessionService mock and oidcSessionService mock is implemented
+        // in MockSAMLControllerSessionServiceImpl class
+        // due to its @Dependent scope which does not permit to use the @InjectMock
+        // annotation
+
+        // location header to verify
+        String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+                ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
+                StandardCharsets.UTF_8);
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(headerLocation));
+    }
+
+    @Test
+    @SneakyThrows
+    void samlACS_SAMLResponseWithMultipleSignatures() {
+        // given
+        Map<String, String> samlResponseDTO = new HashMap<>();
+        samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+        samlResponseDTO.put("RelayState", "dummyRelayState");
+
+        Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
+                .thenThrow(new OneIdentityException(
+                        ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT));
+
+        // HTTP 302
+        String location = given()
+                .formParams(samlResponseDTO)
+                .when()
+                .post("/acs")
+                .then()
+                .statusCode(302)
+                .extract()
+                .header("location");
+
+        Assertions.assertTrue(location.contains(
+                ErrorCode.IDP_ERROR_MULTIPLE_SAMLRESPONSE_SIGNATURES_PRESENT.getErrorCode()));
+
+    }
+
+    @Test
+    void assertion_ok() {
+        given()
+                .queryParam("access_token", "dummy")
+                .when()
+                .get("/assertion")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void assertion_SessionException() {
+        given()
+                .queryParam("access_token", "exceptionAccessToken")
+                .when()
+                .get("/assertion")
+                .then()
+                .statusCode(404);
+    }
 
 }
