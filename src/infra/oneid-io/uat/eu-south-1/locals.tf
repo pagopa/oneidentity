@@ -53,7 +53,7 @@ locals {
 }
 
 data "http" "idps_api" {
-  url = "https://uat.oneid.pagopa.it/idps"
+  url = "https://uat.io.oneid.pagopa.it/idps"
   retry {
     attempts     = 3
     min_delay_ms = 1000
@@ -72,7 +72,7 @@ data "http" "idps_api" {
 }
 
 data "http" "clients_api" {
-  url = "https://uat.oneid.pagopa.it/clients"
+  url = "https://uat.io.oneid.pagopa.it/clients"
   retry {
     attempts     = 3
     min_delay_ms = 1000
