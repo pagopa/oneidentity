@@ -810,7 +810,7 @@
             "name": "acr_values",
             "in": "query",
             "required": false,
-            "description": "Optional dynamic authentication context class reference. When provided, overrides the client default and sets comparison=exact.",
+            "description": "Optional dynamic authentication context class reference. When provided, overrides the client default and sets comparison=minimum.",
             "schema": {
               "type": "string",
               "enum": [
@@ -960,7 +960,7 @@
                   },
                   "acr_values": {
                     "type": "string",
-                    "description": "Optional dynamic authentication context class reference. When provided, overrides the client default and sets comparison=exact. Allowed values: https://www.spid.gov.it/SpidL2, https://www.spid.gov.it/SpidL3.",
+                    "description": "Optional dynamic authentication context class reference. When provided, overrides the client default and sets comparison=minimum. Allowed values: https://www.spid.gov.it/SpidL2, https://www.spid.gov.it/SpidL3.",
                     "enum": [
                       "https://www.spid.gov.it/SpidL2",
                       "https://www.spid.gov.it/SpidL3"
