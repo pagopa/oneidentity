@@ -23,6 +23,7 @@ import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -61,969 +62,969 @@ import org.w3c.dom.Element;
 @ShouldNotPin
 class OIDCControllerTest {
 
-  private final String CLIENT_ID = "test";
-  private static final String EIDAS_ENTITY_ID = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit";
+    private final String CLIENT_ID = "test";
+    private static final String EIDAS_ENTITY_ID = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit";
 
-  @InjectMock
-  private SAMLServiceImpl samlServiceImpl;
+    @InjectMock
+    private SAMLServiceImpl samlServiceImpl;
 
-  @InjectMock
-  private OIDCServiceImpl oidcServiceImpl;
+    @InjectMock
+    private OIDCServiceImpl oidcServiceImpl;
 
-  @InjectMock
-  private UserInfoService userInfoService;
+    @InjectMock
+    private UserInfoService userInfoService;
 
-  @Inject
-  private SAMLUtilsExtendedCore samlUtilsExtendedCore;
+    @Inject
+    private SAMLUtilsExtendedCore samlUtilsExtendedCore;
 
-  @Test
-  @SneakyThrows
-  void getObject_Exception() {
-    // given
+    @Test
+    @SneakyThrows
+    void getObject_Exception() {
+        // given
 
-    // Class
-    OIDCController oidcController = new OIDCController();
-    // Method
-    Method getObject = OIDCController.class.getDeclaredMethod("getObject", Object.class);
-    getObject.setAccessible(true);
+        // Class
+        OIDCController oidcController = new OIDCController();
+        // Method
+        Method getObject = OIDCController.class.getDeclaredMethod("getObject", Object.class);
+        getObject.setAccessible(true);
 
-    // when
-    Executable executable = () -> getObject.invoke(oidcController, "test");
+        // when
+        Executable executable = () -> getObject.invoke(oidcController, "test");
 
-    // then
-    InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
-        executable);
-    Assertions.assertTrue(
-        exception.getCause().getMessage().contains("Invalid object for /oidc/authorize route"));
+        // then
+        InvocationTargetException exception = Assertions.assertThrows(InvocationTargetException.class,
+                executable);
+        Assertions.assertTrue(
+                exception.getCause().getMessage().contains("Invalid object for /oidc/authorize route"));
 
-  }
+    }
 
-  @Test
-  void keys() {
-    JWKSSetDTO jwksPublicKey = mock(JWKSSetDTO.class);
-    when(oidcServiceImpl.getJWKSPublicKey()).thenReturn(jwksPublicKey);
+    @Test
+    void keys() {
+        JWKSSetDTO jwksPublicKey = mock(JWKSSetDTO.class);
+        when(oidcServiceImpl.getJWKSPublicKey()).thenReturn(jwksPublicKey);
 
-    given()
-        .when().get("/keys")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
-  }
+        given()
+                .when().get("/keys")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
+    }
 
-  // region /authorize
-  @Test
-  @SneakyThrows
-  void authorizePost() {
-    // given
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    // region /authorize
+    @Test
+    @SneakyThrows
+    void authorizePost() {
+        // given
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
 
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
 
-    AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
+        AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
 
-    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
+        Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
 
-    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = Mockito.mock(Element.class);
-    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
-        .thenReturn(elementMock);
+        Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = Mockito.mock(Element.class);
+        Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+                .thenReturn(elementMock);
 
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
 
-    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
-        Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
-  }
+        verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+                Mockito.eq(0), Mockito.eq(0), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
 
-  @Test
-  @SneakyThrows
-  void authorizePost_EidasIdpUsesIndex99() {
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
+    @Test
+    @SneakyThrows
+    void authorizePost_EidasIdpUsesIndex99() {
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
 
-    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(buildEidasIdp()));
-    when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
-        .thenReturn(true);
+        when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(buildEidasIdp()));
+        when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
+                .thenReturn(true);
 
-    AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
-    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
+        AuthnRequest authnRequest = buildAuthnRequest(EIDAS_ENTITY_ID);
+        when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
 
-    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = mock(Element.class);
-    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
-        .thenReturn(elementMock);
+        when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = mock(Element.class);
+        when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+                .thenReturn(elementMock);
 
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
 
-    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
-        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
-        Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
-        Mockito.any(), Mockito.any(), Mockito.any());
-  }
+        verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+                Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99),
+                Mockito.eq(SAMLUtilsConstants.EIDAS_SERVICE_INDEX_99), Mockito.anyString(),
+                Mockito.any(), Mockito.any(), Mockito.any());
+    }
 
-  @Test
-  @SneakyThrows
+    @Test
+    @SneakyThrows
     void authorizePost_EidasIdpRejectsMissingIndex() {
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setClientId("testEidasIndexMissing");
-    authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
-
-    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(buildEidasIdp()));
-    when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
-        .thenReturn(true);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsString("error_code=EIDAS_INDEX_NOT_AVAILABLE"));
-
-    verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(Mockito.anyString(),
-        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(),
-        Mockito.anyString());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_redirectBinding() {
-    // given
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setClientId("testRedirect");
-    authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
-
-    IDP testIDP = IDP.builder()
-        .entityID("https://redirect.idp")
-        .certificates(Set.of("certificate"))
-        .friendlyName("Redirect IDP")
-        .idpSSOEndpoints(Map.of(
-            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso",
-            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
-            "https://localhost:8443/samlsso/redirect"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    AuthnRequest authnRequest = buildAuthnRequest("https://redirect.idp");
-    Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
-    Mockito.when(samlServiceImpl.encodeAuthnRequestForRedirect(Mockito.any()))
-        .thenReturn("encoded");
-    Mockito.when(samlServiceImpl.buildRedirectQueryString(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString()))
-        .thenReturn("SAMLRequest=encoded&SigAlg=sigalg");
-    Mockito.when(samlServiceImpl.signRedirectQueryString(Mockito.anyString()))
-        .thenReturn("signature");
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsString("?SAMLRequest=encoded&SigAlg=sigalg&Signature=signature"))
-        .header("Location", containsString("Signature=signature"));
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_redirectBindingMissingEndpoint() {
-    // given
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setClientId("testRedirect");
-    authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
-
-    IDP testIDP = IDP.builder()
-        .entityID("https://redirect.idp")
-        .certificates(Set.of("certificate"))
-        .friendlyName("Redirect IDP")
-        .idpSSOEndpoints(Map.of(
-            "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .header("Location", containsStringIgnoringCase("error=invalid_request"));
-  }
-
-  @Test
-  void authorizePost_ClientNotFound() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setClientId("no_client");
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_RedirectUriNotFound() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setRedirectUri("test");
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_idpEmpty() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_getEntityDescriptorFromEntityID_Exception() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_authorizePost_ScopeNull() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setScope("");
-
-    // when
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
-    AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
-
-    Mockito.when(
-        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
-
-    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = Mockito.mock(Element.class);
-    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
-        .thenReturn(elementMock);
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(302)
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_InvalidScopeException_NotOpenid() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setScope("test");
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_UnsupportedResponseTypeException() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setResponseType(ResponseType.NONE);
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_buildAuthnRequest_Exception() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
-    Mockito.when(
-        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenThrow(OneIdentityException.class);
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizePost_SessionException() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIdp("testSessionException");
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-    // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
-    AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
-
-    Mockito.when(
-        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
-
-    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = Mockito.mock(Element.class);
-    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
-        .thenReturn(elementMock);
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(Status.FOUND.getStatusCode())
-        .body(notNullValue());
-  }
-
-  @Test
-  @SneakyThrows
-  void authorizeGet() {
-    // given
-
-    // AuthorizationDTO Creation
-    AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet = new AuthorizationRequestDTOExtendedGet();
-    authorizationRequestDTOExtendedGet.setIpAddress("test");
-    authorizationRequestDTOExtendedGet.setIdp("test");
-    authorizationRequestDTOExtendedGet.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedGet.setResponseType(CODE);
-    authorizationRequestDTOExtendedGet.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedGet.setScope("openid");
-    authorizationRequestDTOExtendedGet.setNonce("test");
-    authorizationRequestDTOExtendedGet.setState("test");
-
-    // when
-
-    // Mock "2. Check if idp exists"
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
-        .thenReturn(Optional.of(testIDP));
-
-    // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
-    AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
-
-    Mockito.when(
-        samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
-            Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
-
-    Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = Mockito.mock(Element.class);
-    Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
-        .thenReturn(elementMock);
-
-    // then
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedGet.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedGet.getIdp(),
-            "client_id", authorizationRequestDTOExtendedGet.getClientId(),
-            "response_type", authorizationRequestDTOExtendedGet.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedGet.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedGet.getScope(),
-            "nonce", authorizationRequestDTOExtendedGet.getNonce(),
-            "state", authorizationRequestDTOExtendedGet.getState()))
-        .when().get("/authorize")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
-  }
-  // endregion
-
-  // region /token
-  @Test
-  @SneakyThrows
-  void token() {
-
-    String clientSecret = "testClientSecret";
-    String code = "token";
-    String redirectUri = "https://client.example.com/callback";
-
-    // TokenRequest creation
-    TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
-    tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
-    tokenRequest.setAuthorization(
-        "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
-    tokenRequest.setCode(code);
-    tokenRequest.setRedirectUri(redirectUri);
-
-    doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
-
-    Response mockSamlResponse = mock(
-        org.opensaml.saml.saml2.core.Response.class);
-    Assertion mockAssertion = mock(Assertion.class);
-    List<Assertion> assertions = List.of(mockAssertion);
-    // Ensure the mock returns a non-null list of assertions
-    when(mockSamlResponse.getAssertions()).thenReturn(assertions);
-    // Ensure `getSAMLResponseFromString` returns the mocked response
-    when(samlServiceImpl.getSAMLResponseFromString(anyString())).thenReturn(mockSamlResponse);
-
-    Assertion assertion = mock(Assertion.class);
-
-    when(samlServiceImpl.getAttributesFromSAMLAssertion(assertion))
-        .thenReturn(new ArrayList<>());
-
-    TokenDataDTO tokenDataDTO = mock(TokenDataDTO.class);
-    when(
-        oidcServiceImpl.getOIDCTokens(anyString(), anyString(), Mockito.anyList(),
-            anyString(), anyString()))
-        .thenReturn(tokenDataDTO);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("Authorization", tokenRequest.getAuthorization())
-        .formParam("code", tokenRequest.getCode())
-        .formParam("redirect_uri", tokenRequest.getRedirectUri())
-        .formParam("grant_type", tokenRequest.getGrantType())
-        .when().post("/token")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
-
-  }
-
-  @Test
-  void userInfoGet_acceptsCaseInsensitiveBearer() {
-    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
-
-    given()
-        .header("Authorization", "bearer access-token")
-        .when().get("/userinfo")
-        .then()
-        .statusCode(200)
-        .contentType("application/jwt")
-        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
-  }
-
-  @Test
-  void userInfoPost_returnsUserInfoPayload() {
-    when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
-
-    given()
-        .header("Authorization", "Bearer access-token")
-        .when().post("/userinfo")
-        .then()
-        .statusCode(200)
-        .contentType("application/jwt")
-        .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
-  }
-
-  @Test
-  @SneakyThrows
-  void token_UnsupportedGrantTypeException() {
-
-    String clientSecret = "testClientSecret";
-    String code = "token";
-    String redirectUri = "https://client.example.com/callback";
-
-    // TokenRequest creation
-    TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
-    tokenRequest.setGrantType(GrantType.REFRESH_TOKEN);
-    tokenRequest.setAuthorization(
-        "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
-    tokenRequest.setCode(code);
-    tokenRequest.setRedirectUri(redirectUri);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("Authorization", tokenRequest.getAuthorization())
-        .formParam("code", tokenRequest.getCode())
-        .formParam("redirect_uri", tokenRequest.getRedirectUri())
-        .formParam("grant_type", tokenRequest.getGrantType())
-        .when().post("/token")
-        .then()
-        .statusCode(Status.BAD_REQUEST.getStatusCode())
-        .body(notNullValue());
-
-  }
-
-  @Test
-  @SneakyThrows
-  void token_InvalidRequestMalformedHeaderAuthorizationException() {
-
-    String clientSecret = "testClientSecret";
-    String code = "token";
-    String redirectUri = "https://client.example.com/callback";
-
-    // TokenRequest creation
-    TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
-    tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
-    tokenRequest.setAuthorization(
-        "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + "+" + clientSecret).getBytes()));
-    tokenRequest.setCode(code);
-    tokenRequest.setRedirectUri(redirectUri);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("Authorization", tokenRequest.getAuthorization())
-        .formParam("code", tokenRequest.getCode())
-        .formParam("redirect_uri", tokenRequest.getRedirectUri())
-        .formParam("grant_type", tokenRequest.getGrantType())
-        .when().post("/token")
-        .then()
-        .statusCode(Status.BAD_REQUEST.getStatusCode())
-        .body(notNullValue());
-
-  }
-
-  @Test
-  @SneakyThrows
-  void token_InvalidGrantException() {
-
-    String clientSecret = "testClientSecret";
-    String code = "InvalidGrantException";
-    String redirectUri = "https://client.example.com/callback";
-
-    // TokenRequest creation
-    TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
-    tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
-    tokenRequest.setAuthorization(
-        "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
-    tokenRequest.setCode(code);
-    tokenRequest.setRedirectUri(redirectUri);
-
-    doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("Authorization", tokenRequest.getAuthorization())
-        .formParam("code", tokenRequest.getCode())
-        .formParam("redirect_uri", tokenRequest.getRedirectUri())
-        .formParam("grant_type", tokenRequest.getGrantType())
-        .when().post("/token")
-        .then()
-        .statusCode(Status.BAD_REQUEST.getStatusCode())
-        .body(notNullValue());
-
-  }
-
-  @Test
-  @SneakyThrows
-  void token_RedirectUriInvalidGrantException() {
-
-    String clientSecret = "testClientSecret";
-    String code = "token";
-    String redirectUri = "https://client.example.com/InvalidRedirecUri";
-
-    // TokenRequest creation
-    TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
-    tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
-    tokenRequest.setAuthorization(
-        "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
-    tokenRequest.setCode(code);
-    tokenRequest.setRedirectUri(redirectUri);
-
-    doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
-
-    Response mockSamlResponse = mock(
-        org.opensaml.saml.saml2.core.Response.class);
-    Assertion mockAssertion = mock(Assertion.class);
-    List<Assertion> assertions = List.of(mockAssertion);
-    // Ensure the mock returns a non-null list of assertions
-    when(mockSamlResponse.getAssertions()).thenReturn(assertions);
-    // Ensure `getSAMLResponseFromString` returns the mocked response
-    when(samlServiceImpl.getSAMLResponseFromString(anyString())).thenReturn(mockSamlResponse);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("Authorization", tokenRequest.getAuthorization())
-        .formParam("code", tokenRequest.getCode())
-        .formParam("redirect_uri", tokenRequest.getRedirectUri())
-        .formParam("grant_type", tokenRequest.getGrantType())
-        .when().post("/token")
-        .then()
-        .statusCode(Status.BAD_REQUEST.getStatusCode())
-        .body(notNullValue());
-
-  }
-  // endregion
-
-  @Test
-  @SneakyThrows
-  void authorizePost_withAcrValues_usesExactComparison() {
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setAcrValues("https://www.spid.gov.it/SpidL2");
-
-    IDP testIDP = IDP.builder()
-        .entityID("https://localhost:8443")
-        .certificates(Set.of(
-            "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaTnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+uavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
-        .friendlyName("Test IDP")
-        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-            "https://localhost:8443/samlsso"))
-        .isActive(true)
-        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-        .status(IDPStatus.OK)
-        .build();
-
-    when(samlServiceImpl.getIDPFromEntityID(Mockito.any())).thenReturn(Optional.of(testIDP));
-
-    AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
-    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
-        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(authnRequest);
-
-    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
-    Element elementMock = mock(Element.class);
-    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any())).thenReturn(elementMock);
-
-    given()
-        .contentType("application/x-www-form-urlencoded")
-        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
-        .formParams(Map.of(
-            "idp", authorizationRequestDTOExtendedPost.getIdp(),
-            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
-            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
-            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
-            "scope", authorizationRequestDTOExtendedPost.getScope(),
-            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
-            "state", authorizationRequestDTOExtendedPost.getState(),
-            "acr_values", authorizationRequestDTOExtendedPost.getAcrValues()))
-        .when().post("/authorize")
-        .then()
-        .statusCode(200)
-        .body(notNullValue());
-
-    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
-        Mockito.eq(0), Mockito.eq(0),
-        Mockito.eq("https://www.spid.gov.it/SpidL2"),
-        Mockito.any(), Mockito.any(), Mockito.any());
-  }
-
-  // region private methods
-
-  private AuthorizationRequestDTOExtendedPost getAuthorizationRequestDTOExtendedPost() {
-    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
-    authorizationRequestDTOExtendedPost.setIpAddress("test");
-    authorizationRequestDTOExtendedPost.setIdp("test");
-    authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
-    authorizationRequestDTOExtendedPost.setResponseType(CODE);
-    authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
-    authorizationRequestDTOExtendedPost.setScope("openid");
-    authorizationRequestDTOExtendedPost.setNonce("test");
-    authorizationRequestDTOExtendedPost.setState("test");
-    return authorizationRequestDTOExtendedPost;
-  }
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setClientId("testEidasIndexMissing");
+        authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
+
+        when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(buildEidasIdp()));
+        when(samlServiceImpl.isEidasEntityId(EIDAS_ENTITY_ID))
+                .thenReturn(true);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .header("Location", containsString("error_code=EIDAS_INDEX_NOT_AVAILABLE"));
+
+        verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(Mockito.anyString(),
+                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(),
+                Mockito.anyString());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_redirectBinding() {
+        // given
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setClientId("testRedirect");
+        authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
+
+        IDP testIDP = IDP.builder()
+                .entityID("https://redirect.idp")
+                .certificates(Set.of("certificate"))
+                .friendlyName("Redirect IDP")
+                .idpSSOEndpoints(Map.of(
+                        "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso",
+                        "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+                        "https://localhost:8443/samlsso/redirect"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+
+        AuthnRequest authnRequest = buildAuthnRequest("https://redirect.idp");
+        Mockito.when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
+        Mockito.when(samlServiceImpl.encodeAuthnRequestForRedirect(Mockito.any()))
+                .thenReturn("encoded");
+        Mockito.when(samlServiceImpl.buildRedirectQueryString(Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString()))
+                .thenReturn("SAMLRequest=encoded&SigAlg=sigalg");
+        Mockito.when(samlServiceImpl.signRedirectQueryString(Mockito.anyString()))
+                .thenReturn("signature");
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .header("Location", containsString("?SAMLRequest=encoded&SigAlg=sigalg&Signature=signature"))
+                .header("Location", containsString("Signature=signature"));
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_redirectBindingMissingEndpoint() {
+        // given
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setClientId("testRedirect");
+        authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
+
+        IDP testIDP = IDP.builder()
+                .entityID("https://redirect.idp")
+                .certificates(Set.of("certificate"))
+                .friendlyName("Redirect IDP")
+                .idpSSOEndpoints(Map.of(
+                        "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .header("Location", containsStringIgnoringCase("error=invalid_request"));
+    }
+
+    @Test
+    void authorizePost_ClientNotFound() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setClientId("no_client");
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_RedirectUriNotFound() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setRedirectUri("test");
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_idpEmpty() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_getEntityDescriptorFromEntityID_Exception() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_authorizePost_ScopeNull() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setScope("");
+
+        // when
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+
+        // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
+        AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
+
+        Mockito.when(
+                samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
+
+        Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = Mockito.mock(Element.class);
+        Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+                .thenReturn(elementMock);
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(302)
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_InvalidScopeException_NotOpenid() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setScope("test");
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_UnsupportedResponseTypeException() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setResponseType(ResponseType.NONE);
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_buildAuthnRequest_Exception() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+        // Mock "6. Create SAML Authn Request using SAMLServiceImpl" with error
+        Mockito.when(
+                samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenThrow(OneIdentityException.class);
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizePost_SessionException() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setIdp("testSessionException");
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+        // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
+        AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
+
+        Mockito.when(
+                samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
+
+        Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = Mockito.mock(Element.class);
+        Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+                .thenReturn(elementMock);
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(Status.FOUND.getStatusCode())
+                .body(notNullValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void authorizeGet() {
+        // given
+
+        // AuthorizationDTO Creation
+        AuthorizationRequestDTOExtendedGet authorizationRequestDTOExtendedGet = new AuthorizationRequestDTOExtendedGet();
+        authorizationRequestDTOExtendedGet.setIpAddress("test");
+        authorizationRequestDTOExtendedGet.setIdp("test");
+        authorizationRequestDTOExtendedGet.setClientId(CLIENT_ID);
+        authorizationRequestDTOExtendedGet.setResponseType(CODE);
+        authorizationRequestDTOExtendedGet.setRedirectUri("foo.bar");
+        authorizationRequestDTOExtendedGet.setScope("openid");
+        authorizationRequestDTOExtendedGet.setNonce("test");
+        authorizationRequestDTOExtendedGet.setState("test");
+
+        // when
+
+        // Mock "2. Check if idp exists"
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaRnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+vuavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        Mockito.when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+                .thenReturn(Optional.of(testIDP));
+
+        // Mock "6. Create SAML Authn Request using SAMLServiceImpl"
+        AuthnRequest authnRequest = buildAuthnRequest("https://demo.spid.gov.it");
+
+        Mockito.when(
+                samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt(),
+                        Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
+
+        Mockito.when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = Mockito.mock(Element.class);
+        Mockito.when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+                .thenReturn(elementMock);
+
+        // then
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedGet.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedGet.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedGet.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedGet.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedGet.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedGet.getScope(),
+                        "nonce", authorizationRequestDTOExtendedGet.getNonce(),
+                        "state", authorizationRequestDTOExtendedGet.getState()))
+                .when().get("/authorize")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
+    }
+    // endregion
+
+    // region /token
+    @Test
+    @SneakyThrows
+    void token() {
+
+        String clientSecret = "testClientSecret";
+        String code = "token";
+        String redirectUri = "https://client.example.com/callback";
+
+        // TokenRequest creation
+        TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
+        tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
+        tokenRequest.setAuthorization(
+                "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
+        tokenRequest.setCode(code);
+        tokenRequest.setRedirectUri(redirectUri);
+
+        doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
+
+        Response mockSamlResponse = mock(
+                org.opensaml.saml.saml2.core.Response.class);
+        Assertion mockAssertion = mock(Assertion.class);
+        List<Assertion> assertions = List.of(mockAssertion);
+        // Ensure the mock returns a non-null list of assertions
+        when(mockSamlResponse.getAssertions()).thenReturn(assertions);
+        // Ensure `getSAMLResponseFromString` returns the mocked response
+        when(samlServiceImpl.getSAMLResponseFromString(anyString())).thenReturn(mockSamlResponse);
+
+        Assertion assertion = mock(Assertion.class);
+
+        when(samlServiceImpl.getAttributesFromSAMLAssertion(assertion))
+                .thenReturn(new ArrayList<>());
+
+        TokenDataDTO tokenDataDTO = mock(TokenDataDTO.class);
+        when(
+                oidcServiceImpl.getOIDCTokens(anyString(), anyString(), Mockito.anyList(),
+                        anyString(), anyString()))
+                .thenReturn(tokenDataDTO);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("Authorization", tokenRequest.getAuthorization())
+                .formParam("code", tokenRequest.getCode())
+                .formParam("redirect_uri", tokenRequest.getRedirectUri())
+                .formParam("grant_type", tokenRequest.getGrantType())
+                .when().post("/token")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
+
+    }
+
+    @Test
+    void userInfoGet_acceptsCaseInsensitiveBearer() {
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+        given()
+                .header("Authorization", "bearer access-token")
+                .when().get("/userinfo")
+                .then()
+                .statusCode(200)
+                .contentType("application/jwt")
+                .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+    }
+
+    @Test
+    void userInfoPost_returnsUserInfoPayload() {
+        when(userInfoService.getSignedUserInfo("access-token")).thenReturn("signed-userinfo-jwt");
+
+        given()
+                .header("Authorization", "Bearer access-token")
+                .when().post("/userinfo")
+                .then()
+                .statusCode(200)
+                .contentType("application/jwt")
+                .body(org.hamcrest.Matchers.equalTo("signed-userinfo-jwt"));
+    }
+
+    @Test
+    @SneakyThrows
+    void token_UnsupportedGrantTypeException() {
+
+        String clientSecret = "testClientSecret";
+        String code = "token";
+        String redirectUri = "https://client.example.com/callback";
+
+        // TokenRequest creation
+        TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
+        tokenRequest.setGrantType(GrantType.REFRESH_TOKEN);
+        tokenRequest.setAuthorization(
+                "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
+        tokenRequest.setCode(code);
+        tokenRequest.setRedirectUri(redirectUri);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("Authorization", tokenRequest.getAuthorization())
+                .formParam("code", tokenRequest.getCode())
+                .formParam("redirect_uri", tokenRequest.getRedirectUri())
+                .formParam("grant_type", tokenRequest.getGrantType())
+                .when().post("/token")
+                .then()
+                .statusCode(Status.BAD_REQUEST.getStatusCode())
+                .body(notNullValue());
+
+    }
+
+    @Test
+    @SneakyThrows
+    void token_InvalidRequestMalformedHeaderAuthorizationException() {
+
+        String clientSecret = "testClientSecret";
+        String code = "token";
+        String redirectUri = "https://client.example.com/callback";
+
+        // TokenRequest creation
+        TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
+        tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
+        tokenRequest.setAuthorization(
+                "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + "+" + clientSecret).getBytes()));
+        tokenRequest.setCode(code);
+        tokenRequest.setRedirectUri(redirectUri);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("Authorization", tokenRequest.getAuthorization())
+                .formParam("code", tokenRequest.getCode())
+                .formParam("redirect_uri", tokenRequest.getRedirectUri())
+                .formParam("grant_type", tokenRequest.getGrantType())
+                .when().post("/token")
+                .then()
+                .statusCode(Status.BAD_REQUEST.getStatusCode())
+                .body(notNullValue());
+
+    }
+
+    @Test
+    @SneakyThrows
+    void token_InvalidGrantException() {
+
+        String clientSecret = "testClientSecret";
+        String code = "InvalidGrantException";
+        String redirectUri = "https://client.example.com/callback";
+
+        // TokenRequest creation
+        TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
+        tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
+        tokenRequest.setAuthorization(
+                "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
+        tokenRequest.setCode(code);
+        tokenRequest.setRedirectUri(redirectUri);
+
+        doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("Authorization", tokenRequest.getAuthorization())
+                .formParam("code", tokenRequest.getCode())
+                .formParam("redirect_uri", tokenRequest.getRedirectUri())
+                .formParam("grant_type", tokenRequest.getGrantType())
+                .when().post("/token")
+                .then()
+                .statusCode(Status.BAD_REQUEST.getStatusCode())
+                .body(notNullValue());
+
+    }
+
+    @Test
+    @SneakyThrows
+    void token_RedirectUriInvalidGrantException() {
+
+        String clientSecret = "testClientSecret";
+        String code = "token";
+        String redirectUri = "https://client.example.com/InvalidRedirecUri";
+
+        // TokenRequest creation
+        TokenRequestDTOExtended tokenRequest = new TokenRequestDTOExtended();
+        tokenRequest.setGrantType(GrantType.AUTHORIZATION_CODE);
+        tokenRequest.setAuthorization(
+                "Basic " + Base64.getEncoder().encodeToString((CLIENT_ID + ":" + clientSecret).getBytes()));
+        tokenRequest.setCode(code);
+        tokenRequest.setRedirectUri(redirectUri);
+
+        doNothing().when(oidcServiceImpl).authorizeClient(anyString(), anyString());
+
+        Response mockSamlResponse = mock(
+                org.opensaml.saml.saml2.core.Response.class);
+        Assertion mockAssertion = mock(Assertion.class);
+        List<Assertion> assertions = List.of(mockAssertion);
+        // Ensure the mock returns a non-null list of assertions
+        when(mockSamlResponse.getAssertions()).thenReturn(assertions);
+        // Ensure `getSAMLResponseFromString` returns the mocked response
+        when(samlServiceImpl.getSAMLResponseFromString(anyString())).thenReturn(mockSamlResponse);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("Authorization", tokenRequest.getAuthorization())
+                .formParam("code", tokenRequest.getCode())
+                .formParam("redirect_uri", tokenRequest.getRedirectUri())
+                .formParam("grant_type", tokenRequest.getGrantType())
+                .when().post("/token")
+                .then()
+                .statusCode(Status.BAD_REQUEST.getStatusCode())
+                .body(notNullValue());
+
+    }
+    // endregion
+
+    @Test
+    @SneakyThrows
+    void authorizePost_withAcrValues_usesMinimumComparison() {
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setAcrValues("https://www.spid.gov.it/SpidL2");
+
+        IDP testIDP = IDP.builder()
+                .entityID("https://localhost:8443")
+                .certificates(Set.of(
+                        "MIIEGDCCAwCgAwIBAgIJAOrYj9oLEJCwMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDAeFw0xOTA0MTExMDAyMDhaFw0yNTAzMDgxMDAyMDhaMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK8kJVo+ugRrbbv9xhXCuVrqi4B7/MQzQc62ocwlFFujJNd4m1mXkUHFbgvwhRkQqo2DAmFeHiwCkJT3K1eeXIFhNFFroEzGPzONyekLpjNvmYIs1CFvirGOj0bkEiGaKEs+/umzGjxIhy5JQlqXE96y1+Izp2QhJimDK0/KNij8I1bzxseP0Ygc4SFveKS+7QO+PrLzWklEWGMs4DM5Zc3VRK7g4LWPWZhKdImC1rnS+/lEmHSvHisdVp/DJtbSrZwSYTRvTTz5IZDSq4kAzrDfpj16h7b3t3nFGc8UoY2Ro4tRZ3ahJ2r3b79yK6C5phY7CAANuW3gDdhVjiBNYs0CAwEAAaOByjCBxzAdBgNVHQ4EFgQU3/7kV2tbdFtphbSA4LH7+w8SkcwwgZcGA1UdIwSBjzCBjIAU3/7kV2tbdFtphbSA4LH7+w8SkcyhaaTnMGUxCzAJBgNVBAYTAklUMQ4wDAYDVQQIEwVJdGFseTENMAsGA1UEBxMEUm9tZTENMAsGA1UEChMEQWdJRDESMBAGA1UECxMJQWdJRCBURVNUMRQwEgYDVQQDEwthZ2lkLmdvdi5pdIIJAOrYj9oLEJCwMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJNFqXg/V3aimJKUmUaqmQEEoSc3qvXFITvT5f5bKw9yk/NVhR6wndL+z/24h1OdRqs76blgH8k116qWNkkDtt0AlSjQOx5qvFYh1UviOjNdRI4WkYONSw+uavcx+fB6O5JDHNmMhMySKTnmRqTkyhjrch7zaFIWUSV7hsBuxpqmrWDoLWdXbV3eFH3mINA5AoIY/m0bZtzZ7YNgiFWzxQgekpxd0vcTseMnCcXnsAlctdir0FoCZztxMuZjlBjwLTtM6Ry3/48LMM8Z+lw7NMciKLLTGQyU8XmKKSSOh0dGh5Lrlt5GxIIJkH81C0YimWebz8464QPL3RbLnTKg+c="))
+                .friendlyName("Test IDP")
+                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+                        "https://localhost:8443/samlsso"))
+                .isActive(true)
+                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+                .status(IDPStatus.OK)
+                .build();
+
+        when(samlServiceImpl.getIDPFromEntityID(Mockito.any())).thenReturn(Optional.of(testIDP));
+
+        AuthnRequest authnRequest = buildAuthnRequest("https://localhost:8443");
+        when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(authnRequest);
+
+        when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+        Element elementMock = mock(Element.class);
+        when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any())).thenReturn(elementMock);
+
+        given()
+                .contentType("application/x-www-form-urlencoded")
+                .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+                .formParams(Map.of(
+                        "idp", authorizationRequestDTOExtendedPost.getIdp(),
+                        "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+                        "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+                        "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+                        "scope", authorizationRequestDTOExtendedPost.getScope(),
+                        "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+                        "state", authorizationRequestDTOExtendedPost.getState(),
+                        "acr_values", authorizationRequestDTOExtendedPost.getAcrValues()))
+                .when().post("/authorize")
+                .then()
+                .statusCode(200)
+                .body(notNullValue());
+
+        verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+                Mockito.eq(0), Mockito.eq(0),
+                Mockito.eq("https://www.spid.gov.it/SpidL2"),
+                Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any());
+    }
+
+    // region private methods
+
+    private AuthorizationRequestDTOExtendedPost getAuthorizationRequestDTOExtendedPost() {
+        AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = new AuthorizationRequestDTOExtendedPost();
+        authorizationRequestDTOExtendedPost.setIpAddress("test");
+        authorizationRequestDTOExtendedPost.setIdp("test");
+        authorizationRequestDTOExtendedPost.setClientId(CLIENT_ID);
+        authorizationRequestDTOExtendedPost.setResponseType(CODE);
+        authorizationRequestDTOExtendedPost.setRedirectUri("foo.bar");
+        authorizationRequestDTOExtendedPost.setScope("openid");
+        authorizationRequestDTOExtendedPost.setNonce("test");
+        authorizationRequestDTOExtendedPost.setState("test");
+        return authorizationRequestDTOExtendedPost;
+    }
 
     private IDP buildEidasIdp() {
         return IDP.builder()
@@ -1038,14 +1039,14 @@ class OIDCControllerTest {
                 .build();
     }
 
-  @SneakyThrows
-  private AuthnRequest buildAuthnRequest(String idpID) {
-    AuthnRequest authnRequest = samlUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
-    authnRequest.setID("test");
-    authnRequest.setDestination("https://demo.spid.gov.it");
-    authnRequest.setIssueInstant(Instant.now());
-    return authnRequest;
-  }
+    @SneakyThrows
+    private AuthnRequest buildAuthnRequest(String idpID) {
+        AuthnRequest authnRequest = samlUtilsExtendedCore.buildSAMLObject(AuthnRequest.class);
+        authnRequest.setID("test");
+        authnRequest.setDestination("https://demo.spid.gov.it");
+        authnRequest.setIssueInstant(Instant.now());
+        return authnRequest;
+    }
 
-  // endregion
+    // endregion
 }

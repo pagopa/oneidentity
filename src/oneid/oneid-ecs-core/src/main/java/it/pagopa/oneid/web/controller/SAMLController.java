@@ -41,6 +41,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 
 @Path(("/saml"))
 @Startup
@@ -114,18 +115,15 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
 
     // 3. Check if the requested auth level and comparison type are satisfied
-    // Get effective auth level and comparison type from session
-    // fall back to client default level and comparison type if not present in session
-    // this is to support old deploy sessions that do not yet carry these fields (backward-compatible rollout)
-    AuthLevel effectiveAuthLevel;
-    AuthnContextComparisonType effectiveComparisonType;
-    if (samlSession.getRequestedAuthLevel() != null && samlSession.getComparisonType() != null) {
-      effectiveAuthLevel = AuthLevel.authLevelFromValue(samlSession.getRequestedAuthLevel());
-      effectiveComparisonType = samlSession.getComparisonType();
-    } else {
-      effectiveAuthLevel = client.getAuthLevel();
-      effectiveComparisonType = AuthnContextComparisonType.MINIMUM;
+    if (StringUtils.isBlank(samlSession.getRequestedAuthLevel())) {
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
     }
+    AuthLevel effectiveAuthLevel = AuthLevel.authLevelFromValue(
+        samlSession.getRequestedAuthLevel());
+    // Fallback to minimum comparison type if not specified (old deploy behavior)
+    AuthnContextComparisonType effectiveComparisonType = samlSession.getComparisonType() != null
+        ? samlSession.getComparisonType()
+        : AuthnContextComparisonType.MINIMUM;
 
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
