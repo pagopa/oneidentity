@@ -29,6 +29,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagXSW = "XSW";
   private final String tagUserInfo = "UserInfo";
   private final String tagClientID = "Client ID";
+  private final String tagBrowserBinding = "BrowserBinding";
 
   @Inject
   CloudWatchAsyncClient cloudWatchAsyncClient;
@@ -39,13 +40,13 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
   @Override
   public void sendBrowserBindingMetricData(String outcome) {
-    publishBrowserBindingMetric("BrowserBinding" + outcome);
+    publishBrowserBindingMetric(tagBrowserBinding + outcome);
     if (outcome.equals("LEGACY")) {
       return;
     }
-    publishBrowserBindingMetric("BrowserBindingChecked");
+    publishBrowserBindingMetric(tagBrowserBinding + "Checked");
     if (outcome.equals("MISSING") || outcome.equals("MISMATCH") || outcome.equals("EXPIRED")) {
-      publishBrowserBindingMetric("BrowserBindingAnomaly");
+      publishBrowserBindingMetric(tagBrowserBinding + "Anomaly");
     }
   }
 
@@ -53,7 +54,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
     try {
       List<Dimension> dimensions = List.of(Dimension.builder()
           .name("Cookies")
-          .value("BrowserBinding")
+          .value(tagBrowserBinding)
           .build());
       cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions))
           .whenComplete((result, failure) -> {
