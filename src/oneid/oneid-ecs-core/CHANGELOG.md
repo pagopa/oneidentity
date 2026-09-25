@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.18.0
+
+### Minor Changes
+
+- d550a1e: feat: add cookie handling
+
 ## 1.17.0
 
 ### Minor Changes
