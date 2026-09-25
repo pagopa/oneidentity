@@ -671,6 +671,55 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
   ])
 }
 
+resource "aws_cloudwatch_metric_alarm" "browser_binding_anomaly" {
+  count               = var.browser_binding_alarm == null ? 0 : 1
+  alarm_name          = format("%s-browser-binding-anomaly", module.ecs_core_service.name)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "BrowserBindingAnomaly"
+  namespace           = var.browser_binding_alarm.namespace
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
+  count               = var.browser_binding_alarm == null ? 0 : 1
+  alarm_name          = format("%s-browser-binding-rate", module.ecs_core_service.name)
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  threshold           = var.browser_binding_alarm.rate_threshold
+  treat_missing_data  = "notBreaching"
+
+  metric_query {
+    id          = "rate"
+    expression  = "IF(checked > 0, 100 * FILL(anomalies, 0) / checked, 0)"
+    label       = "Browser binding anomaly rate (%)"
+    return_data = true
+  }
+
+  metric_query {
+    id = "checked"
+    metric {
+      metric_name = "BrowserBindingChecked"
+      namespace   = var.browser_binding_alarm.namespace
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  metric_query {
+    id = "anomalies"
+    metric {
+      metric_name = "BrowserBindingAnomaly"
+      namespace   = var.browser_binding_alarm.namespace
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+}
+
 resource "aws_cloudwatch_metric_alarm" "idp_error_alarm" {
   for_each            = var.idp_alarm != null && var.idp_alarm.enabled ? { for s in var.idp_alarm.entity_id : s => s } : {}
   alarm_name          = format("%s_%s_%s", "IDPErrorRateAlarm", var.env_short, each.key)

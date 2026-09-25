@@ -262,6 +262,10 @@ module "backend" {
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
       },
       {
+        name  = "BROWSER_BINDING_MODE"
+        value = "OFF"
+      },
+      {
         name  = "PDV_BASE_URL"
         value = var.pdv_base_url
       },
