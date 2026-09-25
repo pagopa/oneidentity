@@ -25,6 +25,7 @@ import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.ClientLookupService;
+import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -88,6 +89,9 @@ public class OIDCController {
 
   @Inject
   CurrentAuthDTO currentAuthDTO;
+
+  @Inject
+  BrowserBindingService browserBindingService;
 
   @Inject
   UserInfoService userInfoService;
@@ -279,6 +283,10 @@ public class OIDCController {
     samlSession.setRequestedAuthLevel(authLevel);
     samlSession.setComparisonType(comparisonType);
 
+    String bindingCookie = browserBindingService.enabled()
+        ? browserBindingService.issue(samlSession)
+        : null;
+
     try {
       samlSessionServiceImpl.saveSession(samlSession);
     } catch (SessionException e) {
@@ -294,9 +302,12 @@ public class OIDCController {
         String signature = samlServiceImpl.signRedirectQueryString(queryString);
         String redirectLocation = idpSSOEndpoint + "?" + queryString + "&Signature="
             + java.net.URLEncoder.encode(signature, java.nio.charset.StandardCharsets.UTF_8);
-        return Response.status(Response.Status.FOUND)
-            .location(java.net.URI.create(redirectLocation))
-            .build();
+        Response.ResponseBuilder redirect = Response.status(Response.Status.FOUND)
+            .location(java.net.URI.create(redirectLocation));
+        if (bindingCookie != null) {
+          redirect.header("Set-Cookie", bindingCookie);
+        }
+        return redirect.build();
       } catch (OneIdentityException e) {
         Log.error("error building redirect authorization request: " + e.getMessage());
         throw new AuthorizationErrorException(authorizationRequestDTOExtended.getRedirectUri(),
@@ -311,7 +322,11 @@ public class OIDCController {
         + "<script>document.getElementById('SAMLSubmitButton').style.visibility='hidden'; "
         + "document.getElementById('SAMLRequestForm').submit();</script>";
 
-    return Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML).build();
+    Response.ResponseBuilder form = Response.ok(redirectAutoSubmitPOSTForm).type(MediaType.TEXT_HTML);
+    if (bindingCookie != null) {
+      form.header("Set-Cookie", bindingCookie);
+    }
+    return form.build();
   }
 
   private boolean isValidOpenIdScope(String scope) {

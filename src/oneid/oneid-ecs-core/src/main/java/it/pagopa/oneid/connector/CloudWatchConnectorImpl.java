@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,174 +13,196 @@ import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
 
-
 @ApplicationScoped
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
 
-  private final String tagIDP = "IDP";
-  private final String tagDynamoDB = "DynamoDBAttempts";
-  private final String tagSQS = "SQSSendMessageFailures";
-  private final String tagOIError = "OIError";
-  private final String tagPDVError = "PDVError";
-  private final String tagSAMLStatus = "SAMLStatus";
-  private final String tagClient = "Client";
-  private final String tagAggregated = "Aggregated";
-  private final String tagError = "Error";
-  private final String tagSuccess = "Success";
-  private final String tagXSW = "XSW";
-  private final String tagUserInfo = "UserInfo";
-  private final String tagClientID = "Client ID";
+    private final String tagIDP = "IDP";
+    private final String tagDynamoDB = "DynamoDBAttempts";
+    private final String tagSQS = "SQSSendMessageFailures";
+    private final String tagOIError = "OIError";
+    private final String tagPDVError = "PDVError";
+    private final String tagSAMLStatus = "SAMLStatus";
+    private final String tagClient = "Client";
+    private final String tagAggregated = "Aggregated";
+    private final String tagError = "Error";
+    private final String tagSuccess = "Success";
+    private final String tagXSW = "XSW";
+    private final String tagUserInfo = "UserInfo";
+    private final String tagClientID = "Client ID";
 
+    @Inject
+    CloudWatchAsyncClient cloudWatchAsyncClient;
+    @Inject
+    Clock clock;
+    @ConfigProperty(name = "cloudwatch_custom_metric_namespace")
+    String CLOUDWATCH_METRIC_NAMESPACE;
 
-  @Inject
-  CloudWatchAsyncClient cloudWatchAsyncClient;
-  @Inject
-  Clock clock;
-  @ConfigProperty(name = "cloudwatch_custom_metric_namespace")
-  String CLOUDWATCH_METRIC_NAMESPACE;
+    @Override
+    public void sendBrowserBindingMetricData(String outcome) {
+        publishBrowserBindingMetric("BrowserBinding" + outcome);
+        if (outcome.equals("LEGACY")) {
+            return;
+        }
+        publishBrowserBindingMetric("BrowserBindingChecked");
+        if (outcome.equals("MISSING") || outcome.equals("MISMATCH") || outcome.equals("EXPIRED")) {
+            publishBrowserBindingMetric("BrowserBindingAnomaly");
+        }
+    }
 
-  @Override
-  public void sendIDPErrorMetricData(String IDP, ErrorCode errorCode) {
-    List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name(tagIDP)
-            .value(IDP)
-            .build(),
-        Dimension.builder()
-            .name(tagError)
-            .value(errorCode.name())
-            .build());
+    private void publishBrowserBindingMetric(String metricName) {
+        try {
+            cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, List.of()))
+                    .whenComplete((result, failure) -> {
+                        if (failure != null) {
+                            Log.warnf("Browser binding metric delivery failed: %s", metricName);
+                        }
+                    });
+        } catch (RuntimeException e) {
+            Log.warnf("Browser binding metric delivery failed: %s", metricName);
+        }
+    }
 
-    List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
-        .name(tagIDP + tagAggregated)
-        .value(IDP)
-        .build());
+    @Override
+    public void sendIDPErrorMetricData(String IDP, ErrorCode errorCode) {
+        List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
+                .name(tagIDP)
+                .value(IDP)
+                .build(),
+                Dimension.builder()
+                        .name(tagError)
+                        .value(errorCode.name())
+                        .build());
 
-    // Specific error
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagIDP + tagError, specificErrorDimensions));
+        List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
+                .name(tagIDP + tagAggregated)
+                .value(IDP)
+                .build());
 
-    // Aggregated for IDP
-    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
-        tagIDP + tagError, totalErrorDimensions));
-  }
+        // Specific error
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagIDP + tagError, specificErrorDimensions));
 
-  @Override
-  public void sendSAMLStatusRelatedErrorMetricData(String IDP, String client, String errorCode) {
-    List<Dimension> specificUserIDPErrorDimensions = List.of(
-        Dimension.builder()
-            .name(tagIDP)
-            .value(IDP)
-            .build(),
-        Dimension.builder()
-            .name(tagError)
-            .value(errorCode)
-            .build());
+        // Aggregated for IDP
+        cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
+                tagIDP + tagError, totalErrorDimensions));
+    }
 
-    List<Dimension> specificUserClientErrorDimensions = List.of(
-        Dimension.builder()
-            .name(tagClient)
-            .value(client)
-            .build(),
-        Dimension.builder()
-            .name(tagError)
-            .value(errorCode)
-            .build());
+    @Override
+    public void sendSAMLStatusRelatedErrorMetricData(String IDP, String client, String errorCode) {
+        List<Dimension> specificUserIDPErrorDimensions = List.of(
+                Dimension.builder()
+                        .name(tagIDP)
+                        .value(IDP)
+                        .build(),
+                Dimension.builder()
+                        .name(tagError)
+                        .value(errorCode)
+                        .build());
 
-    // Specific IDP SAMLStatus related error
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagSAMLStatus + tagIDP + tagError,
-            specificUserIDPErrorDimensions));
+        List<Dimension> specificUserClientErrorDimensions = List.of(
+                Dimension.builder()
+                        .name(tagClient)
+                        .value(client)
+                        .build(),
+                Dimension.builder()
+                        .name(tagError)
+                        .value(errorCode)
+                        .build());
 
-    // Specific Client SAMLStatus related error
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagSAMLStatus + tagClient + tagError,
-            specificUserClientErrorDimensions));
+        // Specific IDP SAMLStatus related error
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagSAMLStatus + tagIDP + tagError,
+                        specificUserIDPErrorDimensions));
 
+        // Specific Client SAMLStatus related error
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagSAMLStatus + tagClient + tagError,
+                        specificUserClientErrorDimensions));
 
-  }
+    }
 
-  @Override
-  public void sendIDPSuccessMetricData(String IDP) {
+    @Override
+    public void sendIDPSuccessMetricData(String IDP) {
 
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagIDP + tagAggregated)
-        .value(IDP)
-        .build());
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagIDP + tagAggregated)
+                .value(IDP)
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagIDP + tagSuccess, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagIDP + tagSuccess, dimensions));
+    }
 
-  @Override
-  public void sendOIDynamoDBErrorMetricData(int numAttempts) {
+    @Override
+    public void sendOIDynamoDBErrorMetricData(int numAttempts) {
 
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagDynamoDB)
-        .value(String.valueOf(numAttempts))
-        .build());
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagDynamoDB)
+                .value(String.valueOf(numAttempts))
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagDynamoDB, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagDynamoDB, dimensions));
+    }
 
-  @Override
-  public void sendOISQSErrorMetricData() {
+    @Override
+    public void sendOISQSErrorMetricData() {
 
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagOIError)
-        .value(tagSQS)
-        .build());
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagOIError)
+                .value(tagSQS)
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagOIError, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagOIError, dimensions));
+    }
 
-  @Override
-  public void sendPDVErrorMetricData(int statusCode) {
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagPDVError)
-        .value(String.valueOf(statusCode))
-        .build());
+    @Override
+    public void sendPDVErrorMetricData(int statusCode) {
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagPDVError)
+                .value(String.valueOf(statusCode))
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagPDVError, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagPDVError, dimensions));
+    }
 
-  @Override
-  public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
-    List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name(tagClientID)
-            .value(clientID)
-            .build(),
-        Dimension.builder()
-            .name(tagError)
-            .value(errorCode.name())
-            .build());
+    @Override
+    public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
+        List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
+                .name(tagClientID)
+                .value(clientID)
+                .build(),
+                Dimension.builder()
+                        .name(tagError)
+                        .value(errorCode.name())
+                        .build());
 
-    List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
-        .name(tagClient + tagAggregated)
-        .value(clientID)
-        .build());
+        List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
+                .name(tagClient + tagAggregated)
+                .value(clientID)
+                .build());
 
-    // Specific error
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagClient + tagError, specificErrorDimensions));
+        // Specific error
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagClient + tagError, specificErrorDimensions));
 
-    // Aggregated for Client
-    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
-        tagClient + tagError, totalErrorDimensions));
-  }
+        // Aggregated for Client
+        cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(
+                tagClient + tagError, totalErrorDimensions));
+    }
 
-  @Override
-  public void sendClientSuccessMetricData(String ClientID) {
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagClient + tagAggregated)
-        .value(ClientID)
-        .build());
+    @Override
+    public void sendClientSuccessMetricData(String ClientID) {
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagClient + tagAggregated)
+                .value(ClientID)
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagClient + tagSuccess, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagClient + tagSuccess, dimensions));
+    }
 
     @Override
     public void sendClientCacheMissMetricData(String clientID) {
@@ -196,29 +219,29 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         sendClientCacheMetricData("ClientCacheBackfillFailure", clientID);
     }
 
-  @Override
-  public void sendUserInfoSuccessMetricData(String clientID) {
-    sendUserInfoMetricData("UserInfoSuccess", clientID);
-  }
+    @Override
+    public void sendUserInfoSuccessMetricData(String clientID) {
+        sendUserInfoMetricData("UserInfoSuccess", clientID);
+    }
 
-  @Override
-  public void sendUserInfoSuccessWithoutPairwiseMetricData(String clientID) {
-    sendUserInfoMetricData("UserInfoSuccessWithoutPairwise", clientID);
-  }
+    @Override
+    public void sendUserInfoSuccessWithoutPairwiseMetricData(String clientID) {
+        sendUserInfoMetricData("UserInfoSuccessWithoutPairwise", clientID);
+    }
 
-  @Override
-  public void sendUserInfoErrorMetricData(String clientID) {
-    sendUserInfoMetricData("Error", clientID);
-  }
+    @Override
+    public void sendUserInfoErrorMetricData(String clientID) {
+        sendUserInfoMetricData("Error", clientID);
+    }
 
-  private void sendUserInfoMetricData(String metricName, String clientID) {
-    List<Dimension> dimensions = List.of(Dimension.builder()
-        .name(tagUserInfo)
-        .value(clientID)
-        .build());
+    private void sendUserInfoMetricData(String metricName, String clientID) {
+        List<Dimension> dimensions = List.of(Dimension.builder()
+                .name(tagUserInfo)
+                .value(clientID)
+                .build());
 
-    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
-  }
+        cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
+    }
 
     private void sendClientCacheMetricData(String metricName, String clientID) {
         List<Dimension> dimensions = List.of(Dimension.builder()
@@ -229,29 +252,30 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
     }
 
-  @Override
-  public void sendXSWAssertionErrorMetricData() {
+    @Override
+    public void sendXSWAssertionErrorMetricData() {
 
-    List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
-        .name(tagXSW)
-        .value(tagAggregated)
-        .build());
-    cloudWatchAsyncClient.putMetricData(
-        generatePutMetricRequest(tagXSW + tagError,
-            totalErrorDimensions)).join();
-  }
+        List<Dimension> totalErrorDimensions = List.of(Dimension.builder()
+                .name(tagXSW)
+                .value(tagAggregated)
+                .build());
+        cloudWatchAsyncClient.putMetricData(
+                generatePutMetricRequest(tagXSW + tagError,
+                        totalErrorDimensions))
+                .join();
+    }
 
-  private PutMetricDataRequest generatePutMetricRequest(String metricName,
-      List<Dimension> dimensions) {
-    return PutMetricDataRequest.builder()
-        .namespace(CLOUDWATCH_METRIC_NAMESPACE)
-        .metricData(MetricDatum.builder()
-            .metricName(metricName)
-            .timestamp(Instant.now(clock))
-            .unit("Count")
-            .value(1.0)
-            .dimensions(dimensions)
-            .build())
-        .build();
-  }
+    private PutMetricDataRequest generatePutMetricRequest(String metricName,
+            List<Dimension> dimensions) {
+        return PutMetricDataRequest.builder()
+                .namespace(CLOUDWATCH_METRIC_NAMESPACE)
+                .metricData(MetricDatum.builder()
+                        .metricName(metricName)
+                        .timestamp(Instant.now(clock))
+                        .unit("Count")
+                        .value(1.0)
+                        .dimensions(dimensions)
+                        .build())
+                .build();
+    }
 }
