@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import jakarta.ws.rs.core.Cookie;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@QuarkusTest
 class BrowserBindingServiceTest {
 
     private final BrowserBindingService service = new BrowserBindingService();

@@ -59,11 +59,11 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
       cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions))
           .whenComplete((result, failure) -> {
             if (failure != null) {
-              Log.warnf("Browser binding metric delivery failed: %s", metricName);
+              Log.warnf(failure, "Browser binding metric delivery failed: %s", metricName);
             }
           });
     } catch (RuntimeException e) {
-      Log.warnf("Browser binding metric delivery failed: %s", metricName);
+      Log.warnf(e, "Browser binding metric delivery failed: %s", metricName);
     }
   }
 
