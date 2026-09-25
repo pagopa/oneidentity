@@ -20,6 +20,7 @@ import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -49,6 +50,9 @@ public class SAMLControllerTest {
   @InjectMock
   OIDCServiceImpl oidcServiceImpl;
 
+  @InjectMock
+  BrowserBindingService browserBindingService;
+
   // This will be mocked using @Alternative construct because of @Dependant scope
   @Inject
   SessionServiceImpl<SAMLSession> samlSessionService;
@@ -68,6 +72,11 @@ public class SAMLControllerTest {
   @SneakyThrows
   void samlACS_ok() {
     // given
+    Mockito.when(browserBindingService.enabled()).thenReturn(true);
+    Mockito.when(browserBindingService.verify(Mockito.any(), Mockito.any()))
+        .thenReturn(BrowserBindingService.Outcome.MATCHED);
+    Mockito.when(browserBindingService.clear(Mockito.any()))
+        .thenReturn("__Host-OI-test=; Max-Age=0; Path=/; Secure; HttpOnly; SameSite=None");
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
     samlResponseDTO.put("RelayState", "dummyRelayState");
@@ -113,16 +122,16 @@ public class SAMLControllerTest {
     // location header to verify
     String headerLocation = "test?code=" + authorizationCode + "&state="
         + authorizationResponse.getState();
-    String location = given()
+    var acsResponse = given()
         .formParams(samlResponseDTO)
         .when()
         .post("/acs")
         .then()
         .statusCode(302)
-        .extract()
-        .header("location");
+        .extract().response();
 
-    Assertions.assertTrue(location.contains(headerLocation));
+    Assertions.assertTrue(acsResponse.getHeader("location").contains(headerLocation));
+    Assertions.assertTrue(acsResponse.getHeader("Set-Cookie").contains("__Host-OI-test=; Max-Age=0"));
   }
 
   @Test
@@ -267,6 +276,9 @@ public class SAMLControllerTest {
   @SneakyThrows
   void samlACS_exceptionInCheckSAMLStatus() {
     // given
+    Mockito.when(browserBindingService.enabled()).thenReturn(true);
+    Mockito.when(browserBindingService.verify(Mockito.any(), Mockito.any()))
+        .thenReturn(BrowserBindingService.Outcome.MATCHED);
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
     samlResponseDTO.put("RelayState", "dummyRelayState");
@@ -284,16 +296,16 @@ public class SAMLControllerTest {
     String headerLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(),
         StandardCharsets.UTF_8);
-    String location = given()
+    var acsResponse = given()
         .formParams(samlResponseDTO)
         .when()
         .post("/acs")
         .then()
         .statusCode(302)
-        .extract()
-        .header("location");
+        .extract().response();
 
-    Assertions.assertTrue(location.contains(headerLocation));
+    Assertions.assertTrue(acsResponse.getHeader("location").contains(headerLocation));
+    Assertions.assertNull(acsResponse.getHeader("Set-Cookie"));
   }
 
   @SneakyThrows

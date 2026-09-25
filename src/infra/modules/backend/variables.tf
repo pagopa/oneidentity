@@ -604,6 +604,15 @@ variable "sns_topic_arn" {
   type = string
 }
 
+variable "browser_binding_alarm" {
+  description = "Optional CloudWatch-only browser binding alarms for the IO login flow."
+  type = object({
+    namespace      = string
+    rate_threshold = number
+  })
+  default = null
+}
+
 
 variable "ecs_alarms" {
   type = map(object({

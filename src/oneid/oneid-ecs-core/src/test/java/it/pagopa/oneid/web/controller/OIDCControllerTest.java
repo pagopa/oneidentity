@@ -25,6 +25,7 @@ import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
+import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.UserInfoService;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
@@ -71,6 +72,9 @@ class OIDCControllerTest {
   private OIDCServiceImpl oidcServiceImpl;
 
   @InjectMock
+  private BrowserBindingService browserBindingService;
+
+  @InjectMock
   private UserInfoService userInfoService;
 
   @Inject
@@ -115,6 +119,9 @@ class OIDCControllerTest {
   @SneakyThrows
   void authorizePost() {
     // given
+    when(browserBindingService.enabled()).thenReturn(true);
+    when(browserBindingService.issue(Mockito.any()))
+        .thenReturn("__Host-OI-test=token; Path=/; Secure; HttpOnly; SameSite=None");
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
 
     IDP testIDP = IDP.builder()
@@ -158,6 +165,7 @@ class OIDCControllerTest {
         .when().post("/authorize")
         .then()
         .statusCode(200)
+        .header("Set-Cookie", containsString("__Host-OI-test=token"))
         .body(notNullValue());
 
     verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
@@ -209,7 +217,7 @@ class OIDCControllerTest {
 
   @Test
   @SneakyThrows
-    void authorizePost_EidasIdpRejectsMissingIndex() {
+  void authorizePost_EidasIdpRejectsMissingIndex() {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setClientId("testEidasIndexMissing");
     authorizationRequestDTOExtendedPost.setIdp(EIDAS_ENTITY_ID);
@@ -244,6 +252,9 @@ class OIDCControllerTest {
   @SneakyThrows
   void authorizePost_redirectBinding() {
     // given
+    when(browserBindingService.enabled()).thenReturn(true);
+    when(browserBindingService.issue(Mockito.any()))
+        .thenReturn("__Host-OI-test=token; Path=/; Secure; HttpOnly; SameSite=None");
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setClientId("testRedirect");
     authorizationRequestDTOExtendedPost.setIdp("testRedirectIdp");
@@ -291,6 +302,7 @@ class OIDCControllerTest {
         .when().post("/authorize")
         .then()
         .statusCode(Status.FOUND.getStatusCode())
+        .header("Set-Cookie", containsString("__Host-OI-test=token"))
         .header("Location", containsString("?SAMLRequest=encoded&SigAlg=sigalg&Signature=signature"))
         .header("Location", containsString("Signature=signature"));
   }
@@ -1025,18 +1037,18 @@ class OIDCControllerTest {
     return authorizationRequestDTOExtendedPost;
   }
 
-    private IDP buildEidasIdp() {
-        return IDP.builder()
-                .entityID(EIDAS_ENTITY_ID)
-                .certificates(Set.of("certificate"))
-                .friendlyName("eIDAS")
-                .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
-                        "https://localhost:8443/samlsso"))
-                .isActive(true)
-                .pointer(String.valueOf(LatestTAG.LATEST_SPID))
-                .status(IDPStatus.OK)
-                .build();
-    }
+  private IDP buildEidasIdp() {
+    return IDP.builder()
+        .entityID(EIDAS_ENTITY_ID)
+        .certificates(Set.of("certificate"))
+        .friendlyName("eIDAS")
+        .idpSSOEndpoints(Map.of("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST",
+            "https://localhost:8443/samlsso"))
+        .isActive(true)
+        .pointer(String.valueOf(LatestTAG.LATEST_SPID))
+        .status(IDPStatus.OK)
+        .build();
+  }
 
   @SneakyThrows
   private AuthnRequest buildAuthnRequest(String idpID) {

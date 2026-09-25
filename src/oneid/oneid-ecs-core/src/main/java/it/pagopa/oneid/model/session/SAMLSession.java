@@ -23,12 +23,17 @@ public class SAMLSession extends Session {
   private String SAMLRequest;
 
   // TODO: evaluate if this is better than throwing an exception on update
-  // @Getter(onMethod_ = @DynamoDbUpdateBehavior(UpdateBehavior.WRITE_IF_NOT_EXISTS))
+  // @Getter(onMethod_ =
+  // @DynamoDbUpdateBehavior(UpdateBehavior.WRITE_IF_NOT_EXISTS))
   private String SAMLResponse;
 
   private String requestedAuthLevel;
 
   private AuthnContextComparisonType comparisonType;
+
+  private String browserBindingDigest;
+
+  private Long browserBindingExpiresAt;
 
   @Getter(onMethod_ = @DynamoDbFlatten)
   private AuthorizationRequestDTOExtended authorizationRequestDTOExtended;

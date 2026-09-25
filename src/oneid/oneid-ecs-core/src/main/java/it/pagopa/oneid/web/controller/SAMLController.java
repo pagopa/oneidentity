@@ -20,6 +20,7 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
+import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.service.ClientLookupService;
@@ -30,6 +31,8 @@ import it.pagopa.oneid.web.dto.SAMLResponseDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -71,6 +74,12 @@ public class SAMLController {
   @Inject
   CurrentAuthDTO currentAuthDTO;
 
+  @Inject
+  BrowserBindingService browserBindingService;
+
+  @Context
+  HttpHeaders httpHeaders;
+
   @POST
   @Path("/acs")
   @ControllerCustomInterceptor
@@ -81,6 +90,20 @@ public class SAMLController {
 
     org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
     SAMLSession samlSession = currentAuthDTO.getSamlSession();
+
+    if (browserBindingService.enabled()) {
+      BrowserBindingService.Outcome outcome = browserBindingService.verify(
+          samlSession, httpHeaders.getCookies());
+      cloudWatchConnectorImpl.sendBrowserBindingMetricData(outcome.name());
+      if (outcome != BrowserBindingService.Outcome.MATCHED) {
+        Log.warn("Browser binding outcome=" + outcome + " mode=" + browserBindingService.mode());
+      }
+      if (browserBindingService.enforcing()
+          && outcome != BrowserBindingService.Outcome.MATCHED
+          && outcome != BrowserBindingService.Outcome.LEGACY) {
+        throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+      }
+    }
 
     // 1b. Update SAMLSession with SAMLResponse attribute
     try {
@@ -115,8 +138,10 @@ public class SAMLController {
 
     // 3. Check if the requested auth level and comparison type are satisfied
     // Get effective auth level and comparison type from session
-    // fall back to client default level and comparison type if not present in session
-    // this is to support old deploy sessions that do not yet carry these fields (backward-compatible rollout)
+    // fall back to client default level and comparison type if not present in
+    // session
+    // this is to support old deploy sessions that do not yet carry these fields
+    // (backward-compatible rollout)
     AuthLevel effectiveAuthLevel;
     AuthnContextComparisonType effectiveComparisonType;
     if (samlSession.getRequestedAuthLevel() != null && samlSession.getComparisonType() != null) {
@@ -180,7 +205,11 @@ public class SAMLController {
     Log.debug("end");
 
     // 5. Redirect to client callback URI
-    return jakarta.ws.rs.core.Response.status(302).location(redirectStringResponse).build();
+    Response.ResponseBuilder redirect = Response.status(302).location(redirectStringResponse);
+    if (browserBindingService.enabled() && samlSession.getBrowserBindingDigest() != null) {
+      redirect.header("Set-Cookie", browserBindingService.clear(samlSession));
+    }
+    return redirect.build();
   }
 
   @GET

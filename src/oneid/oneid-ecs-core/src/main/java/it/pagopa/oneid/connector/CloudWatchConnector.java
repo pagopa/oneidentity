@@ -4,6 +4,8 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 
 public interface CloudWatchConnector {
 
+  void sendBrowserBindingMetricData(String outcome);
+
   void sendSAMLStatusRelatedErrorMetricData(String IDP, String client, String errorCode);
 
   void sendIDPErrorMetricData(String IDP, ErrorCode errorCode);

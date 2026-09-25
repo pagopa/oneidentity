@@ -1,5 +1,6 @@
 package it.pagopa.oneid.connector;
 
+import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,7 +12,6 @@ import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 import software.amazon.awssdk.services.cloudwatch.model.Dimension;
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
 import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
-
 
 @ApplicationScoped
 public class CloudWatchConnectorImpl implements CloudWatchConnector {
@@ -29,7 +29,7 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   private final String tagXSW = "XSW";
   private final String tagUserInfo = "UserInfo";
   private final String tagClientID = "Client ID";
-
+  private final String tagBrowserBinding = "BrowserBinding";
 
   @Inject
   CloudWatchAsyncClient cloudWatchAsyncClient;
@@ -39,11 +39,40 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   String CLOUDWATCH_METRIC_NAMESPACE;
 
   @Override
+  public void sendBrowserBindingMetricData(String outcome) {
+    publishBrowserBindingMetric(tagBrowserBinding + outcome);
+    if (outcome.equals("LEGACY")) {
+      return;
+    }
+    publishBrowserBindingMetric(tagBrowserBinding + "Checked");
+    if (outcome.equals("MISSING") || outcome.equals("MISMATCH") || outcome.equals("EXPIRED")) {
+      publishBrowserBindingMetric(tagBrowserBinding + "Anomaly");
+    }
+  }
+
+  private void publishBrowserBindingMetric(String metricName) {
+    try {
+      List<Dimension> dimensions = List.of(Dimension.builder()
+          .name("Cookies")
+          .value(tagBrowserBinding)
+          .build());
+      cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions))
+          .whenComplete((result, failure) -> {
+            if (failure != null) {
+              Log.warnf(failure, "Browser binding metric delivery failed: %s", metricName);
+            }
+          });
+    } catch (RuntimeException e) {
+      Log.warnf(e, "Browser binding metric delivery failed: %s", metricName);
+    }
+  }
+
+  @Override
   public void sendIDPErrorMetricData(String IDP, ErrorCode errorCode) {
     List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name(tagIDP)
-            .value(IDP)
-            .build(),
+        .name(tagIDP)
+        .value(IDP)
+        .build(),
         Dimension.builder()
             .name(tagError)
             .value(errorCode.name())
@@ -94,7 +123,6 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagSAMLStatus + tagClient + tagError,
             specificUserClientErrorDimensions));
-
 
   }
 
@@ -148,9 +176,9 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
   @Override
   public void sendClientErrorMetricData(String clientID, ErrorCode errorCode) {
     List<Dimension> specificErrorDimensions = List.of(Dimension.builder()
-            .name(tagClientID)
-            .value(clientID)
-            .build(),
+        .name(tagClientID)
+        .value(clientID)
+        .build(),
         Dimension.builder()
             .name(tagError)
             .value(errorCode.name())
@@ -181,20 +209,20 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         generatePutMetricRequest(tagClient + tagSuccess, dimensions));
   }
 
-    @Override
-    public void sendClientCacheMissMetricData(String clientID) {
-        sendClientCacheMetricData("ClientCacheMiss", clientID);
-    }
+  @Override
+  public void sendClientCacheMissMetricData(String clientID) {
+    sendClientCacheMetricData("ClientCacheMiss", clientID);
+  }
 
-    @Override
-    public void sendClientCacheBackfillSuccessMetricData(String clientID) {
-        sendClientCacheMetricData("ClientCacheBackfillSuccess", clientID);
-    }
+  @Override
+  public void sendClientCacheBackfillSuccessMetricData(String clientID) {
+    sendClientCacheMetricData("ClientCacheBackfillSuccess", clientID);
+  }
 
-    @Override
-    public void sendClientCacheBackfillFailureMetricData(String clientID) {
-        sendClientCacheMetricData("ClientCacheBackfillFailure", clientID);
-    }
+  @Override
+  public void sendClientCacheBackfillFailureMetricData(String clientID) {
+    sendClientCacheMetricData("ClientCacheBackfillFailure", clientID);
+  }
 
   @Override
   public void sendUserInfoSuccessMetricData(String clientID) {
@@ -220,14 +248,14 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
     cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
   }
 
-    private void sendClientCacheMetricData(String metricName, String clientID) {
-        List<Dimension> dimensions = List.of(Dimension.builder()
-                .name(tagClient + tagAggregated)
-                .value(clientID)
-                .build());
+  private void sendClientCacheMetricData(String metricName, String clientID) {
+    List<Dimension> dimensions = List.of(Dimension.builder()
+        .name(tagClient + tagAggregated)
+        .value(clientID)
+        .build());
 
-        cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
-    }
+    cloudWatchAsyncClient.putMetricData(generatePutMetricRequest(metricName, dimensions));
+  }
 
   @Override
   public void sendXSWAssertionErrorMetricData() {
@@ -238,7 +266,8 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
         .build());
     cloudWatchAsyncClient.putMetricData(
         generatePutMetricRequest(tagXSW + tagError,
-            totalErrorDimensions)).join();
+            totalErrorDimensions))
+        .join();
   }
 
   private PutMetricDataRequest generatePutMetricRequest(String metricName,
