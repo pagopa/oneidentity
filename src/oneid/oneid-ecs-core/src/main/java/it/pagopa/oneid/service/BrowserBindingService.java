@@ -65,8 +65,7 @@ public class BrowserBindingService {
     String value = Base64.getUrlEncoder().withoutPadding().encodeToString(secret);
     session.setBrowserBindingDigest(digest(value));
     session.setBrowserBindingExpiresAt(clock.instant().getEpochSecond() + COOKIE_AGE_SECONDS);
-    // Temporary alarm test: return a cookie that cannot match the stored digest.
-    return name(session.getSamlRequestID()) + "=" + value + "-mismatch"
+    return name(session.getSamlRequestID()) + "=" + value
         + "; Max-Age=" + COOKIE_AGE_SECONDS + "; Path=/; Secure; HttpOnly; SameSite=None";
   }
 
