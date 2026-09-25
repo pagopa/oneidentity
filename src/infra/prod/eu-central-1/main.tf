@@ -191,7 +191,7 @@ module "backend" {
       },
       {
         name  = "BROWSER_BINDING_MODE"
-        value = "OFF"
+        value = "MONITOR"
       },
       {
         name  = "PDV_ERROR_QUEUE_URL"
