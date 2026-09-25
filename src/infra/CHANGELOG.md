@@ -1,5 +1,11 @@
 # infra
 
+## 3.16.0
+
+### Minor Changes
+
+- 14abfca: enable browser binding mode
+
 ## 3.15.0
 
 ### Minor Changes
