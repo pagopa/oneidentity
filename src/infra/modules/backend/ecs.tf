@@ -682,6 +682,10 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_anomaly" {
   statistic           = "Sum"
   threshold           = 0
   treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    Cookies = "BrowserBinding"
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
@@ -706,6 +710,7 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
       namespace   = var.browser_binding_alarm.namespace
       period      = 300
       stat        = "Sum"
+      dimensions  = { Cookies = "BrowserBinding" }
     }
   }
 
@@ -716,6 +721,7 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
       namespace   = var.browser_binding_alarm.namespace
       period      = 300
       stat        = "Sum"
+      dimensions  = { Cookies = "BrowserBinding" }
     }
   }
 }
