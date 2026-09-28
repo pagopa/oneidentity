@@ -29,6 +29,9 @@ export default {
             workwithud: 'Sodeluj z nami',
           },
         },
+        products: {
+          title: 'Izdelki in storitve',
+        },
         resources: {
           title: 'Viri',
           links: {
