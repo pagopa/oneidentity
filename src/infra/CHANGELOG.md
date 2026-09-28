@@ -1,5 +1,18 @@
 # infra
 
+## 3.16.0
+
+### Minor Changes
+
+- 14abfca: enable browser binding mode
+
+## 3.15.0
+
+### Minor Changes
+
+- d550a1e: feat: add cookie handling
+- ad1d89b: add correct urls for cloudwatch in oneid-io
+
 ## 3.14.0
 
 ### Minor Changes

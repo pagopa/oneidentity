@@ -57,7 +57,7 @@ locals {
 }
 
 data "http" "idps_api" {
-  url = "https://oneid.pagopa.it/idps"
+  url = "https://io.oneid.pagopa.it/idps"
   retry {
     attempts     = 3
     min_delay_ms = 1000
@@ -76,7 +76,7 @@ data "http" "idps_api" {
 }
 
 data "http" "clients_api" {
-  url = "https://oneid.pagopa.it/clients"
+  url = "https://io.oneid.pagopa.it/clients"
   retry {
     attempts     = 3
     min_delay_ms = 1000

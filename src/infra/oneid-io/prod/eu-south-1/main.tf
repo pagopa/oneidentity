@@ -159,7 +159,11 @@ module "backend" {
     }
   }
 
-  sns_topic_arn          = module.sns.sns_topic_arn
+  sns_topic_arn = module.sns.sns_topic_arn
+  browser_binding_alarm = {
+    namespace      = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
+    rate_threshold = var.browser_binding_rate_threshold
+  }
   ecs_alarms             = local.cloudwatch_ecs_alarms_with_sns
   lambda_alarms          = local.cloudwatch_lambda_alarms_with_sns
   dlq_alarms             = local.cloudwatch_dlq_alarms_with_sns
@@ -239,6 +243,14 @@ module "backend" {
       {
         name  = "CLOUDWATCH_CUSTOM_METRIC_NAMESPACE"
         value = format("%s/%s", format("%s-core", local.project), var.app_cloudwatch_custom_metric_namespace)
+      },
+      {
+        name  = "BROWSER_BINDING_MODE"
+        value = var.browser_binding_mode
+      },
+      {
+        name  = "BROWSER_BINDING_LEGACY_CUTOFF"
+        value = tostring(var.browser_binding_legacy_cutoff)
       },
       {
         name  = "PDV_BASE_URL"

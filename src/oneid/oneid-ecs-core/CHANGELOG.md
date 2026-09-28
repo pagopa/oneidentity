@@ -1,5 +1,17 @@
 # oneid-ecs-core
 
+## 1.19.0
+
+### Minor Changes
+
+- 14abfca: enable browser binding mode
+
+## 1.18.0
+
+### Minor Changes
+
+- d550a1e: feat: add cookie handling
+
 ## 1.17.0
 
 ### Minor Changes

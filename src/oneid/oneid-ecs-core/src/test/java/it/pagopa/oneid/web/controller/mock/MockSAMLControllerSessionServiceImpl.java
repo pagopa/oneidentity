@@ -45,6 +45,9 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
         dummySAMLRequest, dummyAuthorizationRequestDTOExtended);
     session.setSAMLResponse(dummySAMLResponse);
     session.setRequestedAuthLevel(AuthLevel.L2.getValue());
+    if ("Dummy".equals(id)) {
+      session.setBrowserBindingDigest("test-digest");
+    }
     if ("withRequestedAuthLevel".equals(id)) {
       session.setRequestedAuthLevel(AuthLevel.L3.getValue());
       session.setComparisonType(AuthnContextComparisonType.EXACT);
