@@ -1,5 +1,11 @@
 # infra
 
+## 3.16.1
+
+### Patch Changes
+
+- dd65fda: Use minimum comparison for dynamic authentication context levels.
+
 ## 3.16.0
 
 ### Minor Changes
