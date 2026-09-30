@@ -15,11 +15,13 @@ import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.junit5.virtual.ShouldNotPin;
 import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -142,7 +144,7 @@ public class SAMLControllerTest {
     samlResponseDTO.put("RelayState", "withRequestedAuthLevel");
 
     Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("Dummy");
+    Mockito.when(response.getInResponseTo()).thenReturn("withRequestedAuthLevel");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
 
     doNothing().when(samlServiceImpl)
@@ -181,6 +183,55 @@ public class SAMLControllerTest {
         .header("location");
 
     Assertions.assertTrue(location.contains(headerLocation));
+
+    Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
+        Mockito.eq(AuthnContextComparisonType.EXACT), Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+  void samlACS_withoutComparisonType_usesSessionAuthLevelAndMinimumComparison() {
+    Map<String, String> samlResponseDTO = new HashMap<>();
+    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+    samlResponseDTO.put("RelayState", "withoutComparisonType");
+
+    Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("withoutComparisonType");
+    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+    doNothing().when(samlServiceImpl)
+        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    doNothing().when(samlServiceImpl)
+        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.any());
+
+    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
+    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
+        .thenReturn(authorizationRequest);
+    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
+    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
+        AuthorizationSuccessResponse.class);
+    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
+    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
+    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
+    Mockito.when(authorizationResponse.toSuccessResponse())
+        .thenReturn(authorizationSuccessResponse);
+    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
+        .thenReturn(authorizationResponse);
+
+    given()
+        .formParams(samlResponseDTO)
+        .when()
+        .post("/acs")
+        .then()
+        .statusCode(302);
+
+    Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
+        Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any());
   }
 
   @Test
@@ -532,5 +583,4 @@ public class SAMLControllerTest {
         .then()
         .statusCode(404);
   }
-
 }

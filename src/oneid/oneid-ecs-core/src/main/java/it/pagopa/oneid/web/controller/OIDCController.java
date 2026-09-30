@@ -225,7 +225,6 @@ public class OIDCController {
 
     if (StringUtils.isNotBlank(rawAcrValues)) {
       authLevel = rawAcrValues;
-      comparisonType = AuthnContextComparisonType.EXACT;
     }
 
     String idpSSOEndpoint = idp.get().getIdpSSOEndpoints().get(samlBinding.getValue());

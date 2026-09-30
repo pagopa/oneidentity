@@ -23,6 +23,7 @@ import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.utils.SAMLUtilsConstants;
 import it.pagopa.oneid.model.dto.JWKSSetDTO;
+import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.BrowserBindingService;
@@ -972,7 +973,7 @@ class OIDCControllerTest {
 
   @Test
   @SneakyThrows
-  void authorizePost_withAcrValues_usesExactComparison() {
+  void authorizePost_withAcrValues_usesMinimumComparisonForStandardClient() {
     AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
     authorizationRequestDTOExtendedPost.setAcrValues("https://www.spid.gov.it/SpidL2");
 
@@ -1019,7 +1020,45 @@ class OIDCControllerTest {
     verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
         Mockito.eq(0), Mockito.eq(0),
         Mockito.eq("https://www.spid.gov.it/SpidL2"),
-        Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+  void authorizePost_withAcrValues_usesMinimumComparison() {
+    AuthorizationRequestDTOExtendedPost authorizationRequest = getAuthorizationRequestDTOExtendedPost();
+    authorizationRequest.setAcrValues("https://www.spid.gov.it/SpidL2");
+
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(buildEidasIdp()));
+    when(samlServiceImpl.buildAuthnRequest(Mockito.anyString(), Mockito.anyInt(),
+        Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(buildAuthnRequest("https://localhost:8443"));
+    when(oidcServiceImpl.getStringValue(Mockito.any())).thenReturn("test");
+    when(oidcServiceImpl.getElementValueFromAuthnRequest(Mockito.any()))
+        .thenReturn(mock(Element.class));
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequest.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequest.getIdp(),
+            "client_id", authorizationRequest.getClientId(),
+            "response_type", authorizationRequest.getResponseType(),
+            "redirect_uri", authorizationRequest.getRedirectUri(),
+            "scope", authorizationRequest.getScope(),
+            "nonce", authorizationRequest.getNonce(),
+            "state", authorizationRequest.getState(),
+            "acr_values", authorizationRequest.getAcrValues()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(200)
+        .body(notNullValue());
+
+    verify(samlServiceImpl).buildAuthnRequest(Mockito.anyString(),
+        Mockito.eq(0), Mockito.eq(0),
+        Mockito.eq("https://www.spid.gov.it/SpidL2"),
+        Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any());
   }
 
   // region private methods
