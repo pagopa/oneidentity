@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.19.1
+
+### Patch Changes
+
+- dd65fda: Use minimum comparison for dynamic authentication context levels.
+
 ## 1.19.0
 
 ### Minor Changes
