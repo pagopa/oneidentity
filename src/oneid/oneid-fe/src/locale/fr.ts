@@ -16,7 +16,7 @@ export default {
     },
     footer: {
       legalInfoText:
-        '<0>PagoPA S.p.A.</0> - Société anonyme à associé unique - Capital social de 1,000,000 euros entièrement libéré - Siège social à Rome, Piazza Colonna 370, <2/> CP 00187 - N ° d’immatriculation au Registre du Commerce et des Sociétés de Rome, N ° de TVA 15376371009',
+        '<0>PagoPA S.p.A.</0> - Société anonyme - Capital social de 1,000,000 euros entièrement libéré - Siège social à Rome, Piazza Colonna 370, <2/> CP 00187 - N ° d’immatriculation au Registre du Commerce et des Sociétés de Rome, N ° de TVA 15376371009',
       privacyPolicyLink: 'politique de confidentialité ',
       termsAndConditionLink: 'Conditions générales d’utilisation ',
       informationSecurityLink: 'Sécurité des informations ',

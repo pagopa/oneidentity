@@ -17,7 +17,7 @@ export default {
     },
     footer: {
       legalInfoText:
-        '<0>PagoPA S.p.A.</0> - Joint-stock company with sole shareholder - Share capital of €1,000,000 fully paid up - Registered office in Rome, Piazza Colonna 370, <2/> Postcode 00187 - Registration number in the Companies Register of Rome, Tax Code and VAT number 15376371009',
+        '<0>PagoPA S.p.A.</0> - Joint-stock company - Share capital of €1,000,000 fully paid up - Registered office in Rome, Piazza Colonna 370, <2/> Postcode 00187 - Registration number in the Companies Register of Rome, Tax Code and VAT number 15376371009',
       privacyPolicyLink: PP_LINK,
       termsAndConditionLink: 'Website Terms and Conditions of Use ',
       informationSecurityLink: 'Information security ',

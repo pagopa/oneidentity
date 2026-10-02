@@ -15,7 +15,7 @@ export default {
     },
     footer: {
       legalInfoText:
-        '<0>PagoPA S.p.A.</0> - Delniška družba z enim družbenikom - Osnovni kapital v višini 1.000.000 EUR v celoti vplačan - Sedež v Rimu, Piazza Colonna 370, <2/> Poštna številka 00187 - Št. vpisa v poslovni register v Rimu, davčna številka in identifikacijska številka za DDV 15376371009',
+        '<0>PagoPA S.p.A.</0> - Delniška družba - Osnovni kapital v višini 1.000.000 EUR v celoti vplačan - Sedež v Rimu, Piazza Colonna 370, <2/> Poštna številka 00187 - Št. vpisa v poslovni register v Rimu, davčna številka in identifikacijska številka za DDV 15376371009',
       privacyPolicyLink: 'Politika zasebnosti ',
       termsAndConditionLink: 'Pogoji uporabe spletnega mesta ',
       informationSecurityLink: 'Varnost podatkov ',

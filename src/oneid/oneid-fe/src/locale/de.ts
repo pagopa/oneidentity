@@ -18,7 +18,7 @@ export default {
     },
     footer: {
       legalInfoText:
-        '<0>PagoPA S.p.A.</0> - Aktiengesellschaft mit Alleingesellschafter - Gesellschaftskapital von 1.000.000 Euro voll eingezahlt - Sitz in Rom, Piazza Colonna 370, <2/> PLZ 00187 - Eintrag im Handelsregister von Rom Nr., Steuernummer und USt-IdNr. 15376371009',
+        '<0>PagoPA S.p.A.</0> - Aktiengesellschaft - Gesellschaftskapital von 1.000.000 Euro voll eingezahlt - Sitz in Rom, Piazza Colonna 370, <2/> PLZ 00187 - Eintrag im Handelsregister von Rom Nr., Steuernummer und USt-IdNr. 15376371009',
       privacyPolicyLink: PP_LINK,
       termsAndConditionLink:
         'Allgemeine Geschäftsbedingungen zur Benutzung der Site ',
