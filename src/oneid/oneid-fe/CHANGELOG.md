@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.5.2
+
+### Patch Changes
+
+- d8efca4: remove "socio unico" from footer legal information across multiple languages
+
 ## 1.5.1
 
 ### Patch Changes
