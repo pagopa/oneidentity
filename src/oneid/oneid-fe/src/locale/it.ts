@@ -16,7 +16,7 @@ export default {
       buttonLabel: "Contatta l'assistenza",
     },
     footer: {
-      legalInfoText: `<0>PagoPA S.p.A.</0> - Società per azioni con socio unico - Capitale sociale di euro 1,000,000 interamente versato - Sede legale in Roma, Piazza Colonna 370, <2/> CAP 00187 - N. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009`,
+      legalInfoText: `<0>PagoPA S.p.A.</0> - Società per azioni - Capitale sociale di euro 1,000,000 interamente versato - Sede legale in Roma, Piazza Colonna 370, <2/> CAP 00187 - N. di iscrizione a Registro Imprese di Roma, CF e P.IVA 15376371009`,
       privacyPolicyLink: PP_LINK,
       termsAndConditionLink: 'Termini e condizioni d’uso del sito ',
       informationSecurityLink: 'Sicurezza delle informazioni ',
