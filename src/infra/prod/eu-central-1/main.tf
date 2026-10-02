@@ -191,7 +191,11 @@ module "backend" {
       },
       {
         name  = "BROWSER_BINDING_MODE"
-        value = "MONITOR"
+        value = var.browser_binding_mode
+      },
+      {
+        name  = "BROWSER_BINDING_LEGACY_CUTOFF"
+        value = tostring(var.browser_binding_legacy_cutoff)
       },
       {
         name  = "PDV_ERROR_QUEUE_URL"
