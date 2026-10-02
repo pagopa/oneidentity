@@ -1,5 +1,11 @@
 # infra
 
+## 3.17.0
+
+### Minor Changes
+
+- bbee0b5: feat: align browser binding mode in all envs
+
 ## 3.16.1
 
 ### Patch Changes
