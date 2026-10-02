@@ -31,7 +31,7 @@ variable "app_cloudwatch_custom_metric_namespace" {
 variable "browser_binding_mode" {
   type        = string
   description = "Browser binding rollout mode for IO login."
-  default     = "MONITOR"
+  default     = "ENFORCE"
 
   validation {
     condition     = contains(["MONITOR", "ENFORCE"], var.browser_binding_mode)
@@ -42,7 +42,7 @@ variable "browser_binding_mode" {
 variable "browser_binding_legacy_cutoff" {
   type        = number
   description = "Epoch seconds before which unbound SAML sessions remain eligible for the rollout grace period."
-  default     = 0
+  default     = 1790930400
 }
 
 variable "browser_binding_rate_threshold" {

@@ -28,6 +28,23 @@ variable "app_cloudwatch_custom_metric_namespace" {
   default     = "ApplicationMetrics"
 }
 
+variable "browser_binding_mode" {
+  type        = string
+  description = "Browser binding rollout mode for login."
+  default     = "MONITOR"
+
+  validation {
+    condition     = contains(["MONITOR", "ENFORCE"], var.browser_binding_mode)
+    error_message = "The browser binding mode must be MONITOR or ENFORCE."
+  }
+}
+
+variable "browser_binding_legacy_cutoff" {
+  type        = number
+  description = "Epoch seconds before which unbound SAML sessions remain eligible for the rollout grace period."
+  default     = 1790930400
+}
+
 variable "env_short" {
   type        = string
   default     = "p"
