@@ -526,6 +526,33 @@ module "ecs_core_service" {
 
 }
 
+resource "aws_cloudwatch_event_rule" "ecs_core_deployment_failed" {
+  name        = format("%s-deployment-failed", var.service_core.service_name)
+  description = "Notify when the ECS core deployment circuit breaker fails a deployment"
+
+  event_pattern = jsonencode({
+    source      = ["aws.ecs"]
+    detail-type = ["ECS Deployment State Change"]
+    resources = [
+      "arn:aws:ecs:${var.aws_region}:${var.account_id}:service/${var.ecs_cluster_name}/${var.service_core.service_name}"
+    ]
+    detail = {
+      eventType = ["ERROR"]
+      eventName = ["SERVICE_DEPLOYMENT_FAILED"]
+    }
+  })
+
+  tags = {
+    Name = format("%s-deployment-failed", var.service_core.service_name)
+  }
+}
+
+resource "aws_cloudwatch_event_target" "ecs_core_deployment_failed" {
+  rule      = aws_cloudwatch_event_rule.ecs_core_deployment_failed.name
+  target_id = "ecs-core-deployment-failed-sns"
+  arn       = var.sns_topic_arn
+}
+
 # Force desired count update for core service when switching modes
 # This is necessary because the ECS module ignores desired_count when autoscaling is enabled
 resource "null_resource" "update_core_desired_count" {

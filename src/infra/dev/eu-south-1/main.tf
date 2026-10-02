@@ -152,9 +152,12 @@ module "storage" {
 
 
 module "sns" {
-  source            = "../../modules/sns"
-  sns_topic_name    = format("%s-sns", local.project)
-  alarm_subscribers = var.alarm_subscribers
+  source                          = "../../modules/sns"
+  sns_topic_name                  = format("%s-sns", local.project)
+  alarm_subscribers               = var.alarm_subscribers
+  account_id                      = data.aws_caller_identity.current.account_id
+  aws_region                      = var.aws_region
+  ecs_deployment_failed_rule_name = format("%s-core-deployment-failed", local.project)
 }
 
 module "sqs" {
