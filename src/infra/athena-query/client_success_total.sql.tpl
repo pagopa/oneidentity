@@ -20,7 +20,7 @@ WITH parsed_metrics AS (
       WHEN "$path" LIKE '%/data.json' THEN 'backfill'
       ELSE 'stream'
     END AS source_type
-  FROM "oneid_es_1_p_metrics"."metrics_cloudwatch_metrics_raw"
+  FROM "${database_name}"."${catalog_table_name}"
   WHERE json_extract_scalar(record, '$.metric_name') = 'ClientSuccess'
     AND "$path" NOT LIKE '%/errors/%'
 ),
