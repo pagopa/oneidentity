@@ -1,5 +1,11 @@
 # infra
 
+## 3.19.0
+
+### Minor Changes
+
+- 351cbd1: Fix lambda alarms
+
 ## 3.18.0
 
 ### Minor Changes
