@@ -551,6 +551,27 @@ resource "aws_cloudwatch_event_target" "ecs_core_deployment_failed" {
   rule      = aws_cloudwatch_event_rule.ecs_core_deployment_failed.name
   target_id = "ecs-core-deployment-failed-sns"
   arn       = var.sns_topic_arn
+
+  input_transformer {
+    input_paths = {
+      account_id    = "$.account"
+      region        = "$.region"
+      deployment_id = "$.detail.deploymentId"
+      reason        = "$.detail.reason"
+      occurred_at   = "$.detail.updatedAt"
+    }
+
+    input_template = jsonencode(join("\n", [
+      "ECS DEPLOYMENT FAILED | ${var.role_prefix} | <reason>",
+      "",
+      "Stack label: ${var.role_prefix}",
+      "Account ID: <account_id>",
+      "Region: <region>",
+      "Deployment ID: <deployment_id>",
+      "Reason: <reason>",
+      "Occurred at: <occurred_at>",
+    ]))
+  }
 }
 
 # Force desired count update for core service when switching modes
