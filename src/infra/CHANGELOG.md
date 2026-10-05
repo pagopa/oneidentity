@@ -1,5 +1,11 @@
 # infra
 
+## 3.18.0
+
+### Minor Changes
+
+- 94ec909: Setup circuit breaker notification
+
 ## 3.17.0
 
 ### Minor Changes
