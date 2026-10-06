@@ -2242,7 +2242,7 @@
         "content": {
           "text/html": {
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/StringResponse"
             }
           }
         }
@@ -2267,7 +2267,7 @@
         "content": {
           "application/xml": {
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/StringResponse"
             }
           }
         }
@@ -2590,6 +2590,9 @@
         }
     },
     "schemas": {
+      "StringResponse": {
+        "type": "string"
+      },
       "TokenData": {
         "type": "object",
         "properties": {

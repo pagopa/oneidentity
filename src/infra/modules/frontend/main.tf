@@ -423,6 +423,8 @@ data "aws_api_gateway_export" "api_exp" {
   rest_api_id = module.rest_api.rest_api_id
   stage_name  = module.rest_api.rest_api_stage_name
   export_type = "oas30"
+
+  depends_on = [module.rest_api]
 }
 
 resource "aws_s3_object" "openapi_exp" {
