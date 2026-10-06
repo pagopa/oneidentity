@@ -522,10 +522,10 @@ variable "lambda_alarms" {
   }))
 
   default = {
-    "oneid-es-1-p-assertion" = {
+    "oneid-ec-1-p-assertion" = {
     },
-    "oneid-es-1-p-metadata" = {},
-    "oneid-es-1-p-client-registration" = {
+    "oneid-ec-1-p-metadata" = {},
+    "oneid-ec-1-p-client-registration" = {
     },
     "oneid-ec-1-p-update-idp-metadata"      = {},
     "oneid-ec-1-p-is-gh-integration-lambda" = {},
