@@ -1,5 +1,11 @@
 # infra
 
+## 3.19.1
+
+### Patch Changes
+
+- 868f6b0: set correct type for content where it is not correctly exported
+
 ## 3.19.0
 
 ### Minor Changes
