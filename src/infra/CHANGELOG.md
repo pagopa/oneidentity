@@ -1,5 +1,11 @@
 # infra
 
+## 3.19.2
+
+### Patch Changes
+
+- 25b3f74: feat: update lambda names in alarms
+
 ## 3.19.1
 
 ### Patch Changes
