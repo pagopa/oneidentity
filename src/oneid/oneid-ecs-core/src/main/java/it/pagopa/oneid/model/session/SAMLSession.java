@@ -1,6 +1,5 @@
 package it.pagopa.oneid.model.session;
 
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import jakarta.validation.constraints.NotNull;
@@ -28,8 +27,6 @@ public class SAMLSession extends Session {
   private String SAMLResponse;
 
   private String requestedAuthLevel;
-
-  private AuthnContextComparisonType comparisonType;
 
   private String browserBindingDigest;
 

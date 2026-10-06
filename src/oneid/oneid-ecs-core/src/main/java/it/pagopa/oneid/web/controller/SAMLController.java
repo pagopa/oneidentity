@@ -17,7 +17,6 @@ import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.BrowserBindingService;
@@ -143,15 +142,12 @@ public class SAMLController {
     }
     AuthLevel effectiveAuthLevel = AuthLevel.authLevelFromValue(
         samlSession.getRequestedAuthLevel());
-    // Fallback to minimum comparison type if not specified (old deploy behavior)
-    AuthnContextComparisonType effectiveComparisonType = samlSession.getComparisonType() != null
-        ? samlSession.getComparisonType()
-        : AuthnContextComparisonType.MINIMUM;
-
+    if (effectiveAuthLevel == null) {
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+    }
     samlServiceImpl.validateSAMLResponse(response,
         samlSession.getAuthorizationRequestDTOExtended().getIdp(), client.getRequestedParameters(),
         Instant.ofEpochSecond(samlSession.getCreationTime()), effectiveAuthLevel,
-        effectiveComparisonType,
         samlSession.getAuthorizationRequestDTOExtended().getRedirectUri(),
         samlSession.getAuthorizationRequestDTOExtended().getState(),
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
