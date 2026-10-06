@@ -1276,9 +1276,13 @@ resource "null_resource" "install_dependencies" {
 resource "aws_lambda_layer_version" "cryptography" {
   layer_name          = "cryptography-layer"
   description         = "Lambda layer with cryptography"
-  compatible_runtimes = ["python3.10"]
+  compatible_runtimes = ["python3.13"]
   filename            = "${path.module}/../../dist/layers/cryptography-layer.zip"
   source_code_hash    = filebase64sha256("${path.module}/../../dist/layers/cryptography-layer.zip")
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 module "cert_exp_checker_lambda" {
@@ -1286,7 +1290,7 @@ module "cert_exp_checker_lambda" {
   version                = "7.4.0"
   function_name          = var.cert_exp_checker_lambda.name
   description            = "Lambda function cert expiration checker."
-  runtime                = "python3.10"
+  runtime                = "python3.13"
   handler                = "index.lambda_handler"
   create_package         = false
   local_existing_package = var.cert_exp_checker_lambda.filename
