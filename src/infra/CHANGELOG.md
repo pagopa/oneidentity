@@ -1,5 +1,11 @@
 # infra
 
+## 3.20.0
+
+### Minor Changes
+
+- 0966008: Lambda cert python version migration
+
 ## 3.19.2
 
 ### Patch Changes
