@@ -429,6 +429,38 @@ class OIDCControllerTest {
 
   @Test
   @SneakyThrows
+  void authorizePost_inactiveIdpRejected() {
+    AuthorizationRequestDTOExtendedPost authorizationRequestDTOExtendedPost = getAuthorizationRequestDTOExtendedPost();
+    IDP inactiveIDP = IDP.builder()
+        .entityID(authorizationRequestDTOExtendedPost.getIdp())
+        .isActive(false)
+        .build();
+    when(samlServiceImpl.getIDPFromEntityID(Mockito.any()))
+        .thenReturn(Optional.of(inactiveIDP));
+
+    given()
+        .contentType("application/x-www-form-urlencoded")
+        .header("X-Forwarded-For", authorizationRequestDTOExtendedPost.getIpAddress())
+        .formParams(Map.of(
+            "idp", authorizationRequestDTOExtendedPost.getIdp(),
+            "client_id", authorizationRequestDTOExtendedPost.getClientId(),
+            "response_type", authorizationRequestDTOExtendedPost.getResponseType(),
+            "redirect_uri", authorizationRequestDTOExtendedPost.getRedirectUri(),
+            "scope", authorizationRequestDTOExtendedPost.getScope(),
+            "nonce", authorizationRequestDTOExtendedPost.getNonce(),
+            "state", authorizationRequestDTOExtendedPost.getState()))
+        .when().post("/authorize")
+        .then()
+        .statusCode(Status.FOUND.getStatusCode())
+        .body(notNullValue());
+
+    verify(samlServiceImpl, Mockito.never()).buildAuthnRequest(Mockito.anyString(),
+        Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString(), Mockito.any(), Mockito.any(),
+        Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
   void authorizePost_getEntityDescriptorFromEntityID_Exception() {
     // given
 
