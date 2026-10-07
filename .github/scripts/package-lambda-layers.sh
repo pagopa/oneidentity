@@ -47,6 +47,6 @@ echo "ℹ️  Packaging PyJWT layer"
 package_layer "$CLIENT_MANAGER_REQUIREMENTS" "3.12" "${DIST_DIR}/pyjwt-layer" "${DIST_DIR}/pyjwt-layer.zip"
 
 echo "ℹ️  Packaging cryptography layer"
-package_layer "$CERT_EXP_CHECKER_REQUIREMENTS" "3.10" "${DIST_DIR}/cryptography-layer" "${DIST_DIR}/cryptography-layer.zip"
+package_layer "$CERT_EXP_CHECKER_REQUIREMENTS" "3.13" "${DIST_DIR}/cryptography-layer" "${DIST_DIR}/cryptography-layer.zip"
 
 echo "✅ Lambda layer archives are ready in ${DIST_DIR}"
