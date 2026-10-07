@@ -24,6 +24,11 @@ describe('Utils functions', () => {
         friendlyName: 'IDP 1',
       },
       {
+        active: false,
+        entityID: 'inactive-idp',
+        friendlyName: 'Inactive IDP',
+      },
+      {
         active: true,
         entityID: 'idp2',
         friendlyName: 'IDP 2',
@@ -40,6 +45,9 @@ describe('Utils functions', () => {
       const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
 
       expect(result.identityProviders).toHaveLength(2);
+      expect(
+        result.identityProviders.map(({ entityID }) => entityID)
+      ).not.toContain('inactive-idp');
       expect(result.identityProviders[0]).toHaveProperty(
         'imageUrl',
         `${assetsIDPUrl}/${btoa(mockIDPList[0].entityID)}.png`
