@@ -51,7 +51,8 @@ class OneIDLambdaUpdateIDPMetadataTest {
       throws Exception {
         IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
         ObjectMapper eventMapper = new ObjectMapper();
-        JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO");
+        JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO",
+            true, true);
                 when(idpMetadataService.isPublicIdpsStatusChange(any())).thenReturn(true);
     OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
     handler.idpMetadataServiceImpl = idpMetadataService;
@@ -67,6 +68,26 @@ class OneIDLambdaUpdateIDPMetadataTest {
             recordCaptor.getValue().path("dynamodb").path("NewImage").path("pointer")
                 .path("S").asText());
   }
+
+    @Test
+    @DisplayName("given a DynamoDB active change when handling then refresh public IDPs")
+    void given_dynamodbActiveChange_when_handling_then_refreshesPublicIdps() throws Exception {
+        IDPMetadataServiceImpl idpMetadataService = mock(IDPMetadataServiceImpl.class);
+        ObjectMapper eventMapper = new ObjectMapper();
+        JsonNode input = dynamodbEventInput("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "OK",
+                true, false);
+        when(idpMetadataService.isPublicIdpsStatusChange(any())).thenReturn(false);
+        when(idpMetadataService.isPublicIdpsActiveChange(any())).thenReturn(true);
+        OneIDLambdaUpdateIDPMetadata handler = new OneIDLambdaUpdateIDPMetadata();
+        handler.idpMetadataServiceImpl = idpMetadataService;
+        handler.objectMapper = eventMapper;
+
+        assertEquals("Ok", handler.handleRequest(input, null));
+
+        verify(idpMetadataService).isPublicIdpsStatusChange(any());
+        verify(idpMetadataService).isPublicIdpsActiveChange(any());
+        verify(idpMetadataService).refreshPublicIdps();
+    }
 
     private JsonNode s3EventInput(String objectKey) throws Exception {
         return new ObjectMapper().readTree("""
@@ -85,8 +106,8 @@ class OneIDLambdaUpdateIDPMetadataTest {
                 """.formatted(objectKey));
     }
 
-    private JsonNode dynamodbEventInput(String eventName, String pointer, String oldStatus,
-            String newStatus) throws Exception {
+        private JsonNode dynamodbEventInput(String eventName, String pointer, String oldStatus,
+            String newStatus, boolean oldActive, boolean newActive) throws Exception {
         return new ObjectMapper().readTree("""
                 {
                     "Records": [
@@ -97,17 +118,20 @@ class OneIDLambdaUpdateIDPMetadataTest {
                                 "ApproximateCreationDateTime": 1720944000.123,
                                 "OldImage": {
                                     "pointer": { "S": "%s" },
-                                    "status": { "S": "%s" }
+                                    "status": { "S": "%s" },
+                                    "active": { "BOOL": %s }
                                 },
                                 "NewImage": {
                                     "pointer": { "S": "%s" },
-                                    "status": { "S": "%s" }
+                                    "status": { "S": "%s" },
+                                    "active": { "BOOL": %s }
                                 }
                             }
                         }
                     ]
                 }
-                """.formatted(eventName, pointer, oldStatus, pointer, newStatus));
+                """.formatted(eventName, pointer, oldStatus, oldActive, pointer, newStatus,
+                newActive));
     }
 
 }

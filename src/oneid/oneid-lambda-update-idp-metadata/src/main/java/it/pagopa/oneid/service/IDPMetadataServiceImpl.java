@@ -62,145 +62,15 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
       Document doc = builder.parse(is);
       doc.getDocumentElement().normalize();
 
-      //region EntityDescriptor
-      NodeList nodeList = doc.getElementsByTagNameNS("*", "EntityDescriptor");
-
-      // For each EntityDescriptor
-      for (int parameter = 0; parameter < nodeList.getLength(); parameter++) {
-
-        Node nodeEntityDescriptor = nodeList.item(parameter);
-        if (nodeEntityDescriptor.getNodeType() == Node.ELEMENT_NODE) {
-          Element eElementEntityDescriptor = (Element) nodeEntityDescriptor;
-
-          // Initialize IDP fields
-          IDP idp = new IDP();
-          idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
-          idp.setStatus(IDPStatus.OK);
-          idp.setActive(true);
-
-          // Get entityID from file
-          String entityID = eElementEntityDescriptor.getAttribute("entityID");
-          idp.setEntityID(entityID);
-
-          //region IDPSSODescriptor
-          NodeList nodeListIDPSSODescriptor = eElementEntityDescriptor.getElementsByTagNameNS("*",
-              "IDPSSODescriptor");
-
-          // For each node of IDPSSODescriptor
-          for (int i = 0; i < nodeListIDPSSODescriptor.getLength(); i++) {
-
-            Node nodeIDPSSODescriptor = nodeList.item(parameter);
-            if (nodeIDPSSODescriptor.getNodeType() == Node.ELEMENT_NODE) {
-              Element eElementIDPSSODescriptor = (Element) nodeIDPSSODescriptor;
-
-              // Get KeyDescriptor node list
-              NodeList nodeListKeyDescriptor = eElementIDPSSODescriptor.getElementsByTagNameNS("*",
-                  "KeyDescriptor");
-
-              //region Certificates
-              Set<String> certificates = new HashSet<>();
-
-              // For each node of KeyDescriptor
-              for (int j = 0; j < nodeListKeyDescriptor.getLength(); j++) {
-
-                Node nodeKeyDescriptor = nodeListKeyDescriptor.item(j);
-                if (nodeKeyDescriptor.getNodeType() == Node.ELEMENT_NODE) {
-                  Element eElementKeyDescriptor = (Element) nodeKeyDescriptor;
-
-                  String use = eElementKeyDescriptor.getAttribute("use");
-                  // We only need certificates used for signing
-                  if (use.equals("signing")) {
-                    NodeList nodeListX509Certificate = eElementKeyDescriptor.getElementsByTagNameNS(
-                        "*", "X509Certificate");
-
-                    Node nodeX509Certificate = nodeListX509Certificate.item(0);
-                    if (nodeX509Certificate.getNodeType() == Node.ELEMENT_NODE) {
-                      Element eElementX509Certificate = (Element) nodeX509Certificate;
-
-                      String certificate = eElementX509Certificate.getTextContent();
-                      certificates.add(certificate);
-                    }
-
-                  }
-                }
-              }
-              idp.setCertificates(certificates);
-              //endregion
-
-              //region IdpSSOEndpoints
-
-              // Get SingleSignOnService node list
-              NodeList nodeListSingleSignOnService = eElementIDPSSODescriptor.getElementsByTagNameNS(
-                  "*", "SingleSignOnService");
-              Map<String, String> idpSSOEndpoints = new HashMap<>();
-
-              // For each node of SingleSignOnService
-              for (int z = 0; z < nodeListSingleSignOnService.getLength(); z++) {
-
-                Node nodeSingleSignOnService = nodeListSingleSignOnService.item(z);
-                if (nodeSingleSignOnService.getNodeType() == Node.ELEMENT_NODE) {
-                  Element eElementSingleSignOnService = (Element) nodeSingleSignOnService;
-
-                  String binding = eElementSingleSignOnService.getAttribute("Binding");
-                  String location = eElementSingleSignOnService.getAttribute("Location");
-                  idpSSOEndpoints.put(binding, location);
-                }
-
-              }
-
-              idp.setIdpSSOEndpoints(idpSSOEndpoints);
-              //endregion
-
-            }
-          }
-          //endregion
-
-          //region Organization - FriendlyName
-
-          // Get Organization node list
-          NodeList nodeListOrganization = eElementEntityDescriptor.getElementsByTagNameNS("*",
-              "Organization");
-
-          // SPID - IdP
-          if (nodeListOrganization.getLength() != 0) {
-            // For each node of Organization
-            for (int w = 0; w < nodeListOrganization.getLength(); w++) {
-
-              Node nodeOrganization = nodeListOrganization.item(w);
-              if (nodeOrganization.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElementOrganization = (Element) nodeOrganization;
-
-                // Get OrganizationDisplayName node list
-                NodeList nodeListOrganizationName = eElementOrganization.getElementsByTagNameNS(
-                    "*", "OrganizationName");
-
-                for (int x = 0; x < nodeListOrganizationName.getLength(); x++) {
-
-                  Node nodeOrganizationName = nodeListOrganizationName.item(x);
-                  if (nodeOrganizationName.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eElementOrganizationName = (Element) nodeOrganizationName;
-
-                    // Italian organization name or, if missing, English name is fine
-                    String xmlLang = eElementOrganizationName.getAttribute("xml:lang");
-                    if (xmlLang.equals("it") || xmlLang.equals("en")) {
-                      String organizationName = eElementOrganizationName.getTextContent();
-                      idp.setFriendlyName(organizationName);
-                    }
-                  }
-                }
-              }
-            }
-          }// CiE - IdP
-          else {
-            idp.setFriendlyName("CIE");
-          }
-          //endregion
-
-          idpList.add(idp);
+      NodeList entityDescriptors = doc.getElementsByTagNameNS("*", "EntityDescriptor");
+      for (int entityIndex = 0; entityIndex < entityDescriptors.getLength(); entityIndex++) {
+        Node entityDescriptor = entityDescriptors.item(entityIndex);
+        if (entityDescriptor.getNodeType() != Node.ELEMENT_NODE) {
+          continue;
         }
-      }
-      //endregion
 
+        idpList.add(parseEntityDescriptor((Element) entityDescriptor, idpS3FileDTO));
+      }
     } catch (Exception e) {
       Log.error("error parsing IDP metadata " + ExceptionUtils.getStackTrace(e));
     }
@@ -249,20 +119,127 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public boolean isPublicIdpsStatusChange(JsonNode dynamodbEventRecord) {
+    if (!isLatestSpidModify(dynamodbEventRecord)) {
+      return false;
+    }
+
+    JsonNode newImage = dynamodbEventRecord.path("dynamodb").path("NewImage");
+    JsonNode oldImage = dynamodbEventRecord.path("dynamodb").path("OldImage");
+    String newStatus = readStringAttribute(newImage, "status");
+    String oldStatus = readStringAttribute(oldImage, "status");
+
+    return !Objects.equals(newStatus, oldStatus);
+  }
+
+  @Override
+  public boolean isPublicIdpsActiveChange(JsonNode dynamodbEventRecord) {
+    if (!isLatestSpidModify(dynamodbEventRecord)) {
+      return false;
+    }
+
+    JsonNode newImage = dynamodbEventRecord.path("dynamodb").path("NewImage");
+    JsonNode oldImage = dynamodbEventRecord.path("dynamodb").path("OldImage");
+    Boolean oldActive = readBooleanAttribute(oldImage, "active");
+    Boolean newActive = readBooleanAttribute(newImage, "active");
+
+    return !Objects.equals(newActive, oldActive);
+  }
+
+  private IDP parseEntityDescriptor(Element entityDescriptor, IdpS3FileDTO idpS3FileDTO) {
+    IDP idp = new IDP();
+    idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
+    idp.setStatus(IDPStatus.OK);
+    idp.setActive(true);
+    idp.setEntityID(entityDescriptor.getAttribute("entityID"));
+    populateSsoData(idp, entityDescriptor);
+    populateFriendlyName(idp, entityDescriptor);
+    return idp;
+  }
+
+  private void populateSsoData(IDP idp, Element entityDescriptor) {
+    NodeList ssoDescriptors = entityDescriptor.getElementsByTagNameNS("*", "IDPSSODescriptor");
+    for (int descriptorIndex = 0; descriptorIndex < ssoDescriptors.getLength(); descriptorIndex++) {
+      idp.setCertificates(readSigningCertificates(entityDescriptor));
+      idp.setIdpSSOEndpoints(readSsoEndpoints(entityDescriptor));
+    }
+  }
+
+  private Set<String> readSigningCertificates(Element entityDescriptor) {
+    Set<String> certificates = new HashSet<>();
+    NodeList keyDescriptors = entityDescriptor.getElementsByTagNameNS("*", "KeyDescriptor");
+    for (int keyIndex = 0; keyIndex < keyDescriptors.getLength(); keyIndex++) {
+      Node keyNode = keyDescriptors.item(keyIndex);
+      if (keyNode.getNodeType() != Node.ELEMENT_NODE) {
+        continue;
+      }
+
+      Element keyDescriptor = (Element) keyNode;
+      if (!"signing".equals(keyDescriptor.getAttribute("use"))) {
+        continue;
+      }
+
+      Node certificate = keyDescriptor.getElementsByTagNameNS("*", "X509Certificate").item(0);
+      if (certificate.getNodeType() == Node.ELEMENT_NODE) {
+        certificates.add(certificate.getTextContent());
+      }
+    }
+    return certificates;
+  }
+
+  private Map<String, String> readSsoEndpoints(Element entityDescriptor) {
+    Map<String, String> endpoints = new HashMap<>();
+    NodeList services = entityDescriptor.getElementsByTagNameNS("*", "SingleSignOnService");
+    for (int serviceIndex = 0; serviceIndex < services.getLength(); serviceIndex++) {
+      Node serviceNode = services.item(serviceIndex);
+      if (serviceNode.getNodeType() != Node.ELEMENT_NODE) {
+        continue;
+      }
+
+      Element service = (Element) serviceNode;
+      endpoints.put(service.getAttribute("Binding"), service.getAttribute("Location"));
+    }
+    return endpoints;
+  }
+
+  private void populateFriendlyName(IDP idp, Element entityDescriptor) {
+    NodeList organizations = entityDescriptor.getElementsByTagNameNS("*", "Organization");
+    if (organizations.getLength() == 0) {
+      idp.setFriendlyName("CIE");
+      return;
+    }
+
+    for (int organizationIndex = 0; organizationIndex < organizations.getLength();
+        organizationIndex++) {
+      Node organizationNode = organizations.item(organizationIndex);
+      if (organizationNode.getNodeType() != Node.ELEMENT_NODE) {
+        continue;
+      }
+
+      Element organization = (Element) organizationNode;
+      NodeList names = organization.getElementsByTagNameNS("*", "OrganizationName");
+      for (int nameIndex = 0; nameIndex < names.getLength(); nameIndex++) {
+        Node nameNode = names.item(nameIndex);
+        if (nameNode.getNodeType() != Node.ELEMENT_NODE) {
+          continue;
+        }
+
+        Element name = (Element) nameNode;
+        String language = name.getAttribute("xml:lang");
+        if ("it".equals(language) || "en".equals(language)) {
+          idp.setFriendlyName(name.getTextContent());
+        }
+      }
+    }
+  }
+
+  private boolean isLatestSpidModify(JsonNode dynamodbEventRecord) {
     if (dynamodbEventRecord == null
         || !"MODIFY".equals(dynamodbEventRecord.path("eventName").asText())) {
       return false;
     }
 
     JsonNode newImage = dynamodbEventRecord.path("dynamodb").path("NewImage");
-    if (!LatestTAG.LATEST_SPID.toString().equals(readStringAttribute(newImage, "pointer"))) {
-      return false;
-    }
-
-    String newStatus = readStringAttribute(newImage, "status");
-    String oldStatus = readStringAttribute(
-        dynamodbEventRecord.path("dynamodb").path("OldImage"), "status");
-    return !Objects.equals(newStatus, oldStatus);
+    return LatestTAG.LATEST_SPID.toString().equals(readStringAttribute(newImage, "pointer"));
   }
 
   private String readStringAttribute(JsonNode image, String attributeName) {
@@ -272,6 +249,15 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
     }
 
     return value.asText();
+  }
+
+  private Boolean readBooleanAttribute(JsonNode image, String attributeName) {
+    JsonNode value = image.path(attributeName).path("BOOL");
+    if (!value.isBoolean()) {
+      return null;
+    }
+
+    return value.booleanValue();
   }
 
   private String serializePublicIdps(ArrayList<IDP> idps) {

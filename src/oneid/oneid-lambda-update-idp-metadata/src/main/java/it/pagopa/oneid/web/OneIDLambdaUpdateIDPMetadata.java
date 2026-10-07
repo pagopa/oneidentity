@@ -92,6 +92,7 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
     }
 
     boolean publicIdpsStatusChanged = false;
+    boolean publicIdpsActiveChanged = false;
     for (JsonNode dynamodbEventRecord : records) {
       if (!"aws:dynamodb".equals(dynamodbEventRecord.path(EVENT_SOURCE).asText())) {
         Log.warn("Ignoring non-DynamoDB record in DynamoDB event");
@@ -101,14 +102,16 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
       // Detect changes that affect the IDPs snapshot
       publicIdpsStatusChanged = publicIdpsStatusChanged
           || idpMetadataServiceImpl.isPublicIdpsStatusChange(dynamodbEventRecord);
+      publicIdpsActiveChanged = publicIdpsActiveChanged
+          || idpMetadataServiceImpl.isPublicIdpsActiveChange(dynamodbEventRecord);
     }
 
-    if (publicIdpsStatusChanged) {
+    if (publicIdpsStatusChanged || publicIdpsActiveChanged) {
       // Update the IDPs snapshot in S3
-      Log.info("DynamoDB status change detected for public IDPs; refreshing S3 snapshot");
+      Log.info("DynamoDB status or active change detected; refreshing public IDPs snapshot");
       idpMetadataServiceImpl.refreshPublicIdps();
     } else {
-      Log.info("No public IDPs status change detected; S3 snapshot was not refreshed");
+      Log.info("No public IDPs status or active change detected; snapshot was not refreshed");
     }
 
     return "Ok";

@@ -17,6 +17,8 @@ public interface IDPMetadataService {
 
   boolean isPublicIdpsStatusChange(JsonNode dynamodbEventRecord);
 
+  boolean isPublicIdpsActiveChange(JsonNode dynamodbEventRecord);
+
   void refreshPublicIdps();
 
   String getMetadataFile(String fileName);
