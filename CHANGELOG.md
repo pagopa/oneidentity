@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.19.1
+
+### Patch Changes
+
+- 6a47410: Add a footer link
+
 ## 4.19.0
 
 ### Minor Changes
