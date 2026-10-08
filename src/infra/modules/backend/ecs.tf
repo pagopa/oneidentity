@@ -731,6 +731,8 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_anomaly" {
   threshold           = 0
   treat_missing_data  = "notBreaching"
 
+  alarm_actions = compact([var.browser_binding_alarm.sns_topic_alarm_arn])
+
   dimensions = {
     Cookies = "BrowserBinding"
   }
@@ -743,6 +745,8 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
   evaluation_periods  = 1
   threshold           = var.browser_binding_alarm.rate_threshold
   treat_missing_data  = "notBreaching"
+
+  alarm_actions = compact([var.browser_binding_alarm.sns_topic_alarm_arn])
 
   metric_query {
     id          = "rate"

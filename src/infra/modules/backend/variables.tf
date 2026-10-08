@@ -605,10 +605,11 @@ variable "sns_topic_arn" {
 }
 
 variable "browser_binding_alarm" {
-  description = "Optional CloudWatch-only browser binding alarms for the IO login flow."
+  description = "Optional browser binding alarms for the IO login flow with an optional SNS notification topic."
   type = object({
-    namespace      = string
-    rate_threshold = number
+    namespace           = string
+    rate_threshold      = number
+    sns_topic_alarm_arn = optional(string, null)
   })
   default = null
 }
