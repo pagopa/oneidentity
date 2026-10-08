@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.19.2
+
+### Patch Changes
+
+- 84033cc: fix Products and services header column translations
+
 ## 4.19.1
 
 ### Patch Changes

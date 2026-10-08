@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.5.4
+
+### Patch Changes
+
+- 84033cc: fix Products and services header column translations
+
 ## 1.5.3
 
 ### Patch Changes

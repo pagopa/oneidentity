@@ -1,5 +1,11 @@
 # infra
 
+## 3.21.1
+
+### Patch Changes
+
+- 5cfb76a: enable registry enabled pdv flag
+
 ## 3.21.0
 
 ### Minor Changes
