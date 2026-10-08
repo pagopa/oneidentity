@@ -16,11 +16,13 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.IdpS3FileDTO;
 import it.pagopa.oneid.common.model.enums.LatestTAG;
 import it.pagopa.oneid.service.IDPMetadataServiceImpl;
 
+@QuarkusTest
 class OneIDLambdaUpdateIDPMetadataTest {
 
   @Test
