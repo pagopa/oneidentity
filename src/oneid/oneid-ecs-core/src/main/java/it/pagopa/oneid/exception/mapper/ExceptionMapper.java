@@ -110,6 +110,13 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper
   public RestResponse<Object> mapGenericHTMLException(GenericHTMLException genericHTMLException) {
+    if (genericHTMLException.getRedirectUri() != null
+        && genericHTMLException.getState() != null
+        && genericHTMLException.getClientId() != null) {
+      return genericHTMLError(genericHTMLException.getMessage(),
+          genericHTMLException.getRedirectUri(), genericHTMLException.getState(),
+          genericHTMLException.getClientId());
+    }
     return genericHTMLError(genericHTMLException.getMessage());
   }
 
@@ -121,7 +128,7 @@ public class ExceptionMapper {
       return authenticationErrorResponse(authorizationErrorException);
     } else if (validationException.getCause() instanceof GenericHTMLException genericHTMLException) {
       Log.error("GenericHTMLException encountered");
-      return genericHTMLError(genericHTMLException.getMessage());
+      return mapGenericHTMLException(genericHTMLException);
     }
     if (validationException.getMessage().contains("authorizeGet.arg0.clientId")
         || validationException.getMessage().contains("authorizePost.arg0.clientId")) {

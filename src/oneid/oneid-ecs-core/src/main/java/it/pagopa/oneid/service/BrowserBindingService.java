@@ -30,7 +30,7 @@ public class BrowserBindingService {
   private static final long COOKIE_AGE_SECONDS = 900;
   private static final SecureRandom RANDOM = new SecureRandom();
 
-  @ConfigProperty(name = "browser_binding_mode", defaultValue = "OFF")
+  @ConfigProperty(name = "browser_binding_mode")
   Mode mode;
 
   @ConfigProperty(name = "browser_binding_legacy_cutoff", defaultValue = "0")

@@ -102,6 +102,12 @@ public class SAMLController {
       if (browserBindingService.enforcing()
           && outcome != BrowserBindingService.Outcome.MATCHED
           && outcome != BrowserBindingService.Outcome.LEGACY) {
+        var authorizationRequest = samlSession.getAuthorizationRequestDTOExtended();
+        if (authorizationRequest != null) {
+          throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
+              authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
+              authorizationRequest.getClientId());
+        }
         throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
       }
     }
