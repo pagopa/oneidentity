@@ -1,5 +1,11 @@
 # infra
 
+## 3.21.0
+
+### Minor Changes
+
+- 7c59d2d: feat: update error redirect and cookie metrics
+
 ## 3.20.1
 
 ### Patch Changes
