@@ -30,6 +30,9 @@ export default {
             workwithud: 'Lavora con noi',
           },
         },
+        products: {
+          title: 'Prodotti e servizi',
+        },
         resources: {
           title: 'Risorse',
           links: {

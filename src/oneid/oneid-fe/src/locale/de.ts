@@ -33,6 +33,9 @@ export default {
             workwithud: 'Karriere',
           },
         },
+        products: {
+          title: 'Produkte und Dienstleistungen',
+        },
         resources: {
           title: 'Quellen',
           links: {
