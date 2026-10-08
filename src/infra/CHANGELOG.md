@@ -1,5 +1,11 @@
 # infra
 
+## 3.20.1
+
+### Patch Changes
+
+- e1f2cee: feat: add cookie alarm for io related env
+
 ## 3.20.0
 
 ### Minor Changes

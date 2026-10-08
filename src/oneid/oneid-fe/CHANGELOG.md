@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.5.3
+
+### Patch Changes
+
+- 6a47410: Add a footer link
+
 ## 1.5.2
 
 ### Patch Changes
