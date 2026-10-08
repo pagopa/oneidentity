@@ -5,7 +5,6 @@ import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.Base64SAMLResponses;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.Session;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -50,13 +49,12 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
     }
     if ("withRequestedAuthLevel".equals(id)) {
       session.setRequestedAuthLevel(AuthLevel.L3.getValue());
-      session.setComparisonType(AuthnContextComparisonType.EXACT);
-    }
-    if ("withoutComparisonType".equals(id)) {
-      session.setRequestedAuthLevel(AuthLevel.L3.getValue());
     }
     if ("withoutRequestedAuthLevel".equals(id)) {
       session.setRequestedAuthLevel(null);
+    }
+    if ("invalidRequestedAuthLevel".equals(id)) {
+      session.setRequestedAuthLevel("https://example.com/UnknownLevel");
     }
     return (T) session;
   }

@@ -21,7 +21,6 @@ import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.SAMLSession;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.model.session.enums.ResponseType;
 import it.pagopa.oneid.service.ClientLookupService;
@@ -221,7 +220,6 @@ public class OIDCController {
     // Resolve auth level and comparison type
     String rawAcrValues = authorizationRequestDTOExtended.getAcrValues();
     String authLevel = selectedClient.getAuthLevel().getValue();
-    AuthnContextComparisonType comparisonType = AuthnContextComparisonType.MINIMUM;
 
     if (StringUtils.isNotBlank(rawAcrValues)) {
       authLevel = rawAcrValues;
@@ -245,7 +243,6 @@ public class OIDCController {
           serviceIndexes.assertionConsumerServiceIndex(),
           serviceIndexes.attributeConsumingServiceIndex(),
           authLevel,
-          comparisonType,
           samlBinding,
           assertionRef);
     } catch (GenericAuthnRequestCreationException | OneIdentityException e) {
@@ -280,7 +277,6 @@ public class OIDCController {
     SAMLSession samlSession = new SAMLSession(authnRequest.getID(), RecordType.SAML, creationTime,
         ttl, encodedAuthnRequest, authorizationRequestDTOExtended);
     samlSession.setRequestedAuthLevel(authLevel);
-    samlSession.setComparisonType(comparisonType);
 
     String bindingCookie = browserBindingService.enabled()
         ? browserBindingService.issue(samlSession)

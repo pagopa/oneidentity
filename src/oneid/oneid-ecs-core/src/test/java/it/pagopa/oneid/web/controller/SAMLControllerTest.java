@@ -21,7 +21,6 @@ import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
 import it.pagopa.oneid.model.session.SAMLSession;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -93,8 +92,7 @@ public class SAMLControllerTest {
         .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -151,8 +149,7 @@ public class SAMLControllerTest {
         .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
     Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
@@ -185,53 +182,64 @@ public class SAMLControllerTest {
     Assertions.assertTrue(location.contains(headerLocation));
 
     Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
-        Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
-        Mockito.eq(AuthnContextComparisonType.EXACT), Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3), Mockito.any(), Mockito.any(),
         Mockito.any(), Mockito.any());
   }
 
   @Test
   @SneakyThrows
-  void samlACS_withoutComparisonType_usesSessionAuthLevelAndMinimumComparison() {
+  void samlACS_withoutRequestedAuthLevel_returnsSessionError() {
     Map<String, String> samlResponseDTO = new HashMap<>();
     samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
-    samlResponseDTO.put("RelayState", "withoutComparisonType");
+    samlResponseDTO.put("RelayState", "withoutRequestedAuthLevel");
 
     Response response = Mockito.mock(Response.class);
-    Mockito.when(response.getInResponseTo()).thenReturn("withoutComparisonType");
+    Mockito.when(response.getInResponseTo()).thenReturn("withoutRequestedAuthLevel");
     Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
-    doNothing().when(samlServiceImpl)
-        .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-    doNothing().when(samlServiceImpl)
-        .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
 
-    AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
-    Mockito.when(oidcServiceImpl.buildAuthorizationRequest(Mockito.any()))
-        .thenReturn(authorizationRequest);
-    AuthorizationResponse authorizationResponse = Mockito.mock(AuthorizationResponse.class);
-    AuthorizationSuccessResponse authorizationSuccessResponse = Mockito.mock(
-        AuthorizationSuccessResponse.class);
-    AuthorizationCode authorizationCode = Mockito.mock(AuthorizationCode.class);
-    Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
-    Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-    Mockito.when(authorizationResponse.toSuccessResponse())
-        .thenReturn(authorizationSuccessResponse);
-    Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))
-        .thenReturn(authorizationResponse);
-
-    given()
+    String expectedErrorLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+        ErrorCode.SESSION_ERROR.getErrorCode(), StandardCharsets.UTF_8);
+    String location = given()
         .formParams(samlResponseDTO)
         .when()
         .post("/acs")
         .then()
-        .statusCode(302);
+        .statusCode(302)
+        .extract()
+        .header("location");
 
-    Mockito.verify(samlServiceImpl).validateSAMLResponse(Mockito.any(), Mockito.any(),
-        Mockito.any(), Mockito.any(), Mockito.eq(AuthLevel.L3),
-        Mockito.eq(AuthnContextComparisonType.MINIMUM), Mockito.any(), Mockito.any(),
-        Mockito.any(), Mockito.any());
+    Assertions.assertTrue(location.contains(expectedErrorLocation));
+    Mockito.verify(samlServiceImpl, Mockito.never()).validateSAMLResponse(
+        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @SneakyThrows
+  void samlACS_withUnknownRequestedAuthLevel_returnsSessionError() {
+    Map<String, String> samlResponseDTO = new HashMap<>();
+    samlResponseDTO.put("SAMLResponse", "dummySAMLResponse");
+    samlResponseDTO.put("RelayState", "invalidRequestedAuthLevel");
+
+    Response response = Mockito.mock(Response.class);
+    Mockito.when(response.getInResponseTo()).thenReturn("invalidRequestedAuthLevel");
+    Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+    String expectedErrorLocation = BASE_PATH + "/login/error?error_code=" + URLEncoder.encode(
+        ErrorCode.SESSION_ERROR.getErrorCode(), StandardCharsets.UTF_8);
+    String location = given()
+        .formParams(samlResponseDTO)
+        .when()
+        .post("/acs")
+        .then()
+        .statusCode(302)
+        .extract()
+        .header("location");
+
+    Assertions.assertTrue(location.contains(expectedErrorLocation));
+    Mockito.verify(samlServiceImpl, Mockito.never()).validateSAMLResponse(
+        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.any());
   }
 
   @Test
@@ -388,8 +396,7 @@ public class SAMLControllerTest {
     doThrow(samlValidationException).when(
         samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     // location header to verify
     String headerLocation = BASE_PATH + "/login/error?error_code=" +
         URLEncoder.encode(ErrorCode.IDP_ERROR_INVALID_SAML_VERSION.getErrorCode(),
@@ -426,8 +433,7 @@ public class SAMLControllerTest {
         .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
@@ -489,8 +495,7 @@ public class SAMLControllerTest {
         .checkSAMLStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     doNothing().when(samlServiceImpl)
         .validateSAMLResponse(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
-            Mockito.any());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     // setup oidcServiceImpl mock
     AuthorizationRequest authorizationRequest = Mockito.mock(AuthorizationRequest.class);
