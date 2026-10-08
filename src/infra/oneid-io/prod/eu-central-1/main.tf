@@ -121,8 +121,9 @@ module "backend" {
 
   sns_topic_arn = module.sns.sns_topic_arn
   browser_binding_alarm = {
-    namespace      = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
-    rate_threshold = var.browser_binding_rate_threshold
+    namespace           = format("%s-core/%s", local.project, var.app_cloudwatch_custom_metric_namespace)
+    rate_threshold      = var.browser_binding_rate_threshold
+    sns_topic_alarm_arn = module.sns.sns_topic_arn
   }
   ecs_alarms             = local.cloudwatch_ecs_alarms_with_sns
   lambda_alarms          = local.cloudwatch_lambda_alarms_with_sns
