@@ -720,11 +720,15 @@ resource "aws_cloudwatch_metric_alarm" "ecs_alarms" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "browser_binding_anomaly" {
-  count               = var.browser_binding_alarm == null ? 0 : 1
-  alarm_name          = format("%s-browser-binding-anomaly", module.ecs_core_service.name)
+  for_each = var.browser_binding_alarm == null ? toset([]) : toset([
+    for outcome in ["MISSING", "MISMATCH", "EXPIRED"] : outcome
+    if anytrue([for environment in var.service_core.environment_variables : environment.name == "BROWSER_BINDING_MODE" && environment.value == "ENFORCE"])
+  ])
+  alarm_name          = format("%s-BrowserBinding_%s", module.ecs_core_service.name, each.key)
+  alarm_description   = format("Browser binding rejected authentication in ENFORCE mode: %s.", each.key)
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
-  metric_name         = "BrowserBindingAnomaly"
+  metric_name         = format("BrowserBinding%s", each.key)
   namespace           = var.browser_binding_alarm.namespace
   period              = 300
   statistic           = "Sum"
@@ -741,16 +745,17 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_anomaly" {
 resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
   count               = var.browser_binding_alarm == null ? 0 : 1
   alarm_name          = format("%s-browser-binding-rate", module.ecs_core_service.name)
+  actions_enabled     = false
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   threshold           = var.browser_binding_alarm.rate_threshold
   treat_missing_data  = "notBreaching"
 
-  alarm_actions = compact([var.browser_binding_alarm.sns_topic_alarm_arn])
+  alarm_actions = []
 
   metric_query {
     id          = "rate"
-    expression  = "IF(checked > 0, 100 * FILL(anomalies, 0) / checked, 0)"
+    expression  = "IF(checked > 0, 100 * (FILL(missing, 0) + FILL(mismatch, 0) + FILL(expired, 0)) / checked, 0)"
     label       = "Browser binding anomaly rate (%)"
     return_data = true
   }
@@ -767,9 +772,31 @@ resource "aws_cloudwatch_metric_alarm" "browser_binding_rate" {
   }
 
   metric_query {
-    id = "anomalies"
+    id = "missing"
     metric {
-      metric_name = "BrowserBindingAnomaly"
+      metric_name = "BrowserBindingMISSING"
+      namespace   = var.browser_binding_alarm.namespace
+      period      = 300
+      stat        = "Sum"
+      dimensions  = { Cookies = "BrowserBinding" }
+    }
+  }
+
+  metric_query {
+    id = "mismatch"
+    metric {
+      metric_name = "BrowserBindingMISMATCH"
+      namespace   = var.browser_binding_alarm.namespace
+      period      = 300
+      stat        = "Sum"
+      dimensions  = { Cookies = "BrowserBinding" }
+    }
+  }
+
+  metric_query {
+    id = "expired"
+    metric {
+      metric_name = "BrowserBindingEXPIRED"
       namespace   = var.browser_binding_alarm.namespace
       period      = 300
       stat        = "Sum"
