@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.20.0
+
+### Minor Changes
+
+- 7c59d2d: feat: update error redirect and cookie metrics
+
 ## 1.19.1
 
 ### Patch Changes
