@@ -41,15 +41,17 @@ public class SAMLErrorRedirectService {
         return Optional.empty();
       }
 
-      UriBuilder redirectUriBuilder = UriBuilder.fromUri(exception.getRedirectUri())
+      UriBuilder redirectUriBuilder = UriBuilder.fromUri(URI.create(exception.getRedirectUri()))
           .replaceQueryParam("error", oauthError)
           .replaceQueryParam("error_description", exception.getErrorCode());
       if (exception.getState() != null) {
-        redirectUriBuilder.replaceQueryParam("state", exception.getState());
+        redirectUriBuilder.replaceQueryParam("state", "{oauthState}");
       } else {
         redirectUriBuilder.replaceQueryParam("state");
       }
-      return Optional.of(redirectUriBuilder.build());
+      return Optional.of(exception.getState() != null
+          ? redirectUriBuilder.buildFromMap(Map.of("oauthState", exception.getState()))
+          : redirectUriBuilder.build());
     } catch (RuntimeException exceptionDuringRedirectResolution) {
       return Optional.empty();
     }

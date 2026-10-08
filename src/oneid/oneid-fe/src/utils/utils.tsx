@@ -51,17 +51,17 @@ export const redirectToLoginToRetry = () => {
 export const redirectToClientWithError = (
   errorCode: ERROR_CODE,
   redirectUri: string,
-  state: string
+  state: string | null
 ) => {
   // https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2.1
   //  HTTP/1.1 302 Found
   //  Location: https://client.example.com/cb?error=access_denied&state=xyz
 
-  const params = new URLSearchParams();
-  params.set('error', 'access_denied');
-  params.set('error_description', errorCode);
-  params.set('state', state);
-  return `${redirectUri}?${params.toString()}`;
+  const redirect = new URL(redirectUri);
+  redirect.searchParams.set('error', 'access_denied');
+  redirect.searchParams.set('error_description', errorCode);
+  redirect.searchParams.set('state', String(state));
+  return redirect.toString();
 };
 
 export const forwardSearchParams = (idp?: string) => {

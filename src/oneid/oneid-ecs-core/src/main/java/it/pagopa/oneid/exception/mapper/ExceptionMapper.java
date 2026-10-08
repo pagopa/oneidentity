@@ -34,6 +34,7 @@ import it.pagopa.oneid.exception.UnsupportedGrantTypeException;
 import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.service.SAMLErrorRedirectService;
+import it.pagopa.oneid.web.dto.SAMLResponseDTO;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
@@ -45,13 +46,16 @@ import jakarta.validation.ValidationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -75,18 +79,17 @@ public class ExceptionMapper {
 
   private static String getUri(String callbackUri, String errorCode,
       String errorMessage, String state) {
-    String uri;
+    UriBuilder uri = UriBuilder.fromUri(URI.create(callbackUri))
+        .replaceQueryParam("error", "{oauthError}")
+        .replaceQueryParam("error_description", "{oauthDescription}");
+    Map<String, Object> values = new HashMap<>();
+    values.put("oauthError", errorCode);
+    values.put("oauthDescription", errorMessage);
     if (state != null) {
-      uri = callbackUri +
-          "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
-              StandardCharsets.UTF_8)
-          + "&state=" + state;
-    } else {
-      uri = callbackUri +
-          "?error=" + errorCode + "&error_description=" + URLEncoder.encode(errorMessage,
-              StandardCharsets.UTF_8);
+      uri.replaceQueryParam("state", "{oauthState}");
+      values.put("oauthState", state);
     }
-    return uri;
+    return uri.buildFromMap(values).toString();
   }
 
   @ServerExceptionMapper
@@ -110,14 +113,9 @@ public class ExceptionMapper {
 
   @ServerExceptionMapper
   public RestResponse<Object> mapGenericHTMLException(GenericHTMLException genericHTMLException) {
-    if (genericHTMLException.getRedirectUri() != null
-        && genericHTMLException.getState() != null
-        && genericHTMLException.getClientId() != null) {
-      return genericHTMLError(genericHTMLException.getMessage(),
-          genericHTMLException.getRedirectUri(), genericHTMLException.getState(),
-          genericHTMLException.getClientId());
-    }
-    return genericHTMLError(genericHTMLException.getMessage());
+    return genericHTMLError(genericHTMLException.getMessage(),
+        genericHTMLException.getRedirectUri(), genericHTMLException.getState(),
+        genericHTMLException.getClientId());
   }
 
   @ServerExceptionMapper
@@ -154,6 +152,11 @@ public class ExceptionMapper {
       // which will return HTTP status 500 and log the exception.
       Log.error(validationException.getMessage());
       throw resteasyViolationException;
+    }
+    if (resteasyViolationException.getConstraintViolations() != null
+        && resteasyViolationException.getConstraintViolations().stream()
+            .anyMatch(violation -> violation.getLeafBean() instanceof SAMLResponseDTO)) {
+      return genericHTMLError(ErrorCode.GENERIC_HTML_ERROR.getErrorCode());
     }
     return buildViolationReportResponse(resteasyViolationException);
 
@@ -376,6 +379,9 @@ public class ExceptionMapper {
 
   private RestResponse<Object> genericHTMLError(String errorCode, String redirectUri,
       String state, String clientId) {
+    if (redirectUri == null || redirectUri.isBlank() || clientId == null || clientId.isBlank()) {
+      return genericHTMLError(errorCode);
+    }
     try {
       return ResponseBuilder
           .create(FOUND)
@@ -383,7 +389,7 @@ public class ExceptionMapper {
               BASE_PATH + "/login/error?error_code=" +
                   URLEncoder.encode(errorCode, StandardCharsets.UTF_8)
                   + "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
-                  + "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8)
+                  + "&state=" + URLEncoder.encode(String.valueOf(state), StandardCharsets.UTF_8)
                   + "&client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)))
           .build();
     } catch (URISyntaxException | NullPointerException exception) {
@@ -400,7 +406,7 @@ public class ExceptionMapper {
           .location(
               new URI(uri))
           .build();
-    } catch (URISyntaxException | NullPointerException e) {
+    } catch (URISyntaxException | IllegalArgumentException | NullPointerException e) {
       Log.error("invalid URI for redirecting: "
           + e.getMessage());
       return genericHTMLError(ErrorCode.AUTHORIZATION_ERROR.getErrorCode());

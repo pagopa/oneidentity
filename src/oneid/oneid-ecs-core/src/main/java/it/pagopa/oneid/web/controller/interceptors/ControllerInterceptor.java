@@ -133,7 +133,9 @@ public class ControllerInterceptor {
       }
     }
 
-    if (samlResponseDTO == null) {
+    if (samlResponseDTO == null
+        || samlResponseDTO.getSAMLResponse() == null || samlResponseDTO.getSAMLResponse().isBlank()
+        || samlResponseDTO.getRelayState() == null || samlResponseDTO.getRelayState().isBlank()) {
       // TODO: consider collecting this as IDP Error metric
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
@@ -152,8 +154,12 @@ public class ControllerInterceptor {
       throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
     }
 
-    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an exception
+    // 1a. if in ResponseTo does not match with a pending AuthnRequest, raise an
+    // exception
     SAMLSession samlSession = null;
+    if (response == null) {
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
     String inResponseTo = response.getInResponseTo();
 
     if (inResponseTo == null || inResponseTo.isBlank()) {
@@ -170,6 +176,9 @@ public class ControllerInterceptor {
     }
 
     // Set MDC properties
+    if (samlSession == null || samlSession.getAuthorizationRequestDTOExtended() == null) {
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+    }
     updateMDCClientAndStateProperties(
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
         samlSession.getAuthorizationRequestDTOExtended().getState());

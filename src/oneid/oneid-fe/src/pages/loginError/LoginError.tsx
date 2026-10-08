@@ -24,26 +24,16 @@ export const LoginError = () => {
   const { clientQuery } = useLoginData();
   const { handleErrorCode } = useLoginError();
 
-  const errorCode = new URLSearchParams(window.location.search).get(
+  const errorCode = (new URLSearchParams(window.location.search).get(
     'error_code'
-  ) as ERROR_CODE;
+  ) || ERROR_CODE.GENERIC) as ERROR_CODE;
 
-  const clientRedirecUri = new URLSearchParams(window.location.search).get(
+  const clientRedirectUri = new URLSearchParams(window.location.search).get(
     'redirect_uri'
-  ) as string;
+  );
 
-  const state = new URLSearchParams(window.location.search).get(
-    'state'
-  ) as string;
-
-  const clientRedirectUriSanitized = useCallback((): string => {
-    try {
-      return decodeURIComponent(clientRedirecUri);
-    } catch (error) {
-      console.error('Error decoding client redirect URI:', error);
-      return '';
-    }
-  }, [clientRedirecUri]);
+  const state = new URLSearchParams(window.location.search).get('state');
+  const clientID = new URLSearchParams(window.location.search).get('client_id');
 
   const setContent = useCallback(
     (errorCode: ERROR_CODE) => {
@@ -69,24 +59,23 @@ export const LoginError = () => {
 
   const handleRedirect = useCallback(() => {
     if (
-      clientRedirectUriSanitized &&
-      clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
+      clientRedirectUri &&
+      clientID &&
+      clientQuery.data?.clientID === clientID &&
+      clientQuery.data.callbackURI?.includes(clientRedirectUri)
     ) {
-      const route = redirectToClientWithError(
-        errorCode,
-        clientRedirectUriSanitized(),
-        state
-      );
+      let route: string;
+      try {
+        route = redirectToClientWithError(errorCode, clientRedirectUri, state);
+      } catch {
+        redirectToLogin();
+        return;
+      }
       window.location.assign(route);
     } else {
       redirectToLogin();
     }
-  }, [
-    clientRedirectUriSanitized,
-    clientQuery.data?.callbackURI,
-    errorCode,
-    state,
-  ]);
+  }, [clientRedirectUri, clientID, clientQuery.data, errorCode, state]);
 
   const handleRetry = useCallback(() => {
     const route = redirectToLoginToRetry();

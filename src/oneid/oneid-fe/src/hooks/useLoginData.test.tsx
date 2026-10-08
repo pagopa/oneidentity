@@ -34,6 +34,7 @@ describe('useLoginData', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal('location', { search: '?client_id=mock-client-id' });
   });
 
   it('fetches banner content successfully', async () => {
@@ -76,8 +77,51 @@ describe('useLoginData', () => {
     await waitFor(() =>
       expect(result.current.clientQuery.isSuccess).toBe(true)
     );
-    expect(getClientData).toHaveBeenCalledWith(ENV.JSON_URL.CLIENT_BASE_URL);
+    expect(getClientData).toHaveBeenCalledWith(
+      ENV.JSON_URL.CLIENT_BASE_URL,
+      'mock-client-id'
+    );
     expect(result.current.clientQuery.data).toEqual(mockClientData);
+  });
+
+  it('isolates cached data when switching clients in the same app', async () => {
+    const queryClient = new QueryClient();
+    const sharedWrapper = ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    (getClientData as Mock).mockImplementation((_baseUrl, clientID) =>
+      Promise.resolve({
+        clientID,
+        callbackURI: [`https://${clientID}.example/callback`],
+      })
+    );
+    vi.stubGlobal('location', { search: '?client_id=client-a' });
+    const { result, rerender } = renderHook(useLoginData, {
+      wrapper: sharedWrapper,
+    });
+    await waitFor(() =>
+      expect(result.current.clientQuery.data?.clientID).toBe('client-a')
+    );
+
+    vi.stubGlobal('location', { search: '?client_id=client-b' });
+    rerender();
+    await waitFor(() =>
+      expect(result.current.clientQuery.data?.clientID).toBe('client-b')
+    );
+
+    expect(queryClient.getQueryData(['clientData', 'client-a'])).toEqual({
+      clientID: 'client-a',
+      callbackURI: ['https://client-a.example/callback'],
+    });
+    expect(getClientData).toHaveBeenCalledWith(
+      ENV.JSON_URL.CLIENT_BASE_URL,
+      'client-b'
+    );
+
+    vi.stubGlobal('location', { search: '' });
+    rerender();
+    expect(result.current.clientQuery.data).toBeUndefined();
+    expect(getClientData).toHaveBeenCalledTimes(2);
   });
 
   it('handles errors correctly', async () => {

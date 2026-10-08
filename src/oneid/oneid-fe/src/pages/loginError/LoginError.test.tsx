@@ -22,12 +22,13 @@ const mockHandleErrorCode = vi.fn();
 
 describe('LoginError Component', () => {
   const validCallbackURI = 'https://example.com/callback';
+  const testClientID = 'test-client-id';
   const testTitle = 'Test Title';
   const testDescription = 'Test Description';
   const mockClientQuery = {
     isFetched: true,
     data: {
-      clientID: 'test-client-id',
+      clientID: testClientID,
       friendlyName: 'Test Client',
       logoUri: 'https://example.com/logo.png',
       callbackURI: [validCallbackURI],
@@ -166,7 +167,7 @@ describe('LoginError Component', () => {
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
-        search: `?error_code=19&redirect_uri=${validCallbackURI}`,
+        search: `?error_code=19&redirect_uri=${validCallbackURI}&client_id=test-client-id`,
         assign: vi.fn(),
       },
     });
@@ -218,7 +219,7 @@ describe('LoginError Component', () => {
       writable: true,
       value: {
         search:
-          '?error_code=19&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback',
+          '?error_code=19&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&client_id=test-client-id',
         assign: vi.fn(),
       },
     });
@@ -238,6 +239,123 @@ describe('LoginError Component', () => {
       `${validCallbackURI}?error=access_denied&error_description=19&state=null`
     );
   });
+
+  it.each([
+    'https://example.com/callback?source=oneid',
+    'https://example.com/callback?path=%2Farea%26x%25',
+    'https://example.com/callback/%25',
+  ])('preserves registered callback %s and saved state', (callback) => {
+    const state = 'saved state&value=1+%';
+    window.location.search = `?${new URLSearchParams({
+      error_code: '19',
+      redirect_uri: callback,
+      client_id: testClientID,
+      state,
+    })}`;
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: {
+        ...mockClientQuery,
+        data: { ...mockClientQuery.data, callbackURI: [callback] },
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    const redirect = new URL((window.location.assign as Mock).mock.calls[0][0]);
+    const registered = new URL(callback);
+    expect(redirect.pathname).toBe(registered.pathname);
+    registered.searchParams.forEach((value, key) => {
+      expect(redirect.searchParams.get(key)).toBe(value);
+    });
+    expect(redirect.searchParams.get('error')).toBe('access_denied');
+    expect(redirect.searchParams.get('state')).toBe(state);
+  });
+
+  it('rejects an unregistered callback even if another decode would match', () => {
+    window.location.search = `?${new URLSearchParams({
+      error_code: '19',
+      redirect_uri: 'https://example.com/%63allback',
+    })}`;
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+  });
+
+  it('uses the generic error code when redirecting without error_code', () => {
+    window.location.search = `?${new URLSearchParams({
+      redirect_uri: validCallbackURI,
+      client_id: testClientID,
+    })}`;
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    const redirect = new URL((window.location.assign as Mock).mock.calls[0][0]);
+    expect(redirect.searchParams.get('error_description')).toBe('GENERIC');
+    expect(redirect.searchParams.get('state')).toBe('null');
+  });
+
+  it('falls back locally when an exactly registered callback is malformed', () => {
+    const callback = 'https://[invalid';
+    window.location.search = `?${new URLSearchParams({
+      error_code: '19',
+      redirect_uri: callback,
+      client_id: testClientID,
+    })}`;
+    (useLoginData as Mock).mockReturnValue({
+      clientQuery: {
+        ...mockClientQuery,
+        data: { ...mockClientQuery.data, callbackURI: [callback] },
+      },
+    });
+
+    render(
+      <MemoryRouter>
+        <LoginError />
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+
+    expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+  });
+
+  it.each([null, 'another-client'])(
+    'rejects cached callbacks for requested client %s',
+    (clientID) => {
+      const parameters = new URLSearchParams({
+        error_code: '19',
+        redirect_uri: validCallbackURI,
+      });
+      if (clientID !== null) {
+        parameters.set('client_id', clientID);
+      }
+      window.location.search = `?${parameters}`;
+
+      render(
+        <MemoryRouter>
+          <LoginError />
+        </MemoryRouter>
+      );
+      fireEvent.click(screen.getByRole('button', { name: /close/i }));
+
+      expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
+    }
+  );
 
   it('should redirect to login if redirect_uri is not present', () => {
     // Set different search params for this test

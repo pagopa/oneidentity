@@ -1,6 +1,5 @@
 package it.pagopa.oneid.service.utils;
 
-
 import io.quarkus.logging.Log;
 import it.pagopa.oneid.common.model.IDP;
 import it.pagopa.oneid.common.model.dto.AttributeDTO;
@@ -87,7 +86,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   @Inject
   S3Client s3Client;
 
-
   @ConfigProperty(name = "xsw_assertions_s3_bucket")
   String xswAssertionsS3Bucket;
 
@@ -116,11 +114,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {
     List<AttributeDTO> attributes = new ArrayList<>();
-    assertion.getAttributeStatements().forEach(attributeStatement ->
-        attributeStatement.getAttributes().forEach(attribute ->
-            addAttributeDTO(attribute, attributes)
-        )
-    );
+    assertion.getAttributeStatements().forEach(attributeStatement -> attributeStatement.getAttributes()
+        .forEach(attribute -> addAttributeDTO(attribute, attributes)));
     return attributes.isEmpty() ? Optional.empty() : Optional.of(attributes);
   }
 
@@ -224,15 +219,18 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
       checkNoMultipleSignatures(doc, decodedSamlResponse);
 
-    } catch (SAXException | IOException | ParserConfigurationException |
-             XPathExpressionException e) {
+    } catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException e) {
       Log.error("XML parsing exception " + e.getMessage());
       throw new OneIdentityException(e);
     }
 
     try {
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
+      XMLObject samlObject = XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
+      if (!(samlObject instanceof Response response)) {
+        throw new OneIdentityException("Expected a SAML Response root element");
+      }
+      return response;
     } catch (XMLParserException | UnmarshallingException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
@@ -245,7 +243,8 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     // Set the namespace context to handle prefixes like 'saml2p', 'saml2', and 'ds'
     xPath.setNamespaceContext(new SAMLNamespaceContext());
 
-    //In case of "Advice" field inside the Response, we do not consider the signatures inside it
+    // In case of "Advice" field inside the Response, we do not consider the
+    // signatures inside it
     String expression = "count(.//ds:Signature[not(ancestor::saml2:Advice)])";
     Double responseSignatureCount = (Double) xPath.compile(expression)
         .evaluate(doc, XPathConstants.NUMBER);
@@ -268,10 +267,10 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
       String objectKey = generateS3ObjectKey(requestId);
 
       s3Client.putObject(PutObjectRequest.builder()
-              .bucket(xswAssertionsS3Bucket)
-              .key(objectKey)
-              .contentType("application/xml")
-              .build(),
+          .bucket(xswAssertionsS3Bucket)
+          .key(objectKey)
+          .contentType("application/xml")
+          .build(),
           RequestBody.fromBytes(decodedSamlResponse));
       Log.info("Uploaded Assertion containing XSW to S3: " + objectKey);
 
@@ -291,12 +290,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     ZonedDateTime cetTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
     String timestampStr = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(cetTime);
 
-    // Structure: year=YYYY/month=MM/day=DD/hour=HH/samlRequestId=ID/ID-TIMESTAMP.xml
+    // Structure:
+    // year=YYYY/month=MM/day=DD/hour=HH/samlRequestId=ID/ID-TIMESTAMP.xml
     return String.format(
         "year=%04d/month=%02d/day=%02d/hour=%02d/samlRequestId=%s/%s-%s.xml",
         cetTime.getYear(), cetTime.getMonthValue(), cetTime.getDayOfMonth(), cetTime.getHour(),
-        requestId, requestId, timestampStr
-    );
+        requestId, requestId, timestampStr);
   }
 
   private void validateResponseSignature(Response response, List<Credential> credentials)
@@ -361,7 +360,6 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return credentials;
   }
 
-
   private AuthnContextClassRef buildAuthnContextClassRef(String spidLevel) {
     AuthnContextClassRef authnContextClassRef = buildSAMLObject(AuthnContextClassRef.class);
     authnContextClassRef.setURI(spidLevel);
@@ -371,13 +369,10 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
 
   private String getAttributeValue(XMLObject attributeValue) {
 
-    return attributeValue == null ?
-        null :
-        attributeValue instanceof XSString ?
-            getStringAttributeValue((XSString) attributeValue) :
-            attributeValue instanceof XSAnyImpl ?
-                getAnyAttributeValue((XSAnyImpl) attributeValue) :
-                attributeValue.toString();
+    return attributeValue == null ? null
+        : attributeValue instanceof XSString ? getStringAttributeValue((XSString) attributeValue)
+            : attributeValue instanceof XSAnyImpl ? getAnyAttributeValue((XSAnyImpl) attributeValue)
+                : attributeValue.toString();
   }
 
   private String getStringAttributeValue(XSString attributeValue) {
