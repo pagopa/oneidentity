@@ -57,21 +57,25 @@ export const LoginError = () => {
   }, [setContent, errorCode]);
 
   const handleRedirect = useCallback(() => {
-    if (
-      clientRedirectUri &&
-      clientQuery.data?.callbackURI?.includes(clientRedirectUri)
-    ) {
-      let route: string;
-      try {
-        route = redirectToClientWithError(errorCode, clientRedirectUri, state);
-      } catch {
-        redirectToLogin();
-        return;
-      }
-      window.location.assign(route);
-    } else {
+    const registeredCallbackUri = clientQuery.data?.callbackURI?.find(
+      (callbackUri) => callbackUri === clientRedirectUri
+    );
+    if (!registeredCallbackUri) {
       redirectToLogin();
+      return;
     }
+    let route: string;
+    try {
+      route = redirectToClientWithError(
+        errorCode,
+        registeredCallbackUri,
+        state
+      );
+    } catch {
+      redirectToLogin();
+      return;
+    }
+    window.location.assign(route);
   }, [clientRedirectUri, clientQuery.data?.callbackURI, errorCode, state]);
 
   const handleRetry = useCallback(() => {
