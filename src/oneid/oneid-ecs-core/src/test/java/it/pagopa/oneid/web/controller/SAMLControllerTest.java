@@ -3,6 +3,7 @@ package it.pagopa.oneid.web.controller;
 import static io.restassured.RestAssured.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
@@ -117,7 +118,7 @@ public class SAMLControllerTest {
         @DisplayName("Unexpected SAML XML roots return a local HTTP redirect")
         @SneakyThrows
         void given_unexpected_xml_root_when_posting_acs_then_redirect_locally(String xml) {
-                Mockito.when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
+                when(samlServiceImpl.getSAMLResponseFromString(Mockito.any()))
                                 .thenAnswer(invocation -> samlUtils
                                                 .getSAMLResponseFromString(invocation.getArgument(0)));
                 String encoded = Base64.getEncoder().encodeToString(xml.getBytes(StandardCharsets.UTF_8));
@@ -206,7 +207,7 @@ public class SAMLControllerTest {
                 Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
                 Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
                 Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-                Mockito.when(authorizationResponse.getState()).thenReturn(new State("DummyState"));
+                when(authorizationResponse.getState()).thenReturn(new State("DummyState"));
                 Mockito.when(authorizationResponse.toSuccessResponse())
                                 .thenReturn(authorizationSuccessResponse);
 
@@ -265,7 +266,7 @@ public class SAMLControllerTest {
                 Mockito.when(authorizationCode.toString()).thenReturn("DummyCode");
                 Mockito.when(authorizationSuccessResponse.getAuthorizationCode()).thenReturn(authorizationCode);
                 Mockito.when(authorizationSuccessResponse.getState()).thenReturn(new State("DummyState"));
-                Mockito.when(authorizationResponse.getState()).thenReturn(new State("DummyState"));
+                when(authorizationResponse.getState()).thenReturn(new State("DummyState"));
                 Mockito.when(authorizationResponse.toSuccessResponse())
                                 .thenReturn(authorizationSuccessResponse);
                 Mockito.when(oidcServiceImpl.getAuthorizationResponse(Mockito.any()))

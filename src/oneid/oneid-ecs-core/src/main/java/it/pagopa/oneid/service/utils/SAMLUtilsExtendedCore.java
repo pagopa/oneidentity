@@ -368,11 +368,16 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private String getAttributeValue(XMLObject attributeValue) {
-
-    return attributeValue == null ? null
-        : attributeValue instanceof XSString ? getStringAttributeValue((XSString) attributeValue)
-            : attributeValue instanceof XSAnyImpl ? getAnyAttributeValue((XSAnyImpl) attributeValue)
-                : attributeValue.toString();
+    if (attributeValue == null) {
+      return null;
+    }
+    if (attributeValue instanceof XSString xsString) {
+      return getStringAttributeValue(xsString);
+    }
+    if (attributeValue instanceof XSAnyImpl xsAny) {
+      return getAnyAttributeValue(xsAny);
+    }
+    return attributeValue.toString();
   }
 
   private String getStringAttributeValue(XSString attributeValue) {
