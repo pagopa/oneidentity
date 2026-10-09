@@ -189,8 +189,8 @@ public class OIDCController {
 
     // 2. Check if idp exists
     idp = samlServiceImpl.getIDPFromEntityID(authorizationRequestDTOExtended.getIdp());
-    if (idp.isEmpty()) {
-      Log.debug("selected IDP not found");
+    if (idp.isEmpty() || !idp.get().isActive()) {
+      Log.debug("selected IDP not found or inactive");
       throw new IDPNotFoundException(authorizationRequestDTOExtended.getRedirectUri(),
           authorizationRequestDTOExtended.getState(),
           authorizationRequestDTOExtended.getClientId());

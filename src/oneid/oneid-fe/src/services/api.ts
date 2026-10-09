@@ -46,6 +46,7 @@ export const getIdpList = async (idpListUrl: string) => {
   const res: Array<IdentityProvider> = await response.json();
   const assetsIDPUrl = ENV.URL_FE.ASSETS + '/idps';
   const rawIDPS = res
+    .filter((idp) => idp.active)
     .map((i) => ({
       ...i,
       imageUrl: `${assetsIDPUrl}/${btoa(i.entityID)}.png`,

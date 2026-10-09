@@ -12,6 +12,7 @@ import it.pagopa.oneid.common.model.enums.LatestTAG;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -219,5 +220,37 @@ class IDPConnectorImplTest {
             .isPresent());
 
 
+  }
+
+  @Test
+  void saveIDPs_preservesActiveStateForExistingIdps() {
+    String pointer = LatestTAG.LATEST_SPID.toString();
+    long firstTimestamp = 12345;
+    IDP disabledIdp = new IDP("existing", pointer, false, IDPStatus.OK,
+        Collections.singletonMap("test", "test"), Collections.singleton("test"), "Existing");
+
+    idpConnectorImpl.saveIDPs(new ArrayList<>(Collections.singleton(disabledIdp)),
+        LatestTAG.LATEST_SPID, String.valueOf(firstTimestamp));
+
+    IDP refreshedIdp = new IDP("existing", pointer, true, IDPStatus.OK,
+        Collections.singletonMap("test", "updated"), Collections.singleton("updated"),
+        "Updated");
+    IDP newIdp = new IDP("new", pointer, true, IDPStatus.OK,
+        Collections.singletonMap("test", "test"), Collections.singleton("test"), "New");
+
+    idpConnectorImpl.saveIDPs(new ArrayList<>(List.of(refreshedIdp, newIdp)),
+        LatestTAG.LATEST_SPID, String.valueOf(firstTimestamp + 10));
+
+    IDP savedExistingIdp = idpConnectorImpl
+        .getIDPByEntityIDAndTimestamp("existing", pointer).orElseThrow();
+    IDP archivedExistingIdp = idpConnectorImpl
+        .getIDPByEntityIDAndTimestamp("existing", String.valueOf(firstTimestamp + 10))
+        .orElseThrow();
+    IDP savedNewIdp = idpConnectorImpl.getIDPByEntityIDAndTimestamp("new", pointer)
+        .orElseThrow();
+
+    assertFalse(savedExistingIdp.isActive());
+    assertFalse(archivedExistingIdp.isActive());
+    assertTrue(savedNewIdp.isActive());
   }
 }
