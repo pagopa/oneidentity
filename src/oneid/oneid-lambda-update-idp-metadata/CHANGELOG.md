@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.7.0
+
+### Minor Changes
+
+- e6c8311: make active flag operative
+
 ## 1.6.0
 
 ### Minor Changes
