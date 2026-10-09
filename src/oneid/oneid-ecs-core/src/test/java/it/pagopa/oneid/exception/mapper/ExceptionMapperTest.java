@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
-import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
 import it.pagopa.oneid.common.model.exception.ClientUtilsException;
@@ -39,7 +39,6 @@ import it.pagopa.oneid.exception.UnsupportedResponseTypeException;
 import it.pagopa.oneid.model.ErrorResponse;
 import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.web.dto.TokenRequestErrorDTO;
-import jakarta.inject.Inject;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import jakarta.validation.Path.Node;
@@ -75,14 +74,17 @@ class ExceptionMapperTest {
 
         private final String DEFAULT_ERROR_CODE = "dummyErrorCode";
 
-        @Inject
         ExceptionMapper exceptionMapper;
 
-        @InjectMock
         SAMLErrorRedirectService samlErrorRedirectService;
 
         @BeforeEach
         void setUpSamlErrorRedirectFallback() {
+                exceptionMapper = new ExceptionMapper();
+                exceptionMapper.BASE_PATH = "https://oneid.example";
+                exceptionMapper.cloudWatchConnectorImpl = Mockito.mock(CloudWatchConnectorImpl.class);
+                samlErrorRedirectService = Mockito.mock(SAMLErrorRedirectService.class);
+                exceptionMapper.samlErrorRedirectService = samlErrorRedirectService;
                 Mockito.when(samlErrorRedirectService.resolveRedirect(Mockito.any()))
                                 .thenReturn(Optional.empty());
         }
@@ -150,7 +152,6 @@ class ExceptionMapperTest {
         @ParameterizedTest
         @CsvSource(value = {
                         "NULL,saved-state,client-id",
-                        "https://client.example/callback,NULL,client-id",
                         "https://client.example/callback,saved-state,NULL"
         }, nullValues = "NULL")
         @DisplayName("Incomplete callback context retains the generic 302 redirect rather than returning 500")
@@ -163,6 +164,106 @@ class ExceptionMapperTest {
 
                 assertEquals(FOUND.getStatusCode(), response.getStatus());
                 assertEquals("error_code=GENERIC_HTML_ERROR", response.getLocation().getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Absent state retains callback context with the legacy null state value")
+        void given_callback_without_state_when_mapping_then_contextual_redirect() {
+                RestResponse<Object> response = exceptionMapper.mapGenericHTMLException(
+                                new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
+                                                "https://client.example/callback", null, "client-id"));
+
+                assertEquals(FOUND.getStatusCode(), response.getStatus());
+                assertEquals("error_code=GENERIC_HTML_ERROR&redirect_uri="
+                                + URLEncoder.encode("https://client.example/callback", StandardCharsets.UTF_8)
+                                + "&state=null&client_id=client-id", response.getLocation().getRawQuery());
+        }
+
+        @ParameterizedTest
+        @CsvSource(value = {
+                        "status,https://client.example/callback,client-id",
+                        "validation,https://client.example/callback,client-id",
+                        "status,NULL,client-id",
+                        "validation,NULL,client-id",
+                        "status,https://client.example/callback,NULL",
+                        "validation,https://client.example/callback,NULL"
+        }, nullValues = "NULL")
+        @DisplayName("SAML errors with null state redirect instead of returning 500")
+        void given_null_state_when_mapping_saml_error_then_redirect(
+                        String errorType, String redirectUri, String clientId) {
+                RestResponse<Object> response;
+                if ("status".equals(errorType)) {
+                        response = exceptionMapper.mapSAMLResponseStatusException(
+                                        new SAMLResponseStatusException(ErrorCode.ERRORCODE_NR22,
+                                                        redirectUri, clientId, "idp", null));
+                } else {
+                        SAMLValidationException exception = new SAMLValidationException(ErrorCode.ERRORCODE_NR22);
+                        exception.setRedirectUri(redirectUri);
+                        exception.setClientId(clientId);
+                        exception.setIdp("idp");
+                        response = exceptionMapper.mapSAMLValidationException(exception);
+                }
+
+                assertEquals(FOUND.getStatusCode(), response.getStatus());
+                assertEquals("/login/error", response.getLocation().getPath());
+                String expectedQuery = "error_code=22";
+                if (redirectUri != null && clientId != null) {
+                        expectedQuery += "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
+                                        + "&state=null&client_id=client-id";
+                }
+                assertEquals(expectedQuery, response.getLocation().getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Authorization errors preserve callback queries and encode literal OAuth values")
+        void given_callback_query_and_reserved_state_when_mapping_then_preserve_values() {
+                AuthorizationErrorException exception = Mockito.mock(AuthorizationErrorException.class);
+                String state = "saved state&value=1+%{token}";
+                String description = "error & details+%{literal}";
+                Mockito.when(exception.getCallbackUri()).thenReturn(
+                                "https://client.example/callback?path=%2Farea%26x%25&error=old&state=old");
+                Mockito.when(exception.getState()).thenReturn(state);
+                Mockito.when(exception.getErrorMessage()).thenReturn(description);
+                Mockito.when(exception.getOAuth2errorCode()).thenReturn(OAuth2Error.INVALID_REQUEST_CODE);
+
+                RestResponse<Object> response = exceptionMapper.mapAuthorizationErrorException(exception);
+
+                assertEquals(FOUND.getStatusCode(), response.getStatus());
+                assertEquals("path=%2Farea%26x%25&error=invalid_request&error_description="
+                                + URLEncoder.encode(description, StandardCharsets.UTF_8)
+                                + "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8),
+                                response.getLocation().getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Authorization errors without state retain existing callback state")
+        void given_absent_state_when_mapping_then_preserve_callback_state() {
+                AuthorizationErrorException exception = Mockito.mock(AuthorizationErrorException.class);
+                Mockito.when(exception.getCallbackUri()).thenReturn(
+                                "https://client.example/callback?source=oneid&state=old");
+                Mockito.when(exception.getErrorMessage()).thenReturn("test");
+                Mockito.when(exception.getOAuth2errorCode()).thenReturn(OAuth2Error.INVALID_REQUEST_CODE);
+
+                RestResponse<Object> response = exceptionMapper.mapAuthorizationErrorException(exception);
+
+                assertEquals("source=oneid&state=old&error=invalid_request&error_description=test",
+                                response.getLocation().getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Malformed callbacks are not interpreted as URI templates")
+        void given_callback_template_when_mapping_then_fallback_locally() {
+                AuthorizationErrorException exception = Mockito.mock(AuthorizationErrorException.class);
+                Mockito.when(exception.getCallbackUri()).thenReturn(
+                                "https://client.example/callback?source={oauthState}");
+                Mockito.when(exception.getState()).thenReturn("saved-state");
+                Mockito.when(exception.getErrorMessage()).thenReturn("test");
+                Mockito.when(exception.getOAuth2errorCode()).thenReturn(OAuth2Error.INVALID_REQUEST_CODE);
+
+                RestResponse<Object> response = exceptionMapper.mapAuthorizationErrorException(exception);
+
+                assertEquals("/login/error", response.getLocation().getPath());
+                assertEquals("error_code=AUTHORIZATION_ERROR", response.getLocation().getRawQuery());
         }
 
         @Test
@@ -202,6 +303,7 @@ class ExceptionMapperTest {
                 AuthorizationErrorException authorizationErrorExceptionMock = Mockito.mock(
                                 AuthorizationErrorException.class);
                 Mockito.when(authorizationErrorExceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(authorizationErrorExceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(authorizationErrorExceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.INVALID_REQUEST_CODE);
                 Mockito.when(exceptionMock.getCause()).thenReturn(authorizationErrorExceptionMock);
@@ -527,6 +629,7 @@ class ExceptionMapperTest {
                 ClientNotFoundException exceptionMock = Mockito.mock(ClientNotFoundException.class);
                 Mockito.when(exceptionMock.getState()).thenReturn("test");
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.UNAUTHORIZED_CLIENT_CODE);
                 // when
@@ -544,6 +647,7 @@ class ExceptionMapperTest {
                 // given
                 ClientNotFoundException exceptionMock = Mockito.mock(ClientNotFoundException.class);
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.UNAUTHORIZED_CLIENT_CODE);
                 // when
@@ -576,6 +680,7 @@ class ExceptionMapperTest {
                 InvalidScopeException exceptionMock = Mockito.mock(InvalidScopeException.class);
                 Mockito.when(exceptionMock.getState()).thenReturn("test");
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.INVALID_SCOPE_CODE);
                 // when
@@ -594,6 +699,7 @@ class ExceptionMapperTest {
                                 UnsupportedResponseTypeException.class);
                 Mockito.when(exceptionMock.getState()).thenReturn("test");
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.UNSUPPORTED_RESPONSE_TYPE_CODE);
                 // when
@@ -611,6 +717,7 @@ class ExceptionMapperTest {
                 AuthorizationErrorException exceptionMock = Mockito.mock(AuthorizationErrorException.class);
                 Mockito.when(exceptionMock.getState()).thenReturn("test");
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.SERVER_ERROR_CODE);
                 // when
@@ -628,6 +735,7 @@ class ExceptionMapperTest {
                 IDPNotFoundException exceptionMock = Mockito.mock(IDPNotFoundException.class);
                 Mockito.when(exceptionMock.getState()).thenReturn("test");
                 Mockito.when(exceptionMock.getErrorMessage()).thenReturn("test");
+                Mockito.when(exceptionMock.getCallbackUri()).thenReturn(DEFAULT_FALLBACK_URI);
                 Mockito.when(exceptionMock.getOAuth2errorCode())
                                 .thenReturn(OAuth2Error.INVALID_REQUEST_CODE);
                 // when

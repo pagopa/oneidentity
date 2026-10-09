@@ -60,10 +60,10 @@ export const getIdpList = async (idpListUrl: string) => {
   return out;
 };
 
-export const getClientData = async (clientBaseListUrl: string) => {
-  const query = new URLSearchParams(window.location.search);
-  const clientID = query.get('client_id');
-
+export const getClientData = async (
+  clientBaseListUrl: string,
+  clientID = new URLSearchParams(window.location.search).get('client_id')
+) => {
   if (!clientID || !clientID.match(/^[A-Za-z0-9_-]{43}$/)) {
     throw new Error('Invalid or missing client_id');
   }

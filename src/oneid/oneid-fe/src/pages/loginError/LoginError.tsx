@@ -24,26 +24,15 @@ export const LoginError = () => {
   const { clientQuery } = useLoginData();
   const { handleErrorCode } = useLoginError();
 
-  const errorCode = new URLSearchParams(window.location.search).get(
+  const errorCode = (new URLSearchParams(window.location.search).get(
     'error_code'
-  ) as ERROR_CODE;
+  ) || ERROR_CODE.GENERIC) as ERROR_CODE;
 
-  const clientRedirecUri = new URLSearchParams(window.location.search).get(
+  const clientRedirectUri = new URLSearchParams(window.location.search).get(
     'redirect_uri'
-  ) as string;
+  );
 
-  const state = new URLSearchParams(window.location.search).get(
-    'state'
-  ) as string;
-
-  const clientRedirectUriSanitized = useCallback((): string => {
-    try {
-      return decodeURIComponent(clientRedirecUri);
-    } catch (error) {
-      console.error('Error decoding client redirect URI:', error);
-      return '';
-    }
-  }, [clientRedirecUri]);
+  const state = new URLSearchParams(window.location.search).get('state');
 
   const setContent = useCallback(
     (errorCode: ERROR_CODE) => {
@@ -68,25 +57,26 @@ export const LoginError = () => {
   }, [setContent, errorCode]);
 
   const handleRedirect = useCallback(() => {
-    if (
-      clientRedirectUriSanitized &&
-      clientQuery.data?.callbackURI.includes(clientRedirectUriSanitized())
-    ) {
-      const route = redirectToClientWithError(
+    const registeredCallbackUri = clientQuery.data?.callbackURI?.find(
+      (callbackUri) => callbackUri === clientRedirectUri
+    );
+    if (!registeredCallbackUri) {
+      redirectToLogin();
+      return;
+    }
+    let route: string;
+    try {
+      route = redirectToClientWithError(
         errorCode,
-        clientRedirectUriSanitized(),
+        registeredCallbackUri,
         state
       );
-      window.location.assign(route);
-    } else {
+    } catch {
       redirectToLogin();
+      return;
     }
-  }, [
-    clientRedirectUriSanitized,
-    clientQuery.data?.callbackURI,
-    errorCode,
-    state,
-  ]);
+    window.location.assign(route);
+  }, [clientRedirectUri, clientQuery.data?.callbackURI, errorCode, state]);
 
   const handleRetry = useCallback(() => {
     const route = redirectToLoginToRetry();
