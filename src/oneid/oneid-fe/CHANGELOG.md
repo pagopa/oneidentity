@@ -1,5 +1,12 @@
 # oi-frontend
 
+## 1.6.0
+
+### Minor Changes
+
+- 3e203f2: feat: update redirect's error
+- e6c8311: make active flag operative
+
 ## 1.5.4
 
 ### Patch Changes
