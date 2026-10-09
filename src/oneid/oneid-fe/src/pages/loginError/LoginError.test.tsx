@@ -334,29 +334,6 @@ describe('LoginError Component', () => {
     expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
   });
 
-  it.each([null, 'another-client'])(
-    'rejects cached callbacks for requested client %s',
-    (clientID) => {
-      const parameters = new URLSearchParams({
-        error_code: '19',
-        redirect_uri: validCallbackURI,
-      });
-      if (clientID !== null) {
-        parameters.set('client_id', clientID);
-      }
-      window.location.search = `?${parameters}`;
-
-      render(
-        <MemoryRouter>
-          <LoginError />
-        </MemoryRouter>
-      );
-      fireEvent.click(screen.getByRole('button', { name: /close/i }));
-
-      expect(window.location.assign).toHaveBeenCalledWith(ROUTE_LOGIN);
-    }
-  );
-
   it('should redirect to login if redirect_uri is not present', () => {
     // Set different search params for this test
     Object.defineProperty(window, 'location', {

@@ -33,7 +33,6 @@ export const LoginError = () => {
   );
 
   const state = new URLSearchParams(window.location.search).get('state');
-  const clientID = new URLSearchParams(window.location.search).get('client_id');
 
   const setContent = useCallback(
     (errorCode: ERROR_CODE) => {
@@ -60,9 +59,7 @@ export const LoginError = () => {
   const handleRedirect = useCallback(() => {
     if (
       clientRedirectUri &&
-      clientID &&
-      clientQuery.data?.clientID === clientID &&
-      clientQuery.data.callbackURI?.includes(clientRedirectUri)
+      clientQuery.data?.callbackURI?.includes(clientRedirectUri)
     ) {
       let route: string;
       try {
@@ -75,7 +72,7 @@ export const LoginError = () => {
     } else {
       redirectToLogin();
     }
-  }, [clientRedirectUri, clientID, clientQuery.data, errorCode, state]);
+  }, [clientRedirectUri, clientQuery.data?.callbackURI, errorCode, state]);
 
   const handleRetry = useCallback(() => {
     const route = redirectToLoginToRetry();

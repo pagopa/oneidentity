@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import io.quarkus.hibernate.validator.runtime.jaxrs.ResteasyReactiveViolationException;
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.common.model.exception.AuthorizationErrorException;
 import it.pagopa.oneid.common.model.exception.ClientNotFoundException;
@@ -60,6 +61,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
+@QuarkusTest
 class ExceptionMapperTest {
 
         private final String DETAIL_MESSAGE = "detail_message";
