@@ -18,6 +18,7 @@ import io.quarkus.test.junit5.virtual.VirtualThreadUnit;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
+import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.model.session.AccessTokenSession;
 import it.pagopa.oneid.model.session.OIDCSession;
@@ -62,6 +63,9 @@ public class SAMLControllerTest {
 
         @InjectMock
         BrowserBindingService browserBindingService;
+
+        @InjectMock
+        CloudWatchConnectorImpl cloudWatchConnectorImpl;
 
         @Inject
         SAMLUtilsExtendedCore samlUtils;
@@ -161,6 +165,65 @@ public class SAMLControllerTest {
                                 + "&redirect_uri=test&state=test&client_id=test", acsResponse.getHeader("Location"));
                 Assertions.assertFalse(acsResponse.getBody().asString().contains("<form"));
                 Mockito.verify(samlServiceImpl, Mockito.never()).checkSAMLStatus(
+                                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+                Mockito.verifyNoInteractions(oidcServiceImpl);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                        "MISSING,cookieRedirect,true",
+                        "MISMATCH,cookieRedirect,true",
+                        "EXPIRED,cookieRedirect,true",
+                        "MISSING,cookiePost,false",
+                        "MISMATCH,cookiePost,false",
+                        "EXPIRED,cookiePost,false",
+                        "MISSING,cookieDisabled,false",
+                        "MISMATCH,cookieDisabled,false",
+                        "EXPIRED,cookieDisabled,false",
+                        "MISSING,cookieInvalidCallback,false",
+                        "MISMATCH,cookieInvalidCallback,false",
+                        "EXPIRED,cookieInvalidCallback,false"
+        })
+        @DisplayName("Cookie rejection respects the client's direct redirect policy without authenticating")
+        @SneakyThrows
+        void given_rejected_binding_when_posting_acs_then_follow_client_redirect_policy(
+                        BrowserBindingService.Outcome outcome, String sessionId, boolean directRedirect) {
+                when(browserBindingService.enabled()).thenReturn(true);
+                when(browserBindingService.enforcing()).thenReturn(true);
+                when(browserBindingService.mode()).thenReturn(BrowserBindingService.Mode.ENFORCE);
+                when(browserBindingService.verify(Mockito.any(), Mockito.any())).thenReturn(outcome);
+                Response response = Mockito.mock(Response.class);
+                when(response.getInResponseTo()).thenReturn(sessionId);
+                when(samlServiceImpl.getSAMLResponseFromString(Mockito.any())).thenReturn(response);
+
+                var acsResponse = given().redirects().follow(false)
+                                .formParam("SAMLResponse", "dummySAMLResponse")
+                                .formParam("RelayState", "https://attacker.example/untrusted-state")
+                                .when().post("/acs")
+                                .then().statusCode(302).extract().response();
+
+                String state = URLEncoder.encode("saved state&value=1+%{token}", StandardCharsets.UTF_8);
+                if (directRedirect) {
+                        Assertions.assertEquals("https://client.example.com/callback?error=access_denied"
+                                        + "&error_description=GENERIC_HTML_ERROR&state=" + state,
+                                        acsResponse.getHeader("Location"));
+                } else {
+                        String callback = "cookieInvalidCallback".equals(sessionId)
+                                        ? "https://attacker.example/callback"
+                                        : "https://client.example.com/callback";
+                        String clientId = "cookieDisabled".equals(sessionId) ? "testRedirect"
+                                        : "cookiePost".equals(sessionId) ? "cookiePost" : "cookieRedirect";
+                        Assertions.assertEquals(BASE_PATH + "/login/error?error_code=GENERIC_HTML_ERROR"
+                                        + "&redirect_uri=" + URLEncoder.encode(callback, StandardCharsets.UTF_8)
+                                        + "&state=" + state + "&client_id=" + clientId,
+                                        acsResponse.getHeader("Location"));
+                }
+                Assertions.assertNull(acsResponse.getHeader("Set-Cookie"));
+                Mockito.verify(cloudWatchConnectorImpl).sendBrowserBindingMetricData(outcome.name());
+                Mockito.verify(samlServiceImpl, Mockito.never()).checkSAMLStatus(
+                                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+                Mockito.verify(samlServiceImpl, Mockito.never()).validateSAMLResponse(
+                                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
                                 Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
                 Mockito.verifyNoInteractions(oidcServiceImpl);
         }
