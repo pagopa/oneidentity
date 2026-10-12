@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import java.net.URI;
@@ -17,6 +18,7 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 @QuarkusTest
@@ -222,6 +224,66 @@ class SAMLErrorRedirectServiceTest {
                                 .orElseThrow();
 
                 assertEquals("source=oneid&error=access_denied&error_description=22", result.getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Cookie rejection redirects an opted-in HTTP-Redirect client with the saved state")
+        void given_redirect_client_when_binding_rejected_then_redirect_with_access_denied() {
+                Client client = enabledClient();
+                client.setSamlBinding(SamlBinding.HTTP_REDIRECT);
+                String callback = CALLBACK_URI + "?source=%2Foneid&state=old";
+                client.setCallbackURI(Set.of(callback));
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+                String state = "saved state&value=1+%{token}";
+
+                URI result = service.resolveBrowserBindingRedirect(CLIENT_ID, callback, state).orElseThrow();
+
+                assertEquals("source=%2Foneid&error=access_denied&error_description=GENERIC_HTML_ERROR&state="
+                                + URLEncoder.encode(state, StandardCharsets.UTF_8), result.getRawQuery());
+        }
+
+        @ParameterizedTest
+        @CsvSource(value = {
+                        "false,true,HTTP_REDIRECT,https://client.example/callback",
+                        "true,false,HTTP_REDIRECT,https://client.example/callback",
+                        "true,true,HTTP_POST,https://client.example/callback",
+                        "true,true,NULL,https://client.example/callback",
+                        "true,true,HTTP_REDIRECT,https://attacker.example/callback"
+        }, nullValues = "NULL")
+        @DisplayName("Cookie rejection keeps the local error page unless direct redirect is allowed")
+        void given_disallowed_client_when_binding_rejected_then_fallback_locally(
+                        boolean enabled, boolean active, SamlBinding binding, String callback) {
+                Client client = enabledClient();
+                client.setClientErrorRedirectEnabled(enabled);
+                client.setActive(active);
+                client.setSamlBinding(binding);
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+                assertTrue(service.resolveBrowserBindingRedirect(CLIENT_ID, callback, "state").isEmpty());
+        }
+
+        @Test
+        @DisplayName("Cookie rejection without saved state removes stale callback state")
+        void given_absent_state_when_binding_rejected_then_remove_stale_state() {
+                Client client = enabledClient();
+                client.setSamlBinding(SamlBinding.HTTP_REDIRECT);
+                String callback = CALLBACK_URI + "?state=old";
+                client.setCallbackURI(Set.of(callback));
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+                URI result = service.resolveBrowserBindingRedirect(CLIENT_ID, callback, null).orElseThrow();
+
+                assertEquals("error=access_denied&error_description=GENERIC_HTML_ERROR", result.getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Cookie rejection with unavailable client configuration fails closed")
+        void given_unavailable_client_when_binding_rejected_then_fallback_locally() {
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.empty());
+                assertTrue(service.resolveBrowserBindingRedirect(CLIENT_ID, CALLBACK_URI, "state").isEmpty());
+
+                when(clientLookupService.getClientById(CLIENT_ID)).thenThrow(new RuntimeException("failure"));
+                assertTrue(service.resolveBrowserBindingRedirect(CLIENT_ID, CALLBACK_URI, "state").isEmpty());
         }
 
         private Client enabledClient() {

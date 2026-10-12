@@ -21,6 +21,7 @@ import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.BrowserBindingService;
+import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.service.ClientLookupService;
@@ -80,6 +81,9 @@ public class SAMLController {
   @Inject
   BrowserBindingService browserBindingService;
 
+  @Inject
+  SAMLErrorRedirectService samlErrorRedirectService;
+
   @Context
   HttpHeaders httpHeaders;
 
@@ -107,6 +111,12 @@ public class SAMLController {
           && outcome != BrowserBindingService.Outcome.LEGACY) {
         var authorizationRequest = samlSession.getAuthorizationRequestDTOExtended();
         if (authorizationRequest != null) {
+          var directRedirect = samlErrorRedirectService.resolveBrowserBindingRedirect(
+              authorizationRequest.getClientId(), authorizationRequest.getRedirectUri(),
+              authorizationRequest.getState());
+          if (directRedirect.isPresent()) {
+            return Response.status(302).location(directRedirect.get()).build();
+          }
           throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
               authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
               authorizationRequest.getClientId());

@@ -41,6 +41,22 @@ public class MockSAMLControllerSessionServiceImpl<T extends Session> extends
         "test", "test", ResponseType.CODE, "test", "test", "test", "test", "test", "test",
         "test");
 
+    if ("cookieRedirect".equals(id) || "cookiePost".equals(id)
+        || "cookieDisabled".equals(id) || "cookieInvalidCallback".equals(id)) {
+      dummyAuthorizationRequestDTOExtended.setClientId("cookieRedirect");
+      dummyAuthorizationRequestDTOExtended.setRedirectUri("https://client.example.com/callback");
+      dummyAuthorizationRequestDTOExtended.setState("saved state&value=1+%{token}");
+      if ("cookiePost".equals(id)) {
+        dummyAuthorizationRequestDTOExtended.setClientId("cookiePost");
+      }
+      if ("cookieDisabled".equals(id)) {
+        dummyAuthorizationRequestDTOExtended.setClientId("testRedirect");
+      }
+      if ("cookieInvalidCallback".equals(id)) {
+        dummyAuthorizationRequestDTOExtended.setRedirectUri("https://attacker.example/callback");
+      }
+    }
+
     SAMLSession session = new SAMLSession(dummySAMLRequest, RecordType.SAML, 0, 0,
         dummySAMLRequest, dummyAuthorizationRequestDTOExtended);
     session.setSAMLResponse(dummySAMLResponse);
