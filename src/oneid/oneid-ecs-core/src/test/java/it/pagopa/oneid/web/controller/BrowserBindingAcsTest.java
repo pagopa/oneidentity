@@ -26,6 +26,7 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
+import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
@@ -74,6 +75,7 @@ class BrowserBindingAcsTest {
       BrowserBindingService.Outcome outcome) {
     SAMLController controller = new SAMLController();
     controller.browserBindingService = mock(BrowserBindingService.class);
+    controller.samlErrorRedirectService = mock(SAMLErrorRedirectService.class);
     controller.cloudWatchConnectorImpl = mock(CloudWatchConnectorImpl.class);
     controller.samlSessionService = mock(SessionServiceImpl.class);
     controller.httpHeaders = mock(HttpHeaders.class);
@@ -91,6 +93,9 @@ class BrowserBindingAcsTest {
     when(controller.browserBindingService.enforcing()).thenReturn(true);
     when(controller.browserBindingService.mode()).thenReturn(BrowserBindingService.Mode.ENFORCE);
     when(controller.browserBindingService.verify(session, Map.of())).thenReturn(outcome);
+    when(controller.samlErrorRedirectService.resolveBrowserBindingRedirect(
+        "saved-client", "https://client.example/callback", "saved-state"))
+        .thenReturn(Optional.empty());
 
     GenericHTMLException exception = assertThrows(GenericHTMLException.class,
         () -> controller.samlACS(mock(SAMLResponseDTO.class)));

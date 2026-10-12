@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.22.0
+
+### Minor Changes
+
+- 43e2518: fix: cookie-redirect error
+
 ## 1.21.0
 
 ### Minor Changes
