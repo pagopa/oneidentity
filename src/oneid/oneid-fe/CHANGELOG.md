@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.6.1
+
+### Patch Changes
+
+- cac4e8f: update env fe io-uat cie
+
 ## 1.6.0
 
 ### Minor Changes
