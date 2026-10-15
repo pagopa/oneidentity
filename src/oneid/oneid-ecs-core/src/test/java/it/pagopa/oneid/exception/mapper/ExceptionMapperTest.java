@@ -87,6 +87,9 @@ class ExceptionMapperTest {
                 exceptionMapper.samlErrorRedirectService = samlErrorRedirectService;
                 Mockito.when(samlErrorRedirectService.resolveRedirect(Mockito.any()))
                                 .thenReturn(Optional.empty());
+                Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(
+                                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                                .thenReturn(Optional.empty());
         }
 
         @Test
@@ -566,6 +569,45 @@ class ExceptionMapperTest {
                 // then
                 checkErrorWithGenericHTMLError(FOUND, exceptionMock.getErrorCode().getErrorCode(),
                                 restResponse);
+        }
+
+        @Test
+        @DisplayName("Enabled client error redirects bypass the page for SAML validation errors")
+        void given_direct_redirect_when_mapping_saml_validation_exception_then_redirect_to_client_callback() {
+                SAMLValidationException exception = new SAMLValidationException(
+                                ErrorCode.IDP_ERROR_AUTHN_CONTEXT_CLASS_REF_NOT_MATCHING_REQUESTED_AUTH_LEVEL);
+                exception.setRedirectUri("https://client.example/callback");
+                exception.setState("state-123");
+                exception.setClientId(DEFAULT_CLIENT_ID);
+                exception.setIdp("idp");
+                URI directRedirect = URI.create(
+                                "https://client.example/callback?error=access_denied&error_description=IDP_ERROR&state=state-123");
+                Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(
+                                DEFAULT_CLIENT_ID, "https://client.example/callback", "state-123", "IDP_ERROR"))
+                                .thenReturn(Optional.of(directRedirect));
+
+                RestResponse<Object> restResponse = exceptionMapper.mapSAMLValidationException(exception);
+
+                assertEquals(FOUND.getStatusCode(), restResponse.getStatus());
+                assertEquals(directRedirect, restResponse.getLocation());
+        }
+
+        @Test
+        @DisplayName("Enabled client error redirects bypass the page for contextual generic errors")
+        void given_direct_redirect_when_mapping_generic_html_exception_then_redirect_to_client_callback() {
+                GenericHTMLException exception = new GenericHTMLException(
+                                ErrorCode.GENERIC_HTML_ERROR, "https://client.example/callback", "state-123",
+                                DEFAULT_CLIENT_ID);
+                URI directRedirect = URI.create(
+                                "https://client.example/callback?error=access_denied&error_description=GENERIC_HTML_ERROR&state=state-123");
+                Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(
+                                DEFAULT_CLIENT_ID, "https://client.example/callback", "state-123", "GENERIC_HTML_ERROR"))
+                                .thenReturn(Optional.of(directRedirect));
+
+                RestResponse<Object> restResponse = exceptionMapper.mapGenericHTMLException(exception);
+
+                assertEquals(FOUND.getStatusCode(), restResponse.getStatus());
+                assertEquals(directRedirect, restResponse.getLocation());
         }
 
         @Test

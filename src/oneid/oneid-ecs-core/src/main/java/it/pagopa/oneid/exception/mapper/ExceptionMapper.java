@@ -382,6 +382,11 @@ public class ExceptionMapper {
     if (redirectUri == null || redirectUri.isBlank() || clientId == null || clientId.isBlank()) {
       return genericHTMLError(errorCode);
     }
+    Optional<URI> directRedirect = samlErrorRedirectService.resolveClientErrorRedirect(
+        clientId, redirectUri, state, errorCode);
+    if (directRedirect.isPresent()) {
+      return ResponseBuilder.create(FOUND).location(directRedirect.get()).build();
+    }
     try {
       return ResponseBuilder
           .create(FOUND)

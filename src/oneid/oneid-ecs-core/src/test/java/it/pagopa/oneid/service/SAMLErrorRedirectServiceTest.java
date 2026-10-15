@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 
 @QuarkusTest
 class SAMLErrorRedirectServiceTest {
@@ -250,7 +251,7 @@ class SAMLErrorRedirectServiceTest {
                         "true,true,NULL,https://client.example/callback",
                         "true,true,HTTP_REDIRECT,https://attacker.example/callback"
         }, nullValues = "NULL")
-        @DisplayName("Cookie rejection keeps the local error page unless direct redirect is allowed")
+        @DisplayName("Browser binding resolver declines clients outside its redirect policy")
         void given_disallowed_client_when_binding_rejected_then_fallback_locally(
                         boolean enabled, boolean active, SamlBinding binding, String callback) {
                 Client client = enabledClient();
@@ -284,6 +285,81 @@ class SAMLErrorRedirectServiceTest {
 
                 when(clientLookupService.getClientById(CLIENT_ID)).thenThrow(new RuntimeException("failure"));
                 assertTrue(service.resolveBrowserBindingRedirect(CLIENT_ID, CALLBACK_URI, "state").isEmpty());
+        }
+
+        @ParameterizedTest
+        @EnumSource(SamlBinding.class)
+        @NullSource
+        @DisplayName("Enabled client error redirects use the selected callback regardless of binding")
+        void given_redirect_client_and_custom_error_code_when_resolving_then_redirect_with_error_code(
+                        SamlBinding binding) {
+                Client client = enabledClient();
+                client.setSamlBinding(binding);
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+                URI result = service.resolveClientErrorRedirect(
+                                CLIENT_ID, CALLBACK_URI, "state-value", ErrorCode.GENERIC_HTML_ERROR.getErrorCode())
+                                .orElseThrow();
+
+                assertEquals("https://client.example/callback?error=access_denied&error_description=GENERIC_HTML_ERROR&state=state-value",
+                                result.toString());
+        }
+
+        @ParameterizedTest
+        @CsvSource(value = {"saved state&value=1+%{token}", "NULL"}, nullValues = "NULL")
+        @DisplayName("Client error redirects preserve the selected callback and replace OAuth parameters")
+        void given_multiple_callbacks_when_resolving_client_error_then_preserve_selected_callback(String state) {
+                String callback = "https://client.example/selected?path=%2Farea%26x%25"
+                                + "&error=old&error_description=old&state=old";
+                Client client = enabledClient();
+                client.setCallbackURI(Set.of(CALLBACK_URI, callback));
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+
+                URI result = service.resolveClientErrorRedirect(CLIENT_ID, callback, state,
+                                "GENERIC_HTML_ERROR").orElseThrow();
+
+                assertEquals("/selected", result.getPath());
+                assertEquals("path=%2Farea%26x%25&error=access_denied&error_description=GENERIC_HTML_ERROR"
+                                + (state == null ? "" : "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8)),
+                                result.getRawQuery());
+        }
+
+        @Test
+        @DisplayName("Inactive or unavailable clients cannot receive direct error redirects")
+        void given_inactive_or_unavailable_client_when_resolving_client_error_then_return_empty() {
+                Client client = enabledClient();
+                client.setActive(false);
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID, CALLBACK_URI, "state",
+                                "GENERIC_HTML_ERROR").isEmpty());
+
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.empty());
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID, CALLBACK_URI, "state",
+                                "GENERIC_HTML_ERROR").isEmpty());
+
+                when(clientLookupService.getClientById(CLIENT_ID)).thenThrow(new RuntimeException("failure"));
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID, CALLBACK_URI, "state",
+                                "GENERIC_HTML_ERROR").isEmpty());
+        }
+
+        @Test
+        @DisplayName("Client error redirects reject blank or null error codes")
+        void given_blank_error_code_when_resolving_client_error_redirect_then_return_empty() {
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID, CALLBACK_URI, "state", null).isEmpty());
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID, CALLBACK_URI, "state", " ").isEmpty());
+        }
+
+        @Test
+        @DisplayName("Disabled redirects and unregistered callbacks retain the local error page")
+        void given_disallowed_callback_or_flag_when_resolving_client_error_then_fallback_locally() {
+                Client client = enabledClient();
+                when(clientLookupService.getClientById(CLIENT_ID)).thenReturn(Optional.of(client));
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID,
+                                "https://attacker.example/callback", "state", "GENERIC_HTML_ERROR").isEmpty());
+
+                client.setClientErrorRedirectEnabled(false);
+                assertTrue(service.resolveClientErrorRedirect(CLIENT_ID,
+                                CALLBACK_URI, "state", "GENERIC_HTML_ERROR").isEmpty());
         }
 
         private Client enabledClient() {

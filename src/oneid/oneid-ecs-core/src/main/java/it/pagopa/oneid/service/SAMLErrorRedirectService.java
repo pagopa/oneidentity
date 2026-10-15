@@ -46,6 +46,14 @@ public class SAMLErrorRedirectService {
         ErrorCode.GENERIC_HTML_ERROR.getErrorCode(), true);
   }
 
+  public Optional<URI> resolveClientErrorRedirect(String clientId, String redirectUri,
+      String state, String errorCode) {
+    if (errorCode == null || errorCode.isBlank()) {
+      return Optional.empty();
+    }
+    return resolveRedirect(clientId, redirectUri, state, ACCESS_DENIED, errorCode, false);
+  }
+
   private Optional<URI> resolveRedirect(String clientId, String redirectUri, String state,
       String oauthError, String errorDescription, boolean requireRedirectBinding) {
     try {
