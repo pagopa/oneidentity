@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.23.0
+
+### Minor Changes
+
+- 1f18375: fix: correct redirect for genericHtmlError
+
 ## 1.22.0
 
 ### Minor Changes
