@@ -1,5 +1,11 @@
 # infra
 
+## 3.21.2
+
+### Patch Changes
+
+- 46c7503: change cie env url
+
 ## 3.21.1
 
 ### Patch Changes

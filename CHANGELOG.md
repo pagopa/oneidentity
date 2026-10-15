@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.19.3
+
+### Patch Changes
+
+- 46c7503: change cie env url
+
 ## 4.19.2
 
 ### Patch Changes
