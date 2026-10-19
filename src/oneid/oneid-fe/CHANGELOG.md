@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.6.2
+
+### Patch Changes
+
+- 9af8396: update cie env preprod
+
 ## 1.6.1
 
 ### Patch Changes

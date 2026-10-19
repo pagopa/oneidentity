@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.23.1
+
+### Patch Changes
+
+- 9af8396: update cie env preprod
+
 ## 1.23.0
 
 ### Minor Changes
