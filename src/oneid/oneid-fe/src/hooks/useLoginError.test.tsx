@@ -56,6 +56,14 @@ describe('useLoginError', () => {
       },
     },
     {
+      errorCode: ERROR_CODE.CIE_AGE_POLICY_REJECTION,
+      expected: {
+        title: t('loginError.cieAgePolicyRejection.title'),
+        description: t('loginError.cieAgePolicyRejection.description'),
+        haveRetryButton: false,
+      },
+    },
+    {
       errorCode: ERROR_CODE.MISSING_IDP,
       expected: {
         title: t('loginError.generic.title'),
