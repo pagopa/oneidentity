@@ -1,5 +1,6 @@
 /* eslint-disable functional/immutable-data */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { t } from 'i18next';
 import { MemoryRouter } from 'react-router';
 import { Mock } from 'vitest';
 
@@ -114,6 +115,55 @@ describe('LoginError Component', () => {
     expect(screen.getByText(testTitle)).toBeInTheDocument();
     expect(screen.getByText(testDescription)).toBeInTheDocument();
   });
+
+  it.each([
+    { redirectUri: '', expectedRedirect: ROUTE_LOGIN },
+    {
+      redirectUri: validCallbackURI,
+      expectedRedirect: `${validCallbackURI}?error=access_denied&error_description=1004&state=saved-state`,
+    },
+  ])(
+    'should display error_code 1004 without retry and preserve return to $expectedRedirect',
+    ({ redirectUri, expectedRedirect }) => {
+      const title = t('loginError.cieAgePolicyRejection.title');
+      const description = t('loginError.cieAgePolicyRejection.description');
+      window.location.search = `?${new URLSearchParams({
+        error_code: '1004',
+        redirect_uri: redirectUri,
+        client_id: testClientID,
+        state: 'saved-state',
+      })}`;
+      (window.sessionStorage.getItem as Mock).mockReturnValue(
+        JSON.stringify({
+          scope: 'openid',
+          client_id: testClientID,
+          state: 'saved-state',
+          nonce: 'nonce',
+          redirect_uri: validCallbackURI,
+        })
+      );
+      mockHandleErrorCode.mockReturnValue({
+        title,
+        description,
+        haveRetryButton: false,
+      });
+
+      render(
+        <MemoryRouter>
+          <LoginError />
+        </MemoryRouter>
+      );
+
+      expect(mockHandleErrorCode).toHaveBeenCalledWith('1004');
+      expect(screen.getByText(title)).toBeInTheDocument();
+      expect(screen.getByText(description)).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /retry/i })
+      ).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: /close/i }));
+      expect(window.location.assign).toHaveBeenCalledWith(expectedRedirect);
+    }
+  );
 
   it('should display correct error page for unknown error code', () => {
     mockHandleErrorCode.mockReturnValue({

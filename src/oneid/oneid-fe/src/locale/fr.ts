@@ -125,6 +125,11 @@ export default {
       title: 'Vous avez annulé la connexion',
       description: 'Pour entrer, réessayez quand vous le souhaitez.',
     },
+    cieAgePolicyRejection: {
+      title: 'Impossible de se connecter avec CIE',
+      description:
+        'Les limites d’âge de ce service ne permettent pas la connexion avec CIE. L’autorisation parentale n’est pas prise en charge pour CIE.',
+    },
     generic: {
       title: 'Impossible de se connecter',
       description:

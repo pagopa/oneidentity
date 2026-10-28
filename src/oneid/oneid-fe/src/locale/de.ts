@@ -127,6 +127,11 @@ export default {
       title: 'Du hast die Anmeldung abgebrochen',
       description: 'Um einzutreten, versuche es jederzeit erneut.',
     },
+    cieAgePolicyRejection: {
+      title: 'Anmeldung mit CIE nicht möglich',
+      description:
+        'Die Altersgrenzen dieses Dienstes erlauben keine Anmeldung mit CIE. Eine elterliche Genehmigung wird für CIE nicht unterstützt.',
+    },
     generic: {
       title: 'Anmeldung nicht möglich',
       description:

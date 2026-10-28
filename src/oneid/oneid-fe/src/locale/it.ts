@@ -123,6 +123,11 @@ export default {
       title: 'Hai annullato l’accesso',
       description: 'Per entrare, riprova quando vuoi.',
     },
+    cieAgePolicyRejection: {
+      title: 'Non è stato possibile accedere con CIE',
+      description:
+        'I limiti di età previsti da questo servizio non consentono l’accesso con CIE. L’autorizzazione dei genitori non è supportata per CIE.',
+    },
     generic: {
       title: 'Non è stato possibile accedere',
       description:
