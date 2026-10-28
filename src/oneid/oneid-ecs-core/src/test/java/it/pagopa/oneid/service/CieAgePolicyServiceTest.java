@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.CieAgePolicyException;
@@ -36,6 +37,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@QuarkusTest
 class CieAgePolicyServiceTest {
 
     private static final String CIE_ENTITY_ID = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
