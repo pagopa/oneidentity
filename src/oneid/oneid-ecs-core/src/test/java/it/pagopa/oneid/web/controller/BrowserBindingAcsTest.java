@@ -20,11 +20,15 @@ import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
+import it.pagopa.oneid.exception.CieAgePolicyException;
+import it.pagopa.oneid.exception.CieAgePolicyException.Reason;
 import it.pagopa.oneid.exception.GenericHTMLException;
+import it.pagopa.oneid.exception.SAMLValidationException;
 import it.pagopa.oneid.exception.SessionException;
 import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.ClientLookupService;
+import it.pagopa.oneid.service.CieAgePolicyService;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -33,12 +37,22 @@ import it.pagopa.oneid.web.controller.interceptors.CurrentAuthDTO;
 import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
 import it.pagopa.oneid.web.dto.SAMLResponseDTO;
 import jakarta.ws.rs.core.HttpHeaders;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 
 @QuarkusTest
 class BrowserBindingAcsTest {
@@ -195,6 +209,95 @@ class BrowserBindingAcsTest {
     assertEquals("saved-client", exception.getClientId());
   }
 
+  @ParameterizedTest
+  @CsvSource({
+      "2014-10-28,BELOW_MINIMUM_AGE",
+      "2008-10-28,ABOVE_MAXIMUM_AGE",
+      "2012-10-28,PARENTAL_AUTHORIZATION_REQUIRED"
+  })
+  @DisplayName("CIE policy rejection follows SAML validation and never creates an OIDC authorization")
+  void given_ineligible_cie_identity_when_processing_acs_then_stop_before_oidc(
+      String birthDate, Reason reason) {
+    SAMLController controller = controllerWithAgePolicy(birthDate);
+
+    CieAgePolicyException exception = assertThrows(CieAgePolicyException.class,
+        () -> controller.samlACS(mock(SAMLResponseDTO.class)));
+
+    assertEquals(reason, exception.getReason());
+    assertEquals("1004", exception.getErrorCode().getErrorCode());
+    assertEquals("saved-client", exception.getClientId());
+    assertEquals("saved state&value=1+%{token}", exception.getState());
+    assertEquals("https://client.example/callback?path=%2Farea%26x%25", exception.getRedirectUri());
+    var order = Mockito.inOrder(controller.samlServiceImpl, controller.cieAgePolicyService);
+    order.verify(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(),
+        any(), any(), any(), any(), any(), any());
+    order.verify(controller.cieAgePolicyService).validate(any(), any(), any(), any(), any());
+    verifyNoInteractions(controller.oidcServiceImpl, controller.oidcSessionService);
+    verify(controller.cloudWatchConnectorImpl, Mockito.never()).sendIDPSuccessMetricData(any());
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "2011-10-28", "2009-10-28" })
+  @DisplayName("CIE identities on the parental and maximum thresholds complete OIDC authorization")
+  void given_eligible_cie_identity_when_processing_acs_then_complete_oidc(String birthDate)
+      throws Exception {
+    SAMLController controller = controllerWithAgePolicy(birthDate);
+
+    var response = controller.samlACS(mock(SAMLResponseDTO.class));
+
+    assertEquals(302, response.getStatus());
+    verify(controller.oidcSessionService).saveSession(any());
+    verify(controller.cloudWatchConnectorImpl).sendIDPSuccessMetricData("https://cie.example");
+  }
+
+  @Test
+  @DisplayName("SAML validation failures never reach the age policy or OIDC authorization")
+  void given_invalid_saml_when_processing_acs_then_skip_age_policy() {
+    SAMLController controller = controllerWithAgePolicy("2011-10-28");
+    doThrow(new SAMLValidationException(
+        it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_MISMATCH))
+        .when(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(), any(),
+            any(), any(), any(), any(), any());
+
+    assertThrows(SAMLValidationException.class,
+        () -> controller.samlACS(mock(SAMLResponseDTO.class)));
+
+    verifyNoInteractions(controller.cieAgePolicyService, controller.oidcServiceImpl,
+        controller.oidcSessionService);
+  }
+
+  @Test
+  @DisplayName("Clients without SPID Minors never invoke the CIE age policy")
+  void given_disabled_minors_when_processing_acs_then_skip_age_policy() {
+    SAMLController controller = controllerWithContext();
+
+    controller.samlACS(mock(SAMLResponseDTO.class));
+
+    verifyNoInteractions(controller.cieAgePolicyService);
+  }
+
+  private SAMLController controllerWithAgePolicy(String birthDate) {
+    SAMLController controller = controllerWithContext();
+    controller.cieAgePolicyService = Mockito.spy(new CieAgePolicyService(
+        Clock.fixed(Instant.parse("2026-10-28T12:00:00Z"), ZoneOffset.UTC), "https://cie.example"));
+    Client client = Client.builder().clientId("saved-client").spidMinors(true)
+        .minAge(13).maxAge(17).ageParentAuth(15).build();
+    when(controller.clientLookupService.getClientById("saved-client")).thenReturn(Optional.of(client));
+    when(controller.currentAuthDTO.getSamlSession().getAuthorizationRequestDTOExtended().getIdp())
+        .thenReturn("https://cie.example");
+    Assertion assertion = mock(Assertion.class);
+    AttributeStatement statement = mock(AttributeStatement.class);
+    Attribute attribute = mock(Attribute.class);
+    XSString value = mock(XSString.class);
+    when(controller.currentAuthDTO.getResponse().getAssertions()).thenReturn(List.of(assertion));
+    when(assertion.getAttributeStatements()).thenReturn(List.of(statement));
+    when(statement.getAttributes()).thenReturn(List.of(attribute));
+    when(attribute.getName()).thenReturn("dateOfBirth");
+    when(attribute.getAttributeValues()).thenReturn(List.of(value));
+    when(value.getValue()).thenReturn(birthDate);
+    return controller;
+  }
+
   @SuppressWarnings("unchecked")
   private SAMLController controllerWithContext() {
     SAMLController controller = new SAMLController();
@@ -205,6 +308,7 @@ class BrowserBindingAcsTest {
     controller.samlServiceImpl = mock(SAMLServiceImpl.class);
     controller.oidcServiceImpl = mock(OIDCServiceImpl.class);
     controller.clientLookupService = mock(ClientLookupService.class);
+    controller.cieAgePolicyService = mock(CieAgePolicyService.class);
     controller.currentAuthDTO = new CurrentAuthDTO();
     SAMLSession session = mock(SAMLSession.class);
     AuthorizationRequestDTOExtended request = mock(AuthorizationRequestDTOExtended.class);

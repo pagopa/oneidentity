@@ -17,6 +17,7 @@ import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
+import it.pagopa.oneid.exception.CieAgePolicyException;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
@@ -116,6 +117,15 @@ public class ExceptionMapper {
     return genericHTMLError(genericHTMLException.getMessage(),
         genericHTMLException.getRedirectUri(), genericHTMLException.getState(),
         genericHTMLException.getClientId());
+  }
+
+  @ServerExceptionMapper
+  public RestResponse<Object> mapCieAgePolicyException(CieAgePolicyException exception) {
+    Log.warnf("CIE age policy rejected access: reason=%s", exception.getReason());
+    cloudWatchConnectorImpl.sendClientErrorMetricData(exception.getClientId(),
+        exception.getErrorCode());
+    return genericHTMLError(exception.getErrorCode().getErrorCode(), exception.getRedirectUri(),
+        exception.getState(), exception.getClientId());
   }
 
   @ServerExceptionMapper
