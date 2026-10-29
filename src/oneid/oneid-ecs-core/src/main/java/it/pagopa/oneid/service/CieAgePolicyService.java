@@ -33,15 +33,16 @@ public class CieAgePolicyService {
     }
 
     public void validate(Response response, Client client, String idp, String redirectUri, String state) {
-        if (!client.isSpidMinors() || !cieEntityId.equalsIgnoreCase(idp)) {
+        if (!cieEntityId.equalsIgnoreCase(idp)) {
             return;
         }
 
-        Integer minAge = client.getMinAge();
-        int maxAge = client.getMaxAge() == null ? 999 : client.getMaxAge();
-        int ageParentAuth = client.getAgeParentAuth() == null ? 0 : client.getAgeParentAuth();
-        if (minAge == null || minAge < 5 || minAge > 17 || maxAge < minAge || maxAge > 999
-                || (ageParentAuth != 0 && (ageParentAuth <= minAge || ageParentAuth >= 18))) {
+        boolean minorsEnabled = client.isSpidMinors();
+        Integer minAge = minorsEnabled ? client.getMinAge() : Integer.valueOf(18);
+        int maxAge = minorsEnabled && client.getMaxAge() != null ? client.getMaxAge() : 999;
+        int ageParentAuth = minorsEnabled && client.getAgeParentAuth() != null ? client.getAgeParentAuth() : 0;
+        if (minorsEnabled && (minAge == null || minAge < 5 || minAge > 17 || maxAge < minAge || maxAge > 999
+                || (ageParentAuth != 0 && (ageParentAuth <= minAge || ageParentAuth >= 18)))) {
             throw failure(Reason.INVALID_CONFIGURATION, client, redirectUri, state);
         }
 

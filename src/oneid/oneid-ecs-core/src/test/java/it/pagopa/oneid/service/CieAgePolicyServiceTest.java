@@ -49,45 +49,105 @@ class CieAgePolicyServiceTest {
 
     private final CieAgePolicyService service = new CieAgePolicyService(CLOCK, CIE_ENTITY_ID);
 
-    @Test
-    @DisplayName("An absent opt-in skips even invalid configuration without reading the clock")
-    void given_absent_opt_in_when_validating_then_skip_response_and_clock() {
+    @ParameterizedTest
+    @ValueSource(strings = { "2021-10-28", "2008-10-29" })
+    @DisplayName("An absent minors flag rejects CIE users below eighteen")
+    void given_absent_minors_flag_when_validating_minor_then_deny(String birthDate) {
         Client client = new Client();
-        Clock unreadClock = mock(Clock.class);
-        CieAgePolicyService skippedService = new CieAgePolicyService(unreadClock, CIE_ENTITY_ID);
+        client.setClientId(CLIENT_ID);
 
-        assertDoesNotThrow(() -> skippedService.validate(null, client, CIE_ENTITY_ID,
-                CALLBACK_URI, STATE));
+        assertFailure(response(stringValue(birthDate)), client, Reason.BELOW_MINIMUM_AGE);
+    }
 
-        verifyNoInteractions(unreadClock);
+    @ParameterizedTest
+    @ValueSource(strings = { "2021-10-28", "2008-10-29" })
+    @DisplayName("A false minors flag rejects CIE minors regardless of residual age settings")
+    void given_false_minors_flag_when_validating_minor_then_deny(String birthDate) {
+        Client client = client(5, 17, 14);
+        client.setSpidMinors(false);
+
+        assertFailure(response(stringValue(birthDate)), client, Reason.BELOW_MINIMUM_AGE);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "2008-10-28", "1990-10-28", "0001-01-01" })
+    @DisplayName("An absent minors flag admits CIE users from their eighteenth birthday without an upper limit")
+    void given_absent_minors_flag_when_validating_adult_then_allow(String birthDate) {
+        Client client = new Client();
+
+        assertDoesNotThrow(() -> validate(response(stringValue(birthDate)), client));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "2008-10-28", "1990-10-28", "0001-01-01" })
+    @DisplayName("A false minors flag admits adults and ignores invalid residual minor settings")
+    void given_false_minors_flag_when_validating_adult_then_ignore_residual_settings(String birthDate) {
+        Client client = client(null, -1, 18);
+        client.setSpidMinors(false);
+
+        assertDoesNotThrow(() -> validate(response(stringValue(birthDate)), client));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "", "2012-02-30", "2026-10-29" })
+    @DisplayName("A false minors flag still requires a verifiable CIE birth date")
+    void given_false_minors_flag_when_birth_date_unverifiable_then_deny(String birthDate) {
+        Client client = new Client();
+        client.setClientId(CLIENT_ID);
+
+        assertFailure(response(stringValue(birthDate)), client, Reason.INVALID_BIRTH_DATE);
     }
 
     @Test
-    @DisplayName("An explicit false opt-in skips without inspecting the response or clock")
-    void given_false_opt_in_when_validating_then_skip_response_and_clock() {
-        Client client = client(5, 17, 14);
-        client.setSpidMinors(false);
+    @DisplayName("CIE adulthood starts at Rome midnight independently of the clock zone")
+    void given_false_minors_flag_when_turning_eighteen_then_allow_at_rome_midnight() {
+        Instant midnight = Instant.parse("2026-10-28T23:00:00Z");
+        CieAgePolicyService beforeMidnight = new CieAgePolicyService(
+                Clock.fixed(midnight.minusNanos(1), ZoneOffset.UTC), CIE_ENTITY_ID);
+        CieAgePolicyService atMidnight = new CieAgePolicyService(
+                Clock.fixed(midnight, ZoneOffset.UTC), CIE_ENTITY_ID);
+        Client client = new Client();
+        client.setClientId(CLIENT_ID);
+        Response response = response(stringValue("2008-10-29"));
+
+        assertFailure(assertThrows(CieAgePolicyException.class,
+                () -> beforeMidnight.validate(response, client, CIE_ENTITY_ID, CALLBACK_URI, STATE)),
+                Reason.BELOW_MINIMUM_AGE);
+        assertDoesNotThrow(() -> atMidnight.validate(response, client, CIE_ENTITY_ID, CALLBACK_URI, STATE));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "false, NULL", "true, NULL",
+            "false, https://spid.example/idp", "true, https://spid.example/idp",
+            "false, https://eidas.example/idp", "true, https://eidas.example/idp"
+    }, nullValues = "NULL")
+    @DisplayName("Non-CIE providers skip either minors policy without reading the clock")
+    void given_non_cie_provider_when_validating_then_skip_response_and_clock(boolean minorsEnabled, String idp) {
         Clock unreadClock = mock(Clock.class);
         CieAgePolicyService skippedService = new CieAgePolicyService(unreadClock, CIE_ENTITY_ID);
+        Client client = client(null, -1, -1);
+        client.setSpidMinors(minorsEnabled);
 
-        assertDoesNotThrow(() -> skippedService.validate(null, client, CIE_ENTITY_ID,
+        assertDoesNotThrow(() -> skippedService.validate(null, client, idp,
                 CALLBACK_URI, STATE));
 
         verifyNoInteractions(unreadClock);
     }
 
     @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = { "https://spid.example/idp", "https://eidas.example/idp" })
-    @DisplayName("Non-CIE providers skip opted-in clients without reading the clock")
-    void given_non_cie_provider_when_validating_then_skip_response_and_clock(String idp) {
-        Clock unreadClock = mock(Clock.class);
-        CieAgePolicyService skippedService = new CieAgePolicyService(unreadClock, CIE_ENTITY_ID);
+    @CsvSource(value = {
+            "2008-10-28, NULL", "2008-10-28, 999", "2008-10-28, 30", "1996-10-28, 30"
+    }, nullValues = "NULL")
+    @DisplayName("An enabled minors flag does not exclude adults within the SPID maximum age")
+    void given_enabled_minors_flag_when_adult_within_maximum_then_allow(String birthDate, Integer maxAge) {
+        assertDoesNotThrow(() -> validate(response(stringValue(birthDate)), client(5, maxAge, 0)));
+    }
 
-        assertDoesNotThrow(() -> skippedService.validate(null, client(null, -1, -1), idp,
-                CALLBACK_URI, STATE));
-
-        verifyNoInteractions(unreadClock);
+    @Test
+    @DisplayName("An enabled minors flag rejects adults above the configured SPID maximum age")
+    void given_enabled_minors_flag_when_adult_above_maximum_then_deny() {
+        assertFailure(response(stringValue("1995-10-28")), client(5, 30, 0), Reason.ABOVE_MAXIMUM_AGE);
     }
 
     @Test
