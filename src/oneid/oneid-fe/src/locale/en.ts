@@ -125,9 +125,8 @@ export default {
       description: 'To enter, please try again whenever you want.',
     },
     cieAgePolicyRejection: {
-      title: 'Unable to log in with CIE',
-      description:
-        'Access with CIE is not available under this service’s age limits. Parental authorization is not supported for CIE.',
+      title: 'Access not permitted',
+      description: 'You do not meet the requirements to access this service.',
     },
     generic: {
       title: 'Unable to log in',

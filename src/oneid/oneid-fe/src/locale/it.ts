@@ -124,9 +124,9 @@ export default {
       description: 'Per entrare, riprova quando vuoi.',
     },
     cieAgePolicyRejection: {
-      title: 'Non è stato possibile accedere con CIE',
+      title: 'Accesso non consentito',
       description:
-        'I limiti di età previsti da questo servizio non consentono l’accesso con CIE. L’autorizzazione dei genitori non è supportata per CIE.',
+        'Non hai i requisiti necessari per accedere a questo servizio.',
     },
     generic: {
       title: 'Non è stato possibile accedere',

@@ -126,9 +126,9 @@ export default {
       description: 'Pour entrer, réessayez quand vous le souhaitez.',
     },
     cieAgePolicyRejection: {
-      title: 'Impossible de se connecter avec CIE',
+      title: 'Accès non autorisé',
       description:
-        'Les limites d’âge de ce service ne permettent pas la connexion avec CIE. L’autorisation parentale n’est pas prise en charge pour CIE.',
+        'Vous ne remplissez pas les conditions nécessaires pour accéder à ce service.',
     },
     generic: {
       title: 'Impossible de se connecter',

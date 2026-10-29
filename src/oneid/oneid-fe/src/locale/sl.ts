@@ -121,9 +121,8 @@ export default {
       description: 'Za vstop poskusite znova kadarkoli.',
     },
     cieAgePolicyRejection: {
-      title: 'Prijava s CIE ni mogoča',
-      description:
-        'Starostne omejitve te storitve ne dovoljujejo prijave s CIE. Soglasje staršev za CIE ni podprto.',
+      title: 'Dostop ni dovoljen',
+      description: 'Ne izpolnjujete pogojev za dostop do te storitve.',
     },
     generic: {
       title: 'Prijava ni mogoča',

@@ -128,9 +128,9 @@ export default {
       description: 'Um einzutreten, versuche es jederzeit erneut.',
     },
     cieAgePolicyRejection: {
-      title: 'Anmeldung mit CIE nicht möglich',
+      title: 'Zugriff nicht erlaubt',
       description:
-        'Die Altersgrenzen dieses Dienstes erlauben keine Anmeldung mit CIE. Eine elterliche Genehmigung wird für CIE nicht unterstützt.',
+        'Du erfüllst nicht die Voraussetzungen für den Zugang zu diesem Dienst.',
     },
     generic: {
       title: 'Anmeldung nicht möglich',
