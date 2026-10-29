@@ -266,14 +266,52 @@ class BrowserBindingAcsTest {
         controller.oidcSessionService);
   }
 
-  @Test
-  @DisplayName("Clients without SPID Minors never invoke the CIE age policy")
-  void given_disabled_minors_when_processing_acs_then_skip_age_policy() {
-    SAMLController controller = controllerWithContext();
+  @ParameterizedTest
+  @CsvSource({ "2008-10-29,false", "2008-10-28,true", "1990-10-28,true" })
+  @DisplayName("CIE clients without SPID Minors admit only adults after SAML validation")
+  void given_disabled_minors_when_processing_cie_acs_then_enforce_adulthood(
+      String birthDate, boolean adult) throws Exception {
+    SAMLController controller = controllerWithAgePolicy(birthDate);
+    controller.clientLookupService.getClientById("saved-client").orElseThrow().setSpidMinors(false);
 
-    controller.samlACS(mock(SAMLResponseDTO.class));
+    if (adult) {
+      assertEquals(302, controller.samlACS(mock(SAMLResponseDTO.class)).getStatus());
+      verify(controller.oidcSessionService).saveSession(any());
+      verify(controller.cloudWatchConnectorImpl).sendIDPSuccessMetricData("https://cie.example");
+    } else {
+      CieAgePolicyException exception = assertThrows(CieAgePolicyException.class,
+          () -> controller.samlACS(mock(SAMLResponseDTO.class)));
+      assertEquals(Reason.BELOW_MINIMUM_AGE, exception.getReason());
+      assertEquals("1004", exception.getErrorCode().getErrorCode());
+      assertEquals("saved-client", exception.getClientId());
+      assertEquals("saved state&value=1+%{token}", exception.getState());
+      verifyNoInteractions(controller.oidcServiceImpl, controller.oidcSessionService);
+      verify(controller.cloudWatchConnectorImpl, Mockito.never()).sendIDPSuccessMetricData(any());
+    }
 
-    verifyNoInteractions(controller.cieAgePolicyService);
+    var order = Mockito.inOrder(controller.samlServiceImpl, controller.cieAgePolicyService);
+    order.verify(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(),
+        any(), any(), any(), any(), any(), any());
+    order.verify(controller.cieAgePolicyService).validate(any(), any(), any(), any(), any());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "false,https://spid.example", "true,https://spid.example",
+      "false,https://eidas.example", "true,https://eidas.example"
+  })
+  @DisplayName("SPID and eIDAS complete ACS without local age enforcement for either minors flag")
+  void given_non_cie_provider_when_processing_acs_then_leave_age_validation_to_idp(
+      boolean minorsEnabled, String idp) throws Exception {
+    SAMLController controller = controllerWithAgePolicy("unverifiable-date");
+    controller.clientLookupService.getClientById("saved-client").orElseThrow().setSpidMinors(minorsEnabled);
+    when(controller.currentAuthDTO.getSamlSession().getAuthorizationRequestDTOExtended().getIdp())
+        .thenReturn(idp);
+
+    assertEquals(302, controller.samlACS(mock(SAMLResponseDTO.class)).getStatus());
+
+    verify(controller.oidcSessionService).saveSession(any());
+    verify(controller.cloudWatchConnectorImpl).sendIDPSuccessMetricData(idp);
   }
 
   private SAMLController controllerWithAgePolicy(String birthDate) {

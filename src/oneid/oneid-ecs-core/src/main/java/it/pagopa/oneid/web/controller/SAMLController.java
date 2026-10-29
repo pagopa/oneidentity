@@ -189,10 +189,8 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
         client.getEidasIndex());
 
-    if (client.isSpidMinors()) {
-      cieAgePolicyService.validate(response, client, authorizationRequestContext.getIdp(),
-          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState());
-    }
+    cieAgePolicyService.validate(response, client, authorizationRequestContext.getIdp(),
+        authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
