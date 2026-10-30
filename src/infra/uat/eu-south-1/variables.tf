@@ -370,7 +370,7 @@ variable "client_status_history_table" {
 
 variable "cie_entity_id" {
   type    = string
-  default = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
+  default = "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
 }
 
 variable "eidas_entity_id" {
