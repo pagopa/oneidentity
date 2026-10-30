@@ -15,6 +15,7 @@ import {
   writeParamsToSessionStorage,
 } from '../../utils/utils';
 import SpidModal from './components/SpidModal';
+import CieModal from './components/CieModal';
 import { useLoginData } from '../../hooks/useLoginData';
 import { SpidButton } from './components/SpidButton';
 import { CieButton, EidasButton } from './components/IdentityButton';
@@ -44,6 +45,7 @@ export const LinkWrapper = ({
 
 const Login = () => {
   const [openSpidModal, setOpenSpidModal] = useState(false);
+  const [openCieModal, setOpenCieModal] = useState(false);
   const [showIDPS, setShowIDPS] = useState(false);
 
   const { bannerQuery, clientQuery, idpQuery } = useLoginData();
@@ -60,14 +62,14 @@ const Login = () => {
     writeParamsToSessionStorage();
   }, []);
 
-  const goCIE = () => {
-    const params = forwardSearchParams(ENV.CIE_ENTITY_ID);
+  const goCIE = (entityId: string) => {
+    const params = forwardSearchParams(entityId);
     const redirectUrl = `${ENV.URL_API.AUTHORIZE}?${params}`;
     trackEvent(
       'LOGIN_IDP_SELECTED',
       {
         SPID_IDP_NAME: 'CIE',
-        SPID_IDP_ID: ENV.CIE_ENTITY_ID,
+        SPID_IDP_ID: entityId,
         FORWARD_PARAMETERS: params,
       },
       () => window.location.assign(redirectUrl)
@@ -244,8 +246,21 @@ const Login = () => {
             <SpidButton onClick={() => setOpenSpidModal(true)} />
           </Grid>
           <Grid item sx={{ width: '100%' }}>
-            <CieButton onClick={goCIE} />
+            <CieButton
+              onClick={() =>
+                ENV.CIE_TEST_ENV_ENABLED
+                  ? setOpenCieModal(true)
+                  : goCIE(ENV.CIE_ENTITY_ID)
+              }
+            />
           </Grid>
+          {ENV.CIE_TEST_ENV_ENABLED && (
+            <CieModal
+              open={openCieModal}
+              onClose={() => setOpenCieModal(false)}
+              onSelect={goCIE}
+            />
+          )}
           <Grid item sx={{ width: '100%' }}>
             <EidasButton onClick={goEidas} visible={isEidasEnabled} />
           </Grid>

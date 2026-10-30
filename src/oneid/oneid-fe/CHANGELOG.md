@@ -1,5 +1,17 @@
 # oi-frontend
 
+## Unreleased
+
+- After selecting CIE, the `dev`, `uat`, and `io-uat` builds offer the
+  preproduction (`preproduzione`) and testing (`collaudo`) identity providers.
+  Production and other build modes keep the configured single-provider login.
+- The test portal Lambda already links to these login pages and needs no change.
+  Deploy the core service and apply the corresponding Terraform stacks before
+  deploying the frontend. The stacks set `CIE_ADDITIONAL_ENTITY_IDS`, while
+  `CIE_ENTITY_ID` remains supported. Both providers must be present and active in
+  the same current CIE metadata snapshot (`LATEST_CIE`); importing separate
+  snapshots replaces the previous snapshot.
+
 ## 1.6.2
 
 ### Patch Changes

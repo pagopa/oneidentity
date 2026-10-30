@@ -84,6 +84,11 @@ export default {
       privacy: 'Informativa Privacy',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Scegli il tuo SPID',
     placeholder: 'Nessun IDP trovato',
