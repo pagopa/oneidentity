@@ -1,5 +1,11 @@
 # infra
 
+## 3.21.4
+
+### Patch Changes
+
+- 6a2633f: update env uat cie collaudo
+
 ## 3.21.3
 
 ### Patch Changes
