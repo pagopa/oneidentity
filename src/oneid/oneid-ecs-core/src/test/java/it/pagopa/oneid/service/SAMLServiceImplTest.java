@@ -572,6 +572,20 @@ public class SAMLServiceImplTest {
   }
 
   @Test
+  @DisplayName("Without additional configuration, another endpoint is not classified as CIE")
+  void given_unconfigured_cie_endpoint_when_resolving_provider_then_keep_default_lookup() {
+    String entityId =
+        "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
+    when(idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityId, TIMESTAMP_SPID))
+        .thenReturn(Optional.empty());
+
+    assertTrue(samlServiceImpl.getIDPFromEntityID(entityId).isEmpty());
+
+    verify(idpConnectorImpl).getIDPByEntityIDAndTimestamp(entityId, TIMESTAMP_SPID);
+    verify(idpConnectorImpl, times(0)).getIDPByEntityIDAndTimestamp(entityId, TIMESTAMP_CIE);
+  }
+
+  @Test
   void testGetIDPFromOtherEntityId() {
     // Arrange
     String otherEntityId = "OTHER_ENTITY_ID";

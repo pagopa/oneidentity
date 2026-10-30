@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { Mock, vi } from 'vitest';
 import Login, { LinkWrapper } from '../login';
 import { useLoginData } from '../../hooks/useLoginData';
@@ -11,6 +17,17 @@ vi.mock('../../hooks/useLoginData');
 vi.mock('../../services/analyticsService', () => ({
   trackEvent: vi.fn(),
 }));
+vi.mock('../../utils/env', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/env')>();
+  return {
+    ENV: {
+      ...actual.ENV,
+      get CIE_TEST_ENV_ENABLED() {
+        return false;
+      },
+    },
+  };
+});
 vi.mock('@mui/material', async () => {
   const actual = await vi.importActual('@mui/material');
   return {
@@ -62,6 +79,7 @@ describe('LinkWrapper', () => {
 });
 
 describe('<Login />', () => {
+  const cieModalTitle = 'cieSelect.modalTitle';
   const mockBannerQuery = {
     isSuccess: true,
     data: [{ enable: true, severity: 'warning', description: 'Test banner' }],
@@ -96,12 +114,20 @@ describe('<Login />', () => {
   };
 
   beforeEach(() => {
+    vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(false);
     (useLoginData as Mock).mockReturnValue({
       bannerQuery: mockBannerQuery,
       clientQuery: mockClientQuery,
       idpQuery: mockIdpQuery,
     });
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.mocked(trackEvent).mockReset();
+    window.history.replaceState({}, '', '/');
+    vi.unstubAllGlobals();
   });
 
   it('not renders back button', () => {
@@ -173,6 +199,7 @@ describe('<Login />', () => {
     render(<Login />);
     const cieButton = screen.getByRole('button', { name: /CIE/i });
     fireEvent.click(cieButton);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(trackEvent).toHaveBeenCalledWith(
@@ -185,6 +212,81 @@ describe('<Login />', () => {
         expect.any(Function)
       );
     });
+  });
+
+  it.each([
+    [
+      'cieSelect.preproduction',
+      'https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
+    ],
+    [
+      'cieSelect.testing',
+      'https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
+    ],
+  ])('selects %s and preserves the OIDC parameters', (label, entityId) => {
+    vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(true);
+    const oidcParams = new URLSearchParams({
+      response_type: 'CODE',
+      scope: 'openid',
+      client_id: 'test-client',
+      state: 'io-uat',
+      nonce: 'test-nonce',
+      redirect_uri: 'https://test-client.example/client/cb',
+      idp: 'previous-idp',
+      lang: 'en',
+    });
+    window.history.replaceState({}, '', `/login?${oidcParams}`);
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    vi.mocked(trackEvent).mockImplementation((_event, _properties, callback) =>
+      callback?.()
+    );
+    render(<Login />);
+
+    fireEvent.click(screen.getByRole('button', { name: /CIE/i }));
+    const dialog = screen.getByRole('dialog', {
+      name: cieModalTitle,
+    });
+    expect(trackEvent).not.toHaveBeenCalled();
+    expect(assign).not.toHaveBeenCalled();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: label }));
+
+    oidcParams.set('idp', entityId);
+    expect(trackEvent).toHaveBeenCalledWith(
+      'LOGIN_IDP_SELECTED',
+      {
+        SPID_IDP_NAME: 'CIE',
+        SPID_IDP_ID: entityId,
+        FORWARD_PARAMETERS: oidcParams.toString(),
+      },
+      expect.any(Function)
+    );
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(assign).toHaveBeenCalledWith(
+      `${ENV.URL_API.AUTHORIZE}?${oidcParams}`
+    );
+  });
+
+  it('cancels the CIE selection without starting authentication', async () => {
+    vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(true);
+    render(<Login />);
+    fireEvent.click(screen.getByRole('button', { name: /CIE/i }));
+    const dialog = screen.getByRole('dialog', {
+      name: cieModalTitle,
+    });
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'spidSelect.cancelButton' })
+    );
+
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    expect(trackEvent).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /CIE/i }));
+    expect(
+      screen.getByRole('dialog', { name: cieModalTitle })
+    ).toBeInTheDocument();
   });
 
   it('does not render eIDAS login by default', () => {
