@@ -21,6 +21,7 @@ import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.BrowserBindingService;
+import it.pagopa.oneid.service.CieAgePolicyService;
 import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
@@ -83,6 +84,9 @@ public class SAMLController {
 
   @Inject
   SAMLErrorRedirectService samlErrorRedirectService;
+
+  @Inject
+  CieAgePolicyService cieAgePolicyService;
 
   @Context
   HttpHeaders httpHeaders;
@@ -184,6 +188,9 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getState(),
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
         client.getEidasIndex());
+
+    cieAgePolicyService.validate(response, client, authorizationRequestContext.getIdp(),
+        authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(

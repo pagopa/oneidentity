@@ -120,6 +120,10 @@ export default {
       title: 'Prijavo ste preklicali',
       description: 'Za vstop poskusite znova kadarkoli.',
     },
+    cieAgePolicyRejection: {
+      title: 'Dostop ni dovoljen',
+      description: 'Ne izpolnjujete pogojev za dostop do te storitve.',
+    },
     generic: {
       title: 'Prijava ni mogoča',
       description:

@@ -124,6 +124,10 @@ export default {
       title: 'You canceled the login',
       description: 'To enter, please try again whenever you want.',
     },
+    cieAgePolicyRejection: {
+      title: 'Access not permitted',
+      description: 'You do not meet the requirements to access this service.',
+    },
     generic: {
       title: 'Unable to log in',
       description:

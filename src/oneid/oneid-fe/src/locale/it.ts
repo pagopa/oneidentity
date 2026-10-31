@@ -123,6 +123,11 @@ export default {
       title: 'Hai annullato l’accesso',
       description: 'Per entrare, riprova quando vuoi.',
     },
+    cieAgePolicyRejection: {
+      title: 'Accesso non consentito',
+      description:
+        'Non hai i requisiti necessari per accedere a questo servizio.',
+    },
     generic: {
       title: 'Non è stato possibile accedere',
       description:

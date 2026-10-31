@@ -21,6 +21,8 @@ import it.pagopa.oneid.common.model.exception.ClientUtilsException;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.AssertionNotFoundException;
 import it.pagopa.oneid.exception.CallbackURINotFoundException;
+import it.pagopa.oneid.exception.CieAgePolicyException;
+import it.pagopa.oneid.exception.CieAgePolicyException.Reason;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.GenericHTMLException;
 import it.pagopa.oneid.exception.IDPNotFoundException;
@@ -129,6 +131,53 @@ class ExceptionMapperTest {
                                 exceptionMock);
                 // then
                 checkErrorWithGenericHTMLError(FOUND, exceptionMock.getMessage(), restResponse);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                        "BELOW_MINIMUM_AGE,1004",
+                        "ABOVE_MAXIMUM_AGE,1004",
+                        "PARENTAL_AUTHORIZATION_REQUIRED,1004",
+                        "INVALID_BIRTH_DATE,OI_ERROR",
+                        "INVALID_CONFIGURATION,OI_ERROR"
+        })
+        @DisplayName("CIE policy failures expose the external error code and preserve callback context")
+        void given_cie_policy_failure_when_mapping_then_preserve_error_contract(Reason reason,
+                        String errorCode) {
+                String callback = "https://client.example/callback?source=oneid&flow=cie";
+                String state = "saved state&value=1+%{token}";
+                CieAgePolicyException exception = new CieAgePolicyException(reason, callback, state,
+                                DEFAULT_CLIENT_ID);
+
+                RestResponse<Object> response = exceptionMapper.mapCieAgePolicyException(exception);
+
+                assertEquals(FOUND.getStatusCode(), response.getStatus());
+                assertEquals("https://oneid.example/login/error?error_code=" + errorCode
+                                + "&redirect_uri=" + URLEncoder.encode(callback, StandardCharsets.UTF_8)
+                                + "&state=" + URLEncoder.encode(state, StandardCharsets.UTF_8)
+                                + "&client_id=" + DEFAULT_CLIENT_ID, response.getLocation().toString());
+                Mockito.verify(samlErrorRedirectService).resolveClientErrorRedirect(DEFAULT_CLIENT_ID,
+                                callback, state, errorCode);
+                Mockito.verify(exceptionMapper.cloudWatchConnectorImpl).sendClientErrorMetricData(
+                                DEFAULT_CLIENT_ID, exception.getErrorCode());
+                Mockito.verify(exceptionMapper.cloudWatchConnectorImpl, Mockito.never())
+                                .sendIDPErrorMetricData(Mockito.any(), Mockito.any());
+        }
+
+        @Test
+        @DisplayName("CIE policy rejection reuses the validated direct OAuth error redirect")
+        void given_direct_redirect_when_mapping_cie_rejection_then_return_access_denied() {
+                String callback = "https://client.example/callback";
+                URI redirect = URI.create(callback + "?error=access_denied&error_description=1004&state=saved");
+                Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(DEFAULT_CLIENT_ID,
+                                callback, "saved", "1004")).thenReturn(Optional.of(redirect));
+
+                RestResponse<Object> response = exceptionMapper.mapCieAgePolicyException(
+                                new CieAgePolicyException(Reason.BELOW_MINIMUM_AGE, callback,
+                                                "saved", DEFAULT_CLIENT_ID));
+
+                assertEquals(FOUND.getStatusCode(), response.getStatus());
+                assertEquals(redirect, response.getLocation());
         }
 
         @Test
@@ -601,7 +650,8 @@ class ExceptionMapperTest {
                 URI directRedirect = URI.create(
                                 "https://client.example/callback?error=access_denied&error_description=GENERIC_HTML_ERROR&state=state-123");
                 Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(
-                                DEFAULT_CLIENT_ID, "https://client.example/callback", "state-123", "GENERIC_HTML_ERROR"))
+                                DEFAULT_CLIENT_ID, "https://client.example/callback", "state-123",
+                                "GENERIC_HTML_ERROR"))
                                 .thenReturn(Optional.of(directRedirect));
 
                 RestResponse<Object> restResponse = exceptionMapper.mapGenericHTMLException(exception);

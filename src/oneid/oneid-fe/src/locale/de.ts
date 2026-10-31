@@ -127,6 +127,11 @@ export default {
       title: 'Du hast die Anmeldung abgebrochen',
       description: 'Um einzutreten, versuche es jederzeit erneut.',
     },
+    cieAgePolicyRejection: {
+      title: 'Zugriff nicht erlaubt',
+      description:
+        'Du erfüllst nicht die Voraussetzungen für den Zugang zu diesem Dienst.',
+    },
     generic: {
       title: 'Anmeldung nicht möglich',
       description:
