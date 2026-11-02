@@ -22,91 +22,125 @@ import org.w3c.dom.Element;
 @ApplicationScoped
 public class CieAgePolicyService {
 
-    private static final ZoneId POLICY_ZONE = ZoneId.of("Europe/Rome");
-    private final Clock clock;
-    private final String cieEntityId;
+  private static final ZoneId POLICY_ZONE = ZoneId.of("Europe/Rome");
+  private final Clock clock;
+  private final String cieEntityId;
 
-    @Inject
-    public CieAgePolicyService(Clock clock, @ConfigProperty(name = "cie_entity_id") String cieEntityId) {
-        this.clock = clock;
-        this.cieEntityId = cieEntityId;
+  private record AgePolicy(int minimumAge, int maximumAge, int parentalAuthorizationAge) {
+  }
+
+  @Inject
+  public CieAgePolicyService(Clock clock, @ConfigProperty(name = "cie_entity_id") String cieEntityId) {
+    this.clock = clock;
+    this.cieEntityId = cieEntityId;
+  }
+
+  public void validate(Response response, Client client, String idp, String redirectUri, String state) {
+    if (!cieEntityId.equalsIgnoreCase(idp)) {
+      return;
     }
 
-    public void validate(Response response, Client client, String idp, String redirectUri, String state) {
-        if (!cieEntityId.equalsIgnoreCase(idp)) {
-            return;
-        }
+    AgePolicy policy = agePolicy(client, redirectUri, state);
+    LocalDate today = LocalDate.now(clock.withZone(POLICY_ZONE));
+    LocalDate birthDate = birthDate(response, client, redirectUri, state);
+    validateBirthDate(birthDate, today, client, redirectUri, state);
+    validateAge(birthDate, today, policy, client, redirectUri, state);
+  }
 
-        boolean minorsEnabled = client.isSpidMinors();
-        Integer minAge = minorsEnabled ? client.getMinAge() : Integer.valueOf(18);
-        int maxAge = minorsEnabled && client.getMaxAge() != null ? client.getMaxAge() : 999;
-        int ageParentAuth = minorsEnabled && client.getAgeParentAuth() != null ? client.getAgeParentAuth() : 0;
-        if (minorsEnabled && (minAge == null || minAge < 5 || minAge > 17 || maxAge < minAge || maxAge > 999
-                || (ageParentAuth != 0 && (ageParentAuth <= minAge || ageParentAuth >= 18)))) {
-            throw failure(Reason.INVALID_CONFIGURATION, client, redirectUri, state);
-        }
-
-        LocalDate today = LocalDate.now(clock.withZone(POLICY_ZONE));
-        LocalDate birthDate = birthDate(response, client, redirectUri, state);
-        if (birthDate.isAfter(today)) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
-
-        int age = Period.between(birthDate, today).getYears();
-        if (age < minAge) {
-            throw failure(Reason.BELOW_MINIMUM_AGE, client, redirectUri, state);
-        }
-        if (maxAge != 999 && age > maxAge) {
-            throw failure(Reason.ABOVE_MAXIMUM_AGE, client, redirectUri, state);
-        }
-        if (ageParentAuth > 0 && age < ageParentAuth) {
-            throw failure(Reason.PARENTAL_AUTHORIZATION_REQUIRED, client, redirectUri, state);
-        }
+  private AgePolicy agePolicy(Client client, String redirectUri, String state) {
+    if (!client.isSpidMinors()) {
+      return new AgePolicy(18, 999, 0);
     }
 
-    private LocalDate birthDate(Response response, Client client, String redirectUri, String state) {
-        if (response.getAssertions().size() != 1
-                || response.getAssertions().getFirst().getAttributeStatements().size() != 1) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
-        List<Attribute> birthAttributes = response.getAssertions().getFirst().getAttributeStatements()
-                .getFirst().getAttributes().stream()
-                .filter(attribute -> "dateOfBirth".equals(attribute.getName()))
-                .toList();
-        if (birthAttributes.size() != 1 || birthAttributes.getFirst().getAttributeValues().size() != 1) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
-
-        XMLObject value = birthAttributes.getFirst().getAttributeValues().getFirst();
-        List<XMLObject> children = value.getOrderedChildren();
-        if (children != null && !children.isEmpty()) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
-        String text;
-        if (value instanceof XSString stringValue) {
-            text = stringValue.getValue();
-        } else if (value instanceof XSAny anyValue) {
-            text = anyValue.getTextContent();
-        } else {
-            Element element = value.getDOM();
-            text = element == null ? null : element.getTextContent();
-        }
-        if (text == null || !text.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
-        try {
-            LocalDate birthDate = LocalDate.parse(text);
-            if (birthDate.getYear() == 0) {
-                throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-            }
-            return birthDate;
-        } catch (DateTimeParseException exception) {
-            throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
-        }
+    Integer minimumAge = client.getMinAge();
+    int maximumAge = client.getMaxAge() == null ? 999 : client.getMaxAge();
+    int parentalAuthorizationAge = client.getAgeParentAuth() == null ? 0 : client.getAgeParentAuth();
+    if (!isValidMinimumAge(minimumAge)
+        || !isValidMaximumAge(minimumAge, maximumAge)
+        || !isValidParentalAuthorizationAge(minimumAge, parentalAuthorizationAge)) {
+      throw failure(Reason.INVALID_CONFIGURATION, client, redirectUri, state);
     }
 
-    private CieAgePolicyException failure(Reason reason, Client client, String redirectUri,
-            String state) {
-        return new CieAgePolicyException(reason, redirectUri, state, client.getClientId());
+    return new AgePolicy(minimumAge, maximumAge, parentalAuthorizationAge);
+  }
+
+  private boolean isValidMinimumAge(Integer minimumAge) {
+    return minimumAge != null && minimumAge >= 5 && minimumAge <= 17;
+  }
+
+  private boolean isValidMaximumAge(int minimumAge, int maximumAge) {
+    return maximumAge >= minimumAge && maximumAge <= 999;
+  }
+
+  private boolean isValidParentalAuthorizationAge(int minimumAge, int parentalAuthorizationAge) {
+    return parentalAuthorizationAge == 0
+        || (parentalAuthorizationAge > minimumAge && parentalAuthorizationAge < 18);
+  }
+
+  private void validateBirthDate(LocalDate birthDate, LocalDate today, Client client,
+      String redirectUri, String state) {
+    if (birthDate.isAfter(today)) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
     }
+  }
+
+  private void validateAge(LocalDate birthDate, LocalDate today, AgePolicy policy, Client client,
+      String redirectUri, String state) {
+    int age = Period.between(birthDate, today).getYears();
+    if (age < policy.minimumAge()) {
+      throw failure(Reason.BELOW_MINIMUM_AGE, client, redirectUri, state);
+    }
+    if (policy.maximumAge() != 999 && age > policy.maximumAge()) {
+      throw failure(Reason.ABOVE_MAXIMUM_AGE, client, redirectUri, state);
+    }
+    if (policy.parentalAuthorizationAge() > 0 && age < policy.parentalAuthorizationAge()) {
+      throw failure(Reason.PARENTAL_AUTHORIZATION_REQUIRED, client, redirectUri, state);
+    }
+  }
+
+  private LocalDate birthDate(Response response, Client client, String redirectUri, String state) {
+    if (response.getAssertions().size() != 1
+        || response.getAssertions().getFirst().getAttributeStatements().size() != 1) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+    }
+    List<Attribute> birthAttributes = response.getAssertions().getFirst().getAttributeStatements()
+        .getFirst().getAttributes().stream()
+        .filter(attribute -> "dateOfBirth".equals(attribute.getName()))
+        .toList();
+    if (birthAttributes.size() != 1 || birthAttributes.getFirst().getAttributeValues().size() != 1) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+    }
+
+    XMLObject value = birthAttributes.getFirst().getAttributeValues().getFirst();
+    List<XMLObject> children = value.getOrderedChildren();
+    if (children != null && !children.isEmpty()) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+    }
+    String text;
+    if (value instanceof XSString stringValue) {
+      text = stringValue.getValue();
+    } else if (value instanceof XSAny anyValue) {
+      text = anyValue.getTextContent();
+    } else {
+      Element element = value.getDOM();
+      text = element == null ? null : element.getTextContent();
+    }
+    if (text == null || !text.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+    }
+    try {
+      LocalDate birthDate = LocalDate.parse(text);
+      if (birthDate.getYear() == 0) {
+        throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+      }
+      return birthDate;
+    } catch (DateTimeParseException exception) {
+      throw failure(Reason.INVALID_BIRTH_DATE, client, redirectUri, state);
+    }
+  }
+
+  private CieAgePolicyException failure(Reason reason, Client client, String redirectUri,
+      String state) {
+    return new CieAgePolicyException(reason, redirectUri, state, client.getClientId());
+  }
 }
