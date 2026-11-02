@@ -82,6 +82,11 @@ export default {
       privacy: 'Izjava o zasebnosti',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Izberite svoj SPID',
     placeholder: 'Ni najdenega IDP-ja',

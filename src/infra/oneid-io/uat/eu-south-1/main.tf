@@ -270,6 +270,10 @@ module "backend" {
         value = var.cie_entity_id
       },
       {
+        name  = "CIE_ADDITIONAL_ENTITY_IDS"
+        value = join(",", local.cie_test_entity_ids)
+      },
+      {
         name  = "EIDAS_ENTITY_ID"
         value = var.eidas_entity_id
       },
