@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.23.2
+
+### Patch Changes
+
+- b23987d: add button selection cie env
+
 ## 1.23.1
 
 ### Patch Changes
