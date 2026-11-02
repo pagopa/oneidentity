@@ -25,6 +25,9 @@ vi.mock('../../utils/env', async (importOriginal) => {
       get CIE_TEST_ENV_ENABLED() {
         return false;
       },
+      get CIE_TEST_ENVIRONMENT_ENABLED() {
+        return { PREPRODUCTION: false, TESTING: false };
+      },
     },
   };
 });
@@ -225,6 +228,10 @@ describe('<Login />', () => {
     ],
   ])('selects %s and preserves the OIDC parameters', (label, entityId) => {
     vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(true);
+    vi.spyOn(ENV, 'CIE_TEST_ENVIRONMENT_ENABLED', 'get').mockReturnValue({
+      PREPRODUCTION: true,
+      TESTING: true,
+    });
     const oidcParams = new URLSearchParams({
       response_type: 'CODE',
       scope: 'openid',
@@ -267,6 +274,32 @@ describe('<Login />', () => {
       `${ENV.URL_API.AUTHORIZE}?${oidcParams}`
     );
   });
+
+  it.each([
+    ['dev', false, true],
+    ['uat', true, false],
+    ['io-uat', true, true],
+  ])(
+    'disables unavailable CIE test environments in %s',
+    (_mode, preproductionEnabled, testingEnabled) => {
+      vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(true);
+      vi.spyOn(ENV, 'CIE_TEST_ENVIRONMENT_ENABLED', 'get').mockReturnValue({
+        PREPRODUCTION: preproductionEnabled,
+        TESTING: testingEnabled,
+      });
+      render(<Login />);
+
+      fireEvent.click(screen.getByRole('button', { name: /CIE/i }));
+      const dialog = screen.getByRole('dialog', { name: cieModalTitle });
+
+      expect(
+        within(dialog).getByRole('button', { name: 'cieSelect.preproduction' })
+      ).toHaveProperty('disabled', !preproductionEnabled);
+      expect(
+        within(dialog).getByRole('button', { name: 'cieSelect.testing' })
+      ).toHaveProperty('disabled', !testingEnabled);
+    }
+  );
 
   it('cancels the CIE selection without starting authentication', async () => {
     vi.spyOn(ENV, 'CIE_TEST_ENV_ENABLED', 'get').mockReturnValue(true);

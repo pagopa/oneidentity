@@ -7,6 +7,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { ENV } from '../../../utils/env';
 
 type Props = {
   open: boolean;
@@ -14,21 +15,22 @@ type Props = {
   onSelect: (entityId: string) => void;
 };
 
-const CIE_TEST_ENVIRONMENTS = [
-  {
-    label: 'cieSelect.preproduction',
-    entityId:
-      'https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
-  },
-  {
-    label: 'cieSelect.testing',
-    entityId:
-      'https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
-  },
-];
-
 const CieModal = ({ open, onClose, onSelect }: Props) => {
   const { t } = useTranslation();
+  const cieTestEnvironments = [
+    {
+      label: 'cieSelect.preproduction',
+      entityId:
+        'https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
+      enabled: ENV.CIE_TEST_ENVIRONMENT_ENABLED.PREPRODUCTION,
+    },
+    {
+      label: 'cieSelect.testing',
+      entityId:
+        'https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO',
+      enabled: ENV.CIE_TEST_ENVIRONMENT_ENABLED.TESTING,
+    },
+  ];
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="cie-select-title">
@@ -37,10 +39,11 @@ const CieModal = ({ open, onClose, onSelect }: Props) => {
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2}>
-          {CIE_TEST_ENVIRONMENTS.map(({ label, entityId }) => (
+          {cieTestEnvironments.map(({ label, entityId, enabled }) => (
             <Button
               key={entityId}
               variant="outlined"
+              disabled={!enabled}
               onClick={() => onSelect(entityId)}
             >
               {t(label)}

@@ -78,6 +78,11 @@ export const ENV = {
 
   CIE_TEST_ENV_ENABLED: ['dev', 'uat', 'io-uat'].includes(import.meta.env.MODE),
 
+  CIE_TEST_ENVIRONMENT_ENABLED: {
+    PREPRODUCTION: ['uat', 'io-uat'].includes(import.meta.env.MODE),
+    TESTING: ['dev', 'io-uat'].includes(import.meta.env.MODE),
+  },
+
   EIDAS_ENTITY_ID: import.meta.env.VITE_EIDAS_ENTITY_ID as string,
 
   ANALYTICS: {
