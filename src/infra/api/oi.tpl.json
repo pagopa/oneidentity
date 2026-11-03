@@ -1839,7 +1839,11 @@
             "404": {
               "statusCode": "404",
               "responseParameters": {
+                "method.response.header.Content-Type": "'application/json'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "{\"message\":\"Not Found\"}"
               }
             }
           }
@@ -1866,9 +1870,29 @@
           "404": {
             "description": "The server can not find requested resource",
             "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "Access-Control-Allow-Origin": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -1950,7 +1974,11 @@
             "404": {
               "statusCode": "404",
               "responseParameters": {
+                "method.response.header.Content-Type": "'application/json'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "{\"message\":\"Not Found\"}"
               }
             }
           },
@@ -1993,7 +2021,7 @@
             }
           },
           "404": {
-            "$ref": "#/components/responses/notFound"
+            "$ref": "#/components/responses/s3NotFound"
           }
         },
         "summary": "Find client information from a client_id",
@@ -2069,7 +2097,11 @@
             "404": {
               "statusCode": "404",
               "responseParameters": {
+                "method.response.header.Content-Type": "'application/json'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "{\"message\":\"Not Found\"}"
               }
             }
           }
@@ -2101,7 +2133,7 @@
             }
           },
           "404": {
-            "$ref": "#/components/responses/notFound"
+            "$ref": "#/components/responses/s3NotFound"
           }
         },
         "summary": "Find all clients information",
@@ -2136,7 +2168,7 @@
             "content": {}
           },
           "404": {
-            "$ref": "#/components/responses/notFound"
+            "$ref": "#/components/responses/s3NotFound"
           }
         },
         "x-amazon-apigateway-integration": {
@@ -2154,7 +2186,12 @@
             },
             "404": {
               "statusCode": "404",
-              "responseParameters": {}
+              "responseParameters": {
+                "method.response.header.Content-Type": "'application/json'"
+              },
+              "responseTemplates": {
+                "application/json": "{\"message\":\"Not Found\"}"
+              }
             }
           },
           "requestParameters": {
@@ -2534,6 +2571,37 @@
           "description": "Content type response.",
           "schema": {
             "type": "string"
+          }
+        }
+      },
+      "s3NotFound": {
+        "description": "S3 object not found.",
+        "headers": {
+          "Access-Control-Allow-Origin": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "Content-Type": {
+            "description": "Response content type.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            }
           }
         }
       },
