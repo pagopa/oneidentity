@@ -165,7 +165,7 @@ class CieAgePolicyServiceTest {
     void given_additional_cie_entity_id_when_validating_minor_then_enforce_policy() {
         String additionalCieEntityId = "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
         CieAgePolicyService configuredService = new CieAgePolicyService(CLOCK,
-                new CieEntityIdRegistry(List.of(CIE_ENTITY_ID, additionalCieEntityId)));
+            List.of(CIE_ENTITY_ID, additionalCieEntityId.toUpperCase(Locale.ROOT)));
 
         CieAgePolicyException exception = assertThrows(CieAgePolicyException.class,
                 () -> configuredService.validate(response(stringValue("2022-10-28")), client(5, 17, 0),
@@ -173,6 +173,33 @@ class CieAgePolicyServiceTest {
 
         assertFailure(exception, Reason.BELOW_MINIMUM_AGE);
     }
+
+        @Test
+        @DisplayName("Whitespace in configured or incoming CIE entity IDs is not removed")
+        void given_entity_ids_with_whitespace_when_validating_then_skip_policy() {
+        Clock unreadClock = mock(Clock.class);
+        CieAgePolicyService configuredService = new CieAgePolicyService(unreadClock,
+            List.of(" " + CIE_ENTITY_ID + " "));
+        CieAgePolicyService untrimmedService = new CieAgePolicyService(unreadClock,
+            List.of(CIE_ENTITY_ID));
+
+        assertDoesNotThrow(() -> configuredService.validate(null, null, CIE_ENTITY_ID,
+            CALLBACK_URI, STATE));
+        assertDoesNotThrow(() -> untrimmedService.validate(null, null, " " + CIE_ENTITY_ID + " ",
+            CALLBACK_URI, STATE));
+        verifyNoInteractions(unreadClock);
+        }
+
+        @Test
+        @DisplayName("An empty CIE entity list skips the age policy")
+        void given_empty_entity_list_when_validating_then_skip_policy() {
+        Clock unreadClock = mock(Clock.class);
+        CieAgePolicyService configuredService = new CieAgePolicyService(unreadClock, List.of());
+
+        assertDoesNotThrow(() -> configuredService.validate(null, null, CIE_ENTITY_ID,
+            CALLBACK_URI, STATE));
+        verifyNoInteractions(unreadClock);
+        }
 
     @ParameterizedTest
     @CsvSource({

@@ -103,8 +103,8 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "timestamp_eidas")
   String TIMESTAMP_EIDAS;
 
-  @Inject
-  CieEntityIdRegistry cieEntityIdRegistry;
+  @ConfigProperty(name = "cie_entity_ids")
+  List<String> cieEntityIds;
 
   @ConfigProperty(name = "eidas_entity_id")
   String EIDAS_ENTITY_ID;
@@ -498,7 +498,8 @@ public class SAMLServiceImpl implements SAMLService {
   }
 
   private boolean isCieEntityId(String entityID) {
-    return cieEntityIdRegistry.contains(entityID);
+    return entityID != null
+        && cieEntityIds.stream().anyMatch(entityId -> entityId.equalsIgnoreCase(entityID));
   }
 
   @Override
