@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.25.0
+
+### Minor Changes
+
+- 8fca501: feat: remove cie filter backward compatibility code
+
 ## 1.24.0
 
 ### Minor Changes

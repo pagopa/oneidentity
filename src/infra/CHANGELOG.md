@@ -1,5 +1,11 @@
 # infra
 
+## 3.22.0
+
+### Minor Changes
+
+- 8fca501: feat: remove cie filter backward compatibility code
+
 ## 3.21.5
 
 ### Patch Changes
