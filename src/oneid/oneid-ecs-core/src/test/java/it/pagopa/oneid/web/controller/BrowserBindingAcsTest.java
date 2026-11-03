@@ -225,7 +225,7 @@ class BrowserBindingAcsTest {
         () -> controller.samlACS(mock(SAMLResponseDTO.class)));
 
     assertEquals(reason, exception.getReason());
-    assertEquals("1004", exception.getErrorCode().getErrorCode());
+    assertEquals("1001", exception.getErrorCode().getErrorCode());
     assertEquals("saved-client", exception.getClientId());
     assertEquals("saved state&value=1+%{token}", exception.getState());
     assertEquals("https://client.example/callback?path=%2Farea%26x%25", exception.getRedirectUri());
@@ -283,7 +283,7 @@ class BrowserBindingAcsTest {
       CieAgePolicyException exception = assertThrows(CieAgePolicyException.class,
           () -> controller.samlACS(mock(SAMLResponseDTO.class)));
       assertEquals(Reason.BELOW_MINIMUM_AGE, exception.getReason());
-      assertEquals("1004", exception.getErrorCode().getErrorCode());
+      assertEquals("1001", exception.getErrorCode().getErrorCode());
       assertEquals("saved-client", exception.getClientId());
       assertEquals("saved state&value=1+%{token}", exception.getState());
       verifyNoInteractions(controller.oidcServiceImpl, controller.oidcSessionService);

@@ -481,7 +481,7 @@ class CieAgePolicyServiceTest {
 
         assertEquals(Reason.BELOW_MINIMUM_AGE, exception.getReason());
         assertEquals(ErrorCode.CIE_AGE_POLICY_DENIED, exception.getErrorCode());
-        assertEquals("1004", exception.getErrorCode().getErrorCode());
+        assertEquals("1001", exception.getErrorCode().getErrorCode());
         assertNull(exception.getRedirectUri());
         assertNull(exception.getState());
         assertEquals(CLIENT_ID, exception.getClientId());
@@ -549,7 +549,7 @@ class CieAgePolicyServiceTest {
         assertEquals(reason.name(), exception.getMessage());
         assertEquals(unverifiable ? ErrorCode.CIE_AGE_POLICY_NOT_VERIFIABLE : ErrorCode.CIE_AGE_POLICY_DENIED,
                 exception.getErrorCode());
-        assertEquals(unverifiable ? "OI_ERROR" : "1004", exception.getErrorCode().getErrorCode());
+        assertEquals(unverifiable ? "OI_ERROR" : "1001", exception.getErrorCode().getErrorCode());
         assertEquals(CALLBACK_URI, exception.getRedirectUri());
         assertEquals(STATE, exception.getState());
         assertEquals(CLIENT_ID, exception.getClientId());

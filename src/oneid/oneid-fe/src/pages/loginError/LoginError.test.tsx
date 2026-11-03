@@ -120,15 +120,15 @@ describe('LoginError Component', () => {
     { redirectUri: '', expectedRedirect: ROUTE_LOGIN },
     {
       redirectUri: validCallbackURI,
-      expectedRedirect: `${validCallbackURI}?error=access_denied&error_description=1004&state=saved-state`,
+      expectedRedirect: `${validCallbackURI}?error=access_denied&error_description=1001&state=saved-state`,
     },
   ])(
-    'should display error_code 1004 without retry and preserve return to $expectedRedirect',
+    'should display error_code 1001 without retry and preserve return to $expectedRedirect',
     ({ redirectUri, expectedRedirect }) => {
       const title = t('loginError.cieAgePolicyRejection.title');
       const description = t('loginError.cieAgePolicyRejection.description');
       window.location.search = `?${new URLSearchParams({
-        error_code: '1004',
+        error_code: '1001',
         redirect_uri: redirectUri,
         client_id: testClientID,
         state: 'saved-state',
@@ -154,7 +154,7 @@ describe('LoginError Component', () => {
         </MemoryRouter>
       );
 
-      expect(mockHandleErrorCode).toHaveBeenCalledWith('1004');
+      expect(mockHandleErrorCode).toHaveBeenCalledWith('1001');
       expect(screen.getByText(title)).toBeInTheDocument();
       expect(screen.getByText(description)).toBeInTheDocument();
       expect(

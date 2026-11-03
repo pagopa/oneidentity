@@ -135,9 +135,9 @@ class ExceptionMapperTest {
 
         @ParameterizedTest
         @CsvSource({
-                        "BELOW_MINIMUM_AGE,1004",
-                        "ABOVE_MAXIMUM_AGE,1004",
-                        "PARENTAL_AUTHORIZATION_REQUIRED,1004",
+                        "BELOW_MINIMUM_AGE,1001",
+                        "ABOVE_MAXIMUM_AGE,1001",
+                        "PARENTAL_AUTHORIZATION_REQUIRED,1001",
                         "INVALID_BIRTH_DATE,OI_ERROR",
                         "INVALID_CONFIGURATION,OI_ERROR"
         })
@@ -168,9 +168,9 @@ class ExceptionMapperTest {
         @DisplayName("CIE policy rejection reuses the validated direct OAuth error redirect")
         void given_direct_redirect_when_mapping_cie_rejection_then_return_access_denied() {
                 String callback = "https://client.example/callback";
-                URI redirect = URI.create(callback + "?error=access_denied&error_description=1004&state=saved");
+                URI redirect = URI.create(callback + "?error=access_denied&error_description=1001&state=saved");
                 Mockito.when(samlErrorRedirectService.resolveClientErrorRedirect(DEFAULT_CLIENT_ID,
-                                callback, "saved", "1004")).thenReturn(Optional.of(redirect));
+                                callback, "saved", "1001")).thenReturn(Optional.of(redirect));
 
                 RestResponse<Object> response = exceptionMapper.mapCieAgePolicyException(
                                 new CieAgePolicyException(Reason.BELOW_MINIMUM_AGE, callback,
