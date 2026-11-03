@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.7.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
 ## 1.6.3
 
 ### Patch Changes
