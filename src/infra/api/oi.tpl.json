@@ -1840,6 +1840,12 @@
               "statusCode": "404",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "",
+                "application/xml": "",
+                "text/html": "",
+                "text/plain": ""
               }
             }
           }
@@ -1951,6 +1957,12 @@
               "statusCode": "404",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "",
+                "application/xml": "",
+                "text/html": "",
+                "text/plain": ""
               }
             }
           },
@@ -2070,6 +2082,12 @@
               "statusCode": "404",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+              "responseTemplates": {
+                "application/json": "",
+                "application/xml": "",
+                "text/html": "",
+                "text/plain": ""
               }
             }
           }
@@ -2154,7 +2172,13 @@
             },
             "404": {
               "statusCode": "404",
-              "responseParameters": {}
+              "responseParameters": {},
+              "responseTemplates": {
+                "application/json": "",
+                "application/xml": "",
+                "text/html": "",
+                "text/plain": ""
+              }
             }
           },
           "requestParameters": {
