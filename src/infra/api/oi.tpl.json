@@ -1838,6 +1838,7 @@
             },
             "404": {
               "statusCode": "404",
+              "contentHandling": "CONVERT_TO_TEXT",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
@@ -1955,6 +1956,7 @@
             },
             "404": {
               "statusCode": "404",
+              "contentHandling": "CONVERT_TO_TEXT",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
@@ -2080,6 +2082,7 @@
             },
             "404": {
               "statusCode": "404",
+              "contentHandling": "CONVERT_TO_TEXT",
               "responseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
@@ -2172,6 +2175,7 @@
             },
             "404": {
               "statusCode": "404",
+              "contentHandling": "CONVERT_TO_TEXT",
               "responseParameters": {},
               "responseTemplates": {
                 "application/json": "#set($discard = \"\")",
