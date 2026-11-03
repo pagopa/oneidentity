@@ -251,9 +251,17 @@ variable "client_status_history_table" {
   }
 }
 
-variable "cie_entity_id" {
-  type    = string
-  default = "https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
+variable "cie_entity_ids" {
+  description = "CIE IdP entity IDs supported by One Identity."
+  type        = list(string)
+  default     = ["https://idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"]
+
+  validation {
+    condition = length(var.cie_entity_ids) > 0 && length(distinct(var.cie_entity_ids)) == length(var.cie_entity_ids) && alltrue([
+      for entity_id in var.cie_entity_ids : trimspace(entity_id) != ""
+    ])
+    error_message = "cie_entity_ids must contain unique, non-empty entity IDs."
+  }
 }
 
 variable "eidas_entity_id" {

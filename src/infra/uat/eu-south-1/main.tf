@@ -261,12 +261,17 @@ module "backend" {
         value = "LATEST_EIDAS"
       },
       {
+        name  = "CIE_ENTITY_IDS"
+        value = join(",", var.cie_entity_ids)
+      },
+      # Transitional aliases derived from the canonical list for rollback compatibility.
+      {
         name  = "CIE_ENTITY_ID"
-        value = var.cie_entity_id
+        value = var.cie_entity_ids[0]
       },
       {
         name  = "CIE_ADDITIONAL_ENTITY_IDS"
-        value = join(",", local.cie_test_entity_ids)
+        value = join(",", slice(var.cie_entity_ids, 1, length(var.cie_entity_ids)))
       },
       {
         name  = "EIDAS_ENTITY_ID"

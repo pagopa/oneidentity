@@ -767,7 +767,7 @@ export const Dashboard = () => {
             withDivider
             tooltipText={
               <TooltipContentWithLink
-                text="SPID Minors allows the service to authenticate minor users (under 18). When enabled, you can define an allowed age range for minor authentication."
+                text="SPID Minors allows the service to authenticate minor users (under 18). When enabled, you can define an allowed age range for minor authentication. The same age policy applies to CIE, but parental authorization is not supported for CIE."
                 infoUrl="https://pagopa.atlassian.net/wiki/spaces/OI/pages/2965078170/RFC+OI-016+-+Supporto+SPID+per+minori"
               />
             }
