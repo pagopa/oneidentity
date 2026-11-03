@@ -1,5 +1,11 @@
 # infra
 
+## 3.22.2
+
+### Patch Changes
+
+- 4498e30: add not found response static endpoint s3
+
 ## 3.22.1
 
 ### Patch Changes
