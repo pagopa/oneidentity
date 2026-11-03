@@ -11,7 +11,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSString;
@@ -24,19 +23,23 @@ public class CieAgePolicyService {
 
   private static final ZoneId POLICY_ZONE = ZoneId.of("Europe/Rome");
   private final Clock clock;
-  private final String cieEntityId;
+  private final CieEntityIdRegistry cieEntityIdRegistry;
 
   private record AgePolicy(int minimumAge, int maximumAge, int parentalAuthorizationAge) {
   }
 
   @Inject
-  public CieAgePolicyService(Clock clock, @ConfigProperty(name = "cie_entity_id") String cieEntityId) {
+  public CieAgePolicyService(Clock clock, CieEntityIdRegistry cieEntityIdRegistry) {
     this.clock = clock;
-    this.cieEntityId = cieEntityId;
+    this.cieEntityIdRegistry = cieEntityIdRegistry;
+  }
+
+  CieAgePolicyService(Clock clock, String cieEntityId) {
+    this(clock, new CieEntityIdRegistry(List.of(cieEntityId)));
   }
 
   public void validate(Response response, Client client, String idp, String redirectUri, String state) {
-    if (!cieEntityId.equalsIgnoreCase(idp)) {
+    if (!cieEntityIdRegistry.contains(idp)) {
       return;
     }
 

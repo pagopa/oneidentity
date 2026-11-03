@@ -42,18 +42,15 @@ import software.amazon.awssdk.services.s3.S3Client;
 @TestProfile(SAMLServiceCieTest.CieTestProfile.class)
 class SAMLServiceCieTest {
 
-  private static final String PREPRODUCTION =
-      "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
-  private static final String TESTING =
-      "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
+  private static final String PREPRODUCTION = "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
+  private static final String TESTING = "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
 
   public static class CieTestProfile extends X509CredentialTestProfile {
 
     @Override
     public Map<String, String> getConfigOverrides() {
       return Map.of(
-          "cie_entity_id", PREPRODUCTION,
-          "cie_additional_entity_ids", PREPRODUCTION + "," + TESTING);
+          "cie_entity_ids", PREPRODUCTION + "," + TESTING);
     }
   }
 
@@ -71,7 +68,7 @@ class SAMLServiceCieTest {
   CloudWatchConnectorImpl cloudWatchConnector;
 
   @ParameterizedTest
-  @ValueSource(strings = {PREPRODUCTION, TESTING})
+  @ValueSource(strings = { PREPRODUCTION, TESTING })
   @DisplayName("Both configured CIE providers use the current CIE metadata")
   void given_configured_cie_when_resolving_provider_then_use_cie_metadata(String entityId) {
     IDP idp = IDP.builder().entityID(entityId).build();
@@ -83,7 +80,7 @@ class SAMLServiceCieTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {PREPRODUCTION, TESTING})
+  @ValueSource(strings = { PREPRODUCTION, TESTING })
   @DisplayName("Both CIE providers retain issuer-format exceptions and the CIE attribute set")
   void given_valid_cie_response_when_validating_then_accept(String entityId)
       throws OneIdentityException {
@@ -100,7 +97,7 @@ class SAMLServiceCieTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {PREPRODUCTION, TESTING})
+  @ValueSource(strings = { PREPRODUCTION, TESTING })
   @DisplayName("Both CIE providers reject unexpected attributes")
   void given_extra_cie_attributes_when_validating_then_reject(String entityId)
       throws OneIdentityException {
@@ -114,7 +111,7 @@ class SAMLServiceCieTest {
   }
 
   @ParameterizedTest
-  @ValueSource(booleans = {false, true})
+  @ValueSource(booleans = { false, true })
   @DisplayName("Selecting one CIE provider never accepts the other provider's issuer")
   void given_mismatched_cie_issuer_when_validating_then_reject(boolean assertionIssuer)
       throws OneIdentityException {

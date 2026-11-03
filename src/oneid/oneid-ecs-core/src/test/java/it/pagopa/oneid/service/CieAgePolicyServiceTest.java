@@ -160,6 +160,20 @@ class CieAgePolicyServiceTest {
         assertFailure(exception, Reason.BELOW_MINIMUM_AGE);
     }
 
+    @Test
+    @DisplayName("Every issuer in the configured CIE list receives the age policy")
+    void given_additional_cie_entity_id_when_validating_minor_then_enforce_policy() {
+        String additionalCieEntityId = "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO";
+        CieAgePolicyService configuredService = new CieAgePolicyService(CLOCK,
+                new CieEntityIdRegistry(List.of(CIE_ENTITY_ID, additionalCieEntityId)));
+
+        CieAgePolicyException exception = assertThrows(CieAgePolicyException.class,
+                () -> configuredService.validate(response(stringValue("2022-10-28")), client(5, 17, 0),
+                        additionalCieEntityId, CALLBACK_URI, STATE));
+
+        assertFailure(exception, Reason.BELOW_MINIMUM_AGE);
+    }
+
     @ParameterizedTest
     @CsvSource({
             "2021-10-28, 5, 17", "2009-10-28, 5, 17", "2008-10-29, 5, 17",
