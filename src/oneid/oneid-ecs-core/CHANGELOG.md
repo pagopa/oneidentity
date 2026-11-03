@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.26.0
+
+### Minor Changes
+
+- 929145e: fix: update cie filter error code
+
 ## 1.25.0
 
 ### Minor Changes
