@@ -1842,10 +1842,10 @@
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
               "responseTemplates": {
-                "application/json": "",
-                "application/xml": "",
-                "text/html": "",
-                "text/plain": ""
+                "application/json": "#set($discard = \"\")",
+                "application/xml": "#set($discard = \"\")",
+                "text/html": "#set($discard = \"\")",
+                "text/plain": "#set($discard = \"\")"
               }
             }
           }
@@ -1959,10 +1959,10 @@
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
               "responseTemplates": {
-                "application/json": "",
-                "application/xml": "",
-                "text/html": "",
-                "text/plain": ""
+                "application/json": "#set($discard = \"\")",
+                "application/xml": "#set($discard = \"\")",
+                "text/html": "#set($discard = \"\")",
+                "text/plain": "#set($discard = \"\")"
               }
             }
           },
@@ -2084,10 +2084,10 @@
                 "method.response.header.Access-Control-Allow-Origin": "'*'"
               },
               "responseTemplates": {
-                "application/json": "",
-                "application/xml": "",
-                "text/html": "",
-                "text/plain": ""
+                "application/json": "#set($discard = \"\")",
+                "application/xml": "#set($discard = \"\")",
+                "text/html": "#set($discard = \"\")",
+                "text/plain": "#set($discard = \"\")"
               }
             }
           }
@@ -2174,10 +2174,10 @@
               "statusCode": "404",
               "responseParameters": {},
               "responseTemplates": {
-                "application/json": "",
-                "application/xml": "",
-                "text/html": "",
-                "text/plain": ""
+                "application/json": "#set($discard = \"\")",
+                "application/xml": "#set($discard = \"\")",
+                "text/html": "#set($discard = \"\")",
+                "text/plain": "#set($discard = \"\")"
               }
             }
           },
