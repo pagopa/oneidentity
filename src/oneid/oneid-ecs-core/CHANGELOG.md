@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.24.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
 ## 1.23.2
 
 ### Patch Changes

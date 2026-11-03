@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.11.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
 ## 1.10.0
 
 ### Minor Changes

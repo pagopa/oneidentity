@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.12.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
 ## 1.11.0
 
 ### Minor Changes
