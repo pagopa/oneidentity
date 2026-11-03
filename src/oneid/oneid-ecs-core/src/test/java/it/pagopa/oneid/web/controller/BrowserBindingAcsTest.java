@@ -29,7 +29,6 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.service.BrowserBindingService;
 import it.pagopa.oneid.service.ClientLookupService;
 import it.pagopa.oneid.service.CieAgePolicyService;
-import it.pagopa.oneid.service.CieEntityIdRegistry;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
@@ -319,7 +318,7 @@ class BrowserBindingAcsTest {
     SAMLController controller = controllerWithContext();
     controller.cieAgePolicyService = Mockito.spy(new CieAgePolicyService(
         Clock.fixed(Instant.parse("2026-10-28T12:00:00Z"), ZoneOffset.UTC),
-        new CieEntityIdRegistry(List.of("https://cie.example"))));
+      List.of("https://cie.example")));
     Client client = Client.builder().clientId("saved-client").spidMinors(true)
         .minAge(13).maxAge(17).ageParentAuth(15).build();
     when(controller.clientLookupService.getClientById("saved-client")).thenReturn(Optional.of(client));
