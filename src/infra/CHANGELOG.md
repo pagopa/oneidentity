@@ -1,5 +1,11 @@
 # infra
 
+## 3.22.1
+
+### Patch Changes
+
+- b612a3d: remove refresh secret
+
 ## 3.22.0
 
 ### Minor Changes

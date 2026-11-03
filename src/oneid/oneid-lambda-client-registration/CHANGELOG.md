@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.11.1
+
+### Patch Changes
+
+- b612a3d: remove refresh secret
+
 ## 2.11.0
 
 ### Minor Changes

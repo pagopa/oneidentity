@@ -1,5 +1,11 @@
 # oi-frontend
 
+## 1.8.0
+
+### Minor Changes
+
+- 929145e: fix: update cie filter error code
+
 ## 1.7.0
 
 ### Minor Changes
