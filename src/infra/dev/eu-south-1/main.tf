@@ -37,9 +37,18 @@ module "frontend" {
 
   deploy_internal_idp_rest_api = true
   # DNS 
-  domain_name                 = module.r53_zones.dns_zone_name
-  domain_admin_name           = module.r53_zones.dns_zone_name
-  domain_internal_idp_name    = module.r53_zones.dns_zone_name
+  domain_name              = module.r53_zones.dns_zone_name
+  domain_admin_name        = module.r53_zones.dns_zone_name
+  domain_internal_idp_name = module.r53_zones.dns_zone_name
+  domain_auth_name         = module.r53_zones.dns_zone_name
+  domain_assets_name       = module.r53_zones.dns_zone_name
+  r53_dns_zone_id          = module.r53_zones.dns_zone_id
+  role_prefix              = local.project
+
+  ## API Gateway ##
+  rest_api_name         = format("%s-restapi", local.project)
+  openapi_template_file = "../../api/oi.tpl.json"
+
   rest_api_admin_name         = format("%s-restapi-admin", local.project)
   openapi_admin_template_file = "../../api/oi-admin.tpl.json"
 
