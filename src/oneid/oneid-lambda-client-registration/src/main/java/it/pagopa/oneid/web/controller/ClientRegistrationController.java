@@ -215,7 +215,7 @@ public class ClientRegistrationController {
     return Response.ok(validateResponse).build();
   }
 
-  // This handler is intentionally not exposed by API Gateway until refresh secret
+  // This api is intentionally not exposed by API Gateway until refresh secret
   // flow has been reviewed.
   @POST
   @Path("/clients/{client_id}/secret/refresh")
