@@ -2,7 +2,7 @@ name: plan
 description: "Run terraform plan"
 
 inputs:
-  region: 
+  region:
     required: true
     type: string
   working-directory:
@@ -15,7 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Read terraform version 
+    - name: Read terraform version
       id: read-version
       shell: bash
       working-directory: ${{ inputs.working-directory }}
@@ -27,12 +27,12 @@ runs:
       with:
         role-to-assume: ${{ inputs.iam_role }}
         aws-region: ${{ inputs.region }}
-    
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2 https://github.com/hashicorp/setup-terraform/releases/tag/v3.1.2
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
-    
+
     - name: Terraform Format
       id: fmt
       shell: bash
@@ -41,25 +41,24 @@ runs:
 
     - name: Package Lambda layers
       shell: bash
-      run: ./.github/scripts/package-lambda-layers.sh
-
+      run: ./scripts/package-lambda-layers.sh
 
     - name: Terraform Init
       id: init
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-          REPO_OWNER="pagopa" 
-          REPO_NAME="terraform-module-integrity-checker"     
-          RELEASE_TAG="1.2.0"         
+        REPO_OWNER="pagopa" 
+        REPO_NAME="terraform-module-integrity-checker"     
+        RELEASE_TAG="1.2.0"         
 
-          curl -L -o tf "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/tf-linux"
+        curl -L -o tf "https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}/tf-linux"
 
-          chmod +x tf
- 
-          sudo mv tf /usr/local/bin/tf  
+        chmod +x tf
 
-          tf init 
+        sudo mv tf /usr/local/bin/tf  
+
+        tf init
 
     - name: Terraform Plan
       id: plan
