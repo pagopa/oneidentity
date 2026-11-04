@@ -7,8 +7,8 @@ applyTo: "**/*.js,**/*.cjs,**/*.mjs,**/*.ts,**/*.tsx"
 
 ## Mandatory rules
 
--   Treat work as product code, not script-oriented glue.
--   Keep domain decisions in domain modules, hooks, or services; keep React components, routing, and adapters thin.
+-   Apply application architecture rules to frontend and service code, not standalone CLI, maintenance, or benchmark scripts.
+-   For non-trivial business behavior, keep domain decisions in domain modules, hooks, or services rather than UI components or transport adapters.
 -   For `src/oneid/oneid-control-panel` and `src/oneid/oneid-fe`, preserve the existing React, Vite, TypeScript, MUI, and Emotion patterns already used in the package.
 -   Reuse the repository's existing workspace scripts and package-level tooling. Do not introduce a new package manager, test runner, or build workflow when an existing one already exists.
 -   Use ubiquitous language for domain names, props, errors, and test cases.

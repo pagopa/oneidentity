@@ -2,13 +2,13 @@
 #
 # Purpose: Build deterministic ZIPs for the PyJWT and cryptography Lambda layers.
 # Usage examples:
-#   ./.github/scripts/package-lambda-layers.sh
+#   ./scripts/package-lambda-layers.sh
 #
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 DIST_DIR="${ROOT_DIR}/src/infra/dist/layers"
 CLIENT_MANAGER_REQUIREMENTS="${ROOT_DIR}/src/oneid/oneid-lambda-client-manager/requirements.txt"
