@@ -18,7 +18,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.11.3</quarkus.platform.version>
+        <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <it.pagopa.oneid.common.group-id>it.pagopa.oneid.common</it.pagopa.oneid.common.group-id>
@@ -31,10 +31,9 @@
         <it.pagopa.oneid.common.utils.artifact-id>utils</it.pagopa.oneid.common.utils.artifact-id>
         <it.pagopa.oneid.common.utils.version>1.0.0-SNAPSHOT</it.pagopa.oneid.common.utils.version>
         <opensaml.version>4.3.0</opensaml.version>
-        <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
-        <quarkus-web-bundler.version>1.5.3</quarkus-web-bundler.version>
-        <quarkus-jacoco.version>3.13.1</quarkus-jacoco.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <brotli4j-bom.version>1.24.0</brotli4j-bom.version>
+        <lombok.version>1.18.42</lombok.version>
+        <quarkus-web-bundler.version>3.0.0</quarkus-web-bundler.version>
         <quarkus.jacoco.title>One Identity</quarkus.jacoco.title>
 
 
@@ -63,21 +62,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.16.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>5.10.2</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>5.12.0</version>
-            </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-core</artifactId>
@@ -121,6 +105,14 @@
                 <artifactId>opensaml-profile-api</artifactId>
                 <version>${opensaml.version}</version>
             </dependency>
+            <!-- Must precede the Quarkus BOM: overrides brotli4j and all native-* artifacts (GHSA-x524-jrqf-vwq6). -->
+            <dependency>
+                <groupId>com.aayushatharva.brotli4j</groupId>
+                <artifactId>brotli4j-bom</artifactId>
+                <version>${brotli4j-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>${quarkus.platform.artifact-id}</artifactId>
@@ -129,22 +121,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-jacoco</artifactId>
-                <version>${quarkus-jacoco.version}</version>
-                <type>pom</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.quarkus.junit5</groupId>
-                <artifactId>junit5-virtual-threads</artifactId>
-                <type>pom</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.quarkiverse.amazonservices</groupId>
+                <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-amazon-services-bom</artifactId>
-                <version>${quarkus-amazon-services.version}</version>
+                <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -158,7 +137,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>1.18.32</version>
+                <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -197,11 +176,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.18.0</version>
-            </dependency>
-            <dependency>
-                <groupId>software.amazon.awssdk</groupId>
-                <artifactId>netty-nio-client</artifactId>
-                <version>2.29.21</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.amazonaws/DynamoDBLocal -->
             <dependency>
@@ -329,6 +303,20 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>

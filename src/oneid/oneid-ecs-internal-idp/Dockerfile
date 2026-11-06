@@ -6,6 +6,7 @@ WORKDIR /code
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml .
+COPY --chown=quarkus:quarkus ../lombok.config .
 # Maven wrapper files
 COPY --chown=quarkus:quarkus ../mvnw .
 COPY --chown=quarkus:quarkus ../.mvn ./.mvn
