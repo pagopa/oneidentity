@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.pagopa.oneid.common.model.Client;
 import it.pagopa.oneid.common.model.ClientFE;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
-import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -160,7 +159,9 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     }
 
     Map<String, Object> payload = new HashMap<>();
-    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(), fromDynamoAttribute(entry.getValue())));
+    streamImage.fields().forEachRemaining(entry -> payload.put(entry.getKey(),
+        "pairwise".equals(entry.getKey()) ? readPairwiseAttribute(entry.getValue())
+            : fromDynamoAttribute(entry.getValue())));
 
     normalizeEnums(payload);
     normalizeLocalizedContentMap(payload);
@@ -189,11 +190,26 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
     if (samlBinding instanceof String samlBindingValue && !samlBindingValue.isBlank()) {
       payload.put(FIELD_SAML_BINDING, SamlBinding.samlBindingTypeFromValue(samlBindingValue));
     }
+  }
 
-    Object pairwise = payload.get("pairwise");
-    if (pairwise != null) {
-      payload.put("pairwise", PairwiseMode.fromLegacy(pairwise));
+  private String readPairwiseAttribute(JsonNode attributeNode) {
+    if (attributeNode == null || attributeNode.isNull() || attributeNode.isMissingNode()) {
+      return null;
     }
+
+    if (!attributeNode.isObject() || attributeNode.size() != 1) {
+      throw new IllegalArgumentException("Unsupported pairwise DynamoDB attribute");
+    }
+
+    if (attributeNode.path("NULL").isBoolean() && attributeNode.path("NULL").booleanValue()) {
+      return null;
+    }
+
+    JsonNode value = attributeNode.get("S");
+    if (value == null || !value.isTextual()) {
+      throw new IllegalArgumentException("Unsupported pairwise DynamoDB attribute");
+    }
+    return value.textValue();
   }
 
   private void normalizeLocalizedContentMap(Map<String, Object> payload) {

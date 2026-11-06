@@ -12,16 +12,21 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.quarkus.test.junit.QuarkusTest;
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.ClientExtended;
 import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
-import it.pagopa.oneid.common.model.enums.converter.PairwiseModeConverter;
 import jakarta.inject.Inject;
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @QuarkusTest
 class DynamoStreamServiceImplTest {
@@ -31,8 +36,6 @@ class DynamoStreamServiceImplTest {
 
   @Inject
   DynamoStreamService dynamoStreamService;
-
-  private final PairwiseModeConverter pairwiseModeConverter = new PairwiseModeConverter();
 
   @Test
   @DisplayName("given new image when extracting client then build client from stream payload")
@@ -49,58 +52,105 @@ class DynamoStreamServiceImplTest {
     assertTrue(result.get().isClientErrorRedirectEnabled());
   }
 
-  @Test
-  @DisplayName("given legacy pairwise true when extracting client then map it to TOKEN")
-  void given_legacy_pairwise_true_when_extracting_client_then_map_it_to_token() {
+  @ParameterizedTest
+  @ValueSource(strings = {"TOKEN", "PDV"})
+  @DisplayName("given pairwise enum string when extracting client then preserve mode")
+  void given_pairwise_enum_string_when_extracting_client_then_preserve_mode(String mode) {
     ObjectNode image = baseImage();
-    image.set("pairwise", boolValue(true));
+    image.set("pairwise", stringValue(mode));
 
     Client client = dynamoStreamService.extractClient(
         buildRecord("INSERT", null, image), false).orElseThrow();
 
-    assertEquals(PairwiseMode.TOKEN, client.getPairwise());
+    assertEquals(PairwiseMode.valueOf(mode), client.getPairwise());
   }
 
-  @Test
-  @DisplayName("given legacy pairwise false when extracting client then disable pairwise")
-  void given_legacy_pairwise_false_when_extracting_client_then_disable_pairwise() {
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "{\"BOOL\":true}", "{\"BOOL\":false}", "{\"N\":\"0\"}", "{\"N\":\"1\"}",
+      "{\"SS\":[\"TOKEN\"]}", "{\"L\":[]}", "{\"M\":{}}", "{}",
+      "true", "false", "0", "1", "\"TOKEN\"", "[]",
+      "{\"S\":true}", "{\"S\":1}", "{\"S\":null}", "{\"NULL\":false}",
+      "{\"S\":\"TOKEN\",\"BOOL\":true}", "{\"S\":\"TOKEN\",\"NULL\":true}",
+      "{\"S\":\"TOKEN\",\"NULL\":false}", "{\"NULL\":true,\"BOOL\":false}",
+      "{\"NULL\":\"true\"}",
+      "{\"S\":\"true\"}", "{\"S\":\"false\"}", "{\"S\":\"\"}", "{\"S\":\"  \"}",
+      "{\"S\":\"token\"}", "{\"S\":\" TOKEN \"}", "{\"S\":\"UNKNOWN\"}"
+  })
+  @DisplayName("given unsupported pairwise attribute when extracting client then reject it")
+  void given_unsupported_pairwise_attribute_when_extracting_client_then_reject_it(String attribute)
+      throws Exception {
     ObjectNode image = baseImage();
-    image.set("pairwise", boolValue(false));
+    image.set("pairwise", objectMapper.readTree(attribute));
 
-    Client client = dynamoStreamService.extractClient(
-        buildRecord("INSERT", null, image), false).orElseThrow();
+    assertThrows(IllegalArgumentException.class,
+        () -> dynamoStreamService.extractClient(buildRecord("INSERT", null, image), false));
+    assertThrows(IllegalArgumentException.class,
+        () -> dynamoStreamService.extractClient(buildRecord("REMOVE", image, null), true));
+  }
 
-    assertNull(client.getPairwise());
+  @ParameterizedTest
+  @ValueSource(strings = {"null", "{\"NULL\":true}"})
+  @DisplayName("given null pairwise attribute when extracting client then keep pairwise disabled")
+  void given_null_pairwise_attribute_when_extracting_client_then_keep_pairwise_disabled(
+      String attribute) throws Exception {
+    ObjectNode image = baseImage();
+    image.set("pairwise", objectMapper.readTree(attribute));
+
+    assertNull(dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).orElseThrow().getPairwise());
   }
 
   @Test
-  @DisplayName("given legacy pairwise values when converting then map to the new modes")
-  void given_legacy_pairwise_values_when_converting_then_map_to_the_new_modes() {
-    assertNull(PairwiseMode.fromLegacy(null));
-    assertNull(PairwiseMode.fromLegacy(false));
-    assertNull(PairwiseMode.fromLegacy("false"));
-    assertNull(PairwiseMode.fromLegacy("  "));
-    assertEquals(PairwiseMode.TOKEN, PairwiseMode.fromLegacy(true));
-    assertEquals(PairwiseMode.TOKEN, PairwiseMode.fromLegacy("TOKEN"));
-    assertEquals(PairwiseMode.PDV, PairwiseMode.fromLegacy("PDV"));
+  @DisplayName("given absent pairwise attribute when extracting client then keep pairwise disabled")
+  void given_absent_pairwise_attribute_when_extracting_client_then_keep_pairwise_disabled() {
+    ObjectNode image = baseImage();
+    image.remove("pairwise");
+
+    assertNull(dynamoStreamService.extractClient(
+        buildRecord("INSERT", null, image), false).orElseThrow().getPairwise());
   }
 
   @Test
-  @DisplayName("given legacy pairwise DynamoDB attributes when converting then preserve compatibility")
-  void given_legacy_pairwise_dynamodb_attributes_when_converting_then_preserve_compatibility() {
-    assertEquals(PairwiseMode.TOKEN,
-        pairwiseModeConverter.transformTo(AttributeValue.builder().bool(true).build()));
-    assertNull(pairwiseModeConverter.transformTo(AttributeValue.builder().bool(false).build()));
-    assertNull(pairwiseModeConverter.transformTo(AttributeValue.builder().nul(true).build()));
-    assertEquals(PairwiseMode.PDV,
-        pairwiseModeConverter.transformTo(AttributeValue.builder().s("PDV").build()));
+  @DisplayName("given legacy pairwise DynamoDB booleans when converting then reject them")
+  void given_legacy_pairwise_dynamodb_booleans_when_converting_then_reject_them() {
+    for (boolean value : new boolean[] {true, false}) {
+      Map<String, AttributeValue> item = Map.of("pairwise", AttributeValue.builder().bool(value).build());
+      assertThrows(IllegalArgumentException.class, () -> TableSchema.fromBean(Client.class).mapToItem(item));
+      assertThrows(IllegalArgumentException.class, () -> TableSchema.fromBean(ClientExtended.class).mapToItem(item));
+    }
+  }
+
+  @Test
+  @DisplayName("given pairwise DynamoDB string or null when converting then preserve mode")
+  void given_pairwise_dynamodb_string_or_null_when_converting_then_preserve_mode() {
+    AttributeValue clientId = AttributeValue.builder().s("client-test").build();
+    for (TableSchema<? extends Client> schema : List.of(
+        TableSchema.fromBean(Client.class), TableSchema.fromBean(ClientExtended.class))) {
+      assertNull(schema.mapToItem(Map.of("clientId", clientId)).getPairwise());
+      assertNull(schema.mapToItem(Map.of(
+          "clientId", clientId, "pairwise", AttributeValue.builder().nul(true).build())).getPairwise());
+      for (PairwiseMode mode : PairwiseMode.values()) {
+        assertEquals(mode, schema.mapToItem(
+            Map.of("pairwise", AttributeValue.builder().s(mode.name()).build())).getPairwise());
+      }
+      assertThrows(IllegalArgumentException.class, () -> schema.mapToItem(
+          Map.of("pairwise", AttributeValue.builder().s("UNKNOWN").build())));
+    }
   }
 
   @Test
   @DisplayName("given pairwise mode when converting to DynamoDB then write the new representation")
   void given_pairwise_mode_when_converting_to_dynamodb_then_write_the_new_representation() {
-    assertEquals("TOKEN", pairwiseModeConverter.transformFrom(PairwiseMode.TOKEN).s());
-    assertEquals(Boolean.TRUE, pairwiseModeConverter.transformFrom(null).nul());
+    TableSchema<Client> schema = TableSchema.fromBean(Client.class);
+    for (PairwiseMode mode : PairwiseMode.values()) {
+      Client client = Client.builder().pairwise(mode).build();
+      assertEquals(AttributeValue.builder().s(mode.name()).build(),
+          schema.itemToMap(client, true).get("pairwise"));
+    }
+    assertFalse(schema.itemToMap(new Client(), true).containsKey("pairwise"));
+    assertEquals(AttributeValue.builder().nul(true).build(),
+        schema.itemToMap(new Client(), false).get("pairwise"));
   }
 
   @Test
@@ -149,6 +199,28 @@ class DynamoStreamServiceImplTest {
 
     assertTrue(dynamoStreamService.hasCacheRelevantChanges(
         buildRecord("MODIFY", baseImage(), newImage)));
+  }
+
+  @Test
+  @DisplayName("given pairwise mode removed when checking diff then return true")
+  void given_pairwise_mode_removed_when_checking_diff_then_return_true() {
+    ObjectNode newImage = baseImage();
+    newImage.remove("pairwise");
+
+    assertTrue(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", baseImage(), newImage)));
+  }
+
+  @Test
+  @DisplayName("given absent and null pairwise when checking diff then return false")
+  void given_absent_and_null_pairwise_when_checking_diff_then_return_false() {
+    ObjectNode oldImage = baseImage();
+    oldImage.remove("pairwise");
+    ObjectNode newImage = oldImage.deepCopy();
+    newImage.set("pairwise", objectMapper.createObjectNode().put("NULL", true));
+
+    assertFalse(dynamoStreamService.hasCacheRelevantChanges(
+        buildRecord("MODIFY", oldImage, newImage)));
   }
 
   @Test

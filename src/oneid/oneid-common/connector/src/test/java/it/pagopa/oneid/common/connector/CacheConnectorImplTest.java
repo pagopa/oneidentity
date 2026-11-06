@@ -26,6 +26,8 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -68,21 +70,41 @@ class CacheConnectorImplTest {
     assertEquals("client-test", result.get().getClientId());
   }
 
-    @Test
-    @DisplayName("given legacy and enum pairwise JSON when deserializing client then map correctly")
-    void given_legacy_and_enum_pairwise_json_when_deserializing_client_then_map_correctly()
-      throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
+  @ParameterizedTest
+  @ValueSource(strings = {"TOKEN", "PDV"})
+  @DisplayName("given cached pairwise enum string when getting client then preserve mode")
+  void given_cached_pairwise_enum_string_when_getting_client_then_preserve_mode(String mode) {
+    when(valueCommands.get("oneid:client:v1:client-test"))
+        .thenReturn("{\"pairwise\":\"" + mode + "\"}");
 
-    assertEquals(PairwiseMode.TOKEN,
-      mapper.readValue("{\"pairwise\":\"TOKEN\"}", Client.class).getPairwise());
-    assertEquals(PairwiseMode.TOKEN,
-      mapper.readValue("{\"pairwise\":true}", Client.class).getPairwise());
-    assertEquals(PairwiseMode.PDV,
-      mapper.readValue("{\"pairwise\":\"PDV\"}", Client.class).getPairwise());
-    assertNull(mapper.readValue("{\"pairwise\":false}", Client.class).getPairwise());
-    assertNull(mapper.readValue("{\"pairwise\":null}", Client.class).getPairwise());
-    }
+    Client client = cacheConnector.getByClientId("client-test").orElseThrow();
+
+    assertEquals(PairwiseMode.valueOf(mode), client.getPairwise());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"{}", "{\"pairwise\":null}"})
+  @DisplayName("given absent or null cached pairwise when getting client then keep pairwise disabled")
+  void given_absent_or_null_cached_pairwise_when_getting_client_then_keep_pairwise_disabled(
+      String payload) {
+    when(valueCommands.get("oneid:client:v1:client-test")).thenReturn(payload);
+
+    assertNull(cacheConnector.getByClientId("client-test").orElseThrow().getPairwise());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "true", "false", "0", "1", "\"true\"", "\"false\"", "\"\"", "\"  \"",
+      "\"token\"", "\" TOKEN \"", "\"UNKNOWN\"", "[]", "{}"
+  })
+  @DisplayName("given invalid cached pairwise when getting client then throw illegal state")
+  void given_invalid_cached_pairwise_when_getting_client_then_throw_illegal_state(String pairwise) {
+    when(valueCommands.get("oneid:client:v1:client-test"))
+        .thenReturn("{\"pairwise\":" + pairwise + "}");
+
+    assertThrows(IllegalStateException.class,
+        () -> cacheConnector.getByClientId("client-test"));
+  }
 
   @Test
   @DisplayName("given blank client id when get by client id then return empty")
@@ -119,10 +141,12 @@ class CacheConnectorImplTest {
         () -> failingCacheConnector.getByClientId("client-test"));
   }
 
-  @Test
+  @ParameterizedTest
+  @ValueSource(strings = {"TOKEN", "PDV"})
   @DisplayName("given valid client when set client then write serialized payload")
-  void given_valid_client_when_set_client_then_write_serialized_payload() throws Exception {
+  void given_valid_client_when_set_client_then_write_serialized_payload(String mode) throws Exception {
     Client client = buildClient("client-test");
+    client.setPairwise(PairwiseMode.valueOf(mode));
 
     cacheConnector.setClient(client);
 
@@ -133,6 +157,9 @@ class CacheConnectorImplTest {
 
     Client storedClient = new ObjectMapper().readValue(payloadCaptor.getValue(), Client.class);
     assertEquals("client-test", storedClient.getClientId());
+    assertEquals(mode,
+        new ObjectMapper().readTree(payloadCaptor.getValue()).get("pairwise").textValue());
+    assertEquals(PairwiseMode.valueOf(mode), storedClient.getPairwise());
 
     List<Object> args = setArgsCaptor.getValue().toArgs();
     assertEquals("EX", args.get(0));

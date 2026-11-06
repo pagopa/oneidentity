@@ -239,7 +239,6 @@ public class ClientRegistrationServiceImpl implements ClientRegistrationService 
 
     String ssmPath = PDV_API_CLIENT_KEY_PREFIX + clientExtended.getClientId();
 
-    // if apiKey not null and pairwise true
     if (updatedClient.getPairwise() != null) {
       if (!ssmConnectorUtilsImpl.upsertSecureStringIfPresentOnlyIfChanged(ssmPath, pdvApiKey)) {
         Log.errorf("SSM upsert failed %s", ssmPath);
