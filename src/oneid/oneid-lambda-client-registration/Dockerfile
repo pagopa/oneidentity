@@ -3,6 +3,7 @@ FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21@sha256:c3c6f9fb2
 # Copy all needed files and directories
 # Parent pom
 COPY --chown=quarkus:quarkus ../pom.xml /code/
+COPY --chown=quarkus:quarkus ../lombok.config /code/
 # Maven wrapper files
 COPY --chown=quarkus:quarkus ../mvnw /code/mvnw
 COPY --chown=quarkus:quarkus ../.mvn /code/.mvn

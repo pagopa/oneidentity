@@ -1,11 +1,11 @@
 {
   "dependencies": [
     {
-      "id": "com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.16.0",
+      "id": "com.aayushatharva.brotli4j:native-linux-x86_64:jar:1.24.0",
       "artifactId": "native-linux-x86_64",
       "groupId": "com.aayushatharva.brotli4j",
-      "version": "1.16.0",
-      "sha256": "tpM8OJhX4af0AEVQls7AHudr5z1RqfsRZNJwDT0xBU0="
+      "version": "1.24.0",
+      "sha256": "SeXFvO-y1CR9OihZ0VrpAIa0xAieCPKlYLisAR5hqwY="
     }
   ]
 }
