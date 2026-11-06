@@ -11,7 +11,6 @@ import it.pagopa.oneid.common.utils.logging.CustomLogging;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.GenericAuthnRequestCreationException;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.config.SAMLNamespaceContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -104,12 +103,9 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     return createNameIDPolicy();
   }
 
-  public RequestedAuthnContext buildRequestedAuthnContext(String spidLevel,
-      AuthnContextComparisonType comparisonType) {
-    AuthnContextComparisonTypeEnumeration openSamlComparison = comparisonType == AuthnContextComparisonType.EXACT
-        ? AuthnContextComparisonTypeEnumeration.EXACT
-        : AuthnContextComparisonTypeEnumeration.MINIMUM;
-    return createRequestedAuthnContext(spidLevel, openSamlComparison);
+  public RequestedAuthnContext buildRequestedAuthnContext(String spidLevel) {
+    return createRequestedAuthnContext(spidLevel,
+        AuthnContextComparisonTypeEnumeration.MINIMUM);
   }
 
   public Optional<List<AttributeDTO>> getAttributeDTOListFromAssertion(Assertion assertion) {

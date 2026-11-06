@@ -230,7 +230,7 @@ class BrowserBindingAcsTest {
     assertEquals("https://client.example/callback?path=%2Farea%26x%25", exception.getRedirectUri());
     var order = Mockito.inOrder(controller.samlServiceImpl, controller.cieAgePolicyService);
     order.verify(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(),
-        any(), any(), any(), any(), any(), any());
+        any(), any(), any(), any(), any());
     order.verify(controller.cieAgePolicyService).validate(any(), any(), any(), any(), any());
     verifyNoInteractions(controller.oidcServiceImpl, controller.oidcSessionService);
     verify(controller.cloudWatchConnectorImpl, Mockito.never()).sendIDPSuccessMetricData(any());
@@ -257,7 +257,7 @@ class BrowserBindingAcsTest {
     doThrow(new SAMLValidationException(
         it.pagopa.oneid.common.model.exception.enums.ErrorCode.IDP_ERROR_ISSUER_MISMATCH))
         .when(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(), any(),
-            any(), any(), any(), any(), any());
+            any(), any(), any(), any());
 
     assertThrows(SAMLValidationException.class,
         () -> controller.samlACS(mock(SAMLResponseDTO.class)));
@@ -291,7 +291,7 @@ class BrowserBindingAcsTest {
 
     var order = Mockito.inOrder(controller.samlServiceImpl, controller.cieAgePolicyService);
     order.verify(controller.samlServiceImpl).validateSAMLResponse(any(), any(), any(), any(),
-        any(), any(), any(), any(), any(), any());
+        any(), any(), any(), any(), any());
     order.verify(controller.cieAgePolicyService).validate(any(), any(), any(), any(), any());
   }
 

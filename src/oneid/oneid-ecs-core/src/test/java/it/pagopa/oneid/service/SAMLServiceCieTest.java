@@ -23,7 +23,6 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.exception.OneIdentityException;
 import it.pagopa.oneid.connector.CloudWatchConnectorImpl;
 import it.pagopa.oneid.exception.SAMLValidationException;
-import it.pagopa.oneid.model.session.enums.AuthnContextComparisonType;
 import it.pagopa.oneid.service.mock.X509CredentialTestProfile;
 import it.pagopa.oneid.service.utils.SAMLUtilsExtendedCore;
 import jakarta.inject.Inject;
@@ -140,7 +139,6 @@ class SAMLServiceCieTest {
   private void validate(Response response, String entityId) {
     Instant requestInstant = response.getIssueInstant().minusSeconds(10);
     samlService.validateSAMLResponse(response, entityId, Set.of("spidCode", "fiscalNumber"),
-        requestInstant, AuthLevel.L2, AuthnContextComparisonType.MINIMUM,
-        "https://client.example/cb", "test-state", "test-client", null);
+        requestInstant, AuthLevel.L2, "https://client.example/cb", "test-state", "test-client", null);
   }
 }
