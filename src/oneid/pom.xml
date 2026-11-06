@@ -33,7 +33,10 @@
         <opensaml.version>4.3.0</opensaml.version>
         <brotli4j-bom.version>1.24.0</brotli4j-bom.version>
         <lombok.version>1.18.42</lombok.version>
+        <quarkus-amazon-services.version>2.13.1</quarkus-amazon-services.version>
         <quarkus-web-bundler.version>3.0.0</quarkus-web-bundler.version>
+        <quarkus-jacoco.version>3.13.1</quarkus-jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
         <quarkus.jacoco.title>One Identity</quarkus.jacoco.title>
 
 
@@ -119,6 +122,13 @@
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-jacoco</artifactId>
+                <version>${quarkus-jacoco.version}</version>
+                <type>pom</type>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>${quarkus.platform.group-id}</groupId>
@@ -326,12 +336,14 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
+        <extensions>true</extensions>
             </plugin>
             <plugin>
                 <groupId>io.smallrye</groupId>

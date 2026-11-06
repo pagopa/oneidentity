@@ -203,6 +203,7 @@
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
+        <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
@@ -222,7 +223,7 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
-                    <argLine>-Djdk.tracePinnedThreads</argLine>
+                    <argLine>@{argLine} -Djdk.tracePinnedThreads</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -245,6 +246,7 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
             <plugin>
