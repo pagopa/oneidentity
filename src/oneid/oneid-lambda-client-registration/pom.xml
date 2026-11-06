@@ -128,6 +128,7 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
                 <version>${surefire-plugin.version}</version>
             </plugin>
@@ -142,6 +143,7 @@
                             ${project.build.directory}/${project.build.finalName}-runner
                         </native.image.path>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
                 <executions>
                     <execution>

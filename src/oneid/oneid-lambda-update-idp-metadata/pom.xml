@@ -140,6 +140,7 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
