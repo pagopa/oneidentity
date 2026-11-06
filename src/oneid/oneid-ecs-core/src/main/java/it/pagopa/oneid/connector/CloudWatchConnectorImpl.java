@@ -45,9 +45,6 @@ public class CloudWatchConnectorImpl implements CloudWatchConnector {
       return;
     }
     publishBrowserBindingMetric(tagBrowserBinding + "Checked");
-    if (outcome.equals("MISSING") || outcome.equals("MISMATCH") || outcome.equals("EXPIRED")) {
-      publishBrowserBindingMetric(tagBrowserBinding + "Anomaly");
-    }
   }
 
   private void publishBrowserBindingMetric(String metricName) {

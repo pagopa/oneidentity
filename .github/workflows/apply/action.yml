@@ -35,7 +35,7 @@ runs:
 
     - name: Package Lambda layers
       shell: bash
-      run: ./.github/scripts/package-lambda-layers.sh
+      run: ./scripts/package-lambda-layers.sh
 
     - name: Terraform Init
       id: init

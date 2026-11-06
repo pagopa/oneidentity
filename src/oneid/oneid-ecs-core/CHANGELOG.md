@@ -1,5 +1,60 @@
 # oneid-ecs-core
 
+## 1.26.0
+
+### Minor Changes
+
+- 929145e: fix: update cie filter error code
+
+## 1.25.0
+
+### Minor Changes
+
+- 8fca501: feat: remove cie filter backward compatibility code
+
+## 1.24.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
+## 1.23.2
+
+### Patch Changes
+
+- b23987d: add button selection cie env
+
+## 1.23.1
+
+### Patch Changes
+
+- 9af8396: update cie env preprod
+
+## 1.23.0
+
+### Minor Changes
+
+- 1f18375: fix: correct redirect for genericHtmlError
+
+## 1.22.0
+
+### Minor Changes
+
+- 43e2518: fix: cookie-redirect error
+
+## 1.21.0
+
+### Minor Changes
+
+- 3e203f2: feat: update redirect's error
+- e6c8311: make active flag operative
+
+## 1.20.0
+
+### Minor Changes
+
+- 7c59d2d: feat: update error redirect and cookie metrics
+
 ## 1.19.1
 
 ### Patch Changes

@@ -20,6 +20,8 @@ import it.pagopa.oneid.model.session.SAMLSession;
 import it.pagopa.oneid.model.session.enums.RecordType;
 import it.pagopa.oneid.service.OIDCServiceImpl;
 import it.pagopa.oneid.service.BrowserBindingService;
+import it.pagopa.oneid.service.CieAgePolicyService;
+import it.pagopa.oneid.service.SAMLErrorRedirectService;
 import it.pagopa.oneid.service.SAMLServiceImpl;
 import it.pagopa.oneid.service.SessionServiceImpl;
 import it.pagopa.oneid.service.ClientLookupService;
@@ -38,11 +40,13 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 @Path(("/saml"))
@@ -77,6 +81,12 @@ public class SAMLController {
   @Inject
   BrowserBindingService browserBindingService;
 
+  @Inject
+  SAMLErrorRedirectService samlErrorRedirectService;
+
+  @Inject
+  CieAgePolicyService cieAgePolicyService;
+
   @Context
   HttpHeaders httpHeaders;
 
@@ -90,6 +100,7 @@ public class SAMLController {
 
     org.opensaml.saml.saml2.core.Response response = currentAuthDTO.getResponse();
     SAMLSession samlSession = currentAuthDTO.getSamlSession();
+    var authorizationRequestContext = samlSession.getAuthorizationRequestDTOExtended();
 
     if (browserBindingService.enabled()) {
       BrowserBindingService.Outcome outcome = browserBindingService.verify(
@@ -101,6 +112,18 @@ public class SAMLController {
       if (browserBindingService.enforcing()
           && outcome != BrowserBindingService.Outcome.MATCHED
           && outcome != BrowserBindingService.Outcome.LEGACY) {
+        var authorizationRequest = samlSession.getAuthorizationRequestDTOExtended();
+        if (authorizationRequest != null) {
+          var directRedirect = samlErrorRedirectService.resolveBrowserBindingRedirect(
+              authorizationRequest.getClientId(), authorizationRequest.getRedirectUri(),
+              authorizationRequest.getState());
+          if (directRedirect.isPresent()) {
+            return Response.status(302).location(directRedirect.get()).build();
+          }
+          throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
+              authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
+              authorizationRequest.getClientId());
+        }
         throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
       }
     }
@@ -112,7 +135,9 @@ public class SAMLController {
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
       // TODO: consider collecting this as IDP Error metric
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
     }
 
     // 1d. Check status, will raise CustomException in case of error mapped to a
@@ -128,17 +153,24 @@ public class SAMLController {
       cloudWatchConnectorImpl.sendIDPErrorMetricData(
           samlSession.getAuthorizationRequestDTOExtended().getIdp(),
           ErrorCode.SAML_RESPONSE_STATUS_ERROR);
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
     }
 
     // 2. Check if Signatures are valid (Response and Assertion) and if SAML
     // Response is formally correct
     Client client = clientLookupService.getClientById(
         samlSession.getAuthorizationRequestDTOExtended().getClientId()).orElse(null);
+    if (client == null) {
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+    }
 
     // 3. Check if the requested auth level and comparison type are satisfied
     if (StringUtils.isBlank(samlSession.getRequestedAuthLevel())) {
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
     }
     AuthLevel effectiveAuthLevel = AuthLevel.authLevelFromValue(
         samlSession.getRequestedAuthLevel());
@@ -152,6 +184,9 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getState(),
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
         client.getEidasIndex());
+
+    cieAgePolicyService.validate(response, client, authorizationRequestContext.getIdp(),
+        authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState());
 
     // 3. Get Authorization Response
     AuthorizationRequest authorizationRequest = oidcServiceImpl.buildAuthorizationRequest(
@@ -175,20 +210,29 @@ public class SAMLController {
       oidcSessionService.saveSession(oidcSession);
     } catch (SessionException e) {
       Log.error("error during session management: " + e.getMessage());
-      throw new GenericHTMLException(ErrorCode.SESSION_ERROR);
+      throw new GenericHTMLException(ErrorCode.SESSION_ERROR,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
     }
 
     String clientCallbackUri = samlSession.getAuthorizationRequestDTOExtended().getRedirectUri();
 
     URI redirectStringResponse;
     try {
-      redirectStringResponse = new URI(clientCallbackUri + "?code=" + authorizationCode + "&state="
-          + authorizationResponse.getState());
-    } catch (URISyntaxException e) {
+      UriBuilder redirectUriBuilder = UriBuilder.fromUri(URI.create(clientCallbackUri))
+          .replaceQueryParam("code", "{authorizationCode}")
+          .replaceQueryParam("state", "{authorizationState}");
+      Map<String, Object> values = new HashMap<>();
+      values.put("authorizationCode", authorizationCode.getValue());
+      values.put("authorizationState", String.valueOf(authorizationResponse.getState()));
+      redirectStringResponse = redirectUriBuilder.buildFromMap(values);
+    } catch (IllegalArgumentException e) {
       Log.error("error during setting of Callback URI: " + clientCallbackUri + "error: "
           + e.getMessage());
       Log.error("error during creation of Callback URI");
-      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR);
+      throw new GenericHTMLException(ErrorCode.GENERIC_HTML_ERROR,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
     }
 
     cloudWatchConnectorImpl.sendIDPSuccessMetricData(

@@ -1,6 +1,7 @@
 package it.pagopa.oneid.service;
 
 import it.pagopa.oneid.common.model.Client;
+import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.exception.enums.ErrorCode;
 import it.pagopa.oneid.exception.SAMLResponseStatusException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,21 +36,44 @@ public class SAMLErrorRedirectService {
       return Optional.empty();
     }
 
+    return resolveRedirect(exception.getClientId(), exception.getRedirectUri(), exception.getState(),
+        oauthError, exception.getErrorCode(), false);
+  }
+
+  public Optional<URI> resolveBrowserBindingRedirect(String clientId, String redirectUri,
+      String state) {
+    return resolveRedirect(clientId, redirectUri, state, ACCESS_DENIED,
+        ErrorCode.GENERIC_HTML_ERROR.getErrorCode(), true);
+  }
+
+  public Optional<URI> resolveClientErrorRedirect(String clientId, String redirectUri,
+      String state, String errorCode) {
+    if (errorCode == null || errorCode.isBlank()) {
+      return Optional.empty();
+    }
+    return resolveRedirect(clientId, redirectUri, state, ACCESS_DENIED, errorCode, false);
+  }
+
+  private Optional<URI> resolveRedirect(String clientId, String redirectUri, String state,
+      String oauthError, String errorDescription, boolean requireRedirectBinding) {
     try {
-      Optional<Client> client = clientLookupService.getClientById(exception.getClientId());
-      if (client.isEmpty() || !isDirectRedirectAllowed(client.get(), exception.getRedirectUri())) {
+      Optional<Client> client = clientLookupService.getClientById(clientId);
+      if (client.isEmpty() || !isDirectRedirectAllowed(client.get(), redirectUri)
+          || (requireRedirectBinding && client.get().getSamlBinding() != SamlBinding.HTTP_REDIRECT)) {
         return Optional.empty();
       }
 
-      UriBuilder redirectUriBuilder = UriBuilder.fromUri(exception.getRedirectUri())
+      UriBuilder redirectUriBuilder = UriBuilder.fromUri(URI.create(redirectUri))
           .replaceQueryParam("error", oauthError)
-          .replaceQueryParam("error_description", exception.getErrorCode());
-      if (exception.getState() != null) {
-        redirectUriBuilder.replaceQueryParam("state", exception.getState());
+          .replaceQueryParam("error_description", errorDescription);
+      if (state != null) {
+        redirectUriBuilder.replaceQueryParam("state", "{oauthState}");
       } else {
         redirectUriBuilder.replaceQueryParam("state");
       }
-      return Optional.of(redirectUriBuilder.build());
+      return Optional.of(state != null
+          ? redirectUriBuilder.buildFromMap(Map.of("oauthState", state))
+          : redirectUriBuilder.build());
     } catch (RuntimeException exceptionDuringRedirectResolution) {
       return Optional.empty();
     }

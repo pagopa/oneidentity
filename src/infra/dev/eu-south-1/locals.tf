@@ -14,10 +14,7 @@ locals {
   idp_entity_ids = concat(
     try(
     [for entity in jsondecode(data.http.idps_api.response_body) : entity.entityID], []),
-    [
-      "https://preproduzione.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO",
-      "https://collaudo.idserver.servizicie.interno.gov.it/idp/profile/SAML2/POST/SSO"
-    ]
+    var.cie_entity_ids
   )
 
   clients = try(

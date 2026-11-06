@@ -221,8 +221,12 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
     }
 
     try {
-      return (Response) XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
+      XMLObject samlObject = XMLObjectSupport.unmarshallFromInputStream(basicParserPool,
           new ByteArrayInputStream(decodedSamlResponse));
+      if (!(samlObject instanceof Response response)) {
+        throw new OneIdentityException("Expected a SAML Response root element");
+      }
+      return response;
     } catch (XMLParserException | UnmarshallingException e) {
       Log.error("Unmarshalling error: " + e.getMessage());
       throw new OneIdentityException(e);
@@ -360,11 +364,16 @@ public class SAMLUtilsExtendedCore extends SAMLUtils {
   }
 
   private String getAttributeValue(XMLObject attributeValue) {
-
-    return attributeValue == null ? null
-        : attributeValue instanceof XSString ? getStringAttributeValue((XSString) attributeValue)
-            : attributeValue instanceof XSAnyImpl ? getAnyAttributeValue((XSAnyImpl) attributeValue)
-                : attributeValue.toString();
+    if (attributeValue == null) {
+      return null;
+    }
+    if (attributeValue instanceof XSString xsString) {
+      return getStringAttributeValue(xsString);
+    }
+    if (attributeValue instanceof XSAnyImpl xsAny) {
+      return getAnyAttributeValue(xsAny);
+    }
+    return attributeValue.toString();
   }
 
   private String getStringAttributeValue(XSString attributeValue) {

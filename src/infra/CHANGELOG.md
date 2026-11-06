@@ -1,5 +1,83 @@
 # infra
 
+## 3.22.2
+
+### Patch Changes
+
+- 4498e30: add not found response static endpoint s3
+
+## 3.22.1
+
+### Patch Changes
+
+- b612a3d: remove refresh secret
+
+## 3.22.0
+
+### Minor Changes
+
+- 8fca501: feat: remove cie filter backward compatibility code
+
+## 3.21.5
+
+### Patch Changes
+
+- b23987d: add button selection cie env
+
+## 3.21.4
+
+### Patch Changes
+
+- 6a2633f: update env uat cie collaudo
+
+## 3.21.3
+
+### Patch Changes
+
+- 9af8396: update cie env preprod
+
+## 3.21.2
+
+### Patch Changes
+
+- 46c7503: change cie env url
+
+## 3.21.1
+
+### Patch Changes
+
+- 5cfb76a: enable registry enabled pdv flag
+
+## 3.21.0
+
+### Minor Changes
+
+- 7c59d2d: feat: update error redirect and cookie metrics
+
+## 3.20.1
+
+### Patch Changes
+
+- e1f2cee: feat: add cookie alarm for io related env
+
+## 3.20.0
+
+### Minor Changes
+
+- 0966008: Lambda cert python version migration
+
+## 3.19.2
+
+### Patch Changes
+
+- 25b3f74: feat: update lambda names in alarms
+
+## 3.19.1
+
+### Patch Changes
+
+- 868f6b0: set correct type for content where it is not correctly exported
+
 ## 3.19.0
 
 ### Minor Changes

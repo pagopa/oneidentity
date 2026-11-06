@@ -31,6 +31,9 @@ export default {
             workwithud: 'Work with us',
           },
         },
+        products: {
+          title: 'Products and Services',
+        },
         resources: {
           title: 'Resources',
           links: {
@@ -82,6 +85,11 @@ export default {
       privacy: 'Privacy Policy',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Choose your SPID',
     placeholder: 'No IDP found',
@@ -120,6 +128,10 @@ export default {
     canceledByUser: {
       title: 'You canceled the login',
       description: 'To enter, please try again whenever you want.',
+    },
+    cieAgePolicyRejection: {
+      title: 'Access not permitted',
+      description: 'You do not meet the requirements to access this service.',
     },
     generic: {
       title: 'Unable to log in',

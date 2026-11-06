@@ -13,6 +13,7 @@ const staleTime = 5 * 60 * 1000;
 const retry = 2;
 
 export const useLoginData = () => {
+  const clientID = new URLSearchParams(window.location.search).get('client_id');
   const bannerQuery = useQuery<Array<BannerContent>, Error>({
     queryKey: ['bannerContent'],
     queryFn: () => fetchBannerContent(ENV.JSON_URL.ALERT),
@@ -28,14 +29,10 @@ export const useLoginData = () => {
   });
 
   const clientQuery = useQuery<Client, Error>({
-    queryKey: ['clientData'],
-    queryFn: () => getClientData(ENV.JSON_URL.CLIENT_BASE_URL),
+    queryKey: ['clientData', clientID],
+    queryFn: () => getClientData(ENV.JSON_URL.CLIENT_BASE_URL, clientID),
     staleTime,
-    enabled() {
-      const q = new URLSearchParams(window.location.search);
-      const clientID = q.get('client_id');
-      return !!clientID;
-    },
+    enabled: !!clientID,
     retry,
     throwOnError: false, //be careful with this option, it can cause unexpected behavior
   });

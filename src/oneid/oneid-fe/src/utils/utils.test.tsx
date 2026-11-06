@@ -71,4 +71,46 @@ describe('storage utilities', () => {
     const result = redirectToClientWithError(error, redirectUri, state);
     expect(result).toBe(expectedRoute);
   });
+
+  it('preserves callback query values and encodes OAuth state', () => {
+    const state = 'saved state&value=1+%{token}';
+    const callback = 'https://example.com/cb?source=oneid&path=%2Farea%26x%25';
+    const redirect = new URL(
+      redirectToClientWithError(ERROR_CODE.CANCELED_BY_USER, callback, state)
+    );
+
+    expect(redirect.searchParams.get('source')).toBe('oneid');
+    expect(redirect.searchParams.get('path')).toBe('/area&x%');
+    expect(redirect.searchParams.get('error')).toBe('access_denied');
+    expect(redirect.searchParams.get('state')).toBe(state);
+  });
+
+  it('replaces existing OAuth parameters without duplicating them', () => {
+    const redirect = new URL(
+      redirectToClientWithError(
+        ERROR_CODE.CANCELED_BY_USER,
+        'https://example.com/cb?error=old&error_description=old&state=old',
+        'saved-state'
+      )
+    );
+
+    expect(redirect.searchParams.getAll('error')).toEqual(['access_denied']);
+    expect(redirect.searchParams.getAll('error_description')).toEqual([
+      ERROR_CODE.CANCELED_BY_USER,
+    ]);
+    expect(redirect.searchParams.getAll('state')).toEqual(['saved-state']);
+  });
+
+  it('keeps the legacy null state value when state is absent', () => {
+    const redirect = new URL(
+      redirectToClientWithError(
+        ERROR_CODE.CANCELED_BY_USER,
+        'https://example.com/cb?source=oneid&state=old',
+        null
+      )
+    );
+
+    expect(redirect.searchParams.get('source')).toBe('oneid');
+    expect(redirect.searchParams.getAll('state')).toEqual(['null']);
+  });
 });

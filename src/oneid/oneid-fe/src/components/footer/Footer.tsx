@@ -109,6 +109,7 @@ export default function Footer({
       }}
       currentLangCode={lang}
       productsJsonUrl={productsJsonUrl}
+      productsTitle={t('common.footer.preLoginLinks.products.title')}
     />
   );
 }

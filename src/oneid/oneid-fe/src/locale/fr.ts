@@ -30,6 +30,9 @@ export default {
             workwithud: 'Carrière',
           },
         },
+        products: {
+          title: 'Produits et services',
+        },
         resources: {
           title: 'Ressources',
           links: {
@@ -83,6 +86,11 @@ export default {
       privacy: 'Politique sur le respect de la vie privée',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Choisir votre SPID',
     placeholder: 'Aucun IDP trouvé',
@@ -121,6 +129,11 @@ export default {
     canceledByUser: {
       title: 'Vous avez annulé la connexion',
       description: 'Pour entrer, réessayez quand vous le souhaitez.',
+    },
+    cieAgePolicyRejection: {
+      title: 'Accès non autorisé',
+      description:
+        'Vous ne remplissez pas les conditions nécessaires pour accéder à ce service.',
     },
     generic: {
       title: 'Impossible de se connecter',

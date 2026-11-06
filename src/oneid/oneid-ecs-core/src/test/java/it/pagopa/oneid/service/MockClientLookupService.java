@@ -26,6 +26,10 @@ public class MockClientLookupService implements ClientLookupService {
     addClient("testPairwiseTrue", SamlBinding.HTTP_POST, false, PairwiseMode.TOKEN);
     addClient("testPairwisePDV", SamlBinding.HTTP_POST, false, PairwiseMode.PDV);
     addClient("testClientId", SamlBinding.HTTP_POST, true, null);
+    addClient("cookieRedirect", SamlBinding.HTTP_REDIRECT, true, null);
+    CLIENTS.get("cookieRedirect").setClientErrorRedirectEnabled(true);
+    addClient("cookiePost", SamlBinding.HTTP_POST, true, null);
+    CLIENTS.get("cookiePost").setClientErrorRedirectEnabled(true);
   }
 
   private static void addClient(String clientId, SamlBinding samlBinding, boolean requiredSameIdp,

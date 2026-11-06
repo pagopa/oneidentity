@@ -79,7 +79,13 @@ public class IDPConnectorImpl implements IDPConnector {
     });
 
     // put new items on dynamodb table
-    idpList.forEach(idpMapper::putItem);
+    idpList.forEach(idp -> {
+      idpLatestList.flatMap(idps -> idps.stream()
+          .filter(existingIdp -> existingIdp.getEntityID().equals(idp.getEntityID()))
+          .findFirst())
+          .ifPresent(existingIdp -> idp.setActive(existingIdp.isActive()));
+      idpMapper.putItem(idp);
+    });
 
   }
 }

@@ -266,8 +266,8 @@ module "backend" {
         value = "LATEST_EIDAS"
       },
       {
-        name  = "CIE_ENTITY_ID"
-        value = var.cie_entity_id
+        name  = "CIE_ENTITY_IDS"
+        value = join(",", var.cie_entity_ids)
       },
       {
         name  = "EIDAS_ENTITY_ID"

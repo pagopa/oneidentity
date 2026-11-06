@@ -29,6 +29,9 @@ export default {
             workwithud: 'Sodeluj z nami',
           },
         },
+        products: {
+          title: 'Izdelki in storitve',
+        },
         resources: {
           title: 'Viri',
           links: {
@@ -79,6 +82,11 @@ export default {
       privacy: 'Izjava o zasebnosti',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Izberite svoj SPID',
     placeholder: 'Ni najdenega IDP-ja',
@@ -116,6 +124,10 @@ export default {
     canceledByUser: {
       title: 'Prijavo ste preklicali',
       description: 'Za vstop poskusite znova kadarkoli.',
+    },
+    cieAgePolicyRejection: {
+      title: 'Dostop ni dovoljen',
+      description: 'Ne izpolnjujete pogojev za dostop do te storitve.',
     },
     generic: {
       title: 'Prijava ni mogoča',

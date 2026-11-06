@@ -1,5 +1,23 @@
 # oneidentity
 
+## 4.19.3
+
+### Patch Changes
+
+- 46c7503: change cie env url
+
+## 4.19.2
+
+### Patch Changes
+
+- 84033cc: fix Products and services header column translations
+
+## 4.19.1
+
+### Patch Changes
+
+- 6a47410: Add a footer link
+
 ## 4.19.0
 
 ### Minor Changes

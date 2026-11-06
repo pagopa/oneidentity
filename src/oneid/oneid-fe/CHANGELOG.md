@@ -1,5 +1,54 @@
 # oi-frontend
 
+## 1.8.0
+
+### Minor Changes
+
+- 929145e: fix: update cie filter error code
+
+## 1.7.0
+
+### Minor Changes
+
+- 181c641: feat: add CiE minors filter
+
+## 1.6.3
+
+### Patch Changes
+
+- b23987d: add button selection cie env
+
+## 1.6.2
+
+### Patch Changes
+
+- 9af8396: update cie env preprod
+
+## 1.6.1
+
+### Patch Changes
+
+- cac4e8f: update env fe io-uat cie
+
+## 1.6.0
+
+### Minor Changes
+
+- 3e203f2: feat: update redirect's error
+- e6c8311: make active flag operative
+
+## 1.5.4
+
+### Patch Changes
+
+- 84033cc: fix Products and services header column translations
+
+## 1.5.3
+
+### Patch Changes
+
+- 6a47410: Add a footer link
+
 ## 1.5.2
 
 ### Patch Changes

@@ -33,6 +33,9 @@ export default {
             workwithud: 'Karriere',
           },
         },
+        products: {
+          title: 'Produkte und Dienstleistungen',
+        },
         resources: {
           title: 'Quellen',
           links: {
@@ -85,6 +88,11 @@ export default {
       privacy: 'Datenschutzerklärung',
     },
   },
+  cieSelect: {
+    modalTitle: 'Choose the CIE test environment',
+    preproduction: 'Preproduction (preproduzione)',
+    testing: 'Testing (collaudo)',
+  },
   spidSelect: {
     title: 'Wähle deinen SPID-Anbieter',
     placeholder: 'Kein IDP gefunden',
@@ -123,6 +131,11 @@ export default {
     canceledByUser: {
       title: 'Du hast die Anmeldung abgebrochen',
       description: 'Um einzutreten, versuche es jederzeit erneut.',
+    },
+    cieAgePolicyRejection: {
+      title: 'Zugriff nicht erlaubt',
+      description:
+        'Du erfüllst nicht die Voraussetzungen für den Zugang zu diesem Dienst.',
     },
     generic: {
       title: 'Anmeldung nicht möglich',

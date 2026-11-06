@@ -102,8 +102,8 @@ public class SAMLServiceImpl implements SAMLService {
   @ConfigProperty(name = "timestamp_eidas")
   String TIMESTAMP_EIDAS;
 
-  @ConfigProperty(name = "cie_entity_id")
-  String CIE_ENTITY_ID;
+  @ConfigProperty(name = "cie_entity_ids")
+  List<String> cieEntityIds;
 
   @ConfigProperty(name = "eidas_entity_id")
   String EIDAS_ENTITY_ID;
@@ -299,7 +299,7 @@ public class SAMLServiceImpl implements SAMLService {
           ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage() + ": " + issuer.getValue());
     }
     // Check if format attribute is valid
-    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+    if (!isCieEntityId(entityID) &&
         (issuer.getFormat() == null || !issuer.getFormat().equals(NameIDType.ENTITY))) {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
@@ -324,7 +324,7 @@ public class SAMLServiceImpl implements SAMLService {
           ErrorCode.IDP_ERROR_ISSUER_MISMATCH.getErrorMessage() + ": " + issuer.getValue());
     }
     // Check if format attribute is valid
-    if (!entityID.equalsIgnoreCase(CIE_ENTITY_ID) &&
+    if (!isCieEntityId(entityID) &&
         (issuer.getFormat() != null && !issuer.getFormat().equals(NameIDType.ENTITY))) {
 
       throw new SAMLValidationException(ErrorCode.IDP_ERROR_ISSUER_INVALID_FORMAT);
@@ -440,7 +440,7 @@ public class SAMLServiceImpl implements SAMLService {
             Collectors.toSet());
 
     // CIE
-    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+    if (isCieEntityId(entityID)) {
       if (!cieMinimumDataSet.equals(obtainedAttributes)) {
         throw new SAMLValidationException(
             ErrorCode.IDP_ERROR_ATTRIBUTES_NOT_MATCHING_FOR_CIE,
@@ -491,6 +491,11 @@ public class SAMLServiceImpl implements SAMLService {
 
   public boolean isEidasEntityId(String entityID) {
     return StringUtils.isNotBlank(entityID) && entityID.equalsIgnoreCase(EIDAS_ENTITY_ID);
+  }
+
+  private boolean isCieEntityId(String entityID) {
+    return entityID != null
+        && cieEntityIds.stream().anyMatch(entityId -> entityId.equalsIgnoreCase(entityID));
   }
 
   @Override
@@ -683,7 +688,7 @@ public class SAMLServiceImpl implements SAMLService {
 
   @Override
   public Optional<IDP> getIDPFromEntityID(String entityID) {
-    if (entityID.equalsIgnoreCase(CIE_ENTITY_ID)) {
+    if (isCieEntityId(entityID)) {
       return idpConnectorImpl.getIDPByEntityIDAndTimestamp(entityID, TIMESTAMP_CIE);
     }
     if (entityID.equalsIgnoreCase(EIDAS_ENTITY_ID)) {

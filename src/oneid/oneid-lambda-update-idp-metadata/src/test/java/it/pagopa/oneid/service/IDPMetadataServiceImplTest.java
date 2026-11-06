@@ -93,18 +93,43 @@ public class IDPMetadataServiceImplTest {
 
   @Test
   void isPublicIdpsStatusChange_statusChanged() {
-    boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
-        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO"));
+    boolean snapshotChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "KO", true, true));
 
-    assertTrue(statusChanged);
+    assertTrue(snapshotChanged);
+  }
+
+  @Test
+  void isPublicIdpsActiveChange_activeChanged() {
+    boolean snapshotChanged = idpMetadataServiceImpl.isPublicIdpsActiveChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "OK", false, true));
+
+    assertTrue(snapshotChanged);
+  }
+
+  @Test
+  void isPublicIdpsActiveChange_unchanged() {
+    boolean snapshotChanged = idpMetadataServiceImpl.isPublicIdpsActiveChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "OK", true, true));
+
+    assertFalse(snapshotChanged);
+  }
+
+  @Test
+  void isPublicIdpsStatusChange_unchanged() {
+    boolean snapshotChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "OK", true, true));
+
+    assertFalse(snapshotChanged);
   }
 
   @Test
   void isPublicIdpsStatusChange_invalidManualStatus() {
-    boolean statusChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
-        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN"));
+    boolean snapshotChanged = idpMetadataServiceImpl.isPublicIdpsStatusChange(
+        dynamodbRecord("MODIFY", LatestTAG.LATEST_SPID.toString(), "OK", "UNKNOWN", true,
+            true));
 
-    assertTrue(statusChanged);
+    assertTrue(snapshotChanged);
   }
 
   @Test
@@ -259,8 +284,8 @@ public class IDPMetadataServiceImplTest {
     assertTrue(idps.isEmpty());
   }
 
-  private JsonNode dynamodbRecord(String eventName, String pointer, String oldStatus,
-      String newStatus) {
+    private JsonNode dynamodbRecord(String eventName, String pointer, String oldStatus,
+      String newStatus, boolean oldActive, boolean newActive) {
     try {
       return new ObjectMapper().readTree("""
           {
@@ -268,15 +293,18 @@ public class IDPMetadataServiceImplTest {
             "dynamodb": {
               "OldImage": {
                 "pointer": { "S": "%s" },
-                "status": { "S": "%s" }
+                "status": { "S": "%s" },
+                "active": { "BOOL": %s }
               },
               "NewImage": {
                 "pointer": { "S": "%s" },
-                "status": { "S": "%s" }
+                "status": { "S": "%s" },
+                "active": { "BOOL": %s }
               }
             }
           }
-          """.formatted(eventName, pointer, oldStatus, pointer, newStatus));
+          """.formatted(eventName, pointer, oldStatus, oldActive, pointer, newStatus,
+          newActive));
     } catch (IOException exception) {
       throw new RuntimeException(exception);
     }
