@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.26.1
+
+### Patch Changes
+
+- 05d1399: Remove the redundant authentication context comparison type.
+
 ## 1.26.0
 
 ### Minor Changes
