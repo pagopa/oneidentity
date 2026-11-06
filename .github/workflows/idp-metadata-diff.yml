@@ -1,0 +1,74 @@
+name: IdP Metadata Diff
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    paths:
+      - "src/oneid/metadata/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: idp-metadata-diff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  metadata-diff:
+    name: Comment IdP metadata changes
+    # Only PRs opened by the Identity Service integration lambda (oneid-lambda-is-gh-integration)
+    if: >-
+      github.event.pull_request.user.login == 'oi-pagopa-gh-bot' &&
+      startsWith(github.event.pull_request.head.ref, 'idp-metadata-update-')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7 https://github.com/actions/checkout/releases/tag/v4.1.7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0 https://github.com/actions/setup-python/releases/tag/v7.1.0
+        with:
+          python-version: "3.15"
+
+      - name: Generate metadata diff report
+        run: |
+          python .github/scripts/idp_metadata_diff.py \
+            --base-ref "$BASE_SHA" \
+            --head-ref "$HEAD_SHA" \
+            --output "$RUNNER_TEMP/idp-metadata-diff.md"
+          cat "$RUNNER_TEMP/idp-metadata-diff.md" >> "$GITHUB_STEP_SUMMARY"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Publish sticky PR comment
+        run: |
+          comment_id="$(gh api --paginate "repos/$REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | contains(\"$COMMENT_MARKER\"))) | .id" \
+            | head -n 1)"
+
+          if [[ -n "$comment_id" ]]; then
+            echo "🔁 Updating existing comment $comment_id"
+            gh api -X PATCH "repos/$REPOSITORY/issues/comments/$comment_id" -F body=@"$REPORT_FILE" > /dev/null
+            exit 0
+          fi
+
+          echo "🆕 Creating new comment"
+          gh api -X POST "repos/$REPOSITORY/issues/$PR_NUMBER/comments" -F body=@"$REPORT_FILE" > /dev/null
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPORT_FILE: ${{ runner.temp }}/idp-metadata-diff.md
+          COMMENT_MARKER: "<!-- idp-metadata-diff -->"
