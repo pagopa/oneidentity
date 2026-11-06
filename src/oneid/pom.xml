@@ -79,6 +79,11 @@
                 <version>${junit-jupiter-params.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.quarkus.junit</groupId>
+                <artifactId>junit-virtual-threads</artifactId>
+                <version>${quarkus.platform.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
