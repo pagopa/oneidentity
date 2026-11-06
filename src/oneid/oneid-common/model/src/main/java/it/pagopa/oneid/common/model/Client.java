@@ -5,7 +5,6 @@ import it.pagopa.oneid.common.model.enums.AuthLevel;
 import it.pagopa.oneid.common.model.enums.PairwiseMode;
 import it.pagopa.oneid.common.model.enums.SamlBinding;
 import it.pagopa.oneid.common.model.enums.converter.AuthLevelConverter;
-import it.pagopa.oneid.common.model.enums.converter.PairwiseModeConverter;
 import it.pagopa.oneid.common.model.enums.converter.SamlBindingConverter;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -82,7 +81,6 @@ public class Client {
   // Extra fields
   private boolean spidMinors;
   private boolean spidProfessionals;
-  @Getter(onMethod_ = @DynamoDbConvertedBy(PairwiseModeConverter.class))
   private PairwiseMode pairwise;
   private Integer minAge;
   private Integer maxAge;

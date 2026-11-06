@@ -1771,7 +1771,7 @@
           },
           "pairwise": {
             "type": "string",
-            "description": "Pairwise subject mode. TOKEN sends only the fiscal code to PDV; PDV sends all available mapped SPID attributes",
+            "description": "Pairwise subject mode. TOKEN sends only the fiscal code to PDV; PDV also sends available mapped SPID attributes when registry is enabled. Null or omission disables pairwise.",
             "enum": [
               "TOKEN",
               "PDV"
