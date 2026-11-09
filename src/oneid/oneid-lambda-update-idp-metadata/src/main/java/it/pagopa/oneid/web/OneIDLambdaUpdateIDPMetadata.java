@@ -45,10 +45,6 @@ public class OneIDLambdaUpdateIDPMetadata implements RequestHandler<Object, Stri
     String eventSource = records.get(0).path(EVENT_SOURCE).asText();
     Log.info("Processing IDP metadata event: source=" + eventSource + ", records="
       + records.size());
-    if ("aws:dynamodb".equals(eventSource)) {
-      // TODO: Remove this temporary log after dev validation.
-      Log.infof("📥 DynamoDB stream event received: %s", input);
-    }
     return switch (eventSource) {
       case "aws:s3" -> handleS3Event(records.get(0));
       case "aws:dynamodb" -> handleDynamodbEvent(records);

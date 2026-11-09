@@ -94,11 +94,6 @@ public class ServiceMetadata implements RequestHandler<Object, String> {
       // DynamodbEvent
       JsonNode records = eventNode.get("Records");
       if (records != null) {
-        if (records.isArray() && !records.isEmpty()
-            && "aws:dynamodb".equals(records.get(0).path("eventSource").asText())) {
-          // TODO: Remove this temporary log after dev validation.
-          Log.infof("📥 DynamoDB stream event received: %s", eventNode);
-        }
         records.forEach(record -> {
           if (record.get("eventName").asText().equals("MODIFY") && !hasMetadataChanged(record)) {
             Log.info("SPID and CIE metadata didn't change");
