@@ -370,9 +370,8 @@ variable "cie_entity_ids" {
 }
 
 variable "eidas_entity_id" {
-  type = string
-  # TEMP: Restore the pre-production entity ID after testing the production metadata in dev.
-  default = "https://sp-proxy.eid.gov.it/spproxy/idpit"
+  type    = string
+  default = "https://sp-proxy.pre.eid.gov.it/spproxy/idpit"
 }
 
 ## Metadata Info variables##
