@@ -218,6 +218,7 @@
 
 
 
+<!-- TEMP TEST METADATA: remove this eIDAS EntityDescriptor after pre-production testing. -->
 <md:EntityDescriptor xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" entityID="https://sp-proxy.pre.eid.gov.it/spproxy/idpit" ID="_3ca6a69f-5633-4fa7-a80a-171dfb31ed92">
   <ds:Signature Id="signature-d1a6b105-9555-429e-9cb2-bdbc7e946b87">
     <ds:SignedInfo>
@@ -278,4 +279,5 @@
     <md:OrganizationURL xml:lang="it">https://www.agid.gov.it</md:OrganizationURL>
   </md:Organization>
 </md:EntityDescriptor>
+<!-- END TEMP TEST METADATA -->
 </EntitiesDescriptor>
