@@ -13,9 +13,9 @@ jobs:
       pull-requests: read
 
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6 https://github.com/actions/checkout/releases/tag/v4.1.6
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0 https://github.com/actions/checkout/releases/tag/v5.0.0
       - name: Use Node.js 20.x
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2 https://github.com/actions/setup-node/releases/tag/v4.0.2
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0 https://github.com/actions/setup-node/releases/tag/v5.0.0
         with:
           node-version: 20.x
       - name: Run yarn install, lint and test
