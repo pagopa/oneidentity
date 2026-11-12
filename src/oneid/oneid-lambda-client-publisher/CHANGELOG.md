@@ -1,5 +1,11 @@
 # oneid-lambda-client-publisher
 
+## 0.8.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 0.7.1
 
 ### Patch Changes

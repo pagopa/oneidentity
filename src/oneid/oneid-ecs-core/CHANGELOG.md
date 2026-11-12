@@ -1,5 +1,11 @@
 # oneid-ecs-core
 
+## 1.27.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 1.26.1
 
 ### Patch Changes

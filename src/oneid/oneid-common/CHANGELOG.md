@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.14.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 1.13.0
 
 ### Minor Changes

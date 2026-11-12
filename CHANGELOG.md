@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.20.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 4.19.3
 
 ### Patch Changes

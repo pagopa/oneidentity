@@ -1,5 +1,11 @@
 # oneid-lambda-cache-updater
 
+## 0.7.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 0.6.0
 
 ### Minor Changes

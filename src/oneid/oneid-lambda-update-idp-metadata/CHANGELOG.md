@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.8.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 1.7.0
 
 ### Minor Changes
