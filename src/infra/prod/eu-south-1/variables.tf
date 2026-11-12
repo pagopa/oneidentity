@@ -857,7 +857,7 @@ variable "pairwise_enabled" {
 
 variable "registry_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable PDV registry feature"
 }
 
