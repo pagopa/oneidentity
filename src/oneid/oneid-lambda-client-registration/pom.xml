@@ -58,12 +58,12 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-mockito</artifactId>
+            <artifactId>quarkus-junit-mockito</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.mockito</groupId>
@@ -128,6 +128,7 @@
                         </java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
                 <version>${surefire-plugin.version}</version>
             </plugin>
@@ -142,6 +143,7 @@
                             ${project.build.directory}/${project.build.finalName}-runner
                         </native.image.path>
                     </systemPropertyVariables>
+          <argLine>@{argLine}</argLine>
                 </configuration>
                 <executions>
                     <execution>
