@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.7.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 1.6.0
 
 ### Minor Changes

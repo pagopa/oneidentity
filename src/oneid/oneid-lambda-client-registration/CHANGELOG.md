@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.12.0
+
+### Minor Changes
+
+- 841cedb: bump quarkus to lts
+
 ## 2.11.1
 
 ### Patch Changes
