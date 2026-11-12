@@ -6,11 +6,8 @@
 "oneid-lambda-service-metadata": minor
 "oneid-lambda-cache-updater": minor
 "oneid-ecs-internal-idp": minor
-"oi-control-panel": minor
 "oneid-ecs-core": minor
 "oneid-common": minor
-"oi-frontend": minor
-"infra": minor
 "oneidentity": minor
 ---
 
