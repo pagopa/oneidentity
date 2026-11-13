@@ -48,6 +48,18 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+// TODO remove: temporary IO-only minor filter dependencies
+import it.pagopa.oneid.web.dto.AuthorizationRequestDTOExtended;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.schema.XSAny;
+import org.opensaml.core.xml.schema.XSString;
+import it.pagopa.oneid.exception.CieAgePolicyException;
+import it.pagopa.oneid.exception.CieAgePolicyException.Reason;
 
 @Path(("/saml"))
 @Startup
@@ -86,6 +98,10 @@ public class SAMLController {
 
   @Inject
   CieAgePolicyService cieAgePolicyService;
+
+  // TODO remove: temporary IO environment identification.
+  @ConfigProperty(name = "entity_id")
+  String entityId;
 
   @Context
   HttpHeaders httpHeaders;
@@ -185,6 +201,9 @@ public class SAMLController {
         samlSession.getAuthorizationRequestDTOExtended().getClientId(),
         client.getEidasIndex());
 
+    // TODO remove: temporary minor filter for IO UAT and production.
+    validateIoMinorFilter(response, authorizationRequestContext);
+
     cieAgePolicyService.validate(response, client, authorizationRequestContext.getIdp(),
         authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState());
 
@@ -246,6 +265,61 @@ public class SAMLController {
       redirect.header("Set-Cookie", browserBindingService.clear(samlSession));
     }
     return redirect.build();
+  }
+
+  // TODO remove: temporary IO environment minor filter.
+  private void validateIoMinorFilter(org.opensaml.saml.saml2.core.Response response,
+      AuthorizationRequestDTOExtended authorizationRequestContext) {
+    if (!"https://uat.io.oneid.pagopa.it/pub-op-full".equals(entityId)
+        && !"https://io.oneid.pagopa.it/pub-op-full".equals(entityId)) {
+      return;
+    }
+
+    var error = new CieAgePolicyException(Reason.INVALID_BIRTH_DATE,
+        authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+        authorizationRequestContext.getClientId());
+    var birthAttributes = response.getAssertions().stream()
+        .flatMap(assertion -> assertion.getAttributeStatements().stream())
+        .flatMap(statement -> statement.getAttributes().stream())
+        .filter(attribute -> "dateOfBirth".equals(attribute.getName()))
+        .toList();
+    if (birthAttributes.size() != 1 || birthAttributes.getFirst().getAttributeValues().size() != 1) {
+      Log.warn("IO age filter: missing or ambiguous date of birth");
+      throw error;
+    }
+    XMLObject value = birthAttributes.getFirst().getAttributeValues().getFirst();
+    String birthDateText;
+    if (value.getOrderedChildren() != null && !value.getOrderedChildren().isEmpty()) {
+      birthDateText = null;
+    } else if (value instanceof XSString stringValue) {
+      birthDateText = stringValue.getValue();
+    } else if (value instanceof XSAny anyValue) {
+      birthDateText = anyValue.getTextContent();
+    } else {
+      birthDateText = value.getDOM() == null ? null : value.getDOM().getTextContent();
+    }
+    LocalDate birthDate;
+    try {
+      if (birthDateText == null || !birthDateText.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
+        Log.warn("IO age filter: invalid date of birth");
+        throw error;
+      }
+      birthDate = LocalDate.parse(birthDateText);
+    } catch (DateTimeParseException e) {
+      Log.warn("IO age filter: invalid date of birth");
+      throw error;
+    }
+    LocalDate today = LocalDate.now(ZoneId.of("Europe/Rome"));
+    if (birthDate.getYear() == 0 || birthDate.isAfter(today)) {
+      Log.warn("IO age filter: invalid date of birth");
+      throw error;
+    }
+    if (Period.between(birthDate, today).getYears() < 18) {
+      Log.warn("IO age filter: minor");
+      throw new CieAgePolicyException(Reason.BELOW_MINIMUM_AGE,
+          authorizationRequestContext.getRedirectUri(), authorizationRequestContext.getState(),
+          authorizationRequestContext.getClientId());
+    }
   }
 
   @GET
