@@ -23,13 +23,13 @@ runs:
         echo "TERRAFORM_VERSION=`cat "$GITHUB_WORKSPACE/src/infra/.terraform-version"`" >> $GITHUB_ENV
 
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@50ac8dd1e1b10d09dac7b8727528b91bed831ac0 # v3.0.2 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v3.0.2
+      uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0 https://github.com/aws-actions/configure-aws-credentials/releases/tag/v6.0.0
       with:
         role-to-assume: ${{ inputs.iam_role }}
         aws-region: ${{ inputs.region }}
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2 https://github.com/hashicorp/setup-terraform/releases/tag/v3.1.2
+      uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4.0.0 https://github.com/hashicorp/setup-terraform/releases/tag/v4.0.0
       with:
         terraform_version: ${{ env.TERRAFORM_VERSION }}
 
