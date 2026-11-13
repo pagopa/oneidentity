@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 @TestHTTPEndpoint(ClientRegistrationController.class)
@@ -45,6 +48,33 @@ class ClientRegistrationControllerTest {
     ClientRegistrationServiceImpl clientRegistrationServiceImpl;
 
     // Register
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false", "\"true\"", "\"false\"", "0", "1"})
+    @DisplayName("Registration and update reject legacy pairwise before calling the service")
+    void given_non_enum_pairwise_when_registering_or_updating_then_bad_request(String pairwise) {
+        String body = "{\"pairwise\":" + pairwise + "}";
+
+        given()
+                .contentType("application/json")
+                .header("Authorization", TEST_BEARER)
+                .body(body)
+                .when()
+                .post("/register")
+                .then()
+                .statusCode(400);
+
+        given()
+                .contentType("application/json")
+                .header("Authorization", TEST_BEARER)
+                .body(body)
+                .when()
+                .put("/register/client_id/client-test")
+                .then()
+                .statusCode(400);
+
+        Mockito.verifyNoInteractions(clientRegistrationServiceImpl);
+    }
 
     @Test
     void register_ok() {

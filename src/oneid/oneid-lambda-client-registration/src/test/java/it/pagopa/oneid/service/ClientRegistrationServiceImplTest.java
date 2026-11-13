@@ -1090,7 +1090,7 @@ class ClientRegistrationServiceImplTest {
                 .spidProfessionals(false)
                 .ageParentAuth(0)
                 .minAge(14)
-                // .pairwise() default false
+                // .pairwise() defaults to null (disabled)
                 // .requiredSameIdp() default false
                 .build();
 
