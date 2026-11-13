@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.21.0
+
+### Minor Changes
+
+- 144e5df: update metadata structure for retrieving entity eidas from spid.xml
+
 ## 4.20.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # infra
 
+## 3.23.0
+
+### Minor Changes
+
+- 144e5df: update metadata structure for retrieving entity eidas from spid.xml
+
 ## 3.22.3
 
 ### Patch Changes
