@@ -43,8 +43,9 @@ class OneIDLambdaUpdateIDPMetadataTest {
     assertEquals("Ok", handler.handleRequest(input, null));
 
     verify(idpMetadataService).getMetadataFile("spid-11111.xml");
-    verify(idpMetadataService).updateIDPMetadata(same(idps), any(IdpS3FileDTO.class));
-    verify(idpMetadataService).publishPublicIdps(same(idps), any(IdpS3FileDTO.class));
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(idpMetadataService);
+        order.verify(idpMetadataService).updateIDPMetadata(same(idps), any(IdpS3FileDTO.class));
+        order.verify(idpMetadataService).publishPublicIdps(same(idps), any(IdpS3FileDTO.class));
   }
 
   @Test

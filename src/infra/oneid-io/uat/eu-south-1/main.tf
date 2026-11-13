@@ -565,6 +565,7 @@ module "backend" {
     filename = "${path.module}/../../../hello-java/build/libs/hello-java-1.0-SNAPSHOT.jar"
     environment_variables = {
       ASSETS_S3_BUCKET         = module.storage.assets_bucket_name
+      EIDAS_ENTITY_ID          = var.eidas_entity_id
       IDP_METADATA_BUCKET_NAME = module.storage.s3_idp_metadata_bucket_name
       IDP_TABLE_NAME           = module.database.table_idp_metadata_name
       IDP_G_IDX                = module.database.table_idp_metadata_idx_name

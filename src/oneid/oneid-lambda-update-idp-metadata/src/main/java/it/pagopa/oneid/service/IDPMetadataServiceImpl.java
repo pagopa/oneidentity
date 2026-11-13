@@ -50,6 +50,9 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
   @ConfigProperty(name = "public_idps.object.key")
   String publicIdpsObjectKey;
 
+  @ConfigProperty(name = "eidas.entity.id")
+  String eidasEntityId;
+
   @Override
   public ArrayList<IDP> parseIDPMetadata(String idpMetadata, IdpS3FileDTO idpS3FileDTO) {
     ArrayList<IDP> idpList = new ArrayList<>();
@@ -80,33 +83,57 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   @Override
   public void updateIDPMetadata(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
-    idpConnectorImpl.saveIDPs(idpMetadata, idpS3FileDTO.getLatestTAG(),
-        String.valueOf(idpS3FileDTO.getTimestamp()));
+    LatestTAG latestTag = idpS3FileDTO.getLatestTAG();
+    if (latestTag != LatestTAG.LATEST_SPID || idpMetadata.isEmpty()) {
+      idpConnectorImpl.saveIDPs(idpMetadata, latestTag,
+          String.valueOf(idpS3FileDTO.getTimestamp()));
+      return;
+    }
+    ArrayList<IDP> spidIdps = new ArrayList<>();
+    ArrayList<IDP> eidasIdps = new ArrayList<>();
+    for (IDP idp : idpMetadata) {
+      if (eidasEntityId.equals(idp.getEntityID())) {
+        eidasIdps.add(idp);
+      } else {
+        spidIdps.add(idp);
+      }
+    }
+    saveGroup(spidIdps, LatestTAG.LATEST_SPID, idpS3FileDTO);
+    saveGroup(eidasIdps, LatestTAG.LATEST_EIDAS, idpS3FileDTO);
+  }
+
+  private void saveGroup(ArrayList<IDP> idps, LatestTAG latestTag, IdpS3FileDTO file) {
+    if (idps.isEmpty()) {
+      return;
+    }
+    idps.forEach(idp -> idp.setPointer(latestTag.toString()));
+    idpConnectorImpl.saveIDPs(idps, latestTag, String.valueOf(file.getTimestamp()));
   }
 
   @Override
   public void publishPublicIdps(ArrayList<IDP> idpMetadata, IdpS3FileDTO idpS3FileDTO) {
-    if (!idpS3FileDTO.toString().startsWith("spid-")) {
+    if (idpS3FileDTO.getLatestTAG() != LatestTAG.LATEST_SPID) {
       Log.info("Skipping public IDPs snapshot for non-SPID metadata: file=" + idpS3FileDTO);
       return;
     }
 
-    if (idpMetadata.isEmpty()) {
+    ArrayList<IDP> publicIdps = publicSpidIdps(idpMetadata);
+    if (publicIdps.isEmpty()) {
       Log.warn("IDPs not found for public snapshot publish");
       return;
     }
 
     Log.info("Publishing public IDPs snapshot: key=" + publicIdpsObjectKey + ", count="
-      + idpMetadata.size());
+      + publicIdps.size());
     publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey,
-        serializePublicIdps(idpMetadata));
+        serializePublicIdps(publicIdps));
   }
 
   @Override
   public void refreshPublicIdps() {
-    ArrayList<IDP> idps = idpConnectorImpl
+    ArrayList<IDP> idps = publicSpidIdps(idpConnectorImpl
         .findIDPsByTimestamp(LatestTAG.LATEST_SPID.toString())
-        .orElseGet(ArrayList::new);
+      .orElseGet(ArrayList::new));
     Log.info("Refreshing public IDPs snapshot: key=" + publicIdpsObjectKey + ", count="
       + idps.size());
     publicIdpsBucketConnector.uploadIdpsJson(publicIdpsObjectKey, serializePublicIdps(idps));
@@ -147,7 +174,12 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
 
   private IDP parseEntityDescriptor(Element entityDescriptor, IdpS3FileDTO idpS3FileDTO) {
     IDP idp = new IDP();
-    idp.setPointer(String.valueOf(idpS3FileDTO.getLatestTAG()));
+    String entityId = entityDescriptor.getAttribute("entityID");
+    LatestTAG latestTag = idpS3FileDTO.getLatestTAG();
+    if (latestTag == LatestTAG.LATEST_SPID && eidasEntityId.equals(entityId)) {
+      latestTag = LatestTAG.LATEST_EIDAS;
+    }
+    idp.setPointer(latestTag.toString());
     idp.setStatus(IDPStatus.OK);
     idp.setActive(true);
     idp.setEntityID(entityDescriptor.getAttribute("entityID"));
@@ -258,6 +290,17 @@ public class IDPMetadataServiceImpl implements IDPMetadataService {
     }
 
     return value.booleanValue();
+  }
+
+  private ArrayList<IDP> publicSpidIdps(ArrayList<IDP> idps) {
+    ArrayList<IDP> publicIdps = new ArrayList<>();
+    for (IDP idp : idps) {
+      if (LatestTAG.LATEST_SPID.toString().equals(idp.getPointer())
+          && !eidasEntityId.equals(idp.getEntityID())) {
+        publicIdps.add(idp);
+      }
+    }
+    return publicIdps;
   }
 
   private String serializePublicIdps(ArrayList<IDP> idps) {
