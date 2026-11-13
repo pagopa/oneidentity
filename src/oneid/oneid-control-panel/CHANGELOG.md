@@ -1,5 +1,11 @@
 # oi-control-panel
 
+## 1.12.0
+
+### Minor Changes
+
+- ba6a1c8: feat: update control panel
+
 ## 1.11.0
 
 ### Minor Changes

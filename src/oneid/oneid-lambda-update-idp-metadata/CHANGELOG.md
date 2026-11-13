@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.9.0
+
+### Minor Changes
+
+- 144e5df: update metadata structure for retrieving entity eidas from spid.xml
+
 ## 1.8.0
 
 ### Minor Changes
