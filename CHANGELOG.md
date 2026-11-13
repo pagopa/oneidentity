@@ -1,5 +1,11 @@
 # oneidentity
 
+## 4.20.1
+
+### Patch Changes
+
+- 8777ee9: temporary spid minor filter for IO environments
+
 ## 4.20.0
 
 ### Minor Changes
