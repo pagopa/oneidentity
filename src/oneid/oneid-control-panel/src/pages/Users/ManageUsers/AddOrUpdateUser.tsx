@@ -8,24 +8,34 @@ import {
   IconButton,
   Backdrop,
   CircularProgress,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import {
-  SamlAttribute,
-  IdpUser,
-  UserErrors,
-  idpUserSchema,
-} from '../../../types/api';
+import { SamlAttribute, IdpUser, UserErrors } from '../../../types/api';
 import { useClient } from '../../../hooks/useClient';
+import { useRegister } from '../../../hooks/useRegister';
 import { useNotification } from '../../../context/NotificationContext';
-import { fromPairs } from 'lodash';
+import { omit } from 'lodash';
 import { ROUTE_PATH } from '../../../utils/constants';
-import SamlAttributesSelectInput from '../../../components/SamlAttributesSelectInput';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
 import { PageContainer } from '../../../components/PageContainer';
 import { ContentBox } from '../../../components/ContentBox';
+import {
+  calculateAgeFromDateOfBirth,
+  userFormSchema,
+} from '../../../utils/user';
 
 const mapUserValidationError = (message: string): UserErrors | null => {
   const normalizedMessage = message.toLowerCase();
@@ -71,9 +81,15 @@ const mapUserValidationError = (message: string): UserErrors | null => {
 const SamlAttributeValueFields = ({
   attributes,
   onChange,
+  errors,
+  required = false,
+  onRemove,
 }: {
-  attributes: Array<[string, string]>;
-  onChange: (attribute: string, value: string) => void;
+  attributes: Array<[SamlAttribute, string]>;
+  onChange: (attribute: SamlAttribute, value: string) => void;
+  errors?: UserErrors['samlAttributes'];
+  required?: boolean;
+  onRemove?: (attribute: SamlAttribute) => void;
 }) => {
   return (
     <Box sx={{ mt: '8px' }}>
@@ -81,9 +97,35 @@ const SamlAttributeValueFields = ({
         <TextField
           sx={{ mt: '16px', mb: '8px' }}
           key={attribute}
-          label={`Value for ${attribute}`}
+          label={attribute}
           value={value}
           onChange={(e) => onChange(attribute, e.target.value)}
+          type={attribute === SamlAttribute.DATE_OF_BIRTH ? 'date' : 'text'}
+          InputLabelProps={
+            attribute === SamlAttribute.DATE_OF_BIRTH
+              ? { shrink: true }
+              : undefined
+          }
+          required={required}
+          error={!!errors?.[attribute]?._errors.length}
+          helperText={errors?.[attribute]?._errors}
+          InputProps={
+            onRemove
+              ? {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={`Remove ${attribute}`}
+                        onClick={() => onRemove(attribute)}
+                        edge="end"
+                      >
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              : undefined
+          }
           margin="dense"
           fullWidth
         />
@@ -101,7 +143,55 @@ export const AddOrUpdateUser = () => {
   const [formData, setFormData] = useState<Partial<IdpUser>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isAdditionalDialogOpen, setIsAdditionalDialogOpen] = useState(false);
+  const [hasConfirmedAdditional, setHasConfirmedAdditional] = useState(false);
+  const [selectedAttribute, setSelectedAttribute] = useState<
+    SamlAttribute | ''
+  >('');
   const { showNotification } = useNotification();
+  const {
+    clientQuery: {
+      data: clientData,
+      isSuccess: isClientLoaded,
+      isFetching: isFetchingClient,
+      error: clientError,
+      refetch: refetchClient,
+    },
+  } = useRegister();
+  const requiredAttributes = [
+    ...new Set(clientData?.samlRequestedAttributes ?? []),
+  ];
+  const isClientReady =
+    isClientLoaded &&
+    !isFetchingClient &&
+    Array.isArray(clientData?.samlRequestedAttributes);
+  const additionalAttributes = Object.values(SamlAttribute).filter(
+    (attribute) =>
+      !requiredAttributes.includes(attribute) &&
+      formData.samlAttributes?.[attribute] !== undefined
+  );
+  const availableAttributes = Object.values(SamlAttribute).filter(
+    (attribute) =>
+      !requiredAttributes.includes(attribute) &&
+      !additionalAttributes.includes(attribute)
+  );
+  const hasDateOfBirth =
+    requiredAttributes.includes(SamlAttribute.DATE_OF_BIRTH) ||
+    formData.samlAttributes?.[SamlAttribute.DATE_OF_BIRTH] !== undefined;
+  const dateOfBirthAge = hasDateOfBirth
+    ? calculateAgeFromDateOfBirth(
+        formData.samlAttributes?.[SamlAttribute.DATE_OF_BIRTH] ?? ''
+      )
+    : undefined;
+  const age = hasDateOfBirth
+    ? dateOfBirthAge?.success
+      ? dateOfBirthAge.age
+      : undefined
+    : formData.age;
+  const ageExplanation =
+    'Test parameter used by the internal IdP to simulate the birth-date data stored by real IdPs. Calculated automatically from dateOfBirth when present; otherwise, enter it manually.';
+  const additionalWarning =
+    'These attributes will only be added to this test user. OneIdentity will not propagate them to the client unless they are also added to the requested SAML attributes in the Register tab. This action does not change the client configuration.';
 
   const {
     createClientUsersMutation: {
@@ -174,10 +264,27 @@ export const AddOrUpdateUser = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationResult = idpUserSchema.safeParse(formData);
+    if (!isClientReady) {
+      showNotification(
+        'Wait for the client configuration to load before saving the user.',
+        'error'
+      );
+      return;
+    }
+
+    const validationResult = userFormSchema.safeParse({
+      ...formData,
+      age,
+      samlAttributes: {
+        ...Object.fromEntries(
+          requiredAttributes.map((attribute) => [attribute, ''])
+        ),
+        ...formData.samlAttributes,
+      },
+    });
 
     if (!validationResult.success) {
-      setErrorUi(validationResult.error.format() as UserErrors);
+      setErrorUi(validationResult.error.format());
       console.error('Form is not valid');
       return;
     }
@@ -186,12 +293,12 @@ export const AddOrUpdateUser = () => {
 
     if (isEditMode) {
       updateClientUsersMutation({
-        data: formData as IdpUser,
-        username: formData.username as string,
+        data: validationResult.data,
+        username: validationResult.data.username,
       });
     } else {
       createClientUsersMutation({
-        data: formData as IdpUser,
+        data: validationResult.data,
       });
     }
   };
@@ -200,6 +307,34 @@ export const AddOrUpdateUser = () => {
     (field: keyof IdpUser) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
+
+  const handleAttributeChange = (attribute: SamlAttribute, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      samlAttributes: {
+        ...prev.samlAttributes,
+        [attribute]: value,
+      },
+    }));
+    setErrorUi((prev) =>
+      prev
+        ? {
+            ...prev,
+            samlAttributes:
+              prev.samlAttributes && omit(prev.samlAttributes, attribute),
+            ...(attribute === SamlAttribute.DATE_OF_BIRTH
+              ? { age: undefined }
+              : {}),
+          }
+        : null
+    );
+  };
+
+  const closeAdditionalDialog = () => {
+    setIsAdditionalDialogOpen(false);
+    setHasConfirmedAdditional(false);
+    setSelectedAttribute('');
+  };
 
   return (
     <PageContainer>
@@ -275,73 +410,208 @@ export const AddOrUpdateUser = () => {
             }}
           />
 
-          <SamlAttributesSelectInput
-            attributeSelectValues={
-              Object.keys(
-                formData?.samlAttributes || {}
-              ) as Array<SamlAttribute>
-            }
-            onChangeFunction={(e) => {
-              const selected = e.target.value as Array<SamlAttribute>;
-              // Record<String, String>
-              const updated = fromPairs(
-                selected.map((attr) => [
-                  attr,
-                  formData?.samlAttributes?.[attr] || '',
-                ])
-              );
-
-              setFormData((prev) => ({
-                ...prev,
-                samlAttributes: updated,
-              }));
-            }}
-            errorHelperText={(errorUi as UserErrors)?.samlAttributes?._errors}
-          >
-            <SamlAttributeValueFields
-              attributes={Object.entries(formData?.samlAttributes || {})}
-              onChange={(attribute, value) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  samlAttributes: {
-                    ...(prev?.samlAttributes || {}),
-                    [attribute]: value,
-                  },
-                }));
-              }}
-            />
-          </SamlAttributesSelectInput>
-
           <TextField
+            required
             fullWidth
             label="Age"
             type="number"
-            inputProps={{ min: 1, max: 999 }}
-            value={formData?.age ?? ''}
+            inputProps={{ min: 0, max: 999 }}
+            InputProps={{ readOnly: hasDateOfBirth }}
+            value={age ?? ''}
             onChange={(e) => {
               const val = e.target.value;
               setFormData((prev) => ({
                 ...prev,
-                age: val === '' ? undefined : parseInt(val, 10),
+                age: val === '' ? undefined : Number(val),
               }));
             }}
             margin="normal"
-            error={!!(errorUi as UserErrors)?.age?._errors}
-            helperText={(errorUi as UserErrors)?.age?._errors}
+            error={!!errorUi?.age?._errors.length}
+            helperText={[ageExplanation, ...(errorUi?.age?._errors ?? [])].join(
+              ' '
+            )}
           />
+
+          {isFetchingClient && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Loading client SAML attributes...
+            </Alert>
+          )}
+          {!isFetchingClient && !isClientReady && (
+            <Alert
+              severity="error"
+              sx={{ mt: 2 }}
+              action={
+                <Button color="inherit" onClick={() => refetchClient()}>
+                  Retry
+                </Button>
+              }
+            >
+              Unable to load the client SAML attributes.
+              {clientError && ` ${clientError.message}`}
+            </Alert>
+          )}
+          {isClientReady && (
+            <>
+              <Typography variant="h6" sx={{ mt: 3 }}>
+                Required SAML attributes
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                These attributes are requested by the client. All values are
+                required.
+              </Typography>
+              <SamlAttributeValueFields
+                attributes={requiredAttributes.map((attribute) => [
+                  attribute,
+                  formData.samlAttributes?.[attribute] ?? '',
+                ])}
+                onChange={handleAttributeChange}
+                errors={errorUi?.samlAttributes}
+                required
+              />
+            </>
+          )}
+          {!!errorUi?.samlAttributes?._errors.length && (
+            <FormHelperText error>
+              {errorUi.samlAttributes._errors}
+            </FormHelperText>
+          )}
         </ContentBox>
 
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{ mt: 3 }}
-          data-testid="submit-button"
-          startIcon={isEditMode ? <SaveIcon /> : <AddIcon />}
-          disabled={isCreatingUser || isUpdatingUser}
+        {isClientReady && additionalAttributes.length > 0 && (
+          <Box sx={{ mt: 3 }}>
+            <ContentBox>
+              <Typography variant="h6" gutterBottom>
+                Additional SAML attributes
+              </Typography>
+              <Alert severity="warning">{additionalWarning}</Alert>
+              <SamlAttributeValueFields
+                attributes={additionalAttributes.map((attribute) => [
+                  attribute,
+                  formData.samlAttributes?.[attribute] ?? '',
+                ])}
+                onChange={handleAttributeChange}
+                errors={errorUi?.samlAttributes}
+                onRemove={(attribute) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    samlAttributes: omit(prev.samlAttributes, attribute),
+                    age:
+                      attribute === SamlAttribute.DATE_OF_BIRTH &&
+                      dateOfBirthAge?.success
+                        ? dateOfBirthAge.age
+                        : prev.age,
+                  }));
+                }}
+              />
+            </ContentBox>
+          </Box>
+        )}
+
+        <Box
+          sx={{
+            mt: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
         >
-          {isEditMode ? 'Update User' : 'Add User'}
-        </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            data-testid="submit-button"
+            startIcon={isEditMode ? <SaveIcon /> : <AddIcon />}
+            disabled={isCreatingUser || isUpdatingUser || !isClientReady}
+          >
+            {isEditMode ? 'Update User' : 'Add User'}
+          </Button>
+          <Button
+            type="button"
+            variant="outlined"
+            startIcon={<AddIcon />}
+            disabled={
+              !isClientReady ||
+              isCreatingUser ||
+              isUpdatingUser ||
+              availableAttributes.length === 0
+            }
+            onClick={() => setIsAdditionalDialogOpen(true)}
+          >
+            Add additional SAML attributes
+          </Button>
+        </Box>
       </Box>
+
+      <Dialog
+        open={isAdditionalDialogOpen}
+        onClose={closeAdditionalDialog}
+        aria-labelledby="additional-attributes-title"
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle id="additional-attributes-title">
+          Add additional SAML attributes
+        </DialogTitle>
+        <DialogContent>
+          <Alert severity="warning">{additionalWarning}</Alert>
+          {hasConfirmedAdditional && (
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="additional-attribute-label">
+                Additional SAML attribute
+              </InputLabel>
+              <Select
+                labelId="additional-attribute-label"
+                label="Additional SAML attribute"
+                value={selectedAttribute}
+                onChange={(event) => {
+                  const attribute = availableAttributes.find(
+                    (value) => value === event.target.value
+                  );
+                  setSelectedAttribute(attribute ?? '');
+                }}
+              >
+                {availableAttributes.map((attribute) => (
+                  <MenuItem key={attribute} value={attribute}>
+                    {attribute}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeAdditionalDialog}>Cancel</Button>
+          {hasConfirmedAdditional ? (
+            <Button
+              variant="contained"
+              disabled={
+                !isClientReady ||
+                !selectedAttribute ||
+                !availableAttributes.includes(selectedAttribute)
+              }
+              onClick={() => {
+                if (
+                  selectedAttribute &&
+                  availableAttributes.includes(selectedAttribute)
+                ) {
+                  handleAttributeChange(selectedAttribute, '');
+                  closeAdditionalDialog();
+                }
+              }}
+            >
+              Add attribute
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={() => setHasConfirmedAdditional(true)}
+            >
+              Continue
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
 
       <Backdrop open={isCreatingUser || isUpdatingUser}>
         <CircularProgress color="secondary" />
