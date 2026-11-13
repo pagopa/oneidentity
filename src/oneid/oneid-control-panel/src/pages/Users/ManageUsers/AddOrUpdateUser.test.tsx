@@ -83,6 +83,8 @@ const usernameInvalidError = 'username format is invalid';
 const passwordInvalidError = 'password format is invalid';
 const additionalAttributesButton = 'Add additional SAML attributes';
 const removeFamilyNameButton = 'Remove familyName';
+const addAttributeButton = 'Add attribute';
+const additionalAttributesHeading = 'Additional SAML attributes';
 
 const fillCredentials = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.type(screen.getByLabelText(/Username/i), 'newuser');
@@ -102,7 +104,6 @@ const openAdditionalAttributePicker = async (
   const dialog = screen.getByRole('dialog', {
     name: additionalAttributesButton,
   });
-  await user.click(within(dialog).getByRole('button', { name: 'Continue' }));
   await user.click(
     within(dialog).getByRole('combobox', {
       name: 'Additional SAML attribute',
@@ -116,7 +117,7 @@ const addAdditionalAttribute = async (
 ) => {
   await openAdditionalAttributePicker(user);
   await user.click(screen.getByRole('option', { name: attribute }));
-  await user.click(screen.getByRole('button', { name: 'Add attribute' }));
+  await user.click(screen.getByRole('button', { name: addAttributeButton }));
   await waitFor(() => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
@@ -327,7 +328,7 @@ describe('AddOrUpdateUser', () => {
     });
   });
 
-  it('shows only the warning before Continue and cancels without changing claims', async () => {
+  it('opens the optional picker directly and cancels without changing claims', async () => {
     const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
@@ -341,11 +342,14 @@ describe('AddOrUpdateUser', () => {
     });
     expect(dialog).toHaveTextContent(/Register tab/i);
     expect(dialog).toHaveTextContent(/propagat/i);
-    expect(within(dialog).queryByRole('combobox')).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('combobox')).toBeInTheDocument();
     expect(within(dialog).queryByRole('textbox')).not.toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Continue' })
-    ).toBeInTheDocument();
+      within(dialog).queryByRole('button', { name: 'Continue' })
+    ).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: addAttributeButton })
+    ).toBeDisabled();
 
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
 
@@ -357,7 +361,7 @@ describe('AddOrUpdateUser', () => {
     expect(mockUpdateClient).not.toHaveBeenCalled();
   });
 
-  it('cancels the optional picker without adding a field and warns again on reopening', async () => {
+  it('cancels the optional picker without adding a field and resets selection on reopening', async () => {
     const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
@@ -375,13 +379,78 @@ describe('AddOrUpdateUser', () => {
     const dialog = screen.getByRole('dialog', {
       name: additionalAttributesButton,
     });
-    expect(within(dialog).queryByRole('combobox')).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('combobox')).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: 'Continue' })
-    ).toBeInTheDocument();
+      within(dialog).getByRole('button', { name: addAttributeButton })
+    ).toBeDisabled();
   });
 
-  it('adds an optional claim only after confirmation and preserves the client configuration', async () => {
+  it('resets the optional selection after closing with Escape', async () => {
+    const user = userEvent.setup();
+    render(<AddOrUpdateUser />, { wrapper: createWrapper() });
+
+    await openAdditionalAttributePicker(user);
+    await user.click(screen.getByRole('option', { name: 'familyName' }));
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(screen.queryByLabelText(/^familyName/i)).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: additionalAttributesButton })
+    );
+    const dialog = screen.getByRole('dialog', {
+      name: additionalAttributesButton,
+    });
+    expect(within(dialog).getByRole('combobox')).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: addAttributeButton })
+    ).toBeDisabled();
+  });
+
+  it.each(['loading', 'required'])(
+    'prevents adding the selected claim when the client configuration becomes %s',
+    async (configuration) => {
+      const user = userEvent.setup();
+      const { rerender } = render(<AddOrUpdateUser />, {
+        wrapper: createWrapper(),
+      });
+
+      await openAdditionalAttributePicker(user);
+      await user.click(screen.getByRole('option', { name: 'familyName' }));
+      expect(
+        screen.getByRole('button', { name: addAttributeButton })
+      ).not.toBeDisabled();
+
+      mockClientQuery = {
+        ...mockClientQuery,
+        isFetching: configuration === 'loading',
+        data: {
+          samlRequestedAttributes:
+            configuration === 'required'
+              ? [SamlAttribute.NAME, SamlAttribute.FAMILY_NAME]
+              : [SamlAttribute.NAME],
+        },
+      };
+      rerender(<AddOrUpdateUser />);
+
+      const addButton = screen.getByRole('button', {
+        name: addAttributeButton,
+      });
+      expect(addButton).toBeDisabled();
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', { name: additionalAttributesHeading })
+      ).not.toBeInTheDocument();
+      expect(mockCreate).not.toHaveBeenCalled();
+      expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockUpdateClient).not.toHaveBeenCalled();
+    }
+  );
+
+  it('adds the selected optional claim and preserves the client configuration', async () => {
     const user = userEvent.setup();
     render(<AddOrUpdateUser />, { wrapper: createWrapper() });
 
@@ -391,7 +460,7 @@ describe('AddOrUpdateUser', () => {
 
     expect(screen.getByLabelText(/^familyName/i)).toHaveValue('');
     expect(
-      screen.getByRole('heading', { name: 'Additional SAML attributes' })
+      screen.getByRole('heading', { name: additionalAttributesHeading })
     ).toBeInTheDocument();
     expect(screen.getByText(/Register tab/i)).toBeInTheDocument();
     expect(

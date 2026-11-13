@@ -9,14 +9,6 @@ import {
   Backdrop,
   CircularProgress,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   FormHelperText,
 } from '@mui/material';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
@@ -36,6 +28,10 @@ import {
   calculateAgeFromDateOfBirth,
   userFormSchema,
 } from '../../../utils/user';
+import {
+  AddAdditionalSamlAttribute,
+  ADDITIONAL_ATTRIBUTES_WARNING,
+} from './AddAdditionalSamlAttribute';
 
 const mapUserValidationError = (message: string): UserErrors | null => {
   const normalizedMessage = message.toLowerCase();
@@ -143,11 +139,6 @@ export const AddOrUpdateUser = () => {
   const [formData, setFormData] = useState<Partial<IdpUser>>({});
   const [errorUi, setErrorUi] = useState<UserErrors | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isAdditionalDialogOpen, setIsAdditionalDialogOpen] = useState(false);
-  const [hasConfirmedAdditional, setHasConfirmedAdditional] = useState(false);
-  const [selectedAttribute, setSelectedAttribute] = useState<
-    SamlAttribute | ''
-  >('');
   const { showNotification } = useNotification();
   const {
     clientQuery: {
@@ -190,8 +181,6 @@ export const AddOrUpdateUser = () => {
     : formData.age;
   const ageExplanation =
     'Test parameter used by the internal IdP to simulate the birth-date data stored by real IdPs. Calculated automatically from dateOfBirth when present; otherwise, enter it manually.';
-  const additionalWarning =
-    'These attributes will only be added to this test user. OneIdentity will not propagate them to the client unless they are also added to the requested SAML attributes in the Register tab. This action does not change the client configuration.';
 
   const {
     createClientUsersMutation: {
@@ -330,12 +319,6 @@ export const AddOrUpdateUser = () => {
     );
   };
 
-  const closeAdditionalDialog = () => {
-    setIsAdditionalDialogOpen(false);
-    setHasConfirmedAdditional(false);
-    setSelectedAttribute('');
-  };
-
   return (
     <PageContainer>
       <Box component="form" onSubmit={handleSubmit} noValidate>
@@ -457,8 +440,7 @@ export const AddOrUpdateUser = () => {
                 Required SAML attributes
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                These attributes are requested by the client. All values are
-                required.
+                These attributes are requested by the client.
               </Typography>
               <SamlAttributeValueFields
                 attributes={requiredAttributes.map((attribute) => [
@@ -484,7 +466,7 @@ export const AddOrUpdateUser = () => {
               <Typography variant="h6" gutterBottom>
                 Additional SAML attributes
               </Typography>
-              <Alert severity="warning">{additionalWarning}</Alert>
+              <Alert severity="warning">{ADDITIONAL_ATTRIBUTES_WARNING}</Alert>
               <SamlAttributeValueFields
                 attributes={additionalAttributes.map((attribute) => [
                   attribute,
@@ -526,92 +508,14 @@ export const AddOrUpdateUser = () => {
           >
             {isEditMode ? 'Update User' : 'Add User'}
           </Button>
-          <Button
-            type="button"
-            variant="outlined"
-            startIcon={<AddIcon />}
-            disabled={
-              !isClientReady ||
-              isCreatingUser ||
-              isUpdatingUser ||
-              availableAttributes.length === 0
-            }
-            onClick={() => setIsAdditionalDialogOpen(true)}
-          >
-            Add additional SAML attributes
-          </Button>
+          <AddAdditionalSamlAttribute
+            availableAttributes={availableAttributes}
+            isClientReady={isClientReady}
+            isSubmitting={isCreatingUser || isUpdatingUser}
+            onAdd={(attribute) => handleAttributeChange(attribute, '')}
+          />
         </Box>
       </Box>
-
-      <Dialog
-        open={isAdditionalDialogOpen}
-        onClose={closeAdditionalDialog}
-        aria-labelledby="additional-attributes-title"
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle id="additional-attributes-title">
-          Add additional SAML attributes
-        </DialogTitle>
-        <DialogContent>
-          <Alert severity="warning">{additionalWarning}</Alert>
-          {hasConfirmedAdditional && (
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="additional-attribute-label">
-                Additional SAML attribute
-              </InputLabel>
-              <Select
-                labelId="additional-attribute-label"
-                label="Additional SAML attribute"
-                value={selectedAttribute}
-                onChange={(event) => {
-                  const attribute = availableAttributes.find(
-                    (value) => value === event.target.value
-                  );
-                  setSelectedAttribute(attribute ?? '');
-                }}
-              >
-                {availableAttributes.map((attribute) => (
-                  <MenuItem key={attribute} value={attribute}>
-                    {attribute}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeAdditionalDialog}>Cancel</Button>
-          {hasConfirmedAdditional ? (
-            <Button
-              variant="contained"
-              disabled={
-                !isClientReady ||
-                !selectedAttribute ||
-                !availableAttributes.includes(selectedAttribute)
-              }
-              onClick={() => {
-                if (
-                  selectedAttribute &&
-                  availableAttributes.includes(selectedAttribute)
-                ) {
-                  handleAttributeChange(selectedAttribute, '');
-                  closeAdditionalDialog();
-                }
-              }}
-            >
-              Add attribute
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              onClick={() => setHasConfirmedAdditional(true)}
-            >
-              Continue
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
 
       <Backdrop open={isCreatingUser || isUpdatingUser}>
         <CircularProgress color="secondary" />
