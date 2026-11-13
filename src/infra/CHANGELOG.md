@@ -1,5 +1,11 @@
 # infra
 
+## 3.22.3
+
+### Patch Changes
+
+- 0430ab0: enable registry enabled var prod
+
 ## 3.22.2
 
 ### Patch Changes
