@@ -283,7 +283,7 @@ export const idpUserSchema = z.object({
     .min(1, 'Password is required')
     .regex(nameRegex, 'Password cannot start with _ or # and cannot contain @'),
   samlAttributes: z.record(SamlAttributeSchema, z.string().trim().min(1)),
-  age: z.number().int().min(1).max(999).optional(),
+  age: z.number().int().min(0).max(999).optional(),
 });
 export const idpUserListSchema = z.object({
   users: z.array(idpUserSchema),
