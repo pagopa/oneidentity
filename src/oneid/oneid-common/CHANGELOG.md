@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.15.0
+
+### Minor Changes
+
+- 664475e: feat: update pairwise handling
+
 ## 1.14.0
 
 ### Minor Changes

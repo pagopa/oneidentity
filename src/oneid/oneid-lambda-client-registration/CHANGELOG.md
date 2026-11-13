@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.13.0
+
+### Minor Changes
+
+- 664475e: feat: update pairwise handling
+
 ## 2.12.0
 
 ### Minor Changes

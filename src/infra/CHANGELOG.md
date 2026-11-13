@@ -1,5 +1,11 @@
 # infra
 
+## 3.24.0
+
+### Minor Changes
+
+- 664475e: feat: update pairwise handling
+
 ## 3.23.0
 
 ### Minor Changes
