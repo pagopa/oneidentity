@@ -69,7 +69,7 @@ class DynamoStreamServiceImplTest {
   @ValueSource(strings = {
       "{\"BOOL\":true}", "{\"BOOL\":false}", "{\"N\":\"0\"}", "{\"N\":\"1\"}",
       "{\"SS\":[\"TOKEN\"]}", "{\"L\":[]}", "{\"M\":{}}", "{}",
-      "true", "false", "0", "1", "\"TOKEN\"", "[]",
+      "true", "false", "0", "1", "\"TOKEN\"", "\" \"", "[]",
       "{\"S\":true}", "{\"S\":1}", "{\"S\":null}", "{\"NULL\":false}",
       "{\"S\":\"TOKEN\",\"BOOL\":true}", "{\"S\":\"TOKEN\",\"NULL\":true}",
       "{\"S\":\"TOKEN\",\"NULL\":false}", "{\"NULL\":true,\"BOOL\":false}",
@@ -90,9 +90,9 @@ class DynamoStreamServiceImplTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"null", "{\"NULL\":true}"})
-  @DisplayName("given null pairwise attribute when extracting client then keep pairwise disabled")
-  void given_null_pairwise_attribute_when_extracting_client_then_keep_pairwise_disabled(
+  @ValueSource(strings = {"null", "{\"NULL\":true}", "\"\""})
+  @DisplayName("given null or projected empty pairwise when extracting client then keep pairwise disabled")
+  void given_null_or_projected_empty_pairwise_when_extracting_client_then_keep_pairwise_disabled(
       String attribute) throws Exception {
     ObjectNode image = baseImage();
     image.set("pairwise", objectMapper.readTree(attribute));

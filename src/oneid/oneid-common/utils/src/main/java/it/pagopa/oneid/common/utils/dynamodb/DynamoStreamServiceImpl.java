@@ -197,6 +197,11 @@ public class DynamoStreamServiceImpl implements DynamoStreamService {
       return null;
     }
 
+    // The EventBridge Pipes template renders an absent projected attribute as "".
+    if (attributeNode.isTextual() && attributeNode.textValue().isEmpty()) {
+      return null;
+    }
+
     if (!attributeNode.isObject() || attributeNode.size() != 1) {
       throw new IllegalArgumentException("Unsupported pairwise DynamoDB attribute");
     }
