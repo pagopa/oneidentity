@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.3.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.3.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # oneid-lambda-update-idp-metadata
 
+## 1.9.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.9.0
 
 ### Minor Changes

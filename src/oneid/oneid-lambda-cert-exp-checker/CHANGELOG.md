@@ -1,5 +1,11 @@
 # oneid-lambda-cert-exp-checker
 
+## 1.2.2
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.2.1
 
 ### Patch Changes

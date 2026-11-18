@@ -1,5 +1,11 @@
 # oneid-lambda-retrieve-status
 
+## 1.1.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.1.0
 
 ### Minor Changes

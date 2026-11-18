@@ -1,5 +1,11 @@
 # infra
 
+## 3.24.2
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 3.24.1
 
 ### Patch Changes
