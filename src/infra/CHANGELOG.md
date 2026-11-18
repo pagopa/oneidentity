@@ -1,5 +1,11 @@
 # infra
 
+## 3.24.1
+
+### Patch Changes
+
+- ea0d987: fix: add mitigation for Java vulnerability
+
 ## 3.24.0
 
 ### Minor Changes
