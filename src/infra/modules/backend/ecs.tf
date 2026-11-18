@@ -42,6 +42,14 @@ locals {
   core_desired_count = var.event_mode && var.service_core.event_autoscaling != null ? var.service_core.event_autoscaling.desired_count : var.service_core.autoscaling.desired_count
 }
 
+locals {
+  # Remove this workaround after deploying the patched OpenJDK runtime for both services.
+  java4shell_mitigation = {
+    name  = "JAVA_TOOL_OPTIONS"
+    value = "-XX:-UseBASE64Intrinsics"
+  }
+}
+
 # SSM parameters
 
 data "aws_ssm_parameter" "certificate" {
@@ -417,6 +425,7 @@ module "ecs_core_service" {
       }
 
       environment = setunion(var.service_core.environment_variables, [
+        local.java4shell_mitigation,
         {
           name  = "SIGN_JWT_KEY_ALIAS"
           value = module.jwt_sign.aliases.sign-jwt.name
@@ -652,7 +661,7 @@ module "ecs_internal_idp_service" {
         }
       }
 
-      environment = var.service_internal_idp.environment_variables
+      environment = setunion(var.service_internal_idp.environment_variables, [local.java4shell_mitigation])
 
       readonly_root_filesystem = false
     }
