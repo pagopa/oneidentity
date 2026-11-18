@@ -1,5 +1,11 @@
 # oneid-common
 
+## 1.15.1
+
+### Patch Changes
+
+- f7fd068: add empty string pairwise
+
 ## 1.15.0
 
 ### Minor Changes
