@@ -1,5 +1,11 @@
 # oneid-lambda-is-gh-integration
 
+## 1.7.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.7.0
 
 ### Minor Changes

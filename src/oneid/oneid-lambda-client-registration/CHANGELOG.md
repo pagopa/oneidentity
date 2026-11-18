@@ -1,5 +1,11 @@
 # oneid-lambda-client-registration
 
+## 2.13.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 2.13.0
 
 ### Minor Changes

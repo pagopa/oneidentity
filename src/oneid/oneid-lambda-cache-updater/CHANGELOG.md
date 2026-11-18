@@ -1,5 +1,11 @@
 # oneid-lambda-cache-updater
 
+## 0.7.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 0.7.0
 
 ### Minor Changes

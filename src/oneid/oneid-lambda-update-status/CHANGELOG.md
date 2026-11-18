@@ -1,5 +1,11 @@
 # oneid-lambda-update-status
 
+## 1.5.1
+
+### Patch Changes
+
+- accb463: chore: update doc
+
 ## 1.5.0
 
 ### Minor Changes
