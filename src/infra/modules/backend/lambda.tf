@@ -1,3 +1,9 @@
+locals {
+  lambda_environment = {
+    JAVA_TOOL_OPTIONS = "-XX:-UseBASE64Intrinsics"
+  }
+}
+
 ## Github 
 
 resource "aws_iam_role_policy_attachment" "deploy_lambda" {
@@ -320,7 +326,7 @@ module "metadata_lambda" {
     }
   }
 
-  environment_variables  = var.metadata_lambda.environment_variables
+  environment_variables  = merge(var.metadata_lambda.environment_variables, local.lambda_environment)
   vpc_subnet_ids         = var.metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_metadata.security_group_id]
 
@@ -466,7 +472,7 @@ module "idp_metadata_lambda" {
   policy_json           = data.aws_iam_policy_document.idp_metadata_lambda.json
   attach_network_policy = true
 
-  environment_variables  = var.idp_metadata_lambda.environment_variables
+  environment_variables  = merge(var.idp_metadata_lambda.environment_variables, local.lambda_environment)
   vpc_subnet_ids         = var.idp_metadata_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_idp_metadata.security_group_id]
 
@@ -564,7 +570,7 @@ module "is_gh_integration_lambda" {
 
   cloudwatch_logs_retention_in_days = var.is_gh_integration_lambda.cloudwatch_logs_retention_in_days
 
-  environment_variables = var.is_gh_integration_lambda.environment_variables
+  environment_variables = merge(var.is_gh_integration_lambda.environment_variables, local.lambda_environment)
 
   allowed_triggers = [
     {
@@ -1528,7 +1534,7 @@ module "client_publisher_lambda" {
   policy_json           = data.aws_iam_policy_document.client_publisher_lambda[0].json
   attach_network_policy = true
 
-  environment_variables = var.client_publisher_lambda.environment_variables
+  environment_variables = merge(var.client_publisher_lambda.environment_variables, local.lambda_environment)
 
   vpc_subnet_ids         = var.client_publisher_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_client_publisher[0].security_group_id]
@@ -1590,7 +1596,7 @@ module "cache_updater_lambda" {
   policy_json           = data.aws_iam_policy_document.cache_updater_lambda[0].json
   attach_network_policy = true
 
-  environment_variables = var.cache_updater_lambda.environment_variables
+  environment_variables = merge(var.cache_updater_lambda.environment_variables, local.lambda_environment)
 
   vpc_subnet_ids         = var.cache_updater_lambda.vpc_subnet_ids
   vpc_security_group_ids = [module.security_group_lambda_cache_updater[0].security_group_id]
