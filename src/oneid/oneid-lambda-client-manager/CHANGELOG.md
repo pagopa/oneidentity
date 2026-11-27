@@ -1,5 +1,11 @@
 # oneid-lambda-client-manager
 
+## 1.3.2
+
+### Patch Changes
+
+- 8ceee55: update dependencies
+
 ## 1.3.1
 
 ### Patch Changes
