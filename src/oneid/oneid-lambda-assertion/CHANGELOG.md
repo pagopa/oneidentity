@@ -1,5 +1,11 @@
 # oneid-lambda-assertion
 
+## 1.2.2
+
+### Patch Changes
+
+- 8ceee55: update dependencies
+
 ## 1.2.1
 
 ### Patch Changes
